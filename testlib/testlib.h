@@ -3,8 +3,6 @@
 
 #include <sstream>
 #include <logging/logger.h>
-#include <logging/core.h>
-#include <logging/dbgstream.h>
 
 
 using namespace std;
@@ -133,77 +131,20 @@ namespace testing {
 
   std::string string_from_file (const char* filename);
 
+  typedef void (test_function)();
+
 } // namespace testing
 
+/**
+ * @brief test_main
+ *
+ * Has to be defined by user.
+ */
+void test_main ();
 
-#ifdef X11
+void run_test_ (const std::string& name, testing::test_function& fn);
 
-#define TEST_MAIN(a)\
-namespace {\
-  int guipp_failed_test_count = 0;\
-  int guipp_test_count = 0;\
-}\
-\
-int gui_main(const std::vector<std::string>& /*args*/) {\
-  logging::odebugstream dbgStrm; \
-  logging::core::instance().add_sink(&dbgStrm, logging::level::info, logging::core::get_console_formatter()); \
-  clog::warn() << "Running " #a " tests";
-
-#define TEST_MAIN_END(a)\
-  if (guipp_failed_test_count) {\
-    clog::error() << #a << ": " << guipp_failed_test_count << " of " << guipp_test_count << " tests failed";\
-  } else {\
-    clog::error() << #a << ": all " << guipp_test_count << " tests passed";\
-  }\
-  logging::core::instance().remove_sink(&dbgStrm);\
-  return guipp_failed_test_count;\
-}
-
-#endif // X11
-
-#ifdef WIN32
-
-#define TEST_MAIN(a)\
-namespace {\
-  int guipp_failed_test_count = 0;\
-  int guipp_test_count = 0;\
-}\
-\
-int gui_main(const std::vector<std::string>& /*args*/) {\
-  clog::warn() << "Running " #a " tests";
-
-#define TEST_MAIN_END(a)\
-  if (guipp_failed_test_count) {\
-    clog::error() << #a << ": " << guipp_failed_test_count << " of " << guipp_test_count << " tests failed";\
-  } else {\
-    clog::error() << #a << ": all " << guipp_test_count << " tests passed";\
-  }\
-  return guipp_failed_test_count;\
-}
-
-#endif // WIN32
-
-
-#define DECLARE_TEST(a)\
-  void a ()
-
-#define RUN_TEST(a)\
-  ++guipp_test_count;\
-  try {\
-    a();\
-  } catch (std::exception& ex) {\
-    ++guipp_failed_test_count;\
-    clog::fatal().raw() << #a << " failed with " << ex.what();\
-  }
-
-#define DEFINE_TEST(a)\
-void a () {\
-  const std::string __test_name = #a;\
-  clog::warn() << #a << " started";
-
-#define END_TEST(...)\
-  clog::warn() << __test_name << " passed";\
-}
+#define run_test(a) run_test_(#a, a)
 
 #define EXPECT_EQUAL(test, expect, ...)\
   if (!(testing::equal_test(test, expect))) testing::throw_error(test, expect, #test, #expect, "equal", __FILE__, __LINE__, ##__VA_ARGS__);

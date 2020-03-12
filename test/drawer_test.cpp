@@ -8,10 +8,6 @@
 #include <testlib/image_test_lib.h>
 #include <testlib/testlib.h>
 
-#define NOTHING
-
-DEFINE_LOGGING_CORE(NOTHING)
-
 #define TEST_RAWx
 #define TEST_RECT
 #define TEST_LINE
@@ -24,375 +20,9 @@ using namespace gui;
 using namespace gui::draw;
 using namespace testing;
 
-// --------------------------------------------------------------------------
-DECLARE_TEST(test_data2colormap);
-DECLARE_TEST(test_raw_rect);
-
-DECLARE_TEST(test_draw_line_4x4);
-DECLARE_TEST(test_draw_line_3x3);
-DECLARE_TEST(test_draw_line_2x2);
-DECLARE_TEST(test_draw_line_1x1);
-DECLARE_TEST(test_draw_line_0x0);
-
-DECLARE_TEST(test_draw_line_4x4_x2);
-DECLARE_TEST(test_draw_line_3x3_x2);
-DECLARE_TEST(test_draw_line_2x2_x2);
-DECLARE_TEST(test_draw_line_1x1_x2);
-DECLARE_TEST(test_draw_line_0x0_x2);
-
-DECLARE_TEST(test_draw_line_4x4_x3);
-DECLARE_TEST(test_draw_line_3x3_x3);
-DECLARE_TEST(test_draw_line_2x2_x3);
-DECLARE_TEST(test_draw_line_1x1_x3);
-DECLARE_TEST(test_draw_line_0x0_x3);
-
-DECLARE_TEST(test_draw_line_top_left);
-DECLARE_TEST(test_draw_line_top_left_2);
-DECLARE_TEST(test_draw_line_top_right);
-DECLARE_TEST(test_draw_line_top_right_2);
-
-DECLARE_TEST(test_draw_line_bottom_left);
-DECLARE_TEST(test_draw_line_bottom_left_2);
-DECLARE_TEST(test_draw_line_bottom_right);
-DECLARE_TEST(test_draw_line_bottom_right_2);
-
-DECLARE_TEST(test_frame_rect_4x4);
-DECLARE_TEST(test_frame_rect_3x3);
-DECLARE_TEST(test_frame_rect_2x2);
-DECLARE_TEST(test_frame_rect_1x1);
-DECLARE_TEST(test_frame_rect_0x0);
-
-DECLARE_TEST(test_frame_rect_4x4_x2);
-DECLARE_TEST(test_frame_rect_3x3_x2);
-DECLARE_TEST(test_frame_rect_2x2_x2);
-DECLARE_TEST(test_frame_rect_1x1_x2);
-DECLARE_TEST(test_frame_rect_0x0_x2);
-
-DECLARE_TEST(test_frame_rect_4x4_x3);
-DECLARE_TEST(test_frame_rect_3x3_x3);
-DECLARE_TEST(test_frame_rect_2x2_x3);
-DECLARE_TEST(test_frame_rect_1x1_x3);
-DECLARE_TEST(test_frame_rect_0x0_x3);
-
-DECLARE_TEST(test_frame_rect_4x4_x4);
-DECLARE_TEST(test_frame_rect_3x3_x4);
-DECLARE_TEST(test_frame_rect_2x2_x4);
-DECLARE_TEST(test_frame_rect_1x1_x4);
-DECLARE_TEST(test_frame_rect_0x0_x4);
-
-DECLARE_TEST(test_fill_rect_4x4);
-DECLARE_TEST(test_fill_rect_3x3);
-DECLARE_TEST(test_fill_rect_2x2);
-DECLARE_TEST(test_fill_rect_1x1);
-DECLARE_TEST(test_fill_rect_0x0);
-
-DECLARE_TEST(test_fill_rect_4x4_x2);
-DECLARE_TEST(test_fill_rect_3x3_x2);
-DECLARE_TEST(test_fill_rect_2x2_x2);
-DECLARE_TEST(test_fill_rect_1x1_x2);
-DECLARE_TEST(test_fill_rect_0x0_x2);
-
-DECLARE_TEST(test_fill_rect_4x4_x3);
-DECLARE_TEST(test_fill_rect_3x3_x3);
-DECLARE_TEST(test_fill_rect_2x2_x3);
-DECLARE_TEST(test_fill_rect_1x1_x3);
-DECLARE_TEST(test_fill_rect_0x0_x3);
-
-DECLARE_TEST(test_draw_rect_4x4);
-DECLARE_TEST(test_draw_rect_3x3);
-DECLARE_TEST(test_draw_rect_2x2);
-DECLARE_TEST(test_draw_rect_1x1);
-DECLARE_TEST(test_draw_rect_0x0);
-
-DECLARE_TEST(test_draw_rect_4x4_x2);
-DECLARE_TEST(test_draw_rect_3x3_x2);
-DECLARE_TEST(test_draw_rect_2x2_x2);
-DECLARE_TEST(test_draw_rect_1x1_x2);
-DECLARE_TEST(test_draw_rect_0x0_x2);
-
-DECLARE_TEST(test_draw_rect_4x4_x3);
-DECLARE_TEST(test_draw_rect_3x3_x3);
-DECLARE_TEST(test_draw_rect_2x2_x3);
-DECLARE_TEST(test_draw_rect_1x1_x3);
-DECLARE_TEST(test_draw_rect_0x0_x3);
-
-DECLARE_TEST(test_raw_ellipse);
-
-DECLARE_TEST(test_frame_ellipse_4x4);
-DECLARE_TEST(test_frame_ellipse_3x3);
-DECLARE_TEST(test_frame_ellipse_2x2);
-DECLARE_TEST(test_frame_ellipse_1x1);
-DECLARE_TEST(test_frame_ellipse_0x0);
-
-DECLARE_TEST(test_frame_ellipse_4x4_x2);
-DECLARE_TEST(test_frame_ellipse_3x3_x2);
-DECLARE_TEST(test_frame_ellipse_2x2_x2);
-DECLARE_TEST(test_frame_ellipse_1x1_x2);
-DECLARE_TEST(test_frame_ellipse_0x0_x2);
-
-DECLARE_TEST(test_frame_ellipse_4x4_x3);
-DECLARE_TEST(test_frame_ellipse_3x3_x3);
-DECLARE_TEST(test_frame_ellipse_2x2_x3);
-DECLARE_TEST(test_frame_ellipse_1x1_x3);
-DECLARE_TEST(test_frame_ellipse_0x0_x3);
-
-DECLARE_TEST(test_fill_ellipse);
-
-DECLARE_TEST(test_draw_ellipse_4x4);
-DECLARE_TEST(test_draw_ellipse_3x3);
-DECLARE_TEST(test_draw_ellipse_2x2);
-DECLARE_TEST(test_draw_ellipse_1x1);
-DECLARE_TEST(test_draw_ellipse_0x0);
-
-DECLARE_TEST(test_draw_ellipse_4x4_2);
-DECLARE_TEST(test_draw_ellipse_3x3_2);
-DECLARE_TEST(test_draw_ellipse_2x2_2);
-DECLARE_TEST(test_draw_ellipse_1x1_2);
-DECLARE_TEST(test_draw_ellipse_0x0_2);
-
-DECLARE_TEST(test_draw_ellipse_4x4_3);
-DECLARE_TEST(test_draw_ellipse_3x3_3);
-DECLARE_TEST(test_draw_ellipse_2x2_3);
-DECLARE_TEST(test_draw_ellipse_1x1_3);
-DECLARE_TEST(test_draw_ellipse_0x0_3);
-
-DECLARE_TEST(test_frame_round_rectangle);
-DECLARE_TEST(test_fill_round_rectangle);
-DECLARE_TEST(test_draw_round_rectangle);
-DECLARE_TEST(test_frame_round_rectangle_2);
-DECLARE_TEST(test_fill_round_rectangle_2);
-DECLARE_TEST(test_draw_round_rectangle_2);
-
-DECLARE_TEST(test_frame_arc_4x4);
-DECLARE_TEST(test_frame_arc_3x3);
-DECLARE_TEST(test_frame_arc_2x2);
-DECLARE_TEST(test_frame_arc_1x1);
-DECLARE_TEST(test_frame_arc_0x0);
-
-DECLARE_TEST(test_fill_arc_4x4);
-DECLARE_TEST(test_fill_arc_3x3);
-DECLARE_TEST(test_fill_arc_2x2);
-DECLARE_TEST(test_fill_arc_1x1);
-DECLARE_TEST(test_fill_arc_0x0);
-
-DECLARE_TEST(test_draw_arc_4x4);
-DECLARE_TEST(test_draw_arc_3x3);
-DECLARE_TEST(test_draw_arc_2x2);
-DECLARE_TEST(test_draw_arc_1x1);
-DECLARE_TEST(test_draw_arc_0x0);
-
-DECLARE_TEST(test_frame_arc_45_135);
-DECLARE_TEST(test_frame_arc_135_225);
-DECLARE_TEST(test_frame_arc_225_315);
-DECLARE_TEST(test_frame_arc_315_405);
-
-DECLARE_TEST(test_draw_arc_45_135);
-DECLARE_TEST(test_draw_arc_135_225);
-DECLARE_TEST(test_draw_arc_225_315);
-DECLARE_TEST(test_draw_arc_315_405);
-
-DECLARE_TEST(test_frame_arc_45_135_2);
-DECLARE_TEST(test_frame_arc_135_225_2);
-DECLARE_TEST(test_frame_arc_225_315_2);
-DECLARE_TEST(test_frame_arc_315_405_2);
-
-DECLARE_TEST(test_frame_polygon);
-DECLARE_TEST(test_fill_polygon);
-DECLARE_TEST(test_draw_polygon);
 
 // --------------------------------------------------------------------------
-TEST_MAIN(drawer_test) {
-#ifdef TEST_RAW
-  RUN_TEST(test_data2colormap);
-  RUN_TEST(test_raw_rect);
-  RUN_TEST(test_raw_ellipse);
-#endif // TEST_RAW
-
-#ifdef TEST_RECT
-  RUN_TEST(test_frame_rect_4x4);
-  RUN_TEST(test_frame_rect_3x3);
-  RUN_TEST(test_frame_rect_2x2);
-  RUN_TEST(test_frame_rect_1x1);
-  RUN_TEST(test_frame_rect_0x0);
-
-  RUN_TEST(test_frame_rect_4x4_x2);
-  RUN_TEST(test_frame_rect_3x3_x2);
-  RUN_TEST(test_frame_rect_2x2_x2);
-  RUN_TEST(test_frame_rect_1x1_x2);
-  RUN_TEST(test_frame_rect_0x0_x2);
-
-  RUN_TEST(test_frame_rect_4x4_x3);
-  RUN_TEST(test_frame_rect_3x3_x3);
-  RUN_TEST(test_frame_rect_2x2_x3);
-  RUN_TEST(test_frame_rect_1x1_x3);
-  RUN_TEST(test_frame_rect_0x0_x3);
-
-  RUN_TEST(test_frame_rect_4x4_x4);
-  RUN_TEST(test_frame_rect_3x3_x4);
-  RUN_TEST(test_frame_rect_2x2_x4);
-  RUN_TEST(test_frame_rect_1x1_x4);
-  RUN_TEST(test_frame_rect_0x0_x4);
-
-  RUN_TEST(test_fill_rect_4x4);
-  RUN_TEST(test_fill_rect_3x3);
-  RUN_TEST(test_fill_rect_2x2);
-  RUN_TEST(test_fill_rect_1x1);
-  RUN_TEST(test_fill_rect_0x0);
-
-  RUN_TEST(test_fill_rect_4x4_x2);
-  RUN_TEST(test_fill_rect_3x3_x2);
-  RUN_TEST(test_fill_rect_2x2_x2);
-  RUN_TEST(test_fill_rect_1x1_x2);
-  RUN_TEST(test_fill_rect_0x0_x2);
-
-  RUN_TEST(test_fill_rect_4x4_x3);
-  RUN_TEST(test_fill_rect_3x3_x3);
-  RUN_TEST(test_fill_rect_2x2_x3);
-  RUN_TEST(test_fill_rect_1x1_x3);
-  RUN_TEST(test_fill_rect_0x0_x3);
-
-  RUN_TEST(test_draw_rect_4x4);
-  RUN_TEST(test_draw_rect_3x3);
-  RUN_TEST(test_draw_rect_2x2);
-  RUN_TEST(test_draw_rect_1x1);
-  RUN_TEST(test_draw_rect_0x0);
-
-  RUN_TEST(test_draw_rect_4x4_x2);
-  RUN_TEST(test_draw_rect_3x3_x2);
-  RUN_TEST(test_draw_rect_2x2_x2);
-  RUN_TEST(test_draw_rect_1x1_x2);
-  RUN_TEST(test_draw_rect_0x0_x2);
-
-  RUN_TEST(test_draw_rect_4x4_x3);
-  RUN_TEST(test_draw_rect_3x3_x3);
-  RUN_TEST(test_draw_rect_2x2_x3);
-  RUN_TEST(test_draw_rect_1x1_x3);
-  RUN_TEST(test_draw_rect_0x0_x3);
-#endif //TEST_RECT
-
-#ifdef TEST_LINE
-  RUN_TEST(test_draw_line_4x4);
-  RUN_TEST(test_draw_line_3x3);
-  RUN_TEST(test_draw_line_2x2);
-  RUN_TEST(test_draw_line_1x1);
-  RUN_TEST(test_draw_line_0x0);
-
-  RUN_TEST(test_draw_line_4x4_x2);
-  RUN_TEST(test_draw_line_3x3_x2);
-  RUN_TEST(test_draw_line_2x2_x2);
-  RUN_TEST(test_draw_line_1x1_x2);
-  RUN_TEST(test_draw_line_0x0_x2);
-
-  RUN_TEST(test_draw_line_4x4_x3);
-  RUN_TEST(test_draw_line_3x3_x3);
-  RUN_TEST(test_draw_line_2x2_x3);
-  RUN_TEST(test_draw_line_1x1_x3);
-  RUN_TEST(test_draw_line_0x0_x3);
-
-  RUN_TEST(test_draw_line_top_left);
-  RUN_TEST(test_draw_line_top_left_2);
-  RUN_TEST(test_draw_line_top_right);
-  RUN_TEST(test_draw_line_top_right_2);
-
-  RUN_TEST(test_draw_line_bottom_left);
-  RUN_TEST(test_draw_line_bottom_left_2);
-  RUN_TEST(test_draw_line_bottom_right);
-  RUN_TEST(test_draw_line_bottom_right_2);
-#endif //TEST_LINE
-
-#ifdef TEST_ELLIPSE
-  RUN_TEST(test_frame_ellipse_4x4);
-  RUN_TEST(test_frame_ellipse_3x3);
-  RUN_TEST(test_frame_ellipse_2x2);
-  RUN_TEST(test_frame_ellipse_1x1);
-  RUN_TEST(test_frame_ellipse_0x0);
-
-  RUN_TEST(test_frame_ellipse_4x4_x2);
-  RUN_TEST(test_frame_ellipse_3x3_x2);
-  RUN_TEST(test_frame_ellipse_2x2_x2);
-  RUN_TEST(test_frame_ellipse_1x1_x2);
-  RUN_TEST(test_frame_ellipse_0x0_x2);
-
-  RUN_TEST(test_frame_ellipse_4x4_x3);
-  RUN_TEST(test_frame_ellipse_3x3_x3);
-  RUN_TEST(test_frame_ellipse_2x2_x3);
-  RUN_TEST(test_frame_ellipse_1x1_x3);
-  RUN_TEST(test_frame_ellipse_0x0_x3);
-
-  RUN_TEST(test_fill_ellipse);
-
-  RUN_TEST(test_draw_ellipse_4x4);
-  RUN_TEST(test_draw_ellipse_3x3);
-  RUN_TEST(test_draw_ellipse_2x2);
-  RUN_TEST(test_draw_ellipse_1x1);
-  RUN_TEST(test_draw_ellipse_0x0);
-
-  RUN_TEST(test_draw_ellipse_4x4_2);
-  RUN_TEST(test_draw_ellipse_3x3_2);
-  RUN_TEST(test_draw_ellipse_2x2_2);
-  RUN_TEST(test_draw_ellipse_1x1_2);
-  RUN_TEST(test_draw_ellipse_0x0_2);
-
-  RUN_TEST(test_draw_ellipse_4x4_3);
-  RUN_TEST(test_draw_ellipse_3x3_3);
-  RUN_TEST(test_draw_ellipse_2x2_3);
-  RUN_TEST(test_draw_ellipse_1x1_3);
-  RUN_TEST(test_draw_ellipse_0x0_3);
-#endif // TEST_ELLIPSE
-
-#ifdef TEST_ROUND_RECT
-  RUN_TEST(test_frame_round_rectangle);
-  RUN_TEST(test_fill_round_rectangle);
-  RUN_TEST(test_draw_round_rectangle);
-  RUN_TEST(test_frame_round_rectangle_2);
-  RUN_TEST(test_fill_round_rectangle_2);
-  RUN_TEST(test_draw_round_rectangle_2);
-#endif //TEST_ROUND_RECT
-
-#ifdef TEST_ARC
-  RUN_TEST(test_frame_arc_4x4);
-  RUN_TEST(test_frame_arc_3x3);
-  RUN_TEST(test_frame_arc_2x2);
-  RUN_TEST(test_frame_arc_1x1);
-  RUN_TEST(test_frame_arc_0x0);
-  RUN_TEST(test_fill_arc_4x4);
-  RUN_TEST(test_fill_arc_3x3);
-  RUN_TEST(test_fill_arc_2x2);
-  RUN_TEST(test_fill_arc_1x1);
-  RUN_TEST(test_fill_arc_0x0);
-  RUN_TEST(test_draw_arc_4x4);
-  RUN_TEST(test_draw_arc_3x3);
-  RUN_TEST(test_draw_arc_2x2);
-  RUN_TEST(test_draw_arc_1x1);
-  RUN_TEST(test_draw_arc_0x0);
-
-  RUN_TEST(test_frame_arc_45_135);
-  RUN_TEST(test_frame_arc_135_225);
-  RUN_TEST(test_frame_arc_225_315);
-  RUN_TEST(test_frame_arc_315_405);
-
-  RUN_TEST(test_draw_arc_45_135);
-  RUN_TEST(test_draw_arc_135_225);
-  RUN_TEST(test_draw_arc_225_315);
-  RUN_TEST(test_draw_arc_315_405);
-
-  RUN_TEST(test_frame_arc_45_135_2);
-  RUN_TEST(test_frame_arc_135_225_2);
-  RUN_TEST(test_frame_arc_225_315_2);
-  RUN_TEST(test_frame_arc_315_405_2);
-#endif //TEST_ARC
-
-#ifdef TEST_POLYGON
-  RUN_TEST(test_frame_polygon);
-  RUN_TEST(test_fill_polygon);
-  RUN_TEST(test_draw_polygon);
-#endif //TEST_POLYGON
-
-} TEST_MAIN_END(drawer_test)
-
-
-// --------------------------------------------------------------------------
-DEFINE_TEST(test_data2colormap) {
+void test_data2colormap () {
 
   std::vector<uint32_t> testdata = { 0x00000000, 0x00000001, 0x00000002, 0x00000003,
                                      0x40000000, 0x30000000, 0x20000000, 0x10000000,
@@ -404,7 +34,7 @@ DEFINE_TEST(test_data2colormap) {
                             {0x01010101, 0x10101010, 0xF0F0F0F0, 0x0F0F0F0F}}));
 
 }
-END_TEST(test_data2colormap)
+
 
 // --------------------------------------------------------------------------
 template<typename T, typename D = draw::pen>
@@ -433,7 +63,7 @@ void tester2 (float scale, int sz, const core::point& p1, const core::point& p2,
 }
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_raw_rect) {
+void test_raw_rect () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
   graphics g(img);
@@ -456,12 +86,12 @@ DEFINE_TEST(test_raw_rect) {
                            {_,R,_,R,_},
                            {_,R,R,R,_},
                            {_,_,_,_,_}}));
-} END_TEST()
+}
 
 static const int degree_360 = 360 * 64;
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_raw_ellipse) {
+void test_raw_ellipse () {
   [] () {
     core::global::set_scale_factor(1.0);
     pixmap img(5, 5);
@@ -600,10 +230,10 @@ DEFINE_TEST(test_raw_ellipse) {
       {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     }));
   } ();
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_4x4) {
+void test_frame_rect_4x4 () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::red);
@@ -614,10 +244,10 @@ DEFINE_TEST(test_frame_rect_4x4) {
                            {_,R,_,_,R},
                            {_,R,R,R,R}}));
 }
-END_TEST(test_frame_rect_4x4)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_3x3) {
+void test_frame_rect_3x3 () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::red);
@@ -628,10 +258,10 @@ DEFINE_TEST(test_frame_rect_3x3) {
                            {_,R,R,R,_},
                            {_,_,_,_,_}}));
 }
-END_TEST(test_frame_rect_3x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_2x2) {
+void test_frame_rect_2x2 () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(2, 2)), color::red);
@@ -642,10 +272,10 @@ DEFINE_TEST(test_frame_rect_2x2) {
                            {_,_,_,_,_},
                            {_,_,_,_,_}}));
 }
-END_TEST(test_frame_rect_2x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_1x1) {
+void test_frame_rect_1x1 () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(1, 1)), color::red);
@@ -656,10 +286,10 @@ DEFINE_TEST(test_frame_rect_1x1) {
                            {_,_,_,_,_},
                            {_,_,_,_,_}}));
 }
-END_TEST(test_frame_rect_1x1)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_0x0) {
+void test_frame_rect_0x0 () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(0, 0)), color::red);
@@ -670,10 +300,10 @@ DEFINE_TEST(test_frame_rect_0x0) {
                            {_,_,_,_,_},
                            {_,_,_,_,_}}));
 }
-END_TEST(test_frame_rect_0x0)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_4x4_x2) {
+void test_frame_rect_4x4_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::red);
@@ -691,10 +321,10 @@ DEFINE_TEST(test_frame_rect_4x4_x2) {
                             {_,_,R,R,R,R,R,R,R,R},
                           }));
 }
-END_TEST(test_frame_rect_4x4_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_3x3_x2) {
+void test_frame_rect_3x3_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::red);
@@ -712,10 +342,10 @@ DEFINE_TEST(test_frame_rect_3x3_x2) {
                             {_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_frame_rect_3x3_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_2x2_x2) {
+void test_frame_rect_2x2_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(2, 2)), color::red);
@@ -733,10 +363,10 @@ DEFINE_TEST(test_frame_rect_2x2_x2) {
                             {_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_frame_rect_2x2_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_1x1_x2) {
+void test_frame_rect_1x1_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(1, 1)), color::red);
@@ -754,10 +384,10 @@ DEFINE_TEST(test_frame_rect_1x1_x2) {
                             {_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_frame_rect_1x1_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_0x0_x2) {
+void test_frame_rect_0x0_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(0, 0)), color::red);
@@ -775,10 +405,10 @@ DEFINE_TEST(test_frame_rect_0x0_x2) {
                             {_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_frame_rect_0x0_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_4x4_x3) {
+void test_frame_rect_4x4_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::red);
@@ -801,10 +431,10 @@ DEFINE_TEST(test_frame_rect_4x4_x3) {
                             {_,_,_,R,R,R,R,R,R,R,R,R,R,R,R},
                           }));
 }
-END_TEST(test_frame_rect_4x4_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_3x3_x3) {
+void test_frame_rect_3x3_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::red);
@@ -827,10 +457,10 @@ DEFINE_TEST(test_frame_rect_3x3_x3) {
                             {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_frame_rect_3x3_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_2x2_x3) {
+void test_frame_rect_2x2_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(2, 2)), color::red);
@@ -853,10 +483,10 @@ DEFINE_TEST(test_frame_rect_2x2_x3) {
                             {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_frame_rect_2x2_x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_1x1_x3) {
+void test_frame_rect_1x1_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(1, 1)), color::red);
@@ -879,10 +509,10 @@ DEFINE_TEST(test_frame_rect_1x1_x3) {
                             {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_frame_rect_1x1_x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_0x0_x3) {
+void test_frame_rect_0x0_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(0, 0)), color::red);
@@ -905,10 +535,10 @@ DEFINE_TEST(test_frame_rect_0x0_x3) {
                             {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_frame_rect_0x0_x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_4x4_x4) {
+void test_frame_rect_4x4_x4 () {
   core::global::set_scale_factor(4.0);
   pixmap img(20, 20);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::red);
@@ -936,10 +566,10 @@ DEFINE_TEST(test_frame_rect_4x4_x4) {
                             {_,_,_,_,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R},
                           }));
 }
-END_TEST(test_frame_rect_4x4_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_3x3_x4) {
+void test_frame_rect_3x3_x4 () {
   core::global::set_scale_factor(4.0);
   pixmap img(20, 20);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::red);
@@ -967,10 +597,10 @@ DEFINE_TEST(test_frame_rect_3x3_x4) {
                             {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_frame_rect_3x3_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_2x2_x4) {
+void test_frame_rect_2x2_x4 () {
   core::global::set_scale_factor(4.0);
   pixmap img(20, 20);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(2, 2)), color::red);
@@ -998,10 +628,10 @@ DEFINE_TEST(test_frame_rect_2x2_x4) {
                             {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_frame_rect_2x2_x4)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_1x1_x4) {
+void test_frame_rect_1x1_x4 () {
   core::global::set_scale_factor(4.0);
   pixmap img(20, 20);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(1, 1)), color::red);
@@ -1029,10 +659,10 @@ DEFINE_TEST(test_frame_rect_1x1_x4) {
                             {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_frame_rect_1x1_x4)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_rect_0x0_x4) {
+void test_frame_rect_0x0_x4 () {
   core::global::set_scale_factor(4.0);
   pixmap img(20, 20);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(0, 0)), color::red);
@@ -1060,10 +690,10 @@ DEFINE_TEST(test_frame_rect_0x0_x4) {
                             {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_frame_rect_0x0_x4)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_rect_4x4) {
+void test_fill_rect_4x4 () {
 
   core::global::set_scale_factor(1.0);
 
@@ -1080,10 +710,10 @@ DEFINE_TEST(test_fill_rect_4x4) {
                            {_,R,R,R,R}}));
 
 }
-END_TEST(test_fill_rect_4x4)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_rect_3x3) {
+void test_fill_rect_3x3 () {
 
   core::global::set_scale_factor(1.0);
 
@@ -1100,10 +730,10 @@ DEFINE_TEST(test_fill_rect_3x3) {
                            {_,_,_,_,_}}));
 
 }
-END_TEST(test_fill_rect_3x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_rect_2x2) {
+void test_fill_rect_2x2 () {
 
   core::global::set_scale_factor(1.0);
 
@@ -1120,10 +750,10 @@ DEFINE_TEST(test_fill_rect_2x2) {
                            {_,_,_,_,_}}));
 
 }
-END_TEST(test_fill_rect_2x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_rect_1x1) {
+void test_fill_rect_1x1 () {
 
   core::global::set_scale_factor(1.0);
 
@@ -1140,10 +770,10 @@ DEFINE_TEST(test_fill_rect_1x1) {
                            {_,_,_,_,_}}));
 
 }
-END_TEST(test_fill_rect_2x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_rect_0x0) {
+void test_fill_rect_0x0 () {
 
   core::global::set_scale_factor(1.0);
 
@@ -1160,10 +790,10 @@ DEFINE_TEST(test_fill_rect_0x0) {
                            {_,_,_,_,_}}));
 
 }
-END_TEST(test_fill_rect_2x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_rect_4x4_x2) {
+void test_fill_rect_4x4_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
   graphics(img).clear(color::black).fill(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::red);
@@ -1181,10 +811,10 @@ DEFINE_TEST(test_fill_rect_4x4_x2) {
                             {_,_,R,R,R,R,R,R,R,R},
                           }));
 }
-END_TEST(test_fill_rect_4x4_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_rect_3x3_x2) {
+void test_fill_rect_3x3_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
   graphics(img).clear(color::black).fill(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::red);
@@ -1202,10 +832,10 @@ DEFINE_TEST(test_fill_rect_3x3_x2) {
                             {_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_fill_rect_3x3_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_rect_2x2_x2) {
+void test_fill_rect_2x2_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
   graphics(img).clear(color::black).fill(draw::rectangle(core::point(1, 1), core::size(2, 2)), color::red);
@@ -1223,10 +853,10 @@ DEFINE_TEST(test_fill_rect_2x2_x2) {
                             {_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_fill_rect_2x2_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_rect_1x1_x2) {
+void test_fill_rect_1x1_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
   graphics(img).clear(color::black).fill(draw::rectangle(core::point(1, 1), core::size(1, 1)), color::red);
@@ -1244,10 +874,10 @@ DEFINE_TEST(test_fill_rect_1x1_x2) {
                             {_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_fill_rect_1x1_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_rect_0x0_x2) {
+void test_fill_rect_0x0_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
   graphics(img).clear(color::black).fill(draw::rectangle(core::point(1, 1), core::size(0, 0)), color::red);
@@ -1265,10 +895,10 @@ DEFINE_TEST(test_fill_rect_0x0_x2) {
                             {_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_fill_rect_0x0_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_rect_4x4_x3) {
+void test_fill_rect_4x4_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
   graphics(img).clear(color::black).fill(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::red);
@@ -1291,10 +921,10 @@ DEFINE_TEST(test_fill_rect_4x4_x3) {
                             {_,_,_,R,R,R,R,R,R,R,R,R,R,R,R},
                           }));
 }
-END_TEST(test_fill_rect_4x4_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_rect_3x3_x3) {
+void test_fill_rect_3x3_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
   graphics(img).clear(color::black).fill(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::red);
@@ -1317,10 +947,10 @@ DEFINE_TEST(test_fill_rect_3x3_x3) {
                             {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_fill_rect_3x3_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_rect_2x2_x3) {
+void test_fill_rect_2x2_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
   graphics(img).clear(color::black).fill(draw::rectangle(core::point(1, 1), core::size(2, 2)), color::red);
@@ -1343,10 +973,10 @@ DEFINE_TEST(test_fill_rect_2x2_x3) {
                             {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_fill_rect_2x2_x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_rect_1x1_x3) {
+void test_fill_rect_1x1_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
   graphics(img).clear(color::black).fill(draw::rectangle(core::point(1, 1), core::size(1, 1)), color::red);
@@ -1369,10 +999,10 @@ DEFINE_TEST(test_fill_rect_1x1_x3) {
                             {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_fill_rect_1x1_x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_rect_0x0_x3) {
+void test_fill_rect_0x0_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
   graphics(img).clear(color::black).fill(draw::rectangle(core::point(1, 1), core::size(0, 0)), color::red);
@@ -1395,10 +1025,10 @@ DEFINE_TEST(test_fill_rect_0x0_x3) {
                             {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_fill_rect_0x0_x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_rect_4x4) {
+void test_draw_rect_4x4 () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
   graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::blue, color::red);
@@ -1409,10 +1039,10 @@ DEFINE_TEST(test_draw_rect_4x4) {
                            {_,R,B,B,R},
                            {_,R,R,R,R}}));
 }
-END_TEST(test_draw_rect_4x4)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_rect_3x3) {
+void test_draw_rect_3x3 () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
   graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::blue, color::red);
@@ -1423,10 +1053,10 @@ DEFINE_TEST(test_draw_rect_3x3) {
                            {_,R,R,R,_},
                            {_,_,_,_,_}}));
 }
-END_TEST(test_draw_rect_3x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_rect_2x2) {
+void test_draw_rect_2x2 () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
   graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(2, 2)), color::blue, color::red);
@@ -1437,10 +1067,10 @@ DEFINE_TEST(test_draw_rect_2x2) {
                            {_,_,_,_,_},
                            {_,_,_,_,_}}));
 }
-END_TEST(test_draw_rect_2x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_rect_1x1) {
+void test_draw_rect_1x1 () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
   graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(1, 1)), color::blue, color::red);
@@ -1451,10 +1081,10 @@ DEFINE_TEST(test_draw_rect_1x1) {
                            {_,_,_,_,_},
                            {_,_,_,_,_}}));
 }
-END_TEST(test_draw_rect_1x1)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_rect_0x0) {
+void test_draw_rect_0x0 () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
   graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(0, 0)), color::blue, color::red);
@@ -1465,10 +1095,10 @@ DEFINE_TEST(test_draw_rect_0x0) {
                            {_,_,_,_,_},
                            {_,_,_,_,_}}));
 }
-END_TEST(test_draw_rect_0x0)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_rect_4x4_x2) {
+void test_draw_rect_4x4_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
   graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::blue, color::red);
@@ -1486,10 +1116,10 @@ DEFINE_TEST(test_draw_rect_4x4_x2) {
                             {_,_,R,R,R,R,R,R,R,R},
                           }));
 }
-END_TEST(test_draw_rect_4x4_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_rect_3x3_x2) {
+void test_draw_rect_3x3_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
   graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::blue, color::red);
@@ -1507,10 +1137,10 @@ DEFINE_TEST(test_draw_rect_3x3_x2) {
                             {_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_draw_rect_3x3_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_rect_2x2_x2) {
+void test_draw_rect_2x2_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
   graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(2, 2)), color::blue, color::red);
@@ -1528,10 +1158,10 @@ DEFINE_TEST(test_draw_rect_2x2_x2) {
                             {_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_draw_rect_2x2_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_rect_1x1_x2) {
+void test_draw_rect_1x1_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
   graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(1, 1)), color::blue, color::red);
@@ -1549,10 +1179,10 @@ DEFINE_TEST(test_draw_rect_1x1_x2) {
                             {_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_draw_rect_1x1_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_rect_0x0_x2) {
+void test_draw_rect_0x0_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
   graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(0, 0)), color::blue, color::red);
@@ -1570,10 +1200,10 @@ DEFINE_TEST(test_draw_rect_0x0_x2) {
                             {_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_draw_rect_0x0_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_rect_4x4_x3) {
+void test_draw_rect_4x4_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
   graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::blue, color::red);
@@ -1596,10 +1226,10 @@ DEFINE_TEST(test_draw_rect_4x4_x3) {
                             {_,_,_,R,R,R,R,R,R,R,R,R,R,R,R},
                           }));
 }
-END_TEST(test_draw_rect_4x4_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_rect_3x3_x3) {
+void test_draw_rect_3x3_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
   graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::blue, color::red);
@@ -1622,10 +1252,10 @@ DEFINE_TEST(test_draw_rect_3x3_x3) {
                             {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_draw_rect_3x3_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_rect_2x2_x3) {
+void test_draw_rect_2x2_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
   graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(2, 2)), color::blue, color::red);
@@ -1648,10 +1278,10 @@ DEFINE_TEST(test_draw_rect_2x2_x3) {
                             {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_draw_rect_2x2_x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_rect_1x1_x3) {
+void test_draw_rect_1x1_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
   graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(1, 1)), color::blue, color::red);
@@ -1674,10 +1304,10 @@ DEFINE_TEST(test_draw_rect_1x1_x3) {
                             {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_draw_rect_1x1_x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_rect_0x0_x3) {
+void test_draw_rect_0x0_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
   graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(0, 0)), color::blue, color::red);
@@ -1700,7 +1330,7 @@ DEFINE_TEST(test_draw_rect_0x0_x3) {
                             {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                           }));
 }
-END_TEST(test_draw_rect_0x0_x3)
+
 
 // --------------------------------------------------------------------------
 void test_line (float scale, int sz, const core::point& p1, const core::point& p2, colormap&& expected) {
@@ -1708,57 +1338,57 @@ void test_line (float scale, int sz, const core::point& p1, const core::point& p
 }
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_4x4) {
+void test_draw_line_4x4 () {
   test_line(1.0, 5, {1, 1}, {4, 4}, CM({{_,_,_,_,_},
                                         {_,R,_,_,_},
                                         {_,_,R,_,_},
                                         {_,_,_,R,_},
                                         {_,_,_,_,R}}));
 }
-END_TEST(test_draw_line_4x4)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_3x3) {
+void test_draw_line_3x3 () {
   test_line(1.0, 5, {1, 1}, {3, 3}, CM({{_,_,_,_,_},
                                         {_,R,_,_,_},
                                         {_,_,R,_,_},
                                         {_,_,_,R,_},
                                         {_,_,_,_,_}}));
 }
-END_TEST(test_draw_line_3x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_2x2) {
+void test_draw_line_2x2 () {
   test_line(1.0, 5, {1, 1}, {2, 2}, CM({{_,_,_,_,_},
                                         {_,R,_,_,_},
                                         {_,_,R,_,_},
                                         {_,_,_,_,_},
                                         {_,_,_,_,_}}));
 }
-END_TEST(test_draw_line_2x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_1x1) {
+void test_draw_line_1x1 () {
   test_line(1.0, 5, {1, 1}, {1, 1}, CM({{_,_,_,_,_},
                                         {_,R,_,_,_},
                                         {_,_,_,_,_},
                                         {_,_,_,_,_},
                                         {_,_,_,_,_}}));
 }
-END_TEST(test_draw_line_1x1)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_0x0) {
+void test_draw_line_0x0 () {
   test_line(1.0, 5, {1, 1}, {0, 0}, CM({{R,_,_,_,_},
                                         {_,R,_,_,_},
                                         {_,_,_,_,_},
                                         {_,_,_,_,_},
                                         {_,_,_,_,_}}));
 }
-END_TEST(test_draw_line_0x0)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_4x4_x2) {
+void test_draw_line_4x4_x2 () {
   test_line(2.0, 10, {1, 1}, {4, 4}, CM({{_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,R,_,_,_,_,_,_},
@@ -1771,10 +1401,10 @@ DEFINE_TEST(test_draw_line_4x4_x2) {
                                          {_,_,_,_,_,_,_,_,R,R},
                                         }));
 }
-END_TEST(test_draw_line_4x4_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_3x3_x2) {
+void test_draw_line_3x3_x2 () {
   test_line(2.0, 10, {1, 1}, {3, 3}, CM({{_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,R,_,_,_,_,_,_},
@@ -1787,10 +1417,10 @@ DEFINE_TEST(test_draw_line_3x3_x2) {
                                          {_,_,_,_,_,_,_,_,_,_},
                                         }));
 }
-END_TEST(test_draw_line_3x3_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_2x2_x2) {
+void test_draw_line_2x2_x2 () {
   test_line(2.0, 10, {1, 1}, {2, 2}, CM({{_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,R,_,_,_,_,_,_},
@@ -1803,10 +1433,10 @@ DEFINE_TEST(test_draw_line_2x2_x2) {
                                          {_,_,_,_,_,_,_,_,_,_},
                                         }));
 }
-END_TEST(test_draw_line_2x2_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_1x1_x2) {
+void test_draw_line_1x1_x2 () {
   test_line(2.0, 10, {1, 1}, {1, 1}, CM({{_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,_,_,_,_,_,_,_},
                                          {_,_,R,R,_,_,_,_,_,_},
@@ -1819,10 +1449,10 @@ DEFINE_TEST(test_draw_line_1x1_x2) {
                                          {_,_,_,_,_,_,_,_,_,_},
                                         }));
 }
-END_TEST(test_draw_line_1x1_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_0x0_x2) {
+void test_draw_line_0x0_x2 () {
   test_line(2.0, 10, {1, 1}, {0, 0}, CM({{_,R,_,_,_,_,_,_,_,_},
                                          {R,R,R,_,_,_,_,_,_,_},
                                          {_,R,R,R,_,_,_,_,_,_},
@@ -1835,10 +1465,10 @@ DEFINE_TEST(test_draw_line_0x0_x2) {
                                          {_,_,_,_,_,_,_,_,_,_},
                                         }));
 }
-END_TEST(test_draw_line_0x0_x2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_4x4_x3) {
+void test_draw_line_4x4_x3 () {
   test_line(3.0, 15, {1, 1}, {4, 4}, CM({
 #ifdef WIN32
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -1875,10 +1505,10 @@ DEFINE_TEST(test_draw_line_4x4_x3) {
 #endif // WIN32
   }));
 }
-END_TEST(test_draw_line_4x4_x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_3x3_x3) {
+void test_draw_line_3x3_x3 () {
   test_line(3.0, 15, {1, 1}, {3, 3}, CM({
 #ifdef WIN32
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -1915,10 +1545,10 @@ DEFINE_TEST(test_draw_line_3x3_x3) {
 #endif // WIN32
   }));
 }
-END_TEST(test_draw_line_3x3_x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_2x2_x3) {
+void test_draw_line_2x2_x3 () {
   test_line(3.0, 15, {1, 1}, {2, 2}, CM({
 #ifdef WIN32
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -1955,10 +1585,10 @@ DEFINE_TEST(test_draw_line_2x2_x3) {
 #endif // WIN32
                                         }));
 }
-END_TEST(test_draw_line_2x2_x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_1x1_x3) {
+void test_draw_line_1x1_x3 () {
   test_line(3.0, 15, {1, 1}, {1, 1}, CM({
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -1977,10 +1607,10 @@ DEFINE_TEST(test_draw_line_1x1_x3) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
   }));
 }
-END_TEST(test_draw_line_1x1_x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_0x0_x3) {
+void test_draw_line_0x0_x3 () {
   test_line(3.0, 15, {1, 1}, {0, 0}, CM({
 #ifdef WIN32
     {R,R,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2017,70 +1647,70 @@ DEFINE_TEST(test_draw_line_0x0_x3) {
 #endif // WIN32
   }));
 }
-END_TEST(test_draw_line_0x0_x3)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_top_left) {
+void test_draw_line_top_left () {
   test_line(1.0, 5, {2, 2}, {1, 1}, CM({{_,_,_,_,_},
                                         {_,R,_,_,_},
                                         {_,_,R,_,_},
                                         {_,_,_,_,_},
                                         {_,_,_,_,_}}));
 }
-END_TEST(test_draw_line_top_left)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_top_left_2) {
+void test_draw_line_top_left_2 () {
   test_line(1.0, 5, {2, 2}, {0, 0}, CM({{R,_,_,_,_},
                                         {_,R,_,_,_},
                                         {_,_,R,_,_},
                                         {_,_,_,_,_},
                                         {_,_,_,_,_}}));
 }
-END_TEST(test_draw_line_top_left_2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_top_right) {
+void test_draw_line_top_right () {
   test_line(1.0, 5, {2, 2}, {3, 1}, CM({{_,_,_,_,_},
                                         {_,_,_,R,_},
                                         {_,_,R,_,_},
                                         {_,_,_,_,_},
                                         {_,_,_,_,_}}));
 }
-END_TEST(test_draw_line_top_right)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_top_right_2) {
+void test_draw_line_top_right_2 () {
   test_line(1.0, 5, {2, 2}, {4, 0}, CM({{_,_,_,_,R},
                                         {_,_,_,R,_},
                                         {_,_,R,_,_},
                                         {_,_,_,_,_},
                                         {_,_,_,_,_}}));
 }
-END_TEST(test_draw_line_top_right_2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_bottom_left) {
+void test_draw_line_bottom_left () {
   test_line(1.0, 5, {2, 2}, {1, 3}, CM({{_,_,_,_,_},
                                         {_,_,_,_,_},
                                         {_,_,R,_,_},
                                         {_,R,_,_,_},
                                         {_,_,_,_,_}}));
 }
-END_TEST(test_draw_line_bottom_left)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_bottom_left_2) {
+void test_draw_line_bottom_left_2 () {
   test_line(1.0, 5, {2, 2}, {0, 4}, CM({{_,_,_,_,_},
                                         {_,_,_,_,_},
                                         {_,_,R,_,_},
                                         {_,R,_,_,_},
                                         {R,_,_,_,_}}));
 }
-END_TEST(test_draw_line_bottom_left_2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_bottom_right) {
+void test_draw_line_bottom_right () {
   test_line(1.0, 5, {2, 2}, {3, 3}, CM({
     {_,_,_,_,_},
     {_,_,_,_,_},
@@ -2088,10 +1718,10 @@ DEFINE_TEST(test_draw_line_bottom_right) {
     {_,_,_,R,_},
     {_,_,_,_,_}}));
 }
-END_TEST(test_draw_line_bottom_right)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_line_bottom_right_2) {
+void test_draw_line_bottom_right_2 () {
   test_line(1.0, 5, {2, 2}, {4, 4}, CM({
     {_,_,_,_,_},
     {_,_,_,_,_},
@@ -2099,20 +1729,20 @@ DEFINE_TEST(test_draw_line_bottom_right_2) {
     {_,_,_,R,_},
     {_,_,_,_,R}}));
 }
-END_TEST(test_draw_line_bottom_right_2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_ellipse_4x4) {
+void test_frame_ellipse_4x4 () {
   tester<draw::ellipse>(1.0F, 5, {0, 0}, {4, 4}, CM({
     {_,R,R,R,_},
     {R,_,_,_,R},
     {R,_,_,_,R},
     {R,_,_,_,R},
     {_,R,R,R,_}}));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_ellipse_3x3) {
+void test_frame_ellipse_3x3 () {
   tester<draw::ellipse>(1.0F, 5, {0, 0}, {3, 3}, CM({
     {_,R,R,_,_},
     {R,_,_,R,_},
@@ -2120,10 +1750,10 @@ DEFINE_TEST(test_frame_ellipse_3x3) {
     {_,R,R,_,_},
     {_,_,_,_,_}
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_ellipse_2x2) {
+void test_frame_ellipse_2x2 () {
   tester<draw::ellipse>(1.0F, 5, {0, 0}, {2, 2}, CM({
 #ifdef WIN32
     {_,R,_,_,_},
@@ -2139,30 +1769,30 @@ DEFINE_TEST(test_frame_ellipse_2x2) {
     {_,_,_,_,_},
 #endif
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_ellipse_1x1) {
+void test_frame_ellipse_1x1 () {
   tester<draw::ellipse>(1.0F, 5, {0, 0}, {1, 1}, CM({
     {R,R,_,_,_},
     {R,R,_,_,_},
     {_,_,_,_,_},
     {_,_,_,_,_},
     {_,_,_,_,_}}));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_ellipse_0x0) {
+void test_frame_ellipse_0x0 () {
   tester<draw::ellipse>(1.0F, 5, {0, 0}, {0, 0}, CM({
     {R,_,_,_,_},
     {_,_,_,_,_},
     {_,_,_,_,_},
     {_,_,_,_,_},
     {_,_,_,_,_}}));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_ellipse_4x4_x2) {
+void test_frame_ellipse_4x4_x2 () {
   tester<draw::ellipse>(2.0F, 14, {1, 1}, {5, 5}, CM({
 #ifdef WIN32
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2196,10 +1826,10 @@ DEFINE_TEST(test_frame_ellipse_4x4_x2) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
 #endif // WIN32
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_ellipse_3x3_x2) {
+void test_frame_ellipse_3x3_x2 () {
   tester<draw::ellipse>(2.0F, 12, {1, 1}, {4, 4}, CM({
 #ifdef WIN32
     {_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2229,10 +1859,10 @@ DEFINE_TEST(test_frame_ellipse_3x3_x2) {
     {_,_,_,_,_,_,_,_,_,_,_,_},
 #endif // WIN32
                                                      }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_ellipse_2x2_x2) {
+void test_frame_ellipse_2x2_x2 () {
   tester<draw::ellipse>(2.0F, 10, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_},
@@ -2245,10 +1875,10 @@ DEFINE_TEST(test_frame_ellipse_2x2_x2) {
     {_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_}
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_ellipse_1x1_x2) {
+void test_frame_ellipse_1x1_x2 () {
   tester<draw::ellipse>(2.0F, 8, {1, 1}, {2, 2}, CM({
     {_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_},
@@ -2259,10 +1889,10 @@ DEFINE_TEST(test_frame_ellipse_1x1_x2) {
     {_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_},
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_ellipse_0x0_x2) {
+void test_frame_ellipse_0x0_x2 () {
   tester<draw::ellipse>(2.0F, 6, {1, 1}, {1, 1}, CM({
     {_,_,_,_,_,_},
     {_,_,_,_,_,_},
@@ -2271,10 +1901,10 @@ DEFINE_TEST(test_frame_ellipse_0x0_x2) {
     {_,_,_,_,_,_},
     {_,_,_,_,_,_}
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_ellipse_4x4_x3) {
+void test_frame_ellipse_4x4_x3 () {
   tester<draw::ellipse>(3.0F, 21, {1, 1}, {5, 5}, CM({
 #ifdef WIN32
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2322,10 +1952,10 @@ DEFINE_TEST(test_frame_ellipse_4x4_x3) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
 #endif // WIN32
    }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_ellipse_3x3_x3) {
+void test_frame_ellipse_3x3_x3 () {
   tester<draw::ellipse>(3.0F, 18, {1, 1}, {4, 4}, CM({
 #ifdef WIN32
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2367,10 +1997,10 @@ DEFINE_TEST(test_frame_ellipse_3x3_x3) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
 #endif // WIN32
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_ellipse_2x2_x3) {
+void test_frame_ellipse_2x2_x3 () {
   tester<draw::ellipse>(3.0F, 15, {1, 1}, {3, 3}, CM({
 #ifdef WIN32
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2406,10 +2036,10 @@ DEFINE_TEST(test_frame_ellipse_2x2_x3) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
 #endif // WIN32
    }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_ellipse_1x1_x3) {
+void test_frame_ellipse_1x1_x3 () {
   tester<draw::ellipse>(3.0F, 12, {1, 1}, {2, 2}, CM({
 #ifdef WIN32
     {_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2439,10 +2069,10 @@ DEFINE_TEST(test_frame_ellipse_1x1_x3) {
     {_,_,_,_,_,_,_,_,_,_,_,_},
 #endif // WIN32
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_ellipse_0x0_x3) {
+void test_frame_ellipse_0x0_x3 () {
   tester<draw::ellipse>(3.0F, 9, {1, 1}, {1, 1}, CM({
     {_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_},
@@ -2454,20 +2084,20 @@ DEFINE_TEST(test_frame_ellipse_0x0_x3) {
     {_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_}
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_ellipse) {
+void test_fill_ellipse () {
   tester<draw::ellipse, draw::brush>(1.0F, 5, {0, 0}, {4, 4}, CM({
     {_,R,R,R,_},
     {R,R,R,R,R},
     {R,R,R,R,R},
     {R,R,R,R,R},
     {_,R,R,R,_}}));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_ellipse_4x4) {
+void test_draw_ellipse_4x4 () {
   tester2<draw::ellipse, color::blue, color::red>(1.0F, 5, {0, 0}, {4, 4}, CM({
     {_,R,R,R,_},
     {R,B,B,B,R},
@@ -2475,10 +2105,10 @@ DEFINE_TEST(test_draw_ellipse_4x4) {
     {R,B,B,B,R},
     {_,R,R,R,_}
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_ellipse_3x3) {
+void test_draw_ellipse_3x3 () {
   tester2<draw::ellipse, color::blue, color::red>(1.0F, 5, {0, 0}, {3, 3}, CM({
     {_,R,R,_,_},
     {R,B,B,R,_},
@@ -2486,10 +2116,10 @@ DEFINE_TEST(test_draw_ellipse_3x3) {
     {_,R,R,_,_},
     {_,_,_,_,_}
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_ellipse_2x2) {
+void test_draw_ellipse_2x2 () {
   tester2<draw::ellipse, color::blue, color::red>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_},
     {_,R,R,R,_},
@@ -2497,10 +2127,10 @@ DEFINE_TEST(test_draw_ellipse_2x2) {
     {_,R,R,R,_},
     {_,_,_,_,_}
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_ellipse_1x1) {
+void test_draw_ellipse_1x1 () {
   tester2<draw::ellipse, color::blue, color::red>(1.0F, 5, {1, 1}, {2, 2}, CM({
     {_,_,_,_,_},
     {_,R,R,_,_},
@@ -2508,10 +2138,10 @@ DEFINE_TEST(test_draw_ellipse_1x1) {
     {_,_,_,_,_},
     {_,_,_,_,_}
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_ellipse_0x0) {
+void test_draw_ellipse_0x0 () {
   tester2<draw::ellipse, color::blue, color::red>(1.0F, 5, {1, 1}, {1, 1}, CM({
     {_,_,_,_,_},
     {_,R,_,_,_},
@@ -2519,10 +2149,10 @@ DEFINE_TEST(test_draw_ellipse_0x0) {
     {_,_,_,_,_},
     {_,_,_,_,_}
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_ellipse_4x4_2) {
+void test_draw_ellipse_4x4_2 () {
   tester2<draw::ellipse, color::blue, color::red>(2.0F, 14, {1, 1}, {5, 5}, CM({
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2539,10 +2169,10 @@ DEFINE_TEST(test_draw_ellipse_4x4_2) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_ellipse_3x3_2) {
+void test_draw_ellipse_3x3_2 () {
   tester2<draw::ellipse, color::blue, color::red>(2.0F, 12, {1, 1}, {4, 4}, CM({
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2557,10 +2187,10 @@ DEFINE_TEST(test_draw_ellipse_3x3_2) {
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_ellipse_2x2_2) {
+void test_draw_ellipse_2x2_2 () {
   tester2<draw::ellipse, color::blue, color::red>(2.0F, 10, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_},
@@ -2573,10 +2203,10 @@ DEFINE_TEST(test_draw_ellipse_2x2_2) {
     {_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_}
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_ellipse_1x1_2) {
+void test_draw_ellipse_1x1_2 () {
   tester2<draw::ellipse, color::blue, color::red>(2.0F, 8, {1, 1}, {2, 2}, CM({
     {_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_},
@@ -2587,10 +2217,10 @@ DEFINE_TEST(test_draw_ellipse_1x1_2) {
     {_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_},
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_ellipse_0x0_2) {
+void test_draw_ellipse_0x0_2 () {
   tester2<draw::ellipse, color::blue, color::red>(2.0F, 6, {1, 1}, {1, 1}, CM({
     {_,_,_,_,_,_},
     {_,_,_,_,_,_},
@@ -2599,10 +2229,10 @@ DEFINE_TEST(test_draw_ellipse_0x0_2) {
     {_,_,_,_,_,_},
     {_,_,_,_,_,_},
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_ellipse_4x4_3) {
+void test_draw_ellipse_4x4_3 () {
   tester2<draw::ellipse, color::blue, color::red>(3.0F, 21, {1, 1}, {5, 5}, CM({
 #ifdef WIN32
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2650,10 +2280,10 @@ DEFINE_TEST(test_draw_ellipse_4x4_3) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
 #endif // WIN32
                                                                                }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_ellipse_3x3_3) {
+void test_draw_ellipse_3x3_3 () {
   tester2<draw::ellipse, color::blue, color::red>(3.0F, 18, {1, 1}, {4, 4}, CM({
 #ifdef WIN32
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2695,10 +2325,10 @@ DEFINE_TEST(test_draw_ellipse_3x3_3) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
 #endif // WIN32
                                                                                }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_ellipse_2x2_3) {
+void test_draw_ellipse_2x2_3 () {
   tester2<draw::ellipse, color::blue, color::red>(3.0F, 15, {1, 1}, {3, 3}, CM({
 #ifdef WIN32
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2734,10 +2364,10 @@ DEFINE_TEST(test_draw_ellipse_2x2_3) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
 #endif // WIN32
                                                                                }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_ellipse_1x1_3) {
+void test_draw_ellipse_1x1_3 () {
   tester2<draw::ellipse, color::blue, color::red>(3.0F, 12, {1, 1}, {2, 2}, CM({
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2752,10 +2382,10 @@ DEFINE_TEST(test_draw_ellipse_1x1_3) {
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_ellipse_0x0_3) {
+void test_draw_ellipse_0x0_3 () {
   tester2<draw::ellipse, color::blue, color::red>(3.0F, 9, {1, 1}, {1, 1}, CM({
     {_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_},
@@ -2767,10 +2397,10 @@ DEFINE_TEST(test_draw_ellipse_0x0_3) {
     {_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_}
   }));
-} END_TEST()
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_round_rectangle) {
+void test_frame_round_rectangle () {
 
   core::global::set_scale_factor(1.0);
 
@@ -2787,10 +2417,10 @@ DEFINE_TEST(test_frame_round_rectangle) {
                            {_,R,R,R,_}}));
 
 }
-END_TEST(test_frame_round_rectangle)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_round_rectangle) {
+void test_fill_round_rectangle () {
 
   core::global::set_scale_factor(1.0);
 
@@ -2807,10 +2437,10 @@ DEFINE_TEST(test_fill_round_rectangle) {
                            {_,R,R,R,_}}));
 
 }
-END_TEST(test_fill_round_rectangle)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_round_rectangle) {
+void test_draw_round_rectangle () {
 
   core::global::set_scale_factor(1.0);
 
@@ -2827,10 +2457,10 @@ DEFINE_TEST(test_draw_round_rectangle) {
                            {_,R,R,R,_}}));
 
 }
-END_TEST(test_draw_round_rectangle)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_round_rectangle_2) {
+void test_frame_round_rectangle_2 () {
 
   core::global::set_scale_factor(1.0);
 
@@ -2849,10 +2479,10 @@ DEFINE_TEST(test_frame_round_rectangle_2) {
                            {_,_,R,R,R,_,_}}));
 
 }
-END_TEST(test_frame_round_rectangle_2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_round_rectangle_2) {
+void test_fill_round_rectangle_2 () {
 
   core::global::set_scale_factor(1.0);
 
@@ -2871,10 +2501,10 @@ DEFINE_TEST(test_fill_round_rectangle_2) {
                            {_,_,R,R,R,_,_}}));
 
 }
-END_TEST(test_fill_round_rectangle_2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_round_rectangle_2) {
+void test_draw_round_rectangle_2 () {
 
   core::global::set_scale_factor(1.0);
 
@@ -2893,10 +2523,10 @@ DEFINE_TEST(test_draw_round_rectangle_2) {
                            {_,_,R,R,R,_,_}}));
 
 }
-END_TEST(test_draw_round_rectangle_2)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_arc_4x4) {
+void test_frame_arc_4x4 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -2911,9 +2541,9 @@ DEFINE_TEST(test_frame_arc_4x4) {
                            {R,_,_,_,R},
                            {_,R,R,R,_}}));
 
-} END_TEST(test_frame_arc_4x4)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_arc_3x3) {
+void test_frame_arc_3x3 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -2929,9 +2559,9 @@ DEFINE_TEST(test_frame_arc_3x3) {
                            {_,_,R,R,_},
                           }));
 
-} END_TEST(test_frame_arc_3x3)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_arc_2x2) {
+void test_frame_arc_2x2 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -2946,9 +2576,9 @@ DEFINE_TEST(test_frame_arc_2x2) {
                            {_,R,R,R,_},
                            {_,_,_,_,_}}));
 
-} END_TEST(test_frame_arc_2x2)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_arc_1x1) {
+void test_frame_arc_1x1 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -2963,9 +2593,9 @@ DEFINE_TEST(test_frame_arc_1x1) {
                            {_,_,R,R,_},
                            {_,_,_,_,_}}));
 
-} END_TEST(test_frame_arc_1x1)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_arc_0x0) {
+void test_frame_arc_0x0 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -2980,9 +2610,9 @@ DEFINE_TEST(test_frame_arc_0x0) {
                            {_,_,_,_,_},
                            {_,_,_,_,_}}));
 
-} END_TEST(test_frame_arc_0x0)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_arc_4x4) {
+void test_fill_arc_4x4 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -2997,9 +2627,9 @@ DEFINE_TEST(test_fill_arc_4x4) {
                            {R,R,R,R,R},
                            {_,R,R,R,_}}));
 
-} END_TEST(test_fill_arc_4x4)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_arc_3x3) {
+void test_fill_arc_3x3 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3016,9 +2646,9 @@ DEFINE_TEST(test_fill_arc_3x3) {
                            {_,_,R,R,_},
                           }));
 
-} END_TEST(test_fill_arc_3x3)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_arc_2x2) {
+void test_fill_arc_2x2 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3033,9 +2663,9 @@ DEFINE_TEST(test_fill_arc_2x2) {
                            {_,R,R,R,_},
                            {_,_,_,_,_}}));
 
-} END_TEST(test_fill_arc_2x2)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_arc_1x1) {
+void test_fill_arc_1x1 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3049,9 +2679,9 @@ DEFINE_TEST(test_fill_arc_1x1) {
                            {_,_,R,R,_},
                            {_,_,R,R,_},
                            {_,_,_,_,_}}));
-} END_TEST(test_fill_arc_1x1)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_arc_0x0) {
+void test_fill_arc_0x0 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3065,9 +2695,9 @@ DEFINE_TEST(test_fill_arc_0x0) {
                            {_,_,_,_,_},
                            {_,_,_,_,_},
                            {_,_,_,_,_}}));
-} END_TEST(test_fill_arc_0x0)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_arc_4x4) {
+void test_draw_arc_4x4 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3081,9 +2711,9 @@ DEFINE_TEST(test_draw_arc_4x4) {
                            {R,B,B,B,R},
                            {R,B,B,B,R},
                            {_,R,R,R,_}}));
-} END_TEST(test_draw_arc_4x4)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_arc_3x3) {
+void test_draw_arc_3x3 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3098,9 +2728,9 @@ DEFINE_TEST(test_draw_arc_3x3) {
                            {_,R,B,B,R},
                            {_,_,R,R,_},
                           }));
-} END_TEST(test_draw_arc_3x3)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_arc_2x2) {
+void test_draw_arc_2x2 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3114,9 +2744,9 @@ DEFINE_TEST(test_draw_arc_2x2) {
                            {_,R,B,R,_},
                            {_,R,R,R,_},
                            {_,_,_,_,_}}));
-} END_TEST(test_draw_arc_2x2)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_arc_1x1) {
+void test_draw_arc_1x1 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3130,9 +2760,9 @@ DEFINE_TEST(test_draw_arc_1x1) {
                            {_,_,R,R,_},
                            {_,_,R,R,_},
                            {_,_,_,_,_}}));
-} END_TEST(test_draw_arc_1x1)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_arc_0x0) {
+void test_draw_arc_0x0 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3146,10 +2776,10 @@ DEFINE_TEST(test_draw_arc_0x0) {
                            {_,_,_,_,_},
                            {_,_,_,_,_},
                            {_,_,_,_,_}}));
-} END_TEST(test_draw_arc_0x0)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_arc_45_135) {
+void test_frame_arc_45_135 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3163,9 +2793,9 @@ DEFINE_TEST(test_frame_arc_45_135) {
                            {_,_,R,_,_},
                            {_,_,_,_,_},
                            {_,_,_,_,_}}));
-} END_TEST(test_frame_arc_45_135)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_arc_135_225) {
+void test_frame_arc_135_225 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3179,9 +2809,9 @@ DEFINE_TEST(test_frame_arc_135_225) {
                            {R,_,R,_,_},
                            {R,R,_,_,_},
                            {_,_,_,_,_}}));
-} END_TEST(test_frame_arc_135_225)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_arc_225_315) {
+void test_frame_arc_225_315 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3195,9 +2825,9 @@ DEFINE_TEST(test_frame_arc_225_315) {
                            {_,_,R,_,_},
                            {_,R,_,R,_},
                            {_,R,R,R,_}}));
-} END_TEST(test_frame_arc_225_315)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_arc_315_405) {
+void test_frame_arc_315_405 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3211,10 +2841,10 @@ DEFINE_TEST(test_frame_arc_315_405) {
                            {_,_,R,_,R},
                            {_,_,_,R,R},
                            {_,_,_,_,_}}));
-} END_TEST(test_frame_arc_315_405)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_arc_45_135) {
+void test_draw_arc_45_135 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3228,10 +2858,10 @@ DEFINE_TEST(test_draw_arc_45_135) {
                            {_,_,R,_,_},
                            {_,_,_,_,_},
                            {_,_,_,_,_}}));
-} END_TEST(test_draw_arc_45_135)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_arc_135_225) {
+void test_draw_arc_135_225 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3245,10 +2875,10 @@ DEFINE_TEST(test_draw_arc_135_225) {
                            {R,B,R,_,_},
                            {R,R,_,_,_},
                            {_,_,_,_,_}}));
-} END_TEST(test_draw_arc_135_225)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_arc_225_315) {
+void test_draw_arc_225_315 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3262,10 +2892,10 @@ DEFINE_TEST(test_draw_arc_225_315) {
                            {_,_,R,_,_},
                            {_,R,B,R,_},
                            {_,R,R,R,_}}));
-} END_TEST(test_draw_arc_225_315)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_arc_315_405) {
+void test_draw_arc_315_405 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3279,10 +2909,10 @@ DEFINE_TEST(test_draw_arc_315_405) {
                            {_,_,R,B,R},
                            {_,_,_,R,R},
                            {_,_,_,_,_}}));
-} END_TEST(test_draw_arc_315_405)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_arc_45_135_2) {
+void test_frame_arc_45_135_2 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3296,10 +2926,10 @@ DEFINE_TEST(test_frame_arc_45_135_2) {
                            {_,R,_,R,_},
                            {_,_,R,_,_},
                            {_,_,_,_,_}}));
-} END_TEST(test_frame_arc_45_135_2)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_arc_135_225_2) {
+void test_frame_arc_135_225_2 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3313,10 +2943,10 @@ DEFINE_TEST(test_frame_arc_135_225_2) {
                            {R,_,_,R,_},
                            {R,_,R,_,_},
                            {_,R,_,_,_}}));
-} END_TEST(test_frame_arc_135_225_2)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_arc_225_315_2) {
+void test_frame_arc_225_315_2 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3330,10 +2960,10 @@ DEFINE_TEST(test_frame_arc_225_315_2) {
                            {_,R,_,R,_},
                            {R,_,_,_,R},
                            {_,R,R,R,_}}));
-} END_TEST(test_frame_arc_225_315_2)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_arc_315_405_2) {
+void test_frame_arc_315_405_2 () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(5, 5);
@@ -3347,10 +2977,10 @@ DEFINE_TEST(test_frame_arc_315_405_2) {
                            {_,R,_,_,R},
                            {_,_,R,_,R},
                            {_,_,_,R,_}}));
-} END_TEST(test_frame_arc_315_405_2)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_frame_polygon) {
+void test_frame_polygon () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(7, 7);
@@ -3368,10 +2998,10 @@ DEFINE_TEST(test_frame_polygon) {
                            {_,_,_,_,_,_,_}}));
 
 }
-END_TEST(test_frame_polygon)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_fill_polygon) {
+void test_fill_polygon () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(7, 7);
@@ -3389,10 +3019,10 @@ DEFINE_TEST(test_fill_polygon) {
                            {_,_,_,_,_,_,_}}));
 
 }
-END_TEST(test_fill_polygon)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_draw_polygon) {
+void test_draw_polygon () {
   core::global::set_scale_factor(1.0);
 
   pixmap img(7, 7);
@@ -3410,6 +3040,197 @@ DEFINE_TEST(test_draw_polygon) {
                            {_,_,_,_,_,_,_}}));
 
 }
-END_TEST(test_draw_polygon)
+
+// --------------------------------------------------------------------------
+void test_main () {
+  clog::info() << "Runningn drawer_test";
+
+#ifdef TEST_RAW
+  run_test(test_data2colormap);
+  run_test(test_raw_rect);
+  run_test(test_raw_ellipse);
+#endif // TEST_RAW
+
+#ifdef TEST_RECT
+  run_test(test_frame_rect_4x4);
+  run_test(test_frame_rect_3x3);
+  run_test(test_frame_rect_2x2);
+  run_test(test_frame_rect_1x1);
+  run_test(test_frame_rect_0x0);
+
+  run_test(test_frame_rect_4x4_x2);
+  run_test(test_frame_rect_3x3_x2);
+  run_test(test_frame_rect_2x2_x2);
+  run_test(test_frame_rect_1x1_x2);
+  run_test(test_frame_rect_0x0_x2);
+
+  run_test(test_frame_rect_4x4_x3);
+  run_test(test_frame_rect_3x3_x3);
+  run_test(test_frame_rect_2x2_x3);
+  run_test(test_frame_rect_1x1_x3);
+  run_test(test_frame_rect_0x0_x3);
+
+  run_test(test_frame_rect_4x4_x4);
+  run_test(test_frame_rect_3x3_x4);
+  run_test(test_frame_rect_2x2_x4);
+  run_test(test_frame_rect_1x1_x4);
+  run_test(test_frame_rect_0x0_x4);
+
+  run_test(test_fill_rect_4x4);
+  run_test(test_fill_rect_3x3);
+  run_test(test_fill_rect_2x2);
+  run_test(test_fill_rect_1x1);
+  run_test(test_fill_rect_0x0);
+
+  run_test(test_fill_rect_4x4_x2);
+  run_test(test_fill_rect_3x3_x2);
+  run_test(test_fill_rect_2x2_x2);
+  run_test(test_fill_rect_1x1_x2);
+  run_test(test_fill_rect_0x0_x2);
+
+  run_test(test_fill_rect_4x4_x3);
+  run_test(test_fill_rect_3x3_x3);
+  run_test(test_fill_rect_2x2_x3);
+  run_test(test_fill_rect_1x1_x3);
+  run_test(test_fill_rect_0x0_x3);
+
+  run_test(test_draw_rect_4x4);
+  run_test(test_draw_rect_3x3);
+  run_test(test_draw_rect_2x2);
+  run_test(test_draw_rect_1x1);
+  run_test(test_draw_rect_0x0);
+
+  run_test(test_draw_rect_4x4_x2);
+  run_test(test_draw_rect_3x3_x2);
+  run_test(test_draw_rect_2x2_x2);
+  run_test(test_draw_rect_1x1_x2);
+  run_test(test_draw_rect_0x0_x2);
+
+  run_test(test_draw_rect_4x4_x3);
+  run_test(test_draw_rect_3x3_x3);
+  run_test(test_draw_rect_2x2_x3);
+  run_test(test_draw_rect_1x1_x3);
+  run_test(test_draw_rect_0x0_x3);
+#endif //TEST_RECT
+
+#ifdef TEST_LINE
+  run_test(test_draw_line_4x4);
+  run_test(test_draw_line_3x3);
+  run_test(test_draw_line_2x2);
+  run_test(test_draw_line_1x1);
+  run_test(test_draw_line_0x0);
+
+  run_test(test_draw_line_4x4_x2);
+  run_test(test_draw_line_3x3_x2);
+  run_test(test_draw_line_2x2_x2);
+  run_test(test_draw_line_1x1_x2);
+  run_test(test_draw_line_0x0_x2);
+
+  run_test(test_draw_line_4x4_x3);
+  run_test(test_draw_line_3x3_x3);
+  run_test(test_draw_line_2x2_x3);
+  run_test(test_draw_line_1x1_x3);
+  run_test(test_draw_line_0x0_x3);
+
+  run_test(test_draw_line_top_left);
+  run_test(test_draw_line_top_left_2);
+  run_test(test_draw_line_top_right);
+  run_test(test_draw_line_top_right_2);
+
+  run_test(test_draw_line_bottom_left);
+  run_test(test_draw_line_bottom_left_2);
+  run_test(test_draw_line_bottom_right);
+  run_test(test_draw_line_bottom_right_2);
+#endif //TEST_LINE
+
+#ifdef TEST_ELLIPSE
+  run_test(test_frame_ellipse_4x4);
+  run_test(test_frame_ellipse_3x3);
+  run_test(test_frame_ellipse_2x2);
+  run_test(test_frame_ellipse_1x1);
+  run_test(test_frame_ellipse_0x0);
+
+  run_test(test_frame_ellipse_4x4_x2);
+  run_test(test_frame_ellipse_3x3_x2);
+  run_test(test_frame_ellipse_2x2_x2);
+  run_test(test_frame_ellipse_1x1_x2);
+  run_test(test_frame_ellipse_0x0_x2);
+
+  run_test(test_frame_ellipse_4x4_x3);
+  run_test(test_frame_ellipse_3x3_x3);
+  run_test(test_frame_ellipse_2x2_x3);
+  run_test(test_frame_ellipse_1x1_x3);
+  run_test(test_frame_ellipse_0x0_x3);
+
+  run_test(test_fill_ellipse);
+
+  run_test(test_draw_ellipse_4x4);
+  run_test(test_draw_ellipse_3x3);
+  run_test(test_draw_ellipse_2x2);
+  run_test(test_draw_ellipse_1x1);
+  run_test(test_draw_ellipse_0x0);
+
+  run_test(test_draw_ellipse_4x4_2);
+  run_test(test_draw_ellipse_3x3_2);
+  run_test(test_draw_ellipse_2x2_2);
+  run_test(test_draw_ellipse_1x1_2);
+  run_test(test_draw_ellipse_0x0_2);
+
+  run_test(test_draw_ellipse_4x4_3);
+  run_test(test_draw_ellipse_3x3_3);
+  run_test(test_draw_ellipse_2x2_3);
+  run_test(test_draw_ellipse_1x1_3);
+  run_test(test_draw_ellipse_0x0_3);
+#endif // TEST_ELLIPSE
+
+#ifdef TEST_ROUND_RECT
+  run_test(test_frame_round_rectangle);
+  run_test(test_fill_round_rectangle);
+  run_test(test_draw_round_rectangle);
+  run_test(test_frame_round_rectangle_2);
+  run_test(test_fill_round_rectangle_2);
+  run_test(test_draw_round_rectangle_2);
+#endif //TEST_ROUND_RECT
+
+#ifdef TEST_ARC
+  run_test(test_frame_arc_4x4);
+  run_test(test_frame_arc_3x3);
+  run_test(test_frame_arc_2x2);
+  run_test(test_frame_arc_1x1);
+  run_test(test_frame_arc_0x0);
+  run_test(test_fill_arc_4x4);
+  run_test(test_fill_arc_3x3);
+  run_test(test_fill_arc_2x2);
+  run_test(test_fill_arc_1x1);
+  run_test(test_fill_arc_0x0);
+  run_test(test_draw_arc_4x4);
+  run_test(test_draw_arc_3x3);
+  run_test(test_draw_arc_2x2);
+  run_test(test_draw_arc_1x1);
+  run_test(test_draw_arc_0x0);
+
+  run_test(test_frame_arc_45_135);
+  run_test(test_frame_arc_135_225);
+  run_test(test_frame_arc_225_315);
+  run_test(test_frame_arc_315_405);
+
+  run_test(test_draw_arc_45_135);
+  run_test(test_draw_arc_135_225);
+  run_test(test_draw_arc_225_315);
+  run_test(test_draw_arc_315_405);
+
+  run_test(test_frame_arc_45_135_2);
+  run_test(test_frame_arc_135_225_2);
+  run_test(test_frame_arc_225_315_2);
+  run_test(test_frame_arc_315_405_2);
+#endif //TEST_ARC
+
+#ifdef TEST_POLYGON
+  run_test(test_frame_polygon);
+  run_test(test_fill_polygon);
+  run_test(test_draw_polygon);
+#endif //TEST_POLYGON
+
+}
 
 // --------------------------------------------------------------------------

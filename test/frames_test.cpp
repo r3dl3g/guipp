@@ -10,148 +10,11 @@
 #include <testlib/testlib.h>
 #include <logging/core.h>
 
-#define NOTHING
-
-DEFINE_LOGGING_CORE(NOTHING)
 
 using namespace gui;
 using namespace gui::draw;
 using namespace testing;
 
-// --------------------------------------------------------------------------
-DECLARE_TEST(test_no_frame);
-
-DECLARE_TEST(test_black_frame);
-DECLARE_TEST(test_black_frame_x2);
-DECLARE_TEST(test_black_frame_x3);
-
-DECLARE_TEST(test_white_frame);
-DECLARE_TEST(test_white_frame_x2);
-DECLARE_TEST(test_white_frame_x3);
-
-DECLARE_TEST(test_dots_frame);
-DECLARE_TEST(test_dots_frame_x2);
-DECLARE_TEST(test_dots_frame_x3);
-
-DECLARE_TEST(test_lines_frame);
-DECLARE_TEST(test_lines_frame_x2);
-DECLARE_TEST(test_lines_frame_x3);
-DECLARE_TEST(test_lines_frame_x4);
-
-DECLARE_TEST(test_vline);
-DECLARE_TEST(test_vline_x2);
-DECLARE_TEST(test_vline_x3);
-
-DECLARE_TEST(test_hline);
-DECLARE_TEST(test_hline_x2);
-DECLARE_TEST(test_hline_x3);
-
-DECLARE_TEST(test_vraise);
-DECLARE_TEST(test_vraise_x2);
-DECLARE_TEST(test_vraise_x3);
-
-DECLARE_TEST(test_hraise);
-DECLARE_TEST(test_hraise_x2);
-DECLARE_TEST(test_hraise_x3);
-
-DECLARE_TEST(test_vgroove);
-DECLARE_TEST(test_vgroove_x2);
-DECLARE_TEST(test_vgroove_x3);
-
-DECLARE_TEST(test_hgroove);
-DECLARE_TEST(test_hgroove_x2);
-DECLARE_TEST(test_hgroove_x3);
-
-DECLARE_TEST(test_raised_relief);
-DECLARE_TEST(test_raised_relief_x2);
-DECLARE_TEST(test_raised_relief_x3);
-
-DECLARE_TEST(test_sunken_relief);
-DECLARE_TEST(test_sunken_relief_x2);
-DECLARE_TEST(test_sunken_relief_x3);
-
-DECLARE_TEST(test_raised_deep_relief);
-DECLARE_TEST(test_raised_deep_relief_x2);
-DECLARE_TEST(test_raised_deep_relief_x3);
-
-DECLARE_TEST(test_sunken_deep_relief);
-DECLARE_TEST(test_sunken_deep_relief_x2);
-DECLARE_TEST(test_sunken_deep_relief_x3);
-
-DECLARE_TEST(test_vseparator_sunken);
-DECLARE_TEST(test_vseparator_raised);
-
-DECLARE_TEST(test_hseparator_sunken);
-DECLARE_TEST(test_hseparator_raised);
-
-// --------------------------------------------------------------------------
-TEST_MAIN(frames_test) {
-  RUN_TEST(test_no_frame);
-
-  RUN_TEST(test_black_frame);
-  RUN_TEST(test_black_frame_x2);
-  RUN_TEST(test_black_frame_x3);
-
-  RUN_TEST(test_white_frame);
-  RUN_TEST(test_white_frame_x2);
-  RUN_TEST(test_white_frame_x3);
-
-  RUN_TEST(test_dots_frame);
-  RUN_TEST(test_dots_frame_x2);
-  RUN_TEST(test_dots_frame_x3);
-
-  RUN_TEST(test_lines_frame);
-  RUN_TEST(test_lines_frame_x2);
-  RUN_TEST(test_lines_frame_x3);
-  RUN_TEST(test_lines_frame_x4);
-
-  RUN_TEST(test_vline);
-  RUN_TEST(test_vline_x2);
-  RUN_TEST(test_vline_x3);
-
-  RUN_TEST(test_hline);
-  RUN_TEST(test_hline_x2);
-  RUN_TEST(test_hline_x3);
-
-  RUN_TEST(test_vraise);
-  RUN_TEST(test_vraise_x2);
-  RUN_TEST(test_vraise_x3);
-
-  RUN_TEST(test_hraise);
-  RUN_TEST(test_hraise_x2);
-  RUN_TEST(test_hraise_x3);
-
-  RUN_TEST(test_vgroove);
-  RUN_TEST(test_vgroove_x2);
-  RUN_TEST(test_vgroove_x3);
-
-  RUN_TEST(test_hgroove);
-  RUN_TEST(test_hgroove_x2);
-  RUN_TEST(test_hgroove_x3);
-
-  RUN_TEST(test_raised_relief);
-  RUN_TEST(test_raised_relief_x2);
-  RUN_TEST(test_raised_relief_x3);
-
-  RUN_TEST(test_sunken_relief);
-  RUN_TEST(test_sunken_relief_x2);
-  RUN_TEST(test_sunken_relief_x3);
-
-  RUN_TEST(test_raised_deep_relief);
-  RUN_TEST(test_raised_deep_relief_x2);
-  RUN_TEST(test_raised_deep_relief_x3);
-
-  RUN_TEST(test_sunken_deep_relief);
-  RUN_TEST(test_sunken_deep_relief_x2);
-  RUN_TEST(test_sunken_deep_relief_x3);
-
-  RUN_TEST(test_vseparator_sunken);
-  RUN_TEST(test_vseparator_raised);
-
-  RUN_TEST(test_hseparator_sunken);
-  RUN_TEST(test_hseparator_raised);
-
-} TEST_MAIN_END(frames_test)
 
 // --------------------------------------------------------------------------
 template<draw::frame::drawer F>
@@ -182,7 +45,7 @@ void tester (float scale, int pix, const core::point& pt, const core::size& sz,
 }
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_no_frame) {
+void test_no_frame () {
   tester<frame::no_frame>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {W,W,W,W,W},
     {W,W,W,W,W},
@@ -191,10 +54,10 @@ DEFINE_TEST(test_no_frame) {
     {W,W,W,W,W}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_black_frame) {
+void test_black_frame () {
   tester<frame::black>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {W,W,W,W,W},
     {W,_,_,_,W},
@@ -203,10 +66,10 @@ DEFINE_TEST(test_black_frame) {
     {W,W,W,W,W}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_black_frame_x2) {
+void test_black_frame_x2 () {
   tester<frame::black>(2.0F, 10, {1, 1}, {3, 3}, CM({
     {W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W},
@@ -220,10 +83,10 @@ DEFINE_TEST(test_black_frame_x2) {
     {W,W,W,W,W,W,W,W,W,W}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_black_frame_x3) {
+void test_black_frame_x3 () {
   tester<frame::black>(3.0F, 15, {1, 1}, {3, 3}, CM({
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
@@ -242,10 +105,10 @@ DEFINE_TEST(test_black_frame_x3) {
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_white_frame) {
+void test_white_frame () {
   tester<frame::white, color::black>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_},
     {_,W,W,W,_},
@@ -254,10 +117,10 @@ DEFINE_TEST(test_white_frame) {
     {_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_white_frame_x2) {
+void test_white_frame_x2 () {
   tester<frame::white, color::black>(2.0F, 10, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_},
@@ -271,10 +134,10 @@ DEFINE_TEST(test_white_frame_x2) {
     {_,_,_,_,_,_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_white_frame_x3) {
+void test_white_frame_x3 () {
   tester<frame::white, color::black>(3.0F, 15, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -293,10 +156,10 @@ DEFINE_TEST(test_white_frame_x3) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_dots_frame) {
+void test_dots_frame () {
   tester<frame::dots>(1.0F, 7, {1, 1}, {5, 5}, CM({
 #ifdef WIN32
     {W,W,W,W,W,W,W},
@@ -317,10 +180,10 @@ DEFINE_TEST(test_dots_frame) {
 #endif // WIN32
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_dots_frame_x2) {
+void test_dots_frame_x2 () {
   tester<frame::dots>(2.0F, 14, {1, 1}, {5, 5}, CM({
 #ifdef WIN32
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
@@ -355,10 +218,10 @@ DEFINE_TEST(test_dots_frame_x2) {
 #endif // WIN32
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_dots_frame_x3) {
+void test_dots_frame_x3 () {
   tester<frame::dots>(3.0F, 21, {1, 1}, {5, 5}, CM({
 #ifdef WIN32
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
@@ -407,10 +270,10 @@ DEFINE_TEST(test_dots_frame_x3) {
 #endif // WIN32
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_lines_frame) {
+void test_lines_frame () {
   tester<frame::lines, color::black>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_},
     {_,_,_,V,_},
@@ -419,10 +282,10 @@ DEFINE_TEST(test_lines_frame) {
     {_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_lines_frame_x2) {
+void test_lines_frame_x2 () {
   tester<frame::lines, color::black>(2.0F, 10, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_},
@@ -436,10 +299,10 @@ DEFINE_TEST(test_lines_frame_x2) {
     {_,_,_,_,_,_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_lines_frame_x3) {
+void test_lines_frame_x3 () {
   tester<frame::lines, color::black>(3.0F, 15, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -458,10 +321,10 @@ DEFINE_TEST(test_lines_frame_x3) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_lines_frame_x4) {
+void test_lines_frame_x4 () {
   tester<frame::lines, color::black>(4.0F, 20, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -485,10 +348,10 @@ DEFINE_TEST(test_lines_frame_x4) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_vline) {
+void test_vline () {
   tester<frame::vline, color::black>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_},
     {_,_,_,V,_},
@@ -497,10 +360,10 @@ DEFINE_TEST(test_vline) {
     {_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_vline_x2) {
+void test_vline_x2 () {
   tester<frame::vline, color::black>(2.0F, 10, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_},
@@ -514,10 +377,10 @@ DEFINE_TEST(test_vline_x2) {
     {_,_,_,_,_,_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_vline_x3) {
+void test_vline_x3 () {
   tester<frame::vline, color::black>(3.0F, 15, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -536,10 +399,10 @@ DEFINE_TEST(test_vline_x3) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_hline) {
+void test_hline () {
   tester<frame::hline, color::black>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_},
     {_,_,_,_,_},
@@ -548,10 +411,10 @@ DEFINE_TEST(test_hline) {
     {_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_hline_x2) {
+void test_hline_x2 () {
   tester<frame::hline, color::black>(2.0F, 10, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_},
@@ -565,10 +428,10 @@ DEFINE_TEST(test_hline_x2) {
     {_,_,_,_,_,_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_hline_x3) {
+void test_hline_x3 () {
   tester<frame::hline, color::black>(3.0F, 15, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -587,10 +450,10 @@ DEFINE_TEST(test_hline_x3) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_vraise) {
+void test_vraise () {
   tester<frame::vraise, color::black>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_},
     {_,W,_,Y,_},
@@ -599,10 +462,10 @@ DEFINE_TEST(test_vraise) {
     {_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_vraise_x2) {
+void test_vraise_x2 () {
   tester<frame::vraise, color::black>(2.0F, 10, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_},
@@ -616,10 +479,10 @@ DEFINE_TEST(test_vraise_x2) {
     {_,_,_,_,_,_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_vraise_x3) {
+void test_vraise_x3 () {
   tester<frame::vraise, color::black>(3.0F, 15, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -638,10 +501,10 @@ DEFINE_TEST(test_vraise_x3) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_hraise) {
+void test_hraise () {
   tester<frame::hraise, color::black>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_},
     {_,W,W,W,_},
@@ -650,10 +513,10 @@ DEFINE_TEST(test_hraise) {
     {_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_hraise_x2) {
+void test_hraise_x2 () {
   tester<frame::hraise, color::black>(2.0F, 10, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_},
@@ -667,10 +530,10 @@ DEFINE_TEST(test_hraise_x2) {
     {_,_,_,_,_,_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_hraise_x3) {
+void test_hraise_x3 () {
   tester<frame::hraise, color::black>(3.0F, 15, {1, 1}, {3, 3}, CM({
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -689,10 +552,10 @@ DEFINE_TEST(test_hraise_x3) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_vgroove) {
+void test_vgroove () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
 
@@ -705,10 +568,10 @@ DEFINE_TEST(test_vgroove) {
                            {_,Y,_,W,_},
                            {_,_,_,_,_}}));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_vgroove_x2) {
+void test_vgroove_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
 
@@ -726,10 +589,10 @@ DEFINE_TEST(test_vgroove_x2) {
                            {_,_,_,_,_,_,_,_,_,_},
                            {_,_,_,_,_,_,_,_,_,_}}));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_vgroove_x3) {
+void test_vgroove_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
 
@@ -752,10 +615,10 @@ DEFINE_TEST(test_vgroove_x3) {
                            {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                            {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}}));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_hgroove) {
+void test_hgroove () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
 
@@ -768,10 +631,10 @@ DEFINE_TEST(test_hgroove) {
                            {_,W,W,W,_},
                            {_,_,_,_,_}}));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_hgroove_x2) {
+void test_hgroove_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
 
@@ -789,10 +652,10 @@ DEFINE_TEST(test_hgroove_x2) {
                            {_,_,_,_,_,_,_,_,_,_},
                            {_,_,_,_,_,_,_,_,_,_}}));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_hgroove_x3) {
+void test_hgroove_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
 
@@ -815,10 +678,10 @@ DEFINE_TEST(test_hgroove_x3) {
                            {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                            {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}}));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_raised_relief) {
+void test_raised_relief () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
 
@@ -831,10 +694,10 @@ DEFINE_TEST(test_raised_relief) {
                            {_,Y,Y,Y,_},
                            {_,_,_,_,_}}));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_raised_relief_x2) {
+void test_raised_relief_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
 
@@ -852,10 +715,10 @@ DEFINE_TEST(test_raised_relief_x2) {
                            {_,_,_,_,_,_,_,_,_,_},
                            {_,_,_,_,_,_,_,_,_,_}}));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_raised_relief_x3) {
+void test_raised_relief_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
 
@@ -878,10 +741,10 @@ DEFINE_TEST(test_raised_relief_x3) {
                            {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                            {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}}));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_sunken_relief) {
+void test_sunken_relief () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
 
@@ -894,10 +757,10 @@ DEFINE_TEST(test_sunken_relief) {
                            {_,W,W,W,_},
                            {_,_,_,_,_}}));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_sunken_relief_x2) {
+void test_sunken_relief_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
 
@@ -915,10 +778,10 @@ DEFINE_TEST(test_sunken_relief_x2) {
                            {_,_,_,_,_,_,_,_,_,_},
                            {_,_,_,_,_,_,_,_,_,_}}));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_sunken_relief_x3) {
+void test_sunken_relief_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
 
@@ -941,10 +804,10 @@ DEFINE_TEST(test_sunken_relief_x3) {
                            {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                            {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}}));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_raised_deep_relief) {
+void test_raised_deep_relief () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
 
@@ -957,10 +820,10 @@ DEFINE_TEST(test_raised_deep_relief) {
                            {W,D,D,D,Y},
                            {Y,Y,Y,Y,Y}}));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_raised_deep_relief_x2) {
+void test_raised_deep_relief_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
 
@@ -979,10 +842,10 @@ DEFINE_TEST(test_raised_deep_relief_x2) {
                            {Y,Y,Y,Y,Y,Y,Y,Y,Y,Y}
                           }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_raised_deep_relief_x3) {
+void test_raised_deep_relief_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
 
@@ -1006,10 +869,10 @@ DEFINE_TEST(test_raised_deep_relief_x3) {
                            {Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y}
                           }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_sunken_deep_relief) {
+void test_sunken_deep_relief () {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
 
@@ -1023,10 +886,10 @@ DEFINE_TEST(test_sunken_deep_relief) {
                            {W,W,W,W,W}
                           }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_sunken_deep_relief_x2) {
+void test_sunken_deep_relief_x2 () {
   core::global::set_scale_factor(2.0);
   pixmap img(10, 10);
 
@@ -1045,10 +908,10 @@ DEFINE_TEST(test_sunken_deep_relief_x2) {
                            {W,W,W,W,W,W,W,W,W,W}
                           }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_sunken_deep_relief_x3) {
+void test_sunken_deep_relief_x3 () {
   core::global::set_scale_factor(3.0);
   pixmap img(15, 15);
 
@@ -1072,7 +935,7 @@ DEFINE_TEST(test_sunken_deep_relief_x3) {
                            {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W}
                           }));
 }
-END_TEST()
+
 
 constexpr gui::os::color B7 = gui::color::rgba<0xb7, 0xb7, 0xb7, 0xFF>::value;
 constexpr gui::os::color S8 = gui::color::rgba<0x78, 0x78, 0x78, 0xFF>::value;
@@ -1098,7 +961,7 @@ void sep_tester (float scale, int pix, const core::point& pt, const core::size& 
 }
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_vseparator_sunken) {
+void test_vseparator_sunken () {
   sep_tester<orientation_t::vertical, true>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {_,_ ,_,_ ,_},
     {_,S8,_,B7,_},
@@ -1107,10 +970,10 @@ DEFINE_TEST(test_vseparator_sunken) {
     {_,_ ,_,_ ,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_vseparator_raised) {
+void test_vseparator_raised () {
   sep_tester<orientation_t::vertical, false>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {_,_ ,_,_ ,_},
     {_,B7,_,S8,_},
@@ -1119,10 +982,10 @@ DEFINE_TEST(test_vseparator_raised) {
     {_,_ ,_,_ ,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_hseparator_sunken) {
+void test_hseparator_sunken () {
   sep_tester<orientation_t::horizontal, true>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {_,_ ,_ ,_ ,_},
     {_,S8,S8,S8,_},
@@ -1131,10 +994,10 @@ DEFINE_TEST(test_hseparator_sunken) {
     {_,_ ,_ ,_ ,_}
   }));
 }
-END_TEST()
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_hseparator_raised) {
+void test_hseparator_raised () {
   sep_tester<orientation_t::horizontal, false>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {_,_ ,_ ,_ ,_},
     {_,B7,B7,B7,_},
@@ -1143,6 +1006,75 @@ DEFINE_TEST(test_hseparator_raised) {
     {_,_ ,_ ,_ ,_}
   }));
 }
-END_TEST()
+
+// --------------------------------------------------------------------------
+void test_main () {
+  clog::info() << "Running frames_test";
+  run_test(test_no_frame);
+
+  run_test(test_black_frame);
+  run_test(test_black_frame_x2);
+  run_test(test_black_frame_x3);
+
+  run_test(test_white_frame);
+  run_test(test_white_frame_x2);
+  run_test(test_white_frame_x3);
+
+  run_test(test_dots_frame);
+  run_test(test_dots_frame_x2);
+  run_test(test_dots_frame_x3);
+
+  run_test(test_lines_frame);
+  run_test(test_lines_frame_x2);
+  run_test(test_lines_frame_x3);
+  run_test(test_lines_frame_x4);
+
+  run_test(test_vline);
+  run_test(test_vline_x2);
+  run_test(test_vline_x3);
+
+  run_test(test_hline);
+  run_test(test_hline_x2);
+  run_test(test_hline_x3);
+
+  run_test(test_vraise);
+  run_test(test_vraise_x2);
+  run_test(test_vraise_x3);
+
+  run_test(test_hraise);
+  run_test(test_hraise_x2);
+  run_test(test_hraise_x3);
+
+  run_test(test_vgroove);
+  run_test(test_vgroove_x2);
+  run_test(test_vgroove_x3);
+
+  run_test(test_hgroove);
+  run_test(test_hgroove_x2);
+  run_test(test_hgroove_x3);
+
+  run_test(test_raised_relief);
+  run_test(test_raised_relief_x2);
+  run_test(test_raised_relief_x3);
+
+  run_test(test_sunken_relief);
+  run_test(test_sunken_relief_x2);
+  run_test(test_sunken_relief_x3);
+
+  run_test(test_raised_deep_relief);
+  run_test(test_raised_deep_relief_x2);
+  run_test(test_raised_deep_relief_x3);
+
+  run_test(test_sunken_deep_relief);
+  run_test(test_sunken_deep_relief_x2);
+  run_test(test_sunken_deep_relief_x3);
+
+  run_test(test_vseparator_sunken);
+  run_test(test_vseparator_raised);
+
+  run_test(test_hseparator_sunken);
+  run_test(test_hseparator_raised);
+
+}
 
 // --------------------------------------------------------------------------

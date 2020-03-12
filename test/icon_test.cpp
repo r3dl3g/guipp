@@ -14,45 +14,6 @@ namespace image_data {
 #include <gui/ctrl/res/open_folder_icon.h>
 } // namespace image_data
 
-#define NOTHING
-
-DEFINE_LOGGING_CORE(NOTHING)
-
-// --------------------------------------------------------------------------
-DECLARE_TEST(test_native_impl);
-DECLARE_TEST(test_bitmap_get_data);
-DECLARE_TEST(test_bitmap_get_image);
-DECLARE_TEST(test_bitmap_get_image_inv);
-DECLARE_TEST(test_bitmap_get_image_mask);
-DECLARE_TEST(test_copy_bitmap);
-DECLARE_TEST(test_copy_pixmap);
-DECLARE_TEST(test_masked_from_pixmap);
-DECLARE_TEST(test_masked_bitmap);
-DECLARE_TEST(test_file_icon);
-DECLARE_TEST(test_file_icon_selected);
-DECLARE_TEST(test_close_folder_icon);
-DECLARE_TEST(test_close_folder_icon_selected);
-DECLARE_TEST(test_open_folder_icon);
-DECLARE_TEST(test_open_folder_icon_selected);
-
-// --------------------------------------------------------------------------
-TEST_MAIN(icon_test)
-  RUN_TEST(test_native_impl);
-  RUN_TEST(test_bitmap_get_data);
-  RUN_TEST(test_bitmap_get_image);
-  RUN_TEST(test_bitmap_get_image_inv);
-  RUN_TEST(test_bitmap_get_image_mask);
-  RUN_TEST(test_copy_bitmap);
-  RUN_TEST(test_copy_pixmap);
-  RUN_TEST(test_masked_from_pixmap);
-  RUN_TEST(test_masked_bitmap);
-  RUN_TEST(test_file_icon);
-  RUN_TEST(test_file_icon_selected);
-//  RUN_TEST(test_close_folder_icon);
-//  RUN_TEST(test_close_folder_icon_selected);
-//  RUN_TEST(test_open_folder_icon);
-//  RUN_TEST(test_open_folder_icon_selected);
-TEST_MAIN_END(icon_test)
 
 using namespace gui;
 
@@ -104,7 +65,7 @@ bool expected_bit_at_inv (int x, int y) {
 }
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_native_impl) {
+void test_native_impl () {
 #ifdef X11
   gui::os::instance display = core::global::get_instance();
   os::x11::screen screen = core::global::x11::get_screen();
@@ -181,10 +142,10 @@ DEFINE_TEST(test_native_impl) {
 
   XDestroyImage(im);
 #endif // X11
-} END_TEST(test_native_impl)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_bitmap_get_data) {
+void test_bitmap_get_data () {
   core::global::set_scale_factor(1.0);
 
   draw::bwmap mask;
@@ -201,10 +162,10 @@ DEFINE_TEST(test_bitmap_get_data) {
     }
   }
 
-} END_TEST(test_bitmap_get_data)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_bitmap_get_image) {
+void test_bitmap_get_image () {
   core::global::set_scale_factor(1.0);
 
   draw::bwmap mask;
@@ -225,10 +186,10 @@ DEFINE_TEST(test_bitmap_get_image) {
     }
   }
 
-} END_TEST(test_bitmap_get_image)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_bitmap_get_image_inv) {
+void test_bitmap_get_image_inv () {
   core::global::set_scale_factor(1.0);
 
   draw::bwmap mask;
@@ -250,10 +211,10 @@ DEFINE_TEST(test_bitmap_get_image_inv) {
     }
   }
 
-} END_TEST(test_bitmap_get_image_inv)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_bitmap_get_image_mask) {
+void test_bitmap_get_image_mask () {
   core::global::set_scale_factor(1.0);
 
   draw::bwmap bw;
@@ -309,10 +270,10 @@ DEFINE_TEST(test_bitmap_get_image_mask) {
     }
   }
 
-} END_TEST(test_bitmap_get_image_mask)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_copy_bitmap) {
+void test_copy_bitmap () {
   core::global::set_scale_factor(1.0);
 
   draw::bwmap bw;
@@ -338,10 +299,10 @@ DEFINE_TEST(test_copy_bitmap) {
     }
   }
 
-} END_TEST(test_copy_bitmap)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_copy_pixmap) {
+void test_copy_pixmap () {
   core::global::set_scale_factor(1.0);
 
   draw::bwmap bw;
@@ -367,10 +328,10 @@ DEFINE_TEST(test_copy_pixmap) {
     }
   }
 
-} END_TEST(test_copy_pixmap)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_masked_from_pixmap) {
+void test_masked_from_pixmap () {
   core::global::set_scale_factor(1.0);
 
   draw::pixmap pix(5, 5);
@@ -420,10 +381,10 @@ DEFINE_TEST(test_masked_from_pixmap) {
     }
   }
 
-} END_TEST(test_masked_from_pixmap)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_masked_bitmap) {
+void test_masked_bitmap () {
   core::global::set_scale_factor(1.0);
 
   draw::pixmap pix(5, 5);
@@ -451,10 +412,10 @@ DEFINE_TEST(test_masked_bitmap) {
     }
   }
 
-} END_TEST(test_masked_bitmap)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_file_icon) {
+void test_file_icon () {
 
   core::global::set_scale_factor(1.0);
 
@@ -523,10 +484,10 @@ DEFINE_TEST(test_file_icon) {
     }
   }
 }
-END_TEST(test_file_icon)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_file_icon_selected) {
+void test_file_icon_selected () {
   core::global::set_scale_factor(1.0);
 
   draw::masked_bitmap icon = gui::ctrl::tree::file_icon(false);
@@ -546,15 +507,36 @@ DEFINE_TEST(test_file_icon_selected) {
     }
   }
 
-} END_TEST(test_file_icon_selected)
+}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_close_folder_icon) {} END_TEST(test_close_folder_icon)
+void test_close_folder_icon () {}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_close_folder_icon_selected) {} END_TEST(test_close_folder_icon_selected)
+void test_close_folder_icon_selected () {}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_open_folder_icon) {} END_TEST(test_open_folder_icon)
+void test_open_folder_icon () {}
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_open_folder_icon_selected) {} END_TEST(test_open_folder_icon_selected)
+void test_open_folder_icon_selected () {}
+
+// --------------------------------------------------------------------------
+void test_main () {
+  clog::info() << "Running icon_test";
+
+  run_test(test_native_impl);
+  run_test(test_bitmap_get_data);
+  run_test(test_bitmap_get_image);
+  run_test(test_bitmap_get_image_inv);
+  run_test(test_bitmap_get_image_mask);
+  run_test(test_copy_bitmap);
+  run_test(test_copy_pixmap);
+  run_test(test_masked_from_pixmap);
+  run_test(test_masked_bitmap);
+  run_test(test_file_icon);
+  run_test(test_file_icon_selected);
+//  run_test(test_close_folder_icon);
+//  run_test(test_close_folder_icon_selected);
+//  run_test(test_open_folder_icon);
+//  run_test(test_open_folder_icon_selected);
+}
 
 // --------------------------------------------------------------------------
 

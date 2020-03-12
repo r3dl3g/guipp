@@ -28,7 +28,7 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 endif()
 
 add_executable(TimeTracker WIN32 TimeTracker.cpp)
-target_link_libraries(TimeTracker ${gui_libraries} ${gui_sys_libraries})
+target_link_libraries(TimeTracker ${gui_app_libraries} ${gui_sys_libraries})
 set_target_properties(TimeTracker PROPERTIES FOLDER apps)
 
 install(TARGETS TimeTracker DESTINATION bin)

@@ -65,7 +65,6 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       gui++-layout-static
       gui++-win-static
       gui++-core-static
-      gui++-app
       ${logging_libraries}
       ${util_libraries}
       gui++-static
@@ -78,16 +77,20 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       gui++-draw
       gui++-layout
       gui++-win
-      gui++-app
       gui++-core
       ${logging_libraries}
       ${util_libraries}
       )
     set (gui_sys_libraries gui++ ${gui_sys_libraries} ${logging_sys_libraries} ${util_sys_libraries})
   else()
-    set (gui_libraries ${logging_libraries} ${util_libraries} gui++-app gui++)
+    set (gui_libraries ${logging_libraries} ${util_libraries} gui++)
     set (gui_sys_libraries ${gui_sys_libraries} ${logging_sys_libraries} ${util_sys_libraries})
   endif()
+
+  set (gui_app_libraries
+    gui++-app
+    ${gui_libraries}
+    )
 
   if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
     set (gui_defines ${gui_defines}
@@ -110,11 +113,13 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   set (gui_defines ${gui_defines} PARENT_SCOPE)
   set (gui_include ${gui_include} PARENT_SCOPE)
   set (gui_libraries ${gui_libraries} PARENT_SCOPE)
+  set (gui_app_libraries ${gui_app_libraries} PARENT_SCOPE)
   set (gui_sys_libraries ${gui_sys_libraries} PARENT_SCOPE)
 
   message(STATUS "gui gui_defines: ${gui_defines}")
   message(STATUS "gui gui_include: ${gui_include}")
   message(STATUS "gui gui_libraries: ${gui_libraries}")
+  message(STATUS "gui gui_app_libraries: ${gui_app_libraries}")
   message(STATUS "gui gui_sys_libraries: ${gui_sys_libraries}")
 
   # header file to pass version settings to the source code

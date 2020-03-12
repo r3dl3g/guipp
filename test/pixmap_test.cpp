@@ -6,45 +6,10 @@
 #include <gui/draw/drawers.h>
 #include <testlib/testlib.h>
 
-#define NOTHING
-
-DEFINE_LOGGING_CORE(NOTHING)
-
-// --------------------------------------------------------------------------
-DECLARE_TEST(test_bitmap_black);
-DECLARE_TEST(test_bitmap_white);
-DECLARE_TEST(test_bitmap_checked);
-DECLARE_TEST(test_pixmap_black);
-DECLARE_TEST(test_pixmap_red);
-DECLARE_TEST(test_pixmap_green);
-DECLARE_TEST(test_pixmap_blue);
-DECLARE_TEST(test_pixmap_white);
-DECLARE_TEST(test_pixmap);
-DECLARE_TEST(test_pixmap_draw);
-
-DECLARE_TEST(test_pixmap2bitmap);
-DECLARE_TEST(test_bitmap2pixmap);
-DECLARE_TEST(test_bitmap_scale2pixmap);
-
-// --------------------------------------------------------------------------
-TEST_MAIN(pixmap_test)
-  RUN_TEST(test_bitmap_black);
-  RUN_TEST(test_bitmap_white);
-  RUN_TEST(test_bitmap_checked);
-  RUN_TEST(test_pixmap_black);
-  RUN_TEST(test_pixmap_red);
-  RUN_TEST(test_pixmap_green);
-  RUN_TEST(test_pixmap_blue);
-  RUN_TEST(test_pixmap_white);
-  RUN_TEST(test_pixmap);
-  RUN_TEST(test_pixmap_draw);
-  RUN_TEST(test_pixmap2bitmap);
-  RUN_TEST(test_bitmap2pixmap);
-  RUN_TEST(test_bitmap_scale2pixmap);
-TEST_MAIN_END(pixmap_test)
 
 using namespace gui;
 using namespace gui::draw;
+
 
 inline pixel::rgb color2rgb (os::color c) {
   pixel::rgb p;
@@ -65,7 +30,7 @@ const pixel::rgb green = color2rgb(color::green);
 const pixel::rgb blue = color2rgb(color::blue);
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_bitmap_black) {
+void test_bitmap_black () {
 
   bitmap img(2, 2);
   graphics(img).clear(color::black);
@@ -83,10 +48,10 @@ DEFINE_TEST(test_bitmap_black) {
   EXPECT_EQUAL(bw_raw.pixel(1, 0), pixel::mono::black);
   EXPECT_EQUAL(bw_raw.pixel(1, 1), pixel::mono::black);
 }
-END_TEST(test_bitmap_black)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_bitmap_white) {
+void test_bitmap_white () {
   bitmap img(2, 2);
   graphics(img).clear(color::white);
   EXPECT_TRUE(img.is_valid());
@@ -103,10 +68,10 @@ DEFINE_TEST(test_bitmap_white) {
   EXPECT_EQUAL(bw_raw.pixel(1, 0), pixel::mono::white);
   EXPECT_EQUAL(bw_raw.pixel(1, 1), pixel::mono::white);
 }
-END_TEST(test_bitmap_white)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_bitmap_checked) {
+void test_bitmap_checked () {
   bitmap img(2, 2);
   graphics(img).clear(color::white).draw_pixel({0,1}, color::black).draw_pixel({1, 0}, color::black);
   EXPECT_TRUE(img.is_valid());
@@ -123,10 +88,10 @@ DEFINE_TEST(test_bitmap_checked) {
   EXPECT_EQUAL(bw_raw.pixel(1, 0), pixel::mono::black);
   EXPECT_EQUAL(bw_raw.pixel(1, 1), pixel::mono::white);
 }
-END_TEST(test_bitmap_checked)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_pixmap_black) {
+void test_pixmap_black () {
   const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::black);
@@ -144,10 +109,10 @@ DEFINE_TEST(test_pixmap_black) {
   EXPECT_EQUAL(raw.pixel(1, 0), black);
   EXPECT_EQUAL(raw.pixel(0, 1), black);
 }
-END_TEST(test_pixmap_black)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_pixmap_red) {
+void test_pixmap_red () {
   const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::red);
@@ -165,10 +130,10 @@ DEFINE_TEST(test_pixmap_red) {
   EXPECT_EQUAL(raw.pixel(1, 0), red);
   EXPECT_EQUAL(raw.pixel(1, 1), red);
 }
-END_TEST(test_pixmap_red)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_pixmap_green) {
+void test_pixmap_green () {
   const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::green);
@@ -186,10 +151,10 @@ DEFINE_TEST(test_pixmap_green) {
   EXPECT_EQUAL(raw.pixel(1, 0), green);
   EXPECT_EQUAL(raw.pixel(1, 1), green);
 }
-END_TEST(test_pixmap_green)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_pixmap_blue) {
+void test_pixmap_blue () {
   const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::blue);
@@ -207,10 +172,10 @@ DEFINE_TEST(test_pixmap_blue) {
   EXPECT_EQUAL(raw.pixel(1, 0), blue);
   EXPECT_EQUAL(raw.pixel(1, 1), blue);
 }
-END_TEST(test_pixmap_blue)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_pixmap_white) {
+void test_pixmap_white () {
   const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::white);
@@ -229,10 +194,10 @@ DEFINE_TEST(test_pixmap_white) {
   EXPECT_EQUAL(raw.pixel(1, 1), white);
 
 }
-END_TEST(test_pixmap_white)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_pixmap) {
+void test_pixmap () {
   const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   {
@@ -258,10 +223,10 @@ DEFINE_TEST(test_pixmap) {
   EXPECT_EQUAL(raw.pixel(1, 0), black);
   EXPECT_EQUAL(raw.pixel(1, 1), black);
 }
-END_TEST(test_pixmap)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_pixmap_draw) {
+void test_pixmap_draw () {
 #ifdef X11
 # define EMPTY "000000ff"
 # define BLUE  "ff0000ff"
@@ -360,10 +325,10 @@ DEFINE_TEST(test_pixmap_draw) {
   EXPECT_EQUAL(green_pix, 0);
   EXPECT_EQUAL(blue_pix, 4);
 }
-END_TEST(test_pixmap_draw)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_pixmap2bitmap) {
+void test_pixmap2bitmap () {
   pixmap pix(2, 2);
   {
     graphics g(pix);
@@ -450,10 +415,10 @@ DEFINE_TEST(test_pixmap2bitmap) {
   EXPECT_EQUAL(bw2_raw.pixel(1, 1), pixel::mono::black);
 
 }
-END_TEST(test_pixmap2bitmap)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_bitmap2pixmap) {
+void test_bitmap2pixmap () {
   bwmap bw(2,2);
   using raw_type = image_data<pixel_format_t::BW>;
 //  using raw_data_type = image_data<pixel_format_t::BW>::raw_type;
@@ -473,10 +438,10 @@ DEFINE_TEST(test_bitmap2pixmap) {
   EXPECT_EQUAL(rgb_raw.pixel(1, 1), pixel::color<pixel::rgb>::black);
 
 }
-END_TEST(test_bitmap2pixmap)
+
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_bitmap_scale2pixmap) {
+void test_bitmap_scale2pixmap () {
   bwmap bw(2,2);
   using raw_type = image_data<pixel_format_t::BW>;
 //  using raw_data_type = image_data<pixel_format_t::BW>::raw_type;
@@ -529,7 +494,25 @@ DEFINE_TEST(test_bitmap_scale2pixmap) {
   EXPECT_EQUAL(rgb_raw.pixel(3, 3), pixel::color<pixel::rgb>::black);
 
 }
-END_TEST(test_bitmap_scale2pixmap)
+
+// --------------------------------------------------------------------------
+void test_main () {
+  clog::info() << "Running pixmap_test";
+
+  run_test(test_bitmap_black);
+  run_test(test_bitmap_white);
+  run_test(test_bitmap_checked);
+  run_test(test_pixmap_black);
+  run_test(test_pixmap_red);
+  run_test(test_pixmap_green);
+  run_test(test_pixmap_blue);
+  run_test(test_pixmap_white);
+  run_test(test_pixmap);
+  run_test(test_pixmap_draw);
+  run_test(test_pixmap2bitmap);
+  run_test(test_bitmap2pixmap);
+  run_test(test_bitmap_scale2pixmap);
+}
 
 // --------------------------------------------------------------------------
 

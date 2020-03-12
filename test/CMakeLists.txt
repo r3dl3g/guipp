@@ -101,7 +101,7 @@ endforeach(test)
 
 foreach(test ${apps})
     add_executable(${test} WIN32 ${test}.cpp)
-    target_link_libraries(${test} ${gui_libraries} ${gui_sys_libraries})
+    target_link_libraries(${test} ${gui_app_libraries} ${gui_sys_libraries})
     install(TARGETS ${test} DESTINATION bin)
     set_target_properties(${test} PROPERTIES FOLDER apps)
 endforeach(test)

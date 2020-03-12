@@ -63,7 +63,7 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
 endif()
 
 add_executable(RedImage WIN32 ${SOURCE_FILES})
-target_link_libraries(RedImage ${gui_libraries} ${gui_sys_libraries})
+target_link_libraries(RedImage ${gui_app_libraries} ${gui_sys_libraries})
 target_link_libraries(RedImage ${OpenCV_LIBS})
 
 set_target_properties(RedImage PROPERTIES FOLDER apps)

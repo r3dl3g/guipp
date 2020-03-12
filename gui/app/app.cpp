@@ -58,7 +58,7 @@ int main (int argc, char* argv[]) {
 
   const char* display = NULL;
 
-  std::vector<std::string> args;
+  std::vector<std::string> args(argv, argv + argc);
   for (int i = 0; i < argc; ++i) {
     if (strcmp(argv[i], "-d") == 0) {
       ++i;
@@ -69,7 +69,6 @@ int main (int argc, char* argv[]) {
         return 1;
       }
     }
-    args.push_back(argv[i]);
   }
 
   gui::core::global::init(XOpenDisplay(display));

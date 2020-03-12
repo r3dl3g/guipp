@@ -3,37 +3,9 @@
 #include <gui/draw/graphics.h>
 #include <testlib/testlib.h>
 
-#define NOTHING
-
-DEFINE_LOGGING_CORE(NOTHING)
 
 // --------------------------------------------------------------------------
-DECLARE_TEST(test_bw);
-DECLARE_TEST(test_gray);
-DECLARE_TEST(test_rgb);
-DECLARE_TEST(test_bgr);
-DECLARE_TEST(test_rgba);
-DECLARE_TEST(test_bgra);
-
-DECLARE_TEST(test_gray2rgb);
-DECLARE_TEST(test_rgb2gray);
-DECLARE_TEST(test_rgb2bgr);
-
-// --------------------------------------------------------------------------
-TEST_MAIN(datamap)
-  RUN_TEST(test_bw);
-  RUN_TEST(test_gray);
-  RUN_TEST(test_rgb);
-  RUN_TEST(test_bgr);
-  RUN_TEST(test_rgba);
-  RUN_TEST(test_bgra);
-  RUN_TEST(test_gray2rgb);
-  RUN_TEST(test_rgb2gray);
-  RUN_TEST(test_rgb2bgr);
-TEST_MAIN_END(datamap)
-
-// --------------------------------------------------------------------------
-DEFINE_TEST(test_bw)
+void test_bw () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -55,10 +27,10 @@ DEFINE_TEST(test_bw)
 
   px = static_cast<const bwmap&>(img).get_data().pixel(0, 0);
   EXPECT_EQUAL(px, pixel::mono::white);
-END_TEST(test_bw)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_gray)
+void test_gray () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -75,10 +47,10 @@ DEFINE_TEST(test_gray)
   raw.pixel(0, 0) = pixel::color<pixel::gray>::white;
   EXPECT_EQUAL(raw.pixel(0, 0), pixel::color<pixel::gray>::white);
   EXPECT_EQUAL(raw.pixel(1, 1), pixel::color<pixel::gray>::black);
-END_TEST(test_gray)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_rgb)
+void test_rgb () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -95,10 +67,10 @@ DEFINE_TEST(test_rgb)
   raw.pixel(0, 0) = pixel::color<pixel::rgb>::white;
   EXPECT_EQUAL(raw.pixel(0, 0), pixel::color<pixel::rgb>::white);
   EXPECT_EQUAL(raw.pixel(1, 1), pixel::color<pixel::rgb>::black);
-END_TEST(test_rgb)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_bgr)
+void test_bgr () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -115,10 +87,10 @@ DEFINE_TEST(test_bgr)
   raw.pixel(0, 0) = pixel::color<pixel::bgr>::white;
   EXPECT_EQUAL(raw.pixel(0, 0), pixel::color<pixel::bgr>::white);
   EXPECT_EQUAL(raw.pixel(1, 1), pixel::color<pixel::bgr>::black);
-END_TEST(test_bgr)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_rgba)
+void test_rgba () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -135,10 +107,10 @@ DEFINE_TEST(test_rgba)
   raw.pixel(0, 0) = pixel::color<pixel::rgba>::white;
   EXPECT_EQUAL(raw.pixel(0, 0), pixel::color<pixel::rgba>::white);
   EXPECT_EQUAL(raw.pixel(1, 1), pixel::color<pixel::rgba>::black);
-END_TEST(test_rgba)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_bgra)
+void test_bgra () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -155,10 +127,10 @@ DEFINE_TEST(test_bgra)
   raw.pixel(0, 0) = pixel::color<pixel::bgra>::white;
   EXPECT_EQUAL(raw.pixel(0, 0), pixel::color<pixel::bgra>::white);
   EXPECT_EQUAL(raw.pixel(1, 1), pixel::color<pixel::bgra>::black);
-END_TEST(test_bgra)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_gray2rgb)
+void test_gray2rgb () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -176,10 +148,10 @@ DEFINE_TEST(test_gray2rgb)
   pixel::rgb expected = {0x7F, 0x7F, 0x7F};
   EXPECT_EQUAL(raw.pixel(0, 0), expected);
 
-END_TEST(test_gray2rgb)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_rgb2gray)
+void test_rgb2gray () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -197,10 +169,10 @@ DEFINE_TEST(test_rgb2gray)
   pixel::gray expected = {byte(0x40)};
   EXPECT_EQUAL(raw.pixel(0, 0), expected);
 
-END_TEST(test_rgb2gray)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_rgb2bgr)
+void test_rgb2bgr () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -218,7 +190,21 @@ DEFINE_TEST(test_rgb2bgr)
   pixel::bgr expected = {0x60, 0x40, 0x20};
   EXPECT_EQUAL(raw.pixel(0, 0), expected);
 
-END_TEST(test_rgb2bgr)
+}
+
+// --------------------------------------------------------------------------
+void test_main () {
+  clog::info() << "Running datamap_test";
+  run_test(test_bw);
+  run_test(test_gray);
+  run_test(test_rgb);
+  run_test(test_bgr);
+  run_test(test_rgba);
+  run_test(test_bgra);
+  run_test(test_gray2rgb);
+  run_test(test_rgb2gray);
+  run_test(test_rgb2bgr);
+}
 
 // --------------------------------------------------------------------------
 

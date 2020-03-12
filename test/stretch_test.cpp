@@ -3,11 +3,7 @@
 #include <gui/io/pnm.h>
 #include <testlib/image_test_lib.h>
 #include <testlib/testlib.h>
-#include <logging/core.h>
 
-#define NOTHING
-
-DEFINE_LOGGING_CORE(NOTHING)
 
 // --------------------------------------------------------------------------
 enum stretch {
@@ -37,42 +33,7 @@ float stretcht_factor(stretch st) {
 }
 
 // --------------------------------------------------------------------------
-DECLARE_TEST(test_bw);
-DECLARE_TEST(test_gray);
-DECLARE_TEST(test_rgb);
-DECLARE_TEST(test_rgba);
-
-DECLARE_TEST(test_bw_bilinear);
-DECLARE_TEST(test_gray_bilinear);
-DECLARE_TEST(test_rgb_bilinear);
-DECLARE_TEST(test_rgba_bilinear);
-
-DECLARE_TEST(test_bw_bicubic);
-DECLARE_TEST(test_gray_bicubic);
-DECLARE_TEST(test_rgb_bicubic);
-DECLARE_TEST(test_rgba_bicubic);
-
 stretch stretch_f = stretch_1;
-
-// --------------------------------------------------------------------------
-TEST_MAIN(stretch) {
-  for (stretch_f = stretch_1; stretch_f <= stretch_0_6; stretch_f = (stretch)(stretch_f + 1)) {
-    RUN_TEST(test_bw);
-    RUN_TEST(test_gray);
-    RUN_TEST(test_rgb);
-    RUN_TEST(test_rgba);
-
-    RUN_TEST(test_bw_bilinear);
-    RUN_TEST(test_gray_bilinear);
-    RUN_TEST(test_rgb_bilinear);
-    RUN_TEST(test_rgba_bilinear);
-
-    RUN_TEST(test_bw_bicubic);
-    RUN_TEST(test_gray_bicubic);
-    RUN_TEST(test_rgb_bicubic);
-    RUN_TEST(test_rgba_bicubic);
-  }
-} TEST_MAIN_END(stretch)
 
 // --------------------------------------------------------------------------
 using namespace testing;
@@ -126,7 +87,7 @@ colormap expected_nearest[] = {
 };
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_bw)
+void test_bw () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -151,10 +112,10 @@ DEFINE_TEST(test_bw)
 
   auto buffer = datamap2colormap(stretched);
   EXPECT_EQUAL(buffer, expected_nearest[stretch_f]);
-END_TEST(test_bw)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_gray) {
+void test_gray () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -179,10 +140,10 @@ DEFINE_TEST(test_gray) {
 
   auto buffer = datamap2colormap(stretched);
   EXPECT_EQUAL(buffer, expected_nearest[stretch_f]);
-} END_TEST(test_gray)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_rgb) {
+void test_rgb () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -207,10 +168,10 @@ DEFINE_TEST(test_rgb) {
 
   auto buffer = datamap2colormap(stretched);
   EXPECT_EQUAL(buffer, expected_nearest[stretch_f]);
-} END_TEST(test_rgb)
+}
 
 // --------------------------------------------------------------------------// --------------------------------------------------------------------------
-DEFINE_TEST(test_rgba) {
+void test_rgba () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -235,7 +196,7 @@ DEFINE_TEST(test_rgba) {
 
   auto buffer = datamap2colormap(stretched);
   EXPECT_EQUAL(buffer, expected_nearest[stretch_f]);
-} END_TEST(test_rgba)
+}
 
 // --------------------------------------------------------------------------
 graysmap expected_bilinear[] = {
@@ -336,7 +297,7 @@ graysmap graysmap2bwsmap (graysmap m) {
 }
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_bw_bilinear)
+void test_bw_bilinear () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -363,10 +324,10 @@ DEFINE_TEST(test_bw_bilinear)
 
   auto buffer = datamap2graysmap(stretched);
   EXPECT_EQUAL(buffer, graysmap2bwsmap(expected_bilinear[stretch_f]));
-END_TEST(test_bw_bilinear)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_gray_bilinear) {
+void test_gray_bilinear () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -393,10 +354,10 @@ DEFINE_TEST(test_gray_bilinear) {
 
   auto buffer = datamap2graysmap(stretched);
   EXPECT_EQUAL(buffer, expected_bilinear[stretch_f]);
-} END_TEST(test_gray_bilinear)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_rgb_bilinear) {
+void test_rgb_bilinear () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -423,10 +384,10 @@ DEFINE_TEST(test_rgb_bilinear) {
 
   auto buffer = datamap2graysmap(stretched);
   EXPECT_EQUAL(buffer, expected_bilinear[stretch_f]);
-} END_TEST(test_rgb_bilinear)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_rgba_bilinear) {
+void test_rgba_bilinear () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -451,7 +412,7 @@ DEFINE_TEST(test_rgba_bilinear) {
 
   auto buffer = datamap2graysmap(stretched);
   EXPECT_EQUAL(buffer, expected_bilinear[stretch_f]);
-} END_TEST(test_rgba_bilinear)
+}
 
 // --------------------------------------------------------------------------
 graysmap expected_bicubic[] = {
@@ -503,7 +464,7 @@ graysmap expected_bicubic[] = {
 };
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_bw_bicubic)
+void test_bw_bicubic () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -530,10 +491,10 @@ DEFINE_TEST(test_bw_bicubic)
 
   auto buffer = datamap2graysmap(stretched);
   EXPECT_EQUAL(buffer, graysmap2bwsmap(expected_bicubic[stretch_f]));
-END_TEST(test_bw_bicubic)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_gray_bicubic) {
+void test_gray_bicubic () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -560,10 +521,10 @@ DEFINE_TEST(test_gray_bicubic) {
 
   auto buffer = datamap2graysmap(stretched);
   EXPECT_EQUAL(buffer, expected_bicubic[stretch_f]);
-} END_TEST(test_gray_bicubic)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_rgb_bicubic) {
+void test_rgb_bicubic () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -590,10 +551,10 @@ DEFINE_TEST(test_rgb_bicubic) {
 
   auto buffer = datamap2graysmap(stretched);
   EXPECT_EQUAL(buffer, expected_bicubic[stretch_f]);
-} END_TEST(test_rgb_bicubic)
+}
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_rgba_bicubic) {
+void test_rgba_bicubic () {
   using namespace gui;
   using namespace gui::draw;
 
@@ -618,6 +579,28 @@ DEFINE_TEST(test_rgba_bicubic) {
 
   auto buffer = datamap2graysmap(stretched);
   EXPECT_EQUAL(buffer, expected_bicubic[stretch_f]);
-} END_TEST(test_rgba_bicubic)
+}
+
+// --------------------------------------------------------------------------
+void test_main () {
+  clog::info() << "Running stretch_test";
+
+  for (stretch_f = stretch_1; stretch_f <= stretch_0_6; stretch_f = (stretch)(stretch_f + 1)) {
+    run_test(test_bw);
+    run_test(test_gray);
+    run_test(test_rgb);
+    run_test(test_rgba);
+
+    run_test(test_bw_bilinear);
+    run_test(test_gray_bilinear);
+    run_test(test_rgb_bilinear);
+    run_test(test_rgba_bilinear);
+
+    run_test(test_bw_bicubic);
+    run_test(test_gray_bicubic);
+    run_test(test_rgb_bicubic);
+    run_test(test_rgba_bicubic);
+  }
+}
 
 // --------------------------------------------------------------------------// --------------------------------------------------------------------------

@@ -193,8 +193,8 @@ void test_rgb2bgr () {
 }
 
 // --------------------------------------------------------------------------
-void test_main () {
-  clog::info() << "Running datamap_test";
+void test_main (const testing::start_params& params) {
+  std::cout << "Running datamap_test" << std::endl;
   run_test(test_bw);
   run_test(test_gray);
   run_test(test_rgb);

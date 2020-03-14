@@ -518,8 +518,10 @@ void test_open_folder_icon () {}
 void test_open_folder_icon_selected () {}
 
 // --------------------------------------------------------------------------
-void test_main () {
-  clog::info() << "Running icon_test";
+void test_main (const testing::start_params& params) {
+  testing::init_gui(params);
+
+  std::cout << "Running icon_test" << std::endl;
 
   run_test(test_native_impl);
   run_test(test_bitmap_get_data);

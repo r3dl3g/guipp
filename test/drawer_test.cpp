@@ -3042,8 +3042,9 @@ void test_draw_polygon () {
 }
 
 // --------------------------------------------------------------------------
-void test_main () {
-  clog::info() << "Runningn drawer_test";
+void test_main (const testing::start_params& params) {
+  testing::init_gui(params);
+  std::cout << "Runningn drawer_test" << std::endl;
 
 #ifdef TEST_RAW
   run_test(test_data2colormap);

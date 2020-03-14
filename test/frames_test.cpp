@@ -1008,8 +1008,10 @@ void test_hseparator_raised () {
 }
 
 // --------------------------------------------------------------------------
-void test_main () {
-  clog::info() << "Running frames_test";
+void test_main (const testing::start_params& params) {
+  testing::init_gui(params);
+  std::cout << "Running frames_test" << std::endl;
+
   run_test(test_no_frame);
 
   run_test(test_black_frame);

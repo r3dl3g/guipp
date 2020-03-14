@@ -10,3 +10,6 @@
 [submodule "raspi"]
 	path = raspi
 	url = git@red-space.de:/srv/git/raspi++.git
+[submodule "testing"]
+	path = testing
+	url = git@red-space.de:/srv/git/testing.git

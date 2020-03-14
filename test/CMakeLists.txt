@@ -36,7 +36,9 @@ message(STATUS "app gui_sys_libraries: ${gui_sys_libraries}")
 include_directories(${PROJECT_BINARY_DIR} ${gui_include})
 
 enable_testing()
+
 add_subdirectory(./../testlib testlib)
+add_subdirectory(./../testing testing)
 
 if (BUILD_FOR_ARM)
     add_definitions(-DBUILD_FOR_ARM)
@@ -94,7 +96,7 @@ endif()
 
 foreach(test ${tests})
     add_executable(${test} WIN32 ${test}.cpp)
-    target_link_libraries(${test} testlib ${gui_libraries} ${gui_sys_libraries})
+    target_link_libraries(${test} testing testlib ${gui_libraries} ${gui_sys_libraries})
     add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
     set_target_properties(${test} PROPERTIES FOLDER tests)
 endforeach(test)

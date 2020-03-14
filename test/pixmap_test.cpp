@@ -392,7 +392,7 @@ void test_pixmap2bitmap () {
   data.resize(bmi.bmHeight * bmi.bmWidthBytes);
   int result = GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
   if (result != data.size()) {
-    clog::error() << "GetBitmapBits returned " << result << " expected:" << data.size();
+    std::cerr << "GetBitmapBits returned " << result << " expected:" << data.size() << std::endl;
   }
 #endif // WIN32
 
@@ -496,8 +496,10 @@ void test_bitmap_scale2pixmap () {
 }
 
 // --------------------------------------------------------------------------
-void test_main () {
-  clog::info() << "Running pixmap_test";
+void test_main (const testing::start_params& params) {
+  testing::init_gui(params);
+
+  std::cout << "Running pixmap_test" << std::endl;
 
   run_test(test_bitmap_black);
   run_test(test_bitmap_white);

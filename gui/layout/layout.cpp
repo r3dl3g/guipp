@@ -63,7 +63,7 @@ namespace gui {
     }
 
     void layout_base::add (std::initializer_list<layout_function> list) {
-      for (auto l : list) {
+      for (auto& l : list) {
         add(l);
       }
     }

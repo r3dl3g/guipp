@@ -21,8 +21,27 @@ if(NOT TARGET gui++-layout-obj)
   set (INCLUDE_INSTALL_DIR include/guipp/gui/layout)
   set (LIBRARY_INSTALL_DIR lib/guipp)
 
-  file(GLOB SOURCE_FILES "*.cpp")
-  file(GLOB INCLUDE_FILES "*.h" "*.inl")
+  set(SOURCE_FILES attach_layout.cpp layout.cpp)
+  set(INCLUDE_FILES
+    adaption_layout.h
+    attach_layout.h
+    border_layout.h
+    dynamic_border_layout.h
+    grid_layout.h
+    layout_container.h
+    layout.h
+    lineup_layout.h
+    weighted_layout.h
+    adaption_layout.inl
+    attach_layout.inl
+    border_layout.inl
+    dynamic_border_layout.inl
+    grid_layout.inl
+    layout_container.inl
+    layout.inl
+    lineup_layout.inl
+    weighted_layout.inl
+  )
 
   add_library(gui++-layout-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
 

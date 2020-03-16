@@ -196,11 +196,11 @@ namespace gui {
         orientation_layout () = default;
         orientation_layout (std::initializer_list<layout_function> list);
 
-        type get_dimension1 (const core::point&) const;
-        type get_dimension2 (const core::point&) const;
-        core::size make_size (type dim1, type dim2) const;
-        core::rectangle get_sep_area (const core::rectangle& area, type s) const;
-        void move_area (core::rectangle& area, type offs) const;
+        static type get_dimension1 (const core::point&);
+        static type get_dimension2 (const core::point&);
+        static core::size make_size (type dim1, type dim2);
+        static core::rectangle get_sep_area (const core::rectangle& area, type s);
+        static void move_area (core::rectangle& area, type offs);
 
         std::size_t separator_count () const;
 
@@ -218,12 +218,12 @@ namespace gui {
         origin_layout () = default;
         origin_layout (std::initializer_list<layout_function> list);
 
-        core::rectangle init_area (type border, type dim1, type dim2,
-                                   const core::size&, const core::size&,
-                                   int gap, std::size_t count,
-                                   int sep, std::size_t sep_count) const;
-        void move_area (core::rectangle& area, type offs) const;
-        core::rectangle get_sep_area (const core::rectangle& area, type s) const;
+        static core::rectangle init_area (type border, type dim1, type dim2,
+                                          const core::size&, const core::size&,
+                                          int gap, std::size_t count,
+                                          int sep, std::size_t sep_count);
+        static void move_area (core::rectangle& area, type offs);
+        static core::rectangle get_sep_area (const core::rectangle& area, type s);
       };
 
     } // namespace detail

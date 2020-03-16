@@ -4,15 +4,15 @@
 #include "color_view.h"
 
 #include <gui/layout/layout_container.h>
-#include <gui/layout/adaption_layout.h>
+#include <gui/layout/weighted_layout.h>
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/button.h>
 
 namespace view {
 
-  class status_bar : public gui::win::group_window<gui::layout::horizontal_adaption<2, 10>, gui::color::very_very_light_gray> {
+  class status_bar : public gui::win::group_window<gui::layout::horizontal_weighted<2, 10>, gui::color::very_very_light_gray> {
   public:
-    typedef gui::win::group_window<gui::layout::horizontal_adaption<2, 10>, gui::color::very_very_light_gray> super;
+    typedef gui::win::group_window<gui::layout::horizontal_weighted<2, 10>, gui::color::very_very_light_gray> super;
 
     using status_label = gui::ctrl::basic_label<gui::text_origin_t::vcenter_left,
     gui::draw::frame::sunken_deep_relief,
@@ -27,7 +27,6 @@ namespace view {
 
     gui::ctrl::animated_switch_button<> side_bar_toggle;
     color_view color;
-    super left_view;
     status_label labels[LABEL_COUNT];
   };
 

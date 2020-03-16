@@ -36,6 +36,19 @@ namespace gui {
   namespace layout {
 
     struct weight_element {
+
+      weight_element (layout_function fkt, uint32_t fix)
+        : fkt(fkt)
+        , fix(fix)
+        , weight(0.0F)
+      {}
+
+      weight_element (layout_function fkt, uint32_t fix, float weight)
+        : fkt(fkt)
+        , fix(fix)
+        , weight(weight)
+      {}
+
       layout_function fkt;
       uint32_t fix;
       float weight;

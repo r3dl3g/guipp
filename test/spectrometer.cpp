@@ -74,25 +74,25 @@ public:
   {
     this->on_paint(draw::paint([&] (const graphics& graph) {
       graph.clear(background);
-      if (image.is_valid()) {
+      if (img.is_valid()) {
         if (scan_pos > -1) {
           const core::rectangle r = get_image_area();
-          graph.copy_from(image, r);
-          graph.copy_from(image, core::rectangle(0, scan_pos - r.y(), r.width(), 1), core::point(0, scan_pos - r.y()), copy_mode::bit_dest_invert);
+          graph.copy_from(img, r);
+          graph.copy_from(img, core::rectangle(0, scan_pos - r.y(), r.width(), 1), core::point(0, scan_pos - r.y()), copy_mode::bit_dest_invert);
         } else {
-          graph.copy_from(image, core::point::zero);
+          graph.copy_from(img, core::point::zero);
         }
       }
     }));
   }
 
-  void set_image (const pixmap& img) {
-    image = img;
+  void set_image (const pixmap& pix) {
+    img = pix;
     super::resize(get_image_area().size());
   }
 
   pixmap& get_image () {
-    return image;
+    return img;
   }
 
   int32_t get_scan_pos () const {
@@ -117,13 +117,13 @@ private:
 
   int32_t scan_pos;
   int32_t scan_width;
-  pixmap image;
+  pixmap img;
 };
 
 template<os::color B>
 core::rectangle image_view<B>::get_image_area () const {
-  if (image.is_valid()) {
-    core::size sz = image.scaled_size();
+  if (img.is_valid()) {
+    core::size sz = img.scaled_size();
     if (scan_pos > -1) {
       const float sw = static_cast<float>(scan_width);
       int32_t top = std::min(sz.height() - sw, std::max(0.0F, scan_pos - sw / 2.0F));
@@ -784,9 +784,16 @@ void spectrometer::calc_spectrum () {
   if (capture_view.get_scan_pos() > -1) {
 
     auto display = core::global::get_instance();
+#ifdef X11
     XGCValues values;
     values.function = GXinvert;
     XChangeGC(display, g.os(), GCFunction, &values);
+#endif // X11
+#ifdef WIN32
+    const auto oldROP = GetROP2(g);
+    SetROP2(g, R2_NOT);
+#endif // WIN32
+
 
     std::vector<core::point> lines;
     if (compare_check.is_checked() && norm_line.is_valid()) {
@@ -811,8 +818,13 @@ void spectrometer::calc_spectrum () {
     }
     g.draw_lines(lines, color::white);
 
+#ifdef X11
     values.function = GXcopy;
     XChangeGC(display, g.os(), GCFunction, &values);
+#endif // X11
+#ifdef WIN32
+    SetROP2(g, oldROP);
+#endif // WIN32
   }
 
   spectrum_view.invalidate();

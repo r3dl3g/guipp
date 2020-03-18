@@ -152,7 +152,7 @@ namespace gui {
       return GetPixel(gc, pt.x(), pt.y());
     }
 
-    const graphics& graphics::draw_lines (std::initializer_list<core::point> points,
+    const graphics& graphics::draw_lines (std::vector<core::point> points,
                                           const pen& p) const {
       Use<pen> pn(gc, p);
       const auto off = p.os_size() / 2;

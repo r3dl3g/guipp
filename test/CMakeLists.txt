@@ -19,6 +19,10 @@ elseif (UNIX)
 endif()
 
 add_subdirectory(./../gui gui)
+
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+
 if (BUILD_FOR_ARM)
   add_subdirectory(./../raspi raspi)
 endif()
@@ -33,7 +37,7 @@ message(STATUS "app gui_sys_libraries: ${gui_sys_libraries}")
 # add the binary tree to the search path for include files
 # so that we will find Version.h
 # "${PROJECT_BINARY_DIR}/../IT3DCameraLib"
-include_directories(${PROJECT_BINARY_DIR} ${gui_include})
+include_directories(${PROJECT_BINARY_DIR} ${gui_include} ../boost)
 
 enable_testing()
 

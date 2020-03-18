@@ -23,6 +23,7 @@
 // Library includes
 //
 #include <logging/dbgstream.h>
+#include <logging/file_logger.h>
 #include <logging/logger.h>
 #include <logging/core.h>
 #include <util/string_util.h>
@@ -41,12 +42,10 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
   UNREFERENCED_PARAMETER(lpCmdLine);
   UNREFERENCED_PARAMETER(nCmdShow);
 
-  logging::odebugstream dbgStrm;
-  logging::core::instance().add_sink(&dbgStrm, logging::level::debug, logging::core::get_console_formatter());
+  logging::odebugstream dbgStrm(logging::level::debug, logging::core::get_console_formatter());
 
 #ifndef NDEBUG
-  std::ofstream log_file("gui++.log");
-  logging::core::instance().add_sink(&log_file, logging::level::trace, logging::core::get_standard_formatter());
+  logging::file_logger log_file("gui++.log", logging::level::trace, logging::core::get_standard_formatter());
 #endif // NDEBUG
 
   std::vector<std::string> args = util::string::split<' '>(lpCmdLine);
@@ -81,13 +80,6 @@ int main (int argc, char* argv[]) {
     clog::fatal() << e;
     ret = 1;
   }
-
-#ifdef WIN32
-#ifndef NDEBUG
-  logging::core::instance().remove_sink(&log_file);
-#endif // NDEBUG
-  logging::core::instance().remove_sink(&dbgStrm);
-#endif // WIN32
 
   logging::core::instance().finish();
 

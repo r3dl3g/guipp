@@ -33,6 +33,9 @@ void view::color_range_view::set_hsv_color_range (const cv::Vec3b &mi, const cv:
 
 void view::color_range_view::update () {
   auto native_size = gui::core::global::scale(super::size());
+  if (native_size.empty()) {
+    return;
+  }
   cv::Size sz(native_size.width(), native_size.height());
   cv::Mat hsv_img(sz, CV_8UC3);
 

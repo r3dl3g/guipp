@@ -274,7 +274,7 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     menu_entry("Full View Image 8", '8', [&] () { RedImage::show_full_image(7); }, hot_key('8', state::control), false),
     menu_entry("Full View Image 9", '9', [&] () { RedImage::show_full_image(8); }, hot_key('9', state::control), false),
     menu_entry("Next Image", 'n', util::bind_method(this, &RedImage::show_next), hot_key(keys::right, state::control), true),
-    menu_entry("Previous Image", 'P', util::bind_method(this, &RedImage::show_prev), hot_key(keys::left, state::control), false),
+    menu_entry("Previous Image", 'P', util::bind_method(this, &RedImage::show_prev), hot_key(keys::left, state::control), false)
   });
 
   help_sub_menu.data.add_entry(
@@ -770,22 +770,10 @@ void RedImage::load () {
       auto opt = xml_main.get_child_optional("redimage");
       if (opt) {
         settings.read(opt.get());
-
-//        std::ostringstream buffer;
-//        persistent::io::write_struct(buffer, settings);
-
-//        clog::debug() << "Settings:" << buffer.str();
-
-//        data::redimage_settings s2;
-//        std::istringstream is(buffer.str());
-//        persistent::io::read_struct(is, s2);
-
-//        clog::debug() << "Settings2:" << s2;
-//        clog::debug() << "Settings " << (settings == s2 ? "are equal" : "differ!");
-
         old_settings = settings;
         filter_list.set(settings.colors());
         init_sidebar();
+        filter_list.set_visible(true);
         edit_sub_menu.data[1].set_icon(settings.normalize() ? hook_icon : cross_icon);
       }
     } catch (std::exception& ex) {

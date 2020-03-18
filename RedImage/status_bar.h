@@ -25,7 +25,7 @@ namespace view {
       LABEL_COUNT = 4
     };
 
-    gui::ctrl::animated_switch_button<> side_bar_toggle;
+    gui::ctrl::switch_button<> side_bar_toggle;
     color_view color;
     status_label labels[LABEL_COUNT];
   };

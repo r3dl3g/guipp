@@ -85,6 +85,7 @@ set(tests
     icon_test
     stretch_test
     frames_test
+    csv_test
 )
 
 message(STATUS "gui_libraries: ${gui_libraries}")

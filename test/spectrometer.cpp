@@ -17,6 +17,7 @@
 #include <persistent/ptree_persistent.h>
 
 #include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include <boost/optional.hpp>
 
 #ifdef BUILD_FOR_ARM
@@ -938,6 +939,7 @@ void spectrometer::save_settings () {
 
   using boost::property_tree::ptree;
   namespace xml = boost::property_tree::xml_parser;
+  namespace json = boost::property_tree::json_parser;
 
   try {
     ptree main;
@@ -947,6 +949,7 @@ void spectrometer::save_settings () {
 
     boost::property_tree::xml_writer_settings<ptree::key_type> xml_settings('\t', 1);
     xml::write_xml("spectrometer.xml", xml_main, std::locale(), xml_settings);
+    json::write_json("spectrometer.json", xml_main, std::locale());
   } catch (std::exception& ex) {
     clog::warn() << "Exception while writing spectrometer.xml:" << ex.what();
   }

@@ -44,12 +44,12 @@
 namespace std {
 
   GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::bit_order_t bo) {
-    out << (bo == gui::core::bit_order_t::lsb_first ? "lsb_first" : "msb_first");
+    out << (static_cast<bool>(bo) == static_cast<bool>(gui::core::bit_order_t::lsb_first) ? "lsb_first" : "msb_first");
     return out;
   }
 
   GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::byte_order_t bo) {
-    out << (bo == gui::core::byte_order_t::little_endian ? "little_endian" : "big_endian");
+    out << (static_cast<bool>(bo) == static_cast<bool>(gui::core::byte_order_t::little_endian) ? "little_endian" : "big_endian");
     return out;
   }
 

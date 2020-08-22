@@ -23,6 +23,7 @@
 //
 #include <algorithm>
 #include <map>
+#include <string.h>
 
 #ifdef X11
 # include <X11/cursorfont.h>

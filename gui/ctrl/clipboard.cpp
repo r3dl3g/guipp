@@ -22,6 +22,7 @@
 //
 #include <util/string_util.h>
 #include <gui/ctrl/clipboard.h>
+#include <limits>
 
 namespace gui {
 
@@ -156,7 +157,7 @@ namespace gui {
         unsigned long ressize, restail;
         char *result;
         Atom format;
-        XGetWindowProperty(e.xselection.display, e.xselection.requestor, detail::XSEL_DATA, 0, LONG_MAX / 4, True, AnyPropertyType,
+        XGetWindowProperty(e.xselection.display, e.xselection.requestor, detail::XSEL_DATA, 0, std::numeric_limits<long>::max() / 4, True, AnyPropertyType,
                            &format, &resbits, &ressize, &restail, (unsigned char**)&result);
         if ((format == detail::UTF8_STRING) || (format == XA_STRING)) {
           cb(std::string(result, ressize));

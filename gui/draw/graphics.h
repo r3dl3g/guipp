@@ -122,14 +122,15 @@ namespace gui {
       operator os::graphics () const;
       operator os::drawable() const;
 
-#ifdef X11
+#ifdef USE_XFT
       operator XftDraw* () const;
-#endif // X11
+#endif // USE_XFT
 
     protected:
-#ifdef X11
+#ifdef USE_XFT
       XftDraw* get_xft () const;
-#endif // X11
+#endif // USE_XFT
+
 
       friend struct clip;
       void push_clipping (const core::rectangle&) const;

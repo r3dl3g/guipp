@@ -74,6 +74,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct pen;
     struct brush;
+    struct font;
 
     // --------------------------------------------------------------------------
     template<>
@@ -81,6 +82,11 @@ namespace gui {
 
     template<>
     void Use<brush>::set (const brush& b);
+
+#ifndef USE_XFT
+    template<>
+    void Use<font>::set(const font&);
+#endif // USE_XFT
 
 #endif // X11
 

@@ -27,7 +27,11 @@
 #endif // XCB
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#ifdef USE_XFT
 #include <X11/Xft/Xft.h>
+#else
+#include <X11/extensions/Xrender.h>
+#endif // USE_XFT
 
 // --------------------------------------------------------------------------
 //
@@ -52,12 +56,20 @@ namespace gui {
     typedef Pixmap icon;
     typedef Cursor cursor;
     typedef color brush;
+#ifdef USE_XFT
     typedef XftPattern* font;
+#else
+    typedef Font font;
+#endif // USE_XFT
     typedef int menu;
 
     typedef short point_type;
     typedef unsigned short size_type;
+#ifdef USE_XFT
     typedef XftFont* font_type;
+#else
+    typedef XFontStruct* font_type;
+#endif // USE_XFT
     typedef unsigned int cursor_type;
 
     typedef unsigned int key_state;
@@ -95,3 +107,17 @@ namespace gui {
   } // core
 
 } //gui
+
+#ifndef USE_XFT
+
+#define FC_WEIGHT_THIN       1
+#define FC_WEIGHT_ULTRALIGHT 2
+#define FC_WEIGHT_LIGHT      3
+#define FC_WEIGHT_REGULAR    4
+#define FC_WEIGHT_MEDIUM     5
+#define FC_WEIGHT_SEMIBOLD   6
+#define FC_WEIGHT_BOLD       7
+#define FC_WEIGHT_ULTRABOLD  8
+#define FC_WEIGHT_HEAVY      9
+
+#endif // USE_XFT

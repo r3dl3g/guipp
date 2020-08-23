@@ -24,6 +24,7 @@
 #include <gui/draw/use.h>
 #include <gui/draw/pen.h>
 #include <gui/draw/brush.h>
+#include <gui/draw/font.h>
 
 namespace gui {
 
@@ -67,6 +68,13 @@ namespace gui {
       XSetForeground(display, g, b.color());
       XSetFillStyle(display, g, b.style());
     }
+
+#ifndef USE_XFT
+    template<>
+    void Use<font>::set(const font& f) {
+      XSetFont(core::global::get_instance(), g, f);
+    }
+#endif // USE_XFT
 
 #endif // X11
 

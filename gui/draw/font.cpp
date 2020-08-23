@@ -36,11 +36,8 @@
 //
 #include <logging/logger.h>
 #include <gui/draw/font.h>
-
-#ifdef WIN32
-# include <util/string_util.h>
-#endif // WIN32
-
+#include <util/string_util.h>
+#
 
 namespace std {
   template<typename T>
@@ -78,6 +75,7 @@ namespace gui {
 
       void init_font_scale () {
         if (s_font_scale == 0.0) {
+#ifdef USE_XFT
           os::font_type info = XftFontOpen(core::global::get_instance(),
                                            core::global::x11::get_screen(),
                                            XFT_FAMILY, XftTypeString, "Courier",
@@ -89,6 +87,7 @@ namespace gui {
           XftPatternGetDouble(info->pattern, XFT_DPI, 0, &dpi);
           s_font_scale = 96 / dpi * core::global::get_scale_factor();
           XftFontClose(core::global::get_instance(), info);
+#endif // USE_XFT
         }
       }
     }
@@ -318,12 +317,91 @@ namespace gui {
     }
 
     font::font (os::font id) {
+#ifdef USE_XFT
       info = XftFontOpenPattern(core::global::get_instance(), id);
+#else
+      info = XQueryFont(core::global::get_instance(), id);
+#endif // USE_XFT
+    }
+
+    std::string buildFontName(const std::string& name,
+                              font::size_type size,
+                              font::Thickness thickness,
+                              bool italic) {
+      std::ostringstream s;
+      s << "-*-" << name << "-";
+      switch (thickness) {
+        case font::Thickness::thin:
+          s << "thin";
+          break;
+        case font::Thickness::ultraLight:
+        case font::Thickness::light:
+          s << "light";
+          break;
+        case font::Thickness::regular:
+        case font::Thickness::medium:
+          s << "medium";
+          break;
+        case font::Thickness::semiBold:
+        case font::Thickness::bold:
+        case font::Thickness::ultraBold:
+        case font::Thickness::heavy:
+          s << "bold";
+          break;
+        default:
+          s << "*";
+      }
+      s << "-" << (italic ? "i" : "r") << "-normal-*-" << (size * 10) << "-*";
+
+      std::string str = s.str();
+      //std::transform(str.begin(), str.end(), str.begin(), tolower);
+      return str;
     }
 
     font::font (os::font_type id)
       : info(id)
     {}
+
+    std::vector<std::string> tokenize (const std::string& full_name) {
+      return util::string::split<'-'>(full_name);
+    }
+
+    void parseFontName(const std::string& full_name,
+                       std::string* name = nullptr,
+                       font::size_type* size = nullptr,
+                       font::Thickness* thickness = nullptr,
+                       bool* italic = nullptr) {
+
+      std::vector<std::string> strs = tokenize(full_name);
+      clog::debug() << "Font:'" << full_name << "' parts:" << strs;
+      if (name && strs.size() > 2) {
+        *name = strs[2];
+      }
+      if (thickness && (strs.size() > 3)) {
+        const std::string& thck = strs[3];
+        if (thck == "thin") {
+          *thickness = font::Thickness::thin;
+        } else if (thck == "light") {
+          *thickness = font::Thickness::light;
+        } else if (thck == "medium") {
+          *thickness = font::Thickness::medium;
+        } else if (thck == "bold") {
+          *thickness = font::Thickness::bold;
+        } else {
+          *thickness = font::Thickness::regular;
+        }
+      }
+      if (italic && (strs.size() > 4)) {
+        *italic = (strs[4] == "i") || (strs[4] == "I");
+      }
+      if (size && (strs.size() > 8) && (strs[8].size() > 0)) {
+        clog::debug() << "Font size:" << strs[8];
+        *size = std::stoi(strs[8]) / 10;
+      } else if (size && (strs.size() > 7) && (strs[7].size() > 0)) {
+        clog::debug() << "Font size:" << strs[7];
+        *size = std::stoi(strs[7]);
+      }
+    }
 
     font::font (const std::string& name,
                 font::size_type size,
@@ -335,6 +413,7 @@ namespace gui {
       : info(nullptr)
     {
       init_font_scale();
+#ifdef USE_XFT
       info = XftFontOpen(core::global::get_instance(),
                          core::global::x11::get_screen(),
                          XFT_FAMILY, XftTypeString, name.c_str(),
@@ -342,11 +421,24 @@ namespace gui {
                          XFT_WEIGHT, XftTypeInteger, (int)thickness,
                          XFT_SLANT, XftTypeInteger, (italic ? FC_SLANT_ITALIC : 0),
                          NULL);
+#else
+      std::string full_name = buildFontName(name, size, thickness, italic);
+      clog::debug() << "Load Query Font:'" << full_name << "'";
+      os::font_type f = XLoadQueryFont(core::global::get_instance(), full_name.c_str());
+      if (!f) {
+        f = XLoadQueryFont(core::global::get_instance(), "fixed");
+      }
+      info = f;
+#endif // USE_XFT
     }
 
     font::font (const font& rhs)
       : info(nullptr) {
+#ifdef USE_XFT
       info = XftFontCopy(core::global::get_instance(), rhs.info);
+#else
+      info = XLoadQueryFont(core::global::get_instance(), rhs.get_full_name().c_str());
+#endif // USE_XFT
     }
 
     font& font::operator= (const font& rhs) {
@@ -355,7 +447,11 @@ namespace gui {
       }
       destroy();
       if (rhs.info) {
+#ifdef USE_XFT
         info = XftFontCopy(core::global::get_instance(), rhs.info);
+#else
+        info = XLoadQueryFont(core::global::get_instance(), rhs.get_full_name().c_str());
+#endif // USE_XFT
       }
       return *this;
     }
@@ -367,26 +463,58 @@ namespace gui {
     void font::destroy () {
       if (info) {
         if (core::global::get_instance()) {
+#ifdef USE_XFT
           XftFontClose(core::global::get_instance(), info);
+#else
+          XFreeFont(core::global::get_instance(), info);
+#endif // USE_XFT
         }
         info = nullptr;
       }
     }
 
     font::operator os::font() const {
+#ifdef USE_XFT
       return (info ? info->pattern : nullptr);
+#else
+      return info ? info->fid : 0;
+#endif // USE_XFT
     }
 
     os::font_type font::font_type () const {
       return info;
     }
 
+#ifndef USE_XFT
+    std::string font::get_full_name() const {
+      if (info) {
+        unsigned long pid;
+        if (XGetFontProperty(info, XA_FONT, &pid)) {
+          std::string full_name;
+          char* name = XGetAtomName(core::global::get_instance(), (Atom)pid);
+          if (name) {
+            full_name = name;
+            XFree(name);
+          }
+          return full_name;
+        }
+      }
+      return std::string();
+    }
+#endif // USE_XFT
+
     std::string font::name () const {
       if (info) {
+#ifdef USE_XFT
         char* name = nullptr;
         if (XftResultMatch == XftPatternGetString(info->pattern, XFT_FAMILY, 0, &name)) {
           return name;
         }
+#else
+	std::string name;
+	parseFontName(get_full_name(), &name);
+	return name;
+#endif // USE_XFT
       }
       return std::string();
     }
@@ -394,9 +522,15 @@ namespace gui {
     font::size_type font::size () const {
       if (info) {
         double sz;
+#ifdef USE_XFT
         if (XftResultMatch == XftPatternGetDouble(info->pattern, XFT_SIZE, 0, &sz)) {
           return static_cast<font::size_type>(sz);
         }
+#else
+      font::size_type size = -1;
+      parseFontName(get_full_name(), nullptr, &size);
+      return size;
+#endif // USE_XFT
       }
       return STD_FONT_SIZE;
     }
@@ -404,9 +538,15 @@ namespace gui {
     font::Thickness font::thickness () const {
       if (info) {
         int sz;
+#ifdef USE_XFT
         if (XftResultMatch == XftPatternGetInteger(info->pattern, XFT_WEIGHT, 0, &sz)) {
           return font::Thickness(sz);
         }
+#else
+      font::Thickness thickness = Thickness::regular;
+      parseFontName(get_full_name(), nullptr, nullptr, &thickness);
+      return thickness;
+#endif // USE_XFT
       }
       return font::Thickness::regular;
     }
@@ -418,9 +558,15 @@ namespace gui {
     bool font::italic () const {
       if (info) {
         int sz;
+#ifdef USE_XFT
         if (XftResultMatch == XftPatternGetInteger(info->pattern, XFT_SLANT, 0, &sz)) {
           return sz != 0;
         }
+#else
+      bool italic = false;
+      parseFontName(get_full_name(), nullptr, nullptr, nullptr, &italic);
+      return italic;
+#endif // USE_XFT
       }
       return false;
     }
@@ -439,7 +585,11 @@ namespace gui {
 
     font::size_type font::native_line_height () const {
       if (info) {
+#ifdef USE_XFT
         return info->height;
+#else
+        return info->ascent + info->descent;
+#endif // USE_XFT
       }
       return STD_FONT_SIZE;
     }
@@ -475,6 +625,7 @@ namespace gui {
 
     core::size font::get_text_size (const std::string& str) const {
       if (font_type()) {
+#ifdef USE_XFT
         XGlyphInfo extents;
         XftTextExtentsUtf8(core::global::get_instance(),
                            font_type(),
@@ -482,6 +633,9 @@ namespace gui {
                            int(str.size()),
                            &extents);
         return core::size(core::global::scale<core::size::type>(extents.width), core::global::scale<core::size::type>(extents.height));
+#else
+        return core::size(XTextWidth(font_type(), str.c_str(), str.size()));
+#endif // USE_XFT
       }
       return core::size::zero;
     }

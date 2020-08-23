@@ -333,7 +333,7 @@ namespace gui {
       };
     }
 
-
+#ifdef USE_XFT
     XftDraw* get_xft_draw (os::drawable target) {
       static XftDraw* s_xft = nullptr;
 
@@ -355,6 +355,7 @@ namespace gui {
       }
       return s_xft;
     }
+#endif // USE_XFT
 
     // --------------------------------------------------------------------------
     graphics::graphics (os::drawable target, os::graphics gc)
@@ -363,7 +364,9 @@ namespace gui {
       , own_gc(false)
       , ref_gc(false)
     {
+#ifdef USE_XFT
       get_xft();
+#endif // USE_XFT
     }
 
     graphics::graphics (draw::basic_map& target)
@@ -374,7 +377,9 @@ namespace gui {
     {
       gc = XCreateGC(get_instance(), target, 0, 0);
       own_gc = true;
+#ifdef USE_XFT
       get_xft();
+#endif // USE_XFT
     }
 
     graphics::graphics (const graphics& rhs)
@@ -383,7 +388,9 @@ namespace gui {
       , own_gc(false)
       , ref_gc(false)
     {
+#ifdef USE_XFT
       get_xft();
+#endif // USE_XFT
       operator= (rhs);
     }
 
@@ -564,7 +571,9 @@ namespace gui {
       os::rectangle r = rect.os();
       clipping_stack.push_back(r);
       XSetClipRectangles(get_instance(), gc, 0, 0, &r, 1, Unsorted);
+#ifdef USE_XFT
       XftDrawSetClipRectangles(get_xft(), 0, 0, &r, 1);
+#endif // USE_XFT
     }
 
     void graphics::pop_clipping () const {
@@ -577,14 +586,19 @@ namespace gui {
     void graphics::restore_clipping () const {
       if (clipping_stack.empty()) {
         XSetClipMask(get_instance(), gc, None);
+#ifdef USE_XFT
         XftDrawSetClip(get_xft(), None);
+#endif // USE_XFT
       } else {
         os::rectangle& r = clipping_stack.back();
         XSetClipRectangles(get_instance(), gc, 0, 0, &r, 1, Unsorted);
+#ifdef USE_XFT
         XftDrawSetClipRectangles(get_xft(), 0, 0, &r, 1);
+#endif // USE_XFT
       }
     }
 
+#ifdef USE_XFT
     XftDraw* graphics::get_xft () const {
       return get_xft_draw(target);
     }
@@ -592,6 +606,7 @@ namespace gui {
     graphics::operator XftDraw* () const {
       return get_xft();
     }
+#endif // USE_XFT
 
 #endif // X11
     // --------------------------------------------------------------------------

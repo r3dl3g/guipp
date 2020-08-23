@@ -104,6 +104,13 @@ namespace gui {
 
     private:
       void destroy ();
+
+#ifdef X11
+# ifndef USE_XFT
+      std::string get_full_name() const;
+# endif // USE_XFT
+#endif // X11
+
 #ifdef WIN32
       os::font id;
 #endif // WIN32

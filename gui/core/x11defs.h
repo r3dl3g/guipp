@@ -29,7 +29,6 @@
 #include <X11/Xatom.h>
 #ifdef USE_XFT
 #include <X11/Xft/Xft.h>
-#else
 #include <X11/extensions/Xrender.h>
 #endif // USE_XFT
 

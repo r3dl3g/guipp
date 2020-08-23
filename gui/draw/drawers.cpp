@@ -469,6 +469,7 @@ namespace gui {
 #ifdef X11
     using namespace core::global;
 
+#ifdef USE_XFT
     // --------------------------------------------------------------------------
     struct render_color : XRenderColor {
       render_color (os::color c)
@@ -482,7 +483,6 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-#ifdef USE_XFT
     struct xft_color : public XftColor {
       xft_color (os::color c, XftDraw* xft)
         : xft(xft) {

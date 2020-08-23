@@ -22,7 +22,9 @@ if(NOT TARGET gui++-app-obj)
 
   set_target_properties(gui++-app-obj PROPERTIES 
                         POSITION_INDEPENDENT_CODE ON
-                        FOLDER libraries)
+                        FOLDER libraries
+                        CXX_STANDARD 11
+  )
 
   add_library(gui++-app STATIC $<TARGET_OBJECTS:gui++-app-obj>)
   install(TARGETS gui++-app DESTINATION ${LIBRARY_INSTALL_DIR})

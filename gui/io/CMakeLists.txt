@@ -27,7 +27,9 @@ if(NOT TARGET gui++-io-obj)
     add_library(gui++-io-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
     set_target_properties(gui++-io-obj PROPERTIES
                           POSITION_INDEPENDENT_CODE ON
-                          FOLDER libraries)
+                          FOLDER libraries
+                          CXX_STANDARD 11
+    )
 
     if(GUIPP_BUILD_STATIC_MODULE_LIBS)
         add_definitions(-DGUIPP_BUILT_AS_STATIC)
@@ -43,7 +45,9 @@ if(NOT TARGET gui++-io-obj)
                                        POSITION_INDEPENDENT_CODE ON
                                        FOLDER libraries
                                        VERSION ${gui_VERSION}
-                                       SOVERSION ${gui_VERSION_MAJOR})
+                                       SOVERSION ${gui_VERSION_MAJOR}
+                                       CXX_STANDARD 11
+        )
         install(TARGETS gui++-io DESTINATION ${LIBRARY_INSTALL_DIR})
     endif()
 

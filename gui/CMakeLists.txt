@@ -170,6 +170,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
                           FOLDER libraries
                           VERSION ${gui_VERSION}
                           SOVERSION ${gui_VERSION_MAJOR}
+                          CXX_STANDARD 11
     )
 
     install(TARGETS gui++ DESTINATION ${LIBRARY_INSTALL_DIR})
@@ -179,7 +180,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       EXPORT_MACRO_NAME GUIPP_EXPORT
       EXPORT_FILE_NAME gui++-export.h
       STATIC_DEFINE GUIPP_BUILT_AS_STATIC
-      )
+    )
 
   elseif(GUIPP_BUILD_SHARED_MODULE_LIBS)
     message(STATUS "gui build multiple shared gui libraries")
@@ -195,6 +196,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
                           FOLDER libraries
                           VERSION ${gui_VERSION}
                           SOVERSION ${gui_VERSION_MAJOR}
+                          CXX_STANDARD 11
     )
 
     install(TARGETS gui++ DESTINATION ${LIBRARY_INSTALL_DIR})
@@ -215,9 +217,10 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
     set_target_properties(gui++-static PROPERTIES
                           POSITION_INDEPENDENT_CODE ON
-	                      FOLDER libraries
+                          FOLDER libraries
                           VERSION ${gui_VERSION}
                           SOVERSION ${gui_VERSION_MAJOR}
+                          CXX_STANDARD 11
     )
 
     install(TARGETS gui++-static DESTINATION ${LIBRARY_INSTALL_DIR})

@@ -403,6 +403,7 @@ namespace gui {
       }
 
       int get_xlib_dpi () {
+# ifdef USE_XFT
         int dpi = 0;
         const int screen_count = ScreenCount(get_instance());
         for (int i = 0; i < screen_count; ++i) {
@@ -411,6 +412,10 @@ namespace gui {
         }
         clog::debug() << "X11.dpi = " << dpi;
         return dpi;
+# else
+        clog::debug() << "X11.dpi = 220";
+        return 220;
+# endif
       }
 
       double calc_scale_factor () {

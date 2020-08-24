@@ -87,7 +87,10 @@ namespace gui {
           XftPatternGetDouble(info->pattern, XFT_DPI, 0, &dpi);
           s_font_scale = 96 / dpi * core::global::get_scale_factor();
           XftFontClose(core::global::get_instance(), info);
+#else
+          s_font_scale = core::global::get_scale_factor();
 #endif // USE_XFT
+          clog::debug() << "Font scale = " << s_font_scale;
         }
       }
     }
@@ -422,7 +425,7 @@ namespace gui {
                          XFT_SLANT, XftTypeInteger, (italic ? FC_SLANT_ITALIC : 0),
                          NULL);
 #else
-      std::string full_name = buildFontName(name, size, thickness, italic);
+      std::string full_name = buildFontName(name, (double)font_scale(size), thickness, italic);
       clog::debug() << "Load Query Font:'" << full_name << "'";
       os::font_type f = XLoadQueryFont(core::global::get_instance(), full_name.c_str());
       if (!f) {
@@ -511,9 +514,9 @@ namespace gui {
           return name;
         }
 #else
-	std::string name;
-	parseFontName(get_full_name(), &name);
-	return name;
+        std::string name;
+        parseFontName(get_full_name(), &name);
+        return name;
 #endif // USE_XFT
       }
       return std::string();

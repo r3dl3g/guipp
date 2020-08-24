@@ -23,10 +23,6 @@ add_subdirectory(./../gui gui)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
-if (BUILD_FOR_ARM)
-  add_subdirectory(./../raspi raspi)
-endif()
-
 add_definitions(${gui_defines})
 message(STATUS "app gui_defines: ${gui_defines}")
 message(STATUS "app gui_include: ${gui_include}")
@@ -44,40 +40,6 @@ enable_testing()
 add_subdirectory(./../testlib testlib)
 add_subdirectory(./../testing testing)
 
-if (BUILD_FOR_ARM)
-    add_definitions(-DBUILD_FOR_ARM)
-    set (MMAL_LIBS mmal_core mmal_util mmal_vc_client bcm_host rt vcsm vchiq_arm vcos)
-    include_directories(/opt/raspberrypi/rootfs/opt/vc/include /opt/vc/include)
-
-# bcm_host
-    set(apps
-        raspicam_test
-        spectrometer
-        WindowTest
-        BorderTest
-        hello_world
-        filemanager
-        list_app
-        tree_app
-        new_border_layout
-        attach_all_layout
-        dialogs
-    )
-else()
-    set(apps
-        WindowTest
-        BorderTest
-        hello_world
-        filemanager
-        list_app
-        tree_app
-        new_border_layout
-        attach_all_layout
-        dialogs
-        spectrometer
-    )
-endif()
-
 set(tests
     datamap_test
     pixmap_test
@@ -94,26 +56,9 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
     add_definitions(/Y- /bigobj)
 endif()
 
-if (BUILD_FOR_ARM)
-    LINK_DIRECTORIES(/opt/raspberrypi/sysroot/opt/vc/lib)
-    LINK_DIRECTORIES(/opt/vc/lib)
-endif()
-
 foreach(test ${tests})
     add_executable(${test} WIN32 ${test}.cpp)
     target_link_libraries(${test} testing testlib ${gui_libraries} ${gui_sys_libraries})
     add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
     set_target_properties(${test} PROPERTIES FOLDER tests)
 endforeach(test)
-
-foreach(test ${apps})
-    add_executable(${test} WIN32 ${test}.cpp)
-    target_link_libraries(${test} ${gui_app_libraries} ${gui_sys_libraries})
-    install(TARGETS ${test} DESTINATION bin)
-    set_target_properties(${test} PROPERTIES FOLDER apps)
-endforeach(test)
-
-if (BUILD_FOR_ARM)
-    target_link_libraries(raspicam_test testlib ${raspipp_libraries} ${MMAL_LIBS})
-    target_link_libraries(spectrometer testlib ${raspipp_libraries} ${MMAL_LIBS})
-endif()

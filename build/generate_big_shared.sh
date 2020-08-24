@@ -1,5 +1,5 @@
 
-builddir=build/$(g++ --version | { read first rest ; echo $first ; })$(c++ -dumpversion)-big-shared
+builddir=./$(g++ --version | { read first rest ; echo $first ; })$(c++ -dumpversion)-big-shared
 prjdir=$PWD
 
 #mkdir -p $builddir/debug

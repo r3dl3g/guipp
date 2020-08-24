@@ -1,5 +1,5 @@
 
-builddir=build/$(c++ --version | { read first rest ; echo $first ; })$(c++ -dumpversion)-no-static
+builddir=./$(c++ --version | { read first rest ; echo $first ; })$(c++ -dumpversion)-no-static
 prjdir=$PWD
 
 mkdir -p $builddir/debug

@@ -1,4 +1,4 @@
-DIR=build/clang
+DIR=./clang
 export CC=clang
 export CXX=clang++
 mkdir -p $DIR/debug

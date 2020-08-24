@@ -7,8 +7,8 @@ export RASPBIAN_ROOTFS=$RASPBIAN_BASE/rootfs
 export PATH=/opt/raspberrypi/cross-pi-gcc/bin:/opt/raspberrypi/cross-pi-gcc/libexec/gcc/arm-linux-gnueabihf/8.3.0:$PATH
 export RASPBERRY_VERSION=1
 
-BUILD_DIR_R=$DIR/build/armhf/Debug
-BUILD_DIR_R=$DIR/build/armhf/Release
+BUILD_DIR_R=$DIR/./armhf/Debug
+BUILD_DIR_R=$DIR/./armhf/Release
 if [ ! -d $BUILD_DIR_D ]; then
   mkdir -p $BUILD_DIR_D
 fi

@@ -1,6 +1,6 @@
 @echo off
 
-set BUILD_DIR=build
+set BUILD_DIR=.
 set GENERATOR=Visual Studio
 set CLANG_TOOLSET=undefined
 

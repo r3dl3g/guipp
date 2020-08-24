@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
 project("gui-lib" CXX)
 
-set(BUILD_FOR_ARM ON CACHE BOOL "On to build for arm architecture, Off for host architecture. default Off")
-
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 function(print_var VAR)
@@ -34,8 +32,6 @@ else()
     set(INSTALL_BASE_DIR "/usr/local")
 endif ()
 
-add_definitions(-std=c++14)
-
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/obj)
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -50,21 +46,10 @@ elseif (UNIX)
     add_definitions(-DX11 -lstdc++fs)
 endif ()
 
-if (BUILD_FOR_ARM)
-    add_definitions(-DBUILD_FOR_ARM -Wno-psabi)
-endif ()
-
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_definitions(-std=c++14 -fexceptions -Wall -Wno-switch -Wno-unused-command-line-argument -Wno-sign-compare)
 endif ()
 
 add_subdirectory(gui)
-add_subdirectory(persistent)
 add_subdirectory(test)
-add_subdirectory(ShowBtrfs)
-add_subdirectory(TimeTracker)
-if (BUILD_FOR_ARM)
-    add_subdirectory(raspi)
-else()
-  add_subdirectory(RedImage)
-endif()
+add_subdirectory(samples)

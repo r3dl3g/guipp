@@ -1,6 +1,6 @@
 
 builddir=./$(c++ --version | { read first rest ; echo $first ; })$(c++ -dumpversion)
-prjdir=$PWD
+prjdir=$PWD/..
 
 mkdir -p $builddir
 pushd $builddir

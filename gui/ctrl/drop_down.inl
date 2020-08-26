@@ -246,12 +246,12 @@ namespace gui {
     }
 
     template<typename T, drop_down_drawer<T> D>
-    inline void drop_down_list<T, D>::set_drawer (const std::function<list::draw_list_item>& drawer) {
+    inline void drop_down_list<T, D>::set_drawer (const std::function<list::item_drawer>& drawer) {
       data.items.set_drawer(drawer);
     }
 
     template<typename T, drop_down_drawer<T> D>
-    inline void drop_down_list<T, D>::set_drawer (std::function<list::draw_list_item>&& drawer) {
+    inline void drop_down_list<T, D>::set_drawer (std::function<list::item_drawer>&& drawer) {
       data.items.set_drawer(std::move(drawer));
     }
 

@@ -63,15 +63,18 @@ void test_parse_none_text_entry () {
 }
 
 // --------------------------------------------------------------------------
-template<typename T>
-std::ostream& operator<< (std::ostream& out, const std::vector<T>& l) {
-  out << '[';
-  bool first = true;
-  for (const auto& i : l) {
-    out << (first ? "" : ", ") << i;
-    first = false;
+namespace std {
+  template<typename T>
+  std::ostream& operator<< (std::ostream& out, const std::vector<T>& l) {
+    out << '[';
+    bool first = true;
+    for (const auto& i : l) {
+      out << (first ? "" : ", ") << i;
+      first = false;
+    }
+    out << ']';
+    return out;
   }
-  out << ']';
 }
 
 // --------------------------------------------------------------------------

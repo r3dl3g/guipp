@@ -64,14 +64,14 @@ namespace gui {
 
         void set_background (os::color background);
 
-        typedef void (draw_list_item)(std::size_t idx,
-                                      const draw::graphics&,
-                                      const core::rectangle& place,
-                                      const draw::brush& background,
-                                      item_state state);
+        typedef void (item_drawer) (std::size_t idx,
+                                    const draw::graphics&,
+                                    const core::rectangle& place,
+                                    const draw::brush& background,
+                                    item_state state);
 
-        void set_drawer (const std::function<draw_list_item>& drawer);
-        void set_drawer (std::function<draw_list_item>&& drawer);
+        void set_drawer (const std::function<item_drawer>& drawer);
+        void set_drawer (std::function<item_drawer>&& drawer);
 
       protected:
         void draw_item (std::size_t idx,
@@ -93,7 +93,7 @@ namespace gui {
       private:
         void init ();
 
-        std::function<draw_list_item> drawer;
+        std::function<item_drawer> drawer;
 
       };
 
@@ -261,7 +261,6 @@ namespace gui {
       void create_scroll_bar (const core::size&);
 
       void init ();
-
     };
 
     // --------------------------------------------------------------------------

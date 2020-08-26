@@ -532,12 +532,9 @@ namespace gui {
                                  win::window_class_defaults<>::ex_style,
                                  InputOutput>;
       using super = window;
-      container& parent;
-//      std::string old_value;
 
     public:
       input_only_window (container& parent)
-        : parent(parent)
       {
         super::create(clazz::get(), parent, parent.client_area());
         to_front();

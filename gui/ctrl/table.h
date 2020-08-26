@@ -79,7 +79,9 @@ namespace gui {
 
         // --------------------------------------------------------------------------
         template<typename T>
-        struct vector {
+        struct vector : public std::vector<T> {
+          typedef std::vector<T> super;
+
           vector (const T& default_data);
 
           const T& get (std::size_t idx) const;
@@ -88,13 +90,9 @@ namespace gui {
           const T& operator[] (std::size_t idx) const;
           T& operator[] (std::size_t idx);
 
-          std::size_t size () const;
-          void clear ();
-
           const T& get_default_data () const;
 
         private:
-          std::vector<T> data;
           const T default_data;
         };
 

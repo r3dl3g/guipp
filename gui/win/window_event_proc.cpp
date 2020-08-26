@@ -241,7 +241,7 @@ namespace gui {
                  << (int)data[0] << ' ' << (int)data[1] << ' ' << (int)data[2] << ' ' << (int)data[3] << ' '
                  << (int)data[4] << ' ' << (int)data[5] << ' ' << (int)data[6] << ' ' << (int)data[7];
 #endif //LOG_GET_WINDOW_PROPERTY
-        int status = XChangeProperty(core::global::get_instance(), id,
+        /*int status =*/ XChangeProperty(core::global::get_instance(), id,
                         core::x11::GUI_LIB_WIN_PTR,
                         XA_CARDINAL, 8, PropModeReplace,
                         data, sizeof(win));

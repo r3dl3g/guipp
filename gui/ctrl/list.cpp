@@ -87,11 +87,11 @@ namespace gui {
         });
       }
 
-      void list_base::set_drawer (const std::function<draw_list_item>& drawer) {
+      void list_base::set_drawer (const std::function<item_drawer>& drawer) {
         this->drawer = drawer;
       }
 
-      void list_base::set_drawer (std::function<draw_list_item>&& drawer) {
+      void list_base::set_drawer (std::function<item_drawer>&& drawer) {
         this->drawer = std::move(drawer);
       }
 

@@ -135,8 +135,8 @@ namespace gui {
 
       void toggle_popup ();
 
-      void set_drawer (const std::function<list::draw_list_item>& drawer);
-      void set_drawer (std::function<list::draw_list_item>&& drawer);
+      void set_drawer (const std::function<list::item_drawer>& drawer);
+      void set_drawer (std::function<list::item_drawer>&& drawer);
 
       void set_count (std::size_t n);
 

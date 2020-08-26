@@ -87,8 +87,10 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       constexpr byte_order_t get_byte_order () {
-#ifdef BSD
+#if defined(__i386__) || defined(__x86_64__) || defined(__arm__)
         return byte_order_t::little_endian;
+#elif defined(__powerpc64__)
+        return byte_order_t::big_endian;
 #else
         return byte_order_t(detail::endianess_check.c[0] == 1);
 #endif

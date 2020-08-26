@@ -53,42 +53,32 @@ namespace gui {
         {}
 
         template<typename T>
-        inline auto vector<T>::get (std::size_t idx) const->const T &{
-          if (idx < data.size()) {
-            return data[idx];
+        inline auto vector<T>::get (std::size_t idx) const->const T & {
+          if (idx < super::size()) {
+            return super::at(idx);
           }
           return default_data;
         }
 
         template<typename T>
-        inline auto vector<T>::operator[] (std::size_t idx) const->const T &{
+        inline auto vector<T>::operator[] (std::size_t idx) const->const T & {
           return get(idx);
         }
 
         template<typename T>
         inline void vector<T>::set (std::size_t idx, const T& t) {
-          if (data.size() <= idx) {
-            data.resize(idx + 1, default_data);
+          if (super::size() <= idx) {
+            super::resize(idx + 1, default_data);
           }
-          data[idx] = t;
+          super::set(idx, t);
         }
 
         template<typename T>
         inline auto vector<T>::operator[] (std::size_t idx)->T & {
-          if (data.size() <= idx) {
-            data.resize(idx + 1, default_data);
+          if (super::size() <= idx) {
+            super::resize(idx + 1, default_data);
           }
-          return data[idx];
-        }
-
-        template<typename T>
-        inline std::size_t vector<T>::size () const {
-          return data.size();
-        }
-
-        template<typename T>
-        inline void vector<T>::clear () {
-          data.clear();
+          return super::operator[](idx);
         }
 
         template<typename T>

@@ -43,6 +43,7 @@ set(apps
     new_border_layout
     attach_all_layout
     dialogs
+    split_view
 )
 
 message(STATUS "gui_libraries: ${gui_libraries}")

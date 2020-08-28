@@ -602,7 +602,7 @@ namespace gui {
     template<typename L, typename ... A>
     void column_list_t<L, A ...>::set_data (data_provider data, std::size_t count) {
       this->data = data;
-      this->list.set_count(count);
+      this->list.set_count();
     }
 
     template<typename L, typename ... A>

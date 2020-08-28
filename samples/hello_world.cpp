@@ -1,59 +1,205 @@
 
-#define WITH_CTRL
 
 #include <gui/win/container.h>
 #include <logging/core.h>
-#ifdef WITH_CTRL
-#include <gui/layout/layout_container.h>
-#include <gui/layout/adaption_layout.h>
-#include <gui/ctrl/split_view.h>
-#include <gui/ctrl/label.h>
-#endif // WITH_CTRL
+#include <util/string_util.h>
+#include <iostream>
 
 #define NOTHING
 
 DEFINE_LOGGING_CORE(NOTHING)
 
 // --------------------------------------------------------------------------
+struct graphics {
+  void draw (const std::string& s) const {
+    std::cout << s << std::endl;
+  }
+};
+
+// --------------------------------------------------------------------------
+template<typename T>
+using item_type_drawer = void (*)(const T&, const graphics&);
+
+// --------------------------------------------------------------------------
+template<typename T>
+void default_item_drawer (const T& t, const graphics& g) {
+  g.draw(util::string::convert::from(t));
+}
+
+void hex_item_drawer (const int& t, const graphics& g) {
+  g.draw(ostreamfmt(std::hex << t));
+}
+
+// --------------------------------------------------------------------------
+//struct list_data {
+//  typedef void item_index_drawer (std::size_t idx, const graphics&);
+//  typedef std::size_t size_server ();
+
+//  list_data ()
+//  {}
+
+//  list_data (std::function<size_server> sz_fn,
+//               std::function<item_index_drawer> drw_fn)
+//    : size_fn(sz_fn)
+//    , draw_fn(drw_fn)
+//  {}
+
+//  std::size_t size () const {
+//    return size_fn ? size_fn() : 0;
+//  }
+
+//  void draw_at (std::size_t idx, const graphics& g) const {
+//    if (draw_fn) {
+//      draw_fn(idx, g);
+//    }
+//  }
+
+//protected:
+//  std::function<size_server> size_fn;
+//  std::function<item_index_drawer> draw_fn;
+//};
+
+//// --------------------------------------------------------------------------
+//template<typename T>
+//struct const_server : public list_data {
+
+//  typedef list_data super;
+
+//  const_server (std::initializer_list<T> args)
+//    : super(util::bind_method(this, &const_server::my_size),
+//            util::bind_method(this, &const_server::draw_at))
+//    , data(args)
+//  {}
+
+//  const_server (const_server&& rhs)
+//    : super(util::bind_method(this, &const_server::my_size),
+//            util::bind_method(this, &const_server::draw_at))
+//    , data(std::move(rhs.data))
+//  {}
+
+//  void draw_at (std::size_t idx, const graphics& g) const {
+//    const T& t = data[idx];
+//    default_item_drawer(t, g);
+//  }
+
+//private:
+//  std::size_t my_size () const {
+//    return data.size();
+//  }
+
+//  std::vector<T> data;
+//};
+
+//// --------------------------------------------------------------------------
+//template<typename T>
+//struct ref_server : public list_data {
+
+//  typedef list_data super;
+
+//  ref_server (const T& t)
+//    : super(util::bind_method(this, &ref_server::size),
+//            util::bind_method(this, &ref_server::draw_at))
+//    , data(t)
+//  {}
+
+//  std::size_t size () const {
+//    return data.size();
+//  }
+
+//  void draw_at (std::size_t idx, const graphics& g) const {
+//    default_item_drawer(data[idx], g);
+//  }
+
+//private:
+//  const T& data;
+//};
+
+//// --------------------------------------------------------------------------
+//struct calc_server {
+
+//  std::size_t size () const {
+//    return 4;
+//  }
+
+//  void draw_at (std::size_t idx, const graphics& g) const {
+//    const int t = idx * 10;
+//    default_item_drawer(t, g);
+//  }
+
+//};
+
+
+// --------------------------------------------------------------------------
+template<item_type_drawer<int> D = default_item_drawer<int>>
+struct calc_server : public list_data {
+
+  std::size_t size () const override {
+    return 4;
+  }
+
+  void draw_at (std::size_t idx, const graphics& g) const override {
+    const int t = idx * 10;
+    D(t, g);
+  }
+
+};
+
+// --------------------------------------------------------------------------
+struct item_list {
+
+  item_list ()
+  {}
+
+  template<typename T>
+  item_list (std::initializer_list<T> args)
+    : server(new const_server<T>(args))
+  {}
+
+  item_list (const list_data* s)
+    : server(s)
+  {}
+
+  void draw_all () {
+    graphics g;
+    g.draw("---");
+    auto count = server->size();
+    for (std::size_t i = 0; i < count; ++i) {
+      draw_index(i, g);
+    }
+  }
+
+  void draw_index (std::size_t idx, const graphics& g) {
+    server->draw_at(idx, g);
+  }
+
+  std::unique_ptr<const list_data> server;
+
+};
+
+// --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::win;
 
-#ifdef WITH_CTRL
-  using namespace gui;
-  using namespace gui::layout;
-  using namespace gui::ctrl;
-  using namespace gui::core;
+  item_list list(new calc_server<hex_item_drawer>());
+  list.draw_all();
 
-  using label_t = basic_label<text_origin_t::center,
-                              draw::frame::raised_deep_relief,
-                              color::black,
-                              color::very_light_gray>;
+  item_list list2({ "Eins", "Zwei", "Drei", "Vier", "Fünf" });
+  list2.draw_all();
 
-  layout_main_window<vertical_adaption<>> main;
-  typedef horizontal_split_view<label_t, label_t> labels;
-  vertical_split_view<label_t, labels> client;
+  item_list list3({ 1, 2, 3, 4 });
+  list3.draw_all();
 
-  main.get_layout().add(lay(client));
-  main.on_create([&] (window* parent, const rectangle& rect) {
-    client.create(main, rect);
-    client.set_split_pos(0.5);
-    client.second.set_split_pos(0.5);
-    client.first.set_text([&] () { return ostreamfmt(client.first.get_id() << " (" << client.first.place() << ")"); });
-    client.second.first.set_text([&] () { return ostreamfmt(client.second.first.get_id() << " (" << client.second.first.place() << ")"); });
-    client.second.second.set_text([&] () { return ostreamfmt(client.second.second.get_id() << " (" << client.second.second.place() << ")"); });
-  });
-  main.on_lost_focus([&] (window* next) {
-    main.set_title(ostreamfmt("Lost focus to: " << (next ? next->get_id() : 0)));
-  });
-  main.on_set_focus([&] (window* prev) {
-    main.set_title(ostreamfmt("Got focus from: " << (prev ? prev->get_id() : 0)));
-  });
-//  main.on_paint(gui::draw::paint([&] (const gui::draw::graphics& g) {
-//    gui::ctrl::paint::text_item(g, main.client_area(), gui::color::very_light_gray, "Hello world", false, gui::text_origin_t::center);
-//  }));
-#else
+  std::vector<int> ints({1, 2});
+  item_list list4(new ref_server<std::vector<int>>(ints));
+  list4.draw_all();
+  ints.push_back(3);
+  list4.draw_all();
+
+//  item_list<bad_server> list4;
+//  list4.draw_all();
+  return 0;
+
   main_window  main;
-#endif // WITH_CTRL
 
   main.create({50, 50, 800, 600});
   main.on_destroy(&quit_main_loop);

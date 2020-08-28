@@ -73,6 +73,13 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T>
+    using drop_down_drawer = void (*)(const T&,
+                                      const draw::graphics&,
+                                      const core::rectangle&,
+                                      const draw::brush&,
+                                      item_state);
+
+    template<typename T>
     void default_drop_down_drawer (const T& t,
                                    const draw::graphics& g,
                                    const core::rectangle& r,
@@ -81,27 +88,20 @@ namespace gui {
       paint::drop_down_item(g, r, b, util::string::convert::from(t), state);
     }
 
-    template<typename T>
-    using drop_down_drawer = void (*)(const T&,
-                                      const draw::graphics&,
-                                      const core::rectangle&,
-                                      const draw::brush&,
-                                      item_state);
+    template<typename T, list_item_drawer<T> D = default_drop_down_drawer<T>>
+    using const_dropdown_data = const_list_data<T, D>;
+
+    template<typename T, typename V, list_item_drawer<T> D = default_drop_down_drawer<T>>
+    using indirect_dropdown_data = indirect_list_data<T, V, D>;
 
     // --------------------------------------------------------------------------
-    template<typename T,
-             drop_down_drawer<T> D = default_drop_down_drawer<T> >
     class drop_down_list : public win::group_window<layout::drop_down> {
     public:
       typedef win::group_window<layout::drop_down> super;
       typedef vertical_list list_type;
 
-      typedef T (get_data_t)(std::size_t);
-      typedef std::function<get_data_t> data_provider;
-
       drop_down_list (core::size::type item_size = 20,
                       os::color background = color::white);
-      drop_down_list (const drop_down_list& rhs);
       drop_down_list (drop_down_list&& rhs);
 
       void init ();
@@ -114,11 +114,13 @@ namespace gui {
 
       void handle_selection_changed (event_source src);
 
-      T get_selected_item () const;
-      void set_selected_item (T);
+      template<typename F>
+      void set_data (const std::vector<F>& data);
 
-      void set_data (const data_provider& d, std::size_t count);
-      void set_data (data_provider && d, std::size_t count);
+      template<typename F>
+      void set_data (std::initializer_list<F> args);
+
+      void set_data (const list_data* data);
 
       core::rectangle get_popup_place () const;
 
@@ -134,11 +136,6 @@ namespace gui {
       bool is_popup_visible () const;
 
       void toggle_popup ();
-
-      void set_drawer (const std::function<list::item_drawer>& drawer);
-      void set_drawer (std::function<list::item_drawer>&& drawer);
-
-      void set_count (std::size_t n);
 
       list_type& items ();
       const list_type& items () const;
@@ -156,7 +153,6 @@ namespace gui {
         data (core::size::type item_size = 20,
               os::color background = color::white);
 
-        data_provider source;
         push_button button;
         win::popup_window popup;
         list_type items;

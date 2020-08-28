@@ -138,13 +138,6 @@ namespace gui {
 
         int size () const;
 
-      protected:
-        void draw_list_item (std::size_t idx,
-                             const draw::graphics& g,
-                             const core::rectangle& r,
-                             const draw::brush& b,
-                             item_state state);
-
       private:
         roots_list roots;
 
@@ -156,10 +149,24 @@ namespace gui {
         };
 
         typedef std::vector<depth_info> node_list;
-        node_list nodes;
 
         typedef std::set<reference> node_set;
-        node_set open_nodes;
+
+        struct tree_data : public list_data {
+
+          std::size_t size () const override;
+
+          void draw_at (std::size_t idx,
+                        const draw::graphics& g,
+                        const core::rectangle& place,
+                        const draw::brush& background,
+                        item_state state) const override;
+
+          bool is_open (const reference ref) const;
+
+          node_list nodes;
+          node_set open_nodes;
+        } data;
       };
 
       // --------------------------------------------------------------------------

@@ -33,6 +33,89 @@ namespace gui {
 
   namespace ctrl {
 
+    // --------------------------------------------------------------------------
+    template<typename T>
+    using list_item_drawer = void (*)(const T&,
+                                      const draw::graphics&,
+                                      const core::rectangle&,
+                                      const draw::brush&,
+                                      item_state);
+
+    // --------------------------------------------------------------------------
+    template<typename T>
+    void default_list_item_drawer (const T& t,
+                                   const draw::graphics& g,
+                                   const core::rectangle& place,
+                                   const draw::brush& background,
+                                   item_state state) {
+      paint::text_item(g, place, background, util::string::convert::from<T>(t), state, text_origin_t::vcenter_left);
+    }
+
+    // --------------------------------------------------------------------------
+    struct list_data {
+
+      virtual std::size_t size () const = 0;
+
+      virtual void draw_at (std::size_t idx,
+                            const draw::graphics&,
+                            const core::rectangle& place,
+                            const draw::brush& background,
+                            item_state state) const = 0;
+
+      virtual ~list_data ()
+      {}
+
+    };
+
+    // --------------------------------------------------------------------------
+    template<typename T, list_item_drawer<T> D = default_list_item_drawer<T>>
+    struct const_list_data : public list_data {
+
+      const_list_data (std::initializer_list<T> args)
+        : data(args)
+      {}
+
+      std::size_t size () const override {
+        return data.size();
+      }
+
+      void draw_at (std::size_t idx,
+                    const draw::graphics& g,
+                    const core::rectangle& place,
+                    const draw::brush& background,
+                    item_state state) const override {
+        D(data[idx], g, place, background, state);
+      }
+
+    private:
+      std::vector<T> data;
+    };
+
+    // --------------------------------------------------------------------------
+    template<typename T, typename V, list_item_drawer<T> D = default_list_item_drawer<T>>
+    struct indirect_list_data : public list_data {
+
+      indirect_list_data (const V& t)
+        : data(t)
+      {}
+
+      std::size_t size () const override {
+        return data.size();
+      }
+
+      void draw_at (std::size_t idx,
+                    const draw::graphics& g,
+                    const core::rectangle& place,
+                    const draw::brush& background,
+                    item_state state) const override {
+        D(data[idx], g, place, background, state);
+      }
+
+    private:
+      const V& data;
+    };
+
+    // --------------------------------------------------------------------------
     namespace detail {
 
       // --------------------------------------------------------------------------
@@ -43,11 +126,18 @@ namespace gui {
 
         list_base (os::color background = color::white,
                    bool grab_focus = true);
-        list_base (const list_base&);
         list_base (list_base&&);
 
         const list_state get_state() const;
         list_state get_state();
+
+        template<typename F>
+        void set_data (const std::vector<F>& data);
+
+        template<typename F>
+        void set_data (std::initializer_list<F> args);
+
+        void set_data (const list_data* data);
 
         std::size_t get_count () const;
         int get_selection () const;
@@ -64,26 +154,17 @@ namespace gui {
 
         void set_background (os::color background);
 
-        typedef void (item_drawer) (std::size_t idx,
-                                    const draw::graphics&,
-                                    const core::rectangle& place,
-                                    const draw::brush& background,
-                                    item_state state);
-
-        void set_drawer (const std::function<item_drawer>& drawer);
-        void set_drawer (std::function<item_drawer>&& drawer);
-
-      protected:
         void draw_item (std::size_t idx,
                         const draw::graphics&,
                         const core::rectangle& place,
                         const draw::brush& background,
                         item_state state) const;
 
+      protected:
         struct data {
           data (os::color background = color::white);
 
-          std::size_t item_count;
+          std::unique_ptr<const list_data> items;
           int selection;
           int hilite;
           core::point last_mouse_point;
@@ -93,28 +174,10 @@ namespace gui {
       private:
         void init ();
 
-        std::function<item_drawer> drawer;
-
       };
 
     } // namespace detail
 
-    // --------------------------------------------------------------------------
-    template<typename T>
-    void default_list_item_drawer (const T& t,
-                                   const draw::graphics& g,
-                                   const core::rectangle& place,
-                                   const draw::brush& background,
-                                   item_state state) {
-      paint::text_item(g, place, background, util::string::convert::from<T>(t), state, text_origin_t::vcenter_left);
-    }
-
-    template<typename T>
-    using list_item_drawer = void (*)(const T&,
-                                      const draw::graphics&,
-                                      const core::rectangle&,
-                                      const draw::brush&,
-                                      item_state);
 
     // static data for list.
     // --------------------------------------------------------------------------
@@ -196,7 +259,6 @@ namespace gui {
       basic_list (size_type item_size,
                   os::color background = color::white,
                   bool grab_focus = true);
-      basic_list (const basic_list& rhs);
       basic_list (basic_list&& rhs);
 
       void create (const win::container& parent,
@@ -213,13 +275,7 @@ namespace gui {
       void set_item_size (size_type item_size);
       void set_item_size_and_background (size_type item_size, os::color background);
 
-      void set_count (std::size_t count);
-
-      template<typename F>
-      void set_data (const simple_list_data<F>& data);
-
-      template<typename F>
-      void set_data (std::initializer_list<F> args);
+      void set_count ();
 
       int get_index_at_point (const core::point& pt);
       core::rectangle get_place_of_index (int idx);
@@ -261,6 +317,7 @@ namespace gui {
       void create_scroll_bar (const core::size&);
 
       void init ();
+
     };
 
     // --------------------------------------------------------------------------
@@ -300,8 +357,6 @@ namespace gui {
                    os::color background = color::white,
                    bool grab_focus = true);
 
-      linear_list (const linear_list& rhs);
-
       linear_list (linear_list&& rhs);
 
       void paint (const draw::graphics& graph);
@@ -340,7 +395,6 @@ namespace gui {
                  os::color background = color::white,
                  bool grab_focus = true);
 
-      edit_list (const edit_list& rhs);
       edit_list (edit_list&& rhs);
 
       void set_enable_edit (bool enable);

@@ -31,26 +31,17 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       list_base::data::data (os::color background)
-        : item_count(0)
-        , selection(-1)
+        : selection(-1)
         , hilite(-1)
         , last_mouse_point(core::point::undefined)
         , background(background)
-      {
-      }
+      {}
 
       // --------------------------------------------------------------------------
       list_base::list_base (os::color background, bool grab_focus)
         : data(background)
       {
         get_state().set_grab_focus(grab_focus);
-        init();
-      }
-
-      list_base::list_base (const list_base& rhs)
-        : super(rhs)
-        , data(rhs.data)
-      {
         init();
       }
 
@@ -85,24 +76,6 @@ namespace gui {
         on_lost_focus([&] (window*) {
           invalidate();
         });
-      }
-
-      void list_base::set_drawer (const std::function<item_drawer>& drawer) {
-        this->drawer = drawer;
-      }
-
-      void list_base::set_drawer (std::function<item_drawer>&& drawer) {
-        this->drawer = std::move(drawer);
-      }
-
-      void list_base::draw_item (std::size_t idx,
-                                 const draw::graphics& g,
-                                 const core::rectangle& place,
-                                 const draw::brush& background,
-                                 item_state state) const {
-        if (drawer) {
-          drawer(idx, g, place, background, state);
-        }
       }
 
     } // namespace detail

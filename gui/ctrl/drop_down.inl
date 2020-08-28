@@ -36,8 +36,7 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-    template<typename T, drop_down_drawer<T> D>
-    inline drop_down_list<T, D>::drop_down_list (core::size::type item_size,
+    inline drop_down_list::drop_down_list (core::size::type item_size,
                                                  os::color background)
       : data(item_size, background)
       , me(util::bind_method(this, &drop_down_list::handle_move))
@@ -45,17 +44,7 @@ namespace gui {
       init();
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    inline drop_down_list<T, D>::drop_down_list (const drop_down_list& rhs)
-      : super(rhs)
-      , data(rhs.data)
-      , me(util::bind_method(this, &drop_down_list::handle_move))
-    {
-      init();
-    }
-
-    template<typename T, drop_down_drawer<T> D>
-    inline drop_down_list<T, D>::drop_down_list (drop_down_list&& rhs)
+    inline drop_down_list::drop_down_list (drop_down_list&& rhs)
       : super(std::move(rhs))
       , data(std::move(rhs.data))
       , me(util::bind_method(this, &drop_down_list::handle_move))
@@ -63,8 +52,7 @@ namespace gui {
       init();
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    void drop_down_list<T, D>::init () {
+    void drop_down_list::init () {
       super::get_layout().init(this, &(data.button));
 
       super::on_paint(draw::paint(util::bind_method(this, &drop_down_list::paint)));
@@ -93,33 +81,24 @@ namespace gui {
       data.button.on_any_key_down(util::bind_method(this, &drop_down_list::handle_key));
 
       data.items.on_selection_changed(util::bind_method(this, &drop_down_list::handle_selection_changed));
-      data.items.set_drawer([&](std::size_t idx,
-                                const draw::graphics & g,
-                                const core::rectangle & r,
-                                const draw::brush & b,
-                                item_state state) {
-        D(data.source(idx), g, r, b, state);
-      });
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    void drop_down_list<T, D>::paint (const draw::graphics& graph) {
+    void drop_down_list::paint (const draw::graphics& graph) {
       core::rectangle area = super::client_area();
       draw::frame::sunken_deep_relief(graph, area);
       bool has_f = data.button.has_focus();
       if (data.selection > -1) {
-        D(data.source(data.selection),
-          graph,
-          super::get_layout().label_place(super::client_area()),
-          data.items.get_background(),
-          has_f ? item_state::hilited : item_state::normal);
+        data.items.draw_item(data.selection,
+                             graph,
+                             super::get_layout().label_place(super::client_area()),
+                             data.items.get_background(),
+                             has_f ? item_state::hilited : item_state::normal);
       } else if (has_f) {
         draw::frame::dots(graph, area);
       }
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    void drop_down_list<T, D>::handle_key (os::key_state state,
+    void drop_down_list::handle_key (os::key_state state,
                                            os::key_symbol key,
                                            const std::string& t) {
       if (is_popup_visible()) {
@@ -137,8 +116,7 @@ namespace gui {
       }
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    void drop_down_list<T, D>::handle_selection_changed (event_source src) {
+    void drop_down_list::handle_selection_changed (event_source src) {
       int idx = data.items.get_selection();
       if (idx > -1) {
         data.selection = idx;
@@ -149,47 +127,28 @@ namespace gui {
       }
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    inline auto drop_down_list<T, D>::get_selected_item() const->T {
-      int idx = get_selection();
-      if (idx > -1) {
-        return data.source(idx);
-      }
-      return T();
+    template<typename F>
+    inline void drop_down_list::set_data (const std::vector<F>& data) {
+      data.items.set_data(new indirect_dropdown_data<F, std::vector<F>>(data));
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    inline void drop_down_list<T, D>::set_selected_item (T v) {
-      for (int i = 0; i < data.items.get_count(); ++i) {
-        if (data.source(i) == v) {
-          set_selection(i, event_source::logic);
-          return;
-        }
-      }
+    template<typename F>
+    inline void drop_down_list::set_data (std::initializer_list<F> args) {
+      data.items.set_data(new const_dropdown_data<F>(args));
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    inline void drop_down_list<T, D>::set_data (const data_provider& d, std::size_t count) {
-      data.source = d;
-      data.items.set_count(count);
+    inline void drop_down_list::set_data (const list_data* dta) {
+      data.items.set_data(dta);
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    inline void drop_down_list<T, D>::set_data (data_provider&& d, std::size_t count) {
-      std::swap(data.source, d);
-      data.items.set_count(count);
-    }
-
-    template<typename T, drop_down_drawer<T> D>
-    inline core::rectangle drop_down_list<T, D>::get_popup_place () const {
+    inline core::rectangle drop_down_list::get_popup_place () const {
       core::rectangle place = super::absolute_place();
       place.move_y(place.height());
       place.height(core::size::type(data.visible_items * data.items.get_item_dimension()));
       return place;
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    void drop_down_list<T, D>::show_popup () {
+    void drop_down_list::show_popup () {
       if (!data.popup.is_valid()) {
         create_popup(get_popup_place());
       } else {
@@ -200,44 +159,37 @@ namespace gui {
       data.popup.set_visible();
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    inline void drop_down_list<T, D>::hide_popup () {
+    inline void drop_down_list::hide_popup () {
       data.popup.set_visible(false);
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    inline void drop_down_list<T, D>::set_selection (int idx, event_source src) {
+    inline void drop_down_list::set_selection (int idx, event_source src) {
       data.selection = std::max(-1, std::min(idx, static_cast<int>(data.items.get_count())));
       if (is_popup_visible()) {
         data.items.set_selection(idx, src);
       }
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    inline void drop_down_list<T, D>::set_visible_items (int n) {
+    inline void drop_down_list::set_visible_items (int n) {
       data.visible_items = n;
       if (is_popup_visible()) {
         data.popup.place(get_popup_place());
       }
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    inline int drop_down_list<T, D>::get_selection () const {
+    inline int drop_down_list::get_selection () const {
       return data.selection;
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    inline int drop_down_list<T, D>::get_visible_items () const {
+    inline int drop_down_list::get_visible_items () const {
       return data.visible_items;
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    inline bool drop_down_list<T, D>::is_popup_visible () const {
+    inline bool drop_down_list::is_popup_visible () const {
       return data.popup.is_visible();
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    inline void drop_down_list<T, D>::toggle_popup () {
+    inline void drop_down_list::toggle_popup () {
       if (is_popup_visible()) {
         hide_popup();
       } else {
@@ -245,33 +197,15 @@ namespace gui {
       }
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    inline void drop_down_list<T, D>::set_drawer (const std::function<list::item_drawer>& drawer) {
-      data.items.set_drawer(drawer);
-    }
-
-    template<typename T, drop_down_drawer<T> D>
-    inline void drop_down_list<T, D>::set_drawer (std::function<list::item_drawer>&& drawer) {
-      data.items.set_drawer(std::move(drawer));
-    }
-
-    template<typename T, drop_down_drawer<T> D>
-    inline void drop_down_list<T, D>::set_count (std::size_t n) {
-      data.items.set_count(n);
-    }
-
-    template<typename T, drop_down_drawer<T> D>
-    auto drop_down_list<T, D>::items () -> list_type& {
+    auto drop_down_list::items () -> list_type& {
       return data.items;
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    auto drop_down_list<T, D>::items () const -> const list_type& {
+    auto drop_down_list::items () const -> const list_type& {
       return data.items;
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    drop_down_list<T, D>::~drop_down_list () {
+    drop_down_list::~drop_down_list () {
       auto parent = super::get_parent();
       if (parent) {
         auto* root = parent->get_overlapped_window();
@@ -281,14 +215,12 @@ namespace gui {
       }
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    void drop_down_list<T, D>::create_children (window*, const core::rectangle& r) {
+    void drop_down_list::create_children (window*, const core::rectangle& r) {
       data.button.create(*this);//, get_layout().button_place(r));
       data.button.set_visible();
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    void drop_down_list<T, D>::create_popup (const core::rectangle& place) {
+    void drop_down_list::create_popup (const core::rectangle& place) {
       data.popup.on_size([&] (const core::size & sz) {
         data.items.place(core::rectangle(sz));
       });
@@ -318,23 +250,20 @@ namespace gui {
       }
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    void drop_down_list<T, D>::handle_move (const core::point&) {
+    void drop_down_list::handle_move (const core::point&) {
       if (is_popup_visible()) {
         data.popup.place(get_popup_place());
       }
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    void drop_down_list<T, D>::handle_wheel (const core::point::type delta, const core::point&) {
+    void drop_down_list::handle_wheel (const core::point::type delta, const core::point&) {
       if (!is_popup_visible()) {
         set_selection(get_selection() + static_cast<int>(delta), event_source::mouse);
         super::invalidate();
       }
     }
 
-    template<typename T, drop_down_drawer<T> D>
-    inline drop_down_list<T, D>::data::data (core::size::type item_size,
+    inline drop_down_list::data::data (core::size::type item_size,
                                              os::color background)
       : items(item_size, background, false)
       , selection(-1)

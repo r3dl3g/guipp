@@ -128,16 +128,18 @@ namespace gui {
       init ();
     }
 
+    // --------------------------------------------------------------------------
+    void file_item_drawer (const fs::file_info& path,
+                           const draw::graphics& g,
+                           const core::rectangle& r,
+                           const draw::brush& b,
+                           item_state state) {
+      paint::text_item(g, r, b, path.filename(), state, text_origin_t::vcenter_left);
+    }
+
     template<typename T>
     inline void file_list<T>::init () {
-      super::set_drawer([&] (std::size_t idx,
-        const draw::graphics& g,
-        const core::rectangle& r,
-        const draw::brush& b,
-        item_state state) {
-        const fs::file_info& path = current_dir[idx];
-        paint::text_item(g, r, b, path.filename(), state, text_origin_t::vcenter_left);
-      });
+      super::set_data(new indirect_list_data<fs::file_info, std::vector<fs::file_info>, file_item_drawer>(current_dir));
     }
 
     template<typename T>
@@ -221,7 +223,7 @@ namespace gui {
     template<typename T>
     inline void file_column_list<T>::set_path (const sys_fs::path& dir, std::function<fs::filter_fn> filter) {
       current_dir = T::sub_nodes(dir, filter);
-      super::list.set_count(current_dir.size());
+      super::list.set_count();
       super::list.clear_selection(event_source::logic);
       super::list.set_scroll_pos(0);
       if (order == sort_order::none) {

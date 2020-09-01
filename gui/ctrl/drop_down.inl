@@ -129,15 +129,15 @@ namespace gui {
 
     template<typename F>
     inline void drop_down_list::set_data (const std::vector<F>& data) {
-      data.items.set_data(new indirect_dropdown_data<F, std::vector<F>>(data));
+      data.items.set_data(indirect_dropdown_data<F>(data));
     }
 
     template<typename F>
     inline void drop_down_list::set_data (std::initializer_list<F> args) {
-      data.items.set_data(new const_dropdown_data<F>(args));
+      data.items.set_data(const_dropdown_data<F>(args));
     }
 
-    inline void drop_down_list::set_data (const list_data* dta) {
+    inline void drop_down_list::set_data (std::function<list_data_provider> dta) {
       data.items.set_data(dta);
     }
 

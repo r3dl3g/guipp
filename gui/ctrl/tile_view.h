@@ -29,6 +29,7 @@ namespace gui {
 
   namespace ctrl {
 
+    // --------------------------------------------------------------------------
     template<typename T>
     void default_tile_item_drawer (const T& t,
                                    const draw::graphics& g,
@@ -36,11 +37,6 @@ namespace gui {
                                    const draw::brush& background,
                                    item_state state);
 
-    // static data for list.
-    // --------------------------------------------------------------------------
-    template<typename T,
-             list_item_drawer<T> F = default_tile_item_drawer<T>>
-      using simple_tile_data = simple_list_data<T, F>;
 
     // --------------------------------------------------------------------------
     template<orientation_t V>

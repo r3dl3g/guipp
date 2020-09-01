@@ -165,22 +165,34 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace detail {
 
+      struct GUIPP_CTRL_EXPORT file_list_row_data :
+          public column_list_data_t<layout::weight_column_list_layout,
+                                    const draw::pixmap*,
+                                    fs::file_info,
+                                    fs::file_info,
+                                    sys_fs::file_time_type> {
+
+        typedef column_list_data_t<layout::weight_column_list_layout,
+                                   const draw::pixmap*,
+                                   fs::file_info,
+                                   fs::file_info,
+                                   sys_fs::file_time_type> super;
+        typedef typename super::row_type row_type;
+        typedef typename super::drawer_type drawer_type;
+
+        file_list_row_data (const std::vector<fs::file_info>&, const vertical_list&);
+
+        std::size_t size () const override;
+
+        row_type at (std::size_t idx) const override;
+
+      private:
+        const std::vector<fs::file_info>& data;
+        const vertical_list& list;
+
+      };
+
       GUIPP_CTRL_EXPORT void init_file_list_layout (layout::weight_column_list_layout&);
-
-      typedef column_list_row_drawer_t<layout::weight_column_list_layout,
-                                       const draw::pixmap*,
-                                       fs::file_info,
-                                       fs::file_info,
-                                       sys_fs::file_time_type> file_list_row_drawer;
-
-      GUIPP_CTRL_EXPORT file_list_row_drawer create_file_list_row_drawer ();
-
-      typedef column_list_row_t<const draw::pixmap*,
-                                fs::file_info,
-                                fs::file_info,
-                                sys_fs::file_time_type> file_list_row;
-
-      GUIPP_CTRL_EXPORT file_list_row build_file_list_row (const fs::file_info&, bool selected);
 
       GUIPP_CTRL_EXPORT std::string format_file_size (uintmax_t s);
 

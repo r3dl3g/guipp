@@ -34,22 +34,22 @@ namespace gui {
         return list_state(*this);
       }
 
-      template<typename F>
-      inline void list_base::set_data (const std::vector<F>& data) {
-        data.items = new indirect_list_data<F, std::vector<F>>(data);
+      template<typename T, list_item_drawer<T> D>
+      inline void list_base::set_data (const std::vector<T>& data) {
+        data.items = indirect_list_data<T, D>(data);
       }
 
-      template<typename F>
-      inline void list_base::set_data (std::initializer_list<F> args) {
-        data.items = new const_list_data<F>(args);
+      template<typename T, list_item_drawer<T> D>
+      inline void list_base::set_data (std::initializer_list<T> args) {
+        data.items = const_list_data<T, D>(args);
       }
 
-      inline void list_base::set_data (const list_data* dta) {
-        data.items.reset(dta);
+      inline void list_base::set_data (std::function<list_data_provider> dta) {
+        data.items = dta;
       }
 
       inline std::size_t list_base::get_count () const {
-        return data.items ? data.items->size() : 0;
+        return data.items ? data.items().size() : 0;
       }
 
       inline int list_base::get_selection () const {
@@ -98,53 +98,17 @@ namespace gui {
         return (idx > -1) && (idx < static_cast<int>(get_count()));
       }
 
-      void list_base::draw_item (std::size_t idx,
-                                 const draw::graphics& g,
-                                 const core::rectangle& place,
-                                 const draw::brush& background,
-                                 item_state state) const {
+      inline void list_base::draw_item (std::size_t idx,
+                                        const draw::graphics& g,
+                                        const core::rectangle& place,
+                                        const draw::brush& background,
+                                        item_state state) const {
         if (data.items) {
-          data.items->draw_at(idx, g, place, background, state);
+          data.items().draw_at(idx, g, place, background, state);
         }
       }
 
     } // namespace detail
-
-    // --------------------------------------------------------------------------
-    template<typename T, list_item_drawer<T> F>
-    inline simple_list_data<T, F>::simple_list_data ()
-    {}
-
-    template<typename T, list_item_drawer<T> F>
-    inline simple_list_data<T, F>::simple_list_data (std::initializer_list<T> args)
-      : super(args)
-    {}
-
-    template<typename T, list_item_drawer<T> F>
-    inline simple_list_data<T, F>::simple_list_data (iterator b, iterator e)
-      : super(b, e)
-    {}
-
-    template<typename T, list_item_drawer<T> F>
-    template<size_t N>
-    inline simple_list_data<T, F>::simple_list_data (const T(&t)[N])
-      : super(t, t + N)
-    {}
-
-    template<typename T, list_item_drawer<T> F>
-    template<typename L>
-    inline void simple_list_data<T, F>::update_list (L& l) {
-      l.set_count(super::size());
-    }
-
-    template<typename T, list_item_drawer<T> F>
-    inline void simple_list_data<T, F>::operator() (std::size_t idx,
-                                                    const draw::graphics& g,
-                                                    const core::rectangle& place,
-                                                    const draw::brush& background,
-                                                    item_state state) {
-      F(super::at(idx), g, place, background, state);
-    }
 
     // --------------------------------------------------------------------------
     template<>
@@ -531,7 +495,7 @@ namespace gui {
     template<typename U, list_item_drawer<U> F>
     inline void basic_list<V, T>::create (const win::container& parent,
                                           const core::rectangle& place,
-                                          const simple_list_data<U, F>& data) {
+                                          const list_data* data) {
       super::create(clazz::get(), parent, place);
       set_data(data);
     }

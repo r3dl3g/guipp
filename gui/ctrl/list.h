@@ -52,6 +52,13 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    typedef void (list_index_drawer) (std::size_t,
+                                      const draw::graphics&,
+                                      const core::rectangle&,
+                                      const draw::brush&,
+                                      item_state);
+
+    // --------------------------------------------------------------------------
     struct list_data {
 
       virtual std::size_t size () const = 0;
@@ -65,11 +72,34 @@ namespace gui {
       virtual ~list_data ()
       {}
 
+      const list_data& operator ()() const {
+        return *this;
+      }
+
+    };
+    // --------------------------------------------------------------------------
+    typedef const list_data& (list_data_provider) ();
+
+    // --------------------------------------------------------------------------
+    template<typename T, list_item_drawer<T> D = default_list_item_drawer<T>>
+    struct list_data_t : public list_data {
+
+      virtual T at (std::size_t) const = 0;
+
+      void draw_at (std::size_t idx,
+                    const draw::graphics& g,
+                    const core::rectangle& place,
+                    const draw::brush& background,
+                    item_state state) const override {
+        D(at(idx), g, place, background, state);
+      }
+
     };
 
     // --------------------------------------------------------------------------
     template<typename T, list_item_drawer<T> D = default_list_item_drawer<T>>
-    struct const_list_data : public list_data {
+    struct const_list_data : public list_data_t<T, D> {
+      using super = list_data_t<T, D>;
 
       const_list_data (std::initializer_list<T> args)
         : data(args)
@@ -79,40 +109,93 @@ namespace gui {
         return data.size();
       }
 
-      void draw_at (std::size_t idx,
-                    const draw::graphics& g,
-                    const core::rectangle& place,
-                    const draw::brush& background,
-                    item_state state) const override {
-        D(data[idx], g, place, background, state);
+      T at (std::size_t idx) const override {
+        return data[idx];
       }
 
-    private:
-      std::vector<T> data;
+    protected:
+      const std::vector<T> data;
     };
 
     // --------------------------------------------------------------------------
-    template<typename T, typename V, list_item_drawer<T> D = default_list_item_drawer<T>>
-    struct indirect_list_data : public list_data {
+    template<typename T, list_item_drawer<T> D = default_list_item_drawer<T>>
+    struct indirect_list_data : public list_data_t<T, D> {
+      using super = list_data_t<T, D>;
 
-      indirect_list_data (const V& t)
-        : data(t)
+      indirect_list_data (const std::vector<T>& args)
+        : data(args)
       {}
 
       std::size_t size () const override {
         return data.size();
       }
 
+      T at (std::size_t idx) const override {
+        return data[idx];
+      }
+
+    protected:
+      const std::vector<T>& data;
+    };
+
+    // --------------------------------------------------------------------------
+    template<typename T, list_item_drawer<T> D = default_list_item_drawer<T>>
+    struct calc_list_data : public list_data_t<T, D> {
+      using super = list_data_t<T, D>;
+
+      typedef T (data_getter_f)(std::size_t idx);
+      typedef std::size_t (size_getter_f)();
+      typedef std::function<data_getter_f> data_getter;
+      typedef std::function<size_getter_f> size_getter;
+
+      calc_list_data (data_getter d, size_getter s)
+        : data(d)
+        , sizer(s)
+      {}
+
+      std::size_t size () const override {
+        return sizer ? sizer() : 0;
+      }
+
+      T at (std::size_t idx) const override {
+        return data(idx);
+      }
+
+    protected:
+      data_getter data;
+      size_getter sizer;
+    };
+
+    // --------------------------------------------------------------------------
+    struct draw_list_data : public list_data {
+      using super = list_data;
+
+      typedef std::size_t (size_getter_f)();
+      typedef std::function<size_getter_f> size_getter;
+      typedef std::function<list_index_drawer> drawer;
+
+      draw_list_data (drawer d, size_getter s)
+        : draw(d)
+        , sizer(s)
+      {}
+
+      std::size_t size () const override {
+        return sizer ? sizer() : 0;
+      }
+
       void draw_at (std::size_t idx,
                     const draw::graphics& g,
                     const core::rectangle& place,
                     const draw::brush& background,
                     item_state state) const override {
-        D(data[idx], g, place, background, state);
+        if (draw) {
+          draw(idx, g, place, background, state);
+        }
       }
 
-    private:
-      const V& data;
+    protected:
+      drawer draw;
+      size_getter sizer;
     };
 
     // --------------------------------------------------------------------------
@@ -131,13 +214,13 @@ namespace gui {
         const list_state get_state() const;
         list_state get_state();
 
-        template<typename F>
-        void set_data (const std::vector<F>& data);
+        template<typename T, list_item_drawer<T> D = default_list_item_drawer<T>>
+        void set_data (const std::vector<T>& data);
 
-        template<typename F>
-        void set_data (std::initializer_list<F> args);
+        template<typename T, list_item_drawer<T> D = default_list_item_drawer<T>>
+        void set_data (std::initializer_list<T> args);
 
-        void set_data (const list_data* data);
+        void set_data (std::function<list_data_provider> data);
 
         std::size_t get_count () const;
         int get_selection () const;
@@ -164,7 +247,7 @@ namespace gui {
         struct data {
           data (os::color background = color::white);
 
-          std::unique_ptr<const list_data> items;
+          std::function<list_data_provider> items;
           int selection;
           int hilite;
           core::point last_mouse_point;
@@ -177,34 +260,6 @@ namespace gui {
       };
 
     } // namespace detail
-
-
-    // static data for list.
-    // --------------------------------------------------------------------------
-    template<typename T,
-             list_item_drawer<T> F = default_list_item_drawer<T> >
-    struct simple_list_data : public std::vector<T> {
-      typedef std::vector<T> super;
-
-      typedef typename super::iterator iterator;
-
-      simple_list_data ();
-      simple_list_data (std::initializer_list<T> args);
-      simple_list_data (iterator b, iterator e);
-
-      template<size_t N>
-      simple_list_data (const T(&t)[N]);
-
-      template<typename L>
-      void update_list (L& l);
-
-      void operator() (std::size_t idx,
-                       const draw::graphics& g,
-                       const core::rectangle& place,
-                       const draw::brush& background,
-                       item_state state);
-
-    };
 
     // --------------------------------------------------------------------------
     template<orientation_t V>
@@ -268,7 +323,7 @@ namespace gui {
                list_item_drawer<U> F = default_list_item_drawer<U> >
       void create (const win::container& parent,
                    const core::rectangle& place,
-                   const simple_list_data<U, F>& data);
+                   const list_data* data);
 
       size_type get_item_size () const;
       core::size::type get_item_dimension () const;

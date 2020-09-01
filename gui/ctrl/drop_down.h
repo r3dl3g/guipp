@@ -91,8 +91,8 @@ namespace gui {
     template<typename T, list_item_drawer<T> D = default_drop_down_drawer<T>>
     using const_dropdown_data = const_list_data<T, D>;
 
-    template<typename T, typename V, list_item_drawer<T> D = default_drop_down_drawer<T>>
-    using indirect_dropdown_data = indirect_list_data<T, V, D>;
+    template<typename T, list_item_drawer<T> D = default_drop_down_drawer<T>>
+    using indirect_dropdown_data = indirect_list_data<T, D>;
 
     // --------------------------------------------------------------------------
     class drop_down_list : public win::group_window<layout::drop_down> {
@@ -120,7 +120,7 @@ namespace gui {
       template<typename F>
       void set_data (std::initializer_list<F> args);
 
-      void set_data (const list_data* data);
+      void set_data (std::function<list_data_provider> data);
 
       core::rectangle get_popup_place () const;
 

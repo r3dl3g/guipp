@@ -72,30 +72,44 @@ std::vector<core::point> calc_star(core::point::type x, core::point::type y, cor
   };
 }
 
-template<draw::frame::drawer F = draw::frame::sunken_relief>
-void htile_drawer (std::size_t idx,
+template<std::size_t S, draw::frame::drawer F = draw::frame::sunken_relief>
+struct htile_drawer : public ctrl::list_data {
+
+  std::size_t size () const override {
+    return S;
+  }
+
+  void draw_at (std::size_t idx,
+                    const draw::graphics& g,
+                    const core::rectangle& place,
+                    const draw::brush& background,
+                    ctrl::item_state state) const override {
+    using namespace draw;
+
+    ctrl::paint::text_cell<std::size_t, F>(idx, g, place, text_origin_t::center, color::black, background.color(), state);
+  }
+};
+
+template<std::size_t S, draw::frame::drawer F = draw::frame::sunken_relief>
+struct vtile_drawer  : public ctrl::list_data {
+
+  std::size_t size () const override {
+    return S;
+  }
+
+  void draw_at(std::size_t idx,
                   const draw::graphics& g,
                   const core::rectangle& place,
                   const draw::brush& background,
-                  ctrl::item_state state) {
-  using namespace draw;
+                  ctrl::item_state state) const override {
+    using namespace draw;
 
-  ctrl::paint::text_cell<std::size_t, F>(idx, g, place, text_origin_t::center, color::black, background.color(), state);
-}
-
-template<draw::frame::drawer F = draw::frame::sunken_relief>
-void vtile_drawer (std::size_t idx,
-                  const draw::graphics& g,
-                  const core::rectangle& place,
-                  const draw::brush& background,
-                  ctrl::item_state state) {
-  using namespace draw;
-
-  std::string s = util::string::utf16_to_utf8(std::wstring(1, std::wstring::value_type(idx + 32)));
-  ctrl::paint::text_cell<std::string, F>(ostreamfmt(' ' << std::hex << std::setw(4) << std::setfill('0') << (idx + 32) << ": '" << s << '\''),
-                                        g, place, text_origin_t::vcenter_left, color::black, background.color(),
-                                        state);
-}
+    std::string s = util::string::utf16_to_utf8(std::wstring(1, std::wstring::value_type(idx + 32)));
+    ctrl::paint::text_cell<std::string, F>(ostreamfmt(' ' << std::hex << std::setw(4) << std::setfill('0') << (idx + 32) << ": '" << s << '\''),
+                                          g, place, text_origin_t::vcenter_left, color::black, background.color(),
+                                          state);
+  }
+};
 
 namespace gui {
 
@@ -215,7 +229,7 @@ private:
   ctrl::text_button null_button;
   ctrl::text_button full_button;
 
-  ctrl::simple_list_data<std::string> data;
+  std::vector<std::string> data;
 
   typedef ctrl::vertical_list List1;
   typedef ctrl::edit_list List2;
@@ -226,7 +240,8 @@ private:
   List3& list3;
 
   typedef ctrl::vertical_split_view<List2, List3> list_split_view;
-  typedef ctrl::simple_column_list<layout::simple_column_list_layout> simple_list;
+  typedef ctrl::column_list_t<layout::simple_column_list_layout, int, int, int> simple_list;
+//  typedef ctrl::simple_column_list<layout::simple_column_list_layout> simple_list;
   typedef ctrl::vertical_split_view<ctrl::horizontal_list, simple_list> column_list_split_view;
 
   ctrl::horizontal_split_view<list_split_view, column_list_split_view> main_split_view;
@@ -257,12 +272,11 @@ private:
   ctrl::text_button sel_last_minus;
 
   ctrl::custom_push_button custom_button;
-  ctrl::drop_down_list<std::string> drop_down;
-  ctrl::drop_down_list<os::color> color_drop_down;
+  ctrl::drop_down_list text_drop_down;
+  ctrl::drop_down_list color_drop_down;
 
   typedef ctrl::column_list_t<layout::weight_column_list_layout, int, std::string, float, int, bool> my_column_list_t;
   my_column_list_t column_list;
-  my_column_list_t::row_drawer column_list_drawer;
 
   ctrl::table_edit table_view;
   ctrl::table::data::matrix<std::string> table_data;
@@ -603,20 +617,18 @@ my_main_window::my_main_window ()
     vslider.set_value(size().width() - 15);
   });
 
-  auto list_drawer = [] (std::size_t idx,
-                         const draw::graphics& g,
-                         const core::rectangle& place,
-                         const draw::brush& background,
-                         ctrl::item_state state) {
+  list1.set_data(ctrl::draw_list_data([] (std::size_t idx,
+                                          const draw::graphics& g,
+                                          const core::rectangle& place,
+                                          const draw::brush& background,
+                                          ctrl::item_state state) {
     using namespace draw;
 
     std::ostringstream strm;
     strm << "Item " << idx;
 
     ctrl::paint::text_item(g, place, background, strm.str(), state);
-  };
-
-  list1.set_drawer(list_drawer);
+  }, [] () { return 20; }));
   list1.on_selection_changed([&](ctrl::event_source) {
     labelC.set_text(ostreamfmt("List1 item " << list1.get_selection()));
   });
@@ -636,13 +648,7 @@ my_main_window::my_main_window ()
   });
 
   data.insert(data.end(), { "Eins", "Zwei", "Drei", "View", "Fünf", "Fuß" });
-  list2.set_drawer([&] (std::size_t idx,
-                        const draw::graphics& g,
-                        const core::rectangle& place,
-                        const draw::brush& background,
-                        ctrl::item_state state) {
-    data(idx, g, place, background, state);
-  });
+  list2.set_data(ctrl::indirect_list_data<std::string>(data));
   list2.set_data_source_and_target([&](int idx) {
     return data[idx];
   }, [&](int idx, const std::string& s) {
@@ -672,7 +678,7 @@ my_main_window::my_main_window ()
     clog::debug() << "Ok Button clicked";
     label.set_text("OK Clicked!");
     data.insert(data.end(), { "Sechs", "Sieben", "Acht", "Neun", "Zehn" });
-    data.update_list(list2);
+    list2.set_count();
   });
 
   del_button.on_clicked([&] () {
@@ -680,7 +686,7 @@ my_main_window::my_main_window ()
     label.set_text("Del Clicked!");
     if (!data.empty()) {
       data.erase(data.begin());
-      data.update_list(list2);
+      list2.set_count();
     }
   });
 
@@ -688,7 +694,7 @@ my_main_window::my_main_window ()
     clog::debug() << "Clear Button clicked";
     label.set_text("Clear Clicked!");
     data.clear();
-    data.update_list(list2);
+    list2.set_count();
   });
 
   scroll_check_box.on_state_changed([&] (bool on) {
@@ -821,8 +827,8 @@ my_main_window::my_main_window ()
   vtileview.set_border({ 10, 10 });
   vtileview.set_spacing({ 5, 5 });
 
-  htileview.set_drawer(htile_drawer<draw::frame::sunken_relief>);
-  vtileview.set_drawer(vtile_drawer<draw::frame::raised_relief>);
+  htileview.set_data(htile_drawer<20, draw::frame::sunken_relief>());
+  vtileview.set_data(vtile_drawer<0xffff - 32, draw::frame::raised_relief>());
 
   on_create(util::bind_method(this, &my_main_window::onCreated));
 }
@@ -881,9 +887,6 @@ void my_main_window::created_children () {
   invert_button.create(main, "invert", core::rectangle(470, 20, 100, 25));
 
   list1.create(main, core::rectangle(330, 50, 70, 250));
-  list1.set_count(20);
-
-  float floats[] = { 1.1F, 2.2F, 3.3F, 4.4F, 5.5F };
 
   auto columns = {
     layout::simple_column_info{ 30, text_origin_t::vcenter_right, 20 },
@@ -891,25 +894,26 @@ void my_main_window::created_children () {
     layout::simple_column_info{ 30, text_origin_t::vcenter_left, 20 }
   };
 
-  ctrl::simple_column_list_data<int, draw::frame::lines> col_data = {
-    { 1, 2, 3 },
-    { 3, 4, 5 },
-    { 5, 6, 7 },
-    { 7, 8, 9 },
-    { 9, 10, 11 }
-  };
+  ctrl::const_column_list_data<layout::simple_column_list_layout, int, int, int> second_data(
+    ctrl::cell_drawer<int>, ctrl::cell_drawer<int>, ctrl::cell_drawer<int>
+  );
+  second_data.set_data({
+                         { 1, 2, 3 },
+                         { 3, 4, 5 },
+                         { 5, 6, 7 },
+                         { 7, 8, 9 },
+                         { 9, 10, 11 }
+                       });
+  second_data.set_layout(&main_split_view.second.second.get_column_layout());
 
   main_split_view.create(main, core::rectangle(410, 50, 160, 250));
-  main_split_view.first.second.set_data(ctrl::simple_list_data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
-  main_split_view.second.first.set_data<float>(ctrl::simple_list_data<float>(floats));
+  main_split_view.first.second.set_data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+  main_split_view.second.first.set_data(ctrl::const_list_data<float>({ 1.1F, 2.2F, 3.3F, 4.4F, 5.5F }));
   main_split_view.second.second.get_column_layout().set_columns(columns);
-  main_split_view.second.second.set_data(col_data);
+  main_split_view.second.second.set_data(std::move(second_data));
 
-  data.update_list(list2);
-
-  //column_list_data = my_column_list_t::standard_data{ std::make_tuple(1, "eins", 1.1F),
-  //                                                    std::make_tuple(2, "zwei", 2.2F),
-  //                                                    std::make_tuple(3, "drei", 3.3F) };
+  list2.set_count();
+  list3.set_count();
 
   auto weight_columns = {
     layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 0.0F },
@@ -919,26 +923,38 @@ void my_main_window::created_children () {
     layout::weight_column_info{ 30, text_origin_t::center, 20, 1.0F }
   };
 
-  column_list_drawer = {
-    [] (const int& v, const draw::graphics& g, const core::rectangle& r,
-        const draw::brush&, ctrl::item_state state, text_origin_t) {
-      ctrl::paint::text_item(g, r, color::buttonColor(), ostreamfmt(v), state, text_origin_t::center);
-      draw::frame::raised_relief(g, r);
-    },
+  struct my_column_list_drawer : public ctrl::column_list_data_t<layout::weight_column_list_layout, int, std::string, float, int, bool> {
+    typedef ctrl::column_list_data_t<layout::weight_column_list_layout, int, std::string, float, int, bool> super;
 
-    ctrl::cell_drawer<std::string, draw::frame::sunken_relief>,
-    ctrl::cell_drawer<float, draw::frame::sunken_relief>,
-    ctrl::cell_drawer<int, draw::frame::sunken_relief>,
-
-    [] (const bool& v, const draw::graphics& g, const core::rectangle& r,
-        const draw::brush& b, ctrl::item_state state, text_origin_t align) {
-      std::string text = v ? u8"♣" : u8"♥";
-      ctrl::paint::text_item(g, r, b, text, state, align);
-      draw::frame::sunken_relief(g, r);
+    std::size_t size () const override {
+      return 20;
     }
+
+    row_type at (std::size_t i) const override {
+      return std::make_tuple(static_cast<int>(i), ostreamfmt(i << '-' << i), (1.1F * (float)i), static_cast<int>(i * i), i % 2 == 1);
+    }
+
+    my_column_list_drawer ()
+      : super([] (const int& v, const draw::graphics& g, const core::rectangle& r,
+                  const draw::brush&, ctrl::item_state state, text_origin_t) {
+        ctrl::paint::text_item(g, r, color::buttonColor(), ostreamfmt(v), state, text_origin_t::center);
+        draw::frame::raised_relief(g, r);
+      },
+
+      ctrl::cell_drawer<std::string, draw::frame::sunken_relief>,
+      ctrl::cell_drawer<float, draw::frame::sunken_relief>,
+      ctrl::cell_drawer<int, draw::frame::sunken_relief>,
+
+      [] (const bool& v, const draw::graphics& g, const core::rectangle& r,
+          const draw::brush& b, ctrl::item_state state, text_origin_t align) {
+        std::string text = v ? u8"♣" : u8"♥";
+        ctrl::paint::text_item(g, r, b, text, state, align);
+        draw::frame::sunken_relief(g, r);
+      })
+    {}
   };
 
-//  column_list.set_data(column_list_data, column_list_data.size());
+
   column_list.create(main, core::rectangle(580, 50, 140, 250));
   column_list.header.set_cell_drawer([] (std::size_t i, const draw::graphics& g,
                                          const core::rectangle& r, const draw::brush& background) {
@@ -947,12 +963,12 @@ void my_main_window::created_children () {
     frame::raised_deep_relief(g, r);
     g.text(text_box(ostreamfmt((char)('C' + i) << (i + 1)), r, text_origin_t::center), font::system(), color::windowTextColor());
   });
-  column_list.set_drawer(column_list_drawer);
+  my_column_list_drawer column_list_data;
+  column_list_data.set_layout(&column_list.get_column_layout());
+  column_list.set_data(std::move(column_list_data));
   column_list.get_column_layout().set_columns(weight_columns);
-  column_list.set_data([](std::size_t i){
-    return std::make_tuple(static_cast<int>(i), ostreamfmt(i << '-' << i), (1.1F * (float)i), static_cast<int>(i * i), i % 2 == 1);
-  }, 20);
-//  column_list.get_column_layout().get_slider(0)->disable();
+
+  column_list.list.set_count();
 
   table_view.create(main, core::rectangle(740, 50, 150, 250));
 
@@ -1009,10 +1025,10 @@ void my_main_window::created_children () {
   textbox.view.enable_select_by_mouse();
 
   htileview.create(main, core::rectangle(10, 580, 200, 250));
-  htileview.set_count(20);
+  htileview.set_count();
 
   vtileview.create(main, core::rectangle(220, 580, 400, 250));
-  vtileview.set_count(0xffff - 32);
+  vtileview.set_count();
 
   hscroll.create(main, core::rectangle(550, 305, 130, static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width())));
   progress.create(main, core::rectangle(550, 325, 130, static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width())));
@@ -1073,13 +1089,15 @@ void my_main_window::created_children () {
 
   switch_button2.create(main, "Switcher", core::rectangle(20, 445, 150, 20));
 
-  drop_down.set_data([](std::size_t i) {
+  text_drop_down.set_data(ctrl::calc_list_data<std::string>([](std::size_t i) {
     return ostreamfmt("Item " << i);
-  }, 10);
-  drop_down.create(main, core::rectangle(180, 445, 100, 20));
-  drop_down.set_visible_items(8);
+  }, [] () {
+    return 10;
+  }));
+  text_drop_down.create(main, core::rectangle(180, 445, 100, 20));
+  text_drop_down.set_visible_items(8);
 
-  color_drop_down.set_data([&](std::size_t i) {
+  color_drop_down.set_data(ctrl::calc_list_data<os::color>([](std::size_t i) {
     static const os::color colors[] = {
       color::red,
       color::blue,
@@ -1088,9 +1106,8 @@ void my_main_window::created_children () {
       color::yellow,
       color::magenta
     };
-
     return colors[i % 6];
-  }, 20);
+  }, [] () { return 20; }));
 
   color_drop_down.create(main, core::rectangle(290, 445, 100, 20));
 
@@ -1156,7 +1173,7 @@ void my_main_window::created_children () {
   get_layout().attach_fix<What::bottom, Where::height, -50>(textbox, *this);
 
   get_layout().attach_fix<What::bottom, Where::y2, -8>(switch_button2, hslider);
-  get_layout().attach_fix<What::bottom, Where::y2, -8>(drop_down, hslider);
+  get_layout().attach_fix<What::bottom, Where::y2, -8>(text_drop_down, hslider);
   get_layout().attach_fix<What::bottom, Where::y2, -8>(color_drop_down, hslider);
 
   get_layout().attach_fix<What::top, Where::y2, 4>(htileview, hslider);

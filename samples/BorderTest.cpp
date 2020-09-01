@@ -414,22 +414,30 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   right_view.second.update_node_list();
   right_view.set_visible();
 
+  struct mylist_data : public list_data {
+
+    std::size_t size () const override {
+      return 10;
+    }
+
+    void draw_at (std::size_t idx,
+                  const draw::graphics& g,
+                  const core::rectangle& place,
+                  const draw::brush&,
+                  item_state state) const override {
+      g.fill(rectangle(place), item_state::selected == state ? color::dark_red
+                                                             : (item_state::selected == state ? color::very_light_gray
+                                                                                              : color::light_gray));
+      if (item_state::selected != state) {
+        frame::raised_relief(g, place);
+      }
+      g.text(text_box(ostreamfmt("Item " << idx), place, text_origin_t::center), font::system_bold(), item_state::selected == state ? color::light_yellow : color::black);
+    }
+
+  };
 
   left_list.create(*this);
-  left_list.set_drawer([](std::size_t idx,
-                          const graphics& g,
-                          const core::rectangle& place,
-                          const brush& /*background*/,
-                          item_state state) {
-    g.fill(rectangle(place), item_state::selected == state ? color::dark_red
-                                                           : (item_state::selected == state ? color::very_light_gray
-                                                                                            : color::light_gray));
-    if (item_state::selected != state) {
-      frame::raised_relief(g, place);
-    }
-    g.text(text_box(ostreamfmt("Item " << idx), place, text_origin_t::center), font::system_bold(), item_state::selected == state ? color::light_yellow : color::black);
-  });
-  left_list.set_count(10);
+  left_list.set_data(mylist_data());
   left_list.on_hilite_changed([&](bool){
     labels[0].set_text(ostreamfmt("list item " << left_list.get_hilite() << " hilited"));
   });

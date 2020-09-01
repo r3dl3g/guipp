@@ -340,8 +340,9 @@ namespace gui {
         return ostreamfmt(s / 1000000000000 << " TB");
       }
 
-      file_list_row_drawer create_file_list_row_drawer () {
-        return file_list_row_drawer {
+      file_list_row_data::file_list_row_data (const std::vector<fs::file_info>& dir,
+                                              const vertical_list& list)
+        : super(
           [] (const draw::pixmap* const& img, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t) {
             if (img) {
               g.fill(draw::image<draw::pixmap>(*img, r), item_state::selected == s ? color::highLightColor() : b);
@@ -366,16 +367,22 @@ namespace gui {
             paint::text_item(g, r, b, util::time::format_datetime(tp), s, align);
             draw::frame::lines(g, r);
           }
-        };
+        )
+        , data(dir)
+        , list(list)
+      {}
+
+      std::size_t file_list_row_data::size () const {
+        return data.size();
       }
 
-      file_list_row build_file_list_row (const fs::file_info& f, bool selected) {
-        const draw::pixmap* img = nullptr;
-        if (f.is_directory()) {
-          img = &(tree::closed_folder_icon(selected));
-        } else {
-          img = &(tree::file_icon(selected));
-        }
+      auto file_list_row_data::at (std::size_t idx) const -> row_type {
+        bool selected = (idx == list.get_selection());
+        const fs::file_info& f = data[idx];
+
+        const draw::pixmap* img = (f.is_directory()
+                                   ? &(tree::closed_folder_icon(selected))
+                                   : &(tree::file_icon(selected)));
 
         return std::make_tuple(img, f, f, f.last_write_time);
       }

@@ -102,7 +102,7 @@ namespace gui {
       template<typename I>
       void basic_tree<I>::init () {
         set_root(type());
-        super::set_data(&data);
+        super::set_data(data);
         super::on_selection_commit([&]() {
           toggle_node(super::get_selection());
         });
@@ -270,6 +270,7 @@ namespace gui {
         for (const auto& root : roots) {
           collect_children(root);
         }
+        super::set_data(data);
         super::set_count();
         super::invalidate();
       }

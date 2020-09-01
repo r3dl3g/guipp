@@ -324,15 +324,6 @@ namespace gui {
       }
 
       template<typename Layout>
-      base_column_list<Layout>::base_column_list (const base_column_list& rhs)
-        : super(rhs)
-        , header(rhs.header)
-        , list(rhs.list)
-      {
-        init();
-      }
-
-      template<typename Layout>
       base_column_list<Layout>::base_column_list (base_column_list&& rhs)
         : super(std::move(rhs))
         , header(std::move(rhs.header))
@@ -375,126 +366,6 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T, draw::frame::drawer F>
-    simple_column_list_data<T, F>::simple_column_list_data ()
-    {}
-
-    template<typename T, draw::frame::drawer F>
-    simple_column_list_data<T, F>::simple_column_list_data (std::initializer_list<row> args)
-      : super(args)
-    {}
-
-    template<typename T, draw::frame::drawer F>
-    simple_column_list_data<T, F>::simple_column_list_data (iterator b, iterator e)
-      : super(b, e)
-    {}
-
-    template<typename T, draw::frame::drawer F>
-    template<size_t N>
-    simple_column_list_data<T, F>::simple_column_list_data (const row(&t)[N])
-      : super(t, t + N)
-    {}
-
-    template<typename T, draw::frame::drawer F>
-    template<typename L>
-    void simple_column_list_data<T, F>::update_list (L& l) {
-      l.set_count(super::size());
-    }
-
-    template<typename T, draw::frame::drawer F>
-    void simple_column_list_data<T, F>::operator() (std::size_t row_id,
-                                                    std::size_t col_id,
-                                                    const draw::graphics& graph,
-                                                    const core::rectangle& place,
-                                                    const draw::brush& background,
-                                                    item_state state,
-                                                    text_origin_t align) {
-      paint::text_item(graph, place, background, util::string::convert::from(super::at(row_id).at(col_id)), state, align);
-      if (item_state::selected != state) {
-        F(graph, place);
-      }
-    }
-
-    template<typename L>
-    simple_column_list<L>::simple_column_list (core::size::type item_size,
-                                               os::color background,
-                                               bool grab_focus)
-      : super(item_size, background, grab_focus)
-    {}
-
-    template<typename L>
-    void simple_column_list<L>::set_drawer (std::function<cell_draw> drawer) {
-      this->drawer = drawer;
-      this->list.set_drawer(util::bind_method(this, &simple_column_list::draw_cells));
-    }
-
-    template<typename L>
-    void simple_column_list<L>::create (const win::container& parent,
-                                        const core::rectangle& place) {
-      super::create(parent, place);
-    }
-
-    template<typename L>
-    template<typename T, draw::frame::drawer F>
-    void simple_column_list<L>::set_data (simple_column_list_data<T, F> data) {
-      set_drawer(data);
-      this->list.set_count(data.size());
-    }
-
-    template<typename L>
-    void simple_column_list<L>::draw_cells (std::size_t idx,
-                                            const draw::graphics& g,
-                                            const core::rectangle& place,
-                                            const draw::brush& background,
-                                            item_state state) {
-      if (drawer) {
-        core::rectangle r = place;
-        auto count = this->get_column_layout().get_column_count();
-        for (decltype(count) i = 0; i < count; ++i) {
-          core::size::type w = this->get_column_layout().get_column_width(i);
-          r.width(w);
-          drawer(idx, i, g, r, background, state, this->get_column_layout().get_column_align(i));
-          r.move_x(w);
-        }
-        if (r.x() < place.x2()) {
-          g.fill(draw::rectangle(r.top_left(), place.x2y2()), background);
-        }
-      }
-    }
-
-    // --------------------------------------------------------------------------
-    template<typename ... A>
-    static_column_list_data_t<A ...>::static_column_list_data_t ()
-    {}
-
-    template<typename ... A>
-    static_column_list_data_t<A ...>::static_column_list_data_t (std::initializer_list<row> args)
-      : super(args)
-    {}
-
-    template<typename ... A>
-    static_column_list_data_t<A ...>::static_column_list_data_t (iterator b, iterator e)
-      : super(b, e)
-    {}
-
-    template<typename ... A>
-    template<size_t N>
-    static_column_list_data_t<A ...>::static_column_list_data_t (const row(&t)[N])
-      : super(t, t + N)
-    {}
-
-    template<typename ... A>
-    template<typename L>
-    void static_column_list_data_t<A ...>::update_list (L& l) {
-      l.set_count(super::size());
-    }
-
-    template<typename ... A>
-    auto static_column_list_data_t<A ...>::operator() (std::size_t row_id) const->row {
-      return super::at(row_id);
-    }
-
-    // --------------------------------------------------------------------------
-    template<typename T, draw::frame::drawer F>
     void cell_drawer (const T& t,
                       const draw::graphics& graph,
                       const core::rectangle& place,
@@ -509,28 +380,15 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename L, typename ... A>
-    column_list_row_drawer_t<L, A ...>::column_list_row_drawer_t ()
-    {}
-
-    template<typename L, typename ... A>
-    column_list_row_drawer_t<L, A ...>::column_list_row_drawer_t (cell_drawer_t<A>... args)
-      : super(std::make_tuple(args ...))
-    {}
-
-    template<typename L, typename ... A>
-    void column_list_row_drawer_t<L, A ...>::operator= (const column_list_row_drawer_t& rhs) {
-      super::operator= (rhs);
-    }
-
-    template<typename L, typename ... A>
     template<std::size_t I>
-    void column_list_row_drawer_t<L, A ...>::draw_cell (const row& data,
-                                                        const layout_type& l,
+    void column_list_row_drawer_t<L, A ...>::draw_cell (const row_type&,
+                                                        const drawer_type&,
+                                                        const layout_type&,
                                                         const draw::graphics& g,
                                                         const core::rectangle& place,
                                                         core::point::type x,
                                                         const draw::brush& background,
-                                                        item_state state) {
+                                                        item_state) {
       if (x < place.x2()) {
         g.fill(draw::rectangle(core::point(x, place.y()), place.x2y2()), background);
       }
@@ -538,31 +396,33 @@ namespace gui {
 
     template<typename L, typename ... A>
     template<std::size_t I, typename T, typename ... Args>
-    void column_list_row_drawer_t<L, A ...>::draw_cell (const row& data,
-                                                        const layout_type& l,
+    void column_list_row_drawer_t<L, A ...>::draw_cell (const row_type& row,
+                                                        const drawer_type& drawer,
+                                                        const layout_type& layout,
                                                         const draw::graphics& g,
                                                         const core::rectangle& r,
                                                         core::point::type x,
                                                         const draw::brush& background,
                                                         item_state state) {
-      core::size::type width = l.get_column_width(I);
-      text_origin_t align = l.get_column_align(I);
+      core::size::type width = layout.get_column_width(I);
+      text_origin_t align = layout.get_column_align(I);
 
       core::rectangle place(core::point(x, r.y()), core::point(x + width, r.y2()));
-      auto dat = std::get<I>(data);
-      auto drw = std::get<I>(static_cast<std::tuple<cell_drawer_t<A>...>&>(*this));
+      auto dat = std::get<I>(row);
+      auto drw = std::get<I>(static_cast<const std::tuple<cell_drawer_t<A>...>&>(drawer));
       drw(dat, g, place, background, state, align);
-      draw_cell<I + 1, Args ...>(data, l, g, r, x + width, background, state);
+      draw_cell<I + 1, Args ...>(row, drawer, layout, g, r, x + width, background, state);
     }
 
     template<typename L, typename ... A>
-    void column_list_row_drawer_t<L, A ...>::operator() (const row& data,
-                                                         const layout_type& l,
-                                                         const draw::graphics& g,
-                                                         const core::rectangle& place,
-                                                         const draw::brush& background,
-                                                         item_state state) {
-      draw_cell<0, A ...>(data, l, g, place, place.x(), background, state);
+    void column_list_row_drawer_t<L, A ...>::draw_row (const row_type& row,
+                                                       const drawer_type& drawer,
+                                                       const layout_type& layout,
+                                                       const draw::graphics& g,
+                                                       const core::rectangle& place,
+                                                       const draw::brush& background,
+                                                       item_state state) {
+      draw_cell<0, A ...>(row, drawer, layout, g, place, place.x(), background, state);
     }
 
     // --------------------------------------------------------------------------
@@ -571,47 +431,16 @@ namespace gui {
                                             os::color background,
                                             bool grab_focus)
       : super(item_size, background, grab_focus)
-    {
-      this->get_column_layout().set_column_count(size);
-    }
-
-    template<typename L, typename ... A>
-    column_list_t<L, A ...>::column_list_t (const column_list_t& rhs)
-      : super(rhs)
-      , drawer(rhs.drawer)
-      , data(rhs.data)
-    {
-      this->get_column_layout().set_column_count(size);
-    }
+    {}
 
     template<typename L, typename ... A>
     column_list_t<L, A ...>::column_list_t (column_list_t&& rhs)
       : super(std::move(rhs))
-      , drawer(std::move(rhs.drawer))
-      , data(std::move(rhs.data))
-    {
-      this->get_column_layout().set_column_count(size);
-    }
+    {}
 
     template<typename L, typename ... A>
-    void column_list_t<L, A ...>::set_drawer (data_drawer drawer) {
-      this->drawer = drawer;
-      this->list.set_drawer(util::bind_method(this, &column_list_t::draw_cells_t));
-    }
-
-    template<typename L, typename ... A>
-    void column_list_t<L, A ...>::set_data (data_provider data, std::size_t count) {
-      this->data = data;
-      this->list.set_count();
-    }
-
-    template<typename L, typename ... A>
-    void column_list_t<L, A ...>::draw_cells_t (std::size_t row_id,
-                                                const draw::graphics& g,
-                                                const core::rectangle& place,
-                                                const draw::brush& back,
-                                                item_state state) {
-      drawer(data(row_id), this->get_column_layout(), g, place, back, state);
+    void column_list_t<L, A ...>::set_data (std::function<list_data_provider> data) {
+      super::list.set_data(data);
     }
 
     // --------------------------------------------------------------------------

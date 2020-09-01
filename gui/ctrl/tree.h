@@ -164,6 +164,10 @@ namespace gui {
 
           bool is_open (const reference ref) const;
 
+          const list_data& operator ()() const {
+            return *this;
+          }
+
           node_list nodes;
           node_set open_nodes;
         } data;

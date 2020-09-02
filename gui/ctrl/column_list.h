@@ -183,8 +183,8 @@ namespace gui {
     template<typename Layout, os::color background = color::very_very_light_gray>
     class column_list_header : public control {
     public:
-      typedef Layout layout_type;
       typedef control super;
+      typedef Layout layout_type;
       typedef no_erase_window_class<column_list_header> clazz;
       typedef void (cell_draw)(std::size_t,            // idx
                                const draw::graphics&,  // gc
@@ -299,9 +299,9 @@ namespace gui {
 #endif // _MSC_VER < 1900
 
     // --------------------------------------------------------------------------
-    template<typename Layout, typename ... Arguments>
+    template<typename ... Arguments>
     struct column_list_row_drawer_t {
-      typedef Layout layout_type;
+      typedef layout::detail::column_list_layout layout_type;
       typedef std::tuple<Arguments ...> row_type;
       typedef std::tuple<cell_drawer_t<Arguments>...> drawer_type;
 
@@ -335,12 +335,11 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename Layout>
-    struct column_layout_data_t : public list_data {
+    struct column_list_data : public list_data {
       typedef list_data super;
-      typedef Layout layout_type;
+      typedef layout::detail::column_list_layout layout_type;
 
-      column_layout_data_t ()
+      column_list_data ()
         : layout(nullptr)
       {}
 
@@ -356,16 +355,27 @@ namespace gui {
         return layout;
       }
 
+      const column_list_data& operator ()() const {
+        return *this;
+      }
+
+      column_list_data& operator ()() {
+        return *this;
+      }
+
     protected:
       layout_type* layout;
 
     };
 
     // --------------------------------------------------------------------------
-    template<typename Layout, typename ... Arguments>
-    struct column_list_data_t : public column_layout_data_t<Layout> {
-      typedef column_layout_data_t<Layout> super;
-      typedef Layout layout_type;
+    typedef column_list_data& (column_list_data_provider) ();
+
+    // --------------------------------------------------------------------------
+    template<typename ... Arguments>
+    struct column_list_data_t : public column_list_data {
+      typedef column_list_data super;
+      typedef layout::detail::column_list_layout layout_type;
       typedef std::tuple<Arguments ...> row_type;
       typedef std::tuple<cell_drawer_t<Arguments>...> drawer_type;
 
@@ -385,13 +395,13 @@ namespace gui {
                     const draw::brush& background,
                     item_state state) const override {
         if (super::get_layout()) {
-          column_list_row_drawer_t<Layout, Arguments...>::draw_row(at(idx),
-                                                                   drawer,
-                                                                   *super::get_layout(),
-                                                                   g,
-                                                                   place,
-                                                                   background,
-                                                                   state);
+          column_list_row_drawer_t<Arguments...>::draw_row(at(idx),
+                                                           drawer,
+                                                           *super::get_layout(),
+                                                           g,
+                                                           place,
+                                                           background,
+                                                           state);
         }
       }
 
@@ -400,9 +410,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename Layout, typename ... Arguments>
-    struct const_column_list_data : public column_list_data_t<Layout, Arguments...> {
-      typedef column_list_data_t<Layout, Arguments...> super;
+    template<typename ... Arguments>
+    struct const_column_list_data : public column_list_data_t<Arguments...> {
+      typedef column_list_data_t<Arguments...> super;
       typedef typename super::row_type row_type;
       typedef typename super::drawer_type drawer_type;
 
@@ -414,6 +424,16 @@ namespace gui {
 
       const_column_list_data (drawer_type&& drwr)
         : super(std::move(drwr))
+      {}
+
+      const_column_list_data (drawer_type&& drwr, std::initializer_list<row_type> args)
+        : super(std::move(drwr))
+        , data(args)
+      {}
+
+      const_column_list_data (std::initializer_list<row_type> args)
+        : super(std::make_tuple(ctrl::cell_drawer<Arguments>...))
+        , data(args)
       {}
 
       std::size_t size () const override {
@@ -444,7 +464,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename Layout, typename ... Arguments>
-    using indirect_column_list_data = column_list_data_t<Layout, const std::vector<std::tuple<Arguments...>>&, Arguments...>;
+    using indirect_column_list_data = column_list_data_t<const std::vector<std::tuple<Arguments...>>&, Arguments...>;
 
     // --------------------------------------------------------------------------
     template<typename Layout, typename ... Arguments>
@@ -455,8 +475,8 @@ namespace gui {
       typedef Layout layout_type;
       typedef detail::base_column_list<layout_type> super;
       typedef std::tuple<Arguments ...> row_type;
-      typedef const_column_list_data<Layout, Arguments ...> standard_data;
-      typedef column_list_row_drawer_t<layout_type, Arguments ...> row_drawer;
+      typedef const_column_list_data<Arguments ...> standard_data;
+      typedef column_list_row_drawer_t<Arguments ...> row_drawer;
       typedef row_type (get_row_data_t)(std::size_t idy);
       typedef void (draw_row_data_t)(const row_type&,        // r
                                      const layout_type&,     // l
@@ -470,7 +490,7 @@ namespace gui {
                      bool grab_focus = true);
       column_list_t (column_list_t&& rhs);
 
-      void set_data (std::function<list_data_provider> data);
+      void set_data (std::function<column_list_data_provider> data);
 
     };
     // --------------------------------------------------------------------------

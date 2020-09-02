@@ -166,14 +166,12 @@ namespace gui {
     namespace detail {
 
       struct GUIPP_CTRL_EXPORT file_list_row_data :
-          public column_list_data_t<layout::weight_column_list_layout,
-                                    const draw::pixmap*,
+          public column_list_data_t<const draw::pixmap*,
                                     fs::file_info,
                                     fs::file_info,
                                     sys_fs::file_time_type> {
 
-        typedef column_list_data_t<layout::weight_column_list_layout,
-                                   const draw::pixmap*,
+        typedef column_list_data_t<const draw::pixmap*,
                                    fs::file_info,
                                    fs::file_info,
                                    sys_fs::file_time_type> super;

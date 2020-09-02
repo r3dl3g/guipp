@@ -894,18 +894,14 @@ void my_main_window::created_children () {
     layout::simple_column_info{ 30, text_origin_t::vcenter_left, 20 }
   };
 
-  ctrl::const_column_list_data<layout::simple_column_list_layout, int, int, int> second_data(
-    ctrl::cell_drawer<int>, ctrl::cell_drawer<int>, ctrl::cell_drawer<int>
-  );
-  second_data.set_data({
-                         { 1, 2, 3 },
-                         { 3, 4, 5 },
-                         { 5, 6, 7 },
-                         { 7, 8, 9 },
-                         { 9, 10, 11 }
-                       });
-  second_data.set_layout(&main_split_view.second.second.get_column_layout());
-
+  ctrl::const_column_list_data<int, int, int> second_data({
+    { 1, 2, 3 },
+    { 3, 4, 5 },
+    { 5, 6, 7 },
+    { 7, 8, 9 },
+    { 9, 10, 11 },
+    { 12, 13, 14 }
+  });
   main_split_view.create(main, core::rectangle(410, 50, 160, 250));
   main_split_view.first.second.set_data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
   main_split_view.second.first.set_data(ctrl::const_list_data<float>({ 1.1F, 2.2F, 3.3F, 4.4F, 5.5F }));
@@ -923,8 +919,8 @@ void my_main_window::created_children () {
     layout::weight_column_info{ 30, text_origin_t::center, 20, 1.0F }
   };
 
-  struct my_column_list_drawer : public ctrl::column_list_data_t<layout::weight_column_list_layout, int, std::string, float, int, bool> {
-    typedef ctrl::column_list_data_t<layout::weight_column_list_layout, int, std::string, float, int, bool> super;
+  struct my_column_list_drawer : public ctrl::column_list_data_t<int, std::string, float, int, bool> {
+    typedef ctrl::column_list_data_t<int, std::string, float, int, bool> super;
 
     std::size_t size () const override {
       return 20;
@@ -963,9 +959,7 @@ void my_main_window::created_children () {
     frame::raised_deep_relief(g, r);
     g.text(text_box(ostreamfmt((char)('C' + i) << (i + 1)), r, text_origin_t::center), font::system(), color::windowTextColor());
   });
-  my_column_list_drawer column_list_data;
-  column_list_data.set_layout(&column_list.get_column_layout());
-  column_list.set_data(std::move(column_list_data));
+  column_list.set_data(my_column_list_drawer());
   column_list.get_column_layout().set_columns(weight_columns);
 
   column_list.list.set_count();

@@ -193,9 +193,7 @@ namespace gui {
     void file_column_list<T>::init () {
       detail::init_file_list_layout(super::get_column_layout());
       init_file_list_header(super::header);
-      auto data = detail::file_list_row_data(current_dir, super::list);
-      data.set_layout(&super::get_column_layout());
-      super::set_data(data);
+      super::set_data(detail::file_list_row_data(current_dir, super::list));
       super::header.on_left_btn_down(util::bind_method(this, &file_column_list::handle_header_mouse_down));
       super::header.on_left_btn_up(util::bind_method(this, &file_column_list::handle_header_mouse_up));
     }

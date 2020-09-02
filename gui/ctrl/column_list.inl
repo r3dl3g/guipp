@@ -379,31 +379,31 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename L, typename ... A>
+    template<typename ... A>
     template<std::size_t I>
-    void column_list_row_drawer_t<L, A ...>::draw_cell (const row_type&,
-                                                        const drawer_type&,
-                                                        const layout_type&,
-                                                        const draw::graphics& g,
-                                                        const core::rectangle& place,
-                                                        core::point::type x,
-                                                        const draw::brush& background,
-                                                        item_state) {
+    void column_list_row_drawer_t<A ...>::draw_cell (const row_type&,
+                                                     const drawer_type&,
+                                                     const layout_type&,
+                                                     const draw::graphics& g,
+                                                     const core::rectangle& place,
+                                                     core::point::type x,
+                                                     const draw::brush& background,
+                                                     item_state) {
       if (x < place.x2()) {
         g.fill(draw::rectangle(core::point(x, place.y()), place.x2y2()), background);
       }
     }
 
-    template<typename L, typename ... A>
+    template<typename ... A>
     template<std::size_t I, typename T, typename ... Args>
-    void column_list_row_drawer_t<L, A ...>::draw_cell (const row_type& row,
-                                                        const drawer_type& drawer,
-                                                        const layout_type& layout,
-                                                        const draw::graphics& g,
-                                                        const core::rectangle& r,
-                                                        core::point::type x,
-                                                        const draw::brush& background,
-                                                        item_state state) {
+    void column_list_row_drawer_t<A ...>::draw_cell (const row_type& row,
+                                                     const drawer_type& drawer,
+                                                     const layout_type& layout,
+                                                     const draw::graphics& g,
+                                                     const core::rectangle& r,
+                                                     core::point::type x,
+                                                     const draw::brush& background,
+                                                     item_state state) {
       core::size::type width = layout.get_column_width(I);
       text_origin_t align = layout.get_column_align(I);
 
@@ -414,14 +414,14 @@ namespace gui {
       draw_cell<I + 1, Args ...>(row, drawer, layout, g, r, x + width, background, state);
     }
 
-    template<typename L, typename ... A>
-    void column_list_row_drawer_t<L, A ...>::draw_row (const row_type& row,
-                                                       const drawer_type& drawer,
-                                                       const layout_type& layout,
-                                                       const draw::graphics& g,
-                                                       const core::rectangle& place,
-                                                       const draw::brush& background,
-                                                       item_state state) {
+    template<typename ... A>
+    void column_list_row_drawer_t<A ...>::draw_row (const row_type& row,
+                                                    const drawer_type& drawer,
+                                                    const layout_type& layout,
+                                                    const draw::graphics& g,
+                                                    const core::rectangle& place,
+                                                    const draw::brush& background,
+                                                    item_state state) {
       draw_cell<0, A ...>(row, drawer, layout, g, place, place.x(), background, state);
     }
 
@@ -439,7 +439,8 @@ namespace gui {
     {}
 
     template<typename L, typename ... A>
-    void column_list_t<L, A ...>::set_data (std::function<list_data_provider> data) {
+    void column_list_t<L, A ...>::set_data (std::function<column_list_data_provider> data) {
+      data().set_layout(&super::get_column_layout());
       super::list.set_data(data);
     }
 

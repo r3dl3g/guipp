@@ -24,6 +24,7 @@
 //
 #include <gui/ctrl/list.h>
 #include <gui/layout/layout_container.h>
+#include <functional>
 
 
 namespace gui {
@@ -182,8 +183,8 @@ namespace gui {
     template<typename Layout, os::color background = color::very_very_light_gray>
     class column_list_header : public control {
     public:
-      typedef Layout layout_type;
       typedef control super;
+      typedef Layout layout_type;
       typedef no_erase_window_class<column_list_header> clazz;
       typedef void (cell_draw)(std::size_t,            // idx
                                const draw::graphics&,  // gc
@@ -237,7 +238,6 @@ namespace gui {
         base_column_list (core::size::type item_size = 20,
                           os::color background = color::white,
                           bool grab_focus = true);
-        base_column_list (const base_column_list& rhs);
         base_column_list (base_column_list&& rhs);
 
         layout_type& get_column_layout ();
@@ -257,98 +257,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    // static data for simple_column_list.
-    // --------------------------------------------------------------------------
-    template<typename T,
-             draw::frame::drawer F = draw::frame::no_frame>
-    struct simple_column_list_data : public std::vector<std::vector<T> > {
-      typedef std::vector<T> row;
-      typedef std::vector<row> super;
-
-      typedef typename super::iterator iterator;
-
-      simple_column_list_data ();
-      simple_column_list_data (std::initializer_list<row> args);
-      simple_column_list_data (iterator b, iterator e);
-
-      template<size_t N>
-      simple_column_list_data (const row(&t)[N]);
-
-      template<typename L>
-      void update_list (L& l);
-
-      void operator() (std::size_t row_id,
-                       std::size_t col_id,
-                       const draw::graphics& graph,
-                       const core::rectangle& place,
-                       const draw::brush& background,
-                       item_state state,
-                       text_origin_t align);
-
-    };
-
-    // --------------------------------------------------------------------------
-    template<typename Layout>
-    class simple_column_list : public detail::base_column_list<Layout> {
-    public:
-      typedef Layout layout_type;
-      typedef detail::base_column_list<layout_type> super;
-
-      typedef void (cell_draw)(std::size_t,            // row_id
-                               std::size_t,            // col_id
-                               const draw::graphics&,  // g
-                               const core::rectangle&, // place
-                               const draw::brush&,     // background
-                               item_state,             // state
-                               text_origin_t);           // align
-
-      simple_column_list (core::size::type item_size = 20,
-                          os::color background = color::white,
-                          bool grab_focus = true);
-
-      void set_drawer (std::function<cell_draw> drawer);
-
-      void create (const win::container& parent,
-                   const core::rectangle& place = core::rectangle::def);
-
-      template<typename T, draw::frame::drawer F = draw::frame::no_frame>
-      void set_data (simple_column_list_data<T, F> data);
-
-    protected:
-      void draw_cells (std::size_t idx,
-                       const draw::graphics& g,
-                       const core::rectangle& place,
-                       const draw::brush& background,
-                       item_state state);
-
-      std::function<cell_draw> drawer;
-    };
-
-    // --------------------------------------------------------------------------
     template<typename ... Arguments>
     using column_list_row_t = std::tuple<Arguments ...>;
-
-    // --------------------------------------------------------------------------
-    template<typename ... Arguments>
-    struct static_column_list_data_t : public std::vector<column_list_row_t<Arguments ...> > {
-      typedef column_list_row_t<Arguments ...> row;
-      typedef std::vector<row> super;
-
-      typedef typename super::iterator iterator;
-
-      static_column_list_data_t ();
-      static_column_list_data_t (std::initializer_list<row> args);
-      static_column_list_data_t (iterator b, iterator e);
-
-      template<size_t N>
-      static_column_list_data_t (const row(&t)[N]);
-
-      template<typename L>
-      void update_list (L& l);
-
-      row operator() (std::size_t row_id) const;
-
-    };
 
     // --------------------------------------------------------------------------
     template<typename T,
@@ -371,7 +281,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename ... Arguments>
-#if _MSC_VER < 1910
+#if defined(_MSC_VER) && (_MSC_VER < 1910)
 
     struct row_cell_drawer_t : public std::tuple<cell_drawer_t<Arguments>...> {
       typedef std::tuple<cell_drawer_t<Arguments>...> super;
@@ -389,43 +299,172 @@ namespace gui {
 #endif // _MSC_VER < 1900
 
     // --------------------------------------------------------------------------
-    template<typename Layout, typename ... Arguments>
-    struct column_list_row_drawer_t : public row_cell_drawer_t<Arguments ...> {
-      typedef Layout layout_type;
-      typedef row_cell_drawer_t<Arguments ...> super;
-      typedef column_list_row_t<Arguments ...> row;
-
-      column_list_row_drawer_t ();
-
-      column_list_row_drawer_t (cell_drawer_t<Arguments>... args);
-
-      void operator= (const column_list_row_drawer_t& rhs);
+    template<typename ... Arguments>
+    struct column_list_row_drawer_t {
+      typedef layout::detail::column_list_layout layout_type;
+      typedef std::tuple<Arguments ...> row_type;
+      typedef std::tuple<cell_drawer_t<Arguments>...> drawer_type;
 
       template<std::size_t I>
-      void draw_cell (const row& data,
-                      const layout_type& l,
-                      const draw::graphics& g,
-                      const core::rectangle& place,
-                      core::point::type x,
-                      const draw::brush& background,
-                      item_state state);
+      static void draw_cell (const row_type& row,
+                             const drawer_type& drawer,
+                             const layout_type& layout,
+                             const draw::graphics& g,
+                             const core::rectangle& place,
+                             core::point::type x,
+                             const draw::brush& background,
+                             item_state state);
 
       template<std::size_t I, typename T, typename ... Args>
-      void draw_cell (const row& data,
-                      const layout_type& l,
-                      const draw::graphics& g,
-                      const core::rectangle& r,
-                      core::point::type x,
-                      const draw::brush& background,
-                      item_state state);
+      static void draw_cell (const row_type& row,
+                             const drawer_type& drawer,
+                             const layout_type& layout,
+                             const draw::graphics& g,
+                             const core::rectangle& r,
+                             core::point::type x,
+                             const draw::brush& background,
+                             item_state state);
 
-      void operator() (const row& data,
-                       const layout_type& l,
-                       const draw::graphics& g,
-                       const core::rectangle& place,
-                       const draw::brush& background,
-                       item_state state);
+      static void draw_row (const row_type& row,
+                            const drawer_type& drawer,
+                            const layout_type& layout,
+                            const draw::graphics& g,
+                            const core::rectangle& place,
+                            const draw::brush& background,
+                            item_state state);
     };
+
+    // --------------------------------------------------------------------------
+    struct column_list_data : public list_data {
+      typedef list_data super;
+      typedef layout::detail::column_list_layout layout_type;
+
+      column_list_data ()
+        : layout(nullptr)
+      {}
+
+      void set_layout (layout_type* lay) {
+        layout = lay;
+      }
+
+      layout_type* get_layout () {
+        return layout;
+      }
+
+      const layout_type* get_layout () const {
+        return layout;
+      }
+
+      const column_list_data& operator ()() const {
+        return *this;
+      }
+
+      column_list_data& operator ()() {
+        return *this;
+      }
+
+    protected:
+      layout_type* layout;
+
+    };
+
+    // --------------------------------------------------------------------------
+    typedef column_list_data& (column_list_data_provider) ();
+
+    // --------------------------------------------------------------------------
+    template<typename ... Arguments>
+    struct column_list_data_t : public column_list_data {
+      typedef column_list_data super;
+      typedef layout::detail::column_list_layout layout_type;
+      typedef std::tuple<Arguments ...> row_type;
+      typedef std::tuple<cell_drawer_t<Arguments>...> drawer_type;
+
+      column_list_data_t (cell_drawer_t<Arguments>... drwr)
+        : drawer(drwr...)
+      {}
+
+      column_list_data_t (drawer_type&& drwr)
+        : drawer(std::move(drwr))
+      {}
+
+      virtual row_type at (std::size_t) const = 0;
+
+      void draw_at (std::size_t idx,
+                    const draw::graphics& g,
+                    const core::rectangle& place,
+                    const draw::brush& background,
+                    item_state state) const override {
+        if (super::get_layout()) {
+          column_list_row_drawer_t<Arguments...>::draw_row(at(idx),
+                                                           drawer,
+                                                           *super::get_layout(),
+                                                           g,
+                                                           place,
+                                                           background,
+                                                           state);
+        }
+      }
+
+    protected:
+      drawer_type drawer;
+    };
+
+    // --------------------------------------------------------------------------
+    template<typename ... Arguments>
+    struct const_column_list_data : public column_list_data_t<Arguments...> {
+      typedef column_list_data_t<Arguments...> super;
+      typedef typename super::row_type row_type;
+      typedef typename super::drawer_type drawer_type;
+
+      typedef std::vector<row_type> container_type;
+
+      const_column_list_data (cell_drawer_t<Arguments>... drwr)
+        : super(drwr...)
+      {}
+
+      const_column_list_data (drawer_type&& drwr)
+        : super(std::move(drwr))
+      {}
+
+      const_column_list_data (drawer_type&& drwr, std::initializer_list<row_type> args)
+        : super(std::move(drwr))
+        , data(args)
+      {}
+
+      const_column_list_data (std::initializer_list<row_type> args)
+        : super(std::make_tuple(ctrl::cell_drawer<Arguments>...))
+        , data(args)
+      {}
+
+      std::size_t size () const override {
+        return data.size();
+      }
+
+      row_type at (std::size_t idx) const override {
+        return data[idx];
+      }
+
+      const_column_list_data& set_data (std::initializer_list<row_type> args) {
+        data = container_type(args);
+        return *this;
+      }
+
+      const_column_list_data& set_data (const container_type& dt) {
+        data = dt;
+        return *this;
+      }
+
+      const container_type& get_data () const {
+        return data;
+      }
+
+    protected:
+      container_type data;
+    };
+
+    // --------------------------------------------------------------------------
+    template<typename Layout, typename ... Arguments>
+    using indirect_column_list_data = column_list_data_t<const std::vector<std::tuple<Arguments...>>&, Arguments...>;
 
     // --------------------------------------------------------------------------
     template<typename Layout, typename ... Arguments>
@@ -435,38 +474,24 @@ namespace gui {
 
       typedef Layout layout_type;
       typedef detail::base_column_list<layout_type> super;
-      typedef column_list_row_t<Arguments ...> row;
-      typedef static_column_list_data_t<Arguments ...> standard_data;
-      typedef column_list_row_drawer_t<layout_type, Arguments ...> row_drawer;
-      typedef row (get_row_data_t)(std::size_t idy);
-      typedef void (draw_row_data_t)(const row&,             // r
+      typedef std::tuple<Arguments ...> row_type;
+      typedef const_column_list_data<Arguments ...> standard_data;
+      typedef column_list_row_drawer_t<Arguments ...> row_drawer;
+      typedef row_type (get_row_data_t)(std::size_t idy);
+      typedef void (draw_row_data_t)(const row_type&,        // r
                                      const layout_type&,     // l
                                      const draw::graphics&,  // g
                                      const core::rectangle&, // place
                                      const draw::brush&,     // background
                                      item_state);            // state
 
-      typedef std::function<get_row_data_t> data_provider;
-      typedef std::function<draw_row_data_t> data_drawer;
-
       column_list_t (core::size::type item_size = 20,
                      os::color background = color::white,
                      bool grab_focus = true);
-      column_list_t (const column_list_t& rhs);
       column_list_t (column_list_t&& rhs);
 
-      void set_drawer (data_drawer drawer);
-      void set_data (data_provider data, std::size_t count);
+      void set_data (std::function<column_list_data_provider> data);
 
-    protected:
-      void draw_cells_t (std::size_t row_id,
-                         const draw::graphics& g,
-                         const core::rectangle& place,
-                         const draw::brush& back,
-                         item_state state);
-
-      data_drawer drawer;
-      data_provider data;
     };
     // --------------------------------------------------------------------------
   } // ctrl

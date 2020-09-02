@@ -49,7 +49,7 @@ namespace gui {
       template<typename I>
       inline basic_tree<I>::basic_tree (const basic_tree& rhs)
         : super(rhs)
-        , nodes(rhs.nodes)
+        , data(rhs.data)
       {
         init();
       }
@@ -57,8 +57,7 @@ namespace gui {
       template<typename I>
       inline basic_tree<I>::basic_tree (basic_tree&& rhs)
         : super(std::move(rhs))
-        , nodes(std::move(rhs.nodes))
-        , open_nodes(std::move(rhs.open_nodes))
+        , data(std::move(rhs.data))
       {
         init();
       }
@@ -103,14 +102,14 @@ namespace gui {
       template<typename I>
       void basic_tree<I>::init () {
         set_root(type());
-        super::set_drawer(util::bind_method(this, &basic_tree::draw_list_item));
+        super::set_data(data);
         super::on_selection_commit([&]() {
           toggle_node(super::get_selection());
         });
         super::on_left_btn_down([&](os::key_state, const core::point & pt) {
           int idx = super::get_index_at_point(pt);
           if ((idx > -1) && (idx < size())) {
-            const depth_info& i = nodes[idx];
+            const depth_info& i = data.nodes[idx];
             core::point::type x = core::point::type(i.depth * 16);
             if ((x <= pt.x()) && (x + 16 >= pt.x())) {
               toggle_node(idx);
@@ -124,9 +123,9 @@ namespace gui {
               int idx = super::get_selection();
               if (is_valid_idx(idx)) {
                 const reference ref = get_item(idx);
-                auto i = open_nodes.find(ref);
-                if (i != open_nodes.end()) {
-                  open_nodes.erase(i);
+                auto i = data.open_nodes.find(ref);
+                if (i != data.open_nodes.end()) {
+                  data.open_nodes.erase(i);
                   update_node_list();
                 } else {
                   idx = get_parent_item_of(idx);
@@ -146,14 +145,14 @@ namespace gui {
 
       template<typename I>
       inline bool basic_tree<I>::is_open (const reference ref) const {
-        return open_nodes.find(ref) != open_nodes.end();
+        return data.is_open(ref);
       }
 
       template<typename I>
       inline bool basic_tree<I>::is_open (int idx) const {
         if (is_valid_idx(idx)) {
-          auto i = open_nodes.find(get_item(idx));
-          return i != open_nodes.end();
+          auto i = data.open_nodes.find(get_item(idx));
+          return i != data.open_nodes.end();
         }
         return false;
       }
@@ -163,16 +162,16 @@ namespace gui {
         if (is_valid_idx(idx)) {
           const reference r = get_item(idx);
           if (o) {
-            open_nodes.insert(r);
+            data.open_nodes.insert(r);
           } else {
-            open_nodes.erase(r);
+            data.open_nodes.erase(r);
           }
         }
       }
 
       template<typename I>
       inline void basic_tree<I>::open_all () {
-        open_nodes.clear();
+        data.open_nodes.clear();
         for (const auto& root : roots) {
           open_sub(root);
         }
@@ -180,15 +179,15 @@ namespace gui {
 
       template<typename I>
       inline void basic_tree<I>::open_root () {
-        open_nodes.clear();
+        data.open_nodes.clear();
         for (const auto& root : roots) {
-          open_nodes.insert(tree_info::make_reference(root));
+          data.open_nodes.insert(tree_info::make_reference(root));
         }
       }
 
       template<typename I>
       inline void basic_tree<I>::open_sub (const type& n) {
-        open_nodes.insert(tree_info::make_reference(n));
+        data.open_nodes.insert(tree_info::make_reference(n));
         for (const auto& i : tree_info::sub_nodes(n)) {
           open_sub(i);
         }
@@ -220,46 +219,46 @@ namespace gui {
 
       template<typename I>
       void basic_tree<I>::toggle_node (const reference ref) {
-        auto i = open_nodes.find(ref);
-        if (i != open_nodes.end()) {
-          open_nodes.erase(i);
+        auto i = data.open_nodes.find(ref);
+        if (i != data.open_nodes.end()) {
+          data.open_nodes.erase(i);
         } else {
-          open_nodes.emplace(ref);
+          data.open_nodes.emplace(ref);
         }
         update_node_list();
       }
 
       template<typename I>
       void basic_tree<I>::open_node (const reference ref) {
-        auto i = open_nodes.find(ref);
-        if (i == open_nodes.end()) {
-          open_nodes.emplace(ref);
+        auto i = data.open_nodes.find(ref);
+        if (i == data.open_nodes.end()) {
+          data.open_nodes.emplace(ref);
           update_node_list();
         }
       }
 
       template<typename I>
       void basic_tree<I>::add_open_node (const reference ref) {
-        auto i = open_nodes.find(ref);
-        if (i == open_nodes.end()) {
-          open_nodes.emplace(ref);
+        auto i = data.open_nodes.find(ref);
+        if (i == data.open_nodes.end()) {
+          data.open_nodes.emplace(ref);
         }
       }
 
       template<typename I>
       void basic_tree<I>::close_node (const reference ref) {
-        auto i = open_nodes.find(ref);
-        if (i != open_nodes.end()) {
-          open_nodes.erase(i);
+        auto i = data.open_nodes.find(ref);
+        if (i != data.open_nodes.end()) {
+          data.open_nodes.erase(i);
           update_node_list();
         }
       }
 
       template<typename I>
       void basic_tree<I>::select_node (const reference ref) {
-        for (auto i = nodes.begin(), e = nodes.end(); i != e; ++i) {
+        for (auto i = data.nodes.begin(), e = data.nodes.end(); i != e; ++i) {
           if (i->ref == ref) {
-            super::set_selection(static_cast<int>(std::distance(nodes.begin(), i)), event_source::logic);
+            super::set_selection(static_cast<int>(std::distance(data.nodes.begin(), i)), event_source::logic);
             return;
           }
         }
@@ -267,17 +266,18 @@ namespace gui {
 
       template<typename I>
       void basic_tree<I>::update_node_list () {
-        nodes.clear();
+        data.nodes.clear();
         for (const auto& root : roots) {
           collect_children(root);
         }
-        super::set_count(nodes.size());
+        super::set_data(data);
+        super::set_count();
         super::invalidate();
       }
 
       template<typename I>
       void basic_tree<I>::collect_children (const type& n, std::size_t depth) {
-        nodes.emplace_back(depth_info(tree_info::make_reference(n), depth));
+        data.nodes.emplace_back(depth_info(tree_info::make_reference(n), depth));
         if (is_open(tree_info::make_reference(n))) {
           for (const auto& i : tree_info::sub_nodes(n)) {
             collect_children(i, depth + 1);
@@ -287,12 +287,12 @@ namespace gui {
 
       template<typename I>
       inline auto basic_tree<I>::get_item(int idx) const->const reference {
-        return nodes[idx].ref;
+        return data.nodes[idx].ref;
       }
 
       template<typename I>
       inline int basic_tree<I>::size () const {
-        return static_cast<int>(nodes.size());
+        return static_cast<int>(data.size());
       }
 
       template<typename I>
@@ -303,21 +303,32 @@ namespace gui {
       template<typename I>
       int basic_tree<I>::get_parent_item_of (int idx) {
         if (is_valid_idx(idx)) {
-          const std::size_t depth = nodes[idx].depth;
+          const std::size_t depth = data.nodes[idx].depth;
           do {
             --idx;
-          } while ((idx > -1) && (nodes[idx].depth >= depth));
+          } while ((idx > -1) && (data.nodes[idx].depth >= depth));
           return idx;
         }
         return -1;
       }
 
       template<typename I>
-      inline void basic_tree<I>::draw_list_item (std::size_t idx,
-                                                 const draw::graphics& g,
-                                                 const core::rectangle& r,
-                                                 const draw::brush& b,
-                                                 item_state state) {
+      inline basic_tree<I>::depth_info::depth_info (reference ref, std::size_t depth)
+        : ref(ref)
+        , depth(depth)
+      {}
+
+      template<typename I>
+      std::size_t basic_tree<I>::tree_data::size () const {
+        return nodes.size();
+      }
+
+      template<typename I>
+      void basic_tree<I>::tree_data::draw_at (std::size_t idx,
+                                              const draw::graphics& g,
+                                              const core::rectangle& r,
+                                              const draw::brush& b,
+                                              item_state state) const {
         const depth_info& i = nodes[idx];
         const type& n = tree_info::dereference(i.ref);
         tree_node_drawer<I>(g, r, b, n, i.depth,
@@ -326,10 +337,9 @@ namespace gui {
       }
 
       template<typename I>
-      inline basic_tree<I>::depth_info::depth_info (reference ref, std::size_t depth)
-        : ref(ref)
-        , depth(depth)
-      {}
+      inline bool basic_tree<I>::tree_data::is_open (const reference ref) const {
+        return open_nodes.find(ref) != open_nodes.end();
+      }
 
       // --------------------------------------------------------------------------
       inline node::node (const std::string& label)

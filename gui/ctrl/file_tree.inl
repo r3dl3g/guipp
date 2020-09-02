@@ -128,22 +128,24 @@ namespace gui {
       init ();
     }
 
+    // --------------------------------------------------------------------------
+    inline void file_item_drawer (const fs::file_info& path,
+                                  const draw::graphics& g,
+                                  const core::rectangle& r,
+                                  const draw::brush& b,
+                                  item_state state) {
+      paint::text_item(g, r, b, path.filename(), state, text_origin_t::vcenter_left);
+    }
+
     template<typename T>
     inline void file_list<T>::init () {
-      super::set_drawer([&] (std::size_t idx,
-        const draw::graphics& g,
-        const core::rectangle& r,
-        const draw::brush& b,
-        item_state state) {
-        const fs::file_info& path = current_dir[idx];
-        paint::text_item(g, r, b, path.filename(), state, text_origin_t::vcenter_left);
-      });
+      super::set_data(indirect_list_data<fs::file_info, file_item_drawer>(current_dir));
     }
 
     template<typename T>
     inline void file_list<T>::set_path (const sys_fs::path& dir, std::function<fs::filter_fn> filter) {
       current_dir = T::sub_nodes(dir, filter);
-      super::set_count(current_dir.size());
+      super::set_count();
       super::clear_selection(event_source::logic);
       super::set_scroll_pos(0);
       super::invalidate();
@@ -191,10 +193,7 @@ namespace gui {
     void file_column_list<T>::init () {
       detail::init_file_list_layout(super::get_column_layout());
       init_file_list_header(super::header);
-      super::set_drawer(detail::create_file_list_row_drawer());
-      super::set_data([&](std::size_t i) {
-        return detail::build_file_list_row(current_dir[i], (i == super::list.get_selection()));
-      }, 0);
+      super::set_data(detail::file_list_row_data(current_dir, super::list));
       super::header.on_left_btn_down(util::bind_method(this, &file_column_list::handle_header_mouse_down));
       super::header.on_left_btn_up(util::bind_method(this, &file_column_list::handle_header_mouse_up));
     }
@@ -221,7 +220,7 @@ namespace gui {
     template<typename T>
     inline void file_column_list<T>::set_path (const sys_fs::path& dir, std::function<fs::filter_fn> filter) {
       current_dir = T::sub_nodes(dir, filter);
-      super::list.set_count(current_dir.size());
+      super::list.set_count();
       super::list.clear_selection(event_source::logic);
       super::list.set_scroll_pos(0);
       if (order == sort_order::none) {

@@ -34,8 +34,22 @@ namespace gui {
         return list_state(*this);
       }
 
+      template<typename T, list_item_drawer<T> D>
+      inline void list_base::set_data (const std::vector<T>& data) {
+        data.items = indirect_list_data<T, D>(data);
+      }
+
+      template<typename T, list_item_drawer<T> D>
+      inline void list_base::set_data (std::initializer_list<T> args) {
+        data.items = const_list_data<T, D>(args);
+      }
+
+      inline void list_base::set_data (std::function<list_data_provider> dta) {
+        data.items = dta;
+      }
+
       inline std::size_t list_base::get_count () const {
-        return data.item_count;
+        return data.items ? data.items().size() : 0;
       }
 
       inline int list_base::get_selection () const {
@@ -43,7 +57,7 @@ namespace gui {
       }
 
       inline bool list_base::has_selection () const {
-        return (data.selection > -1) && (data.selection < data.item_count);
+        return (data.selection > -1) && (data.selection < get_count());
       }
 
       inline int list_base::get_hilite () const {
@@ -84,43 +98,17 @@ namespace gui {
         return (idx > -1) && (idx < static_cast<int>(get_count()));
       }
 
+      inline void list_base::draw_item (std::size_t idx,
+                                        const draw::graphics& g,
+                                        const core::rectangle& place,
+                                        const draw::brush& background,
+                                        item_state state) const {
+        if (data.items) {
+          data.items().draw_at(idx, g, place, background, state);
+        }
+      }
+
     } // namespace detail
-
-    // --------------------------------------------------------------------------
-    template<typename T, list_item_drawer<T> F>
-    inline simple_list_data<T, F>::simple_list_data ()
-    {}
-
-    template<typename T, list_item_drawer<T> F>
-    inline simple_list_data<T, F>::simple_list_data (std::initializer_list<T> args)
-      : super(args)
-    {}
-
-    template<typename T, list_item_drawer<T> F>
-    inline simple_list_data<T, F>::simple_list_data (iterator b, iterator e)
-      : super(b, e)
-    {}
-
-    template<typename T, list_item_drawer<T> F>
-    template<size_t N>
-    inline simple_list_data<T, F>::simple_list_data (const T(&t)[N])
-      : super(t, t + N)
-    {}
-
-    template<typename T, list_item_drawer<T> F>
-    template<typename L>
-    inline void simple_list_data<T, F>::update_list (L& l) {
-      l.set_count(super::size());
-    }
-
-    template<typename T, list_item_drawer<T> F>
-    inline void simple_list_data<T, F>::operator() (std::size_t idx,
-                                                    const draw::graphics& g,
-                                                    const core::rectangle& place,
-                                                    const draw::brush& background,
-                                                    item_state state) {
-      F(super::at(idx), g, place, background, state);
-    }
 
     // --------------------------------------------------------------------------
     template<>
@@ -358,15 +346,6 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    inline basic_list<V, T>::basic_list (const basic_list& rhs)
-      : super(rhs)
-      , scrollbar(rhs.scrollbar)
-      , traits(rhs.traits)
-    {
-      init();
-    }
-
-    template<orientation_t V, typename T>
     inline basic_list<V, T>::basic_list (basic_list&& rhs)
       : super(std::move(rhs))
       , scrollbar(std::move(rhs.scrollbar))
@@ -516,7 +495,7 @@ namespace gui {
     template<typename U, list_item_drawer<U> F>
     inline void basic_list<V, T>::create (const win::container& parent,
                                           const core::rectangle& place,
-                                          const simple_list_data<U, F>& data) {
+                                          const list_data* data) {
       super::create(clazz::get(), parent, place);
       set_data(data);
     }
@@ -552,12 +531,10 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    void basic_list<V, T>::set_count (std::size_t count) {
-      super::data.item_count = count;
-
+    void basic_list<V, T>::set_count () {
       const auto sz = client_size();
       const auto cs = content_size(sz, true);
-      scroll_bar::type invisible = traits.get_invisible_size(cs, count);
+      scroll_bar::type invisible = traits.get_invisible_size(cs, get_count());
       scrollbar.set_min_max_step_page(zero, std::max(invisible, zero), traits.get_line_size(), traits.get(cs));
 
       if (super::is_valid()) {
@@ -569,20 +546,6 @@ namespace gui {
         scrollbar.set_visible(show_scroll);
         super::invalidate();
       }
-    }
-
-    template<orientation_t V, typename T>
-    template<typename F>
-    inline void basic_list<V, T>::set_data (const simple_list_data<F>& data) {
-      super::set_drawer(data);
-      set_count(data.size());
-    }
-
-    template<orientation_t V, typename T>
-    template<typename F>
-    inline void basic_list<V, T>::set_data (std::initializer_list<F> args) {
-      super::set_drawer(simple_list_data<F>(args));
-      set_count(args.size());
     }
 
     template<orientation_t V, typename T>
@@ -700,13 +663,6 @@ namespace gui {
     }
 
     template<orientation_t V>
-    inline linear_list<V>::linear_list (const linear_list& rhs)
-      : super(rhs)
-    {
-      init();
-    }
-
-    template<orientation_t V>
     inline linear_list<V>::linear_list (linear_list&& rhs)
       : super(std::move(rhs))
     {
@@ -786,13 +742,6 @@ namespace gui {
                                  os::color background,
                                  bool grab_focus)
       : super(item_size, background, grab_focus)
-    {
-      init();
-    }
-
-    inline edit_list::edit_list (const edit_list& rhs)
-      : super(rhs)
-      , data(rhs.data)
     {
       init();
     }

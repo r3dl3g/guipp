@@ -25,12 +25,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
     sys_fs::path current = sys_fs::current_path();
     client.set_roots(fs::get_all_root_file_infos());
-//    for (auto next = current; next.has_root_path() && (next != next.root_path()); next = next.parent_path()) {
-//      client.add_open_node(next);
-//    }
     client.add_open_node(current.root_path());
     client.update_node_list();
-//    client.select_node(current);
 
     main.get_layout().set_center(layout::lay(client));
     main.set_children_visible();

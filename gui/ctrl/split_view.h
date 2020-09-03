@@ -31,7 +31,7 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    struct split_view_data {
+    struct GUIPP_CTRL_EXPORT split_view_data {
       split_view_data ();
 
       win::window* first;
@@ -90,7 +90,6 @@ namespace gui {
         typedef basic_framed_slider<O, draw::frame::raised_relief> slider_type;
 
         split_view ();
-        split_view (const split_view& rhs);
         split_view (split_view&& rhs);
 
         void create (const win::container& parent,
@@ -117,7 +116,6 @@ namespace gui {
       typedef typename super::layout_type layout_type;
 
       basic_split_view ();
-      basic_split_view (const basic_split_view& rhs);
       basic_split_view (basic_split_view&& rhs);
       basic_split_view (First&& first, Second&& second);
 

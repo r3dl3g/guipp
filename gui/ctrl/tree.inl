@@ -47,14 +47,6 @@ namespace gui {
       }
 
       template<typename I>
-      inline basic_tree<I>::basic_tree (const basic_tree& rhs)
-        : super(rhs)
-        , data(rhs.data)
-      {
-        init();
-      }
-
-      template<typename I>
       inline basic_tree<I>::basic_tree (basic_tree&& rhs)
         : super(std::move(rhs))
         , data(std::move(rhs.data))

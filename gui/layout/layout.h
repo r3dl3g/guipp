@@ -44,7 +44,7 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    class standard_layout {
+    class GUIPP_LAYOUT_EXPORT standard_layout {
     public:
       void layout (const core::rectangle&);
     };
@@ -84,7 +84,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    struct layout_element {
+    struct GUIPP_LAYOUT_EXPORT layout_element {
       layout_element (const layout_function& fkt, bool is_separator = false)
         : fkt(fkt)
         , separator(is_separator)
@@ -113,7 +113,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class layout_base {
+    class GUIPP_LAYOUT_EXPORT layout_base {
     public:
       typedef std::vector<layout_element> element_list;
 

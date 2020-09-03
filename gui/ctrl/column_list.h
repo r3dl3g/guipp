@@ -151,7 +151,7 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class base_column_list_layout {
+      class GUIPP_CTRL_EXPORT base_column_list_layout {
       public:
         typedef ctrl::vertical_list list_type;
 
@@ -335,7 +335,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct column_list_data : public list_data {
+    struct GUIPP_CTRL_EXPORT column_list_data : public list_data {
       typedef list_data super;
       typedef layout::detail::column_list_layout layout_type;
 

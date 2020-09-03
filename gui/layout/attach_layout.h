@@ -278,7 +278,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    /*abstract*/ struct attach_base {
+    /*abstract*/ struct GUIPP_LAYOUT_EXPORT attach_base {
       virtual core::rectangle place () const = 0;
       virtual core::size size () const = 0;
       virtual void place (const core::rectangle&) = 0;
@@ -293,7 +293,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct all_attach_traits {
+    struct GUIPP_LAYOUT_EXPORT all_attach_traits {
       using key_type = attach_base*;
 
       struct key_compare {
@@ -338,7 +338,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct attach_win : public attach_base {
+    struct GUIPP_LAYOUT_EXPORT attach_win : public attach_base {
       attach_win (win::window& win)
         : win(win)
       {}

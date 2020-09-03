@@ -59,7 +59,7 @@ namespace gui {
                                       item_state);
 
     // --------------------------------------------------------------------------
-    struct list_data {
+    struct GUIPP_CTRL_EXPORT list_data {
 
       virtual std::size_t size () const = 0;
 
@@ -167,7 +167,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct draw_list_data : public list_data {
+    struct GUIPP_CTRL_EXPORT draw_list_data : public list_data {
       using super = list_data;
 
       typedef std::size_t (size_getter_f)();

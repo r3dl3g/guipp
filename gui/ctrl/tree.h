@@ -104,7 +104,6 @@ namespace gui {
         basic_tree (core::size::type item_size = 20,
                     os::color background = color::white,
                     bool grab_focus = true);
-        basic_tree (const basic_tree& rhs);
         basic_tree (basic_tree&& rhs);
 
         void init ();

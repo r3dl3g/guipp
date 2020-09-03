@@ -241,7 +241,6 @@ private:
 
   typedef ctrl::vertical_split_view<List2, List3> list_split_view;
   typedef ctrl::column_list_t<layout::simple_column_list_layout, int, int, int> simple_list;
-//  typedef ctrl::simple_column_list<layout::simple_column_list_layout> simple_list;
   typedef ctrl::vertical_split_view<ctrl::horizontal_list, simple_list> column_list_split_view;
 
   ctrl::horizontal_split_view<list_split_view, column_list_split_view> main_split_view;
@@ -1091,7 +1090,7 @@ void my_main_window::created_children () {
   text_drop_down.create(main, core::rectangle(180, 445, 100, 20));
   text_drop_down.set_visible_items(8);
 
-  color_drop_down.set_data(ctrl::calc_list_data<os::color>([](std::size_t i) {
+  color_drop_down.set_data(ctrl::calc_list_data<os::color, ctrl::default_drop_down_drawer<os::color>>([](std::size_t i) {
     static const os::color colors[] = {
       color::red,
       color::blue,

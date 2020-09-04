@@ -107,8 +107,10 @@ namespace gui {
 
       scale (const core::point& pos,
              const scaler<T>& sc,
-             T main, T sub,
-             T main_l, T sub_l,
+             T main,
+             T main_l,
+             T sub = 0,
+             T sub_l = 0,
              formatter fmt = default_formatter<T>);
 
       void operator() (const graphics&, const font&, os::color) const;
@@ -117,8 +119,8 @@ namespace gui {
       const core::point pos;
       const scaler<T>& sc;
       T main;
-      T sub;
       T main_l;
+      T sub;
       T sub_l;
       formatter fmt;
     };
@@ -127,8 +129,12 @@ namespace gui {
     template<typename T>
     struct wall {
       wall (const core::point& pos,
-            const scaler<T>& sx, T main_x, T sub_x,
-            const scaler<T>& sy, T main_y, T sub_y);
+            const scaler<T>& sx,
+            const scaler<T>& sy,
+            T main_x,
+            T main_y,
+            T sub_x = 0,
+            T sub_y = 0);
 
       void operator() (const graphics&, const brush&, const pen&) const;
 
@@ -137,8 +143,8 @@ namespace gui {
       const scaler<T>& sx;
       const scaler<T>& sy;
       T main_x;
-      T sub_x;
       T main_y;
+      T sub_x;
       T sub_y;
     };
 
@@ -177,7 +183,8 @@ namespace gui {
       typedef graph_base<T> super;
 
       line_graph (const core::point& pos,
-                  const scaler<T>& sx, const scaler<T>& sy,
+                  const scaler<T>& sx,
+                  const scaler<T>& sy,
                   typename super::point2d_data);
 
       void operator() (const graphics&, const pen&) const;
@@ -190,7 +197,8 @@ namespace gui {
       typedef graph_base<T> super;
 
       bar_graph (const core::point& pos,
-                 const scaler<T>& sx, const scaler<T>& sy,
+                 const scaler<T>& sx,
+                 const scaler<T>& sy,
                  typename super::point2d_data);
 
       void operator() (const graphics&, const brush&) const;
@@ -203,7 +211,8 @@ namespace gui {
       typedef graph_base<T> super;
 
       points_graph (const core::point& pos,
-                    const scaler<T>& sx, const scaler<T>& sy,
+                    const scaler<T>& sx,
+                    const scaler<T>& sy,
                     typename super::point2d_data);
 
       void operator() (const graphics&, const brush&) const;

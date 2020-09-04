@@ -81,14 +81,16 @@ namespace gui {
     template<typename T, orientation_t V>
     scale<T, V>::scale (const core::point& pos,
                         const scaler<T>& sc,
-                        T main, T sub,
-                        T main_l, T sub_l,
+                        T main,
+                        T main_l,
+                        T sub,
+                        T sub_l,
                         formatter fmt)
       : pos(pos)
       , sc(sc)
       , main(main)
-      , sub(sub)
       , main_l(main_l)
+      , sub(sub)
       , sub_l(sub_l)
       , fmt(fmt)
     {}
@@ -111,7 +113,7 @@ namespace gui {
         g.frame(line(p0, p1), color);
         traits::set_1(p2, d1);
         g.text(draw::text(fmt(i), p2, scale_text_origin<V>()), font, color);
-        if (i + sub < max) {
+        if ((sub > 0) && (sub_l > 0) && (i + sub < max)) {
           traits::set_2(p0, d2 - sub_l);
           traits::set_2(p1, d2 + sub_l);
           const T smax = std::min(i + main, max);
@@ -128,14 +130,18 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T>
     wall<T>::wall (const core::point& pos,
-                   const scaler<T>& sx, T main_x, T sub_x,
-                   const scaler<T>& sy, T main_y, T sub_y)
+                   const scaler<T>& sx,
+                   const scaler<T>& sy,
+                   T main_x,
+                   T main_y,
+                   T sub_x,
+                   T sub_y)
       : pos(pos)
       , sx(sx)
       , sy(sy)
       , main_x(main_x)
-      , sub_x(sub_x)
       , main_y(main_y)
+      , sub_x(sub_x)
       , sub_y(sub_y)
     {}
 
@@ -151,7 +157,7 @@ namespace gui {
         p0.x(xm);
         p1.x(xm);
         g.frame(line(p0, p1), p);
-        if (i + sub_x < max_x) {
+        if ((sub_x > 0) && (i + sub_x < max_x)) {
           const T smax = std::min(i + main_x, max_x);
           for (T j = i + sub_x; j < smax; j += sub_x) {
             const T xs = sx(j);
@@ -170,7 +176,7 @@ namespace gui {
         p0.y(ym);
         p1.y(ym);
         g.frame(line(p0, p1), p);
-        if (i + sub_y < max_y) {
+        if ((sub_y > 0) && (i + sub_y < max_y)) {
           const T smax = std::min(i + main_y, max_y);
           for (T j = i + sub_y; j < smax; j += sub_y) {
             const T ys = sy(j);
@@ -231,7 +237,7 @@ namespace gui {
     template<typename T>
     void bar_graph<T>::operator() (const graphics& g, const brush& b) const {
       const auto sz = super::points().size();
-      const float w = std::floor(static_cast<float>((super::sx.get_target_max() - super::sx.get_target_min()) / (sz * 2) - 1));
+      const float w = std::max(1.0F, std::floor(static_cast<float>((super::sx.get_target_max() - super::sx.get_target_min()) / (sz * 2) - 1)));
       const auto y0 = static_cast<float>(super::sy(0));
       for (int i = 0; i < sz; ++i) {
         const auto pt = super::points().at(i);
@@ -254,7 +260,7 @@ namespace gui {
     template<typename T>
     void points_graph<T>::operator() (const graphics& g, const brush& b) const {
       const auto sz = super::points().size();
-      const float w = std::floor(static_cast<float>((super::sx.get_target_max() - super::sx.get_target_min()) / (sz * 2) - 1));
+      const float w = std::max(1.0F, std::floor(static_cast<float>((super::sx.get_target_max() - super::sx.get_target_min()) / (sz * 2) - 1)));
       for (int i = 0; i < sz; ++i) {
         const auto pt = super::points().at(i);
         const auto x = static_cast<float>(super::sx(pt[0]));

@@ -54,13 +54,15 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     scaler<double> xscale(0, 6.5, 50, area.x2() - 50);
     scaler<double> yscale(-1.2, 1.2, area.y2() - 50, 50);
 
-    graph.draw(wall<double>(p0, xscale, 1, 0.2, yscale, 0.2, 0.05),
+    graph.draw(wall<double>(p0, xscale, yscale, 1, 0.2, 0.2, 0.05),
                color::very_very_light_gray, color::very_light_gray);
 
-    graph.text(scale<double, orientation_t::horizontal>(p1, xscale, 1, 0.2, -3, 1),
+    graph.text(scale<double, orientation_t::horizontal>(p0, xscale, 1, -3, 0.2, 1),
+               font::serif(), color::black);
+    graph.text(scale<double, orientation_t::horizontal>(p1, xscale, 1, -3, 0.2, 1),
                font::serif(), color::black);
 
-    graph.text(scale<double, orientation_t::vertical>(p0, yscale, 0.2, 0.05, 3, 1, fmt),
+    graph.text(scale<double, orientation_t::vertical>(p0, yscale, 0.2, 3, 0.05, 1, fmt),
                font::serif(), color::black);
 
     graph.fill(bar_graph<double>(p0, xscale, yscale, sinus_data(+0.5)), color::blue);

@@ -44,6 +44,7 @@ set(apps
     attach_all_layout
     dialogs
     split_view
+    diagrams
 )
 
 message(STATUS "gui_libraries: ${gui_libraries}")

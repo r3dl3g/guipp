@@ -40,8 +40,8 @@ namespace gui {
     template<typename T, typename S>
     inline basic_rectangle<T, S>::basic_rectangle (const point_t& topleft,
                                                    const point_t& bottomright)
-      : pos(topleft)
-      , sz(bottomright - topleft)
+      : pos(std::min(topleft.x(), bottomright.x()), std::min(topleft.y(), bottomright.y()))
+      , sz(std::abs(bottomright.x() - topleft.x()), std::abs(bottomright.y() - topleft.y()))
     {}
 
     template<typename T, typename S>

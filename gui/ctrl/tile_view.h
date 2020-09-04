@@ -40,8 +40,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation_t V>
-    struct tile_list_traits : public orientation_traits<V> {
-      typedef orientation_traits<V> super;
+    struct tile_list_traits : public core::orientation_traits<V> {
+      typedef core::orientation_traits<V> super;
       typedef core::size size_type;
       typedef core::size::type dim_type;
 

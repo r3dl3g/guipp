@@ -111,184 +111,6 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<>
-    inline core::point::type
-    orientation_traits<orientation_t::horizontal>::get (const core::point& pt) {
-      return pt.x();
-    }
-
-    template<>
-    inline core::size::type
-    orientation_traits<orientation_t::horizontal>::get (const core::size& sz) {
-      return sz.width();
-    }
-
-    template<>
-    inline core::point::type
-    orientation_traits<orientation_t::horizontal>::get_other (const core::point& pt) {
-      return pt.y();
-    }
-
-    template<>
-    inline core::size::type
-    orientation_traits<orientation_t::horizontal>::get_other (const core::size& sz) {
-      return sz.height();
-    }
-
-    template<>
-    inline void
-    orientation_traits<orientation_t::horizontal>::set (core::point& pt,
-                                                      core::point::type dim,
-                                                      core::point::type other) {
-      pt.x(dim);
-      pt.y(other);
-    }
-
-    template<>
-    inline void
-    orientation_traits<orientation_t::horizontal>::set (core::point& pt,
-                                                      core::point::type dim) {
-      pt.x(dim);
-    }
-
-    template<>
-    inline void
-    orientation_traits<orientation_t::horizontal>::set_other (core::point& pt,
-                                                            core::point::type other) {
-      pt.y(other);
-    }
-
-    template<>
-    inline void
-    orientation_traits<orientation_t::horizontal>::set (core::size& sz,
-                                                      core::size::type dim,
-                                                      core::size::type other) {
-      sz.width(dim);
-      sz.height(other);
-    }
-
-    template<>
-    inline void
-    orientation_traits<orientation_t::horizontal>::set (core::size& sz,
-                                                      core::size::type dim) {
-      sz.width(dim);
-    }
-
-    template<>
-    inline void
-    orientation_traits<orientation_t::horizontal>::set_other (core::size& sz,
-                                                            core::size::type other) {
-      sz.height(other);
-    }
-
-    template<>
-    inline void
-    orientation_traits<orientation_t::horizontal>::set (core::rectangle& r,
-                                                      core::point::type v,
-                                                      core::size::type s) {
-      r.x(v);
-      r.width(s);
-    }
-
-    template<>
-    inline void
-    orientation_traits<orientation_t::horizontal>::set_other (core::rectangle& r,
-                                                            core::point::type v,
-                                                            core::size::type s) {
-      r.y(v);
-      r.height(s);
-    }
-
-    // --------------------------------------------------------------------------
-    template<>
-    inline core::point::type
-    orientation_traits<orientation_t::vertical>::get (const core::point& pt) {
-      return pt.y();
-    }
-
-    template<>
-    inline core::size::type
-    orientation_traits<orientation_t::vertical>::get (const core::size& sz) {
-      return sz.height();
-    }
-
-    template<>
-    inline core::point::type
-    orientation_traits<orientation_t::vertical>::get_other (const core::point& pt) {
-      return pt.x();
-    }
-
-    template<>
-    inline core::size::type
-    orientation_traits<orientation_t::vertical>::get_other (const core::size& sz) {
-      return sz.width();
-    }
-
-    template<>
-    inline void
-    orientation_traits<orientation_t::vertical>::set (core::point& pt,
-                                                    core::point::type dim,
-                                                    core::point::type other) {
-      pt.y(dim);
-      pt.x(other);
-    }
-
-    template<>
-    inline void
-    orientation_traits<orientation_t::vertical>::set (core::point& pt,
-                                                    core::point::type dim) {
-      pt.y(dim);
-    }
-
-    template<>
-    inline void
-    orientation_traits<orientation_t::vertical>::set_other (core::point& pt,
-                                                          core::point::type other) {
-      pt.x(other);
-    }
-
-    template<>
-    inline void
-    orientation_traits<orientation_t::vertical>::set (core::size& sz,
-                                                    core::size::type dim,
-                                                    core::size::type other) {
-      sz.height(dim);
-      sz.width(other);
-    }
-
-    template<>
-    inline void
-    orientation_traits<orientation_t::vertical>::set (core::size& sz,
-                                                    core::size::type dim) {
-      sz.height(dim);
-    }
-
-    template<>
-    inline void
-    orientation_traits<orientation_t::vertical>::set_other (core::size& sz,
-                                                          core::size::type other) {
-      sz.width(other);
-   }
-
-    template<>
-    inline void
-    orientation_traits<orientation_t::vertical>::set (core::rectangle& r,
-                                                    core::point::type v,
-                                                    core::size::type s) {
-      r.y(v);
-      r.height(s);
-    }
-
-    template<>
-    inline void
-    orientation_traits<orientation_t::vertical>::set_other (core::rectangle& r,
-                                                          core::point::type v,
-                                                          core::size::type s) {
-      r.x(v);
-      r.width(s);
-    }
-
-    // --------------------------------------------------------------------------
     template<orientation_t V>
     inline linear_list_traits<V>::linear_list_traits (size_type item_size)
       : item_size(item_size)
@@ -297,7 +119,7 @@ namespace gui {
     template<orientation_t V>
     inline auto linear_list_traits<V>::get_invisible_size (const core::size& list_size,
                                                            size_t count) const -> size_type {
-      return std::max(size_type(0), (item_size * size_type(count)) - super::get(list_size));
+      return std::max(size_type(0), (item_size * size_type(count)) - super::get_1(list_size));
     }
 
     template<orientation_t V>
@@ -305,7 +127,7 @@ namespace gui {
                                                           const core::point& pt,
                                                           size_type scroll_pos,
                                                           size_t /*count*/) const {
-      return static_cast<int>((super::get(pt) + scroll_pos) / item_size);
+      return static_cast<int>((super::get_1(pt) + scroll_pos) / item_size);
     }
 
     template<orientation_t V>
@@ -313,8 +135,8 @@ namespace gui {
                                                                       int idx,
                                                                       size_type scroll_pos) const {
       core::rectangle place;
-      super::set(place, item_size * idx - scroll_pos, item_size);
-      super::set_other(place, 0, super::get_other(list_size));
+      super::set_1(place, item_size * idx - scroll_pos, item_size);
+      super::set_2(place, 0, super::get_2(list_size));
       return place;
     }
 
@@ -461,14 +283,14 @@ namespace gui {
 
     template<orientation_t V, typename T>
     inline auto basic_list<V, T>::get_list_size () const -> pos_t {
-      return traits.get(content_size(client_size()));
+      return traits.get_1(content_size(client_size()));
     }
 
     template<orientation_t V, typename T>
     core::size basic_list<V, T>::content_size (const core::size& client_sz, bool scrollbar_visible) const {
       core::size sz = client_sz;
       if (scrollbar_visible) {
-        traits.set_other(sz, traits.get_other(sz) - scroll_bar::get_scroll_bar_width());
+        traits.set_2(sz, traits.get_2(sz) - scroll_bar::get_scroll_bar_width());
       }
       return sz;
     }
@@ -487,7 +309,7 @@ namespace gui {
     core::rectangle basic_list<V, T>::get_scroll_bar_area (const core::size& s) const {
       core::rectangle r(s);
       float sz = static_cast<float>(scroll_bar::get_scroll_bar_width());
-      traits.set_other(r, traits.get_other(r.size()) - sz, sz);
+      traits.set_2(r, traits.get_2(r.size()) - sz, sz);
       return r;
     }
 
@@ -535,7 +357,7 @@ namespace gui {
       const auto sz = client_size();
       const auto cs = content_size(sz, true);
       scroll_bar::type invisible = traits.get_invisible_size(cs, get_count());
-      scrollbar.set_min_max_step_page(zero, std::max(invisible, zero), traits.get_line_size(), traits.get(cs));
+      scrollbar.set_min_max_step_page(zero, std::max(invisible, zero), traits.get_line_size(), traits.get_1(cs));
 
       if (super::is_valid()) {
         const bool show_scroll = (invisible > zero) && super::is_scroll_bar_enabled();
@@ -591,7 +413,7 @@ namespace gui {
     void basic_list<V, T>::make_selection_visible () {
       if (super::data.selection > -1) {
         const auto list_size = content_size(client_size());
-        const auto list_sz = traits.get(list_size);
+        const auto list_sz = traits.get_1(list_size);
         const auto scroll_pos = get_scroll_pos();
         const auto line_size = traits.get_line_size();
         const auto sel_pos = traits.get_offset_of_index(list_size, super::get_selection());
@@ -624,7 +446,7 @@ namespace gui {
       if (win::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if (super::get_last_mouse_point() != core::point::undefined) {
           super::set_cursor(win::cursor::move());
-          pos_t delta = traits.get(super::get_last_mouse_point()) - traits.get(pt);
+          pos_t delta = traits.get_1(super::get_last_mouse_point()) - traits.get_1(pt);
           set_scroll_pos(get_scroll_pos() + delta);
           super::get_state().set_moved(true);
         }
@@ -681,11 +503,11 @@ namespace gui {
       const auto last = super::get_count();
       const auto first = static_cast<decltype(last)>(super::get_scroll_pos() / super::get_item_dimension());
 
-      super::traits.set(place, super::get_item_dimension() * first - super::get_scroll_pos(), super::get_item_dimension());
+      super::traits.set_1(place, super::get_item_dimension() * first - super::get_scroll_pos(), super::get_item_dimension());
 
-      for (auto idx = first; (idx < last) && (super::traits.get(place.top_left()) < list_sz); ++idx) {
+      for (auto idx = first; (idx < last) && (super::traits.get_1(place.top_left()) < list_sz); ++idx) {
         super::draw_item(idx, graph, place, back_brush, super::get_item_state(static_cast<int>(idx)));
-        super::traits.set(place, super::traits.get(place.top_left()) + super::get_item_dimension(), super::get_item_dimension());
+        super::traits.set_1(place, super::traits.get_1(place.top_left()) + super::get_item_dimension(), super::get_item_dimension());
       }
 
       if (place.y() < area.y2()) {

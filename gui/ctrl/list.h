@@ -28,6 +28,7 @@
 #include <gui/ctrl/list_state.h>
 
 #include <util/string_util.h>
+#include <gui/core/orientation_traits.h>
 
 namespace gui {
 
@@ -263,28 +264,6 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation_t V>
-    struct orientation_traits {
-      static core::point::type get (const core::point&);
-      static core::point::type get_other (const core::point&);
-
-      static core::size::type get (const core::size&);
-      static core::size::type get_other (const core::size&);
-
-      static void set (core::point&, core::point::type dim, core::point::type other);
-      static void set (core::size&, core::size::type dim, core::size::type other);
-
-      static void set (core::point&, core::point::type dim);
-      static void set_other (core::point&, core::point::type other);
-
-      static void set (core::size&, core::size::type dim);
-      static void set_other (core::size&, core::size::type other);
-
-      static void set (core::rectangle&, core::point::type, core::size::type);
-      static void set_other (core::rectangle&, core::point::type, core::size::type);
-    };
-
-    // --------------------------------------------------------------------------
-    template<orientation_t V>
     struct wheel_traits {};
 
     template<>
@@ -377,8 +356,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation_t V>
-    struct linear_list_traits : public orientation_traits<V> {
-      typedef orientation_traits<V> super;
+    struct linear_list_traits : public core::orientation_traits<V> {
+      typedef core::orientation_traits<V> super;
       typedef core::size::type size_type;
 
       linear_list_traits (size_type item_size);

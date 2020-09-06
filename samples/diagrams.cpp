@@ -12,17 +12,17 @@ using namespace gui;
 using namespace gui::draw;
 using namespace gui::draw::diagram;
 
-struct sinus_data : public graph_data<double> {
+struct sinus_data {
 
   sinus_data (double delta = 0)
     : delta(delta)
   {}
 
-  std::size_t size () const override {
+  std::size_t size () const {
     return 100;
   }
 
-  point2d<double> at (std::size_t i) const override {
+  point2d<double> operator[] (std::size_t i) const {
     const double x = static_cast<double>(i) / 50 * M_PI;
     const double y = std::sin(x*2 + delta * M_PI);
     return {x, y};
@@ -35,12 +35,12 @@ private:
   double delta;
 };
 
-struct linear_data : public graph_data<double> {
-  std::size_t size () const override {
+struct linear_data {
+  std::size_t size () const {
     return 1000;
   }
 
-  point2d<double> at (std::size_t i) const override {
+  point2d<double> operator[] (std::size_t i) const {
     const double x = static_cast<double>(i) / 500 * M_PI;
     const double y = (i*i/100.0 + 0.01);
     return {x, y};
@@ -67,15 +67,30 @@ void draw_graph_1 (const graphics& graph, const core::rectangle& area) {
 
   graph.text(scale<double, orientation_t::horizontal>(p0, xscale, 1, 0.2, yscale.get_target_range(), yscale.get_target_range()),
              font::serif(), color::light_gray);
-  graph.text(scale<double, orientation_t::horizontal>(p1, xscale, 1, 0.2),
-             font::serif(), color::light_gray);
+//  graph.text(scale<double, orientation_t::horizontal>(p1, xscale, 1, 0.2),
+//             font::serif(), color::light_gray);
 
   graph.text(scale<double, orientation_t::vertical>(p0, yscale, 0.2, 0.05, xscale.get_target_range(), xscale.get_target_range(), fmt),
              font::serif(), color::light_gray);
 
-  graph.frame(line_graph<double>(p0, xscale, yscale, sinus_data(-0.5)), color::red);
-  graph.fill(points_graph<double>(p0, xscale, yscale, sinus_data(-1)), color::green);
-  graph.fill(bar_graph<double>(p0, xscale, yscale, sinus_data(+0.5)), color::blue);
+  std::vector<point2d<double>> data1;
+  std::array<point2d<double>, 100> data2;
+  {
+    sinus_data src1(+0.5);
+    sinus_data src2(-0.5);
+
+    data1.reserve(src1.size());
+    for (std::size_t i = 0; i < src1.size(); ++i) {
+      data1.push_back(src1[i]);
+      data2[i] = src2[i];
+    }
+  }
+
+
+  graph.fill(bar_graph<double, const std::vector<point2d<double>>>(p0, xscale, yscale, data1), color::blue);
+  graph.frame(line_graph<double, const std::array<point2d<double>, 100>>(p0, xscale, yscale, data2), color::red);
+  graph.fill(points_graph<double, sinus_data>(p0, xscale, yscale, sinus_data(-1)), color::green);
+
 }
 
 void draw_graph_2 (const graphics& graph, const core::rectangle& area) {
@@ -93,7 +108,7 @@ void draw_graph_2 (const graphics& graph, const core::rectangle& area) {
   graph.text(scale<double, orientation_t::vertical, scaling_type::log>(p0, yscale, 1, 1, xscale.get_target_range(), xscale.get_target_range()),
              font::serif(), color::light_gray);
 
-  graph.frame(line_graph<double, scaling_type::linear, scaling_type::log>(p0, xscale, yscale, linear_data()), color::blue);
+  graph.frame(line_graph<double, linear_data, scaling_type::linear, scaling_type::log>(p0, xscale, yscale, linear_data()), color::blue);
 }
 
 void draw_graph_3 (const graphics& graph, const core::rectangle& area) {
@@ -111,7 +126,7 @@ void draw_graph_3 (const graphics& graph, const core::rectangle& area) {
   graph.text(scale<double, orientation_t::vertical>(p0, yscale, 1000, 100, xscale.get_target_range()),
              font::serif(), color::light_gray);
 
-  graph.frame(line_graph<double, scaling_type::log, scaling_type::linear>(p0, xscale, yscale, linear_data()), color::green);
+  graph.frame(line_graph<double, linear_data, scaling_type::log, scaling_type::linear>(p0, xscale, yscale, linear_data()), color::green);
 }
 
 void draw_graph_4 (const graphics& graph, const core::rectangle& area) {
@@ -129,7 +144,7 @@ void draw_graph_4 (const graphics& graph, const core::rectangle& area) {
   graph.text(scale<double, orientation_t::vertical, scaling_type::log>(p0, yscale, 1, 1, xscale.get_target_range(), xscale.get_target_range()),
              font::serif(), color::light_gray);
 
-  graph.frame(line_graph<double, scaling_type::log, scaling_type::log>(p0, xscale, yscale, linear_data()), color::red);
+  graph.frame(line_graph<double, linear_data, scaling_type::log, scaling_type::log>(p0, xscale, yscale, linear_data()), color::red);
 }
 
 // --------------------------------------------------------------------------

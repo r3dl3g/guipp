@@ -176,24 +176,11 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename T>
-      struct graph_data {
-        typedef const graph_data& (provider) ();
-        virtual std::size_t size () const = 0;
-        virtual point2d<T> at (std::size_t) const = 0;
-
-        const graph_data& operator ()() const {
-          return *this;
-        }
-
-      };
-
-      // --------------------------------------------------------------------------
-      template<typename T,
+      template<typename T, typename C,
                scaling_type SX,
                scaling_type SY>
       struct graph_base {
-        using point2d_data = std::function<typename graph_data<T>::provider>;
+        typedef C point2d_data;
 
         graph_base (const core::point& pos,
                     const scaler<T, SX>& sx,
@@ -210,11 +197,11 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename T,
+      template<typename T, typename C,
                scaling_type SX = scaling_type::linear,
                scaling_type SY = scaling_type::linear>
-      struct line_graph : public graph_base<T, SX, SY> {
-        typedef graph_base<T, SX, SY> super;
+      struct line_graph : public graph_base<T, C, SX, SY> {
+        typedef graph_base<T, C, SX, SY> super;
 
         line_graph (const core::point& pos,
                     const scaler<T, SX>& sx,
@@ -226,11 +213,11 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename T,
+      template<typename T, typename C,
                scaling_type SX = scaling_type::linear,
                scaling_type SY = scaling_type::linear>
-      struct bar_graph : public graph_base<T, SX, SY> {
-        typedef graph_base<T, SX, SY> super;
+      struct bar_graph : public graph_base<T, C, SX, SY> {
+        typedef graph_base<T, C, SX, SY> super;
 
         bar_graph (const core::point& pos,
                    const scaler<T, SX>& sx,
@@ -242,11 +229,11 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename T,
+      template<typename T, typename C,
                scaling_type SX = scaling_type::linear,
                scaling_type SY = scaling_type::linear>
-      struct points_graph : public graph_base<T, SX, SY> {
-        typedef graph_base<T, SX, SY> super;
+      struct points_graph : public graph_base<T, C, SX, SY> {
+        typedef graph_base<T, C, SX, SY> super;
 
         points_graph (const core::point& pos,
                       const scaler<T, SX>& sx,

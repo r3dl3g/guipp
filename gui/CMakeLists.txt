@@ -95,8 +95,9 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       gui++-core
       ${logging_libraries}
       ${util_libraries}
+      gui++
       )
-    set (gui_sys_libraries gui++ ${gui_sys_libraries} ${logging_sys_libraries} ${util_sys_libraries})
+    set (gui_sys_libraries ${gui_sys_libraries} ${logging_sys_libraries} ${util_sys_libraries})
   else()
     set (gui_libraries ${logging_libraries} ${util_libraries} gui++)
     set (gui_sys_libraries ${gui_sys_libraries} ${logging_sys_libraries} ${util_sys_libraries})

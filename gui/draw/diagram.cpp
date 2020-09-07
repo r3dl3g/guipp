@@ -36,6 +36,47 @@ namespace gui {
 
   namespace draw {
 
+    namespace diagram {
+
+      // --------------------------------------------------------------------------
+      circle::circle (float radius)
+        : radius(radius)
+      {}
+
+      void circle::operator() (const graphics& g, const brush& b, const core::point& pt) {
+        g.fill(draw::arc(pt, radius, 0, 360), b);
+      }
+
+      // --------------------------------------------------------------------------
+      diamond::diamond (float radius)
+        : radius(radius)
+      {}
+
+      void diamond::operator() (const graphics& g, const brush& b, const core::point& pt) {
+        g.fill(draw::polygon({ pt.dx(-radius), pt.dy(-radius), pt.dx(radius), pt.dy(radius) }), b);
+      }
+
+      // --------------------------------------------------------------------------
+      cross::cross (float radius)
+        : radius(radius)
+      {}
+
+      void cross::operator() (const graphics& g, const brush& b, const core::point& pt) {
+        g.frame(draw::line(pt.dxy(-radius, -radius), pt.dxy(radius, radius)), b.color());
+        g.frame(draw::line(pt.dxy(-radius, radius), pt.dxy(radius, -radius)), b.color());
+      }
+
+      // --------------------------------------------------------------------------
+      square::square (float radius)
+        : radius(radius)
+      {}
+
+      void square::operator() (const graphics& g, const brush& b, const core::point& pt) {
+        g.fill(draw::rectangle(pt.dxy(-radius, -radius), pt.dxy(radius, radius)), b);
+      }
+
+    } // namespace diagram
+
     // --------------------------------------------------------------------------
   } // namespace draw
 

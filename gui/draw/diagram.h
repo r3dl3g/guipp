@@ -43,17 +43,32 @@ namespace gui {
 
     namespace diagram {
 
-      template<typename T, std::size_t N>
-      using point = std::array<T, N>;
+      template<typename X, typename Y>
+      struct point2d {
+        X x;
+        Y y;
+      };
 
-      template<typename T>
-      using point1d = point<T, 1>;
+      template<typename T, typename P>
+      struct get {
+        inline static T x (const P& p) {
+          return p.x;
+        }
 
-      template<typename T>
-      using point2d = point<T, 2>;
+        inline static T y (const P& p) {
+          return p.y;
+        }
+      };
 
-      template<typename T>
-      using point3d = point<T, 3>;
+      template<typename T, typename P>
+      inline T get_x (const P& p) {
+        return get<T, P>::x(p);
+      }
+
+      template<typename T, typename P>
+      inline T get_y (const P& p) {
+        return get<T, P>::y(p);
+      }
 
       template<typename T>
       struct scaler_base {
@@ -161,22 +176,22 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename T>
+      template<typename T, typename U>
       struct wall {
         wall (const core::point& pos,
               const scaler_base<T>& sx,
-              const scaler_base<T>& sy);
+              const scaler_base<U>& sy);
 
         void operator() (const graphics&, const brush&, const pen&) const;
 
       private:
         const core::point pos;
         const scaler_base<T>& sx;
-        const scaler_base<T>& sy;
+        const scaler_base<U>& sy;
       };
 
       // --------------------------------------------------------------------------
-      template<typename T, typename C,
+      template<typename T, typename U, typename C,
                scaling_type SX,
                scaling_type SY>
       struct graph_base {
@@ -184,7 +199,7 @@ namespace gui {
 
         graph_base (const core::point& pos,
                     const scaler<T, SX>& sx,
-                    const scaler<T, SY>& sy,
+                    const scaler<U, SY>& sy,
                     point2d_data);
 
         core::rectangle get_graph_area () const;
@@ -192,59 +207,126 @@ namespace gui {
       protected:
         const core::point pos;
         const scaler<T, SX>& sx;
-        const scaler<T, SY>& sy;
+        const scaler<U, SY>& sy;
         point2d_data points;
       };
 
       // --------------------------------------------------------------------------
-      template<typename T, typename C,
+      template<typename T, typename U, typename C,
                scaling_type SX = scaling_type::linear,
                scaling_type SY = scaling_type::linear>
-      struct line_graph : public graph_base<T, C, SX, SY> {
-        typedef graph_base<T, C, SX, SY> super;
+      struct line_graph : public graph_base<T, U, C, SX, SY> {
+        typedef graph_base<T, U, C, SX, SY> super;
 
         line_graph (const core::point& pos,
                     const scaler<T, SX>& sx,
-                    const scaler<T, SY>& sy,
-                    typename super::point2d_data);
+                    const scaler<U, SY>& sy,
+                    typename super::point2d_data,
+                    U zero = U(0));
 
         void operator() (const graphics&, const pen&) const;
+        void operator() (const graphics&, const brush&) const;
 
+      private:
+        void calc_points (std::vector<core::point>&) const;
+
+        const U zero;
       };
 
       // --------------------------------------------------------------------------
-      template<typename T, typename C,
+      template<typename T, typename U, typename C,
                scaling_type SX = scaling_type::linear,
                scaling_type SY = scaling_type::linear>
-      struct bar_graph : public graph_base<T, C, SX, SY> {
-        typedef graph_base<T, C, SX, SY> super;
+      struct cascade : public graph_base<T, U, C, SX, SY> {
+        typedef graph_base<T, U, C, SX, SY> super;
+
+        cascade (const core::point& pos,
+                 const scaler<T, SX>& sx,
+                 const scaler<U, SY>& sy,
+                 typename super::point2d_data,
+                 U zero = U(0));
+
+        void operator() (const graphics&, const pen&) const;
+        void operator() (const graphics&, const brush&) const;
+
+      private:
+        void calc_points (std::vector<core::point>&) const;
+
+        const U zero;
+      };
+
+      // --------------------------------------------------------------------------
+      template<typename T, typename U, typename C,
+               scaling_type SX = scaling_type::linear,
+               scaling_type SY = scaling_type::linear>
+      struct bar_graph : public graph_base<T, U, C, SX, SY> {
+        typedef graph_base<T, U, C, SX, SY> super;
 
         bar_graph (const core::point& pos,
                    const scaler<T, SX>& sx,
-                   const scaler<T, SY>& sy,
-                   typename super::point2d_data);
+                   const scaler<U, SY>& sy,
+                   typename super::point2d_data,
+                   T space = T(0));
 
         void operator() (const graphics&, const brush&) const;
+
+      private:
+        const T space;
 
       };
 
       // --------------------------------------------------------------------------
-      template<typename T, typename C,
+      struct circle {
+        circle (float radius);
+        void operator() (const graphics&, const brush&, const core::point&);
+      private:
+        float radius;
+      };
+
+      // --------------------------------------------------------------------------
+      struct diamond {
+        diamond (float radius);
+        void operator() (const graphics&, const brush&, const core::point&);
+      private:
+        float radius;
+      };
+
+      // --------------------------------------------------------------------------
+      struct cross {
+        cross (float radius);
+        void operator() (const graphics&, const brush&, const core::point&);
+      private:
+        float radius;
+      };
+
+      // --------------------------------------------------------------------------
+      struct square {
+        square (float radius);
+        void operator() (const graphics&, const brush&, const core::point&);
+      private:
+        float radius;
+      };
+
+      // --------------------------------------------------------------------------
+      template<typename T, typename U, typename C,
                scaling_type SX = scaling_type::linear,
                scaling_type SY = scaling_type::linear>
-      struct points_graph : public graph_base<T, C, SX, SY> {
-        typedef graph_base<T, C, SX, SY> super;
+      struct points_graph : public graph_base<T, U, C, SX, SY> {
+        typedef graph_base<T, U, C, SX, SY> super;
+
+        typedef void (draw_fn) (const graphics&, const brush&, const core::point&);
+        typedef std::function<draw_fn> point_drawer;
 
         points_graph (const core::point& pos,
                       const scaler<T, SX>& sx,
-                      const scaler<T, SY>& sy,
+                      const scaler<U, SY>& sy,
                       typename super::point2d_data,
-                      T radius = 3);
+                      point_drawer drawer);
 
         void operator() (const graphics&, const brush&) const;
 
-      protected:
-        T radius;
+      private:
+        point_drawer drawer;
       };
 
       // --------------------------------------------------------------------------

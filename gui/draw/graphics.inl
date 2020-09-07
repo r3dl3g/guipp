@@ -35,6 +35,41 @@ namespace gui {
       return target;
     }
 
+    template<typename F>
+    inline const graphics& graphics::frame (F drawer, const pen& p) const {
+      drawer(*this, p);
+      return *this;
+    }
+
+    template<typename F>
+    inline const graphics& graphics::fill (F drawer, const brush& b) const {
+      drawer(*this, b);
+      return *this;
+    }
+
+    template<typename F>
+    inline const graphics& graphics::draw (F drawer,
+                                           const brush& b,
+                                           const pen& p) const {
+      drawer(*this, b, p);
+      return *this;
+    }
+
+    template<typename F>
+    inline const graphics& graphics::text (F drawer,
+                                           const font& f,
+                                           os::color c) const {
+      drawer(*this, f, c);
+      return *this;
+    }
+
+    template<typename F>
+    inline const graphics& graphics::copy (F drawer,
+                                           const core::point& pt) const {
+      drawer(*this, pt);
+      return *this;
+    }
+
     // --------------------------------------------------------------------------
     template<typename T, typename F>
     inline paint::paint (T* t, F f)

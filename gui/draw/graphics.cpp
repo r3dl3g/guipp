@@ -686,38 +686,6 @@ namespace gui {
       return copy_from(bmp, core::rectangle(bmp.scaled_size()), pt);
     }
 
-    const graphics& graphics::frame (const std::function<frameable>& drawer,
-                                     const pen& p) const {
-      drawer(*this, p);
-      return *this;
-    }
-
-    const graphics& graphics::fill (const std::function<fillable>& drawer,
-                                    const brush& b) const {
-      drawer(*this, b);
-      return *this;
-    }
-
-    const graphics& graphics::draw (const std::function<drawable>& drawer,
-                                    const brush& b,
-                                    const pen& p) const {
-      drawer(*this, b, p);
-      return *this;
-    }
-
-    const graphics& graphics::text (const std::function<textable>& drawer,
-                                    const font& f,
-                                    os::color c) const {
-      drawer(*this, f, c);
-      return *this;
-    }
-
-    const graphics& graphics::copy (const std::function<copyable>& drawer,
-                                    const core::point& pt) const {
-      drawer(*this, pt);
-      return *this;
-    }
-
     // --------------------------------------------------------------------------
     paint::paint (const painter& f)
       : p(f)

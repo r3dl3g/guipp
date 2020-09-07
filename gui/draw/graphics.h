@@ -84,11 +84,20 @@ namespace gui {
       const graphics& draw_lines (std::vector<core::point> points,
                                   const pen& pen) const;
 
-      const graphics& frame (const std::function<frameable>&, const pen& pen) const;
-      const graphics& fill (const std::function<fillable>&, const brush& brush) const;
-      const graphics& draw (const std::function<drawable>&, const brush& brush, const pen& pen) const;
-      const graphics& text (const std::function<textable>&, const font& font, os::color color) const;
-      const graphics& copy (const std::function<copyable>&, const core::point&) const;
+      template<typename F> //frameable
+      const graphics& frame (F, const pen& pen) const;
+
+      template<typename F> //fillable
+      const graphics& fill (F, const brush& brush) const;
+
+      template<typename F> //drawable
+      const graphics& draw (F, const brush& brush, const pen& pen) const;
+
+      template<typename F> //textable
+      const graphics& text (F, const font& font, os::color color) const;
+
+      template<typename F> //copyable
+      const graphics& copy (F, const core::point&) const;
 
       const graphics& copy_from (const graphics&, const core::point& dest) const;
 

@@ -302,7 +302,7 @@ namespace gui {
                list_item_drawer<U> F = default_list_item_drawer<U> >
       void create (const win::container& parent,
                    const core::rectangle& place,
-                   const list_data* data);
+                   std::function<list_data_provider> data);
 
       size_type get_item_size () const;
       core::size::type get_item_dimension () const;

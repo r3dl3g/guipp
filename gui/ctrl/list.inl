@@ -317,7 +317,7 @@ namespace gui {
     template<typename U, list_item_drawer<U> F>
     inline void basic_list<V, T>::create (const win::container& parent,
                                           const core::rectangle& place,
-                                          const list_data* data) {
+                                          std::function<list_data_provider> data) {
       super::create(clazz::get(), parent, place);
       set_data(data);
     }

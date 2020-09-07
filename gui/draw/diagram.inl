@@ -24,7 +24,7 @@ namespace gui {
     namespace diagram {
 
       // --------------------------------------------------------------------------
-      template<typename T, scaling_type S>
+      template<typename T, scaling S>
       struct scale_fn {
         static T inc (T, T);
         static T step (T);
@@ -33,7 +33,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T>
-      struct scale_fn<T, scaling_type::linear> {
+      struct scale_fn<T, scaling::linear> {
         static T inc (T i, T step) {
           return i + step;
         }
@@ -47,7 +47,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T>
-      struct scale_fn<T, scaling_type::log> {
+      struct scale_fn<T, scaling::log> {
         static T inc (T i, T step) {
           return i * step;
         }
@@ -114,10 +114,10 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T>
-      struct scaler<T, scaling_type::log> : scaler_base<T> {
+      struct scaler<T, scaling::log> : scaler_base<T> {
         typedef scaler_base<T> super;
         typedef T value_type;
-        static const scaling_type scaling_type = scaling_type::log;
+        static const scaling scaling_type = scaling::log;
 
         scaler (T mi = 0, T ma = 1, T tmi = 0, T tma = 1);
 
@@ -135,10 +135,10 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T>
-      struct scaler<T, scaling_type::linear> : scaler_base<T> {
+      struct scaler<T, scaling::linear> : scaler_base<T> {
         typedef scaler_base<T> super;
         typedef T value_type;
-        static const scaling_type scaling_type = scaling_type::linear;
+        static const scaling scaling_type = scaling::linear;
 
         scaler (T mi = 0, T ma = 1, T tmi = 0, T tma = 1);
 
@@ -155,7 +155,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T>
-      scaler<T, scaling_type::log>::scaler (T mi, T ma, T tmi, T tma)
+      scaler<T, scaling::log>::scaler (T mi, T ma, T tmi, T tma)
         : super(mi, ma, tmi, tma)
         , precalced(1)
         , precalced_min(0)
@@ -167,33 +167,33 @@ namespace gui {
       }
 
       template<typename T>
-      T scaler<T, scaling_type::log>::operator() (T v) const {
+      T scaler<T, scaling::log>::operator() (T v) const {
         return static_cast<T>((std::log(v) - precalced_min) * precalced + super::target_min);
       }
 
       template<typename T>
-      void scaler<T, scaling_type::log>::set_min_max (T mi, T ma) {
+      void scaler<T, scaling::log>::set_min_max (T mi, T ma) {
         super::min = mi;
         super::max = ma;
         precalc();
       }
 
       template<typename T>
-      void scaler<T, scaling_type::log>::set_target_min_max (T mi, T ma) {
+      void scaler<T, scaling::log>::set_target_min_max (T mi, T ma) {
         super::target_min = mi;
         super::target_max = ma;
         precalc();
       }
 
       template<typename T>
-      void scaler<T, scaling_type::log>::precalc () {
+      void scaler<T, scaling::log>::precalc () {
         precalced_min = std::log(super::min);
         precalced = (super::target_max - super::target_min) / (std::log(super::max) - precalced_min);
       }
 
       // --------------------------------------------------------------------------
       template<typename T>
-      scaler<T, scaling_type::linear>::scaler (T mi, T ma, T tmi, T tma)
+      scaler<T, scaling::linear>::scaler (T mi, T ma, T tmi, T tma)
         : super(mi, ma, tmi, tma)
         , precalced(1)
       {
@@ -201,26 +201,26 @@ namespace gui {
       }
 
       template<typename T>
-      T scaler<T, scaling_type::linear>::operator() (T v) const {
+      T scaler<T, scaling::linear>::operator() (T v) const {
         return static_cast<T>((v - super::min) * precalced + super::target_min);
       }
 
       template<typename T>
-      void scaler<T, scaling_type::linear>::set_min_max (T mi, T ma) {
+      void scaler<T, scaling::linear>::set_min_max (T mi, T ma) {
         super::min = mi;
         super::max = ma;
         precalc();
       }
 
       template<typename T>
-      void scaler<T, scaling_type::linear>::set_target_min_max (T mi, T ma) {
+      void scaler<T, scaling::linear>::set_target_min_max (T mi, T ma) {
         super::target_min = mi;
         super::target_max = ma;
         precalc();
       }
 
       template<typename T>
-      void scaler<T, scaling_type::linear>::precalc () {
+      void scaler<T, scaling::linear>::precalc () {
         precalced = static_cast<double>(super::target_max - super::target_min)
                     / static_cast<double>(super::max - super::min);
       }
@@ -228,7 +228,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       namespace paint {
 
-        template<typename T, orientation_t V, scaling_type S>
+        template<typename T, orientation_t V, scaling S>
         void draw_axis (const graphics& g,
                         const core::point& pos,
                         os::color color,
@@ -242,7 +242,7 @@ namespace gui {
           g.frame(line(p0, p1), color);
         }
 
-        template<typename T, orientation_t V, scaling_type S>
+        template<typename T, orientation_t V, scaling S>
         void draw_sub_ticks (const graphics& g,
                              os::color color,
                              const scaler<T, S>& sc,
@@ -267,7 +267,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, orientation_t V, scaling_type S>
+      template<typename T, orientation_t V, scaling S>
       scale<T, V, S>::scale (const core::point& pos,
                              const scaler_type& sc,
                              T main,
@@ -284,7 +284,7 @@ namespace gui {
         , fmt(fmt)
       {}
 
-      template<typename T, orientation_t V, scaling_type S>
+      template<typename T, orientation_t V, scaling S>
       void scale<T, V, S>::operator() (const graphics& g, const font& font, os::color color) const {
         paint::draw_axis<T, V, S>(g, pos, color, sc);
 
@@ -332,7 +332,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C, scaling_type SX, scaling_type SY>
+      template<typename T, typename U, typename C, scaling SX, scaling SY>
       graph_base<T, U, C, SX, SY>::graph_base (const core::point& pos,
                                                const scaler<T, SX>& sx,
                                                const scaler<U, SY>& sy,
@@ -343,13 +343,13 @@ namespace gui {
         , points(points)
       {}
 
-      template<typename T, typename U, typename C, scaling_type SX, scaling_type SY>
+      template<typename T, typename U, typename C, scaling SX, scaling SY>
       core::rectangle graph_base<T, U, C, SX, SY>::get_graph_area () const {
         return core::rectangle(pos, core::point(sx.get_target_max(), sy.get_target_max()));
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C, scaling_type SX, scaling_type SY>
+      template<typename T, typename U, typename C, scaling SX, scaling SY>
       line_graph<T, U, C, SX, SY>::line_graph (const core::point& pos,
                                                const scaler<T, SX>& sx,
                                                const scaler<U, SY>& sy,
@@ -360,7 +360,7 @@ namespace gui {
       {}
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C, scaling_type SX, scaling_type SY>
+      template<typename T, typename U, typename C, scaling SX, scaling SY>
       void line_graph<T, U, C, SX, SY>::operator() (const graphics& g, const pen& p) const {
         clip clp(g, super::get_graph_area());
         std::vector<core::point> pts;
@@ -369,7 +369,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C, scaling_type SX, scaling_type SY>
+      template<typename T, typename U, typename C, scaling SX, scaling SY>
       void line_graph<T, U, C, SX, SY>::operator() (const graphics& g, const brush& b) const {
         clip clp(g, super::get_graph_area());
 
@@ -390,7 +390,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C, scaling_type SX, scaling_type SY>
+      template<typename T, typename U, typename C, scaling SX, scaling SY>
       void line_graph<T, U, C, SX, SY>::calc_points (std::vector<core::point>& pts) const {
         const auto sz = super::points.size();
         pts.reserve(sz);
@@ -402,7 +402,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C, scaling_type SX, scaling_type SY>
+      template<typename T, typename U, typename C, scaling SX, scaling SY>
       cascade<T, U, C, SX, SY>::cascade (const core::point& pos,
                                          const scaler<T, SX>& sx,
                                          const scaler<U, SY>& sy,
@@ -413,7 +413,7 @@ namespace gui {
       {}
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C, scaling_type SX, scaling_type SY>
+      template<typename T, typename U, typename C, scaling SX, scaling SY>
       void cascade<T, U, C, SX, SY>::operator() (const graphics& g, const pen& p) const {
         clip clp(g, super::get_graph_area());
         std::vector<core::point> pts;
@@ -422,7 +422,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C, scaling_type SX, scaling_type SY>
+      template<typename T, typename U, typename C, scaling SX, scaling SY>
       void cascade<T, U, C, SX, SY>::operator() (const graphics& g, const brush& b) const {
         clip clp(g, super::get_graph_area());
         std::vector<core::point> pts;
@@ -431,7 +431,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C, scaling_type SX, scaling_type SY>
+      template<typename T, typename U, typename C, scaling SX, scaling SY>
       void cascade<T, U, C, SX, SY>::calc_points (std::vector<core::point>& pts) const {
         const auto sz = super::points.size();
         pts.reserve(sz*2 + 1);
@@ -450,7 +450,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C, scaling_type SX, scaling_type SY>
+      template<typename T, typename U, typename C, scaling SX, scaling SY>
       bar_graph<T, U, C, SX, SY>::bar_graph (const core::point& pos,
                                              const scaler<T, SX>& sx,
                                              const scaler<U, SY>& sy,
@@ -461,7 +461,7 @@ namespace gui {
       {}
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C, scaling_type SX, scaling_type SY>
+      template<typename T, typename U, typename C, scaling SX, scaling SY>
       void bar_graph<T, U, C, SX, SY>::operator() (const graphics& g, const brush& b) const {
         clip clp(g, super::get_graph_area());
         const auto sz = super::points.size();
@@ -476,7 +476,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C, scaling_type SX, scaling_type SY>
+      template<typename T, typename U, typename C, scaling SX, scaling SY>
       points_graph<T, U, C, SX, SY>::points_graph (const core::point& pos,
                                                 const scaler<T, SX>& sx,
                                                 const scaler<U, SY>& sy,
@@ -487,13 +487,10 @@ namespace gui {
       {}
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C, scaling_type SX, scaling_type SY>
+      template<typename T, typename U, typename C, scaling SX, scaling SY>
       void points_graph<T, U, C, SX, SY>::operator() (const graphics& g, const brush& b) const {
         if (drawer) {
           clip clp(g, super::get_graph_area());
-//          const auto w = std::min(radius,
-//                                  std::max(1.0F,
-//                                           std::floor(static_cast<float>((super::sx.get_target_max() - super::sx.get_target_min()) / (sz * 2) - 1))));
           const auto sz = super::points.size();
           for (int i = 0; i < sz; ++i) {
             const auto pt = super::points[i];

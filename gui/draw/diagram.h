@@ -90,17 +90,17 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      enum scaling_type {
+      enum scaling {
         linear,
         log
       };
 
       // --------------------------------------------------------------------------
-      template<typename T, scaling_type S = scaling_type::linear>
+      template<typename T, scaling S = scaling::linear>
       struct scaler : scaler_base<T> {
         typedef scaler_base<T> super;
         typedef T value_type;
-        static const scaling_type scaling_type = S;
+        static const scaling scaling_type = S;
 
         scaler (T mi = 0, T ma = 1, T tmi = 0, T tma = 1);
 
@@ -133,13 +133,13 @@ namespace gui {
       // --------------------------------------------------------------------------
       namespace paint {
 
-        template<typename T, orientation_t V, scaling_type S>
+        template<typename T, orientation_t V, scaling S>
         void draw_axis (const graphics& g,
                         const core::point& pos,
                         os::color color,
                         const scaler<T, S>&);
 
-        template<typename T, orientation_t V, scaling_type S>
+        template<typename T, orientation_t V, scaling S>
         void draw_sub_ticks (const graphics& g,
                              os::color color,
                              const scaler<T, S>&,
@@ -148,7 +148,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, orientation_t V, scaling_type S = scaling_type::linear>
+      template<typename T, orientation_t V, scaling S = scaling::linear>
       struct scale {
         typedef core::orientation_traits<V> traits;
         typedef std::string (formatter_f) (T);
@@ -192,8 +192,8 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T, typename U, typename C,
-               scaling_type SX,
-               scaling_type SY>
+               scaling SX,
+               scaling SY>
       struct graph_base {
         typedef C point2d_data;
 
@@ -213,8 +213,8 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T, typename U, typename C,
-               scaling_type SX = scaling_type::linear,
-               scaling_type SY = scaling_type::linear>
+               scaling SX = scaling::linear,
+               scaling SY = scaling::linear>
       struct line_graph : public graph_base<T, U, C, SX, SY> {
         typedef graph_base<T, U, C, SX, SY> super;
 
@@ -235,8 +235,8 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T, typename U, typename C,
-               scaling_type SX = scaling_type::linear,
-               scaling_type SY = scaling_type::linear>
+               scaling SX = scaling::linear,
+               scaling SY = scaling::linear>
       struct cascade : public graph_base<T, U, C, SX, SY> {
         typedef graph_base<T, U, C, SX, SY> super;
 
@@ -257,8 +257,8 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T, typename U, typename C,
-               scaling_type SX = scaling_type::linear,
-               scaling_type SY = scaling_type::linear>
+               scaling SX = scaling::linear,
+               scaling SY = scaling::linear>
       struct bar_graph : public graph_base<T, U, C, SX, SY> {
         typedef graph_base<T, U, C, SX, SY> super;
 
@@ -309,8 +309,8 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T, typename U, typename C,
-               scaling_type SX = scaling_type::linear,
-               scaling_type SY = scaling_type::linear>
+               scaling SX = scaling::linear,
+               scaling SY = scaling::linear>
       struct points_graph : public graph_base<T, U, C, SX, SY> {
         typedef graph_base<T, U, C, SX, SY> super;
 

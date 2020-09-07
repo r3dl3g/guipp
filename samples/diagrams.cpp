@@ -105,18 +105,18 @@ void draw_graph_2 (const graphics& graph, const core::rectangle& area) {
   core::point p0(area.x() + 50, area.y2() - 25);
 
   scaler<double> xscale(0, 6.5, p0.x(), area.x2() - 20);
-  scaler<double, scaling_type::log> yscale(0.01, 10000, p0.y(), area.y() + 20);
+  scaler<double, scaling::log> yscale(0.01, 10000, p0.y(), area.y() + 20);
 
   graph.draw(wall<double, double>(p0, xscale, yscale), wall_back, wall_back);
 
   graph.text(scale<double, orientation_t::horizontal>(p0, xscale, 1, 0.2, yscale.get_target_range(), yscale.get_target_range()),
              font::serif(), color::very_light_gray);
 
-  graph.text(scale<double, orientation_t::vertical, scaling_type::log>(p0, yscale, 1, 1, xscale.get_target_range(), xscale.get_target_range()),
+  graph.text(scale<double, orientation_t::vertical, scaling::log>(p0, yscale, 1, 1, xscale.get_target_range(), xscale.get_target_range()),
              font::serif(), color::very_light_gray);
 
-  graph.frame(line_graph<double, double, linear_data, scaling_type::linear, scaling_type::log>(p0, xscale, yscale, linear_data()), color::blue);
-  graph.fill(points_graph<double, double, sinus_data, scaling_type::linear, scaling_type::log>(p0, xscale, yscale, sinus_data(), diagram::diamond(2)), color::green);
+  graph.frame(line_graph<double, double, linear_data, scaling::linear, scaling::log>(p0, xscale, yscale, linear_data()), color::blue);
+  graph.fill(points_graph<double, double, sinus_data, scaling::linear, scaling::log>(p0, xscale, yscale, sinus_data(), diagram::diamond(2)), color::green);
 }
 
 void draw_graph_3 (const graphics& graph, const core::rectangle& area) {
@@ -124,18 +124,18 @@ void draw_graph_3 (const graphics& graph, const core::rectangle& area) {
 
   core::point p0(area.x() + 50, area.y2() - 25);
 
-  scaler<double, scaling_type::log> xscale(0.01, 10.0, p0.x(), area.x2() - 20);
+  scaler<double, scaling::log> xscale(0.01, 10.0, p0.x(), area.x2() - 20);
   scaler<double> yscale(0, 10000, p0.y(), area.y() + 20);
 
   graph.draw(wall<double, double>(p0, xscale, yscale), wall_back, wall_back);
 
-  graph.text(scale<double, orientation_t::horizontal, scaling_type::log>(p0, xscale, 1, 1, yscale.get_target_range(), yscale.get_target_range()),
+  graph.text(scale<double, orientation_t::horizontal, scaling::log>(p0, xscale, 1, 1, yscale.get_target_range(), yscale.get_target_range()),
              font::serif(), color::very_light_gray);
 
   graph.text(scale<double, orientation_t::vertical>(p0, yscale, 1000, 100, xscale.get_target_range()),
              font::serif(), color::very_light_gray);
 
-  graph.frame(line_graph<double, double, linear_data, scaling_type::log, scaling_type::linear>(p0, xscale, yscale, linear_data()), color::green);
+  graph.frame(line_graph<double, double, linear_data, scaling::log, scaling::linear>(p0, xscale, yscale, linear_data()), color::green);
 }
 
 void draw_graph_4 (const graphics& graph, const core::rectangle& area) {
@@ -143,18 +143,18 @@ void draw_graph_4 (const graphics& graph, const core::rectangle& area) {
 
   core::point p0(area.x() + 50, area.y2() - 25);
 
-  scaler<double, scaling_type::log> xscale(0.01, 10, p0.x(), area.x2() - 20);
-  scaler<double, scaling_type::log> yscale(0.01, 10000, p0.y(), area.y() + 20);
+  scaler<double, scaling::log> xscale(0.01, 10, p0.x(), area.x2() - 20);
+  scaler<double, scaling::log> yscale(0.01, 10000, p0.y(), area.y() + 20);
 
   graph.draw(wall<double, double>(p0, xscale, yscale), wall_back, wall_back);
 
-  graph.text(scale<double, orientation_t::horizontal, scaling_type::log>(p0, xscale, 1, 1, yscale.get_target_range(), yscale.get_target_range()),
+  graph.text(scale<double, orientation_t::horizontal, scaling::log>(p0, xscale, 1, 1, yscale.get_target_range(), yscale.get_target_range()),
              font::serif(), color::very_light_gray);
 
-  graph.text(scale<double, orientation_t::vertical, scaling_type::log>(p0, yscale, 1, 1, xscale.get_target_range(), xscale.get_target_range()),
+  graph.text(scale<double, orientation_t::vertical, scaling::log>(p0, yscale, 1, 1, xscale.get_target_range(), xscale.get_target_range()),
              font::serif(), color::very_light_gray);
 
-  graph.frame(line_graph<double, double, linear_data, scaling_type::log, scaling_type::log>(p0, xscale, yscale, linear_data()), color::light_red);
+  graph.frame(line_graph<double, double, linear_data, scaling::log, scaling::log>(p0, xscale, yscale, linear_data()), color::light_red);
 }
 
 void draw_graph_5 (const graphics& graph, const core::rectangle& area) {
@@ -202,17 +202,17 @@ void draw_graph_6 (const graphics& graph, const core::rectangle& area) {
   core::point p0(area.x() + 50, area.y2() - 25);
 
   scaler<int> xscale(0, 100, p0.x(), area.x2() - 20);
-  scaler<double, scaling_type::log> yscale(0.01, 10000.0, p0.y(), area.y() + 20);
+  scaler<double, scaling::log> yscale(0.01, 10000.0, p0.y(), area.y() + 20);
 
   graph.draw(wall<int, double>(p0, xscale, yscale), wall_back, wall_back);
 
   graph.text(scale<int, orientation_t::horizontal>(p0, xscale, 20, 5, yscale.get_target_range(), yscale.get_target_range()),
              font::serif(), color::very_light_gray);
-  graph.text(scale<double, orientation_t::vertical, scaling_type::log>(p0, yscale, 1, 1, xscale.get_target_range(), xscale.get_target_range()),
+  graph.text(scale<double, orientation_t::vertical, scaling::log>(p0, yscale, 1, 1, xscale.get_target_range(), xscale.get_target_range()),
              font::serif(), color::very_light_gray);
 
   typedef linear_data_t<int, double> data_type;
-  graph.fill(line_graph<int, double, data_type, scaling_type::linear, scaling_type::log>(
+  graph.fill(line_graph<int, double, data_type, scaling::linear, scaling::log>(
              p0, xscale, yscale, data_type(100), yscale.get_min()), color::very_light_red);
 }
 

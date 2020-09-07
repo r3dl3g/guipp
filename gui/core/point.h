@@ -92,6 +92,10 @@ namespace gui {
       void move_x (type dx);
       void move_y (type dy);
 
+      self dx (type x) const;
+      self dy (type y) const;
+      self dxy (type x, type y) const;
+
       bool is_valid () const;
       void clear ();
 

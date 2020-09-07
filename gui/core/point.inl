@@ -194,6 +194,21 @@ namespace gui {
     }
 
     template<typename T>
+    inline auto basic_point<T>::dx (type dx) const -> self {
+      return {type(x() + dx), y()};
+    }
+
+    template<typename T>
+    inline auto  basic_point<T>::dy (type dy) const -> self {
+      return {x(), type(y() + dy)};
+    }
+
+    template<typename T>
+    inline auto  basic_point<T>::dxy (type dx, type dy) const -> self {
+      return {type(x() + dx), type(y() + dy)};
+    }
+
+    template<typename T>
     inline auto basic_point<T>::operator= (const self& rhs) -> self& {
       x_ = rhs.x_;
       y_ = rhs.y_;

@@ -205,13 +205,13 @@ void draw_graph_5 (const graphics& graph, const core::rectangle& area) {
     }
   }
 
-
   graph.fill(cascade<float, float, const std::array<point2d<float, float>, 100>>(p0, xscale, yscale, data2), color::light_red);
   graph.fill(bar_graph<float, float, const std::vector<point2d<float, float>>>(p0, xscale, yscale, data1, 2), color::blue);
   graph.fill(points_graph<float, float, sinus_data>(p0, xscale, yscale, sinus_data(-1), diagram::circle(2)), color::light_green);
 
   graph.frame(axis<float, float>(p0, xscale, yscale), color::black);
 }
+
 void draw_graph_6 (const graphics& graph, const core::rectangle& area) {
   graph.frame(draw::rectangle(area), color::black);
 
@@ -235,6 +235,26 @@ void draw_graph_6 (const graphics& graph, const core::rectangle& area) {
 }
 
 // --------------------------------------------------------------------------
+void draw_graph_7 (const graphics& graph, const core::rectangle& area) {
+  chart<double, double> d(area, 0, 6.5, -1.2, 1.2);
+  d.draw_background(graph, 1, 0.2, 0.2, 0.05);
+  d.draw_line_graph(graph, sinus_data(0.5), color::very_light_red);
+  d.draw_bar_graph(graph, sinus_data(-0.5), color::blue, 2);
+  d.draw_cross_graph(graph, sinus_data(-1), color::green, 2);
+}
+
+// --------------------------------------------------------------------------
+void draw_graph_8 (const graphics& graph, const core::rectangle& area) {
+  chart<double, double> d(area, 0, 6.5, -1.2, 1.2);
+  d.draw_xscale(graph, 1, 0.2);
+  d.draw_yscale(graph, 0.2, 0.05);
+  d.draw_area_graph(graph, sinus_data(0.5), color::very_light_red);
+  d.draw_bar_graph(graph, sinus_data(-0.5), color::blue, 2);
+  d.draw_cross_graph(graph, sinus_data(-1), color::green, 2);
+  d.draw_axis(graph);
+}
+
+// --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::win;
 
@@ -250,6 +270,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     draw_graph_4(graph, g(0, 1));
     draw_graph_5(graph, g(1, 1));
     draw_graph_6(graph, g(2, 1));
+    draw_graph_7(graph, g(0, 2));
+    draw_graph_8(graph, g(1, 2));
   }));
 
   main.create({50, 50, 800, 600});

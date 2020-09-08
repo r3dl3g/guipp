@@ -180,69 +180,69 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U>
+      template<typename X, typename Y>
       struct wall {
         wall (const core::point& pos,
-              const scaler_base<T>& sx,
-              const scaler_base<U>& sy);
+              const scaler_base<X>& sx,
+              const scaler_base<Y>& sy);
 
         void operator() (const graphics&, const brush&, const pen&) const;
 
       private:
         const core::point pos;
-        const scaler_base<T>& sx;
-        const scaler_base<U>& sy;
+        const scaler_base<X>& sx;
+        const scaler_base<Y>& sy;
       };
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U,
+      template<typename X, typename Y,
                scaling SX = scaling::linear, scaling SY = scaling::linear>
       struct axis {
         axis (const core::point& pos,
-              const scaler<T, SX>& sx,
-              const scaler<U, SY>& sy);
+              const scaler<X, SX>& sx,
+              const scaler<Y, SY>& sy);
 
         void operator() (const graphics&, const pen&) const;
 
       private:
         const core::point pos;
-        const scaler<T, SX>& sx;
-        const scaler<U, SY>& sy;
+        const scaler<X, SX>& sx;
+        const scaler<Y, SY>& sy;
       };
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C,
+      template<typename X, typename Y, typename C,
                scaling SX,
                scaling SY>
       struct graph_base {
         typedef C point2d_data;
 
         graph_base (const core::point& pos,
-                    const scaler<T, SX>& sx,
-                    const scaler<U, SY>& sy,
+                    const scaler<X, SX>& sx,
+                    const scaler<Y, SY>& sy,
                     point2d_data);
 
         core::rectangle get_graph_area () const;
 
       protected:
         const core::point pos;
-        const scaler<T, SX>& sx;
-        const scaler<U, SY>& sy;
+        const scaler<X, SX>& sx;
+        const scaler<Y, SY>& sy;
         point2d_data points;
       };
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C,
+      template<typename X, typename Y, typename C,
                scaling SX = scaling::linear,
                scaling SY = scaling::linear>
-      struct line_graph : public graph_base<T, U, C, SX, SY> {
-        typedef graph_base<T, U, C, SX, SY> super;
+      struct line_graph : public graph_base<X, Y, C, SX, SY> {
+        typedef graph_base<X, Y, C, SX, SY> super;
 
         line_graph (const core::point& pos,
-                    const scaler<T, SX>& sx,
-                    const scaler<U, SY>& sy,
+                    const scaler<X, SX>& sx,
+                    const scaler<Y, SY>& sy,
                     typename super::point2d_data,
-                    U zero = U(0));
+                    Y zero = Y(0));
 
         void operator() (const graphics&, const pen&) const;
         void operator() (const graphics&, const brush&) const;
@@ -250,21 +250,21 @@ namespace gui {
       private:
         void calc_points (std::vector<core::point>&) const;
 
-        const U zero;
+        const Y zero;
       };
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C,
+      template<typename X, typename Y, typename C,
                scaling SX = scaling::linear,
                scaling SY = scaling::linear>
-      struct cascade : public graph_base<T, U, C, SX, SY> {
-        typedef graph_base<T, U, C, SX, SY> super;
+      struct cascade : public graph_base<X, Y, C, SX, SY> {
+        typedef graph_base<X, Y, C, SX, SY> super;
 
         cascade (const core::point& pos,
-                 const scaler<T, SX>& sx,
-                 const scaler<U, SY>& sy,
+                 const scaler<X, SX>& sx,
+                 const scaler<Y, SY>& sy,
                  typename super::point2d_data,
-                 U zero = U(0));
+                 Y zero = Y(0));
 
         void operator() (const graphics&, const pen&) const;
         void operator() (const graphics&, const brush&) const;
@@ -272,26 +272,26 @@ namespace gui {
       private:
         void calc_points (std::vector<core::point>&) const;
 
-        const U zero;
+        const Y zero;
       };
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C,
+      template<typename X, typename Y, typename C,
                scaling SX = scaling::linear,
                scaling SY = scaling::linear>
-      struct bar_graph : public graph_base<T, U, C, SX, SY> {
-        typedef graph_base<T, U, C, SX, SY> super;
+      struct bar_graph : public graph_base<X, Y, C, SX, SY> {
+        typedef graph_base<X, Y, C, SX, SY> super;
 
         bar_graph (const core::point& pos,
-                   const scaler<T, SX>& sx,
-                   const scaler<U, SY>& sy,
+                   const scaler<X, SX>& sx,
+                   const scaler<Y, SY>& sy,
                    typename super::point2d_data,
-                   T space = T(0));
+                   X space = X(0));
 
         void operator() (const graphics&, const brush&) const;
 
       private:
-        const T space;
+        const X space;
 
       };
 
@@ -328,18 +328,18 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename T, typename U, typename C,
+      template<typename X, typename Y, typename C,
                scaling SX = scaling::linear,
                scaling SY = scaling::linear>
-      struct points_graph : public graph_base<T, U, C, SX, SY> {
-        typedef graph_base<T, U, C, SX, SY> super;
+      struct points_graph : public graph_base<X, Y, C, SX, SY> {
+        typedef graph_base<X, Y, C, SX, SY> super;
 
         typedef void (draw_fn) (const graphics&, const brush&, const core::point&);
         typedef std::function<draw_fn> point_drawer;
 
         points_graph (const core::point& pos,
-                      const scaler<T, SX>& sx,
-                      const scaler<U, SY>& sy,
+                      const scaler<X, SX>& sx,
+                      const scaler<Y, SY>& sy,
                       typename super::point2d_data,
                       point_drawer drawer);
 
@@ -347,6 +347,55 @@ namespace gui {
 
       private:
         point_drawer drawer;
+      };
+
+      // --------------------------------------------------------------------------
+      template<typename X, typename Y,
+               scaling SX = scaling::linear,
+               scaling SY = scaling::linear>
+      struct chart {
+        static constexpr os::color wall_back = color::rgb_gray<0xF8>::value;
+
+        chart (const core::rectangle& area, X xmin, X xmax, Y ymin, Y ymax);
+
+        void fill_area (const graphics& graph) const;
+        void draw_xscale (const graphics& graph, X main, X sub) const;
+        void draw_yscale (const graphics& graph, X main, X sub) const;
+        void draw_axis (const graphics& graph) const;
+
+        void draw_background (const graphics& graph, X xmain, X xsub, Y ymain, Y ysub) const;
+
+        template<typename C>
+        void draw_line_graph (const graphics& graph, C data, os::color color, Y zero = Y(0)) const;
+
+        template<typename C>
+        void draw_area_graph (const graphics& graph, C data, os::color color, Y zero = Y(0)) const;
+
+        template<typename C>
+        void draw_cascade_graph (const graphics& graph, C data, os::color color, Y zero = Y(0)) const;
+
+        template<typename C>
+        void draw_cascade_area_graph (const graphics& graph, C data, os::color color, Y zero = Y(0)) const;
+
+        template<typename C>
+        void draw_bar_graph (const graphics& graph, C data, os::color color, Y space = Y(0)) const;
+
+        template<typename C>
+        void draw_point_graph (const graphics& graph, C data, os::color color, float radius) const;
+
+        template<typename C>
+        void draw_diamond_graph (const graphics& graph, C data, os::color color, float radius) const;
+
+        template<typename C>
+        void draw_cross_graph (const graphics& graph, C data, os::color color, float radius) const;
+
+        template<typename C>
+        void draw_square_graph (const graphics& graph, C data, os::color color, float radius) const;
+
+      private:
+        core::point p0;
+        scaler<X, SX> scale_x;
+        scaler<Y, SY> scale_y;
       };
 
       // --------------------------------------------------------------------------

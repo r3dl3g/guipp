@@ -231,7 +231,7 @@ namespace gui {
         template<typename T, orientation_t V, scaling S>
         void draw_axis (const graphics& g,
                         const core::point& pos,
-                        os::color color,
+                        const pen& p,
                         const scaler<T, S>& sc) {
           typedef core::orientation_traits<V> traits;
 
@@ -239,7 +239,7 @@ namespace gui {
           core::point p0, p1;
           traits::set(p0, sc.get_target_min(), d2);
           traits::set(p1, sc.get_target_max(), d2);
-          g.frame(line(p0, p1), color);
+          g.frame(line(p0, p1), p);
         }
 
         template<typename T, orientation_t V, scaling S>
@@ -274,6 +274,8 @@ namespace gui {
                              T sub,
                              T main_ticks_length,
                              T sub_ticks_length,
+                             os::color main_color,
+                             os::color sub_color,
                              formatter fmt)
         : pos(pos)
         , sc(sc)
@@ -281,12 +283,13 @@ namespace gui {
         , sub(sub)
         , main_ticks_length(main_ticks_length)
         , sub_ticks_length(sub_ticks_length)
+        , main_color(main_color)
+        , sub_color(sub_color)
         , fmt(fmt)
       {}
 
       template<typename T, orientation_t V, scaling S>
       void scale<T, V, S>::operator() (const graphics& g, const font& font, os::color color) const {
-        paint::draw_axis<T, V, S>(g, pos, color, sc);
 
         core::point p0, p1, p2;
         const T d2 = traits::get_2(pos);
@@ -303,17 +306,18 @@ namespace gui {
 
           traits::set_1(p0, d1);
           traits::set_1(p1, d1);
-          g.frame(line(p0, p1), color);
+          g.frame(line(p0, p1), main_color);
 
           traits::set_1(p2, d1);
-          g.text(draw::text(fmt(i), p2, scale_text_origin<V>()), font, color::black);
+          g.text(draw::text(fmt(i), p2, scale_text_origin<V>()), font, color);
 
           const T sub_step = scale_fn<T, S>::sub(i, sub);
-          paint::draw_sub_ticks<T, V, S>(g, color, sc,
+          paint::draw_sub_ticks<T, V, S>(g, sub_color, sc,
                                          i, sub_step, std::min(scale_fn<T, S>::inc(i, main_step), max),
                                          d2 + scale_dim<T, V>::sub_tick_length, d2 + sub_ticks_length);
 
         }
+//        paint::draw_axis<T, V, S>(g, pos, color, sc);
       }
 
       // --------------------------------------------------------------------------
@@ -329,6 +333,22 @@ namespace gui {
       template<typename T, typename U>
       void wall<T, U>::operator() (const graphics& g, const brush& b, const pen& p) const {
         g.fill(draw::rectangle(pos, core::point(sx.get_target_max(), sy.get_target_max())), b);
+      }
+
+      // --------------------------------------------------------------------------
+      template<typename T, typename U, scaling SX, scaling SY>
+      axis<T, U, SX, SY>::axis (const core::point& pos,
+                                const scaler<T, SX>& sx,
+                                const scaler<U, SY>& sy)
+        : pos(pos)
+        , sx(sx)
+        , sy(sy)
+      {}
+
+      template<typename T, typename U, scaling SX, scaling SY>
+      void axis<T, U, SX, SY>::operator() (const graphics& g, const pen& p) const {
+        paint::draw_axis<T, orientation_t::horizontal, SX>(g, pos, p, sx);
+        paint::draw_axis<U, orientation_t::vertical, SY>(g, pos, p, sy);
       }
 
       // --------------------------------------------------------------------------

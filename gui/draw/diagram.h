@@ -161,6 +161,8 @@ namespace gui {
                T sub = 0,
                T main_ticks_length = 0,
                T sub_ticks_length = 0,
+               os::color main_color = color::very_light_gray,
+               os::color sub_color = color::very_very_light_gray,
                formatter fmt = default_formatter<T>);
 
         void operator() (const graphics&, const font&, os::color) const;
@@ -172,6 +174,8 @@ namespace gui {
         T sub;
         T main_ticks_length;
         T sub_ticks_length;
+        os::color main_color;
+        os::color sub_color;
         formatter fmt;
       };
 
@@ -188,6 +192,22 @@ namespace gui {
         const core::point pos;
         const scaler_base<T>& sx;
         const scaler_base<U>& sy;
+      };
+
+      // --------------------------------------------------------------------------
+      template<typename T, typename U,
+               scaling SX = scaling::linear, scaling SY = scaling::linear>
+      struct axis {
+        axis (const core::point& pos,
+              const scaler<T, SX>& sx,
+              const scaler<U, SY>& sy);
+
+        void operator() (const graphics&, const pen&) const;
+
+      private:
+        const core::point pos;
+        const scaler<T, SX>& sx;
+        const scaler<U, SY>& sy;
       };
 
       // --------------------------------------------------------------------------

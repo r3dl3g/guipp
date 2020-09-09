@@ -41,12 +41,12 @@ namespace gui {
     {}
 
     template<typename T>
-    bool range<T>::operator== (const range& rhs) {
+    bool range<T>::operator== (const range& rhs) const {
       return (first == rhs.first) && (last == rhs.last);
     }
 
     template<typename T>
-    bool range<T>::operator!= (const range& rhs) {
+    bool range<T>::operator!= (const range& rhs) const {
       return (first != rhs.first) || (last != rhs.last);
     }
 
@@ -94,7 +94,7 @@ namespace gui {
 
     template<typename T>
     std::ostream& operator<< (std::ostream& out, const range<T>& r) {
-      out << r.first << ":" << r.last;
+      out << r.begin() << ":" << r.end();
       return out;
     }
 

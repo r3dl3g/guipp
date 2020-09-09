@@ -168,7 +168,12 @@ namespace gui {
 
       template<typename T>
       T scaler<T, scaling::log>::operator() (T v) const {
-        return static_cast<T>((std::log(v) - precalced_min) * precalced + super::target_min);
+        if (v < super::min) {
+          return super::target_min;
+        } else if (v > super::max) {
+          return super::target_max;
+        }
+        return static_cast<T>((std::log(v) - precalced_min) * precalced) + super::target_min;
       }
 
       template<typename T>
@@ -202,7 +207,7 @@ namespace gui {
 
       template<typename T>
       T scaler<T, scaling::linear>::operator() (T v) const {
-        return static_cast<T>((v - super::min) * precalced + super::target_min);
+        return static_cast<T>((v - super::min) * precalced) + super::target_min;
       }
 
       template<typename T>
@@ -527,7 +532,7 @@ namespace gui {
 
       template<typename X, typename Y, scaling SX, scaling SY>
       chart<X, Y, SX, SY>::chart (const core::rectangle& area, X xmin, X xmax, Y ymin, Y ymax)
-        : p0(area.x() + 50, area.y2() - 25)
+        : p0(area.x() + 80, area.y2() - 25)
         , scale_x(xmin, xmax, p0.x(), area.x2() - 20)
         , scale_y(ymin, ymax, p0.y(), area.y() + 20)
       {}
@@ -538,30 +543,24 @@ namespace gui {
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
-      void chart<X, Y, SX, SY>::draw_xscale (const graphics& graph, X main, X sub) const {
-        static auto fmt = [] (double i) {
-          return ostreamfmt(std::fixed << std::setprecision(1) << i);
-        };
-        graph.text(scale<X, orientation_t::horizontal, SX>(p0, scale_x, main, sub,
-                                                           scale_y.get_target_range(),
-                                                           scale_y.get_target_range(),
-                                                           color::very_light_gray,
-                                                           color::very_very_light_gray,
-                                                           fmt),
+      void chart<X, Y, SX, SY>::draw_xscale (const graphics& graph, X main, X sub, typename scale_x_type::formatter fmt) const {
+        graph.text(scale_x_type(p0, scale_x, main, sub,
+                                scale_y.get_target_range(),
+                                scale_y.get_target_range(),
+                                color::very_light_gray,
+                                color::very_very_light_gray,
+                                fmt),
                    font::serif(), color::black);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
-      void chart<X, Y, SX, SY>::draw_yscale (const graphics& graph, X main, X sub) const {
-        static auto fmt = [] (double i) {
-          return ostreamfmt(std::fixed << std::setprecision(1) << i);
-        };
-        graph.text(scale<Y, orientation_t::vertical, SY>(p0, scale_y, main, sub,
-                                                         scale_x.get_target_range(),
-                                                         scale_x.get_target_range(),
-                                                         color::very_light_gray,
-                                                         color::very_very_light_gray,
-                                                         fmt),
+      void chart<X, Y, SX, SY>::draw_yscale (const graphics& graph, Y main, Y sub, typename scale_y_type::formatter fmt) const {
+        graph.text(scale_y_type(p0, scale_y, main, sub,
+                                scale_x.get_target_range(),
+                                scale_x.get_target_range(),
+                                color::very_light_gray,
+                                color::very_very_light_gray,
+                                fmt),
                    font::serif(), color::black);
       }
 

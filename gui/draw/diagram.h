@@ -127,7 +127,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<typename T>
       std::string default_formatter (T i) {
-        return ostreamfmt(i);
+        return ostreamfmt(std::fixed << std::setprecision(1) << i);
       }
 
       // --------------------------------------------------------------------------
@@ -354,13 +354,19 @@ namespace gui {
                scaling SX = scaling::linear,
                scaling SY = scaling::linear>
       struct chart {
+        typedef scaler<X, SX> scaler_x_type;
+        typedef scaler<Y, SY> scaler_y_type;
+
+        typedef scale<X, orientation_t::horizontal, SX> scale_x_type;
+        typedef scale<Y, orientation_t::vertical, SY> scale_y_type;
+
         static constexpr os::color wall_back = color::rgb_gray<0xF8>::value;
 
         chart (const core::rectangle& area, X xmin, X xmax, Y ymin, Y ymax);
 
         void fill_area (const graphics& graph) const;
-        void draw_xscale (const graphics& graph, X main, X sub) const;
-        void draw_yscale (const graphics& graph, X main, X sub) const;
+        void draw_xscale (const graphics& graph, X main, X sub, typename scale_x_type::formatter fmt = default_formatter<X>) const;
+        void draw_yscale (const graphics& graph, Y main, Y sub, typename scale_y_type::formatter fmt = default_formatter<Y>) const;
         void draw_axis (const graphics& graph) const;
 
         void draw_background (const graphics& graph, X xmain, X xsub, Y ymain, Y ysub) const;
@@ -394,8 +400,8 @@ namespace gui {
 
       private:
         core::point p0;
-        scaler<X, SX> scale_x;
-        scaler<Y, SY> scale_y;
+        scaler_x_type scale_x;
+        scaler_y_type scale_y;
       };
 
       // --------------------------------------------------------------------------

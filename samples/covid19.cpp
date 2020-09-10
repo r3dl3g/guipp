@@ -26,28 +26,22 @@ using namespace gui::draw;
 using namespace util;
 
 // --------------------------------------------------------------------------
-struct point {
-  std::time_t x;
-  double y;
+typedef diagram::point2d<std::time_t, double> point;
 
-  bool operator< (const point& rhs) const {
-    return x < rhs.x;
-  }
-};
-
-// --------------------------------------------------------------------------
 namespace gui { namespace draw { namespace diagram {
-  template<typename T>
-  struct get<T, point> {
-    inline static T x (const point& p) {
-      return p.x;
-    }
-
-    inline static T y (const point& p) {
-      return p.y;
-    }
-  };
+  inline bool operator< (const point& lhs, const point& rhs) {
+    return lhs.x < rhs.x;
+  }
 }}}
+
+namespace std {
+  std::ostream& operator<< (std::ostream& out, const point& pt) {
+    out << "[";
+    util::time::format_date(out, pt.x);
+    out << ":" << pt.y << "]";
+    return out;
+  }
+}
 
 // --------------------------------------------------------------------------
 std::vector<point> accumulated (std::vector<point> v) {
@@ -87,12 +81,12 @@ std::vector<point> ratio (const std::vector<point>& divident,
 
   const int sz = divident.size();
   std::vector<point> result;
-  result.resize(sz);
+  result.resize(sz - offset);
   for (int i = offset; i < sz; ++i) {
     const auto& divid = divident[i];
     const auto& divis = divisor[i - offset];
     const double div = divid.y / divis.y;
-    result[i] = { divid.x, std::isfinite(div) ? div : 1.0 };
+    result[i - offset] = { divid.x, std::isfinite(div) ? div : 1.0 };
   }
   return result;
 }
@@ -127,123 +121,6 @@ std::vector<point> calc (std::vector<point> v, calculator c) {
   }
   return v;
 }
-
-// --------------------------------------------------------------------------
-template<typename T>
-T get_prev_pow10 (T t) {
-  return (t == 0) ? 0 : static_cast<T>(std::copysign(std::pow(10.0, std::floor(std::log10(std::abs(t)))), t));
-}
-// --------------------------------------------------------------------------
-template<typename T>
-T get_next_pow10 (T t) {
-  return (t == 0) ? 0 : static_cast<T>(std::copysign(std::pow(10.0, std::ceil(std::log10(std::abs(t)))), t));
-}
-// --------------------------------------------------------------------------
-template<typename T>
-T get_next_main (T t) {
-  const T u = get_prev_pow10<T>(t);
-  const T v = std::ceil(t / u);
-  return u * v;
-}
-// --------------------------------------------------------------------------
-template<typename T>
-T get_prev_main (T t) {
-  const T u = get_prev_pow10<T>(t);
-  const T v = std::floor(t / u);
-  return u * v;
-}
-// --------------------------------------------------------------------------
-template<typename T, diagram::scaling S>
-struct limits {
-  static core::range<T> calc (T min, T max);
-};
-// --------------------------------------------------------------------------
-template<typename T>
-struct limits<T, diagram::scaling::log> {
-  static core::range<T> calc (T min, T max) {
-    auto lmin = get_prev_pow10(min);
-    auto lmax = get_next_pow10(max);
-    return { lmin, lmax };
-  }
-};
-// --------------------------------------------------------------------------
-template<typename T>
-struct limits<T, diagram::scaling::linear> {
-  static core::range<T> calc (T min, T max) {
-    T lmin = 0;
-    T lmax = 0;
-    if ((min == T(0)) && (max == T(0))) {
-    } else if (min == T(0)) {
-      lmax = get_next_main(max);
-    } else if (max == T(0)) {
-      lmin = get_next_main(min);
-    } else {
-      const auto ma = std::floor(std::log10(std::abs(max)));
-      const auto mi = std::floor(std::log10(std::abs(min)));
-      const auto m = std::max(mi, ma);
-      const auto la = std::copysign(std::pow(10.0, (ma < m - 1 ? m - 1  : ma)), max);
-      const auto li = std::copysign(std::pow(10.0, mi < m - 1 ? m - 1 : mi), min);
-      lmax = static_cast<T>(la * std::ceil(max / la));
-      lmin = static_cast<T>(li * (min < 0 ? std::ceil(min / li) : std::floor(min / li)));
-    }
-
-    return { lmin, lmax };
-  }
-};
-
-void test_limits () {
-  typedef limits<double, diagram::scaling::linear> lim;
-  typedef core::range<double> ran;
-  EXPECT_EQUAL((lim::calc(0, 1))     , ran(0, 1)      );
-  EXPECT_EQUAL((lim::calc(0, 10))    , ran(0, 10)     );
-  EXPECT_EQUAL((lim::calc(0, 100))   , ran(0, 100)    );
-  EXPECT_EQUAL((lim::calc(0, 0.1))   , ran(0, 0.1)    );
-  EXPECT_EQUAL((lim::calc(0, 0.01))  , ran(0, 0.01)   );
-
-  EXPECT_EQUAL((lim::calc(0, 1.1))   , ran(0, 2)      );
-  EXPECT_EQUAL((lim::calc(0, 4.5))   , ran(0, 5)      );
-  EXPECT_EQUAL((lim::calc(0, 0.45))  , ran(0, 0.5)    );
-  EXPECT_EQUAL((lim::calc(0, 45))    , ran(0, 50)     );
-  EXPECT_EQUAL((lim::calc(0, 8.99))  , ran(0, 9)      );
-  EXPECT_EQUAL((lim::calc(0, 9.99))  , ran(0, 10)     );
-  EXPECT_EQUAL((lim::calc(0, 10.99)) , ran(0, 20)     );
-
-  EXPECT_EQUAL((lim::calc(0.1, 0.2)) , ran(0.1, 0.2)  );
-  EXPECT_EQUAL((lim::calc(0.1, 1))   , ran(0.1, 1)    );
-  EXPECT_EQUAL((lim::calc(0.1, 10))  , ran(0, 10)     );
-  EXPECT_EQUAL((lim::calc(0.1, 100)) , ran(0, 100)    );
-  EXPECT_EQUAL((lim::calc(0.1, 1000)), ran(0, 1000)   );
-
-  EXPECT_EQUAL((lim::calc(1.1, 2.1)) , ran(1, 3)      );
-  EXPECT_EQUAL((lim::calc(1.1, 10))  , ran(1, 10)     );
-  EXPECT_EQUAL((lim::calc(1.1, 100)) , ran(0, 100)    );
-  EXPECT_EQUAL((lim::calc(1.1, 1000)), ran(0, 1000)   );
-
-  EXPECT_EQUAL((lim::calc(11, 100)) , ran(10, 100)    );
-  EXPECT_EQUAL((lim::calc(11, 1000)), ran(0, 1000)   );
-
-  EXPECT_EQUAL((lim::calc(111, 1000)), ran(100, 1000)   );
-
-  EXPECT_EQUAL((lim::calc(-1.1, 2.1)) , ran(-2, 3)    );
-  EXPECT_EQUAL((lim::calc(-1.1, 10))  , ran(-2, 10)   );
-  EXPECT_EQUAL((lim::calc(-1.1, 100)) , ran(-10, 100) );
-  EXPECT_EQUAL((lim::calc(-1.1, 1000)), ran(-100, 1000));
-
-  EXPECT_EQUAL((lim::calc(-2.1, 1.1)) , ran(-3, 2)      );
-  EXPECT_EQUAL((lim::calc(-10,  1.1)) , ran(-10, 2)     );
-  EXPECT_EQUAL((lim::calc(-100, 1.1)) , ran(-100, 10)   );
-  EXPECT_EQUAL((lim::calc(-1000, 1.1)), ran(-1000, 100) );
-
-  EXPECT_EQUAL((lim::calc(-1.1, 0))   , ran(-2, 0)    );
-  EXPECT_EQUAL((lim::calc(-4.5, 0))   , ran(-5, 0)    );
-  EXPECT_EQUAL((lim::calc(-0.45, 0))  , ran(-0.5, 0)  );
-  EXPECT_EQUAL((lim::calc(-45, 0))    , ran(-50, 0)   );
-  EXPECT_EQUAL((lim::calc(-8.99, 0))  , ran(-9, 0)    );
-  EXPECT_EQUAL((lim::calc(-9.99, 0))  , ran(-10, 0)   );
-  EXPECT_EQUAL((lim::calc(-10.99, 0)) , ran(-20, 0)   );
-
-}
-
 // --------------------------------------------------------------------------
 struct country_data : public gui::ctrl::list_data_t<std::string> {
 
@@ -321,6 +198,33 @@ struct covid19main : public layout_main_window<gui::layout::border::layouter<25,
 
 };
 // --------------------------------------------------------------------------
+template<typename X, typename Y, diagram::scaling SX, diagram::scaling SY>
+void check_points (const diagram::scaler<X, SX>& sx,
+                   const diagram::scaler<Y, SY>& sy,
+                   std::vector<point>& points) {
+  for (auto& pt : points) {
+    if (pt.x < sx.get_min()) {
+      clog::warn() << "Point " << pt << " x is lower than min (" << sx.get_min() << ")";
+    }
+    if (pt.x > sx.get_max()) {
+      clog::warn() << "Point " << pt << " x is greater than max (" << sx.get_max() << ")";
+    }
+    if (std::isinf(pt.y)) {
+      clog::warn() << "Point " << pt << " y is inf";
+    }
+    if (std::isnan(pt.y)) {
+      clog::warn() << "Point " << pt << " y is nan";
+    }
+    if (pt.y < sy.get_min()) {
+      clog::warn() << "Point " << pt << " y is lower than min (" << sy.get_min() << ")";
+    }
+    if (pt.y > sy.get_max()) {
+      clog::warn() << "Point " << pt << " y is greater than max (" << sy.get_max() << ")";
+    }
+  }
+
+}
+// --------------------------------------------------------------------------
 covid19main::covid19main ()
   : current_option(undedined)
 {
@@ -397,14 +301,18 @@ covid19main::covid19main ()
     graph.clear(color::white);
     if (current_option != undedined) {
       const auto area = chart.client_area();
-      const auto xmin = time::tm2time_t(time::mktm(2020, 1, 1));
+      const auto xmin = time::tm2time_t(time::mktm(2019, 12, 31));
       const auto xmax = time::tm2time_t(time::mktm(2020, 10, 1));
 
       core::grid<3, 2> g(area);
 
-      const auto ymax = util::max_element(option_data[current_option].positives, [] (const point& l, const point& r) {
+      const auto ymax_p = util::max_element(option_data[current_option].positives, [] (const point& l, const point& r) {
         return l.y < r.y;
       }).y;
+      const auto ymax_d = util::max_element(option_data[current_option].deaths, [] (const point& l, const point& r) {
+        return l.y < r.y;
+      }).y;
+      const auto ymax = std::max(ymax_p, ymax_d);
 
       static auto fmtx = [] (std::time_t i) {
         return util::time::format_date(i);
@@ -414,25 +322,31 @@ covid19main::covid19main ()
       };
 
       if (switches[logarithmic].is_checked()) {
-        const auto l = limits<double, diagram::scaling::log>::calc(ymax / 10000.0, ymax);
+        const auto l = diagram::limits<double, diagram::scaling::log>::calc(ymax / 100000.0, ymax);
         diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::log> d(area, xmin, xmax, l.begin(), l.end());
+        check_points(d.get_scale_x(), d.get_scale_y(), option_data[current_option].positives);
+        check_points(d.get_scale_x(), d.get_scale_y(), option_data[current_option].deaths);
         d.fill_area(graph);
         d.draw_xscale(graph, 60.0*60*24*30, 60.0*60*24*5, fmtx);
         d.draw_yscale(graph, 1, 1, fmty);
         d.draw_line_graph(graph, option_data[current_option].positives, color::light_red);
         d.draw_line_graph(graph, option_data[current_option].deaths, color::light_green);
+        d.draw_axis(graph);
       } else {
         const auto ymin = util::min_element(option_data[current_option].positives, [] (const point& l, const point& r) {
           return l.y < r.y;
         }).y;
-        const auto l = limits<double, diagram::scaling::linear>::calc(ymin, ymax);
+        const auto l = diagram::limits<double, diagram::scaling::linear>::calc(ymin, ymax);
         diagram::chart<std::time_t, double> d(area, xmin, xmax, l.begin(), l.end());
+        check_points(d.get_scale_x(), d.get_scale_y(), option_data[current_option].positives);
+        check_points(d.get_scale_x(), d.get_scale_y(), option_data[current_option].deaths);
         d.fill_area(graph);
         d.draw_xscale(graph, 60.0*60*24*30, 60.0*60*24*5, fmtx);
-        const auto steps = get_prev_pow10(std::max(std::abs(l.begin()), std::abs(l.end()))/3);
+        const auto steps = diagram::next_smaller_pow10(std::max(std::abs(l.begin()), std::abs(l.end()))/3);
         d.draw_yscale(graph, steps, steps/5, fmty);
         d.draw_line_graph(graph, option_data[current_option].positives, color::light_red);
         d.draw_line_graph(graph, option_data[current_option].deaths, color::light_green);
+        d.draw_axis(graph);
 
       }
 
@@ -491,9 +405,6 @@ void covid19main::initSwitch (int idx) {
 }
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& args) {
-
-  test_limits();
-
   covid19main main;
 
   main.create({50, 50, 800, 600});

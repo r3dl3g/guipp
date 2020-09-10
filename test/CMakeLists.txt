@@ -42,6 +42,7 @@ add_subdirectory(./../testing testing)
 
 set(tests
     datamap_test
+    diagram_test
     pixmap_test
     drawer_test
     icon_test

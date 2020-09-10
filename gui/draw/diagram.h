@@ -49,6 +49,7 @@ namespace gui {
         Y y;
       };
 
+      // --------------------------------------------------------------------------
       template<typename T, typename P>
       struct get {
         inline static T x (const P& p) {
@@ -60,34 +61,30 @@ namespace gui {
         }
       };
 
+      // --------------------------------------------------------------------------
       template<typename T, typename P>
       inline T get_x (const P& p) {
         return get<T, P>::x(p);
       }
 
+      // --------------------------------------------------------------------------
       template<typename T, typename P>
       inline T get_y (const P& p) {
         return get<T, P>::y(p);
       }
 
+      // --------------------------------------------------------------------------
       template<typename T>
-      struct scaler_base {
-        typedef T value_type;
+      T next_smaller_pow10 (T t);
 
-        scaler_base (T mi, T ma, T tmi, T tma);
+      template<typename T>
+      T next_bigger_pow10 (T t);
 
-        T get_min () const;
-        T get_max () const;
-        T get_target_min () const;
-        T get_target_max () const;
-        T get_target_range () const;
+      template<typename T>
+      T next_bigger_dezimal (T t);
 
-      protected:
-        T min;
-        T max;
-        T target_min;
-        T target_max;
-      };
+      template<typename T>
+      T next_smaller_dezimal (T t);
 
       // --------------------------------------------------------------------------
       enum scaling {
@@ -96,9 +93,14 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
+      template<typename T, scaling S>
+      struct limits {
+        static core::range<T> calc (T min, T max);
+      };
+
+      // --------------------------------------------------------------------------
       template<typename T, scaling S = scaling::linear>
-      struct scaler : scaler_base<T> {
-        typedef scaler_base<T> super;
+      struct scaler {
         typedef T value_type;
         static const scaling scaling_type = S;
 
@@ -106,8 +108,24 @@ namespace gui {
 
         T operator() (T v) const;
 
+        T get_min () const;
+        T get_max () const;
+        T get_target_min () const;
+        T get_target_max () const;
+        T get_target_range () const;
+
         void set_min_max (T mi, T ma);
         void set_target_min_max (T mi, T ma);
+      private:
+        void precalc ();
+
+        T min;
+        T max;
+        T target_min;
+        T target_max;
+
+        double precalced;
+        double precalced_min;
       };
 
       // --------------------------------------------------------------------------
@@ -180,18 +198,18 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename X, typename Y>
+      template<typename X, typename Y, scaling SX = scaling::linear, scaling SY = scaling::linear>
       struct wall {
         wall (const core::point& pos,
-              const scaler_base<X>& sx,
-              const scaler_base<Y>& sy);
+              const scaler<X, SX>& sx,
+              const scaler<Y, SY>& sy);
 
         void operator() (const graphics&, const brush&, const pen&) const;
 
       private:
         const core::point pos;
-        const scaler_base<X>& sx;
-        const scaler_base<Y>& sy;
+        const scaler<X, SX>& sx;
+        const scaler<Y, SY>& sy;
       };
 
       // --------------------------------------------------------------------------
@@ -397,6 +415,10 @@ namespace gui {
 
         template<typename C>
         void draw_square_graph (const graphics& graph, C data, os::color color, float radius) const;
+
+        const scaler_x_type& get_scale_x() const;
+        const scaler_y_type& get_scale_y() const;
+        const core::point& get_point_00 () const;
 
       private:
         core::point p0;

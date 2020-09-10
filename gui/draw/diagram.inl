@@ -29,6 +29,7 @@ namespace gui {
         static T inc (T, T);
         static T step (T);
         static T sub (T, T);
+        static T calc (T);
       };
 
       // --------------------------------------------------------------------------
@@ -41,6 +42,9 @@ namespace gui {
           return t;
         }
         static T sub (T, T t) {
+          return t;
+        }
+        static T calc (T t) {
           return t;
         }
       };
@@ -56,6 +60,9 @@ namespace gui {
         }
         static T sub (T i, T t) {
           return i * t;
+        }
+        static T calc (T t) {
+          return std::log(t);
         }
       };
 
@@ -80,154 +87,175 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T>
-      scaler_base<T>::scaler_base (T mi, T ma, T tmi, T tma)
+      T next_smaller_pow10 (T t) {
+        return (t == 0) ? 0 : static_cast<T>(std::copysign(std::pow(10.0, std::floor(std::log10(std::abs(t)))), t));
+      }
+      // --------------------------------------------------------------------------
+      template<typename T>
+      T next_bigger_pow10 (T t) {
+        return (t == 0) ? 0 : static_cast<T>(std::copysign(std::pow(10.0, std::ceil(std::log10(std::abs(t)))), t));
+      }
+      // --------------------------------------------------------------------------
+      template<typename T>
+      T next_bigger_dezimal (T t) {
+        const T u = next_smaller_pow10<T>(t);
+        const T v = std::ceil(t / u);
+        return u * v;
+      }
+      // --------------------------------------------------------------------------
+      template<typename T>
+      T next_smaller_dezimal (T t) {
+        const T u = next_smaller_pow10<T>(t);
+        const T v = std::floor(t / u);
+        return u * v;
+      }
+
+      // --------------------------------------------------------------------------
+      template<typename T>
+      struct limits<T, scaling::log> {
+        static core::range<T> calc (T min, T max) {
+          auto lmin = next_smaller_pow10(min);
+          auto lmax = next_bigger_pow10(max);
+          return { lmin, lmax };
+        }
+      };
+      // --------------------------------------------------------------------------
+      template<typename T>
+      struct limits<T, scaling::linear> {
+        static core::range<T> calc (T min, T max) {
+          T lmin = 0;
+          T lmax = 0;
+          if ((min == T(0)) && (max == T(0))) {
+          } else if (min == T(0)) {
+            lmax = next_bigger_dezimal(max);
+          } else if (max == T(0)) {
+            lmin = next_bigger_dezimal(min);
+          } else {
+            const auto ma = std::floor(std::log10(std::abs(max)));
+            const auto mi = std::floor(std::log10(std::abs(min)));
+            const auto m = std::max(mi, ma);
+            const auto la = std::copysign(std::pow(10.0, (ma < m - 1 ? m - 1  : ma)), max);
+            const auto li = std::copysign(std::pow(10.0, mi < m - 1 ? m - 1 : mi), min);
+            lmax = static_cast<T>(la * std::ceil(max / la));
+            lmin = static_cast<T>(li * (min < 0 ? std::ceil(min / li) : std::floor(min / li)));
+          }
+          return { lmin, lmax };
+        }
+      };
+
+      // --------------------------------------------------------------------------
+
+      // --------------------------------------------------------------------------
+//      template<typename T>
+//      struct scaler<T, scaling::log> : scaler_base<T> {
+//        typedef scaler_base<T> super;
+//        typedef T value_type;
+//        static const scaling scaling_type = scaling::log;
+
+//        scaler (T mi = 0, T ma = 1, T tmi = 0, T tma = 1);
+
+//        T operator() (T v) const;
+
+//        void set_min_max (T mi, T ma);
+//        void set_target_min_max (T mi, T ma);
+
+//      private:
+//        void precalc ();
+
+//        double precalced;
+//        double precalced_min;
+//      };
+
+      // --------------------------------------------------------------------------
+//      template<typename T>
+//      struct scaler<T, scaling::linear> : scaler_base<T> {
+//        typedef scaler_base<T> super;
+//        typedef T value_type;
+//        static const scaling scaling_type = scaling::linear;
+
+//        scaler (T mi = 0, T ma = 1, T tmi = 0, T tma = 1);
+
+//        T operator() (T v) const;
+
+//        void set_min_max (T mi, T ma);
+//        void set_target_min_max (T mi, T ma);
+
+//      private:
+//        void precalc ();
+
+//        double precalced;
+//      };
+
+      // --------------------------------------------------------------------------
+      template<typename T, scaling S>
+      scaler<T, S>::scaler (T mi, T ma, T tmi, T tma)
         : min(mi)
         , max(ma)
         , target_min(tmi)
         , target_max(tma)
-      {}
-
-      template<typename T>
-      T scaler_base<T>::get_min () const {
-        return min;
-      }
-
-      template<typename T>
-      T scaler_base<T>::get_max () const {
-        return max;
-      }
-
-      template<typename T>
-      T scaler_base<T>::get_target_min () const {
-        return target_min;
-      }
-
-      template<typename T>
-      T scaler_base<T>::get_target_max () const {
-        return target_max;
-      }
-
-      template<typename T>
-      T scaler_base<T>::get_target_range () const {
-        return target_max - target_min;
-      }
-
-      // --------------------------------------------------------------------------
-      template<typename T>
-      struct scaler<T, scaling::log> : scaler_base<T> {
-        typedef scaler_base<T> super;
-        typedef T value_type;
-        static const scaling scaling_type = scaling::log;
-
-        scaler (T mi = 0, T ma = 1, T tmi = 0, T tma = 1);
-
-        T operator() (T v) const;
-
-        void set_min_max (T mi, T ma);
-        void set_target_min_max (T mi, T ma);
-
-      private:
-        void precalc ();
-
-        double precalced;
-        double precalced_min;
-      };
-
-      // --------------------------------------------------------------------------
-      template<typename T>
-      struct scaler<T, scaling::linear> : scaler_base<T> {
-        typedef scaler_base<T> super;
-        typedef T value_type;
-        static const scaling scaling_type = scaling::linear;
-
-        scaler (T mi = 0, T ma = 1, T tmi = 0, T tma = 1);
-
-        T operator() (T v) const;
-
-        void set_min_max (T mi, T ma);
-        void set_target_min_max (T mi, T ma);
-
-      private:
-        void precalc ();
-
-        double precalced;
-      };
-
-      // --------------------------------------------------------------------------
-      template<typename T>
-      scaler<T, scaling::log>::scaler (T mi, T ma, T tmi, T tma)
-        : super(mi, ma, tmi, tma)
         , precalced(1)
-        , precalced_min(0)
+        , precalced_min(mi)
       {
-        if (super::min == 0) {
+        if ((S == scaling::log) && (min == 0)) {
           throw std::runtime_error("Base 0 is not allowed for logarithmic scaler");
         }
         precalc();
       }
 
-      template<typename T>
-      T scaler<T, scaling::log>::operator() (T v) const {
-        if (v < super::min) {
-          return super::target_min;
-        } else if (v > super::max) {
-          return super::target_max;
+      template<typename T, scaling S>
+      T scaler<T, S>::operator() (T v) const {
+        if (v < min) {
+          return target_min;
+        } else if (v > max) {
+          return target_max;
         }
-        return static_cast<T>((std::log(v) - precalced_min) * precalced) + super::target_min;
+        return static_cast<T>((scale_fn<T, S>::calc(v) - precalced_min) * precalced) + target_min;
       }
 
-      template<typename T>
-      void scaler<T, scaling::log>::set_min_max (T mi, T ma) {
-        super::min = mi;
-        super::max = ma;
+      template<typename T, scaling S>
+      T scaler<T, S>::get_min () const {
+        return min;
+      }
+
+      template<typename T, scaling S>
+      T scaler<T, S>::get_max () const {
+        return max;
+      }
+
+      template<typename T, scaling S>
+      T scaler<T, S>::get_target_min () const {
+        return target_min;
+      }
+
+      template<typename T, scaling S>
+      T scaler<T, S>::get_target_max () const {
+        return target_max;
+      }
+
+      template<typename T, scaling S>
+      T scaler<T, S>::get_target_range () const {
+        return target_max - target_min;
+      }
+
+      template<typename T, scaling S>
+      void scaler<T, S>::set_min_max (T mi, T ma) {
+        min = mi;
+        max = ma;
         precalc();
       }
 
-      template<typename T>
-      void scaler<T, scaling::log>::set_target_min_max (T mi, T ma) {
-        super::target_min = mi;
-        super::target_max = ma;
+      template<typename T, scaling S>
+      void scaler<T, S>::set_target_min_max (T mi, T ma) {
+        target_min = mi;
+        target_max = ma;
         precalc();
       }
 
-      template<typename T>
-      void scaler<T, scaling::log>::precalc () {
-        precalced_min = std::log(super::min);
-        precalced = (super::target_max - super::target_min) / (std::log(super::max) - precalced_min);
-      }
-
-      // --------------------------------------------------------------------------
-      template<typename T>
-      scaler<T, scaling::linear>::scaler (T mi, T ma, T tmi, T tma)
-        : super(mi, ma, tmi, tma)
-        , precalced(1)
-      {
-        precalc();
-      }
-
-      template<typename T>
-      T scaler<T, scaling::linear>::operator() (T v) const {
-        return static_cast<T>((v - super::min) * precalced) + super::target_min;
-      }
-
-      template<typename T>
-      void scaler<T, scaling::linear>::set_min_max (T mi, T ma) {
-        super::min = mi;
-        super::max = ma;
-        precalc();
-      }
-
-      template<typename T>
-      void scaler<T, scaling::linear>::set_target_min_max (T mi, T ma) {
-        super::target_min = mi;
-        super::target_max = ma;
-        precalc();
-      }
-
-      template<typename T>
-      void scaler<T, scaling::linear>::precalc () {
-        precalced = static_cast<double>(super::target_max - super::target_min)
-                    / static_cast<double>(super::max - super::min);
+      template<typename T, scaling S>
+      void scaler<T, S>::precalc () {
+        precalced_min = scale_fn<T, S>::calc(min);
+        precalced = static_cast<double>(target_max - target_min) /
+                    static_cast<double>(scale_fn<T, S>::calc(max) - precalced_min);
       }
 
       // --------------------------------------------------------------------------
@@ -326,17 +354,17 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename X, typename Y>
-      wall<X, Y>::wall (const core::point& pos,
-                        const scaler_base<X>& sx,
-                        const scaler_base<Y>& sy)
+      template<typename X, typename Y, scaling SX, scaling SY>
+      wall<X, Y, SX, SY>::wall (const core::point& pos,
+                                const scaler<X, SX>& sx,
+                                const scaler<Y, SY>& sy)
         : pos(pos)
         , sx(sx)
         , sy(sy)
       {}
 
-      template<typename X, typename Y>
-      void wall<X, Y>::operator() (const graphics& g, const brush& b, const pen& p) const {
+      template<typename X, typename Y, scaling SX, scaling SY>
+      void wall<X, Y, SX, SY>::operator() (const graphics& g, const brush& b, const pen& p) const {
         g.fill(draw::rectangle(pos, core::point(sx.get_target_max(), sy.get_target_max())), b);
       }
 
@@ -538,8 +566,23 @@ namespace gui {
       {}
 
       template<typename X, typename Y, scaling SX, scaling SY>
+      auto chart<X, Y, SX, SY>::get_scale_x() const -> const scaler_x_type& {
+        return scale_x;
+      }
+
+      template<typename X, typename Y, scaling SX, scaling SY>
+      auto chart<X, Y, SX, SY>::get_scale_y() const -> const scaler_y_type& {
+        return scale_y;
+      }
+
+      template<typename X, typename Y, scaling SX, scaling SY>
+      const core::point& chart<X, Y, SX, SY>::get_point_00 () const {
+        return p0;
+      }
+
+      template<typename X, typename Y, scaling SX, scaling SY>
       void chart<X, Y, SX, SY>::fill_area (const graphics& graph) const {
-        graph.draw(wall<X, Y>(p0, scale_x, scale_y), wall_back, wall_back);
+        graph.draw(wall<X, Y, SX, SY>(p0, scale_x, scale_y), wall_back, wall_back);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>

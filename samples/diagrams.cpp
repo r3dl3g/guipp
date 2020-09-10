@@ -113,7 +113,7 @@ void draw_graph_2 (const graphics& graph, const core::rectangle& area) {
   scaler<double> xscale(0, 6.5, p0.x(), area.x2() - 20);
   scaler<double, scaling::log> yscale(0.01, 10000, p0.y(), area.y() + 20);
 
-  graph.draw(wall<double, double>(p0, xscale, yscale), wall_back, wall_back);
+  graph.draw(wall<double, double, scaling::linear, scaling::log>(p0, xscale, yscale), wall_back, wall_back);
 
   graph.text(scale<double, orientation_t::horizontal>(p0, xscale, 1, 0.2, yscale.get_target_range(), yscale.get_target_range()),
              font::serif(), color::black);
@@ -135,7 +135,7 @@ void draw_graph_3 (const graphics& graph, const core::rectangle& area) {
   scaler<double, scaling::log> xscale(0.01, 10.0, p0.x(), area.x2() - 20);
   scaler<double> yscale(0, 10000, p0.y(), area.y() + 20);
 
-  graph.draw(wall<double, double>(p0, xscale, yscale), wall_back, wall_back);
+  graph.draw(wall<double, double, scaling::log>(p0, xscale, yscale), wall_back, wall_back);
 
   graph.text(scale<double, orientation_t::horizontal, scaling::log>(p0, xscale, 1, 1, yscale.get_target_range(), yscale.get_target_range()),
              font::serif(), color::black);
@@ -156,7 +156,7 @@ void draw_graph_4 (const graphics& graph, const core::rectangle& area) {
   scaler<double, scaling::log> xscale(0.01, 10, p0.x(), area.x2() - 20);
   scaler<double, scaling::log> yscale(0.01, 10000, p0.y(), area.y() + 20);
 
-  graph.draw(wall<double, double>(p0, xscale, yscale), wall_back, wall_back);
+  graph.draw(wall<double, double, scaling::log, scaling::log>(p0, xscale, yscale), wall_back, wall_back);
 
   graph.text(scale<double, orientation_t::horizontal, scaling::log>(p0, xscale, 1, 1, yscale.get_target_range(), yscale.get_target_range()),
              font::serif(), color::black);
@@ -220,7 +220,7 @@ void draw_graph_6 (const graphics& graph, const core::rectangle& area) {
   scaler<int> xscale(0, 100, p0.x(), area.x2() - 20);
   scaler<double, scaling::log> yscale(0.01, 10000.0, p0.y(), area.y() + 20);
 
-  graph.draw(wall<int, double>(p0, xscale, yscale), wall_back, wall_back);
+  graph.draw(wall<int, double, scaling::linear, scaling::log>(p0, xscale, yscale), wall_back, wall_back);
 
   graph.text(scale<int, orientation_t::horizontal>(p0, xscale, 20, 5, yscale.get_target_range(), yscale.get_target_range()),
              font::serif(), color::black);

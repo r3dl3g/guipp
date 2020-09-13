@@ -127,6 +127,8 @@ struct country_data : public gui::ctrl::list_data_t<std::string> {
   struct country {
     std::vector<point> positives;
     std::vector<point> deaths;
+    std::size_t population;
+    std::string region;
   };
 
   typedef std::map<std::string, country> map_type;
@@ -203,11 +205,11 @@ void check_points (const diagram::scaler<X, SX>& sx,
                    const diagram::scaler<Y, SY>& sy,
                    std::vector<point>& points) {
   for (auto& pt : points) {
-    if (pt.x < sx.get_min()) {
-      clog::warn() << "Point " << pt << " x is lower than min (" << sx.get_min() << ")";
+    if (pt.x < sx.get_source().begin()) {
+      clog::warn() << "Point " << pt << " x is lower than min (" << sx.get_source().begin() << ")";
     }
-    if (pt.x > sx.get_max()) {
-      clog::warn() << "Point " << pt << " x is greater than max (" << sx.get_max() << ")";
+    if (pt.x > sx.get_source().end()) {
+      clog::warn() << "Point " << pt << " x is greater than max (" << sx.get_source().end() << ")";
     }
     if (std::isinf(pt.y)) {
       clog::warn() << "Point " << pt << " y is inf";
@@ -215,15 +217,58 @@ void check_points (const diagram::scaler<X, SX>& sx,
     if (std::isnan(pt.y)) {
       clog::warn() << "Point " << pt << " y is nan";
     }
-    if (pt.y < sy.get_min()) {
-      clog::warn() << "Point " << pt << " y is lower than min (" << sy.get_min() << ")";
+    if (pt.y < sy.get_source().begin()) {
+      clog::warn() << "Point " << pt << " y is lower than min (" << sy.get_source().begin() << ")";
     }
-    if (pt.y > sy.get_max()) {
-      clog::warn() << "Point " << pt << " y is greater than max (" << sy.get_max() << ")";
+    if (pt.y > sy.get_source().end()) {
+      clog::warn() << "Point " << pt << " y is greater than max (" << sy.get_source().end() << ")";
+    }
+  }
+}
+// --------------------------------------------------------------------------
+template<typename X, typename Y>
+using range_pair = std::pair<core::range<X>, core::range<Y>>;
+
+template<typename X, typename Y>
+range_pair<X, Y> make_range_pair (X x0, X x1, Y y0, Y y1) {
+  return std::make_pair(core::range<X>(x0, x1), core::range<Y>(y0, y1));
+}
+// --------------------------------------------------------------------------
+template<typename X, typename Y>
+range_pair<X, Y> get_min_max (const range_pair<X, Y>& lhs, const range_pair<X, Y>& rhs) {
+  return make_range_pair(std::min(lhs.first.begin(), rhs.first.begin()),
+                         std::max(lhs.first.end(), rhs.first.end()),
+                         std::min(lhs.second.begin(), rhs.second.begin()),
+                         std::max(lhs.second.end(), rhs.second.end()));
+}
+// --------------------------------------------------------------------------
+template<typename X, typename Y>
+range_pair<X, Y> get_min_max (const std::vector<point>& v) {
+  auto first = std::begin(v);
+  auto last = std::end(v);
+
+  auto xmin = first;
+  auto xmax = first;
+  auto ymin = first;
+  auto ymax = first;
+  while (++first < last) {
+    if (first->x < xmin->x) {
+      xmin = first;
+    }
+    if (xmax->x < first->x) {
+      xmax = first;
+    }
+    if (first->y < ymin->y) {
+      ymin = first;
+    }
+    if (ymax->y < first->y) {
+      ymax = first;
     }
   }
 
+  return make_range_pair(xmin->x, xmax->x, ymin->y, ymax->y);
 }
+
 // --------------------------------------------------------------------------
 covid19main::covid19main ()
   : current_option(undedined)
@@ -301,18 +346,13 @@ covid19main::covid19main ()
     graph.clear(color::white);
     if (current_option != undedined) {
       const auto area = chart.client_area();
-      const auto xmin = time::tm2time_t(time::mktm(2019, 12, 31));
-      const auto xmax = time::tm2time_t(time::mktm(2020, 10, 1));
+//      core::grid<3, 2> g(area);
 
-      core::grid<3, 2> g(area);
-
-      const auto ymax_p = util::max_element(option_data[current_option].positives, [] (const point& l, const point& r) {
-        return l.y < r.y;
-      }).y;
-      const auto ymax_d = util::max_element(option_data[current_option].deaths, [] (const point& l, const point& r) {
-        return l.y < r.y;
-      }).y;
-      const auto ymax = std::max(ymax_p, ymax_d);
+      auto pmima = get_min_max<std::time_t, double>(option_data[current_option].positives);
+      auto dmima = get_min_max<std::time_t, double>(option_data[current_option].deaths);
+      auto mima = get_min_max(pmima, dmima);
+      const auto xmima = mima.first;
+      const auto ymiax = mima.second;
 
       static auto fmtx = [] (std::time_t i) {
         return util::time::format_date(i);
@@ -322,22 +362,30 @@ covid19main::covid19main ()
       };
 
       if (switches[logarithmic].is_checked()) {
-        const auto l = diagram::limits<double, diagram::scaling::log>::calc(ymax / 100000.0, ymax);
-        diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::log> d(area, xmin, xmax, l.begin(), l.end());
-        check_points(d.get_scale_x(), d.get_scale_y(), option_data[current_option].positives);
-        check_points(d.get_scale_x(), d.get_scale_y(), option_data[current_option].deaths);
-        d.fill_area(graph);
-        d.draw_xscale(graph, 60.0*60*24*30, 60.0*60*24*5, fmtx);
-        d.draw_yscale(graph, 1, 1, fmty);
-        d.draw_line_graph(graph, option_data[current_option].positives, color::light_red);
-        d.draw_line_graph(graph, option_data[current_option].deaths, color::light_green);
-        d.draw_axis(graph);
+        if (ymiax.begin() < 0) {
+          const auto l = diagram::limits<double, diagram::scaling::symlog>::calc(ymiax.end() / 100000.0, ymiax.end());
+          diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::symlog> d(area, xmima, l);
+          d.fill_area(graph);
+          d.draw_xscale(graph, 60.0*60*24*30, 60.0*60*24*5, fmtx);
+          d.draw_yscale(graph, 1, 1, fmty);
+          d.draw_line_graph(graph, option_data[current_option].positives, color::light_red);
+          d.draw_line_graph(graph, option_data[current_option].deaths, color::light_green);
+          d.draw_axis(graph);
+        } else {
+          const auto l = diagram::limits<double, diagram::scaling::log>::calc(ymiax.end() / 100000.0, ymiax.end());
+          diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::log> d(area, xmima, l);
+//          check_points(d.get_scale_x(), d.get_scale_y(), option_data[current_option].positives);
+//          check_points(d.get_scale_x(), d.get_scale_y(), option_data[current_option].deaths);
+          d.fill_area(graph);
+          d.draw_xscale(graph, 60.0*60*24*30, 60.0*60*24*5, fmtx);
+          d.draw_yscale(graph, 1, 1, fmty);
+          d.draw_line_graph(graph, option_data[current_option].positives, color::light_red);
+          d.draw_line_graph(graph, option_data[current_option].deaths, color::light_green);
+          d.draw_axis(graph);
+        }
       } else {
-        const auto ymin = util::min_element(option_data[current_option].positives, [] (const point& l, const point& r) {
-          return l.y < r.y;
-        }).y;
-        const auto l = diagram::limits<double, diagram::scaling::linear>::calc(ymin, ymax);
-        diagram::chart<std::time_t, double> d(area, xmin, xmax, l.begin(), l.end());
+        const auto l = diagram::limits<double, diagram::scaling::linear>::calc(ymiax.begin(), ymiax.end());
+        diagram::chart<std::time_t, double> d(area, xmima, l);
         check_points(d.get_scale_x(), d.get_scale_y(), option_data[current_option].positives);
         check_points(d.get_scale_x(), d.get_scale_y(), option_data[current_option].deaths);
         d.fill_area(graph);
@@ -363,21 +411,37 @@ void covid19main::load_data (const sys_fs::path& p) {
   std::ifstream in(p);
   csv::reader(',', true).read_csv_data(in, [&] (const csv::reader::string_list& l) {
     // 0:ateRep, 1:day, 2:month, 3:year, 4:cases, 5:deaths, 6:countriesAndTerritories
+    // 0:dateRep, 1:day, 2:month, 3:year, 4:cases, 5:deaths, 6:countriesAndTerritories, 7:geoId, 8:countryterritoryCode, 9:popData2019, 10:continentExp, 11:Cumulative_number_for_14_days_of_COVID-19_cases_per_100000
     const auto x = time::tm2time_t(time::mktm(util::string::convert::to<int>(l[3]), util::string::convert::to<int>(l[2]), util::string::convert::to<int>(l[1])));
     const double p = util::string::convert::to<int>(l[4]);
     const double d = util::string::convert::to<int>(l[5]);
-    auto& c = data.data[l[6]];
-    c.positives.push_back({x, p});
-    c.deaths.push_back({x, d});
+    auto i = data.data.find(l[6]);
+    if (i == data.data.end()) {
+      auto p = data.data.insert(std::make_pair(l[6], country_data::country()));
+      i = p.first;
+      i->second.region = l[10];
+      i->second.population = util::string::convert::to<std::size_t>(l[9]);
+    }
+    auto& c = *i;
+    c.second.positives.push_back({x, p});
+    c.second.deaths.push_back({x, d});
   });
 
-  auto& world = data.data["World"];
+  country_data::country world;
+  country_data::map_type regions;
   for (auto& i : data.data) {
     std::sort(i.second.positives.begin(), i.second.positives.end());
     std::sort(i.second.deaths.begin(), i.second.deaths.end());
     add(world.positives, i.second.positives);
     add(world.deaths, i.second.deaths);
+    auto& region = regions[" " + i.second.region];
+    add(region.positives, i.second.positives);
+    add(region.deaths, i.second.deaths);
   }
+
+  data.data.insert(std::make_move_iterator(begin(regions)),
+                   std::make_move_iterator(end(regions)));
+  data.data.insert(std::make_pair(" World", std::move(world)));
 
   std::transform(std::begin(data.data), std::end(data.data), std::back_inserter(data.countries),
                  [](country_data::map_type::value_type const& pair) { return pair.first; });

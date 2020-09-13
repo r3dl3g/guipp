@@ -50,13 +50,13 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename T, typename P>
+      template<typename X, typename Y, typename P>
       struct get {
-        inline static T x (const P& p) {
+        inline static X x (const P& p) {
           return p.x;
         }
 
-        inline static T y (const P& p) {
+        inline static Y y (const P& p) {
           return p.y;
         }
       };
@@ -64,13 +64,13 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<typename T, typename P>
       inline T get_x (const P& p) {
-        return get<T, P>::x(p);
+        return get<T, T, P>::x(p);
       }
 
       // --------------------------------------------------------------------------
       template<typename T, typename P>
       inline T get_y (const P& p) {
-        return get<T, P>::y(p);
+        return get<T, T, P>::y(p);
       }
 
       // --------------------------------------------------------------------------
@@ -81,6 +81,12 @@ namespace gui {
       T next_bigger_pow10 (T t);
 
       template<typename T>
+      T next_smaller_pow2 (T t);
+
+      template<typename T>
+      T next_bigger_pow2 (T t);
+
+      template<typename T>
       T next_bigger_dezimal (T t);
 
       template<typename T>
@@ -89,8 +95,28 @@ namespace gui {
       // --------------------------------------------------------------------------
       enum scaling {
         linear,
-        log
+        log,
+        log2,
+        logn,
+        symlog
       };
+
+      namespace detail {
+
+        // --------------------------------------------------------------------------
+        template<typename T, scaling S>
+        struct scale_fn {
+          static T inc (T, T, T);
+          static T step (T);
+          static T sub (T, T);
+          static T min (const core::range<T>&);
+
+          static T calc (T, T);
+          static T precalc (const core::range<T>&);
+          static T range (const core::range<T>&);
+        };
+
+      } // namespace detail
 
       // --------------------------------------------------------------------------
       template<typename T, scaling S>
@@ -104,25 +130,20 @@ namespace gui {
         typedef T value_type;
         static const scaling scaling_type = S;
 
-        scaler (T mi = 0, T ma = 1, T tmi = 0, T tma = 1);
+        scaler (core::range<T> src = {T(0), T(1)}, core::range<T> target = {T(0), T(1)});
 
         T operator() (T v) const;
 
-        T get_min () const;
-        T get_max () const;
-        T get_target_min () const;
-        T get_target_max () const;
-        T get_target_range () const;
+        const core::range<T>& get_source () const;
+        const core::range<T>& get_target () const;
 
-        void set_min_max (T mi, T ma);
-        void set_target_min_max (T mi, T ma);
+        void set_source_range (core::range<T> src);
+        void set_target_range (core::range<T> target);
       private:
         void precalc ();
 
-        T min;
-        T max;
-        T target_min;
-        T target_max;
+        core::range<T> src;
+        core::range<T> target;
 
         double precalced;
         double precalced_min;
@@ -213,12 +234,25 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename X, typename Y,
-               scaling SX = scaling::linear, scaling SY = scaling::linear>
+      template<typename T, orientation_t V, scaling S = scaling::linear>
       struct axis {
         axis (const core::point& pos,
-              const scaler<X, SX>& sx,
-              const scaler<Y, SY>& sy);
+              const scaler<T, S>& sc);
+
+        void operator() (const graphics&, const pen&) const;
+
+      private:
+        const core::point pos;
+        const scaler<T, S>& sc;
+      };
+
+      // --------------------------------------------------------------------------
+      template<typename X, typename Y,
+               scaling SX = scaling::linear, scaling SY = scaling::linear>
+      struct xy_axis {
+        xy_axis (const core::point& pos,
+                 const scaler<X, SX>& sx,
+                 const scaler<Y, SY>& sy);
 
         void operator() (const graphics&, const pen&) const;
 
@@ -380,7 +414,7 @@ namespace gui {
 
         static constexpr os::color wall_back = color::rgb_gray<0xF8>::value;
 
-        chart (const core::rectangle& area, X xmin, X xmax, Y ymin, Y ymax);
+        chart (const core::rectangle& area, core::range<X> range_x, core::range<Y> range_y);
 
         void fill_area (const graphics& graph) const;
         void draw_xscale (const graphics& graph, X main, X sub, typename scale_x_type::formatter fmt = default_formatter<X>) const;

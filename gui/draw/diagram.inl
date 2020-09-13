@@ -23,48 +23,85 @@ namespace gui {
 
     namespace diagram {
 
-      // --------------------------------------------------------------------------
-      template<typename T, scaling S>
-      struct scale_fn {
-        static T inc (T, T);
-        static T step (T);
-        static T sub (T, T);
-        static T calc (T);
-      };
+      namespace detail {
 
-      // --------------------------------------------------------------------------
-      template<typename T>
-      struct scale_fn<T, scaling::linear> {
-        static T inc (T i, T step) {
-          return i + step;
-        }
-        static T step (T t) {
-          return t;
-        }
-        static T sub (T, T t) {
-          return t;
-        }
-        static T calc (T t) {
-          return t;
-        }
-      };
+        // --------------------------------------------------------------------------
+        template<typename T>
+        struct scale_fn<T, scaling::linear> {
+          static T inc (T i, T step, T) { return i + step; }
+          static T step (T t)           { return t; }
+          static T sub (T, T t, T)      { return t; }
+          static T min (const core::range<T>&r)      { return r.begin(); }
 
-      // --------------------------------------------------------------------------
-      template<typename T>
-      struct scale_fn<T, scaling::log> {
-        static T inc (T i, T step) {
-          return i * step;
-        }
-        static T step (T t) {
-          return std::pow(10, t);
-        }
-        static T sub (T i, T t) {
-          return i * t;
-        }
-        static T calc (T t) {
-          return std::log(t);
-        }
-      };
+          static T calc (T t, T)        { return t; }
+          static T precalc (const core::range<T>& r) { return r.begin(); }
+          static T range (const core::range<T>& r)   { return r.size(); }
+        };
+        // --------------------------------------------------------------------------
+        template<typename T>
+        struct scale_fn<T, scaling::log> {
+          static T inc (T i, T step, T) { return i * step; }
+          static T step (T t)           { return std::pow(10, t); }
+          static T sub (T i, T t, T)    { return i * t; }
+          static T min (const core::range<T>&r) { return r.begin(); }
+
+          static T calc (T t, T)        { return std::log10(t); }
+          static T precalc (const core::range<T>& r) { return calc(r.begin(), 0); }
+          static T range (const core::range<T>& r)   { return std::log10(r.end()) - std::log10(r.begin()); }
+        };
+        // --------------------------------------------------------------------------
+        template<typename T>
+        struct scale_fn<T, scaling::logn> {
+          static T inc (T i, T step, T) { return i * step; }
+          static T step (T t)           { return std::pow(M_E, t); }
+          static T sub (T i, T t, T)    { return i * t; }
+          static T min (const core::range<T>&r) { return r.begin(); }
+
+          static T calc (T t, T)        { return std::log(t); }
+          static T precalc (const core::range<T>& r) { return calc(r.begin(), 0); }
+          static T range (const core::range<T>& r)   { return std::log(r.end()) - std::log(r.begin()); }
+        };
+        // --------------------------------------------------------------------------
+        template<typename T>
+        struct scale_fn<T, scaling::log2> {
+          static T inc (T i, T step, T) { return i * step; }
+          static T step (T t)           { return std::pow(2, t); }
+          static T sub (T i, T t, T)    { return i * t; }
+          static T min (const core::range<T>&r) { return r.begin(); }
+
+          static T calc (T t, T)        { return std::log2(t); }
+          static T precalc (const core::range<T>& r) { return calc(r.begin(), 0); }
+          static T range (const core::range<T>& r)   { return std::log2(r.end()) - std::log2(r.begin()); }
+        };
+        // --------------------------------------------------------------------------
+        template<typename T>
+        struct scale_fn<T, scaling::symlog> {
+          static T inc (T i, T step, T min) {
+            return /*abs(i) <= abs(min) ? i + (min / step) :*/ (i < -abs(min) ? i / step : i >= abs(min) ? i * step : i + min);
+          }
+          static T step (T t)           { return std::pow(10.0, std::abs(t)); }
+          static T sub (T i, T t, T min) {
+            return i < 0 ? std::abs(i / (10 * t)) : (i > 0 ? std::abs(i * t) : min / 10);
+          }
+          static T min (const core::range<T>&r) {
+            return -r.end();
+          }
+
+          static T calc (T t, T min) {
+            if (abs(t) < abs(min)) {
+              return t / std::abs(min);
+            }
+            return std::copysign(std::log10(std::abs(t)) - std::log10(std::abs(min)) + 1, t);
+          }
+          static T precalc (const core::range<T>& r) {
+            return -((std::log10(r.end()) - (std::log10(r.begin()))) + 1);
+          }
+          static T range (const core::range<T>& r)   {
+            return (std::log10(r.end()) - (std::log10(r.begin()))) * 2 + 2;
+          }
+        };
+
+      } // namespace detail
 
       // --------------------------------------------------------------------------
       template<typename T, orientation_t V>
@@ -97,6 +134,16 @@ namespace gui {
       }
       // --------------------------------------------------------------------------
       template<typename T>
+      T next_smaller_pow2 (T t) {
+        return (t == 0) ? 0 : static_cast<T>(std::copysign(std::pow(2.0, std::floor(std::log2(std::abs(t)))), t));
+      }
+      // --------------------------------------------------------------------------
+      template<typename T>
+      T next_bigger_pow2 (T t) {
+        return (t == 0) ? 0 : static_cast<T>(std::copysign(std::pow(2.0, std::ceil(std::log2(std::abs(t)))), t));
+      }
+      // --------------------------------------------------------------------------
+      template<typename T>
       T next_bigger_dezimal (T t) {
         const T u = next_smaller_pow10<T>(t);
         const T v = std::ceil(t / u);
@@ -110,15 +157,6 @@ namespace gui {
         return u * v;
       }
 
-      // --------------------------------------------------------------------------
-      template<typename T>
-      struct limits<T, scaling::log> {
-        static core::range<T> calc (T min, T max) {
-          auto lmin = next_smaller_pow10(min);
-          auto lmax = next_bigger_pow10(max);
-          return { lmin, lmax };
-        }
-      };
       // --------------------------------------------------------------------------
       template<typename T>
       struct limits<T, scaling::linear> {
@@ -142,61 +180,51 @@ namespace gui {
           return { lmin, lmax };
         }
       };
-
       // --------------------------------------------------------------------------
-
+      template<typename T>
+      struct limits<T, scaling::log> {
+        static core::range<T> calc (T min, T max) {
+          auto lmin = next_smaller_pow10(min);
+          auto lmax = next_bigger_pow10(max);
+          return { lmin, lmax };
+        }
+      };
       // --------------------------------------------------------------------------
-//      template<typename T>
-//      struct scaler<T, scaling::log> : scaler_base<T> {
-//        typedef scaler_base<T> super;
-//        typedef T value_type;
-//        static const scaling scaling_type = scaling::log;
-
-//        scaler (T mi = 0, T ma = 1, T tmi = 0, T tma = 1);
-
-//        T operator() (T v) const;
-
-//        void set_min_max (T mi, T ma);
-//        void set_target_min_max (T mi, T ma);
-
-//      private:
-//        void precalc ();
-
-//        double precalced;
-//        double precalced_min;
-//      };
-
+      template<typename T>
+      struct limits<T, scaling::log2> {
+        static core::range<T> calc (T min, T max) {
+          auto lmin = next_smaller_pow2(min);
+          auto lmax = next_bigger_pow2(max);
+          return { lmin, lmax };
+        }
+      };
       // --------------------------------------------------------------------------
-//      template<typename T>
-//      struct scaler<T, scaling::linear> : scaler_base<T> {
-//        typedef scaler_base<T> super;
-//        typedef T value_type;
-//        static const scaling scaling_type = scaling::linear;
-
-//        scaler (T mi = 0, T ma = 1, T tmi = 0, T tma = 1);
-
-//        T operator() (T v) const;
-
-//        void set_min_max (T mi, T ma);
-//        void set_target_min_max (T mi, T ma);
-
-//      private:
-//        void precalc ();
-
-//        double precalced;
-//      };
-
+      template<typename T>
+      struct limits<T, scaling::logn> {
+        static core::range<T> calc (T min, T max) {
+          auto lmin = next_smaller_pow10(min);
+          auto lmax = next_bigger_pow10(max);
+          return { lmin, lmax };
+        }
+      };
+      // --------------------------------------------------------------------------
+      template<typename T>
+      struct limits<T, scaling::symlog> {
+        static core::range<T> calc (T min, T max) {
+          auto ma = std::max(std::abs(min), std::abs(max));
+          auto lmax = next_bigger_pow10(ma);
+          return { lmax / 100000, lmax };
+        }
+      };
       // --------------------------------------------------------------------------
       template<typename T, scaling S>
-      scaler<T, S>::scaler (T mi, T ma, T tmi, T tma)
-        : min(mi)
-        , max(ma)
-        , target_min(tmi)
-        , target_max(tma)
+      scaler<T, S>::scaler (core::range<T> src, core::range<T> target)
+        : src(src)
+        , target(target)
         , precalced(1)
-        , precalced_min(mi)
+        , precalced_min(src.begin())
       {
-        if ((S == scaling::log) && (min == 0)) {
+        if ((S != scaling::linear) && (src.begin() == 0)) {
           throw std::runtime_error("Base 0 is not allowed for logarithmic scaler");
         }
         precalc();
@@ -204,58 +232,44 @@ namespace gui {
 
       template<typename T, scaling S>
       T scaler<T, S>::operator() (T v) const {
-        if (v < min) {
-          return target_min;
-        } else if (v > max) {
-          return target_max;
+        if (S != scaling::symlog) {
+          if (v < src.begin()) {
+            return target.begin();
+          } else if (v > src.end()) {
+            return target.end();
+          }
         }
-        return static_cast<T>((scale_fn<T, S>::calc(v) - precalced_min) * precalced) + target_min;
+        const auto scaled = detail::scale_fn<T, S>::calc(v, src.begin());
+        return static_cast<T>((scaled - precalced_min) * precalced) + target.begin();
       }
 
       template<typename T, scaling S>
-      T scaler<T, S>::get_min () const {
-        return min;
+      const core::range<T>& scaler<T, S>::get_source () const {
+        return src;
       }
 
       template<typename T, scaling S>
-      T scaler<T, S>::get_max () const {
-        return max;
+      const core::range<T>& scaler<T, S>::get_target () const {
+        return target;
       }
 
       template<typename T, scaling S>
-      T scaler<T, S>::get_target_min () const {
-        return target_min;
-      }
-
-      template<typename T, scaling S>
-      T scaler<T, S>::get_target_max () const {
-        return target_max;
-      }
-
-      template<typename T, scaling S>
-      T scaler<T, S>::get_target_range () const {
-        return target_max - target_min;
-      }
-
-      template<typename T, scaling S>
-      void scaler<T, S>::set_min_max (T mi, T ma) {
-        min = mi;
-        max = ma;
+      void scaler<T, S>::set_source_range (core::range<T> s) {
+        src = s;
         precalc();
       }
 
       template<typename T, scaling S>
-      void scaler<T, S>::set_target_min_max (T mi, T ma) {
-        target_min = mi;
-        target_max = ma;
+      void scaler<T, S>::set_target_range (core::range<T> t) {
+        target = t;
         precalc();
       }
 
       template<typename T, scaling S>
       void scaler<T, S>::precalc () {
-        precalced_min = scale_fn<T, S>::calc(min);
-        precalced = static_cast<double>(target_max - target_min) /
-                    static_cast<double>(scale_fn<T, S>::calc(max) - precalced_min);
+        precalced_min = detail::scale_fn<T, S>::precalc(src);
+        precalced = static_cast<double>(target.size()) /
+                    static_cast<double>(detail::scale_fn<T, S>::range(src));
       }
 
       // --------------------------------------------------------------------------
@@ -270,8 +284,8 @@ namespace gui {
 
           const T d2 = traits::get_2(pos);
           core::point p0, p1;
-          traits::set(p0, sc.get_target_min(), d2);
-          traits::set(p1, sc.get_target_max(), d2);
+          traits::set(p0, sc.get_target().begin(), d2);
+          traits::set(p1, sc.get_target().end(), d2);
           g.frame(line(p0, p1), p);
         }
 
@@ -331,10 +345,11 @@ namespace gui {
         traits::set_2(p1, d2 + main_ticks_length);
         traits::set_2(p2, d2 + scale_dim<T, V>::main_tick_length * 2);
 
-        const T main_step = scale_fn<T, S>::step(main);
+        const T main_step = detail::scale_fn<T, S>::step(main);
 
-        const T max = sc.get_max();
-        for (T i = sc.get_min(); i <= max; i = scale_fn<T, S>::inc(i, main_step)) {
+        const T min = sc.get_source().begin();
+        const T max = sc.get_source().end();
+        for (T i = detail::scale_fn<T, S>::min(sc.get_source()); i <= max; i = detail::scale_fn<T, S>::inc(i, main_step, min)) {
           const T d1 = sc(i);
 
           traits::set_1(p0, d1);
@@ -344,9 +359,9 @@ namespace gui {
           traits::set_1(p2, d1);
           g.text(draw::text(fmt(i), p2, scale_text_origin<V>()), font, color);
 
-          const T sub_step = scale_fn<T, S>::sub(i, sub);
+          const T sub_step = detail::scale_fn<T, S>::sub(i, sub, min);
           paint::draw_sub_ticks<T, V, S>(g, sub_color, sc,
-                                         i, sub_step, std::min(scale_fn<T, S>::inc(i, main_step), max),
+                                         i, sub_step, std::min(detail::scale_fn<T, S>::inc(i, main_step, min), max),
                                          d2 + scale_dim<T, V>::sub_tick_length, d2 + sub_ticks_length);
 
         }
@@ -365,21 +380,34 @@ namespace gui {
 
       template<typename X, typename Y, scaling SX, scaling SY>
       void wall<X, Y, SX, SY>::operator() (const graphics& g, const brush& b, const pen& p) const {
-        g.fill(draw::rectangle(pos, core::point(sx.get_target_max(), sy.get_target_max())), b);
+        g.fill(draw::rectangle(pos, core::point(sx.get_target().end(), sy.get_target().end())), b);
+      }
+
+      // --------------------------------------------------------------------------
+      template<typename T, orientation_t V, scaling S>
+      axis<T, V, S>::axis (const core::point& pos,
+                             const scaler<T, S>& sc)
+        : pos(pos)
+        , sc(sc)
+      {}
+
+      template<typename T, orientation_t V, scaling S>
+      void axis<T, V, S>::operator() (const graphics& g, const pen& p) const {
+        paint::draw_axis<T, V, S>(g, pos, p, sc);
       }
 
       // --------------------------------------------------------------------------
       template<typename X, typename Y, scaling SX, scaling SY>
-      axis<X, Y, SX, SY>::axis (const core::point& pos,
-                                const scaler<X, SX>& sx,
-                                const scaler<Y, SY>& sy)
+      xy_axis<X, Y, SX, SY>::xy_axis (const core::point& pos,
+                                      const scaler<X, SX>& sx,
+                                      const scaler<Y, SY>& sy)
         : pos(pos)
         , sx(sx)
         , sy(sy)
       {}
 
       template<typename X, typename Y, scaling SX, scaling SY>
-      void axis<X, Y, SX, SY>::operator() (const graphics& g, const pen& p) const {
+      void xy_axis<X, Y, SX, SY>::operator() (const graphics& g, const pen& p) const {
         paint::draw_axis<X, orientation_t::horizontal, SX>(g, pos, p, sx);
         paint::draw_axis<Y, orientation_t::vertical, SY>(g, pos, p, sy);
       }
@@ -398,7 +426,7 @@ namespace gui {
 
       template<typename X, typename Y, typename C, scaling SX, scaling SY>
       core::rectangle graph_base<X, Y, C, SX, SY>::get_graph_area () const {
-        return core::rectangle(pos, core::point(sx.get_target_max(), sy.get_target_max()));
+        return core::rectangle(pos, core::point(sx.get_target().end(), sy.get_target().end()));
       }
 
       // --------------------------------------------------------------------------
@@ -518,7 +546,7 @@ namespace gui {
       void bar_graph<X, Y, C, SX, SY>::operator() (const graphics& g, const brush& b) const {
         clip clp(g, super::get_graph_area());
         const auto sz = super::points.size();
-        const float w = std::max(1.0F, static_cast<float>((super::sx.get_target_max() - super::sx.get_target_min()) / (sz * 2) - space));
+        const float w = std::max(1.0F, static_cast<float>((super::sx.get_target().end() - super::sx.get_target().begin()) / (sz * 2) - space));
         const auto y0 = static_cast<core::point::type>(super::sy(0));
         for (int i = 0; i < sz; ++i) {
           const auto pt = super::points[i];
@@ -559,10 +587,10 @@ namespace gui {
       constexpr os::color chart<X, Y, SX, SY>::wall_back;
 
       template<typename X, typename Y, scaling SX, scaling SY>
-      chart<X, Y, SX, SY>::chart (const core::rectangle& area, X xmin, X xmax, Y ymin, Y ymax)
+      chart<X, Y, SX, SY>::chart (const core::rectangle& area, core::range<X> range_x, core::range<Y> range_y)
         : p0(area.x() + 80, area.y2() - 25)
-        , scale_x(xmin, xmax, p0.x(), area.x2() - 20)
-        , scale_y(ymin, ymax, p0.y(), area.y() + 20)
+        , scale_x(range_x, {p0.x(), area.x2() - 20})
+        , scale_y(range_y, {p0.y(), area.y() + 20})
       {}
 
       template<typename X, typename Y, scaling SX, scaling SY>
@@ -588,8 +616,8 @@ namespace gui {
       template<typename X, typename Y, scaling SX, scaling SY>
       void chart<X, Y, SX, SY>::draw_xscale (const graphics& graph, X main, X sub, typename scale_x_type::formatter fmt) const {
         graph.text(scale_x_type(p0, scale_x, main, sub,
-                                scale_y.get_target_range(),
-                                scale_y.get_target_range(),
+                                scale_y.get_target().size(),
+                                scale_y.get_target().size(),
                                 color::very_light_gray,
                                 color::very_very_light_gray,
                                 fmt),
@@ -599,8 +627,8 @@ namespace gui {
       template<typename X, typename Y, scaling SX, scaling SY>
       void chart<X, Y, SX, SY>::draw_yscale (const graphics& graph, Y main, Y sub, typename scale_y_type::formatter fmt) const {
         graph.text(scale_y_type(p0, scale_y, main, sub,
-                                scale_x.get_target_range(),
-                                scale_x.get_target_range(),
+                                scale_x.get_target().size(),
+                                scale_x.get_target().size(),
                                 color::very_light_gray,
                                 color::very_very_light_gray,
                                 fmt),
@@ -609,7 +637,7 @@ namespace gui {
 
       template<typename X, typename Y, scaling SX, scaling SY>
       void chart<X, Y, SX, SY>::draw_axis (const graphics& graph) const {
-        graph.frame(axis<X, Y, SX, SY>(p0, scale_x, scale_y), color::black);
+        graph.frame(xy_axis<X, Y, SX, SY>(p0, scale_x, scale_y), color::black);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>

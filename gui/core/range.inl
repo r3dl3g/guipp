@@ -93,6 +93,11 @@ namespace gui {
     }
 
     template<typename T>
+    auto range<T>::size () const -> const type {
+      return last - first;
+    }
+
+    template<typename T>
     std::ostream& operator<< (std::ostream& out, const range<T>& r) {
       out << r.begin() << ":" << r.end();
       return out;

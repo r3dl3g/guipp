@@ -59,6 +59,8 @@ namespace gui {
       const type begin () const;
       const type end () const;
 
+      const type size () const;
+
     private:
       type first;
       type last;

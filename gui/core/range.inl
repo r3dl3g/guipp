@@ -98,6 +98,18 @@ namespace gui {
     }
 
     template<typename T>
+    range<T> min_max (const range<T>& lhs, const range<T>& rhs) {
+      return range<T>(std::min(lhs.begin(), rhs.begin()),
+                      std::max(lhs.end(), rhs.end()));
+    }
+
+    template<typename T>
+    range<T> intersection (const range<T>& lhs, const range<T>& rhs) {
+      return range<T>(std::max(lhs.begin(), rhs.begin()),
+                      std::min(lhs.end(), rhs.end()));
+    }
+
+    template<typename T>
     std::ostream& operator<< (std::ostream& out, const range<T>& r) {
       out << r.begin() << ":" << r.end();
       return out;

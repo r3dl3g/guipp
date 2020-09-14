@@ -67,6 +67,12 @@ namespace gui {
 
     };
 
+    template<typename T>
+    range<T> min_max (const range<T>& lhs, const range<T>& rhs);
+
+    template<typename T>
+    range<T> intersection (const range<T>& lhs, const range<T>& rhs);
+
     // --------------------------------------------------------------------------
     template<typename T>
     std::ostream& operator<< (std::ostream& out, const range<T>& r);

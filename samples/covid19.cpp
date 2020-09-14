@@ -203,7 +203,7 @@ struct covid19main : public layout_main_window<gui::layout::border::layouter<25,
 template<typename X, typename Y, diagram::scaling SX, diagram::scaling SY>
 void check_points (const diagram::scaler<X, SX>& sx,
                    const diagram::scaler<Y, SY>& sy,
-                   std::vector<point>& points) {
+                   const std::vector<point>& points) {
   for (auto& pt : points) {
     if (pt.x < sx.get_source().begin()) {
       clog::warn() << "Point " << pt << " x is lower than min (" << sx.get_source().begin() << ")";
@@ -226,49 +226,124 @@ void check_points (const diagram::scaler<X, SX>& sx,
   }
 }
 // --------------------------------------------------------------------------
-template<typename X, typename Y>
-using range_pair = std::pair<core::range<X>, core::range<Y>>;
-
-template<typename X, typename Y>
-range_pair<X, Y> make_range_pair (X x0, X x1, Y y0, Y y1) {
-  return std::make_pair(core::range<X>(x0, x1), core::range<Y>(y0, y1));
-}
+static auto fmtx = [] (std::time_t i) {
+  return util::time::format_date(i);
+};
 // --------------------------------------------------------------------------
-template<typename X, typename Y>
-range_pair<X, Y> get_min_max (const range_pair<X, Y>& lhs, const range_pair<X, Y>& rhs) {
-  return make_range_pair(std::min(lhs.first.begin(), rhs.first.begin()),
-                         std::max(lhs.first.end(), rhs.first.end()),
-                         std::min(lhs.second.begin(), rhs.second.begin()),
-                         std::max(lhs.second.end(), rhs.second.end()));
-}
+static auto fmty = [] (double i) {
+  return ostreamfmt(i);
+};
 // --------------------------------------------------------------------------
-template<typename X, typename Y>
-range_pair<X, Y> get_min_max (const std::vector<point>& v) {
-  auto first = std::begin(v);
-  auto last = std::end(v);
-
-  auto xmin = first;
-  auto xmax = first;
-  auto ymin = first;
-  auto ymax = first;
-  while (++first < last) {
-    if (first->x < xmin->x) {
-      xmin = first;
-    }
-    if (xmax->x < first->x) {
-      xmax = first;
-    }
-    if (first->y < ymin->y) {
-      ymin = first;
-    }
-    if (ymax->y < first->y) {
-      ymax = first;
+diagram::range_pair<std::time_t, double> get_mima (std::initializer_list<country_data::country> cs) {
+  diagram::range_pair<std::time_t, double> r;
+  for (auto& c : cs) {
+    auto pmima = diagram::find_min_max<std::time_t, double>(c.positives);
+    auto dmima = diagram::find_min_max<std::time_t, double>(c.deaths);
+    if (r.first.empty() && r.second.empty()) {
+      r = diagram::get_min_max(pmima, dmima);
+    } else {
+      r = diagram::get_min_max(diagram::get_min_max(pmima, r), diagram::get_min_max(dmima, r));
     }
   }
-
-  return make_range_pair(xmin->x, xmax->x, ymin->y, ymax->y);
+  return r;
+  }
+// --------------------------------------------------------------------------
+template<diagram::scaling S>
+void drawChart (const graphics& graph,
+                const core::rectangle& area,
+                const std::string& title,
+                std::initializer_list<country_data::country> cs,
+                std::initializer_list<std::string> legends);
+// --------------------------------------------------------------------------
+os::color colors[] = {color::light_red, color::light_green,
+                      color::dark_red, color::dark_green,
+                      color::light_blue, color::dark_blue};
+// --------------------------------------------------------------------------
+std::vector<diagram::legend_label> build_legend_labels ( std::initializer_list<std::string> labels) {
+  std::vector<diagram::legend_label> legends;
+  legends.reserve(labels.size());
+  int i = 0;
+  for (const auto& l : labels) {
+    legends.emplace_back(colors[(i++) % 6], l);
+  }
+  return legends;
 }
+// --------------------------------------------------------------------------
+template<>
+void drawChart<diagram::scaling::linear> (const graphics& graph,
+                                          const core::rectangle& area,
+                                          const std::string& title,
+                                          std::initializer_list<country_data::country> cs,
+                                          std::initializer_list<std::string> legends) {
+  auto mima = get_mima(cs);
+  const auto xmima = mima.first;
+  const auto ymiax = mima.second;
 
+  const auto l = diagram::limits<double, diagram::scaling::linear>::calc(ymiax.begin(), ymiax.end());
+  diagram::chart<std::time_t, double> d(area, xmima, l);
+//  check_points(d.get_scale_x(), d.get_scale_y(), c.positives);
+//  check_points(d.get_scale_x(), d.get_scale_y(), c.deaths);
+  d.fill_area(graph);
+  d.draw_xscale(graph, 60.0*60*24*61, 60.0*60*24*7, fmtx);
+  const auto steps = diagram::next_smaller_pow10(std::max(std::abs(l.begin()), std::abs(l.end()))/3);
+  d.draw_yscale(graph, steps, steps/5, fmty);
+  int i = 0;
+  for (auto& c : cs) {
+    d.draw_line_graph(graph, c.positives, colors[(i++) % 6]);
+    d.draw_line_graph(graph, c.deaths, colors[(i++) % 6]);
+  }
+  d.draw_axis(graph);
+  d.draw_title(graph, title);
+  d.draw_legend(graph, build_legend_labels(legends));
+}
+// --------------------------------------------------------------------------
+template<>
+void drawChart<diagram::scaling::log> (const graphics& graph,
+                                       const core::rectangle& area,
+                                       const std::string& title,
+                                       std::initializer_list<country_data::country> cs,
+                                       std::initializer_list<std::string> legends) {
+  auto mima = get_mima(cs);
+  const auto xmima = mima.first;
+  const auto ymiax = mima.second;
+
+  const auto l = diagram::limits<double, diagram::scaling::log>::calc(ymiax.end() / 100000.0, ymiax.end());
+  diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::log> d(area, xmima, l);
+  d.fill_area(graph);
+  d.draw_xscale(graph, 60.0*60*24*61, 60.0*60*24*7, fmtx);
+  d.draw_yscale(graph, 1, 1, fmty);
+  for (auto& c : cs) {
+    d.draw_line_graph(graph, c.positives, color::light_red);
+    d.draw_line_graph(graph, c.deaths, color::light_green);
+  }
+  d.draw_axis(graph);
+  d.draw_title(graph, title);
+  d.draw_legend(graph, build_legend_labels(legends));
+}
+// --------------------------------------------------------------------------
+template<>
+void drawChart<diagram::scaling::symlog> (const graphics& graph,
+                                          const core::rectangle& area,
+                                          const std::string& title,
+                                          std::initializer_list<country_data::country> cs,
+                                          std::initializer_list<std::string> legends) {
+  auto mima = get_mima(cs);
+  const auto xmima = mima.first;
+  const auto ymiax = mima.second;
+
+  const auto l = diagram::limits<double, diagram::scaling::symlog>::calc(ymiax.end() / 100000.0, ymiax.end());
+  diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::symlog> d(area, xmima, l);
+  d.fill_area(graph);
+  d.draw_xscale(graph, 60.0*60*24*61, 60.0*60*24*7, fmtx);
+  d.draw_yscale(graph, 1, 1, fmty);
+  for (auto& c : cs) {
+    d.draw_line_graph(graph, c.positives, color::light_red);
+    d.draw_line_graph(graph, c.deaths, color::light_green);
+  }
+  d.draw_axis(graph);
+  d.draw_title(graph, title);
+  d.draw_legend(graph, build_legend_labels(legends));
+}
 // --------------------------------------------------------------------------
 covid19main::covid19main ()
   : current_option(undedined)
@@ -346,58 +421,29 @@ covid19main::covid19main ()
     graph.clear(color::white);
     if (current_option != undedined) {
       const auto area = chart.client_area();
-//      core::grid<3, 2> g(area);
+      core::grid<3, 3> g(area);
 
-      auto pmima = get_min_max<std::time_t, double>(option_data[current_option].positives);
-      auto dmima = get_min_max<std::time_t, double>(option_data[current_option].deaths);
-      auto mima = get_min_max(pmima, dmima);
-      const auto xmima = mima.first;
-      const auto ymiax = mima.second;
-
-      static auto fmtx = [] (std::time_t i) {
-        return util::time::format_date(i);
-      };
-      static auto fmty = [] (double i) {
-        return ostreamfmt(i);
-      };
-
-      if (switches[logarithmic].is_checked()) {
-        if (ymiax.begin() < 0) {
-          const auto l = diagram::limits<double, diagram::scaling::symlog>::calc(ymiax.end() / 100000.0, ymiax.end());
-          diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::symlog> d(area, xmima, l);
-          d.fill_area(graph);
-          d.draw_xscale(graph, 60.0*60*24*30, 60.0*60*24*5, fmtx);
-          d.draw_yscale(graph, 1, 1, fmty);
-          d.draw_line_graph(graph, option_data[current_option].positives, color::light_red);
-          d.draw_line_graph(graph, option_data[current_option].deaths, color::light_green);
-          d.draw_axis(graph);
-        } else {
-          const auto l = diagram::limits<double, diagram::scaling::log>::calc(ymiax.end() / 100000.0, ymiax.end());
-          diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::log> d(area, xmima, l);
-//          check_points(d.get_scale_x(), d.get_scale_y(), option_data[current_option].positives);
-//          check_points(d.get_scale_x(), d.get_scale_y(), option_data[current_option].deaths);
-          d.fill_area(graph);
-          d.draw_xscale(graph, 60.0*60*24*30, 60.0*60*24*5, fmtx);
-          d.draw_yscale(graph, 1, 1, fmty);
-          d.draw_line_graph(graph, option_data[current_option].positives, color::light_red);
-          d.draw_line_graph(graph, option_data[current_option].deaths, color::light_green);
-          d.draw_axis(graph);
-        }
-      } else {
-        const auto l = diagram::limits<double, diagram::scaling::linear>::calc(ymiax.begin(), ymiax.end());
-        diagram::chart<std::time_t, double> d(area, xmima, l);
-        check_points(d.get_scale_x(), d.get_scale_y(), option_data[current_option].positives);
-        check_points(d.get_scale_x(), d.get_scale_y(), option_data[current_option].deaths);
-        d.fill_area(graph);
-        d.draw_xscale(graph, 60.0*60*24*30, 60.0*60*24*5, fmtx);
-        const auto steps = diagram::next_smaller_pow10(std::max(std::abs(l.begin()), std::abs(l.end()))/3);
-        d.draw_yscale(graph, steps, steps/5, fmty);
-        d.draw_line_graph(graph, option_data[current_option].positives, color::light_red);
-        d.draw_line_graph(graph, option_data[current_option].deaths, color::light_green);
-        d.draw_axis(graph);
-
-      }
-
+      drawChart<diagram::scaling::linear>(graph, g(0, 0), "Increase positives/deads",
+        {option_data[absolute_increase], option_data[increase_median_7]},
+        {"positive", "dead", "positive/7-day", "dead/7-day"});
+      drawChart<diagram::scaling::log>(graph, g(1, 0), "Logarithmic Increase pos./deads",
+        {option_data[absolute_increase], option_data[increase_median_7]},
+        {"positive", "dead", "positive/7-day", "dead/7-day"});
+      drawChart<diagram::scaling::log>(graph, g(2, 0), "Cumulated positives/deads",
+        {option_data[absolute_cumulated]},
+        {"positive", "dead"});
+      drawChart<diagram::scaling::symlog>(graph, g(0, 1), "Logarithmic relative Inncrease",
+        {option_data[relative_increase]},
+        {"positive", "dead"});
+      drawChart<diagram::scaling::symlog>(graph, g(1, 1), "Logarithmic relative Inncrease",
+        {option_data[relative_median_7_increase]},
+        {"positive", "dead"});
+      drawChart<diagram::scaling::linear>(graph, g(2, 1), "R-Value",
+        {option_data[r_value]},
+        {"R-Value", "R-Value/7-day"});
+      drawChart<diagram::scaling::log>(graph, g(0, 2), "Lethality",
+        {option_data[lethality]},
+        {"Deads/positives", "Deads/positives/14-day"});
     }
   }));
 }

@@ -74,6 +74,22 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
+      template<typename X, typename Y>
+      using range_pair = std::pair<core::range<X>, core::range<Y>>;
+
+      // --------------------------------------------------------------------------
+      template<typename X, typename Y>
+      range_pair<X, Y> make_range_pair (X x0, X x1, Y y0, Y y1);
+
+      // --------------------------------------------------------------------------
+      template<typename X, typename Y>
+      range_pair<X, Y> get_min_max (const range_pair<X, Y>& lhs, const range_pair<X, Y>& rhs);
+
+      // --------------------------------------------------------------------------
+      template<typename X, typename Y, typename C>
+      range_pair<X, Y> find_min_max (const C& v);
+
+      // --------------------------------------------------------------------------
       template<typename T>
       T next_smaller_pow10 (T t);
 
@@ -123,6 +139,9 @@ namespace gui {
       struct limits {
         static core::range<T> calc (T min, T max);
       };
+
+      // --------------------------------------------------------------------------
+      typedef std::pair<os::color, std::string> legend_label;
 
       // --------------------------------------------------------------------------
       template<typename T, scaling S = scaling::linear>
@@ -221,16 +240,44 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<typename X, typename Y, scaling SX = scaling::linear, scaling SY = scaling::linear>
       struct wall {
-        wall (const core::point& pos,
-              const scaler<X, SX>& sx,
+        wall (const scaler<X, SX>& sx,
               const scaler<Y, SY>& sy);
 
         void operator() (const graphics&, const brush&, const pen&) const;
 
       private:
-        const core::point pos;
         const scaler<X, SX>& sx;
         const scaler<Y, SY>& sy;
+      };
+
+      // --------------------------------------------------------------------------
+      template<typename X, typename Y, scaling SX = scaling::linear, scaling SY = scaling::linear>
+      struct headline {
+        headline (const scaler<X, SX>& sx,
+                  const scaler<Y, SY>& sy,
+                  const std::string&);
+
+        void operator() (const graphics&, const font&, os::color) const;
+
+      private:
+        const scaler<X, SX>& sx;
+        const scaler<Y, SY>& sy;
+        const std::string& text;
+      };
+
+      // --------------------------------------------------------------------------
+      template<typename X, typename Y, scaling SX = scaling::linear, scaling SY = scaling::linear>
+      struct legend {
+        legend (const scaler<X, SX>& sx,
+                const scaler<Y, SY>& sy,
+                const std::vector<legend_label>& labels);
+
+        void operator() (const graphics&, const font&, os::color) const;
+
+      private:
+        const scaler<X, SX>& sx;
+        const scaler<Y, SY>& sy;
+        const std::vector<legend_label> labels;
       };
 
       // --------------------------------------------------------------------------
@@ -250,14 +297,12 @@ namespace gui {
       template<typename X, typename Y,
                scaling SX = scaling::linear, scaling SY = scaling::linear>
       struct xy_axis {
-        xy_axis (const core::point& pos,
-                 const scaler<X, SX>& sx,
+        xy_axis (const scaler<X, SX>& sx,
                  const scaler<Y, SY>& sy);
 
         void operator() (const graphics&, const pen&) const;
 
       private:
-        const core::point pos;
         const scaler<X, SX>& sx;
         const scaler<Y, SY>& sy;
       };
@@ -269,15 +314,13 @@ namespace gui {
       struct graph_base {
         typedef C point2d_data;
 
-        graph_base (const core::point& pos,
-                    const scaler<X, SX>& sx,
+        graph_base (const scaler<X, SX>& sx,
                     const scaler<Y, SY>& sy,
                     point2d_data);
 
         core::rectangle get_graph_area () const;
 
       protected:
-        const core::point pos;
         const scaler<X, SX>& sx;
         const scaler<Y, SY>& sy;
         point2d_data points;
@@ -290,8 +333,7 @@ namespace gui {
       struct line_graph : public graph_base<X, Y, C, SX, SY> {
         typedef graph_base<X, Y, C, SX, SY> super;
 
-        line_graph (const core::point& pos,
-                    const scaler<X, SX>& sx,
+        line_graph (const scaler<X, SX>& sx,
                     const scaler<Y, SY>& sy,
                     typename super::point2d_data,
                     Y zero = Y(0));
@@ -312,8 +354,7 @@ namespace gui {
       struct cascade : public graph_base<X, Y, C, SX, SY> {
         typedef graph_base<X, Y, C, SX, SY> super;
 
-        cascade (const core::point& pos,
-                 const scaler<X, SX>& sx,
+        cascade (const scaler<X, SX>& sx,
                  const scaler<Y, SY>& sy,
                  typename super::point2d_data,
                  Y zero = Y(0));
@@ -334,8 +375,7 @@ namespace gui {
       struct bar_graph : public graph_base<X, Y, C, SX, SY> {
         typedef graph_base<X, Y, C, SX, SY> super;
 
-        bar_graph (const core::point& pos,
-                   const scaler<X, SX>& sx,
+        bar_graph (const scaler<X, SX>& sx,
                    const scaler<Y, SY>& sy,
                    typename super::point2d_data,
                    X space = X(0));
@@ -389,8 +429,7 @@ namespace gui {
         typedef void (draw_fn) (const graphics&, const brush&, const core::point&);
         typedef std::function<draw_fn> point_drawer;
 
-        points_graph (const core::point& pos,
-                      const scaler<X, SX>& sx,
+        points_graph (const scaler<X, SX>& sx,
                       const scaler<Y, SY>& sy,
                       typename super::point2d_data,
                       point_drawer drawer);
@@ -420,6 +459,8 @@ namespace gui {
         void draw_xscale (const graphics& graph, X main, X sub, typename scale_x_type::formatter fmt = default_formatter<X>) const;
         void draw_yscale (const graphics& graph, Y main, Y sub, typename scale_y_type::formatter fmt = default_formatter<Y>) const;
         void draw_axis (const graphics& graph) const;
+        void draw_title (const graphics& graph, const std::string& title) const;
+        void draw_legend (const graphics& graph, const std::vector<legend_label>& labels) const;
 
         void draw_background (const graphics& graph, X xmain, X xsub, Y ymain, Y ysub) const;
 

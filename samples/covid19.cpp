@@ -159,7 +159,26 @@ enum option {
   options_count
 };
 // --------------------------------------------------------------------------
-typedef layout_main_window<gui::layout::border::layouter<25, 25, 150, 0, layout::border::type_t::left_right_maximize>> main_type;
+const std::string heads[15] = {
+  "date",
+  "pos.inc.",
+  "dead inc.",
+  "pos./7",
+  "dead/7.",
+  "pos.cum.",
+  "dead cum.",
+  "pos.rel.",
+  "dead rel.",
+  "pos.r./7",
+  "dead r./7",
+  "r-val",
+  "r-val/7",
+  "lethal",
+  "lethal/14"
+};
+// --------------------------------------------------------------------------
+typedef ctrl::column_list_t<layout::weight_column_list_layout, std::time_t, double, double, double, double, double, double, double, double, double, double, double, double, double, double> data_column_list_t;
+typedef layout_main_window<gui::layout::border::layouter<25, 0, 150, 20, layout::border::type_t::left_right_maximize>> main_type;
 // --------------------------------------------------------------------------
 struct covid19main : public main_type {
   typedef main_type super;
@@ -182,7 +201,9 @@ struct covid19main : public main_type {
 
   vertical_list countries;
   text_button load_button;
+  text_button tab_button;
   ctrl::vertical_tile_view charts;
+  data_column_list_t table;
 };
 // --------------------------------------------------------------------------
 struct covid19data : public list_data {
@@ -201,6 +222,89 @@ struct covid19data : public list_data {
                 const draw::brush& background,
                 item_state state) const override {
     main->draw_at(idx, graph, place, background, state);
+  }
+
+  covid19main* main;
+};
+// --------------------------------------------------------------------------
+void time_drawer (const std::time_t& t,
+                  const draw::graphics& graph,
+                  const core::rectangle& place,
+                  const draw::brush& background,
+                  item_state state,
+                  text_origin_t align) {
+  ctrl::paint::text_item(graph, place, background, util::time::format_date(t), state, align);
+  if (item_state::selected != state) {
+    draw::frame::sunken_relief(graph, place);
+  }
+}
+// --------------------------------------------------------------------------
+void double_drawer (const double& t,
+                  const draw::graphics& graph,
+                  const core::rectangle& place,
+                  const draw::brush& background,
+                  item_state state,
+                  text_origin_t align) {
+  ctrl::paint::text_item(graph, place, background, ostreamfmt(std::fixed << std::setprecision(3) << t), state, align);
+  if (item_state::selected != state) {
+    draw::frame::sunken_relief(graph, place);
+  }
+}
+// --------------------------------------------------------------------------
+void int_drawer (const double& t,
+                 const draw::graphics& graph,
+                 const core::rectangle& place,
+                 const draw::brush& background,
+                 item_state state,
+                 text_origin_t align) {
+  ctrl::paint::text_item(graph, place, background, ostreamfmt(std::fixed << std::setprecision(0) << t), state, align);
+  if (item_state::selected != state) {
+    draw::frame::sunken_relief(graph, place);
+  }
+}
+// --------------------------------------------------------------------------
+void percent_drawer (const double& t,
+                     const draw::graphics& graph,
+                     const core::rectangle& place,
+                     const draw::brush& background,
+                     item_state state,
+                     text_origin_t align) {
+  ctrl::paint::text_item(graph, place, background, ostreamfmt(std::fixed << std::setprecision(2) << (t * 100.0) << '%'), state, align);
+  if (item_state::selected != state) {
+    draw::frame::sunken_relief(graph, place);
+  }
+}
+// --------------------------------------------------------------------------
+typedef ctrl::column_list_data_t<std::time_t, double, double, double, double, double, double, double, double, double, double, double, double, double, double> data_column_list_base;
+struct data_column_list_data : public data_column_list_base {
+  typedef data_column_list_base super;
+
+  data_column_list_data (covid19main* main)
+    : super(time_drawer,
+            int_drawer, int_drawer,
+            int_drawer, int_drawer,
+            int_drawer, int_drawer,
+            double_drawer, double_drawer,
+            double_drawer, double_drawer,
+            double_drawer, double_drawer,
+            percent_drawer, percent_drawer)
+    , main(main)
+  {}
+
+  std::size_t size () const override {
+    return main->option_data[absolute_increase].positives.size();
+  }
+
+  row_type at (std::size_t i) const override {
+    const auto& d = main->option_data;
+    return std::make_tuple(d[absolute_increase].positives[i].x,
+                           d[absolute_increase].positives[i].y, d[absolute_increase].deaths[i].y,
+                           d[increase_median_7].positives[i].y, d[increase_median_7].deaths[i].y,
+                           d[absolute_cumulated].positives[i].y, d[absolute_cumulated].deaths[i].y,
+                           d[relative_increase].positives[i].y, d[relative_increase].deaths[i].y,
+                           d[relative_median_7_increase].positives[i].y, d[relative_median_7_increase].deaths[i].y,
+                           d[r_value].positives[i].y, d[r_value].deaths[i].y,
+                           d[lethality].positives[i].y, d[lethality].deaths[i].y);
   }
 
   covid19main* main;
@@ -357,10 +461,15 @@ covid19main::covid19main () {
     countries.create(*this);
     load_button.create(*this, "Load CSV");
     charts.create(*this);
+    tab_button.create(*this, "<");
+    table.create(*this);
+    table.set_visible(false);
 
     get_layout().set_left(layout::lay(countries));
     get_layout().set_top(layout::lay(load_button));
     get_layout().set_center(layout::lay(charts));
+    get_layout().set_right(layout::lay(tab_button));
+
     set_children_visible();
   });
 
@@ -372,12 +481,59 @@ covid19main::covid19main () {
     });
   });
 
-  charts.set_item_size({ 580, 400 });
+  tab_button.on_clicked([&] () {
+    if (charts.is_visible()) {
+      table.set_visible(true);
+      charts.set_visible(false);
+      get_layout().set_center(layout::lay(table));
+      layout();
+      tab_button.set_text(">");
+    } else {
+      charts.set_visible(true);
+      table.set_visible(false);
+      get_layout().set_center(layout::lay(charts));
+      layout();
+      tab_button.set_text("<");
+    }
+  });
+
+  charts.set_item_size({ 575, 400 });
   charts.set_background(color::white);
 //  charts.set_border({ 10, 10 });
 //  charts.set_spacing({ 5, 5 });
 
   charts.set_data(covid19data{this});
+
+  auto weight_columns = {
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F }
+  };
+
+  table.header.set_cell_drawer([] (std::size_t i, const draw::graphics& g,
+                               const core::rectangle& r, const draw::brush& background) {
+    using namespace draw;
+    g.fill(rectangle(r), background);
+    frame::raised_deep_relief(g, r);
+    g.text(text_box(heads[i], r, text_origin_t::center), font::system(), color::windowTextColor());
+  });
+
+  table.get_column_layout().set_columns(weight_columns);
+  table.set_data(data_column_list_data(this));
+  table.list.set_count();
+
 
   countries.on_selection_changed([&] (event_source) {
     int sel = countries.get_selection();
@@ -400,11 +556,11 @@ covid19main::covid19main () {
     option_data[r_value].positives = ::ratio(option_data[r_value].deaths, option_data[r_value].deaths, 4);
     option_data[r_value].deaths = mean(option_data[r_value].positives, 7);
 
-    option_data[lethality].positives = ::ratio(option_data[increase_median_7].deaths, option_data[increase_median_7].positives, 0);
+    option_data[lethality].positives = ::ratio(option_data[absolute_cumulated].deaths, option_data[absolute_cumulated].positives, 0);
     option_data[lethality].deaths = ::ratio(option_data[increase_median_7].deaths, option_data[increase_median_7].positives, 14);
 
     charts.set_count();
-    charts.invalidate();
+    table.list.set_count();
   });
 
 }

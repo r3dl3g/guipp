@@ -1,6 +1,7 @@
 
 
 #include <gui/ctrl/std_dialogs.h>
+#include <gui/ctrl/tile_view.h>
 #include <gui/draw/diagram.h>
 #include <gui/core/grid.h>
 #include <gui/layout/grid_layout.h>
@@ -158,27 +159,10 @@ enum option {
   options_count
 };
 // --------------------------------------------------------------------------
-std::string option_names[options_count] = {
-  "Absolute increase",
-  "7-Day median",
-  "Cumulated",
-  "Relativ increase",
-  "Median 7 Relativ increase",
-  "R-Value",
-  "Lethality"
-};
+typedef layout_main_window<gui::layout::border::layouter<25, 25, 150, 0, layout::border::type_t::left_right_maximize>> main_type;
 // --------------------------------------------------------------------------
-enum switches {
-  logarithmic = 0,
-  switch_count = 1
-};
-// --------------------------------------------------------------------------
-std::string switch_names[switch_count] = {
-  "Logarithmic",
-};
-// --------------------------------------------------------------------------
-struct covid19main : public layout_main_window<gui::layout::border::layouter<25, 25, 150, 0>> {
-  typedef layout_main_window<gui::layout::border::layouter<25, 25, 150, 0>> super;
+struct covid19main : public main_type {
+  typedef main_type super;
 
   covid19main ();
 
@@ -186,18 +170,40 @@ struct covid19main : public layout_main_window<gui::layout::border::layouter<25,
   void initOption (int idx);
   void initSwitch (int idx);
 
+  void draw_at (std::size_t idx,
+                const draw::graphics&,
+                const core::rectangle& place,
+                const draw::brush& background,
+                item_state state) const;
+
   country_data data;
 
-  option current_option;
   country_data::country option_data[options_count];
 
   vertical_list countries;
   text_button load_button;
-  client_control<> chart;
-  group_window<layout::grid_adaption<options_count + switch_count, 1, 2, 4>> button_group;
-  radio_button<true> options[options_count];
-  check_box<> switches[switch_count];
+  ctrl::vertical_tile_view charts;
+};
+// --------------------------------------------------------------------------
+struct covid19data : public list_data {
 
+  covid19data (covid19main* main)
+    : main(main)
+  {}
+
+  std::size_t size () const override {
+    return main->option_data[absolute_increase].positives.empty() ? 0 : 7;
+  }
+
+  void draw_at (std::size_t idx,
+                const draw::graphics& graph,
+                const core::rectangle& place,
+                const draw::brush& background,
+                item_state state) const override {
+    main->draw_at(idx, graph, place, background, state);
+  }
+
+  covid19main* main;
 };
 // --------------------------------------------------------------------------
 template<typename X, typename Y, diagram::scaling SX, diagram::scaling SY>
@@ -345,35 +351,16 @@ void drawChart<diagram::scaling::symlog> (const graphics& graph,
   d.draw_legend(graph, build_legend_labels(legends));
 }
 // --------------------------------------------------------------------------
-covid19main::covid19main ()
-  : current_option(undedined)
-{
-  button_group.on_create([&] (window*, core::rectangle) {
-    for (int i = 0; i < options_count; ++i) {
-      options[i].create(button_group, ctrl::const_text(option_names[i]));
-    }
-    for (int i = 0; i < switch_count; ++i) {
-      switches[i].create(button_group, ctrl::const_text(switch_names[i]));
-    }
-  });
-
-  for (int i = 0; i < switch_count; ++i) {
-    initSwitch(i);
-  }
-  for (int i = 0; i < options_count; ++i) {
-    initOption(i);
-  }
+covid19main::covid19main () {
 
   on_create([&] (window*, core::rectangle) {
     countries.create(*this);
     load_button.create(*this, "Load CSV");
-    chart.create(*this);
-    button_group.create(*this);
+    charts.create(*this);
 
     get_layout().set_left(layout::lay(countries));
     get_layout().set_top(layout::lay(load_button));
-    get_layout().set_bottom(layout::lay(button_group));
-    get_layout().set_center(layout::lay(chart));
+    get_layout().set_center(layout::lay(charts));
     set_children_visible();
   });
 
@@ -384,6 +371,13 @@ covid19main::covid19main ()
       countries.set_count();
     });
   });
+
+  charts.set_item_size({ 580, 400 });
+  charts.set_background(color::white);
+//  charts.set_border({ 10, 10 });
+//  charts.set_spacing({ 5, 5 });
+
+  charts.set_data(covid19data{this});
 
   countries.on_selection_changed([&] (event_source) {
     int sel = countries.get_selection();
@@ -409,43 +403,57 @@ covid19main::covid19main ()
     option_data[lethality].positives = ::ratio(option_data[increase_median_7].deaths, option_data[increase_median_7].positives, 0);
     option_data[lethality].deaths = ::ratio(option_data[increase_median_7].deaths, option_data[increase_median_7].positives, 14);
 
-    if (undedined == current_option) {
-      current_option = absolute_increase;
-      options[current_option].set_checked(true);
-    }
-
-    chart.invalidate();
+    charts.set_count();
+    charts.invalidate();
   });
 
-  chart.on_paint(draw::paint([&](const draw::graphics& graph) {
-    graph.clear(color::white);
-    if (current_option != undedined) {
-      const auto area = chart.client_area();
-      core::grid<3, 3> g(area);
-
-      drawChart<diagram::scaling::linear>(graph, g(0, 0), "Increase positives/deads",
+}
+// --------------------------------------------------------------------------
+void covid19main::draw_at (std::size_t idx,
+                           const draw::graphics& graph,
+                           const core::rectangle& area,
+                           const draw::brush& background,
+                           item_state state) const {
+//  auto inner = draw::frame::sunken_relief(graph, area);
+  graph.fill(draw::rectangle(area), background);
+  switch (idx) {
+    case 0:
+      drawChart<diagram::scaling::linear>(graph, area, "Increase positives/deads",
         {option_data[absolute_increase], option_data[increase_median_7]},
         {"positive", "dead", "positive/7-day", "dead/7-day"});
-      drawChart<diagram::scaling::log>(graph, g(1, 0), "Logarithmic Increase pos./deads",
+      break;
+    case 1:
+      drawChart<diagram::scaling::log>(graph, area, "Logarithmic Increase pos./deads",
         {option_data[absolute_increase], option_data[increase_median_7]},
         {"positive", "dead", "positive/7-day", "dead/7-day"});
-      drawChart<diagram::scaling::log>(graph, g(2, 0), "Cumulated positives/deads",
+      break;
+    case 2:
+      drawChart<diagram::scaling::log>(graph, area, "Cumulated positives/deads",
         {option_data[absolute_cumulated]},
         {"positive", "dead"});
-      drawChart<diagram::scaling::symlog>(graph, g(0, 1), "Logarithmic relative Inncrease",
+      break;
+    case 3:
+      drawChart<diagram::scaling::symlog>(graph, area, "Logarithmic relative Inncrease",
         {option_data[relative_increase]},
         {"positive", "dead"});
-      drawChart<diagram::scaling::symlog>(graph, g(1, 1), "Logarithmic relative Inncrease",
+      break;
+    case 4:
+      drawChart<diagram::scaling::symlog>(graph, area, "Logarithmic relative Inncrease",
         {option_data[relative_median_7_increase]},
         {"positive", "dead"});
-      drawChart<diagram::scaling::linear>(graph, g(2, 1), "R-Value",
+      break;
+    case 5:
+      drawChart<diagram::scaling::linear>(graph, area, "R-Value",
         {option_data[r_value]},
         {"R-Value", "R-Value/7-day"});
-      drawChart<diagram::scaling::log>(graph, g(0, 2), "Lethality",
+      break;
+    case 6:
+      drawChart<diagram::scaling::log>(graph, area, "Lethality",
         {option_data[lethality]},
         {"Deads/positives", "Deads/positives/14-day"});
-    }
-  }));
+      break;
+  }
+
 }
 // --------------------------------------------------------------------------
 void covid19main::load_data (const sys_fs::path& p) {
@@ -491,27 +499,6 @@ void covid19main::load_data (const sys_fs::path& p) {
 
   std::transform(std::begin(data.data), std::end(data.data), std::back_inserter(data.countries),
                  [](country_data::map_type::value_type const& pair) { return pair.first; });
-
-}
-// --------------------------------------------------------------------------
-void covid19main::initOption (int idx) {
-  options[idx].on_clicked([&, idx] () {
-    current_option = static_cast<option>(idx);
-    for (int i = 0; i < options_count; ++i) {
-      if (i != idx) {
-        options[i].set_checked(false);
-      }
-    }
-    chart.invalidate();
-  });
-  button_group.get_layout().add(layout::lay(options[idx]));
-}
-// --------------------------------------------------------------------------
-void covid19main::initSwitch (int idx) {
-  switches[idx].on_clicked([&] () {
-    chart.invalidate();
-  });
-  button_group.get_layout().add(layout::lay(switches[idx]));
 }
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& args) {

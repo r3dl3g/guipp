@@ -411,7 +411,7 @@ namespace gui {
 
     template<orientation_t V, typename T>
     void basic_list<V, T>::make_selection_visible () {
-      if (super::data.selection > -1) {
+      if (super::has_selection()) {
         const auto list_size = content_size(client_size());
         const auto list_sz = traits.get_1(list_size);
         const auto scroll_pos = get_scroll_pos();

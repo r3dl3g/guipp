@@ -505,21 +505,21 @@ covid19main::covid19main () {
   charts.set_data(covid19data{this});
 
   auto weight_columns = {
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 1.0F/14.0F }
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F }
   };
 
   table.header.set_cell_drawer([] (std::size_t i, const draw::graphics& g,
@@ -537,6 +537,9 @@ covid19main::covid19main () {
 
   countries.on_selection_changed([&] (event_source) {
     int sel = countries.get_selection();
+    if (!countries.has_selection()) {
+      return;
+    }
     const auto& n = data.countries[sel];
     option_data[absolute_increase] = data.data[n];
 
@@ -599,7 +602,7 @@ void covid19main::draw_at (std::size_t idx,
         {"positive", "dead"});
       break;
     case 5:
-      drawChart<diagram::scaling::linear>(graph, area, "R-Value",
+      drawChart<diagram::scaling::symlog>(graph, area, "R-Value",
         {option_data[r_value]},
         {"R-Value", "R-Value/7-day"});
       break;

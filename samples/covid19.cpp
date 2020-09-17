@@ -552,28 +552,106 @@ void covid19main::draw_at (std::size_t idx,
 
 }
 // --------------------------------------------------------------------------
-template<typename ... Arguments>
-struct tuple_reader : public csv::reader {
-  typedef std::tuple<Arguments...> tuple;
+namespace experimental {
 
-  tuple_reader (char delimiter = ';', bool ignore = false)
-    : csv::reader(delimiter, ignore)
-  {}
-
-   void read_csv (std::istream& in, std::function<void(const tuple&)> fn) {
-    reader::string_list line;
-    bool ignoreFirst = is_ignore_first_line();
-    while ((line = parse_csv_line(in)).size() > 0) {
-      if (ignoreFirst) {
-        ignoreFirst = false;
-      } else {
-        fn(util::tuple::convert::from_vector<Arguments...>(line));
+  /*
+   * Parse a buffer until the endChar is found or the stream end is reached
+   */
+  std::string parse_text (std::istream& in, int& ch) {
+    const int endChar = ch;
+    std::ostringstream buffer;
+    while (ch != -1) {
+      ch = in.get();
+      if (ch == endChar) {
+        ch = in.get();
+        if (ch != endChar) {
+          return buffer.str();
+        }
       }
+      buffer.put((char) ch);
+    }
+    return buffer.str();
+  }
+
+  /*
+   * Parses a next until the split char or a line is found, or the end of the stream is reached.
+   */
+  std::string parse_none_text (std::istream& in, int& ch, int splitChar) {
+    std::ostringstream buffer;
+    while ((ch != splitChar) && (ch != '\n') && (ch != '\r') && (ch != -1)) {
+      buffer.put((char) ch);
+      ch = in.get();
+    }
+    return buffer.str();
+  }
+
+  /*
+   * Parses the next entry from a csv file.
+   */
+  std::string parse_entry (std::istream& in, int& ch, int splitChar) {
+    if ((ch == '"') || (ch == '\'')) {
+      return parse_text(in, ch);
+    } else {
+      return parse_none_text(in, ch, splitChar);
     }
   }
-};
+
+//  template<typename T, typename ... Arguments>
+//  std::tuple<T, Arguments...> parse_csv_tuple (std::istream& in, int splitChar) const {
+//    std::vector<std::string> list;
+
+//    int ch = in.get();
+//    while ((ch == '\n') || (ch == '\r')) {
+//      ch = in.get();
+//    }
+//    list.push_back(parse_entry(in, ch, splitChar));
+//    while (ch == splitChar) {
+//      ch = in.get();
+//      list.push_back(parse_entry(in, ch, splitChar));
+//    }
+//    return list;
+//  }
+
+  std::vector<std::string> parse_csv_line (std::istream& in, int splitChar) {
+    std::vector<std::string> list;
+
+    int ch = in.get();
+    while ((ch == '\n') || (ch == '\r')) {
+      ch = in.get();
+    }
+    list.push_back(parse_entry(in, ch, splitChar));
+    while (ch == splitChar) {
+      ch = in.get();
+      list.push_back(parse_entry(in, ch, splitChar));
+    }
+    return list;
+  }
+
+//  template<typename ... Arguments>
+//  struct tuple_reader {
+//    typedef std::tuple<Arguments...> tuple;
+
+//    tuple_reader (char delimiter = ';', bool ignore = false)
+//      : csv::reader(delimiter, ignore)
+//    {}
+
+//    void read_csv (std::istream& in, std::function<void(const tuple&)> fn) {
+//      reader::string_list line;
+//      bool ignoreFirst = is_ignore_first_line();
+//      while ((line = parse_csv_line(in)).size() > 0) {
+//        if (ignoreFirst) {
+//          ignoreFirst = false;
+//        } else {
+//          fn(util::tuple::convert::from_vector<Arguments...>(line));
+//        }
+//      }
+//    }
+//  };
+
+}
+
 // --------------------------------------------------------------------------
-typedef tuple_reader<std::string, int, int, int, int, int, std::string, std::string, std::string, std::size_t, std::string, double> covid19reader;
+//typedef tuple_reader<std::string, int, int, int, int, int, std::string, std::string, std::string, std::size_t, std::string, double> covid19reader;
 // --------------------------------------------------------------------------
 void covid19main::load_data (const sys_fs::path& p) {
   using namespace util;
@@ -582,7 +660,7 @@ void covid19main::load_data (const sys_fs::path& p) {
   data.countries.clear();
 
   std::ifstream in(p);
-  covid19reader(',', true).read_csv(in, [] (const covid19reader::tuple&) {});
+//  covid19reader(',', true).read_csv(in, [] (const covid19reader::tuple&) {});
   csv::reader(',', true).read_csv_data(in, [&] (const csv::reader::string_list& l) {
     if (l.size() < 11) {
       return;

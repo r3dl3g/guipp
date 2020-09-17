@@ -9,7 +9,6 @@
 #include <gui/layout/adaption_layout.h>
 #include <logging/core.h>
 #include <util/csv_reader.h>
-#include <util/string_util.h>
 #include <util/time_util.h>
 #include <util/vector_util.h>
 #include <testing/testing.h>
@@ -552,106 +551,7 @@ void covid19main::draw_at (std::size_t idx,
 
 }
 // --------------------------------------------------------------------------
-namespace experimental {
-
-  /*
-   * Parse a buffer until the endChar is found or the stream end is reached
-   */
-  std::string parse_text (std::istream& in, int& ch) {
-    const int endChar = ch;
-    std::ostringstream buffer;
-    while (ch != -1) {
-      ch = in.get();
-      if (ch == endChar) {
-        ch = in.get();
-        if (ch != endChar) {
-          return buffer.str();
-        }
-      }
-      buffer.put((char) ch);
-    }
-    return buffer.str();
-  }
-
-  /*
-   * Parses a next until the split char or a line is found, or the end of the stream is reached.
-   */
-  std::string parse_none_text (std::istream& in, int& ch, int splitChar) {
-    std::ostringstream buffer;
-    while ((ch != splitChar) && (ch != '\n') && (ch != '\r') && (ch != -1)) {
-      buffer.put((char) ch);
-      ch = in.get();
-    }
-    return buffer.str();
-  }
-
-  /*
-   * Parses the next entry from a csv file.
-   */
-  std::string parse_entry (std::istream& in, int& ch, int splitChar) {
-    if ((ch == '"') || (ch == '\'')) {
-      return parse_text(in, ch);
-    } else {
-      return parse_none_text(in, ch, splitChar);
-    }
-  }
-
-//  template<typename T, typename ... Arguments>
-//  std::tuple<T, Arguments...> parse_csv_tuple (std::istream& in, int splitChar) const {
-//    std::vector<std::string> list;
-
-//    int ch = in.get();
-//    while ((ch == '\n') || (ch == '\r')) {
-//      ch = in.get();
-//    }
-//    list.push_back(parse_entry(in, ch, splitChar));
-//    while (ch == splitChar) {
-//      ch = in.get();
-//      list.push_back(parse_entry(in, ch, splitChar));
-//    }
-//    return list;
-//  }
-
-  std::vector<std::string> parse_csv_line (std::istream& in, int splitChar) {
-    std::vector<std::string> list;
-
-    int ch = in.get();
-    while ((ch == '\n') || (ch == '\r')) {
-      ch = in.get();
-    }
-    list.push_back(parse_entry(in, ch, splitChar));
-    while (ch == splitChar) {
-      ch = in.get();
-      list.push_back(parse_entry(in, ch, splitChar));
-    }
-    return list;
-  }
-
-//  template<typename ... Arguments>
-//  struct tuple_reader {
-//    typedef std::tuple<Arguments...> tuple;
-
-//    tuple_reader (char delimiter = ';', bool ignore = false)
-//      : csv::reader(delimiter, ignore)
-//    {}
-
-//    void read_csv (std::istream& in, std::function<void(const tuple&)> fn) {
-//      reader::string_list line;
-//      bool ignoreFirst = is_ignore_first_line();
-//      while ((line = parse_csv_line(in)).size() > 0) {
-//        if (ignoreFirst) {
-//          ignoreFirst = false;
-//        } else {
-//          fn(util::tuple::convert::from_vector<Arguments...>(line));
-//        }
-//      }
-//    }
-//  };
-
-}
-
-// --------------------------------------------------------------------------
-//typedef tuple_reader<std::string, int, int, int, int, int, std::string, std::string, std::string, std::size_t, std::string, double> covid19reader;
+typedef csv::tuple_reader<std::string, int, int, int, int, int, std::string, std::string, std::string, std::size_t, std::string, std::string> covid19reader;
 // --------------------------------------------------------------------------
 void covid19main::load_data (const sys_fs::path& p) {
   using namespace util;
@@ -659,29 +559,47 @@ void covid19main::load_data (const sys_fs::path& p) {
   data.data.clear();
   data.countries.clear();
 
+  const auto start = std::chrono::system_clock::now();
   std::ifstream in(p);
-//  covid19reader(',', true).read_csv(in, [] (const covid19reader::tuple&) {});
-  csv::reader(',', true).read_csv_data(in, [&] (const csv::reader::string_list& l) {
-    if (l.size() < 11) {
-      return;
-    }
-//    auto tpl = util::tuple::convert::from_vector<std::string, int, int, int, int, int, std::string, std::string, std::string, std::size_t, std::string, double>(l);
-//    std::string date = std::get<0>(tpl);
-    // 0:dateRep, 1:day, 2:month, 3:year, 4:cases, 5:deaths, 6:countriesAndTerritories, 7:geoId, 8:countryterritoryCode, 9:popData2019, 10:continentExp, 11:Cumulative_number_for_14_days_of_COVID-19_cases_per_100000
-    const auto x = time::tm2time_t(time::mktm(util::string::convert::to<int>(l[3]), util::string::convert::to<int>(l[2]), util::string::convert::to<int>(l[1])));
-    const double p = util::string::convert::to<int>(l[4]);
-    const double d = util::string::convert::to<int>(l[5]);
-    auto i = data.data.find(l[6]);
+
+  covid19reader::read_csv(in, ',', true, [&] (const covid19reader::tuple& t) {
+    const auto x = time::tm2time_t(time::mktm(std::get<3>(t), std::get<2>(t), std::get<1>(t)));
+    auto i = data.data.find(std::get<6>(t));
     if (i == data.data.end()) {
-      auto p = data.data.insert(std::make_pair(l[6], country_data::country()));
+      auto p = data.data.insert(std::make_pair(std::get<6>(t), country_data::country()));
       i = p.first;
-      i->second.region = l[10];
-      i->second.population = util::string::convert::to<std::size_t>(l[9]);
+      i->second.region = std::get<10>(t);
+      i->second.population = std::get<9>(t);
     }
-    auto& c = *i;
-    c.second.positives.push_back({x, p});
-    c.second.deaths.push_back({x, d});
+    auto& country = *i;
+    country.second.positives.push_back({x, static_cast<double>(std::get<4>(t))});
+    country.second.deaths.push_back({x, static_cast<double>(std::get<5>(t))});
   });
+
+//  csv::reader(',', true).read_csv_data(in, [&] (const csv::reader::string_list& l) {
+//    if (l.size() < 11) {
+//      return;
+//    }
+//    // 0:dateRep, 1:day, 2:month, 3:year, 4:cases, 5:deaths, 6:countriesAndTerritories, 7:geoId, 8:countryterritoryCode, 9:popData2019, 10:continentExp, 11:Cumulative_number_for_14_days_of_COVID-19_cases_per_100000
+//    const auto x = time::tm2time_t(time::mktm(util::string::convert::to<int>(l[3]), util::string::convert::to<int>(l[2]), util::string::convert::to<int>(l[1])));
+//    const double p = util::string::convert::to<int>(l[4]);
+//    const double d = util::string::convert::to<int>(l[5]);
+//    auto i = data.data.find(l[6]);
+//    if (i == data.data.end()) {
+//      auto p = data.data.insert(std::make_pair(l[6], country_data::country()));
+//      i = p.first;
+//      i->second.region = l[10];
+//      i->second.population = util::string::convert::to<std::size_t>(l[9]);
+//    }
+//    auto& c = *i;
+//    c.second.positives.push_back({x, p});
+//    c.second.deaths.push_back({x, d});
+//  });
+
+  const auto stop = std::chrono::system_clock::now();
+  const auto duration = stop - start;
+
+  clog::info() << "Duration for parsing: " << duration;
 
   country_data::country world;
   country_data::map_type regions;

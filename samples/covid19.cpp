@@ -2,9 +2,11 @@
 
 #include <gui/ctrl/std_dialogs.h>
 #include <gui/ctrl/tile_view.h>
+#include <gui/ctrl/table.h>
 #include <gui/draw/diagram.h>
 #include <gui/core/grid.h>
 #include <gui/layout/grid_layout.h>
+#include <gui/layout/adaption_layout.h>
 #include <logging/core.h>
 #include <util/csv_reader.h>
 #include <util/string_util.h>
@@ -159,8 +161,7 @@ enum option {
   options_count
 };
 // --------------------------------------------------------------------------
-const std::string heads[15] = {
-  "date",
+const std::array<std::string, 14> heads = {
   "pos.inc.",
   "dead inc.",
   "pos./7",
@@ -177,8 +178,7 @@ const std::string heads[15] = {
   "lethal/14"
 };
 // --------------------------------------------------------------------------
-typedef ctrl::column_list_t<layout::weight_column_list_layout, std::time_t, double, double, double, double, double, double, double, double, double, double, double, double, double, double> data_column_list_t;
-typedef layout_main_window<gui::layout::border::layouter<25, 0, 150, 20, layout::border::type_t::left_right_maximize>> main_type;
+typedef layout_main_window<gui::layout::border::layouter<25, 0, 150, 0>> main_type;
 // --------------------------------------------------------------------------
 struct covid19main : public main_type {
   typedef main_type super;
@@ -186,8 +186,6 @@ struct covid19main : public main_type {
   covid19main ();
 
   void load_data (const sys_fs::path& p);
-  void initOption (int idx);
-  void initSwitch (int idx);
 
   void draw_at (std::size_t idx,
                 const draw::graphics&,
@@ -200,10 +198,12 @@ struct covid19main : public main_type {
   country_data::country option_data[options_count];
 
   vertical_list countries;
+  layout::grid_lineup<100, 25> button_layout;
   text_button load_button;
-  text_button tab_button;
+  text_button table_button;
+  text_button chart_button;
   ctrl::vertical_tile_view charts;
-  data_column_list_t table;
+  ctrl::table_view table;
 };
 // --------------------------------------------------------------------------
 struct covid19data : public list_data {
@@ -213,7 +213,7 @@ struct covid19data : public list_data {
   {}
 
   std::size_t size () const override {
-    return main->option_data[absolute_increase].positives.empty() ? 0 : 7;
+    return main->option_data[absolute_increase].positives.empty() ? 0 : 6;
   }
 
   void draw_at (std::size_t idx,
@@ -222,89 +222,6 @@ struct covid19data : public list_data {
                 const draw::brush& background,
                 item_state state) const override {
     main->draw_at(idx, graph, place, background, state);
-  }
-
-  covid19main* main;
-};
-// --------------------------------------------------------------------------
-void time_drawer (const std::time_t& t,
-                  const draw::graphics& graph,
-                  const core::rectangle& place,
-                  const draw::brush& background,
-                  item_state state,
-                  text_origin_t align) {
-  ctrl::paint::text_item(graph, place, background, util::time::format_date(t), state, align);
-  if (item_state::selected != state) {
-    draw::frame::sunken_relief(graph, place);
-  }
-}
-// --------------------------------------------------------------------------
-void double_drawer (const double& t,
-                  const draw::graphics& graph,
-                  const core::rectangle& place,
-                  const draw::brush& background,
-                  item_state state,
-                  text_origin_t align) {
-  ctrl::paint::text_item(graph, place, background, ostreamfmt(std::fixed << std::setprecision(3) << t), state, align);
-  if (item_state::selected != state) {
-    draw::frame::sunken_relief(graph, place);
-  }
-}
-// --------------------------------------------------------------------------
-void int_drawer (const double& t,
-                 const draw::graphics& graph,
-                 const core::rectangle& place,
-                 const draw::brush& background,
-                 item_state state,
-                 text_origin_t align) {
-  ctrl::paint::text_item(graph, place, background, ostreamfmt(std::fixed << std::setprecision(0) << t), state, align);
-  if (item_state::selected != state) {
-    draw::frame::sunken_relief(graph, place);
-  }
-}
-// --------------------------------------------------------------------------
-void percent_drawer (const double& t,
-                     const draw::graphics& graph,
-                     const core::rectangle& place,
-                     const draw::brush& background,
-                     item_state state,
-                     text_origin_t align) {
-  ctrl::paint::text_item(graph, place, background, ostreamfmt(std::fixed << std::setprecision(2) << (t * 100.0) << '%'), state, align);
-  if (item_state::selected != state) {
-    draw::frame::sunken_relief(graph, place);
-  }
-}
-// --------------------------------------------------------------------------
-typedef ctrl::column_list_data_t<std::time_t, double, double, double, double, double, double, double, double, double, double, double, double, double, double> data_column_list_base;
-struct data_column_list_data : public data_column_list_base {
-  typedef data_column_list_base super;
-
-  data_column_list_data (covid19main* main)
-    : super(time_drawer,
-            int_drawer, int_drawer,
-            int_drawer, int_drawer,
-            int_drawer, int_drawer,
-            double_drawer, double_drawer,
-            double_drawer, double_drawer,
-            double_drawer, double_drawer,
-            percent_drawer, percent_drawer)
-    , main(main)
-  {}
-
-  std::size_t size () const override {
-    return main->option_data[absolute_increase].positives.size();
-  }
-
-  row_type at (std::size_t i) const override {
-    const auto& d = main->option_data;
-    return std::make_tuple(d[absolute_increase].positives[i].x,
-                           d[absolute_increase].positives[i].y, d[absolute_increase].deaths[i].y,
-                           d[increase_median_7].positives[i].y, d[increase_median_7].deaths[i].y,
-                           d[absolute_cumulated].positives[i].y, d[absolute_cumulated].deaths[i].y,
-                           d[relative_increase].positives[i].y, d[relative_increase].deaths[i].y,
-                           d[relative_median_7_increase].positives[i].y, d[relative_median_7_increase].deaths[i].y,
-                           d[r_value].positives[i].y, d[r_value].deaths[i].y,
-                           d[lethality].positives[i].y, d[lethality].deaths[i].y);
   }
 
   covid19main* main;
@@ -347,8 +264,8 @@ static auto fmty = [] (double i) {
 diagram::range_pair<std::time_t, double> get_mima (std::initializer_list<country_data::country> cs) {
   diagram::range_pair<std::time_t, double> r;
   for (auto& c : cs) {
-    auto pmima = diagram::find_min_max<std::time_t, double>(c.positives);
-    auto dmima = diagram::find_min_max<std::time_t, double>(c.deaths);
+    auto pmima = diagram::find_min_max_ignore_0<std::time_t, double>(c.positives);
+    auto dmima = diagram::find_min_max_ignore_0<std::time_t, double>(c.deaths);
     if (r.first.empty() && r.second.empty()) {
       r = diagram::get_min_max(pmima, dmima);
     } else {
@@ -365,9 +282,9 @@ void drawChart (const graphics& graph,
                 std::initializer_list<country_data::country> cs,
                 std::initializer_list<std::string> legends);
 // --------------------------------------------------------------------------
-os::color colors[] = {color::light_red, color::light_green,
-                      color::dark_red, color::dark_green,
-                      color::light_blue, color::dark_blue};
+std::array<os::color, 6> colors = {color::light_red, color::light_green,
+                                   color::dark_red, color::dark_green,
+                                   color::light_blue, color::dark_blue};
 // --------------------------------------------------------------------------
 std::vector<diagram::legend_label> build_legend_labels ( std::initializer_list<std::string> labels) {
   std::vector<diagram::legend_label> legends;
@@ -387,9 +304,9 @@ void drawChart<diagram::scaling::linear> (const graphics& graph,
                                           std::initializer_list<std::string> legends) {
   auto mima = get_mima(cs);
   const auto xmima = mima.first;
-  const auto ymiax = mima.second;
+  const auto ymima = mima.second;
 
-  const auto l = diagram::limits<double, diagram::scaling::linear>::calc(ymiax.begin(), ymiax.end());
+  const auto l = diagram::limits<double, diagram::scaling::linear>::calc(ymima.begin(), ymima.end());
   diagram::chart<std::time_t, double> d(area, xmima, l);
 //  check_points(d.get_scale_x(), d.get_scale_y(), c.positives);
 //  check_points(d.get_scale_x(), d.get_scale_y(), c.deaths);
@@ -415,16 +332,17 @@ void drawChart<diagram::scaling::log> (const graphics& graph,
                                        std::initializer_list<std::string> legends) {
   auto mima = get_mima(cs);
   const auto xmima = mima.first;
-  const auto ymiax = mima.second;
+  const auto ymima = mima.second;
 
-  const auto l = diagram::limits<double, diagram::scaling::log>::calc(ymiax.end() / 100000.0, ymiax.end());
+  const auto l = diagram::limits<double, diagram::scaling::log>::calc(std::max(ymima.begin(), ymima.end()/1e6), ymima.end());
   diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::log> d(area, xmima, l);
   d.fill_area(graph);
   d.draw_xscale(graph, 60.0*60*24*61, 60.0*60*24*7, fmtx);
   d.draw_yscale(graph, 1, 1, fmty);
+  int i = 0;
   for (auto& c : cs) {
-    d.draw_line_graph(graph, c.positives, color::light_red);
-    d.draw_line_graph(graph, c.deaths, color::light_green);
+    d.draw_line_graph(graph, c.positives, colors[(i++) % 6]);
+    d.draw_line_graph(graph, c.deaths, colors[(i++) % 6]);
   }
   d.draw_axis(graph);
   d.draw_title(graph, title);
@@ -439,36 +357,50 @@ void drawChart<diagram::scaling::symlog> (const graphics& graph,
                                           std::initializer_list<std::string> legends) {
   auto mima = get_mima(cs);
   const auto xmima = mima.first;
-  const auto ymiax = mima.second;
+  const auto ymima = mima.second;
 
-  const auto l = diagram::limits<double, diagram::scaling::symlog>::calc(ymiax.end() / 100000.0, ymiax.end());
+  const auto l = diagram::limits<double, diagram::scaling::symlog>::calc(std::max(ymima.begin(), ymima.end()/1e6), ymima.end());
   diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::symlog> d(area, xmima, l);
   d.fill_area(graph);
   d.draw_xscale(graph, 60.0*60*24*61, 60.0*60*24*7, fmtx);
   d.draw_yscale(graph, 1, 1, fmty);
+  int i = 0;
   for (auto& c : cs) {
-    d.draw_line_graph(graph, c.positives, color::light_red);
-    d.draw_line_graph(graph, c.deaths, color::light_green);
+    d.draw_line_graph(graph, c.positives, colors[(i++) % 6]);
+    d.draw_line_graph(graph, c.deaths, colors[(i++) % 6]);
   }
   d.draw_axis(graph);
   d.draw_title(graph, title);
   d.draw_legend(graph, build_legend_labels(legends));
 }
 // --------------------------------------------------------------------------
-covid19main::covid19main () {
+std::string format_column (int i, double v) {
+  if (i < 6) {
+    return ostreamfmt(std::fixed << std::setprecision(0) << v);
+  }
+  if ((i > 9) && (i < 12)) {
+    return ostreamfmt(std::fixed << std::setprecision(3) << v);
+  }
+  return ostreamfmt(std::fixed << std::setprecision(2) << (v * 100.0) << '%');
+}
+// --------------------------------------------------------------------------
+covid19main::covid19main ()
+  : button_layout({layout::lay(load_button), layout::lay(table_button), layout::lay(chart_button)})
+  , table(64, 20)
+{
 
   on_create([&] (window*, core::rectangle) {
     countries.create(*this);
     load_button.create(*this, "Load CSV");
+    table_button.create(*this, "Show table");
+    chart_button.create(*this, "Show chart");
     charts.create(*this);
-    tab_button.create(*this, "<");
     table.create(*this);
     table.set_visible(false);
 
     get_layout().set_left(layout::lay(countries));
-    get_layout().set_top(layout::lay(load_button));
+    get_layout().set_top(layout::lay(button_layout));
     get_layout().set_center(layout::lay(charts));
-    get_layout().set_right(layout::lay(tab_button));
 
     set_children_visible();
   });
@@ -481,59 +413,68 @@ covid19main::covid19main () {
     });
   });
 
-  tab_button.on_clicked([&] () {
-    if (charts.is_visible()) {
-      table.set_visible(true);
-      charts.set_visible(false);
-      get_layout().set_center(layout::lay(table));
-      layout();
-      tab_button.set_text(">");
-    } else {
-      charts.set_visible(true);
-      table.set_visible(false);
-      get_layout().set_center(layout::lay(charts));
-      layout();
-      tab_button.set_text("<");
-    }
+  table_button.on_clicked([&] () {
+    table.set_visible(true);
+    charts.set_visible(false);
+    get_layout().set_center(layout::lay(table));
+    layout();
   });
 
-  charts.set_item_size({ 575, 400 });
+  chart_button.on_clicked([&] () {
+    charts.set_visible(true);
+    table.set_visible(false);
+    get_layout().set_center(layout::lay(charts));
+    layout();
+  });
+
+  charts.on_size([&] (const core::size& sz) {
+    const auto w = sz.width() - ctrl::scroll_bar::get_scroll_bar_width();
+    const auto c = std::max(1.0, std::floor(w / 580.0));
+    const auto i = std::max(400.0, std::floor(w / c));
+    charts.set_item_size({ static_cast<core::size::type>(i), static_cast<core::size::type>(std::floor(i * 3.0 / 4.0)) });
+  });
   charts.set_background(color::white);
 //  charts.set_border({ 10, 10 });
 //  charts.set_spacing({ 5, 5 });
 
   charts.set_data(covid19data{this});
 
-  auto weight_columns = {
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F },
-    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 25, 1.0F/15.0F }
-  };
-
-  table.header.set_cell_drawer([] (std::size_t i, const draw::graphics& g,
-                               const core::rectangle& r, const draw::brush& background) {
-    using namespace draw;
-    g.fill(rectangle(r), background);
-    frame::raised_deep_relief(g, r);
-    g.text(text_box(heads[i], r, text_origin_t::center), font::system(), color::windowTextColor());
+  table.set_scroll_maximum_calcer([&](const core::size& size,
+                                           const core::point&,
+                                           const core::point&) {
+    return core::point(table.geometrie.widths.position_of(14) +
+                       table.geometrie.widths.get_offset() - size.width(),
+                       table.geometrie.heights.position_of(option_data[absolute_increase].positives.size()) +
+                       table.geometrie.heights.get_offset() + - size.height());
   });
 
-  table.get_column_layout().set_columns(weight_columns);
-  table.set_data(data_column_list_data(this));
-  table.list.set_count();
+  table.data.set_drawer(ctrl::table::default_data_drawer([&](const ctrl::table::position& cell) -> std::string {
+    int id0 = cell.x() / 2;
+    if (id0 < options_count) {
+      const auto& d = option_data[id0];
+      if (cell.x() % 2) {
+        if (cell.y() < d.deaths.size()) {
+          return format_column(cell.x(), d.deaths[cell.y()].y);
+        }
 
+      } else if (cell.y() < d.positives.size()) {
+        return format_column(cell.x(), d.positives[cell.y()].y);
+      }
+    }
+    return std::string();
+  }));
+  table.columns.set_drawer(ctrl::table::default_header_drawer([](const ctrl::table::position& cell) -> std::string {
+    if (cell.x() < heads.size()) {
+      return heads[cell.x()];
+    }
+    return std::string();
+  }));
+  table.rows.set_drawer(ctrl::table::default_header_drawer([&](const ctrl::table::position& cell) -> std::string {
+    if (cell.y() < option_data[absolute_increase].positives.size()) {
+      return util::time::format_date(option_data[absolute_increase].positives[cell.y()].x);
+    }
+    return std::string();
+  }));
 
   countries.on_selection_changed([&] (event_source) {
     int sel = countries.get_selection();
@@ -549,11 +490,11 @@ covid19main::covid19main () {
     option_data[increase_median_7].positives = mean(option_data[absolute_increase].positives, 7);
     option_data[increase_median_7].deaths = mean(option_data[absolute_increase].deaths, 7);
 
-    option_data[relative_increase].positives = increase(option_data[absolute_increase].positives);
-    option_data[relative_increase].deaths = increase(option_data[absolute_increase].deaths);
+    option_data[relative_increase].positives = increase(option_data[absolute_cumulated].positives);
+    option_data[relative_increase].deaths = increase(option_data[absolute_cumulated].deaths);
 
-    option_data[relative_median_7_increase].positives = increase(option_data[increase_median_7].positives);
-    option_data[relative_median_7_increase].deaths = increase(option_data[increase_median_7].deaths);
+    option_data[relative_median_7_increase].positives = mean(option_data[relative_increase].positives, 7);
+    option_data[relative_median_7_increase].deaths = mean(option_data[relative_increase].deaths, 7);
 
     option_data[r_value].deaths = mean(option_data[absolute_increase].positives, 4);
     option_data[r_value].positives = ::ratio(option_data[r_value].deaths, option_data[r_value].deaths, 4);
@@ -563,7 +504,8 @@ covid19main::covid19main () {
     option_data[lethality].deaths = ::ratio(option_data[increase_median_7].deaths, option_data[increase_median_7].positives, 14);
 
     charts.set_count();
-    table.list.set_count();
+    table.data.invalidate();
+    table.rows.invalidate();
   });
 
 }
@@ -592,21 +534,16 @@ void covid19main::draw_at (std::size_t idx,
         {"positive", "dead"});
       break;
     case 3:
-      drawChart<diagram::scaling::symlog>(graph, area, "Logarithmic relative Inncrease",
-        {option_data[relative_increase]},
-        {"positive", "dead"});
+      drawChart<diagram::scaling::log>(graph, area, "Logarithmic relative Inncrease",
+        {option_data[relative_increase], option_data[relative_median_7_increase]},
+        {"positive", "dead", "positive/7-day", "dead/7-day"});
       break;
     case 4:
-      drawChart<diagram::scaling::symlog>(graph, area, "Logarithmic relative Inncrease",
-        {option_data[relative_median_7_increase]},
-        {"positive", "dead"});
-      break;
-    case 5:
-      drawChart<diagram::scaling::symlog>(graph, area, "R-Value",
+      drawChart<diagram::scaling::log>(graph, area, "R-Value",
         {option_data[r_value]},
         {"R-Value", "R-Value/7-day"});
       break;
-    case 6:
+    case 5:
       drawChart<diagram::scaling::log>(graph, area, "Lethality",
         {option_data[lethality]},
         {"Deads/positives", "Deads/positives/14-day"});
@@ -615,6 +552,29 @@ void covid19main::draw_at (std::size_t idx,
 
 }
 // --------------------------------------------------------------------------
+template<typename ... Arguments>
+struct tuple_reader : public csv::reader {
+  typedef std::tuple<Arguments...> tuple;
+
+  tuple_reader (char delimiter = ';', bool ignore = false)
+    : csv::reader(delimiter, ignore)
+  {}
+
+   void read_csv (std::istream& in, std::function<void(const tuple&)> fn) {
+    reader::string_list line;
+    bool ignoreFirst = is_ignore_first_line();
+    while ((line = parse_csv_line(in)).size() > 0) {
+      if (ignoreFirst) {
+        ignoreFirst = false;
+      } else {
+        fn(util::tuple::convert::from_vector<Arguments...>(line));
+      }
+    }
+  }
+};
+// --------------------------------------------------------------------------
+typedef tuple_reader<std::string, int, int, int, int, int, std::string, std::string, std::string, std::size_t, std::string, double> covid19reader;
+// --------------------------------------------------------------------------
 void covid19main::load_data (const sys_fs::path& p) {
   using namespace util;
 
@@ -622,8 +582,13 @@ void covid19main::load_data (const sys_fs::path& p) {
   data.countries.clear();
 
   std::ifstream in(p);
+  covid19reader(',', true).read_csv(in, [] (const covid19reader::tuple&) {});
   csv::reader(',', true).read_csv_data(in, [&] (const csv::reader::string_list& l) {
-    // 0:ateRep, 1:day, 2:month, 3:year, 4:cases, 5:deaths, 6:countriesAndTerritories
+    if (l.size() < 11) {
+      return;
+    }
+//    auto tpl = util::tuple::convert::from_vector<std::string, int, int, int, int, int, std::string, std::string, std::string, std::size_t, std::string, double>(l);
+//    std::string date = std::get<0>(tpl);
     // 0:dateRep, 1:day, 2:month, 3:year, 4:cases, 5:deaths, 6:countriesAndTerritories, 7:geoId, 8:countryterritoryCode, 9:popData2019, 10:continentExp, 11:Cumulative_number_for_14_days_of_COVID-19_cases_per_100000
     const auto x = time::tm2time_t(time::mktm(util::string::convert::to<int>(l[3]), util::string::convert::to<int>(l[2]), util::string::convert::to<int>(l[1])));
     const double p = util::string::convert::to<int>(l[4]);

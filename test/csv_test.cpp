@@ -7,59 +7,55 @@ using namespace util::csv;
 // --------------------------------------------------------------------------
 void test_parse_text () {
   std::istringstream buffer("test\"");
-  reader::string_list list;
-  reader::parse_text(buffer, list, '"');
+  int ch = '"';
+  std::string s = parse_text(buffer, ch);
 
-  EXPECT_EQUAL(list.size(), 1);
-  EXPECT_EQUAL(list[0], std::string("test"));
+  EXPECT_EQUAL(s, std::string("test"));
 }
 
 // --------------------------------------------------------------------------
 void test_parse_text2 () {
   std::istringstream buffer("test'");
-  reader::string_list list;
-  reader::parse_text(buffer, list, '\'');
+  int ch = '\'';
+  std::string s = parse_text(buffer, ch);
 
-  EXPECT_EQUAL(list.size(), 1);
-  EXPECT_EQUAL(list[0], std::string("test"));
+  EXPECT_EQUAL(s, std::string("test"));
 }
 
 // --------------------------------------------------------------------------
 void test_parse_text3 () {
   std::istringstream buffer("te;, st'");
-  reader::string_list list;
-  reader::parse_text(buffer, list, '\'');
+  int ch = '\'';
+  const std::string s = parse_text(buffer, ch);
 
-  EXPECT_EQUAL(list.size(), 1);
-  EXPECT_EQUAL(list[0], std::string("te;, st"));
+  EXPECT_EQUAL(s, std::string("te;, st"));
 }
 
 // --------------------------------------------------------------------------
 void test_parse_none_text () {
   std::istringstream buffer("123.456;");
-  reader::string_list list;
-  reader::parse_none_text(buffer, list, '0', ';');
+  int ch = '0';
+  const std::string s = parse_none_text(buffer, ch, ';');
 
-  EXPECT_EQUAL(list.size(), 1);
-  EXPECT_EQUAL(list[0], std::string("0123.456"));
+  EXPECT_EQUAL(s, std::string("0123.456"));
 }
 
 // --------------------------------------------------------------------------
 void test_parse_text_entry () {
   std::istringstream buffer("test\"");
-  reader::string_list list;
-  reader().parse_entry(buffer, '"', list);
+  int ch = '"';
+  const std::string s = parse_entry(buffer, ch, ';');
 
-  EXPECT_EQUAL(list[0], std::string("test"));
+  EXPECT_EQUAL(s, std::string("test"));
 }
 
 // --------------------------------------------------------------------------
 void test_parse_none_text_entry () {
   std::istringstream buffer("123.456;");
-  reader::string_list list;
-  reader().parse_entry(buffer, '0', list);
+  int ch = '0';
+  const std::string s = parse_entry(buffer, ch, ';');
 
-  EXPECT_EQUAL(list[0], std::string("0123.456"));
+  EXPECT_EQUAL(s, std::string("0123.456"));
 }
 
 // --------------------------------------------------------------------------

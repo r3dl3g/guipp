@@ -827,6 +827,43 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     void polyline::operator() (const graphics& g,
+                               const brush& b,
+                               const pen& p) const {
+      Use<brush> br(g, b);
+      XFillPolygon(get_instance(),
+                   g,
+                   g,
+                   (XPoint*)points.data(),
+                   (int)points.size(),
+                   0,
+                   CoordModeOrigin);
+      Use<pen> pn(g, p);
+      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
+    }
+
+    void polyline::operator() (const graphics& g,
+                               const pen& p) const {
+      Use<pen> pn(g, p);
+      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
+    }
+
+    void polyline::operator() (const graphics& g,
+                               const brush& b) const {
+      Use<brush> br(g, b);
+      XFillPolygon(get_instance(),
+                   g,
+                   g,
+                   const_cast<XPoint*>(points.data()),
+                   (int)points.size(),
+                   0,
+                   CoordModeOrigin);
+      pen p(b.color());
+      Use<pen> pn(g, p);
+      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
+    }
+
+    // --------------------------------------------------------------------------
+    void polygon::operator() (const graphics& g,
                               const brush& b,
                               const pen& p) const {
       Use<brush> br(g, b);
@@ -841,13 +878,13 @@ namespace gui {
       XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
     }
 
-    void polyline::operator() (const graphics& g,
+    void polygon::operator() (const graphics& g,
                               const pen& p) const {
       Use<pen> pn(g, p);
       XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
     }
 
-    void polyline::operator() (const graphics& g,
+    void polygon::operator() (const graphics& g,
                               const brush& b) const {
       Use<brush> br(g, b);
       XFillPolygon(get_instance(),

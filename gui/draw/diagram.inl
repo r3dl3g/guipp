@@ -136,21 +136,21 @@ namespace gui {
         auto ymin = i;
         auto ymax = i;
         while (++i < last) {
-          if (lower(get_x<X>(*i), get_x<X>(*xmin))) {
+          if (lower(get_x<X, Y>(*i), get_x<X>(*xmin))) {
             xmin = i;
           }
-          if (lower(get_x<X>(*xmax), get_x<X>(*i))) {
+          if (lower(get_x<X, Y>(*xmax), get_x<X>(*i))) {
             xmax = i;
           }
-          if (lower(get_y<Y>(*i), get_y<Y>(*ymin))) {
+          if (lower(get_y<X, Y>(*i), get_y<Y>(*ymin))) {
             ymin = i;
           }
-          if (lower(get_y<Y>(*ymax), get_y<Y>(*i))) {
+          if (lower(get_y<X, Y>(*ymax), get_y<Y>(*i))) {
             ymax = i;
           }
         }
 
-        return make_range_pair(get_x<X>(*xmin), get_x<X>(*xmax), get_y<Y>(*ymin), get_y<Y>(*ymax));
+        return make_range_pair(get_x<X, Y>(*xmin), get_x<X, Y>(*xmax), get_y<X, Y>(*ymin), get_y<X, Y>(*ymax));
       }
 
       // --------------------------------------------------------------------------
@@ -162,15 +162,15 @@ namespace gui {
         auto xmin = last;
         auto ymin = last;
         while (++i < last) {
-          const auto x = get_x<X>(*i);
+          const auto x = get_x<X, Y>(*i);
           if (x != X(0)) {
-            if ((xmin == last) || lower(x, get_x<X>(*xmin))) {
+            if ((xmin == last) || lower(x, get_x<X, Y>(*xmin))) {
               xmin = i;
             }
           }
-          const auto y = get_y<Y>(*i);
+          const auto y = get_y<X, Y>(*i);
           if (y != Y(0)) {
-            if ((ymin == last) || lower(y, get_y<Y>(*ymin))) {
+            if ((ymin == last) || lower(y, get_y<X, Y>(*ymin))) {
               ymin = i;
             }
           }
@@ -179,15 +179,15 @@ namespace gui {
         auto xmax = i;
         auto ymax = i;
         while (++i < last) {
-          if (lower(get_x<X>(*xmax), get_x<X>(*i))) {
+          if (lower(get_x<X, Y>(*xmax), get_x<X, Y>(*i))) {
             xmax = i;
           }
-          if (lower(get_y<Y>(*ymax), get_y<Y>(*i))) {
+          if (lower(get_y<X, Y>(*ymax), get_y<X, Y>(*i))) {
             ymax = i;
           }
         }
 
-        return make_range_pair(get_x<X>(*xmin), get_x<X>(*xmax), get_y<Y>(*ymin), get_y<Y>(*ymax));
+        return make_range_pair(get_x<X, Y>(*xmin), get_x<X, Y>(*xmax), get_y<X, Y>(*ymin), get_y<X, Y>(*ymax));
       }
 
       // --------------------------------------------------------------------------
@@ -309,7 +309,7 @@ namespace gui {
         : src(src)
         , target(target)
         , precalced(1)
-        , precalced_min(src.begin())
+        , precalced_min(static_cast<double>(src.begin()))
       {
         if ((S != scaling::linear) && (src.begin() == 0)) {
           throw std::runtime_error("Base 0 is not allowed for logarithmic scaler");
@@ -354,7 +354,7 @@ namespace gui {
 
       template<typename T, scaling S>
       void scaler<T, S>::precalc () {
-        precalced_min = detail::scale_fn<T, S>::precalc(src);
+        precalced_min = static_cast<double>(detail::scale_fn<T, S>::precalc(src));
         precalced = static_cast<double>(target.size()) /
                     static_cast<double>(detail::scale_fn<T, S>::range(src));
       }
@@ -369,10 +369,10 @@ namespace gui {
                         const scaler<T, S>& sc) {
           typedef core::orientation_traits<V> traits;
 
-          const T d2 = traits::get_2(pos);
+          const auto d2 = traits::get_2(pos);
           core::point p0, p1;
-          traits::set(p0, sc.get_target().begin(), d2);
-          traits::set(p1, sc.get_target().end(), d2);
+          traits::set(p0, static_cast<float>(sc.get_target().begin()), d2);
+          traits::set(p1, static_cast<float>(sc.get_target().end()), d2);
           g.frame(line(p0, p1), p);
         }
 
@@ -386,13 +386,13 @@ namespace gui {
 
           if ((step > 0) && (sub_2 != sub_1) && (min + step < max)) {
             core::point p0, p1;
-            traits::set_2(p0, sub_1);
-            traits::set_2(p1, sub_2);
+            traits::set_2(p0, static_cast<float>(sub_1));
+            traits::set_2(p1, static_cast<float>(sub_2));
             for (T j = min + step; j < max; j += step) {
-              const T ds = sc(j);
+              const auto ds = sc(j);
 
-              traits::set_1(p0, ds);
-              traits::set_1(p1, ds);
+              traits::set_1(p0, static_cast<float>(ds));
+              traits::set_1(p1, static_cast<float>(ds));
               g.frame(line(p0, p1), color);
             }
           }
@@ -426,24 +426,24 @@ namespace gui {
       void scale<T, V, S>::operator() (const graphics& g, const font& font, os::color color) const {
 
         core::point p0, p1, p2;
-        const T d2 = traits::get_2(pos);
+        const T d2 = static_cast<T>(traits::get_2(pos));
 
-        traits::set_2(p0, d2 + scale_dim<T, V>::main_tick_length);
-        traits::set_2(p1, d2 + main_ticks_length);
-        traits::set_2(p2, d2 + scale_dim<T, V>::main_tick_length * 2);
+        traits::set_2(p0, static_cast<float>(d2 + scale_dim<T, V>::main_tick_length));
+        traits::set_2(p1, static_cast<float>(d2 + main_ticks_length));
+        traits::set_2(p2, static_cast<float>(d2 + scale_dim<T, V>::main_tick_length * 2));
 
-        const T main_step = detail::scale_fn<T, S>::step(main);
+        const auto main_step = detail::scale_fn<T, S>::step(main);
 
-        const T min = sc.get_source().begin();
-        const T max = sc.get_source().end();
+        const auto min = sc.get_source().begin();
+        const auto max = sc.get_source().end();
         for (T i = detail::scale_fn<T, S>::min(sc.get_source()); i <= max; i = detail::scale_fn<T, S>::inc(i, main_step, min)) {
-          const T d1 = sc(i);
+          const auto d1 = sc(i);
 
-          traits::set_1(p0, d1);
-          traits::set_1(p1, d1);
+          traits::set_1(p0, static_cast<float>(d1));
+          traits::set_1(p1, static_cast<float>(d1));
           g.frame(line(p0, p1), main_color);
 
-          traits::set_1(p2, d1);
+          traits::set_1(p2, static_cast<float>(d1));
           g.text(draw::text(fmt(i), p2, scale_text_origin<V>()), font, color);
 
           const T sub_step = detail::scale_fn<T, S>::sub(i, sub, min);
@@ -465,8 +465,8 @@ namespace gui {
 
       template<typename X, typename Y, scaling SX, scaling SY>
       void wall<X, Y, SX, SY>::operator() (const graphics& g, const brush& b, const pen& p) const {
-        g.fill(draw::rectangle(core::point(sx.get_target().begin(), sy.get_target().begin()),
-                               core::point(sx.get_target().end(), sy.get_target().end())), b);
+        g.fill(draw::rectangle(core::point(static_cast<float>(sx.get_target().begin()), static_cast<float>(sy.get_target().begin())),
+                               core::point(static_cast<float>(sx.get_target().end()), static_cast<float>(sy.get_target().end()))), b);
       }
 
       // --------------------------------------------------------------------------
@@ -481,7 +481,7 @@ namespace gui {
 
       template<typename X, typename Y, scaling SX, scaling SY>
       void headline<X, Y, SX, SY>::operator() (const graphics& g, const font& f, os::color color) const {
-        core::point p(sx.get_target().begin(), sy.get_target().end());
+        core::point p(static_cast<float>(sx.get_target().begin()), static_cast<float>(sy.get_target().end()));
         g.text(draw::text(text, p, text_origin_t::bottom_left), f, color);
       }
 
@@ -497,8 +497,8 @@ namespace gui {
 
       template<typename X, typename Y, scaling SX, scaling SY>
       void legend<X, Y, SX, SY>::operator() (const graphics& g, const font& f, os::color color) const {
-        core::point p(sx.get_target().begin(),
-                      sy.get_target().begin() + scale_dim<X, orientation_t::horizontal>::main_tick_length * 2);
+        core::point p(static_cast<float>(sx.get_target().begin()),
+                      static_cast<float>(sy.get_target().begin() + scale_dim<X, orientation_t::horizontal>::main_tick_length * 2));
         bool first = true;
         for(const auto& l : labels) {
           core::rectangle area;
@@ -537,7 +537,8 @@ namespace gui {
 
       template<typename X, typename Y, scaling SX, scaling SY>
       void xy_axis<X, Y, SX, SY>::operator() (const graphics& g, const pen& p) const {
-        core::point pos(sx.get_target().begin(), sy.get_target().begin());
+        core::point pos(static_cast<float>(sx.get_target().begin()),
+                        static_cast<float>(sy.get_target().begin()));
         paint::draw_axis<X, orientation_t::horizontal, SX>(g, pos, p, sx);
         paint::draw_axis<Y, orientation_t::vertical, SY>(g, pos, p, sy);
       }
@@ -554,8 +555,10 @@ namespace gui {
 
       template<typename X, typename Y, typename C, scaling SX, scaling SY>
       core::rectangle graph_base<X, Y, C, SX, SY>::get_graph_area () const {
-        return core::rectangle(core::point(sx.get_target().begin(), sy.get_target().begin()),
-                               core::point(sx.get_target().end(), sy.get_target().end()));
+        return core::rectangle(core::point(static_cast<float>(sx.get_target().begin()),
+                                           static_cast<float>(sy.get_target().begin())),
+                               core::point(static_cast<float>(sx.get_target().end()),
+                                           static_cast<float>(sy.get_target().end())));
       }
 
       // --------------------------------------------------------------------------
@@ -588,8 +591,8 @@ namespace gui {
         pts.reserve(sz+2);
 
         const core::point::type y0 = static_cast<core::point::type>(super::sy(zero));
-        const core::point::type x0 = static_cast<core::point::type>(super::sx(get_x<X>(super::points[0])));
-        const core::point::type x1 = static_cast<core::point::type>(super::sx(get_x<X>(super::points[sz - 1])));
+        const core::point::type x0 = static_cast<core::point::type>(super::sx(get_x<X, Y>(super::points[0])));
+        const core::point::type x1 = static_cast<core::point::type>(super::sx(get_x<X, Y>(super::points[sz - 1])));
 
         pts.push_back({ x0, y0 });
         calc_points(pts);
@@ -605,8 +608,8 @@ namespace gui {
         pts.reserve(sz);
         for (int i = 0; i < sz; ++i) {
           const auto pt = super::points[i];
-          pts.push_back({static_cast<core::point::type>(super::sx(get_x<X>(pt))),
-                         static_cast<core::point::type>(super::sy(get_y<Y>(pt)))});
+          pts.push_back({static_cast<core::point::type>(super::sx(get_x<X, Y>(pt))),
+                         static_cast<core::point::type>(super::sy(get_y<X, Y>(pt)))});
         }
       }
 
@@ -647,13 +650,13 @@ namespace gui {
         core::point::type last_y = y0;
         for (int i = 0; i < sz; ++i) {
           const auto pt = super::points[i];
-          core::point::type next_x = static_cast<core::point::type>(super::sx(get_x<X>(pt)));
-          core::point::type next_y = static_cast<core::point::type>(super::sy(get_y<Y>(pt)));
+          core::point::type next_x = static_cast<core::point::type>(super::sx(get_x<X, Y>(pt)));
+          core::point::type next_y = static_cast<core::point::type>(super::sy(get_y<X, Y>(pt)));
           pts.push_back({next_x, last_y});
           pts.push_back({next_x, next_y});
           last_y = next_y;
         }
-        const core::point::type x1 = static_cast<core::point::type>(super::sx(get_x<X>(super::points[sz - 1])));
+        const core::point::type x1 = static_cast<core::point::type>(super::sx(get_x<X, Y>(super::points[sz - 1])));
         pts.push_back({ x1, y0 });
       }
 
@@ -676,8 +679,8 @@ namespace gui {
         const auto y0 = static_cast<core::point::type>(super::sy(0));
         for (int i = 0; i < sz; ++i) {
           const auto pt = super::points[i];
-          const auto x = static_cast<core::point::type>(super::sx(get_x<X>(pt)));
-          const auto y = static_cast<core::point::type>(super::sy(get_y<Y>(pt)));
+          const auto x = static_cast<core::point::type>(super::sx(get_x<X, Y>(pt)));
+          const auto y = static_cast<core::point::type>(super::sy(get_y<X, Y>(pt)));
           g.fill(draw::rectangle(core::point(x - w, y0), core::point(x + w, y)), b);
         }
       }
@@ -698,10 +701,10 @@ namespace gui {
         if (drawer) {
           clip clp(g, super::get_graph_area());
           const auto sz = super::points.size();
-          for (int i = 0; i < sz; ++i) {
+          for (std::size_t i = 0; i < sz; ++i) {
             const auto pt = super::points[i];
-            const auto x = static_cast<core::point::type>(super::sx(get_x<X>(pt)));
-            const auto y = static_cast<core::point::type>(super::sy(get_y<Y>(pt)));
+            const auto x = static_cast<core::point::type>(super::sx(get_x<X, Y>(pt)));
+            const auto y = static_cast<core::point::type>(super::sy(get_y<X, Y>(pt)));
             drawer(g, b, core::point(x, y));
           }
         }
@@ -713,9 +716,9 @@ namespace gui {
 
       template<typename X, typename Y, scaling SX, scaling SY>
       chart<X, Y, SX, SY>::chart (const core::rectangle& area, core::range<X> range_x, core::range<Y> range_y)
-        : p0(area.x() + 80, area.y2() - 50)
-        , scale_x(range_x, {p0.x(), area.x2() - 20})
-        , scale_y(range_y, {p0.y(), area.y() + 20})
+        : p0(static_cast<float>(area.x() + 80), static_cast<float>(area.y2() - 50))
+        , scale_x(range_x, {static_cast<X>(p0.x()), static_cast<X>(area.x2() - 20)})
+        , scale_y(range_y, {static_cast<Y>(p0.y()), static_cast<Y>(area.y() + 20)})
       {}
 
       template<typename X, typename Y, scaling SX, scaling SY>
@@ -741,8 +744,8 @@ namespace gui {
       template<typename X, typename Y, scaling SX, scaling SY>
       void chart<X, Y, SX, SY>::draw_xscale (const graphics& graph, X main, X sub, typename scale_x_type::formatter fmt) const {
         graph.text(scale_x_type(p0, scale_x, main, sub,
-                                scale_y.get_target().size(),
-                                scale_y.get_target().size(),
+                                static_cast<X>(scale_y.get_target().size()),
+                                static_cast<X>(scale_y.get_target().size()),
                                 color::very_light_gray,
                                 color::very_very_light_gray,
                                 fmt),
@@ -752,8 +755,8 @@ namespace gui {
       template<typename X, typename Y, scaling SX, scaling SY>
       void chart<X, Y, SX, SY>::draw_yscale (const graphics& graph, Y main, Y sub, typename scale_y_type::formatter fmt) const {
         graph.text(scale_y_type(p0, scale_y, main, sub,
-                                scale_x.get_target().size(),
-                                scale_x.get_target().size(),
+                                static_cast<Y>(scale_x.get_target().size()),
+                                static_cast<Y>(scale_x.get_target().size()),
                                 color::very_light_gray,
                                 color::very_very_light_gray,
                                 fmt),

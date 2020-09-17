@@ -169,9 +169,9 @@ namespace gui {
         return -1;
       }
 
-      core::point::type layout::position_of (int idx) const {
+      core::point::type layout::position_of (std::size_t idx) const {
         core::point::type pos = -get_offset();
-        for (int i = 0; i < idx; ++i) {
+        for (std::size_t i = 0; i < idx; ++i) {
           pos += get_size(i);
         }
         return pos;

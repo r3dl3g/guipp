@@ -327,37 +327,47 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    polyline::polyline (const std::vector<core::point>& pts) {
-      points.reserve(pts.size() + 1);
-      for (const core::point& pt : pts) {
-        points.push_back(pt.os());
-      }
-    }
-
-    polyline::polyline (std::initializer_list<core::point> pts) {
-      points.reserve(pts.size() + 1);
-      for (const core::point& pt : pts) {
-        points.push_back(pt.os());
-      }
-    }
-
     void polyline::operator() (const graphics& g,
                               const brush& b,
                               const pen& p) const {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
-      Polygon(g, (const POINT*)points.data(), (int)points.size());
+      Polyline(g, (const POINT*)points.data(), (int)points.size());
     }
 
     void polyline::operator() (const graphics& g,
                               const pen& p) const {
       Use<pen> pn(g, p);
       Use<brush> br(g, null_brush);
-      Polygon(g, (const POINT*)points.data(), (int)points.size());
+      Polyline(g, (const POINT*)points.data(), (int)points.size());
     }
 
     void polyline::operator() (const graphics& g,
                               const brush& b) const {
+      Use<brush> br(g, b);
+      pen p(b.color());
+      Use<pen> pn(g, p);
+      Polyline(g, (const POINT*)points.data(), (int)points.size());
+    }
+
+    // --------------------------------------------------------------------------
+    void polygon::operator() (const graphics& g,
+                               const brush& b,
+                               const pen& p) const {
+      Use<brush> br(g, b);
+      Use<pen> pn(g, p);
+      Polygon(g, (const POINT*)points.data(), (int)points.size());
+    }
+
+    void polygon::operator() (const graphics& g,
+                               const pen& p) const {
+      Use<pen> pn(g, p);
+      Use<brush> br(g, null_brush);
+      Polygon(g, (const POINT*)points.data(), (int)points.size());
+    }
+
+    void polygon::operator() (const graphics& g,
+                               const brush& b) const {
       Use<brush> br(g, b);
       pen p(b.color());
       Use<pen> pn(g, p);
@@ -816,20 +826,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    polyline::polyline (const std::vector<core::point>& pts) {
-      points.reserve(pts.size() + 1);
-      std::for_each(pts.begin(), pts.end(), [&](const core::point & pt){
-                      points.push_back(pt.os());
-                    });
-    }
-
-    polyline::polyline (std::initializer_list<core::point> pts) {
-      points.reserve(pts.size() + 1);
-      for (const core::point& pt : pts) {
-        points.push_back(pt.os());
-      }
-    }
-
     void polyline::operator() (const graphics& g,
                               const brush& b,
                               const pen& p) const {
@@ -864,17 +860,6 @@ namespace gui {
       pen p(b.color());
       Use<pen> pn(g, p);
       XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
-    }
-
-    // --------------------------------------------------------------------------
-    polygon::polygon (const std::vector<core::point>& pts)
-      : polyline(pts) {
-      points.push_back(pts[0].os());
-    }
-
-    polygon::polygon (std::initializer_list<core::point> pts)
-      : polyline(pts) {
-      points.push_back(pts.begin()->os());
     }
 
     // --------------------------------------------------------------------------
@@ -1118,6 +1103,39 @@ namespace gui {
 
 #endif // X11
 
+    // --------------------------------------------------------------------------
+    polyline::polyline (const std::vector<core::point>& pts) {
+      points.reserve(pts.size());
+      for (const core::point& pt : pts) {
+        points.push_back(pt.os());
+      }
+    }
+
+    polyline::polyline (std::initializer_list<core::point> pts) {
+      points.reserve(pts.size());
+      for (const core::point& pt : pts) {
+        points.push_back(pt.os());
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    polygon::polygon (const std::vector<core::point>& pts) {
+      points.reserve(pts.size() + 1);
+      for (const core::point& pt : pts) {
+        points.push_back(pt.os());
+      }
+      points.push_back(pts[0].os());
+    }
+
+    polygon::polygon (std::initializer_list<core::point> pts) {
+      points.reserve(pts.size() + 1);
+      for (const core::point& pt : pts) {
+        points.push_back(pt.os());
+      }
+      points.push_back(pts.begin()->os());
+    }
+
+    // --------------------------------------------------------------------------
     template<pixel_format_t px_fmt>
     void copy_frame_image (draw::const_image_data<px_fmt> src_img,
                            draw::image_data<px_fmt> dest_img,

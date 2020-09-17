@@ -59,7 +59,7 @@ std::vector<point> accumulated (std::vector<point> v) {
 // --------------------------------------------------------------------------
 std::vector<point> mean (const std::vector<point>& v, int count) {
   std::vector<point> result;
-  const int sz = v.size();
+  const auto sz = v.size();
   result.resize(sz);
   for (int i = 0; i < sz; ++i) {
     const int min = std::max(0, i - count + 1);
@@ -82,7 +82,7 @@ std::vector<point> ratio (const std::vector<point>& divident,
     throw std::out_of_range("divisor list is to small!");
   }
 
-  const int sz = divident.size();
+  const auto sz = divident.size();
   std::vector<point> result;
   result.resize(sz - offset);
   for (int i = offset; i < sz; ++i) {
@@ -311,7 +311,7 @@ void drawChart<diagram::scaling::linear> (const graphics& graph,
 //  check_points(d.get_scale_x(), d.get_scale_y(), c.positives);
 //  check_points(d.get_scale_x(), d.get_scale_y(), c.deaths);
   d.fill_area(graph);
-  d.draw_xscale(graph, 60.0*60*24*61, 60.0*60*24*7, fmtx);
+  d.draw_xscale(graph, 60*60*24*61, 60*60*24*7, fmtx);
   const auto steps = diagram::next_smaller_pow10(std::max(std::abs(l.begin()), std::abs(l.end()))/3);
   d.draw_yscale(graph, steps, steps/5, fmty);
   int i = 0;
@@ -337,7 +337,7 @@ void drawChart<diagram::scaling::log> (const graphics& graph,
   const auto l = diagram::limits<double, diagram::scaling::log>::calc(std::max(ymima.begin(), ymima.end()/1e6), ymima.end());
   diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::log> d(area, xmima, l);
   d.fill_area(graph);
-  d.draw_xscale(graph, 60.0*60*24*61, 60.0*60*24*7, fmtx);
+  d.draw_xscale(graph, 60*60*24*61, 60*60*24*7, fmtx);
   d.draw_yscale(graph, 1, 1, fmty);
   int i = 0;
   for (auto& c : cs) {
@@ -362,7 +362,7 @@ void drawChart<diagram::scaling::symlog> (const graphics& graph,
   const auto l = diagram::limits<double, diagram::scaling::symlog>::calc(std::max(ymima.begin(), ymima.end()/1e6), ymima.end());
   diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::symlog> d(area, xmima, l);
   d.fill_area(graph);
-  d.draw_xscale(graph, 60.0*60*24*61, 60.0*60*24*7, fmtx);
+  d.draw_xscale(graph, 60*60*24*61, 60*60*24*7, fmtx);
   d.draw_yscale(graph, 1, 1, fmty);
   int i = 0;
   for (auto& c : cs) {

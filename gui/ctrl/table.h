@@ -171,7 +171,7 @@ namespace gui {
         void set_offset (core::point::type offset);
 
         int index_at (core::point::type pt) const;
-        core::point::type position_of (int idx) const;
+        core::point::type position_of (std::size_t idx) const;
         int split_idx_at (core::point::type pt, core::size::type delta) const;
 
         void calc ();

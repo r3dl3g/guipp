@@ -125,9 +125,16 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT polygon : public polyline {
+    struct GUIPP_DRAW_EXPORT polygon {
       polygon (const std::vector<core::point>& pts);
       polygon (std::initializer_list<core::point> pts);
+
+      void operator() (const graphics&, const brush&, const pen&) const;
+      void operator() (const graphics&, const pen&) const;
+      void operator() (const graphics&, const brush&) const;
+
+    protected:
+      std::vector<os::point> points;
     };
 
     // --------------------------------------------------------------------------

@@ -4,6 +4,10 @@
 #include <logging/core.h>
 #include <gui/draw/diagram.h>
 #include <gui/core/grid.h>
+#ifdef WIN32
+#define _USE_MATH_DEFINES
+#include <math.h>
+#endif // WIN§2
 
 #define NOTHING
 
@@ -178,20 +182,22 @@ void draw_graph_5 (const graphics& graph, const core::rectangle& area) {
   core::point p0(area.x() + 50, area.y2() - 25);
 
   scaler<float> xscale({0, 6.5}, {p0.x(), area.x2() - 20});
-  scaler<float> yscale({-1.2, 1.2}, {p0.y(), area.y() + 20});
+  scaler<float> yscale({-1.2F, 1.2F}, {p0.y(), area.y() + 20});
 
   graph.draw(wall<float, float>(xscale, yscale), wall_back, wall_back);
 
-  graph.text(scale<float, orientation_t::horizontal>(p0, xscale, 1, 0.2,
-                                                     yscale.get_target().size(), yscale.get_target().size()),
+  graph.text(scale<float, orientation_t::horizontal>(p0, xscale, 1.0F, 0.2F,
+                                                     yscale.get_target().size(),
+                                                     yscale.get_target().size()),
              font::serif(), color::black);
 
   auto fmt = [] (float i) {
     return ostreamfmt(std::fixed << std::setprecision(1) << i);
   };
 
-  graph.text(scale<float, orientation_t::vertical>(p0, yscale, 0.2, 0.05,
-                                                   xscale.get_target().size(), xscale.get_target().size(),
+  graph.text(scale<float, orientation_t::vertical>(p0, yscale, 0.2F, 0.05F,
+                                                   xscale.get_target().size(),
+                                                   xscale.get_target().size(),
                                                    color::very_light_gray, color::very_very_light_gray, fmt),
              font::serif(), color::black);
 
@@ -220,12 +226,12 @@ void draw_graph_6 (const graphics& graph, const core::rectangle& area) {
 
   core::point p0(area.x() + 80, area.y2() - 25);
 
-  scaler<int> xscale({0, 100}, {p0.x(), area.x2() - 20});
+  scaler<int> xscale({0, 100}, {static_cast<int>(p0.x()), static_cast<int>(area.x2() - 20)});
   scaler<double, scaling::log> yscale({0.01, 10000.0}, {p0.y(), area.y() + 20});
 
   graph.draw(wall<int, double, scaling::linear, scaling::log>(xscale, yscale), wall_back, wall_back);
 
-  graph.text(scale<int, orientation_t::horizontal>(p0, xscale, 20, 5, yscale.get_target().size(), yscale.get_target().size()),
+  graph.text(scale<int, orientation_t::horizontal>(p0, xscale, 20, 5, static_cast<int>(yscale.get_target().size()), static_cast<int>(yscale.get_target().size())),
              font::serif(), color::black);
   graph.text(scale<double, orientation_t::vertical, scaling::log>(p0, yscale, 1, 1, xscale.get_target().size(), xscale.get_target().size()),
              font::serif(), color::black);
@@ -303,6 +309,9 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   main_window main;
 
+  main.on_size([&] (const core::size&) {
+    main.invalidate();
+  });
   main.on_paint(draw::paint([&](const graphics& graph) {
     graph.clear(color::white);
 

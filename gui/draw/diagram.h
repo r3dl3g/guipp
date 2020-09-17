@@ -62,15 +62,15 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename T, typename P>
-      inline T get_x (const P& p) {
-        return get<T, T, P>::x(p);
+      template<typename X, typename Y, typename P>
+      inline X get_x (const P& p) {
+        return get<X, Y, P>::x(p);
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, typename P>
-      inline T get_y (const P& p) {
-        return get<T, T, P>::y(p);
+      template<typename X, typename Y, typename P>
+      inline Y get_y (const P& p) {
+        return get<X, Y, P>::y(p);
       }
 
       // --------------------------------------------------------------------------
@@ -392,7 +392,7 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      struct circle {
+      struct GUIPP_DRAW_EXPORT circle {
         circle (float radius);
         void operator() (const graphics&, const brush&, const core::point&);
       private:
@@ -400,7 +400,7 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      struct diamond {
+      struct GUIPP_DRAW_EXPORT diamond {
         diamond (float radius);
         void operator() (const graphics&, const brush&, const core::point&);
       private:
@@ -408,7 +408,7 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      struct cross {
+      struct GUIPP_DRAW_EXPORT cross {
         cross (float radius);
         void operator() (const graphics&, const brush&, const core::point&);
       private:
@@ -416,7 +416,7 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      struct square {
+      struct GUIPP_DRAW_EXPORT square {
         square (float radius);
         void operator() (const graphics&, const brush&, const core::point&);
       private:

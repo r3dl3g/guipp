@@ -90,6 +90,10 @@ namespace gui {
       range_pair<X, Y> find_min_max (const C& v);
 
       // --------------------------------------------------------------------------
+      template<typename X, typename Y, typename C>
+      range_pair<X, Y> find_min_max_ignore_0 (const C& v);
+
+      // --------------------------------------------------------------------------
       template<typename T>
       T next_smaller_pow10 (T t);
 

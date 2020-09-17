@@ -116,27 +116,74 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename X, typename Y, typename C>
-      range_pair<X, Y> find_min_max (const C& v) {
-        auto first = std::begin(v);
+      template<typename T>
+      inline bool lower (T lhs, T rhs) {
+        return (lhs < rhs);
+      }
+      // --------------------------------------------------------------------------
+      template<typename T>
+      inline bool lower_ignore_0 (T lhs, T rhs) {
+        return (lhs != T(0)) && (lhs < rhs);
+      }
+      // --------------------------------------------------------------------------
+      template<typename X, typename Y, typename L>
+      range_pair<X, Y> find_min_max (const L& v) {
+        auto i = std::begin(v);
         auto last = std::end(v);
 
-        auto xmin = first;
-        auto xmax = first;
-        auto ymin = first;
-        auto ymax = first;
-        while (++first < last) {
-          if (get_x<X>(*first) < get_x<X>(*xmin)) {
-            xmin = first;
+        auto xmin = i;
+        auto xmax = i;
+        auto ymin = i;
+        auto ymax = i;
+        while (++i < last) {
+          if (lower(get_x<X>(*i), get_x<X>(*xmin))) {
+            xmin = i;
           }
-          if (get_x<X>(*xmax) < get_x<X>(*first)) {
-            xmax = first;
+          if (lower(get_x<X>(*xmax), get_x<X>(*i))) {
+            xmax = i;
           }
-          if (get_y<Y>(*first) < get_y<Y>(*ymin)) {
-            ymin = first;
+          if (lower(get_y<Y>(*i), get_y<Y>(*ymin))) {
+            ymin = i;
           }
-          if (get_y<Y>(*ymax) < get_y<Y>(*first)) {
-            ymax = first;
+          if (lower(get_y<Y>(*ymax), get_y<Y>(*i))) {
+            ymax = i;
+          }
+        }
+
+        return make_range_pair(get_x<X>(*xmin), get_x<X>(*xmax), get_y<Y>(*ymin), get_y<Y>(*ymax));
+      }
+
+      // --------------------------------------------------------------------------
+      template<typename X, typename Y, typename L>
+      range_pair<X, Y> find_min_max_ignore_0 (const L& v) {
+        auto i = std::begin(v);
+        auto last = std::end(v);
+
+        auto xmin = last;
+        auto ymin = last;
+        while (++i < last) {
+          const auto x = get_x<X>(*i);
+          if (x != X(0)) {
+            if ((xmin == last) || lower(x, get_x<X>(*xmin))) {
+              xmin = i;
+            }
+          }
+          const auto y = get_y<Y>(*i);
+          if (y != Y(0)) {
+            if ((ymin == last) || lower(y, get_y<Y>(*ymin))) {
+              ymin = i;
+            }
+          }
+        }
+        i = std::begin(v);
+        auto xmax = i;
+        auto ymax = i;
+        while (++i < last) {
+          if (lower(get_x<X>(*xmax), get_x<X>(*i))) {
+            xmax = i;
+          }
+          if (lower(get_y<Y>(*ymax), get_y<Y>(*i))) {
+            ymax = i;
           }
         }
 

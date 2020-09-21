@@ -29,108 +29,213 @@ using namespace util;
 
 // --------------------------------------------------------------------------
 typedef diagram::point2d<std::time_t, double> point;
+typedef core::range<std::time_t> time_range;
 
+// --------------------------------------------------------------------------
+struct timer {
+
+  timer () {
+    restart();
+  }
+
+  void restart () {
+    begin = std::chrono::system_clock::now();
+  }
+
+  std::chrono::system_clock::duration duration () const {
+    return std::chrono::system_clock::now() - begin;
+  }
+
+private:
+  std::chrono::system_clock::time_point begin;
+};
+
+// --------------------------------------------------------------------------
 namespace gui { namespace draw { namespace diagram {
   inline bool operator< (const point& lhs, const point& rhs) {
     return lhs.x < rhs.x;
   }
 }}}
 
+struct separate_thousands : std::numpunct<char> {
+  char_type do_thousands_sep() const override { return '.'; }  // separate with commas
+  string_type do_grouping() const override { return "\3"; } // groups of 3 digit
+};
+
+// --------------------------------------------------------------------------
 namespace std {
-  std::ostream& operator<< (std::ostream& out, const point& pt) {
+
+  inline std::ostream& operator<< (std::ostream& out, const point& pt) {
     out << "[";
     util::time::format_date(out, pt.x);
     out << ":" << pt.y << "]";
     return out;
   }
-}
 
-// --------------------------------------------------------------------------
-std::vector<point> accumulated (std::vector<point> v) {
-  double prev = 0;
-  for (auto& i : v) {
-    prev += i.y;
-    i.y = prev;
+  inline std::ostream& operator<< (std::ostream& out, const time_range& r) {
+    out << "[";
+    util::time::format_date(out, r.begin());
+    out << ":" ;
+    util::time::format_date(out, r.end());
+    out << "]";
+    return out;
   }
-  return v;
+
+  inline std::ostream& operator<< (std::ostream& out, const timer& t) {
+    out << t.duration();
+    return out;
+  }
+
+  inline ios_base& separat_k (ios_base& __base) {
+    static std::locale __private_locale(__base.getloc(), new separate_thousands());
+    __base.imbue(__private_locale);
+    return __base;
+  }
 }
 
-// --------------------------------------------------------------------------
-std::vector<point> mean (const std::vector<point>& v, int count) {
-  std::vector<point> result;
-  const auto sz = v.size();
-  result.resize(sz);
-  for (int i = 0; i < sz; ++i) {
-    const int min = std::max(0, i - count + 1);
-    const int max = i + 1;
-    const int diff = std::max(1, max - min);
-    double sum = 0;
-    for (int j = min; j < max; ++j) {
-      sum += v[j].y;
+namespace calc {
+
+  // --------------------------------------------------------------------------
+  std::vector<point> accumulated (std::vector<point> v) {
+    double prev = 0;
+    for (auto& i : v) {
+      prev += i.y;
+      i.y = prev;
     }
-    result[i] = { v[i].x, sum / diff };
-  }
-  return result;
-}
-
-// --------------------------------------------------------------------------
-std::vector<point> ratio (const std::vector<point>& divident,
-                          const std::vector<point>& divisor,
-                          int offset) {
-  if ((divisor.size() + offset) < divident.size()) {
-    throw std::out_of_range("divisor list is to small!");
+    return v;
   }
 
-  const auto sz = divident.size();
-  std::vector<point> result;
-  result.resize(sz - offset);
-  for (int i = offset; i < sz; ++i) {
-    const auto& divid = divident[i];
-    const auto& divis = divisor[i - offset];
-    const double div = divid.y / divis.y;
-    result[i - offset] = { divid.x, std::isfinite(div) ? div : 1.0 };
+  // --------------------------------------------------------------------------
+  std::vector<point> rolling_mean (const std::vector<point>& v, int count) {
+    std::vector<point> result;
+    const auto sz = v.size();
+    result.resize(sz);
+    for (int i = 0; i < sz; ++i) {
+      const int min = std::max(0, i - count) + 1;
+      const int max = i + 1;
+      const int diff = std::max(1, max - min);
+      double sum = 0;
+      for (int j = min; j < max; ++j) {
+        sum += v[j].y;
+      }
+      result[i] = { v[i].x, sum / diff };
+    }
+    return result;
   }
-  return result;
-}
 
-// --------------------------------------------------------------------------
-std::vector<point> increase (std::vector<point> v) {
-  double prev = 1;
-  for (auto& i : v) {
-    const double next = i.y;
-    const double div = next / prev;
-    i.y = std::isfinite(div) ? div - 1.0 : 0.0;
-    prev = next;
+  // --------------------------------------------------------------------------
+  std::vector<point> ratio (const std::vector<point>& divident,
+                            const std::vector<point>& divisor,
+                            int offset) {
+    if ((divisor.size() + offset) < divident.size()) {
+      throw std::out_of_range("divisor list is to small!");
+    }
+
+    const auto sz = divident.size();
+    std::vector<point> result;
+    result.resize(sz - offset);
+    for (int i = offset; i < sz; ++i) {
+      const auto& divid = divident[i];
+      const auto& divis = divisor[i - offset];
+      const double div = divid.y / divis.y;
+      result[i - offset] = { divid.x, std::isfinite(div) ? div : 1.0 };
+    }
+    return result;
   }
-  return v;
-}
 
-// --------------------------------------------------------------------------
-void add (std::vector<point>& v, const std::vector<point>& s) {
-  if (v.size() < s.size()) {
-    v = s;
-  } else {
-    for (std::size_t i = 0; i< s.size(); ++i) {
-      v[i].y += s[i].y;
+  // --------------------------------------------------------------------------
+  std::vector<point> increase (std::vector<point> v) {
+    double prev = 1;
+    for (auto& i : v) {
+      const double next = i.y;
+      const double div = next / prev;
+      i.y = std::isfinite(div) ? div - 1.0 : 0.0;
+      prev = next;
+    }
+    return v;
+  }
+
+  // --------------------------------------------------------------------------
+  std::vector<point> divide (std::vector<point> v, double divisor) {
+    std::vector<point> result;
+    const auto sz = v.size();
+    result.resize(sz);
+    for (int i = 0; i < sz; ++i) {
+      result[i] = { v[i].x, (v[i].y / divisor) };
+    }
+    return result;
+  }
+
+  // --------------------------------------------------------------------------
+  void add (std::vector<point>& v, const std::vector<point>& s) {
+    if (v.empty()) {
+      v = s;
+    } else if (v.size() == s.size()) {
+      for (std::size_t i = 0; i< s.size(); ++i) {
+        v[i].y += s[i].y;
+#ifdef DEBUG
+        if (v[i].x != s[i].x) {
+          clog::debug() << "X-Value differs (" << v[i].x << " != " << s[i].x << ") at " << i;
+        }
+#endif
+      }
     }
   }
-}
-// --------------------------------------------------------------------------
-typedef double (calculator) (double);
-std::vector<point> calc (std::vector<point> v, calculator c) {
-  for (auto& i : v) {
-    i.y = c(i.y);
+
+  // --------------------------------------------------------------------------
+  void fill_up (std::vector<point>& v, const std::size_t count, const time_range& r) {
+    if ((v.size() == count) && (v.front().x == r.begin()) && (v.back().x == r.end())) {
+      return;
+    } else {
+      std::vector<point> result;
+      result.resize(count);
+      auto i = v.cbegin();
+      auto o = result.begin();
+      const auto ie = v.cend();
+      const auto oe = result.end();
+      std::time_t dt = r.begin();
+      while (o < oe) {
+        if (i < ie) {
+          while ((i->x > dt) && (o < oe)) {
+           *o++ = { dt, 0.0 };
+            dt += 60*60*24;
+          }
+          if (o < oe) {
+            dt = i->x + 60*60*24;
+            *o++ = *i++;
+          }
+        } else {
+          *o++ = { dt, 0.0 };
+          dt += 60*60*24;
+        }
+      }
+      v = result;
+    }
   }
-  return v;
-}
+
+  // --------------------------------------------------------------------------
+  typedef double (calculator) (double);
+  std::vector<point> calc (std::vector<point> v, calculator c) {
+    for (auto& i : v) {
+      i.y = c(i.y);
+    }
+    return v;
+  }
+
+} // namespace calc
 // --------------------------------------------------------------------------
 struct country_data : public gui::ctrl::list_data_t<std::string> {
 
   struct country {
+    country ()
+      : population(0)
+    {}
+
     std::vector<point> positives;
     std::vector<point> deaths;
     std::size_t population;
     std::string region;
+    std::string name;
   };
 
   typedef std::map<std::string, country> map_type;
@@ -146,6 +251,7 @@ struct country_data : public gui::ctrl::list_data_t<std::string> {
 
   list_type countries;
   map_type data;
+  time_range x_range;
 };
 // --------------------------------------------------------------------------
 enum option {
@@ -157,10 +263,20 @@ enum option {
   relative_median_7_increase = 4,
   r_value = 5,
   lethality = 6,
+  per_100k = 7,
+  deads_per_100k = 8,
   options_count
 };
 // --------------------------------------------------------------------------
-const std::array<std::string, 14> heads = {
+enum class chart_t {
+  country_chart,
+  cases_chart,
+  r_value_chart,
+  lethality_chart,
+  per_100k_chart
+};
+// --------------------------------------------------------------------------
+const std::array<std::string, options_count*2> heads = {
   "pos.inc.",
   "dead inc.",
   "pos./7",
@@ -174,10 +290,12 @@ const std::array<std::string, 14> heads = {
   "r-val",
   "r-val/7",
   "lethal",
-  "lethal/14"
+  "lethal/14",
+  "per 100k"
+  "per 100k/7"
 };
 // --------------------------------------------------------------------------
-typedef layout_main_window<gui::layout::border::layouter<25, 0, 150, 0>> main_type;
+typedef layout_main_window<gui::layout::border::layouter<40, 0, 150, 0>> main_type;
 // --------------------------------------------------------------------------
 struct covid19main : public main_type {
   typedef main_type super;
@@ -192,15 +310,26 @@ struct covid19main : public main_type {
                 const draw::brush& background,
                 item_state state) const;
 
-  country_data data;
+  std::size_t chart_count () const;
 
+  void refresh ();
+
+  void showChart (chart_t t);
+  void showTable ();
+
+  country_data data;
   country_data::country option_data[options_count];
+  chart_t chart_type;
 
   vertical_list countries;
-  layout::grid_lineup<100, 25> button_layout;
+  layout::grid_lineup<100, 40> button_layout;
   text_button load_button;
   text_button table_button;
   text_button chart_button;
+  text_button cases_button;
+  text_button r_value_button;
+  text_button lethality_button;
+  text_button per100k_button;
   ctrl::vertical_tile_view charts;
   ctrl::table_view table;
 };
@@ -212,7 +341,7 @@ struct covid19data : public list_data {
   {}
 
   std::size_t size () const override {
-    return main->option_data[absolute_increase].positives.empty() ? 0 : 6;
+    return main->chart_count();
   }
 
   void draw_at (std::size_t idx,
@@ -281,9 +410,11 @@ void drawChart (const graphics& graph,
                 std::initializer_list<country_data::country> cs,
                 std::initializer_list<std::string> legends);
 // --------------------------------------------------------------------------
-std::array<os::color, 6> colors = {color::light_red, color::light_green,
-                                   color::dark_red, color::dark_green,
-                                   color::light_blue, color::dark_blue};
+std::array<os::color, 6> colors = {
+  color::light_red, color::light_green,
+  color::light_blue, color::dark_blue,
+  color::dark_red, color::dark_green,
+};
 // --------------------------------------------------------------------------
 std::vector<diagram::legend_label> build_legend_labels ( std::initializer_list<std::string> labels) {
   std::vector<diagram::legend_label> legends;
@@ -384,15 +515,28 @@ std::string format_column (int i, double v) {
 }
 // --------------------------------------------------------------------------
 covid19main::covid19main ()
-  : button_layout({layout::lay(load_button), layout::lay(table_button), layout::lay(chart_button)})
+  : chart_type(chart_t::country_chart)
+  , button_layout({layout::lay(load_button),
+                  layout::lay(table_button),
+                  layout::lay(chart_button),
+                  layout::lay(cases_button),
+                  layout::lay(r_value_button),
+                  layout::lay(lethality_button),
+                  layout::lay(per100k_button)})
   , table(64, 20)
 {
 
   on_create([&] (window*, core::rectangle) {
+    countries.set_item_size(40);
     countries.create(*this);
     load_button.create(*this, "Load CSV");
     table_button.create(*this, "Show table");
     chart_button.create(*this, "Show chart");
+    cases_button.create(*this, "Show cases");
+    r_value_button.create(*this, "R-Values");
+    lethality_button.create(*this, "Show lethality");
+    per100k_button.create(*this, "Per 100k");
+
     charts.create(*this);
     table.create(*this);
     table.set_visible(false);
@@ -413,17 +557,27 @@ covid19main::covid19main ()
   });
 
   table_button.on_clicked([&] () {
-    table.set_visible(true);
-    charts.set_visible(false);
-    get_layout().set_center(layout::lay(table));
-    layout();
+    showTable();
   });
 
   chart_button.on_clicked([&] () {
-    charts.set_visible(true);
-    table.set_visible(false);
-    get_layout().set_center(layout::lay(charts));
-    layout();
+    showChart(chart_t::country_chart);
+  });
+
+  cases_button.on_clicked([&] () {
+    showChart(chart_t::cases_chart);
+  });
+
+  r_value_button.on_clicked([&] () {
+    showChart(chart_t::r_value_chart);
+  });
+
+  lethality_button.on_clicked([&] () {
+    showChart(chart_t::lethality_chart);
+  });
+
+  per100k_button.on_clicked([&] () {
+    showChart(chart_t::per_100k_chart);
   });
 
   charts.on_size([&] (const core::size& sz) {
@@ -481,32 +635,78 @@ covid19main::covid19main ()
       return;
     }
     const auto& n = data.countries[sel];
-    option_data[absolute_increase] = data.data[n];
+    const auto& c = data.data.at(n);
+    option_data[absolute_increase] = c;
 
-    option_data[absolute_cumulated].positives = accumulated(option_data[absolute_increase].positives);
-    option_data[absolute_cumulated].deaths = accumulated(option_data[absolute_increase].deaths);
+//    timer stopwatch;
+    option_data[absolute_cumulated].positives = calc::accumulated(c.positives);
+    option_data[absolute_cumulated].deaths = calc::accumulated(c.deaths);
+//    clog::info() << "Duration for accumulation: " << stopwatch;
 
-    option_data[increase_median_7].positives = mean(option_data[absolute_increase].positives, 7);
-    option_data[increase_median_7].deaths = mean(option_data[absolute_increase].deaths, 7);
+    option_data[increase_median_7].positives = calc::rolling_mean(c.positives, 7);
+    option_data[increase_median_7].deaths = calc::rolling_mean(c.deaths, 7);
 
-    option_data[relative_increase].positives = increase(option_data[absolute_cumulated].positives);
-    option_data[relative_increase].deaths = increase(option_data[absolute_cumulated].deaths);
+    option_data[relative_increase].positives = calc::increase(option_data[absolute_cumulated].positives);
+    option_data[relative_increase].deaths = calc::increase(option_data[absolute_cumulated].deaths);
 
-    option_data[relative_median_7_increase].positives = mean(option_data[relative_increase].positives, 7);
-    option_data[relative_median_7_increase].deaths = mean(option_data[relative_increase].deaths, 7);
+    option_data[relative_median_7_increase].positives = calc::rolling_mean(option_data[relative_increase].positives, 7);
+    option_data[relative_median_7_increase].deaths = calc::rolling_mean(option_data[relative_increase].deaths, 7);
 
-    option_data[r_value].deaths = mean(option_data[absolute_increase].positives, 4);
-    option_data[r_value].positives = ::ratio(option_data[r_value].deaths, option_data[r_value].deaths, 4);
-    option_data[r_value].deaths = mean(option_data[r_value].positives, 7);
+    option_data[r_value].deaths = calc::rolling_mean(c.positives, 4);
+    option_data[r_value].positives = calc::ratio(option_data[r_value].deaths, option_data[r_value].deaths, 4);
+    option_data[r_value].deaths = calc::rolling_mean(option_data[r_value].positives, 7);
 
-    option_data[lethality].positives = ::ratio(option_data[absolute_cumulated].deaths, option_data[absolute_cumulated].positives, 0);
-    option_data[lethality].deaths = ::ratio(option_data[increase_median_7].deaths, option_data[increase_median_7].positives, 14);
+    option_data[lethality].positives = calc::ratio(option_data[absolute_cumulated].deaths, option_data[absolute_cumulated].positives, 0);
+    option_data[lethality].deaths = calc::ratio(option_data[increase_median_7].deaths, option_data[increase_median_7].positives, 14);
+
+    option_data[per_100k].positives = calc::divide(option_data[absolute_cumulated].positives, static_cast<double>(c.population) / 100000.0);
+    option_data[per_100k].deaths = calc::divide(option_data[increase_median_7].positives, static_cast<double>(c.population) / 700000.0);
+
+    option_data[deads_per_100k].positives = calc::divide(option_data[absolute_cumulated].deaths, static_cast<double>(c.population) / 100000.0);
+    option_data[deads_per_100k].deaths = calc::divide(option_data[increase_median_7].deaths, static_cast<double>(c.population) / 700000.0);
 
     charts.set_count();
     table.data.invalidate();
     table.rows.invalidate();
   });
 
+}
+// --------------------------------------------------------------------------
+void covid19main::refresh () {
+  countries.set_data(data);
+  countries.set_count();
+}
+// --------------------------------------------------------------------------
+void covid19main::showChart (chart_t t) {
+  charts.set_visible(true);
+  table.set_visible(false);
+  get_layout().set_center(layout::lay(charts));
+  layout();
+  chart_type = t;
+  charts.set_count();
+}
+// --------------------------------------------------------------------------
+void covid19main::showTable () {
+  charts.set_visible(false);
+  table.set_visible(true);
+  get_layout().set_center(layout::lay(table));
+  layout();
+  chart_type = chart_t::country_chart;
+  charts.set_count();
+}
+// --------------------------------------------------------------------------
+std::size_t covid19main::chart_count () const {
+  switch (chart_type) {
+    case chart_t::country_chart:
+      return option_data[absolute_increase].positives.empty() ? 0 : options_count - 1;
+    case chart_t::cases_chart:
+    case chart_t::r_value_chart:
+    case chart_t::lethality_chart:
+    case chart_t::per_100k_chart:
+      return data.countries.size();
+    default:
+      return 0;
+  }
 }
 // --------------------------------------------------------------------------
 void covid19main::draw_at (std::size_t idx,
@@ -516,39 +716,107 @@ void covid19main::draw_at (std::size_t idx,
                            item_state state) const {
 //  auto inner = draw::frame::sunken_relief(graph, area);
   graph.fill(draw::rectangle(area), background);
-  switch (idx) {
-    case 0:
-      drawChart<diagram::scaling::linear>(graph, area, "Increase positives/deads",
-        {option_data[absolute_increase], option_data[increase_median_7]},
-        {"positive", "dead", "positive/7-day", "dead/7-day"});
+  switch (chart_type) {
+    case chart_t::country_chart:
+      switch (idx) {
+        case 0:
+          drawChart<diagram::scaling::linear>(graph, area, "Increase positives/deads",
+          {option_data[absolute_increase], option_data[increase_median_7]},
+          {"positive", "dead", "positive/7-day", "dead/7-day"});
+          break;
+        case 1:
+          drawChart<diagram::scaling::log>(graph, area, "Logarithmic Increase pos./deads",
+          {option_data[absolute_increase], option_data[increase_median_7]},
+          {"positive", "dead", "positive/7-day", "dead/7-day"});
+          break;
+        case 2:
+          drawChart<diagram::scaling::log>(graph, area, "Cumulated positives/deads",
+          {option_data[absolute_cumulated]},
+          {"positive", "dead"});
+          break;
+        case 3:
+          drawChart<diagram::scaling::log>(graph, area, "Logarithmic relative Inncrease",
+          {option_data[relative_increase], option_data[relative_median_7_increase]},
+          {"positive", "dead", "positive/7-day", "dead/7-day"});
+          break;
+        case 4:
+          drawChart<diagram::scaling::log>(graph, area, "R-Value",
+          {option_data[r_value]},
+          {"R-Value", "R-Value/7-day"});
+          break;
+        case 5:
+          drawChart<diagram::scaling::log>(graph, area, "Lethality",
+          {option_data[lethality]},
+          {"Deads/positives", "Deads/positives/14-day"});
+          break;
+        case 6:
+          drawChart<diagram::scaling::log>(graph, area, "Per 100.000",
+          {option_data[per_100k], option_data[deads_per_100k]},
+          {"per 100k cumulated", "per 100k last 7 days", "deads per 100k cumulated", "deads per 100k last 7 days"});
+          break;
+      }
       break;
-    case 1:
-      drawChart<diagram::scaling::log>(graph, area, "Logarithmic Increase pos./deads",
-        {option_data[absolute_increase], option_data[increase_median_7]},
-        {"positive", "dead", "positive/7-day", "dead/7-day"});
-      break;
-    case 2:
-      drawChart<diagram::scaling::log>(graph, area, "Cumulated positives/deads",
-        {option_data[absolute_cumulated]},
-        {"positive", "dead"});
-      break;
-    case 3:
-      drawChart<diagram::scaling::log>(graph, area, "Logarithmic relative Inncrease",
-        {option_data[relative_increase], option_data[relative_median_7_increase]},
-        {"positive", "dead", "positive/7-day", "dead/7-day"});
-      break;
-    case 4:
-      drawChart<diagram::scaling::log>(graph, area, "R-Value",
-        {option_data[r_value]},
-        {"R-Value", "R-Value/7-day"});
-      break;
-    case 5:
-      drawChart<diagram::scaling::log>(graph, area, "Lethality",
-        {option_data[lethality]},
-        {"Deads/positives", "Deads/positives/14-day"});
-      break;
-  }
+    case chart_t::cases_chart: {
+      const auto& n = data.countries[idx];
+      const auto& c = data.data.at(n);
 
+      country_data::country ctry;
+      ctry.positives = calc::rolling_mean(c.positives, 7);
+      ctry.deaths = calc::rolling_mean(c.deaths, 7);
+
+      drawChart<diagram::scaling::log>(graph, area, n, {ctry}, {"positive", "dead"});
+      break;
+    }
+    case chart_t::r_value_chart: {
+      const auto& n = data.countries[idx];
+      const auto& c = data.data.at(n);
+
+      auto med_pos = calc::rolling_mean(c.positives, 4);
+
+      country_data::country ctry;
+      ctry.positives = calc::ratio(med_pos, med_pos, 4);
+      ctry.deaths = calc::rolling_mean(ctry.positives, 7);
+
+      drawChart<diagram::scaling::log>(graph, area, n, {ctry}, {"R-Value", "R-Value/7-day"});
+      break;
+    }
+    case chart_t::lethality_chart: {
+      const auto& n = data.countries[idx];
+      const auto& c = data.data.at(n);
+
+      auto acc_pos = calc::accumulated(c.positives);
+      auto acc_dea = calc::accumulated(c.deaths);
+      auto med_pos = calc::rolling_mean(c.positives, 7);
+      auto med_dea = calc::rolling_mean(c.deaths, 7);
+
+      country_data::country ctry;
+      ctry.positives = calc::ratio(acc_dea, acc_pos, 0);
+      ctry.deaths = calc::ratio(med_dea, med_pos, 14);
+
+      drawChart<diagram::scaling::log>(graph, area, n,
+      {ctry}, {"Deads/positives", "Deads/positives/14-day"});
+      break;
+    }
+    case chart_t::per_100k_chart: {
+      const auto& n = data.countries[idx];
+      const auto& c = data.data.at(n);
+
+      auto acc_pos = calc::accumulated(c.positives);
+      auto med_pos = calc::rolling_mean(c.positives, 7);
+      auto acc_dea = calc::accumulated(c.deaths);
+      auto med_dea = calc::rolling_mean(c.deaths, 7);
+
+      country_data::country pos, deads;
+      pos.positives = calc::divide(acc_pos, c.population / 100000.0);
+      pos.deaths = calc::divide(med_pos, c.population / 700000.0);
+      deads.positives = calc::divide(acc_dea, c.population / 100000.0);
+      deads.deaths = calc::divide(med_dea, c.population / 700000.0);
+
+      drawChart<diagram::scaling::log>(graph, area, ostreamfmt(n << " [" << std::separat_k << c.population << "]"),
+      {pos, deads}, {"per 100k cumulated", "per 100k last 7 days", "deads per 100k cumulated", "deads per 100k last 7 days"});
+      break;
+    }
+  }
 }
 // --------------------------------------------------------------------------
 typedef csv::tuple_reader<std::string, int, int, int, int, int, std::string, std::string, std::string, std::size_t, std::string, std::string> covid19reader;
@@ -559,15 +827,26 @@ void covid19main::load_data (const sys_fs::path& p) {
   data.data.clear();
   data.countries.clear();
 
-  const auto start = std::chrono::system_clock::now();
+  timer stopwatch;
   std::ifstream in(p);
 
   covid19reader::read_csv(in, ',', true, [&] (const covid19reader::tuple& t) {
+
     const auto x = time::tm2time_t(time::mktm(std::get<3>(t), std::get<2>(t), std::get<1>(t)));
-    auto i = data.data.find(std::get<6>(t));
+
+    static time_range null_range(0);
+    if (data.x_range == null_range) {
+      data.x_range = { x, x };
+    } else {
+      data.x_range = core::min_max( data.x_range, { x, x });
+    }
+
+    auto &n = std::get<6>(t);
+    auto i = data.data.find(n);
     if (i == data.data.end()) {
-      auto p = data.data.insert(std::make_pair(std::get<6>(t), country_data::country()));
+      auto p = data.data.insert(std::make_pair(n, country_data::country()));
       i = p.first;
+      i->second.name = n;
       i->second.region = std::get<10>(t);
       i->second.population = std::get<9>(t);
     }
@@ -596,38 +875,151 @@ void covid19main::load_data (const sys_fs::path& p) {
 //    c.second.deaths.push_back({x, d});
 //  });
 
-  const auto stop = std::chrono::system_clock::now();
-  const auto duration = stop - start;
+  clog::info() << "Duration for parsing: " << stopwatch;
 
-  clog::info() << "Duration for parsing: " << duration;
-
+  clog::info() << "Inspected range: " << data.x_range;
+  std::size_t count = data.x_range.size() / (60*60*24) + 1;
   country_data::country world;
   country_data::map_type regions;
   for (auto& i : data.data) {
-    std::sort(i.second.positives.begin(), i.second.positives.end());
-    std::sort(i.second.deaths.begin(), i.second.deaths.end());
-    add(world.positives, i.second.positives);
-    add(world.deaths, i.second.deaths);
-    auto& region = regions[" " + i.second.region];
-    add(region.positives, i.second.positives);
-    add(region.deaths, i.second.deaths);
+    country_data::country& cntry = i.second;
+
+    std::sort(cntry.positives.begin(), cntry.positives.end());
+    std::sort(cntry.deaths.begin(), cntry.deaths.end());
+
+#ifdef DEBUG
+    if (cntry.name == "San_Marino") {
+      clog::debug() << "Fill up " << cntry.name;
+    }
+#endif
+
+    calc::fill_up(cntry.positives, count, data.x_range);
+    calc::fill_up(cntry.deaths, count, data.x_range);
+
+//    clog::debug() << "Add " << cntry.name << " to world";
+    calc::add(world.positives, cntry.positives);
+    calc::add(world.deaths, cntry.deaths);
+
+    world.population += cntry.population;
+
+    if (cntry.region != "Other") {
+      auto& region = regions["- " + cntry.region];
+
+//    clog::debug() << "Add " << cntry.name << " to region - " << cntry.region;
+      calc::add(region.positives, cntry.positives);
+      calc::add(region.deaths, cntry.deaths);
+
+      region.population += cntry.population;
+    }
   }
 
   data.data.insert(std::make_move_iterator(begin(regions)),
                    std::make_move_iterator(end(regions)));
-  data.data.insert(std::make_pair(" World", std::move(world)));
+  data.data.insert(std::make_pair("- World", std::move(world)));
 
   std::transform(std::begin(data.data), std::end(data.data), std::back_inserter(data.countries),
                  [](country_data::map_type::value_type const& pair) { return pair.first; });
 }
 // --------------------------------------------------------------------------
+void test_fill_up () {
+  time_range r(time::tm2time_t(time::mktm(2020, 1, 1)), time::tm2time_t(time::mktm(2020, 1, 31)));
+  std::vector<point> test0;
+  calc::fill_up(test0, 31, r);
+
+  EXPECT_EQUAL(test0.size(), 31);
+  EXPECT_EQUAL(test0.front().x, (time::tm2time_t(time::mktm(2020, 1, 1))));
+  EXPECT_EQUAL(test0[9].x, (time::tm2time_t(time::mktm(2020, 1, 10))));
+  EXPECT_EQUAL(test0[19].x, (time::tm2time_t(time::mktm(2020, 1, 20))));
+  EXPECT_EQUAL(test0.back().x, (time::tm2time_t(time::mktm(2020, 1, 31))));
+
+  std::vector<point> test1 = {{ time::tm2time_t(time::mktm(2020, 1, 1)), 1.0 }};
+  calc::fill_up(test1, 31, r);
+
+  EXPECT_EQUAL(test1.size(), 31);
+  EXPECT_EQUAL(test1.front().x, (time::tm2time_t(time::mktm(2020, 1, 1))));
+  EXPECT_EQUAL(test1[9].x, (time::tm2time_t(time::mktm(2020, 1, 10))));
+  EXPECT_EQUAL(test1[19].x, (time::tm2time_t(time::mktm(2020, 1, 20))));
+  EXPECT_EQUAL(test1.back().x, (time::tm2time_t(time::mktm(2020, 1, 31))));
+
+  std::vector<point> test2 = {{ time::tm2time_t(time::mktm(2020, 1, 31)), 1.0 }};
+  calc::fill_up(test2, 31, r);
+
+  EXPECT_EQUAL(test2.size(), 31);
+  EXPECT_EQUAL(test2.front().x, (time::tm2time_t(time::mktm(2020, 1, 1))));
+  EXPECT_EQUAL(test2[9].x, (time::tm2time_t(time::mktm(2020, 1, 10))));
+  EXPECT_EQUAL(test2[19].x, (time::tm2time_t(time::mktm(2020, 1, 20))));
+  EXPECT_EQUAL(test2.back().x, (time::tm2time_t(time::mktm(2020, 1, 31))));
+
+  std::vector<point> test3 = {{ time::tm2time_t(time::mktm(2020, 1, 15)), 1.0 }};
+  calc::fill_up(test3, 31, r);
+
+  EXPECT_EQUAL(test3.size(), 31);
+  EXPECT_EQUAL(test3.front().x, (time::tm2time_t(time::mktm(2020, 1, 1))));
+  EXPECT_EQUAL(test3[9].x, (time::tm2time_t(time::mktm(2020, 1, 10))));
+  EXPECT_EQUAL(test3[19].x, (time::tm2time_t(time::mktm(2020, 1, 20))));
+  EXPECT_EQUAL(test3.back().x, (time::tm2time_t(time::mktm(2020, 1, 31))));
+
+  std::vector<point> test4 = {{ time::tm2time_t(time::mktm(2020, 1, 1)), 1.0 },
+                              { time::tm2time_t(time::mktm(2020, 1, 15)), 1.0 }};
+  calc::fill_up(test4, 31, r);
+
+  EXPECT_EQUAL(test4.size(), 31);
+  EXPECT_EQUAL(test4.front().x, (time::tm2time_t(time::mktm(2020, 1, 1))));
+  EXPECT_EQUAL(test4[9].x, (time::tm2time_t(time::mktm(2020, 1, 10))));
+  EXPECT_EQUAL(test4[19].x, (time::tm2time_t(time::mktm(2020, 1, 20))));
+  EXPECT_EQUAL(test4.back().x, (time::tm2time_t(time::mktm(2020, 1, 31))));
+
+  std::vector<point> test5 = {{ time::tm2time_t(time::mktm(2020, 1, 15)), 1.0 },
+                              { time::tm2time_t(time::mktm(2020, 1, 31)), 1.0 }};
+  calc::fill_up(test5, 31, r);
+
+  EXPECT_EQUAL(test5.size(), 31);
+  EXPECT_EQUAL(test5.front().x, (time::tm2time_t(time::mktm(2020, 1, 1))));
+  EXPECT_EQUAL(test5[9].x, (time::tm2time_t(time::mktm(2020, 1, 10))));
+  EXPECT_EQUAL(test5[19].x, (time::tm2time_t(time::mktm(2020, 1, 20))));
+  EXPECT_EQUAL(test5.back().x, (time::tm2time_t(time::mktm(2020, 1, 31))));
+
+  std::vector<point> test6 = {{ time::tm2time_t(time::mktm(2020, 1, 1)), 1.0 },
+                              { time::tm2time_t(time::mktm(2020, 1, 15)), 1.0 },
+                              { time::tm2time_t(time::mktm(2020, 1, 31)), 1.0 }};
+  calc::fill_up(test6, 31, r);
+
+  EXPECT_EQUAL(test6.size(), 31);
+  EXPECT_EQUAL(test6.front().x, (time::tm2time_t(time::mktm(2020, 1, 1))));
+  EXPECT_EQUAL(test6[9].x, (time::tm2time_t(time::mktm(2020, 1, 10))));
+  EXPECT_EQUAL(test6[19].x, (time::tm2time_t(time::mktm(2020, 1, 20))));
+  EXPECT_EQUAL(test6.back().x, (time::tm2time_t(time::mktm(2020, 1, 31))));
+
+  time_range r2(time::tm2time_t(time::mktm(2020, 1, 1)), time::tm2time_t(time::mktm(2020, 31, 31)));
+  std::vector<point> test7 = {{ time::tm2time_t(time::mktm(2020, 3, 1)), 1.0 }};
+  calc::fill_up(test7, 31+29+31, r2);
+
+  EXPECT_EQUAL(test7.size(), 31+29+31);
+  EXPECT_EQUAL(test7.front().x, (time::tm2time_t(time::mktm(2020, 1, 1))));
+  EXPECT_EQUAL(test7[9].x, (time::tm2time_t(time::mktm(2020, 1, 10))));
+  EXPECT_EQUAL(test7[19].x, (time::tm2time_t(time::mktm(2020, 1, 20))));
+  EXPECT_EQUAL(test7.back().x, (time::tm2time_t(time::mktm(2020, 3, 31))));
+}
+// --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& args) {
+//  clog::debug() << util::time::format_date(1583190000) << " != " << util::time::format_date(1583276400);
+//  return 0;
+
+//  test_fill_up();
+
   covid19main main;
 
   main.create({50, 50, 800, 600});
   main.on_destroy(&quit_main_loop);
   main.set_title("Covid-19");
   main.set_visible();
+
+  if (args.size() > 1) {
+    win::run_on_main([&] () {
+      main.load_data(args[1]);
+      main.refresh();
+    });
+  }
 
   return run_main_loop();
 }

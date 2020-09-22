@@ -893,13 +893,14 @@ void my_main_window::created_children () {
     layout::simple_column_info{ 30, text_origin_t::vcenter_left, 20 }
   };
 
+  typedef ctrl::const_column_list_data<int, int, int>::row_type row_type;
   ctrl::const_column_list_data<int, int, int> second_data({
-    { 1, 2, 3 },
-    { 3, 4, 5 },
-    { 5, 6, 7 },
-    { 7, 8, 9 },
-    { 9, 10, 11 },
-    { 12, 13, 14 }
+    row_type{ 1, 2, 3 },
+    row_type{ 3, 4, 5 },
+    row_type{ 5, 6, 7 },
+    row_type{ 7, 8, 9 },
+    row_type{ 9, 10, 11 },
+    row_type{ 12, 13, 14 }
   });
   main_split_view.create(main, core::rectangle(410, 50, 160, 250));
   main_split_view.first.second.set_data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});

@@ -354,9 +354,10 @@ namespace gui {
         default:
           s << "*";
       }
-      s << "-" << (italic ? "i" : "r") << "-normal-*-" << (size * 10) << "-*";
+      s << "-" << (italic ? "i" : "r") << "-*--" << size << "-*";
 
       std::string str = s.str();
+      clog::debug() << "Font name:" << str;
       //std::transform(str.begin(), str.end(), str.begin(), tolower);
       return str;
     }
@@ -425,13 +426,18 @@ namespace gui {
                          XFT_SLANT, XftTypeInteger, (italic ? FC_SLANT_ITALIC : 0),
                          NULL);
 #else
-      std::string full_name = buildFontName(name, (double)font_scale(size), thickness, italic);
-      clog::debug() << "Load Query Font:'" << full_name << "'";
+      auto fs = static_cast<double>(font_scale(size));
+      std::string full_name = buildFontName(name, fs, thickness, italic);
       os::font_type f = XLoadQueryFont(core::global::get_instance(), full_name.c_str());
       if (!f) {
-        f = XLoadQueryFont(core::global::get_instance(), "fixed");
+        full_name = buildFontName("fixed", fs, thickness, italic);
+        f = XLoadQueryFont(core::global::get_instance(), full_name.c_str());
+        if (!f) {
+          f = XLoadQueryFont(core::global::get_instance(), "fixed");
+        }
       }
       info = f;
+      clog::debug() << "Load font:" << get_full_name();
 #endif // USE_XFT
     }
 

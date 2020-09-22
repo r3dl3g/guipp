@@ -8,6 +8,7 @@
 #include <gui/layout/grid_layout.h>
 #include <gui/layout/adaption_layout.h>
 #include <logging/core.h>
+#include <logging/file_logger.h>
 #include <util/csv_reader.h>
 #include <util/time_util.h>
 #include <util/vector_util.h>
@@ -524,10 +525,11 @@ covid19main::covid19main ()
                   layout::lay(lethality_button),
                   layout::lay(per100k_button)})
   , table(64, 20)
+  , countries(40, color::very_light_gray, false)
 {
 
   on_create([&] (window*, core::rectangle) {
-    countries.set_item_size(40);
+//    countries.set_item_size(40);
     countries.create(*this);
     load_button.create(*this, "Load CSV");
     table_button.create(*this, "Show table");
@@ -583,7 +585,7 @@ covid19main::covid19main ()
   charts.on_size([&] (const core::size& sz) {
     const auto w = sz.width() - ctrl::scroll_bar::get_scroll_bar_width();
     const auto c = std::max(1.0, std::floor(w / 580.0));
-    const auto i = std::max(400.0, std::floor(w / c));
+    const auto i = std::max(320.0, std::floor(w / c));
     charts.set_item_size({ static_cast<core::size::type>(i), static_cast<core::size::type>(std::floor(i * 3.0 / 4.0)) });
   });
   charts.set_background(color::white);
@@ -827,10 +829,16 @@ void covid19main::load_data (const sys_fs::path& p) {
   data.data.clear();
   data.countries.clear();
 
+  clog::info() << "Load CSV data from '" << p << "'";
   timer stopwatch;
   std::ifstream in(p);
 
+  if (!in.is_open()) {
+    clog::warn() << "Could not open file '" << p << "'";
+  }
+
   covid19reader::read_csv(in, ',', true, [&] (const covid19reader::tuple& t) {
+//    clog::info() << "Read tuple:" << t;
 
     const auto x = time::tm2time_t(time::mktm(std::get<3>(t), std::get<2>(t), std::get<1>(t)));
 
@@ -1002,6 +1010,9 @@ void test_fill_up () {
 }
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& args) {
+  logging::file_logger l("/tmp/covid19.log", logging::level::debug, logging::core::get_standard_formatter());
+
+  clog::info() << "Current working dir:" << sys_fs::current_path();
 //  clog::debug() << util::time::format_date(1583190000) << " != " << util::time::format_date(1583276400);
 //  return 0;
 

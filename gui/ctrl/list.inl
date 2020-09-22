@@ -444,7 +444,8 @@ namespace gui {
     void basic_list<V, T>::handle_mouse_move (os::key_state keys, const core::point& pt) {
       const core::rectangle r = content_area(client_size());
       if (win::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
-        if (super::get_last_mouse_point() != core::point::undefined) {
+        if ((super::get_last_mouse_point() != core::point::undefined) &&
+            (super::get_last_mouse_point() != pt)) {
           super::set_cursor(win::cursor::move());
           pos_t delta = traits.get_1(super::get_last_mouse_point()) - traits.get_1(pt);
           set_scroll_pos(get_scroll_pos() + delta);

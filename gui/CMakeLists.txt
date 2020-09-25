@@ -15,10 +15,10 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   add_subdirectory(../logging logging)
   add_subdirectory(../util util)
 
-  set (gui_VERSION_MAJOR 0)
-  set (gui_VERSION_MINOR 1)
-  set (gui_VERSION_PATCH 0)
-  set (gui_VERSION "${gui_VERSION_MAJOR}.${gui_VERSION_MINOR}.${gui_VERSION_PATCH}")
+  set (GUIPP_VERSION_MAJOR 0)
+  set (GUIPP_VERSION_MINOR 1)
+  set (GUIPP_VERSION_PATCH 0)
+  set (GUIPP_VERSION "${GUIPP_VERSION_MAJOR}.${GUIPP_VERSION_MINOR}.${GUIPP_VERSION_PATCH}")
 
   if (WIN32)
     set (GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN)
@@ -169,8 +169,8 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     set_target_properties(gui++ PROPERTIES
                           POSITION_INDEPENDENT_CODE ON
                           FOLDER libraries
-                          VERSION ${gui_VERSION}
-                          SOVERSION ${gui_VERSION_MAJOR}
+                          VERSION ${GUIPP_VERSION}
+                          SOVERSION ${GUIPP_VERSION_MAJOR}
                           CXX_STANDARD 11
     )
 
@@ -195,8 +195,8 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     set_target_properties(gui++ PROPERTIES
                           POSITION_INDEPENDENT_CODE ON
                           FOLDER libraries
-                          VERSION ${gui_VERSION}
-                          SOVERSION ${gui_VERSION_MAJOR}
+                          VERSION ${GUIPP_VERSION}
+                          SOVERSION ${GUIPP_VERSION_MAJOR}
                           CXX_STANDARD 11
     )
 
@@ -219,8 +219,8 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     set_target_properties(gui++-static PROPERTIES
                           POSITION_INDEPENDENT_CODE ON
                           FOLDER libraries
-                          VERSION ${gui_VERSION}
-                          SOVERSION ${gui_VERSION_MAJOR}
+                          VERSION ${GUIPP_VERSION}
+                          SOVERSION ${GUIPP_VERSION_MAJOR}
                           CXX_STANDARD 11
     )
 

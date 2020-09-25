@@ -50,8 +50,8 @@ if(NOT TARGET gui++-ctrl-obj)
     set_target_properties(gui++-ctrl PROPERTIES
                           POSITION_INDEPENDENT_CODE ON
                           FOLDER libraries
-                          VERSION ${gui_VERSION}
-                          SOVERSION ${gui_VERSION_MAJOR}
+                          VERSION ${GUIPP_VERSION}
+                          SOVERSION ${GUIPP_VERSION_MAJOR}
                           CXX_STANDARD 11
     )
     install(TARGETS gui++-ctrl DESTINATION ${LIBRARY_INSTALL_DIR})

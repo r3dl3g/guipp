@@ -45,8 +45,8 @@ if(NOT TARGET gui++-win-obj)
     set_target_properties(gui++-win PROPERTIES
                           POSITION_INDEPENDENT_CODE ON
                           FOLDER libraries
-                          VERSION ${gui_VERSION}
-                          SOVERSION ${gui_VERSION_MAJOR}
+                          VERSION ${GUIPP_VERSION}
+                          SOVERSION ${GUIPP_VERSION_MAJOR}
                           CXX_STANDARD 11
     )
 

@@ -35,7 +35,7 @@ if(NOT TARGET gui++-core-obj)
     if(GUIPP_BUILD_STATIC_MODULE_LIBS)
         add_definitions(-DGUIPP_BUILT_AS_STATIC)
         add_library(gui++-core-static STATIC $<TARGET_OBJECTS:gui++-core-obj>)
-        target_link_libraries(gui++-core-static PRIVATE ${logging_libraries})
+        target_link_libraries(gui++-core-static PRIVATE ${LOGGING_LIBRARIES})
 
         install(TARGETS gui++-core-static DESTINATION ${LIBRARY_INSTALL_DIR})
     endif()
@@ -43,7 +43,7 @@ if(NOT TARGET gui++-core-obj)
     if(GUIPP_BUILD_SHARED_MODULE_LIBS)
         add_definitions(-Dgui___core_obj_EXPORTS)
         add_library(gui++-core SHARED $<TARGET_OBJECTS:gui++-core-obj>)
-        target_link_libraries(gui++-core PRIVATE ${logging_libraries} ${GUIPP_SYS_LIBRARIES} ${logging_sys_libraries})
+        target_link_libraries(gui++-core PRIVATE ${LOGGING_LIBRARIES} ${GUIPP_SYS_LIBRARIES} ${LOGGING_SYS_LIBRARIES})
         set_target_properties(gui++-core PROPERTIES
                                          POSITION_INDEPENDENT_CODE ON
                                          FOLDER libraries

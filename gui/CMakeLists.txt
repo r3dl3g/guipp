@@ -21,14 +21,14 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   set (gui_VERSION "${gui_VERSION_MAJOR}.${gui_VERSION_MINOR}.${gui_VERSION_PATCH}")
 
   if (WIN32)
-    set (GUIPP_CXX_FLAGS ${logging_defines} ${util_defines} -DWIN32_LEAN_AND_MEAN)
+    set (GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN)
   else ()
-    set (GUIPP_CXX_FLAGS ${logging_defines} ${util_defines})
+    set (GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS})
   endif ()
 
   set (GUIPP_INCLUDE_DIRS
-    ${logging_include}
-    ${util_include}
+    ${LOGGING_INCLUDE_DIRS}
+    ${UTIL_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/..
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_BINARY_DIR}
@@ -80,11 +80,11 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       gui++-layout-static
       gui++-win-static
       gui++-core-static
-      ${logging_libraries}
-      ${util_libraries}
+      ${LOGGING_LIBRARIES}
+      ${UTIL_LIBRARIES}
       gui++-static
       )
-    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${logging_sys_libraries} ${util_sys_libraries})
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${LOGGING_SYS_LIBRARIES} ${UTIL_SYS_LIBRARIES})
   elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
     set (GUIPP_LIBRARIES
       gui++-ctrl
@@ -93,14 +93,14 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       gui++-layout
       gui++-win
       gui++-core
-      ${logging_libraries}
-      ${util_libraries}
+      ${LOGGING_LIBRARIES}
+      ${UTIL_LIBRARIES}
       gui++
       )
-    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${logging_sys_libraries} ${util_sys_libraries})
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${LOGGING_SYS_LIBRARIES} ${UTIL_SYS_LIBRARIES})
   else()
-    set (GUIPP_LIBRARIES ${logging_libraries} ${util_libraries} gui++)
-    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${logging_sys_libraries} ${util_sys_libraries})
+    set (GUIPP_LIBRARIES ${LOGGING_LIBRARIES} ${UTIL_LIBRARIES} gui++)
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${LOGGING_SYS_LIBRARIES} ${UTIL_SYS_LIBRARIES})
   endif()
 
   set (GUIPP_APP_LIBRARIES
@@ -164,7 +164,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       gui.cpp
       )
 
-    target_link_libraries(gui++ PRIVATE ${logging_libraries} ${util_libraries} ${GUIPP_SYS_LIBRARIES})
+    target_link_libraries(gui++ PRIVATE ${LOGGING_LIBRARIES} ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
 
     set_target_properties(gui++ PROPERTIES
                           POSITION_INDEPENDENT_CODE ON

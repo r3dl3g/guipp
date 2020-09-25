@@ -9,18 +9,18 @@ if(NOT TARGET gui++-ctrl-obj)
   add_subdirectory(../win gui_win)
   add_subdirectory(../io gui_io)
 
-  set(gui_include ${gui_include} ${CMAKE_CURRENT_BINARY_DIR})
-  set(gui_include ${gui_include} PARENT_SCOPE)
-  include_directories(${gui_include})
+  set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
+  set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} PARENT_SCOPE)
+  include_directories(${GUIPP_INCLUDE_DIRS})
 
   if (WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN)
   endif (WIN32)
 
-  add_definitions(${gui_defines})
+  add_definitions(${GUIPP_CXX_FLAGS})
 
-  message(STATUS "ctrl gui_defines: ${gui_defines}")
-  message(STATUS "ctrl gui_include: ${gui_include}")
+  message(STATUS "ctrl GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
+  message(STATUS "ctrl GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
 
   set (INCLUDE_INSTALL_DIR include/guipp/gui/ctrl)
   set (LIBRARY_INSTALL_DIR lib/guipp)
@@ -46,7 +46,7 @@ if(NOT TARGET gui++-ctrl-obj)
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
     add_definitions(-Dgui___ctrl_obj_EXPORTS)
     add_library(gui++-ctrl SHARED $<TARGET_OBJECTS:gui++-ctrl-obj>)
-    target_link_libraries(gui++-ctrl PRIVATE gui++-core gui++-win gui++-draw gui++-io ${gui_sys_libraries})
+    target_link_libraries(gui++-ctrl PRIVATE gui++-core gui++-win gui++-draw gui++-io ${GUIPP_SYS_LIBRARIES})
     set_target_properties(gui++-ctrl PROPERTIES
                           POSITION_INDEPENDENT_CODE ON
                           FOLDER libraries

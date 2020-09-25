@@ -8,7 +8,7 @@ if(NOT TARGET gui++-app-obj)
 
   add_subdirectory(./../core gui_core)
 
-  include_directories(${gui_include})
+  include_directories(${GUIPP_INCLUDE_DIRS})
 
   set (INCLUDE_INSTALL_DIR include/guipp/gui/app)
   set (LIBRARY_INSTALL_DIR lib/guipp)
@@ -16,7 +16,7 @@ if(NOT TARGET gui++-app-obj)
   file(GLOB SOURCE_FILES "*.cpp")
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
-  add_definitions(${gui_defines})
+  add_definitions(${GUIPP_CXX_FLAGS})
 
   add_library(gui++-app-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
 

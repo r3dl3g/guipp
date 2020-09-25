@@ -8,15 +8,15 @@ if(NOT TARGET gui++-io-obj)
 
     add_subdirectory(../draw gui_draw)
 
-    set(gui_include ${gui_include} ${CMAKE_CURRENT_BINARY_DIR})
-    set(gui_include ${gui_include} PARENT_SCOPE)
-    include_directories(${gui_include})
+    set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
+    set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} PARENT_SCOPE)
+    include_directories(${GUIPP_INCLUDE_DIRS})
 
     if (WIN32)
       add_definitions(-DWIN32_LEAN_AND_MEAN)
     endif (WIN32)
 
-    add_definitions(${gui_defines})
+    add_definitions(${GUIPP_CXX_FLAGS})
 
     set (INCLUDE_INSTALL_DIR include/guipp/gui/io)
     set (LIBRARY_INSTALL_DIR lib/guipp)
@@ -40,7 +40,7 @@ if(NOT TARGET gui++-io-obj)
     if(GUIPP_BUILD_SHARED_MODULE_LIBS)
         add_definitions(-Dgui___io_obj_EXPORTS)
         add_library(gui++-io SHARED $<TARGET_OBJECTS:gui++-io-obj>)
-        target_link_libraries(gui++-io PRIVATE gui++-draw gui++-core ${gui_sys_libraries})
+        target_link_libraries(gui++-io PRIVATE gui++-draw gui++-core ${GUIPP_SYS_LIBRARIES})
         set_target_properties(gui++-io PROPERTIES
                                        POSITION_INDEPENDENT_CODE ON
                                        FOLDER libraries

@@ -21,12 +21,12 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   set (gui_VERSION "${gui_VERSION_MAJOR}.${gui_VERSION_MINOR}.${gui_VERSION_PATCH}")
 
   if (WIN32)
-    set (gui_defines ${logging_defines} ${util_defines} -DWIN32_LEAN_AND_MEAN)
+    set (GUIPP_CXX_FLAGS ${logging_defines} ${util_defines} -DWIN32_LEAN_AND_MEAN)
   else ()
-    set (gui_defines ${logging_defines} ${util_defines})
+    set (GUIPP_CXX_FLAGS ${logging_defines} ${util_defines})
   endif ()
 
-  set (gui_include
+  set (GUIPP_INCLUDE_DIRS
     ${logging_include}
     ${util_include}
     ${CMAKE_CURRENT_SOURCE_DIR}/..
@@ -38,42 +38,42 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   set (LIBRARY_INSTALL_DIR lib/guipp)
 
   if (APPLE)
-    set (gui_defines ${gui_defines})
+    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS})
   elseif (UNIX)
     find_package(X11 REQUIRED)
     if (X11_FOUND)
       if (NOT X11_Xdmcp_FOUND)
         message(SEND_ERROR "Xdmcp library is required!")
       endif()
-      set (gui_sys_libraries ${gui_sys_libraries} ${X11_LIBRARIES} ${X11_Xdmcp_LIB})
-      set (gui_defines ${gui_defines} -DX11)
-      set (gui_include ${gui_include})
+      set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${X11_LIBRARIES} ${X11_Xdmcp_LIB})
+      set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DX11)
+      set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS})
       if (X11_Xft_FOUND)
         if (NOT X11_Xrender_FOUND)
           message(SEND_ERROR "Xrender library is required!")
         endif()
         find_package(Freetype REQUIRED)
-        set (gui_sys_libraries ${gui_sys_libraries} ${X11_Xft_LIB} ${X11_Xrender_LIB} ${FREETYPE_LIBRARIES} fontconfig)
-        set (gui_defines ${gui_defines} -DUSE_XFT)
-        set (gui_include ${gui_include} ${X11_Xft_INCLUDE_PATH} ${FREETYPE_INCLUDE_DIRS})
+        set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${X11_Xft_LIB} ${X11_Xrender_LIB} ${FREETYPE_LIBRARIES} fontconfig)
+        set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DUSE_XFT)
+        set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${X11_Xft_INCLUDE_PATH} ${FREETYPE_INCLUDE_DIRS})
       endif()
     else()
       message(SEND_ERROR "X11 libraries are required!")
     endif(X11_FOUND)
 
-    #        set (gui_sys_libraries X11 Xft fontconfig xcb Xdmcp bsd dl freetype Xrender expat Xau z png16)
+    #        set (GUIPP_SYS_LIBRARIES X11 Xft fontconfig xcb Xdmcp bsd dl freetype Xrender expat Xau z png16)
   elseif (WIN32)
-    set (gui_sys_libraries Shcore)
+    set (GUIPP_SYS_LIBRARIES Shcore)
   endif ()
 
   if (GUIPP_USE_XCB)
-    set (gui_sys_libraries ${gui_sys_libraries} X11-xcb xcb xcb-xrm)
-    set (gui_defines ${gui_defines} -DXCB)
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} X11-xcb xcb xcb-xrm)
+    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DXCB)
   endif ()
 
   if (GUIPP_BUILD_STATIC_MODULE_LIBS)
-    set (gui_defines ${gui_defines} -DGUIPP_BUILT_AS_STATIC)
-    set (gui_libraries
+    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_BUILT_AS_STATIC)
+    set (GUIPP_LIBRARIES
       gui++-ctrl-static
       gui++-io-static
       gui++-draw-static
@@ -84,9 +84,9 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       ${util_libraries}
       gui++-static
       )
-    set (gui_sys_libraries ${gui_sys_libraries} ${logging_sys_libraries} ${util_sys_libraries})
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${logging_sys_libraries} ${util_sys_libraries})
   elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
-    set (gui_libraries
+    set (GUIPP_LIBRARIES
       gui++-ctrl
       gui++-io
       gui++-draw
@@ -97,19 +97,19 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       ${util_libraries}
       gui++
       )
-    set (gui_sys_libraries ${gui_sys_libraries} ${logging_sys_libraries} ${util_sys_libraries})
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${logging_sys_libraries} ${util_sys_libraries})
   else()
-    set (gui_libraries ${logging_libraries} ${util_libraries} gui++)
-    set (gui_sys_libraries ${gui_sys_libraries} ${logging_sys_libraries} ${util_sys_libraries})
+    set (GUIPP_LIBRARIES ${logging_libraries} ${util_libraries} gui++)
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${logging_sys_libraries} ${util_sys_libraries})
   endif()
 
-  set (gui_app_libraries
+  set (GUIPP_APP_LIBRARIES
     gui++-app
-    ${gui_libraries}
+    ${GUIPP_LIBRARIES}
     )
 
   if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
-    set (gui_defines ${gui_defines}
+    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS}
       -Dgui___core_obj_EXPORTS
       -Dgui___win_obj_EXPORTS
       -Dgui___layout_obj_EXPORTS
@@ -128,18 +128,18 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
   get_directory_property(HAS_PARENT PARENT_DIRECTORY)
   if(HAS_PARENT)
-    set (gui_defines ${gui_defines} PARENT_SCOPE)
-    set (gui_include ${gui_include} PARENT_SCOPE)
-    set (gui_libraries ${gui_libraries} PARENT_SCOPE)
-    set (gui_app_libraries ${gui_app_libraries} PARENT_SCOPE)
-    set (gui_sys_libraries ${gui_sys_libraries} PARENT_SCOPE)
+    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} PARENT_SCOPE)
+    set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} PARENT_SCOPE)
+    set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES} PARENT_SCOPE)
+    set (GUIPP_APP_LIBRARIES ${GUIPP_APP_LIBRARIES} PARENT_SCOPE)
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} PARENT_SCOPE)
   endif()
 
-  message(STATUS "gui gui_defines: ${gui_defines}")
-  message(STATUS "gui gui_include: ${gui_include}")
-  message(STATUS "gui gui_libraries: ${gui_libraries}")
-  message(STATUS "gui gui_app_libraries: ${gui_app_libraries}")
-  message(STATUS "gui gui_sys_libraries: ${gui_sys_libraries}")
+  message(STATUS "gui GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
+  message(STATUS "gui GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
+  message(STATUS "gui GUIPP_LIBRARIES: ${GUIPP_LIBRARIES}")
+  message(STATUS "gui GUIPP_APP_LIBRARIES: ${GUIPP_APP_LIBRARIES}")
+  message(STATUS "gui GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
 
   # header file to pass version settings to the source code
   configure_file (
@@ -147,12 +147,12 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     "${PROJECT_BINARY_DIR}/gui_version.h"
     )
 
-  include_directories(${gui_include})
+  include_directories(${GUIPP_INCLUDE_DIRS})
 
   if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
     message(STATUS "gui build global shared gui library")
 
-    add_definitions(-Dgui___EXPORTS ${gui_defines})
+    add_definitions(-Dgui___EXPORTS ${GUIPP_CXX_FLAGS})
 
     add_library(gui++ SHARED
       $<TARGET_OBJECTS:gui++-core-obj>
@@ -164,7 +164,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       gui.cpp
       )
 
-    target_link_libraries(gui++ PRIVATE ${logging_libraries} ${util_libraries} ${gui_sys_libraries})
+    target_link_libraries(gui++ PRIVATE ${logging_libraries} ${util_libraries} ${GUIPP_SYS_LIBRARIES})
 
     set_target_properties(gui++ PROPERTIES
                           POSITION_INDEPENDENT_CODE ON
@@ -186,11 +186,11 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   elseif(GUIPP_BUILD_SHARED_MODULE_LIBS)
     message(STATUS "gui build multiple shared gui libraries")
 
-    add_definitions(-Dgui___EXPORTS ${gui_defines})
+    add_definitions(-Dgui___EXPORTS ${GUIPP_CXX_FLAGS})
 
     add_library(gui++ SHARED gui.cpp)
 
-    target_link_libraries(gui++ PRIVATE ${gui_sys_libraries})
+    target_link_libraries(gui++ PRIVATE ${GUIPP_SYS_LIBRARIES})
 
     set_target_properties(gui++ PROPERTIES
                           POSITION_INDEPENDENT_CODE ON
@@ -212,7 +212,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   else()
     message(STATUS "gui build multiple static gui libraries")
 
-    add_definitions(${gui_defines})
+    add_definitions(${GUIPP_CXX_FLAGS})
 
     add_library(gui++-static STATIC gui.cpp)
 

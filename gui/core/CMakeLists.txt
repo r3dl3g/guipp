@@ -6,9 +6,9 @@ project("gui++-core" CXX)
 
 if(NOT TARGET gui++-core-obj)
 
-    set(gui_include ${gui_include} ${CMAKE_CURRENT_BINARY_DIR})
-    set(gui_include ${gui_include} PARENT_SCOPE)
-    include_directories(${gui_include})
+    set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
+    set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} PARENT_SCOPE)
+    include_directories(${GUIPP_INCLUDE_DIRS})
 
     set (INCLUDE_INSTALL_DIR include/guipp/gui/core)
     set (LIBRARY_INSTALL_DIR lib/guipp)
@@ -16,13 +16,13 @@ if(NOT TARGET gui++-core-obj)
     file(GLOB SOURCE_FILES "*.cpp")
     file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
-    message(STATUS "gui_defines: ${gui_defines}")
+    message(STATUS "GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
 
     if (WIN32)
       add_definitions(-DWIN32_LEAN_AND_MEAN)
     endif (WIN32)
 
-    add_definitions(-DEXPERIMENTAL ${gui_defines})
+    add_definitions(-DEXPERIMENTAL ${GUIPP_CXX_FLAGS})
 
     add_library(gui++-core-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
 
@@ -43,7 +43,7 @@ if(NOT TARGET gui++-core-obj)
     if(GUIPP_BUILD_SHARED_MODULE_LIBS)
         add_definitions(-Dgui___core_obj_EXPORTS)
         add_library(gui++-core SHARED $<TARGET_OBJECTS:gui++-core-obj>)
-        target_link_libraries(gui++-core PRIVATE ${logging_libraries} ${gui_sys_libraries} ${logging_sys_libraries})
+        target_link_libraries(gui++-core PRIVATE ${logging_libraries} ${GUIPP_SYS_LIBRARIES} ${logging_sys_libraries})
         set_target_properties(gui++-core PROPERTIES
                                          POSITION_INDEPENDENT_CODE ON
                                          FOLDER libraries

@@ -517,6 +517,7 @@ std::string format_column (int i, double v) {
 // --------------------------------------------------------------------------
 covid19main::covid19main ()
   : chart_type(chart_t::country_chart)
+  , countries(40, color::very_light_gray, false)
   , button_layout({layout::lay(load_button),
                   layout::lay(table_button),
                   layout::lay(chart_button),
@@ -525,7 +526,6 @@ covid19main::covid19main ()
                   layout::lay(lethality_button),
                   layout::lay(per100k_button)})
   , table(64, 20)
-  , countries(40, color::very_light_gray, false)
 {
 
   on_create([&] (window*, core::rectangle) {

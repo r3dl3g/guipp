@@ -21,17 +21,17 @@ add_subdirectory(./../gui gui)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
-add_definitions(${gui_defines})
-message(STATUS "app gui_defines: ${gui_defines}")
-message(STATUS "app gui_include: ${gui_include}")
-message(STATUS "app gui_libraries: ${gui_libraries}")
-message(STATUS "app gui_sys_libraries: ${gui_sys_libraries}")
+add_definitions(${GUIPP_CXX_FLAGS})
+message(STATUS "app GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
+message(STATUS "app GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
+message(STATUS "app GUIPP_LIBRARIES: ${GUIPP_LIBRARIES}")
+message(STATUS "app GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
 
 
 # add the binary tree to the search path for include files
 # so that we will find Version.h
 # "${PROJECT_BINARY_DIR}/../IT3DCameraLib"
-include_directories(${PROJECT_BINARY_DIR} ${gui_include} ../boost)
+include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS} ../boost)
 
 set(apps
     WindowTest
@@ -48,7 +48,7 @@ set(apps
     covid19
 )
 
-message(STATUS "gui_libraries: ${gui_libraries}")
+message(STATUS "GUIPP_LIBRARIES: ${GUIPP_LIBRARIES}")
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
     add_definitions(/Y- /bigobj)
@@ -56,7 +56,7 @@ endif()
 
 foreach(test ${apps})
     add_executable(${test} WIN32 ${test}.cpp)
-    target_link_libraries(${test} ${gui_app_libraries} ${gui_sys_libraries})
+    target_link_libraries(${test} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
     install(TARGETS ${test} DESTINATION bin)
     set_target_properties(${test} PROPERTIES FOLDER apps CXX_STANDARD 11)
 endforeach(test)

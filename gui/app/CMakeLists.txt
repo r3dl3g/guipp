@@ -27,9 +27,13 @@ if(NOT TARGET gui++-app-obj)
   )
 
   add_library(gui++-app STATIC $<TARGET_OBJECTS:gui++-app-obj>)
-  install(TARGETS gui++-app DESTINATION ${LIBRARY_INSTALL_DIR})
 
-  install(FILES ${INCLUDE_FILES}
-    DESTINATION ${INCLUDE_INSTALL_DIR})
+  if (GUIPP_STANDALONE_BUILD)
+    install(TARGETS gui++-app DESTINATION ${LIBRARY_INSTALL_DIR})
+
+    install(FILES ${INCLUDE_FILES}
+      DESTINATION ${INCLUDE_INSTALL_DIR})
+
+  endif()
 
 endif()

@@ -32,15 +32,17 @@ if(NOT TARGET gui++-ctrl-obj)
   add_library(gui++-ctrl-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES} ${RESOURCE_FILES})
 
   set_target_properties(gui++-ctrl-obj PROPERTIES
-                        POSITION_INDEPENDENT_CODE ON
-                        FOLDER libraries
-                        CXX_STANDARD 11
-  )
+    POSITION_INDEPENDENT_CODE ON
+    FOLDER libraries
+    CXX_STANDARD 11
+    )
 
   if(GUIPP_BUILD_STATIC_MODULE_LIBS)
     add_definitions(-DGUIPP_BUILT_AS_STATIC)
     add_library(gui++-ctrl-static STATIC $<TARGET_OBJECTS:gui++-ctrl-obj>)
-    install(TARGETS gui++-ctrl-static DESTINATION ${LIBRARY_INSTALL_DIR})
+    if (GUIPP_STANDALONE_BUILD)
+      install(TARGETS gui++-ctrl-static DESTINATION ${LIBRARY_INSTALL_DIR})
+    endif()
   endif()
 
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
@@ -48,13 +50,15 @@ if(NOT TARGET gui++-ctrl-obj)
     add_library(gui++-ctrl SHARED $<TARGET_OBJECTS:gui++-ctrl-obj>)
     target_link_libraries(gui++-ctrl PRIVATE gui++-core gui++-win gui++-draw gui++-io ${GUIPP_SYS_LIBRARIES})
     set_target_properties(gui++-ctrl PROPERTIES
-                          POSITION_INDEPENDENT_CODE ON
-                          FOLDER libraries
-                          VERSION ${GUIPP_VERSION}
-                          SOVERSION ${GUIPP_VERSION_MAJOR}
-                          CXX_STANDARD 11
-    )
-    install(TARGETS gui++-ctrl DESTINATION ${LIBRARY_INSTALL_DIR})
+      POSITION_INDEPENDENT_CODE ON
+      FOLDER libraries
+      VERSION ${GUIPP_VERSION}
+      SOVERSION ${GUIPP_VERSION_MAJOR}
+      CXX_STANDARD 11
+      )
+    if (GUIPP_STANDALONE_BUILD)
+      install(TARGETS gui++-ctrl DESTINATION ${LIBRARY_INSTALL_DIR})
+    endif()
   endif()
 
   GENERATE_EXPORT_HEADER(gui++-ctrl-obj
@@ -64,11 +68,13 @@ if(NOT TARGET gui++-ctrl-obj)
     STATIC_DEFINE GUIPP_BUILT_AS_STATIC
     )
 
-  install(FILES ${INCLUDE_FILES}
-    ${PROJECT_BINARY_DIR}/gui++-ctrl-export.h
-    DESTINATION ${INCLUDE_INSTALL_DIR})
+  if (GUIPP_STANDALONE_BUILD)
+    install(FILES ${INCLUDE_FILES}
+      ${PROJECT_BINARY_DIR}/gui++-ctrl-export.h
+      DESTINATION ${INCLUDE_INSTALL_DIR})
 
-  install(FILES ${RESOURCE_FILES}
-    DESTINATION ${INCLUDE_INSTALL_DIR}/res)
+    install(FILES ${RESOURCE_FILES}
+      DESTINATION ${INCLUDE_INSTALL_DIR}/res)
+  endif()
 
 endif()

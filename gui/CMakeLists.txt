@@ -9,6 +9,7 @@ include (GenerateExportHeader)
 option(GUIPP_BUILD_STATIC_MODULE_LIBS "On to build a static library for each submodule, Off to build shared libraries. Default Off" OFF)
 option(GUIPP_BUILD_SHARED_MODULE_LIBS "On to build a shared library for each submodule, Off to build static libraries. default Off" OFF)
 option(GUIPP_USE_XCB "On to make use uf the xcb library. Default Off" OFF)
+option(GUIPP_STANDALONE_BUILD "On to make an installable standalone build, Off to build as part of a project. Default Off" OFF)
 
 if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
@@ -174,7 +175,9 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
                           CXX_STANDARD 11
     )
 
-    install(TARGETS gui++ DESTINATION ${LIBRARY_INSTALL_DIR})
+    if (GUIPP_STANDALONE_BUILD)
+      install(TARGETS gui++ DESTINATION ${LIBRARY_INSTALL_DIR})
+    endif()
 
     GENERATE_EXPORT_HEADER(gui++
       BASE_NAME GUIPP
@@ -200,7 +203,9 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
                           CXX_STANDARD 11
     )
 
-    install(TARGETS gui++ DESTINATION ${LIBRARY_INSTALL_DIR})
+    if (GUIPP_STANDALONE_BUILD)
+      install(TARGETS gui++ DESTINATION ${LIBRARY_INSTALL_DIR})
+    endif()
 
     GENERATE_EXPORT_HEADER(gui++
       BASE_NAME GUIPP
@@ -224,7 +229,9 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
                           CXX_STANDARD 11
     )
 
-    install(TARGETS gui++-static DESTINATION ${LIBRARY_INSTALL_DIR})
+    if (GUIPP_STANDALONE_BUILD)
+      install(TARGETS gui++-static DESTINATION ${LIBRARY_INSTALL_DIR})
+    endif()
 
     GENERATE_EXPORT_HEADER(gui++-static
       BASE_NAME GUIPP
@@ -235,9 +242,11 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
   endif()
 
-  install(FILES ${INCLUDE_FILES}
-    ${PROJECT_BINARY_DIR}/gui++-export.h
-    ${PROJECT_BINARY_DIR}/gui_version.h
-    DESTINATION ${INCLUDE_INSTALL_DIR})
+  if (GUIPP_STANDALONE_BUILD)
+    install(FILES ${INCLUDE_FILES}
+      ${PROJECT_BINARY_DIR}/gui++-export.h
+      ${PROJECT_BINARY_DIR}/gui_version.h
+      DESTINATION ${INCLUDE_INSTALL_DIR})
+  endif()
 
 endif()

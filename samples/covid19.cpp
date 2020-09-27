@@ -323,7 +323,7 @@ struct covid19main : public main_type {
   chart_t chart_type;
 
   vertical_list countries;
-  layout::grid_lineup<100, 40> button_layout;
+  layout::grid_adaption<7, 1> button_layout;
   text_button load_button;
   text_button table_button;
   text_button chart_button;

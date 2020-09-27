@@ -10,6 +10,7 @@ option(GUIPP_BUILD_STATIC_MODULE_LIBS "On to build a static library for each sub
 option(GUIPP_BUILD_SHARED_MODULE_LIBS "On to build a shared library for each submodule, Off to build static libraries. default Off" OFF)
 option(GUIPP_USE_XCB "On to make use uf the xcb library. Default Off" OFF)
 option(GUIPP_STANDALONE_BUILD "On to make an installable standalone build, Off to build as part of a project. Default Off" OFF)
+option(GUIPP_BUILD_FOR_MOBILE "On to optimize for smartphone, Off to optimize for dekstop. Default Off" OFF)
 
 if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
@@ -27,6 +28,10 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     set (GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS})
   endif ()
 
+  if (GUIPP_BUILD_FOR_MOBILE)
+    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_BUILD_FOR_MOBILE)
+  endif ()
+
   set (GUIPP_INCLUDE_DIRS
     ${LOGGING_INCLUDE_DIRS}
     ${UTIL_INCLUDE_DIRS}
@@ -39,24 +44,44 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   set (LIBRARY_INSTALL_DIR lib/guipp)
 
   if (APPLE)
+    message(STATUS "GUIPP: build for Apple!")
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS})
   elseif (UNIX)
+    message(STATUS "GUIPP: build for Unix!")
     find_package(X11 REQUIRED)
     if (X11_FOUND)
-      if (NOT X11_Xdmcp_FOUND)
+      message(STATUS "GUIPP: X11 found!")
+      if (X11_Xdmcp_FOUND)
+        message(STATUS "GUIPP: X11_Xdmcp found!")
+      else()
         message(SEND_ERROR "Xdmcp library is required!")
       endif()
       set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${X11_LIBRARIES} ${X11_Xdmcp_LIB})
       set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DX11)
       set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS})
+
+      if (X11_Xrender_FOUND)
+        message(STATUS "GUIPP: X11_Xrender found!")
+      endif()
+
+      find_package(Freetype)
+      if (Freetype_FOUND)
+        message(STATUS "GUIPP: Freetype found!")
+      endif()
+
       if (X11_Xft_FOUND)
+        message(STATUS "GUIPP: X11_Xft found!")
         if (NOT X11_Xrender_FOUND)
           message(SEND_ERROR "Xrender library is required!")
         endif()
-        find_package(Freetype REQUIRED)
+        if (NOT Freetype_FOUND)
+          message(SEND_ERROR "Freetype library is required!")
+        endif()
         set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${X11_Xft_LIB} ${X11_Xrender_LIB} ${FREETYPE_LIBRARIES} fontconfig)
         set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DUSE_XFT)
         set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${X11_Xft_INCLUDE_PATH} ${FREETYPE_INCLUDE_DIRS})
+      else()
+        message(STATUS "GUIPP: X11_Xft NOT found!")
       endif()
     else()
       message(SEND_ERROR "X11 libraries are required!")
@@ -64,6 +89,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
     #        set (GUIPP_SYS_LIBRARIES X11 Xft fontconfig xcb Xdmcp bsd dl freetype Xrender expat Xau z png16)
   elseif (WIN32)
+    message(STATUS "GUIPP: build for Win32!")
     set (GUIPP_SYS_LIBRARIES Shcore)
   endif ()
 
@@ -141,6 +167,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   message(STATUS "gui GUIPP_LIBRARIES: ${GUIPP_LIBRARIES}")
   message(STATUS "gui GUIPP_APP_LIBRARIES: ${GUIPP_APP_LIBRARIES}")
   message(STATUS "gui GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
+  message(STATUS "gui GUIPP_BUILD_FOR_MOBILE: ${GUIPP_BUILD_FOR_MOBILE}")
 
   # header file to pass version settings to the source code
   configure_file (

@@ -133,7 +133,7 @@ namespace gui {
                                                 std::function<action> action) {
       multi_input_dialog dialog;
       dialog.create(parent, title, message, initial, ok_label, cancel_label,
-#if defined(__arm__)
+#if defined(GUIPP_BUILD_FOR_MOBILE)
                     parent.place().shrinked({ 20, 20 }).with_height(85 + N * 40),
 #else
                     core::rectangle(300, 200, 400, 85 + N * 40),
@@ -231,7 +231,7 @@ namespace gui {
                                          std::function<fs::filter_fn> filter) {
       path_open_dialog_base dialog;
       dialog.create(parent, title, ok_label, cancel_label,
-#if defined(__arm__)
+#if defined(GUIPP_BUILD_FOR_MOBILE)
                     parent.place().shrinked({ 20, 20 }),
 #else
                     core::rectangle(200, 100, 800, 600),

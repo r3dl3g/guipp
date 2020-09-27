@@ -612,10 +612,10 @@ namespace gui {
       is_modal = true;
 
 #ifdef X11
-#if !defined(__arm__)
+#if !defined(GUIPP_BUILD_FOR_MOBILE)
       input_only_window input_eater(*parent.get_overlapped_window());
       input_eater.set_visible();
-#endif // __arm__
+#endif // GUIPP_BUILD_FOR_MOBILE
 
       run_loop(is_modal, [&](const core::event & e)->bool {
 #endif // X11
@@ -639,9 +639,9 @@ namespace gui {
       });
 
 #ifdef X11
-#if !defined(__arm__)
+#if !defined(GUIPP_BUILD_FOR_MOBILE)
       input_eater.set_visible(false);
-#endif // __arm__
+#endif // GUIPP_BUILD_FOR_MOBILE
 #endif // X11
 
       parent.enable();

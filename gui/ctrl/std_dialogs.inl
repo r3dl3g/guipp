@@ -133,7 +133,12 @@ namespace gui {
                                                 std::function<action> action) {
       multi_input_dialog dialog;
       dialog.create(parent, title, message, initial, ok_label, cancel_label,
-                    core::rectangle(300, 200, 400, 85 + N * 40), action);
+#if defined(__arm__)
+                    parent.place().shrinked({ 20, 20 }).with_height(85 + N * 40),
+#else
+                    core::rectangle(300, 200, 400, 85 + N * 40),
+#endif
+                    action);
       dialog.show(parent);
     }
 
@@ -225,7 +230,13 @@ namespace gui {
                                          std::function<file_selected> action,
                                          std::function<fs::filter_fn> filter) {
       path_open_dialog_base dialog;
-      dialog.create(parent, title, ok_label, cancel_label, core::rectangle(200, 100, 800, 600), action, filter);
+      dialog.create(parent, title, ok_label, cancel_label,
+#if defined(__arm__)
+                    parent.place().shrinked({ 20, 20 }),
+#else
+                    core::rectangle(200, 100, 800, 600),
+#endif
+                    action, filter);
       dialog.super::show(parent);
     }
 

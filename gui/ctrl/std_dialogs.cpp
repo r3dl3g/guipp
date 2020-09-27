@@ -51,7 +51,13 @@ namespace gui {
                              const std::string& no_label,
                              std::function<yes_no_action> action) {
       yes_no_dialog dialog;
-      dialog.create(parent, title, message, yes_label, no_label, core::rectangle(300, 200, 400, 170), action);
+      dialog.create(parent, title, message, yes_label, no_label,
+#if defined(__arm__)
+                    parent.place().shrinked({ 30, 100 }),
+#else
+                    core::rectangle(300, 200, 400, 170),
+#endif
+                    action);
       dialog.show(parent, action);
     }
 
@@ -94,7 +100,13 @@ namespace gui {
                                const std::string& message,
                                const std::string& ok_label) {
       message_dialog dialog;
-      dialog.create(parent, title, message, ok_label, core::rectangle(300, 200, 400, 170));
+      dialog.create(parent, title, message, ok_label,
+#if defined(__arm__)
+                    parent.place().shrinked({ 30, 100 })
+#else
+                    core::rectangle(300, 200, 400, 170)
+#endif
+                    );
       dialog.super::show(parent);
     }
 
@@ -129,7 +141,13 @@ namespace gui {
                             const std::string& cancel_label,
                             std::function<input_action> action) {
       input_dialog dialog;
-      dialog.create(parent, title, message, initial, ok_label, cancel_label, core::rectangle(300, 200, 400, 125), action);
+      dialog.create(parent, title, message, initial, ok_label, cancel_label,
+#if defined(__arm__)
+                    parent.place().shrinked({ 30, 100 }),
+#else
+                    core::rectangle(300, 200, 400, 125),
+#endif
+                    action);
       dialog.show(parent);
     }
 
@@ -200,7 +218,13 @@ namespace gui {
                                  const std::string& cancel_label,
                                  std::function<file_selected> action) {
       file_save_dialog dialog;
-      dialog.create(parent, title, default_name, name_label, ok_label, cancel_label, core::rectangle(200, 100, 800, 600), action);
+      dialog.create(parent, title, default_name, name_label, ok_label, cancel_label,
+#if defined(__arm__)
+                    parent.place().shrinked({ 20, 20 }),
+#else
+                    core::rectangle(200, 100, 800, 600),
+#endif
+                    action);
       dialog.super::show(parent);
     }
 

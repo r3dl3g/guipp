@@ -534,18 +534,10 @@ namespace gui {
       using super = window;
 
     public:
-      input_only_window (container& parent)
-      {
+      input_only_window (container& parent) {
         super::create(clazz::get(), parent, parent.client_area());
         to_front();
-//        auto dpy = core::global::get_instance();
-//        old_value = get_property(dpy, parent.get_id(), "_NET_WM_WINDOW_TYPE");
-//        change_property(dpy, parent.get_id(), "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_UTILITY");
       }
-
-//      ~input_only_window () {
-//        change_property(core::global::get_instance(), parent.get_id(), "_NET_WM_WINDOW_TYPE", old_value.c_str());
-//      }
     };
 
 
@@ -590,7 +582,6 @@ namespace gui {
       set_visible();
       to_front();
       parent.disable();
-
       invalidate();
 
       is_modal = true;
@@ -621,8 +612,10 @@ namespace gui {
       is_modal = true;
 
 #ifdef X11
+#if !defined(__arm__)
       input_only_window input_eater(*parent.get_overlapped_window());
       input_eater.set_visible();
+#endif // __arm__
 
       run_loop(is_modal, [&](const core::event & e)->bool {
 #endif // X11
@@ -646,7 +639,9 @@ namespace gui {
       });
 
 #ifdef X11
+#if !defined(__arm__)
       input_eater.set_visible(false);
+#endif // __arm__
 #endif // X11
 
       parent.enable();
@@ -691,12 +686,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     void dialog_window::create (const class_info& cls, const window& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
-#ifdef X11
       gui::os::instance display = core::global::get_instance();
-      change_property(display, get_id(), "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DIALOG");
-      change_property(display, get_id(), "_NET_WM_STATE", "_NET_WM_STATE_MODAL");
-      change_property(display, get_id(), "WM_CLIENT_LEADER", parent.get_id());
-      set_wm_protocols(display, get_id());
+      auto id = get_id();
+#ifdef X11
+      change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DIALOG");
+      change_property(display, id, "_NET_WM_STATE", "_NET_WM_STATE_MODAL");
+      change_property(display, id, "WM_CLIENT_LEADER", parent.get_id());
+      set_wm_protocols(display, id);
 #endif // X11
     }
 

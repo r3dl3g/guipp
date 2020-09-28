@@ -11,8 +11,16 @@ endfunction(print_var)
 print_var(CMAKE_CXX_PLATFORM_ID)
 print_var(CMAKE_CXX_COMPILER_ID)
 print_var(CMAKE_SYSTEM_PROCESSOR)
+print_var(CMAKE_HOST_SYSTEM_PROCESSOR)
+print_var(CMAKE_LIBRARY_ARCHITECTURE)
 
 set (CMAKE_USE_RELATIVE_PATHS FALSE)
+
+if (NOT DEFINED GUIPP_BUILD_FOR_MOBILE)
+  if (CMAKE_LIBRARY_ARCHITECTURE STREQUAL 'arm-linux-gnueabihf')
+    set(GUIPP_BUILD_FOR_MOBILE On)
+  endif ()
+endif ()
 
 if (CMAKE_CXX_PLATFORM_ID STREQUAL "Windows" AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     message(STATUS "Building with Clang!")

@@ -382,12 +382,25 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    template<core::os::ui_t T = core::os::system_ui>
+    struct list_defaults {};
+
+    template<>
+    struct list_defaults<core::os::ui_t::mobile> {
+      static constexpr core::size::type item_size = 50;
+    };
+    template<>
+    struct list_defaults<core::os::ui_t::desktop> {
+      static constexpr core::size::type item_size = 20;
+    };
+
+    // --------------------------------------------------------------------------
     template<orientation_t V>
     class linear_list : public basic_list<V, linear_list_traits<V>> {
     public:
       typedef basic_list<V, linear_list_traits<V>> super;
 
-      linear_list (core::size::type item_size = 20,
+      linear_list (core::size::type item_size = list_defaults<>::item_size,
                    os::color background = color::white,
                    bool grab_focus = true);
 
@@ -425,7 +438,7 @@ namespace gui {
       typedef std::string (source)(int);
       typedef void (target)(int, const std::string&);
 
-      edit_list (core::size::type item_size = 20,
+      edit_list (core::size::type item_size = list_defaults<>::item_size,
                  os::color background = color::white,
                  bool grab_focus = true);
 

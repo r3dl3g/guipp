@@ -74,26 +74,11 @@ namespace gui {
     namespace os {
 
       // --------------------------------------------------------------------------
-      constexpr bit_order_t get_bit_order () {
-        return IF_WIN32_ELSE(bit_order_t::msb_first, bit_order_t::lsb_first);
-      }
-
       namespace detail {
         constexpr union {
           uint32_t i;
           char c[4];
         } endianess_check = { 0x01020300 };
-      }
-
-      // --------------------------------------------------------------------------
-      constexpr byte_order_t get_byte_order () {
-#if defined(__i386__) || defined(__x86_64__) || defined(__arm__)
-        return byte_order_t::little_endian;
-#elif defined(__powerpc64__)
-        return byte_order_t::big_endian;
-#else
-        return byte_order_t(detail::endianess_check.c[0] == 1);
-#endif
       }
 
       // --------------------------------------------------------------------------
@@ -104,8 +89,29 @@ namespace gui {
       };
 
       const platform_t system_platform = IF_WIN32_ELSE(platform_t::win32, IF_X11_ELSE(platform_t::x11, platform_t::cocoa));
-      const byte_order_t bitmap_byte_order = get_byte_order();
-      const bit_order_t bitmap_bit_order = get_bit_order();
+      const bit_order_t bitmap_bit_order = IF_WIN32_ELSE(bit_order_t::msb_first, bit_order_t::lsb_first);
+      const byte_order_t bitmap_byte_order =
+#if defined(__i386__) || defined(__x86_64__) || defined(__arm__)
+                                              byte_order_t::little_endian;
+#elif defined(__powerpc64__)
+                                              byte_order_t::big_endian;
+#else
+                                              byte_order_t(detail::endianess_check.c[0] == 1);
+#endif
+      // --------------------------------------------------------------------------
+      enum class ui_t : byte {
+        desktop,
+        mobile,
+        tablet
+      };
+
+      const ui_t system_ui =
+#if defined(GUIPP_BUILD_FOR_MOBILE)
+          ui_t::mobile;
+#else
+          ui_t::desktop;
+#endif
+      // --------------------------------------------------------------------------
 
     } // namespace os
 

@@ -235,7 +235,7 @@ namespace gui {
         typedef vertical_list list_type;
         typedef no_erase_window_class<base_column_list> clazz;
 
-        base_column_list (core::size::type item_size = 20,
+        base_column_list (core::size::type item_size = list_defaults<>::item_size,
                           os::color background = color::white,
                           bool grab_focus = true);
         base_column_list (base_column_list&& rhs);
@@ -485,7 +485,7 @@ namespace gui {
                                      const draw::brush&,     // background
                                      item_state);            // state
 
-      column_list_t (core::size::type item_size = 20,
+      column_list_t (core::size::type item_size = list_defaults<>::item_size,
                      os::color background = color::white,
                      bool grab_focus = true);
       column_list_t (column_list_t&& rhs);

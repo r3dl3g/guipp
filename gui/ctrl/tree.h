@@ -101,7 +101,7 @@ namespace gui {
         const roots_list& get_roots () const;
         void set_roots (const roots_list&);
 
-        basic_tree (core::size::type item_size = 20,
+        basic_tree (core::size::type item_size = list_defaults<>::item_size,
                     os::color background = color::white,
                     bool grab_focus = true);
         basic_tree (basic_tree&& rhs);

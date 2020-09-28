@@ -63,6 +63,16 @@ namespace std {
     return out;
   }
 
+  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::os::ui_t p) {
+    switch (p) {
+      case gui::core::os::ui_t::desktop: out << "desktop"; break;
+      case gui::core::os::ui_t::mobile:  out << "mobile"; break;
+      case gui::core::os::ui_t::tablet:  out << "tablet"; break;
+      default: out << "unknown:" << static_cast<gui::byte>(p); break;
+    }
+    return out;
+  }
+
   GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::color::color_parts cp) {
     out << "color_parts: RGBA=" << std::hex << cp.red
                          << ":" << std::hex << cp.green
@@ -244,9 +254,10 @@ namespace gui {
 
       void init (gui::os::instance instance) {
         gui_static.init(instance);
-        clog::debug() << "os::bit_order_t: " << core::os::get_bit_order();
-        clog::debug() << "os::byte_order_t: " << core::os::get_byte_order();
+        clog::debug() << "os::bitmap_bit_order_t: " << core::os::bitmap_bit_order;
+        clog::debug() << "os::bitmap_byte_order_t: " << core::os::bitmap_byte_order;
         clog::debug() << "os::platform_t: " << core::os::system_platform;
+        clog::debug() << "os::ui_t: " << core::os::system_ui;
         clog::debug() << "color::part: RGBA=" << static_cast<unsigned int>(color::part::red)
                  << ":" << static_cast<unsigned int>(color::part::green)
                  << ":" << static_cast<unsigned int>(color::part::blue)

@@ -202,7 +202,7 @@ namespace gui {
     public:
       typedef vertical_list super;
 
-      file_list (core::size::type item_size = 20,
+      file_list (core::size::type item_size = list_defaults<>::item_size,
                  os::color background = color::white,
                  bool grab_focus = true);
       file_list (const file_list&);
@@ -237,7 +237,7 @@ namespace gui {
       typedef column_list_t<layout::weight_column_list_layout,
                             const draw::pixmap*, fs::file_info, fs::file_info, sys_fs::file_time_type> super;
 
-      file_column_list (core::size::type item_size = 20,
+      file_column_list (core::size::type item_size = list_defaults<>::item_size,
                         os::color background = color::white,
                         bool grab_focus = true);
       file_column_list (const file_column_list& rhs);

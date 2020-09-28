@@ -4,6 +4,7 @@
 #include <gui/ctrl/tile_view.h>
 #include <gui/ctrl/table.h>
 #include <gui/draw/diagram.h>
+#include <gui/draw/bitmap.h>
 #include <gui/core/grid.h>
 #include <gui/layout/grid_layout.h>
 #include <gui/layout/adaption_layout.h>
@@ -301,19 +302,28 @@ typedef layout_main_window<gui::layout::border::layouter<40, 0, 150, 0>> main_ty
 struct covid19main : public main_type {
   typedef main_type super;
 
+  typedef std::map<std::size_t, pixmap> pixmap_map_t;
+
   covid19main ();
 
   void load_data (const sys_fs::path& p);
+
+  void draw_uncached (std::size_t idx,
+                      const draw::graphics&,
+                      const core::rectangle& place,
+                      const draw::brush& background,
+                      item_state state) const;
 
   void draw_at (std::size_t idx,
                 const draw::graphics&,
                 const core::rectangle& place,
                 const draw::brush& background,
-                item_state state) const;
+                item_state state);
 
   std::size_t chart_count () const;
 
   void refresh ();
+  void clear_cache ();
 
   void showChart (chart_t t);
   void showTable ();
@@ -333,6 +343,8 @@ struct covid19main : public main_type {
   text_button per100k_button;
   ctrl::vertical_tile_view charts;
   ctrl::table_view table;
+
+  pixmap_map_t pixmap_cache;
 };
 // --------------------------------------------------------------------------
 struct covid19data : public list_data {
@@ -553,6 +565,7 @@ covid19main::covid19main ()
   load_button.on_clicked([&] () {
     file_open_dialog::show(*this, "Open CSV", "Ok", "Cancel", [&] (const sys_fs::path& p) {
       load_data(p);
+      clear_cache();
       countries.set_data(data);
       countries.set_count();
     });
@@ -587,6 +600,7 @@ covid19main::covid19main ()
     const auto c = std::max(1.0, std::floor(w / 580.0));
     const auto i = std::max(320.0, std::floor(w / c));
     charts.set_item_size({ static_cast<core::size::type>(i), static_cast<core::size::type>(std::floor(i * 3.0 / 4.0)) });
+    clear_cache();
   });
   charts.set_background(color::white);
 //  charts.set_border({ 10, 10 });
@@ -636,6 +650,8 @@ covid19main::covid19main ()
     if (!countries.has_selection()) {
       return;
     }
+    clear_cache();
+
     const auto& n = data.countries[sel];
     const auto& c = data.data.at(n);
     option_data[absolute_increase] = c;
@@ -679,11 +695,19 @@ void covid19main::refresh () {
   countries.set_count();
 }
 // --------------------------------------------------------------------------
+void covid19main::clear_cache () {
+  clog::debug() << "Clear pixmap cache";
+  pixmap_cache.clear();
+}
+// --------------------------------------------------------------------------
 void covid19main::showChart (chart_t t) {
   charts.set_visible(true);
   table.set_visible(false);
   get_layout().set_center(layout::lay(charts));
   layout();
+  if (chart_type != t) {
+    clear_cache();
+  }
   chart_type = t;
   charts.set_count();
 }
@@ -715,8 +739,33 @@ void covid19main::draw_at (std::size_t idx,
                            const draw::graphics& graph,
                            const core::rectangle& area,
                            const draw::brush& background,
-                           item_state state) const {
-//  auto inner = draw::frame::sunken_relief(graph, area);
+                           item_state state) {
+  const auto i = pixmap_cache.find(idx);
+  if (i != pixmap_cache.end()) {
+    const auto& px = i->second;
+    if (px.scaled_size() == area.size()) {
+      clog::debug() << "Draw " << idx << " from cache";
+      graph.copy_from(i->second, area.top_left());
+      return;
+    } else {
+      clear_cache();
+    }
+  }
+
+  draw::pixmap px(area.size());
+  draw::graphics g(px);
+  draw_uncached(idx, g, core::rectangle(area.size()), background, state);
+  graph.copy_from(px, area.top_left());
+  clog::debug() << "Insert " << idx << " into cache";
+  pixmap_cache[idx] = std::move(px);
+}
+// --------------------------------------------------------------------------
+void covid19main::draw_uncached (std::size_t idx,
+                                 const draw::graphics& graph,
+                                 const core::rectangle& area,
+                                 const draw::brush& background,
+                                 item_state state) const {
+  //  auto inner = draw::frame::sunken_relief(graph, area);
   graph.fill(draw::rectangle(area), background);
   switch (chart_type) {
     case chart_t::country_chart:

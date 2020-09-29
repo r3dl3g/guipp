@@ -186,6 +186,12 @@ namespace gui {
             ymax = i;
           }
         }
+        if (xmin == last) {
+          xmin = xmax;
+        }
+        if (ymin == last) {
+          ymin = ymax;
+        }
 
         return make_range_pair(get_x<X, Y>(*xmin), get_x<X, Y>(*xmax), get_y<X, Y>(*ymin), get_y<X, Y>(*ymax));
       }
@@ -501,7 +507,7 @@ namespace gui {
                       static_cast<float>(sy.get_target().begin() + scale_dim<X, orientation_t::horizontal>::main_tick_length * 2));
         bool first = true;
         for(const auto& l : labels) {
-          core::rectangle area;
+          core::rectangle area(p, core::size{5, 5});
           g.text(draw::bounding_box(l.second, area, text_origin_t::top_left), f, l.first);
           if (first) {
             p.move_y(area.height() + 2);

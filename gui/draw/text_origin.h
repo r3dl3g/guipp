@@ -67,9 +67,9 @@ namespace gui {
 
   // --------------------------------------------------------------------------
   enum class text_origin_t : unsigned short {
-    top_left        = placement::top     | placement::left    | line_handling::wordbreak,
-    top_hcenter     = placement::top     | placement::hcenter | line_handling::wordbreak,
-    top_right       = placement::top     | placement::right   | line_handling::wordbreak,
+    top_left        = placement::top     | placement::left    | line_handling::singleline,
+    top_hcenter     = placement::top     | placement::hcenter | line_handling::singleline,
+    top_right       = placement::top     | placement::right   | line_handling::singleline,
 
     bottom_left     = placement::bottom  | placement::left    | line_handling::singleline,
     bottom_hcenter  = placement::bottom  | placement::hcenter | line_handling::singleline,

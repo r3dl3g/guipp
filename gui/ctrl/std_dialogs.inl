@@ -33,7 +33,7 @@ namespace gui {
       struct std_dialog_defaults<core::os::ui_t::mobile> {
 
         static core::rectangle multi_input_dialog_size (const core::rectangle& area, std::size_t n) {
-          return area.shrinked({ 20, 20 }).with_height(85 + n * 40);
+          return area.shrinked({ 20, 20 }).with_height(static_cast<core::size::type>(85 + n * 40));
         }
 
         static core::rectangle path_open_dialog_size (const core::rectangle& area) {
@@ -62,7 +62,7 @@ namespace gui {
       struct std_dialog_defaults<core::os::ui_t::desktop> {
 
         static core::rectangle multi_input_dialog_size (const core::rectangle&, std::size_t n) {
-          return core::rectangle(300, 200, 400, 85 + n * 40);
+          return core::rectangle(300, 200, 400, static_cast<core::size::type>(85 + n * 40));
         }
 
         static core::rectangle path_open_dialog_size (const core::rectangle& area) {

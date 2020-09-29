@@ -197,7 +197,7 @@ namespace gui {
       typedef win::group_window<layout::vertical_lineup<20, 15, 2>,
                                 color::very_light_gray> content_view_type;
       typedef standard_dialog<content_view_type> super;
-      static constexpr size_t N = sizeof...(Arguments);
+      static constexpr std::size_t N = sizeof...(Arguments);
       using label_t = basic_label<text_origin_t::bottom_left,
                                   draw::frame::no_frame,
                                   color::black,

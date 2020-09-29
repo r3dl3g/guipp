@@ -83,6 +83,12 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       else()
         message(STATUS "GUIPP: X11_Xft NOT found!")
       endif()
+
+      if (X11_X11_xcb_FOUND)
+        message (STATUS "GUIPP: xcb found!")
+        set (GUIPP_USE_XCB ON)
+      endif()
+
     else()
       message(SEND_ERROR "X11 libraries are required!")
     endif(X11_FOUND)

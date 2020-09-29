@@ -58,11 +58,15 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_definitions(-std=c++14 -fexceptions -Wall -Wno-switch -Wno-unused-command-line-argument -Wno-sign-compare)
 endif ()
 
+get_directory_property(HAS_PARENT PARENT_DIRECTORY)
+if(NOT HAS_PARENT)
+  set (GUIPP_STANDALONE_BUILD ON)
+endif ()
+
 add_subdirectory(gui)
 add_subdirectory(test)
 add_subdirectory(samples)
 
-get_directory_property(HAS_PARENT PARENT_DIRECTORY)
 if(HAS_PARENT)
   set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} PARENT_SCOPE)
   set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} PARENT_SCOPE)

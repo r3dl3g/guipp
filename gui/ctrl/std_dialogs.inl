@@ -23,6 +23,72 @@ namespace gui {
 
   namespace ctrl {
 
+    namespace detail {
+
+      // --------------------------------------------------------------------------
+      template<core::os::ui_t T = core::os::system_ui>
+      struct std_dialog_defaults {};
+
+      template<>
+      struct std_dialog_defaults<core::os::ui_t::mobile> {
+
+        static core::rectangle multi_input_dialog_size (const core::rectangle& area, std::size_t n) {
+          return area.shrinked({ 20, 20 }).with_height(85 + n * 40);
+        }
+
+        static core::rectangle path_open_dialog_size (const core::rectangle& area) {
+          return area;
+        }
+
+        static core::rectangle yes_no_dialog_size (const core::rectangle& area) {
+          return area.shrinked({ 30, 100 });
+        }
+
+        static core::rectangle message_dialog_size (const core::rectangle& area) {
+          return area.shrinked({ 30, 100 });
+        }
+
+        static core::rectangle input_dialog_size (const core::rectangle& area) {
+          return area.shrinked({ 30, 100 });
+        }
+
+        static core::rectangle file_save_dialog_size (const core::rectangle& area) {
+          return area;
+        }
+
+      };
+
+      template<>
+      struct std_dialog_defaults<core::os::ui_t::desktop> {
+
+        static core::rectangle multi_input_dialog_size (const core::rectangle&, std::size_t n) {
+          return core::rectangle(300, 200, 400, 85 + n * 40);
+        }
+
+        static core::rectangle path_open_dialog_size (const core::rectangle& area) {
+          return core::rectangle(200, 100, 800, 600);
+        }
+
+        static core::rectangle yes_no_dialog_size (const core::rectangle& area) {
+          return core::rectangle(300, 200, 400, 170);
+        }
+
+        static core::rectangle message_dialog_size (const core::rectangle& area) {
+          return core::rectangle(300, 200, 400, 170);
+        }
+
+        static core::rectangle input_dialog_size (const core::rectangle& area) {
+          return core::rectangle(300, 200, 400, 125);
+        }
+
+        static core::rectangle file_save_dialog_size (const core::rectangle& area) {
+          return core::rectangle(200, 100, 800, 600);
+        }
+
+      };
+
+    }
+
     //-----------------------------------------------------------------------------
     template<int T, int L, int R>
     void standard_dialog_base<T, L, R>::create (win::container& parent,
@@ -133,11 +199,7 @@ namespace gui {
                                                 std::function<action> action) {
       multi_input_dialog dialog;
       dialog.create(parent, title, message, initial, ok_label, cancel_label,
-#if defined(GUIPP_BUILD_FOR_MOBILE)
-                    parent.place().shrinked({ 20, 20 }).with_height(85 + N * 40),
-#else
-                    core::rectangle(300, 200, 400, 85 + N * 40),
-#endif
+                    detail::std_dialog_defaults<>::multi_input_dialog_size(parent.place(), N),
                     action);
       dialog.show(parent);
     }
@@ -231,11 +293,7 @@ namespace gui {
                                          std::function<fs::filter_fn> filter) {
       path_open_dialog_base dialog;
       dialog.create(parent, title, ok_label, cancel_label,
-#if defined(GUIPP_BUILD_FOR_MOBILE)
-                    parent.place().shrinked({ 20, 20 }),
-#else
-                    core::rectangle(200, 100, 800, 600),
-#endif
+                    detail::std_dialog_defaults<>::path_open_dialog_size(parent.place()),
                     action, filter);
       dialog.super::show(parent);
     }

@@ -258,10 +258,11 @@ namespace gui {
         clog::debug() << "os::bitmap_byte_order_t: " << core::os::bitmap_byte_order;
         clog::debug() << "os::platform_t: " << core::os::system_platform;
         clog::debug() << "os::ui_t: " << core::os::system_ui;
+        clog::debug() << "global::scale_factor: " << scale_factor;
         clog::debug() << "color::part: RGBA=" << static_cast<unsigned int>(color::part::red)
-                 << ":" << static_cast<unsigned int>(color::part::green)
-                 << ":" << static_cast<unsigned int>(color::part::blue)
-                 << ":" << static_cast<unsigned int>(color::part::alpha);
+                      << ":" << static_cast<unsigned int>(color::part::green)
+                      << ":" << static_cast<unsigned int>(color::part::blue)
+                      << ":" << static_cast<unsigned int>(color::part::alpha);
       }
 
       void fini () {

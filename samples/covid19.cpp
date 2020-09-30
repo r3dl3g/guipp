@@ -14,6 +14,7 @@
 #include <util/time_util.h>
 #include <util/vector_util.h>
 #include <testing/testing.h>
+#include <util/sys_fs.h>
 
 #include <numeric>
 #include <chrono>
@@ -35,23 +36,59 @@ typedef core::range<std::time_t> time_range;
 
 // --------------------------------------------------------------------------
 struct timer {
+  typedef std::chrono::system_clock clock;
+  typedef clock::duration duration;
+  typedef clock::time_point time_point;
 
-  timer () {
-    restart();
+  inline timer () {
+    start();
   }
 
-  void restart () {
-    begin = std::chrono::system_clock::now();
+  inline void start () {
+    begin = clock::now();
   }
 
-  std::chrono::system_clock::duration duration () const {
-    return std::chrono::system_clock::now() - begin;
+  inline duration stop () const {
+    return clock::now() - begin;
   }
 
 private:
-  std::chrono::system_clock::time_point begin;
+  time_point begin;
 };
 
+// --------------------------------------------------------------------------
+struct average_timer {
+
+  inline average_timer ()
+    : count_ (0) 
+  {}
+
+  inline void start () {
+    timer_.start();
+  }
+
+  inline void stop () {
+    duration_ += timer_.stop();
+    ++count_;
+  }
+
+  inline timer::duration average_duration () const {
+    return duration_ / count_;
+  }
+
+  inline timer::duration cumulated_duration () const {
+    return duration_;
+  }
+
+  inline std::size_t count () const {
+    return count_;
+  }
+
+private:
+  timer timer_;
+  timer::duration duration_;
+  std::size_t count_;
+};
 // --------------------------------------------------------------------------
 namespace gui { namespace draw { namespace diagram {
   inline bool operator< (const point& lhs, const point& rhs) {
@@ -84,7 +121,7 @@ namespace std {
   }
 
   inline std::ostream& operator<< (std::ostream& out, const timer& t) {
-    out << t.duration();
+    out << t.stop();
     return out;
   }
 
@@ -402,11 +439,11 @@ static auto fmty = [] (double i) {
   return ostreamfmt(i);
 };
 // --------------------------------------------------------------------------
-diagram::range_pair<std::time_t, double> get_mima (std::initializer_list<country_data::country> cs) {
+diagram::range_pair<std::time_t, double> get_mima (std::initializer_list<std::reference_wrapper<const country_data::country>> cs) {
   diagram::range_pair<std::time_t, double> r;
   for (auto& c : cs) {
-    auto pmima = diagram::find_min_max_ignore_0<std::time_t, double>(c.positives);
-    auto dmima = diagram::find_min_max_ignore_0<std::time_t, double>(c.deaths);
+    auto pmima = diagram::find_min_max_ignore_0<std::time_t, double>(c.get().positives);
+    auto dmima = diagram::find_min_max_ignore_0<std::time_t, double>(c.get().deaths);
     if (r.first.empty() && r.second.empty()) {
       r = diagram::get_min_max(pmima, dmima);
     } else {
@@ -420,7 +457,7 @@ template<diagram::scaling S>
 void drawChart (const graphics& graph,
                 const core::rectangle& area,
                 const std::string& title,
-                std::initializer_list<country_data::country> cs,
+                std::initializer_list<std::reference_wrapper<const country_data::country>> cs,
                 std::initializer_list<std::string> legends);
 // --------------------------------------------------------------------------
 std::array<os::color, 6> colors = {
@@ -443,7 +480,7 @@ template<>
 void drawChart<diagram::scaling::linear> (const graphics& graph,
                                           const core::rectangle& area,
                                           const std::string& title,
-                                          std::initializer_list<country_data::country> cs,
+                                          std::initializer_list<std::reference_wrapper<const country_data::country>> cs,
                                           std::initializer_list<std::string> legends) {
   auto mima = get_mima(cs);
   const auto xmima = mima.first;
@@ -459,8 +496,8 @@ void drawChart<diagram::scaling::linear> (const graphics& graph,
   d.draw_yscale(graph, steps, steps/5, fmty);
   int i = 0;
   for (auto& c : cs) {
-    d.draw_line_graph(graph, c.positives, colors[(i++) % 6]);
-    d.draw_line_graph(graph, c.deaths, colors[(i++) % 6]);
+    d.draw_line_graph(graph, c.get().positives, colors[(i++) % 6]);
+    d.draw_line_graph(graph, c.get().deaths, colors[(i++) % 6]);
   }
   d.draw_axis(graph);
   d.draw_title(graph, title);
@@ -471,7 +508,7 @@ template<>
 void drawChart<diagram::scaling::log> (const graphics& graph,
                                        const core::rectangle& area,
                                        const std::string& title,
-                                       std::initializer_list<country_data::country> cs,
+                                       std::initializer_list<std::reference_wrapper<const country_data::country>> cs,
                                        std::initializer_list<std::string> legends) {
   auto mima = get_mima(cs);
   const auto xmima = mima.first;
@@ -484,8 +521,8 @@ void drawChart<diagram::scaling::log> (const graphics& graph,
   d.draw_yscale(graph, 1, 1, fmty);
   int i = 0;
   for (auto& c : cs) {
-    d.draw_line_graph(graph, c.positives, colors[(i++) % 6]);
-    d.draw_line_graph(graph, c.deaths, colors[(i++) % 6]);
+    d.draw_line_graph(graph, c.get().positives, colors[(i++) % 6]);
+    d.draw_line_graph(graph, c.get().deaths, colors[(i++) % 6]);
   }
   d.draw_axis(graph);
   d.draw_title(graph, title);
@@ -496,7 +533,7 @@ template<>
 void drawChart<diagram::scaling::symlog> (const graphics& graph,
                                           const core::rectangle& area,
                                           const std::string& title,
-                                          std::initializer_list<country_data::country> cs,
+                                          std::initializer_list<std::reference_wrapper<const country_data::country>> cs,
                                           std::initializer_list<std::string> legends) {
   auto mima = get_mima(cs);
   const auto xmima = mima.first;
@@ -509,8 +546,8 @@ void drawChart<diagram::scaling::symlog> (const graphics& graph,
   d.draw_yscale(graph, 1, 1, fmty);
   int i = 0;
   for (auto& c : cs) {
-    d.draw_line_graph(graph, c.positives, colors[(i++) % 6]);
-    d.draw_line_graph(graph, c.deaths, colors[(i++) % 6]);
+    d.draw_line_graph(graph, c.get().positives, colors[(i++) % 6]);
+    d.draw_line_graph(graph, c.get().deaths, colors[(i++) % 6]);
   }
   d.draw_axis(graph);
   d.draw_title(graph, title);
@@ -740,12 +777,19 @@ void covid19main::draw_at (std::size_t idx,
                            const core::rectangle& area,
                            const draw::brush& background,
                            item_state state) {
+  static average_timer cached;
+  static average_timer uncached;
+
+
   const auto i = pixmap_cache.find(idx);
   if (i != pixmap_cache.end()) {
     const auto& px = i->second;
     if (px.scaled_size() == area.size()) {
-      clog::debug() << "Draw " << idx << " from cache";
+      cached.start();
       graph.copy_from(i->second, area.top_left());
+      cached.stop();
+
+      clog::info() << "Draw " << idx << " from cache (avg " << cached.average_duration() << " s";
       return;
     } else {
       clear_cache();
@@ -754,9 +798,12 @@ void covid19main::draw_at (std::size_t idx,
 
   draw::pixmap px(area.size());
   draw::graphics g(px);
+  uncached.start();
   draw_uncached(idx, g, core::rectangle(area.size()), background, state);
+  uncached.stop();
   graph.copy_from(px, area.top_left());
-  clog::debug() << "Insert " << idx << " into cache";
+
+  clog::info() << "Insert " << idx << " into cache (avg " << uncached.average_duration() << " s";
   pixmap_cache[idx] = std::move(px);
 }
 // --------------------------------------------------------------------------
@@ -772,7 +819,7 @@ void covid19main::draw_uncached (std::size_t idx,
       switch (idx) {
         case 0:
           drawChart<diagram::scaling::linear>(graph, area, "Increase positives/deads",
-          {option_data[absolute_increase], option_data[increase_median_7]},
+          {std::ref(option_data[absolute_increase]), std::ref(option_data[increase_median_7])},
           {"positive", "dead", "positive/7-day", "dead/7-day"});
           break;
         case 1:
@@ -1059,11 +1106,10 @@ void test_fill_up () {
 }
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& args) {
-  logging::file_logger l("/tmp/covid19.log", logging::level::debug, logging::core::get_standard_formatter());
+  logging::file_logger l((sys_fs::temp_directory_path() / "covid19.log").string(),
+                         logging::level::info, logging::core::get_standard_formatter());
 
   clog::info() << "Current working dir:" << sys_fs::current_path();
-//  clog::debug() << util::time::format_date(1583190000) << " != " << util::time::format_date(1583276400);
-//  return 0;
 
 //  test_fill_up();
 

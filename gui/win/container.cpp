@@ -39,6 +39,9 @@
 #include <gui/win/window_event_proc.h>
 #include <gui/win/window_event_handler.h>
 
+#if !defined(GUIPP_BUILD_FOR_MOBILE)
+# define USE_INPUT_EATER
+#endif
 
 namespace gui {
 
@@ -612,10 +615,10 @@ namespace gui {
       is_modal = true;
 
 #ifdef X11
-#if !defined(GUIPP_BUILD_FOR_MOBILE)
+#if defined(USE_INPUT_EATER)
       input_only_window input_eater(*parent.get_overlapped_window());
       input_eater.set_visible();
-#endif // GUIPP_BUILD_FOR_MOBILE
+#endif // USE_INPUT_EATER
 
       run_loop(is_modal, [&](const core::event & e)->bool {
 #endif // X11
@@ -639,9 +642,9 @@ namespace gui {
       });
 
 #ifdef X11
-#if !defined(GUIPP_BUILD_FOR_MOBILE)
+#if defined(USE_INPUT_EATER)
       input_eater.set_visible(false);
-#endif // GUIPP_BUILD_FOR_MOBILE
+#endif // USE_INPUT_EATER
 #endif // X11
 
       parent.enable();

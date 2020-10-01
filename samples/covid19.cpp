@@ -777,19 +777,18 @@ void covid19main::draw_at (std::size_t idx,
                            const core::rectangle& area,
                            const draw::brush& background,
                            item_state state) {
-  static average_timer cached;
-  static average_timer uncached;
-
+//  static average_timer cached;
+//  static average_timer uncached;
 
   const auto i = pixmap_cache.find(idx);
   if (i != pixmap_cache.end()) {
     const auto& px = i->second;
     if (px.scaled_size() == area.size()) {
-      cached.start();
+//      cached.start();
       graph.copy_from(i->second, area.top_left());
-      cached.stop();
+//      cached.stop();
 
-      clog::info() << "Draw " << idx << " from cache (avg " << cached.average_duration() << " s";
+//      clog::info() << "Draw " << idx << " from cache (avg " << cached.average_duration() << " s";
       return;
     } else {
       clear_cache();
@@ -798,12 +797,12 @@ void covid19main::draw_at (std::size_t idx,
 
   draw::pixmap px(area.size());
   draw::graphics g(px);
-  uncached.start();
+//  uncached.start();
   draw_uncached(idx, g, core::rectangle(area.size()), background, state);
-  uncached.stop();
+//  uncached.stop();
   graph.copy_from(px, area.top_left());
 
-  clog::info() << "Insert " << idx << " into cache (avg " << uncached.average_duration() << " s";
+//  clog::info() << "Insert " << idx << " into cache (avg " << uncached.average_duration() << " s";
   pixmap_cache[idx] = std::move(px);
 }
 // --------------------------------------------------------------------------
@@ -819,7 +818,7 @@ void covid19main::draw_uncached (std::size_t idx,
       switch (idx) {
         case 0:
           drawChart<diagram::scaling::linear>(graph, area, "Increase positives/deads",
-          {std::ref(option_data[absolute_increase]), std::ref(option_data[increase_median_7])},
+          {option_data[absolute_increase], option_data[increase_median_7]},
           {"positive", "dead", "positive/7-day", "dead/7-day"});
           break;
         case 1:

@@ -47,6 +47,12 @@
 # pragma error "Unknown target system"
 #endif
 
+#if defined(GUIPP_BUILD_FOR_MOBILE)
+# define IF_MOBILE_ELSE(A, B) A
+#else
+# define IF_MOBILE_ELSE(A, B) B
+#endif
+
 namespace gui {
 
   namespace core {
@@ -105,12 +111,8 @@ namespace gui {
         tablet
       };
 
-      const ui_t system_ui =
-#if defined(GUIPP_BUILD_FOR_MOBILE)
-          ui_t::mobile;
-#else
-          ui_t::desktop;
-#endif
+      const ui_t system_ui = IF_MOBILE_ELSE(ui_t::mobile, ui_t::desktop);
+
       // --------------------------------------------------------------------------
 
     } // namespace os

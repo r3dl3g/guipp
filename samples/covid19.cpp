@@ -369,7 +369,7 @@ struct covid19main : public main_type {
   country_data::country option_data[options_count];
   chart_t chart_type;
 
-  vertical_list countries;
+  vertical_list selection;
   layout::grid_adaption<7, 1> button_layout;
   text_button load_button;
   text_button table_button;
@@ -566,7 +566,7 @@ std::string format_column (int i, double v) {
 // --------------------------------------------------------------------------
 covid19main::covid19main ()
   : chart_type(chart_t::country_chart)
-  , countries(40, color::very_light_gray, false)
+  , selection(40, color::very_light_gray, false)
   , button_layout({layout::lay(load_button),
                   layout::lay(table_button),
                   layout::lay(chart_button),
@@ -578,8 +578,8 @@ covid19main::covid19main ()
 {
 
   on_create([&] (window*, core::rectangle) {
-//    countries.set_item_size(40);
-    countries.create(*this);
+//    selection.set_item_size(40);
+    selection.create(*this);
     load_button.create(*this, "Load CSV");
     table_button.create(*this, "Show table");
     chart_button.create(*this, "Show chart");
@@ -592,7 +592,7 @@ covid19main::covid19main ()
     table.create(*this);
     table.set_visible(false);
 
-    get_layout().set_left(layout::lay(countries));
+    get_layout().set_left(layout::lay(selection));
     get_layout().set_top(layout::lay(button_layout));
     get_layout().set_center(layout::lay(charts));
 
@@ -603,8 +603,7 @@ covid19main::covid19main ()
     file_open_dialog::show(*this, "Open CSV", "Ok", "Cancel", [&] (const sys_fs::path& p) {
       load_data(p);
       clear_cache();
-      countries.set_data(data);
-      countries.set_count();
+      selection.set_data(data);
     });
   });
 
@@ -682,9 +681,9 @@ covid19main::covid19main ()
     return std::string();
   }));
 
-  countries.on_selection_changed([&] (event_source) {
-    int sel = countries.get_selection();
-    if (!countries.has_selection()) {
+  selection.on_selection_changed([&] (event_source) {
+    int sel = selection.get_selection();
+    if (!selection.has_selection()) {
       return;
     }
     clear_cache();
@@ -720,7 +719,7 @@ covid19main::covid19main ()
     option_data[deads_per_100k].positives = calc::divide(option_data[absolute_cumulated].deaths, static_cast<double>(c.population) / 100000.0);
     option_data[deads_per_100k].deaths = calc::divide(option_data[increase_median_7].deaths, static_cast<double>(c.population) / 700000.0);
 
-    charts.set_count();
+    charts.invalidate();
     table.data.invalidate();
     table.rows.invalidate();
   });
@@ -728,8 +727,7 @@ covid19main::covid19main ()
 }
 // --------------------------------------------------------------------------
 void covid19main::refresh () {
-  countries.set_data(data);
-  countries.set_count();
+  selection.set_data(data);
 }
 // --------------------------------------------------------------------------
 void covid19main::clear_cache () {
@@ -746,7 +744,7 @@ void covid19main::showChart (chart_t t) {
     clear_cache();
   }
   chart_type = t;
-  charts.set_count();
+  charts.invalidate();
 }
 // --------------------------------------------------------------------------
 void covid19main::showTable () {
@@ -755,7 +753,7 @@ void covid19main::showTable () {
   get_layout().set_center(layout::lay(table));
   layout();
   chart_type = chart_t::country_chart;
-  charts.set_count();
+  charts.invalidate();
 }
 // --------------------------------------------------------------------------
 std::size_t covid19main::chart_count () const {

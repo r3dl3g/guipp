@@ -215,14 +215,6 @@ namespace gui {
         const list_state get_state() const;
         list_state get_state();
 
-        template<typename T, list_item_drawer<T> D = default_list_item_drawer<T>>
-        void set_data (const std::vector<T>& data);
-
-        template<typename T, list_item_drawer<T> D = default_list_item_drawer<T>>
-        void set_data (std::initializer_list<T> args);
-
-        void set_data (std::function<list_data_provider> data);
-
         std::size_t get_count () const;
         int get_selection () const;
         bool has_selection () const;
@@ -304,12 +296,20 @@ namespace gui {
                    const core::rectangle& place,
                    std::function<list_data_provider> data);
 
+      template<typename U, list_item_drawer<U> D = default_list_item_drawer<U>>
+      void set_data (const std::vector<U>& data);
+
+      template<typename U, list_item_drawer<U> D = default_list_item_drawer<U>>
+      void set_data (std::initializer_list<U> args);
+
+      void set_data (std::function<list_data_provider> data);
+
       size_type get_item_size () const;
       core::size::type get_item_dimension () const;
       void set_item_size (size_type item_size);
       void set_item_size_and_background (size_type item_size, os::color background);
 
-      void set_count ();
+      void invalidate ();
 
       int get_index_at_point (const core::point& pt);
       core::rectangle get_place_of_index (int idx);

@@ -263,7 +263,6 @@ namespace gui {
           collect_children(root);
         }
         super::set_data(data);
-        super::set_count();
         super::invalidate();
       }
 

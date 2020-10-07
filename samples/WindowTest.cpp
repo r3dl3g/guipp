@@ -677,7 +677,7 @@ my_main_window::my_main_window ()
     clog::debug() << "Ok Button clicked";
     label.set_text("OK Clicked!");
     data.insert(data.end(), { "Sechs", "Sieben", "Acht", "Neun", "Zehn" });
-    list2.set_count();
+    list2.invalidate();
   });
 
   del_button.on_clicked([&] () {
@@ -685,7 +685,7 @@ my_main_window::my_main_window ()
     label.set_text("Del Clicked!");
     if (!data.empty()) {
       data.erase(data.begin());
-      list2.set_count();
+      list2.invalidate();
     }
   });
 
@@ -693,7 +693,7 @@ my_main_window::my_main_window ()
     clog::debug() << "Clear Button clicked";
     label.set_text("Clear Clicked!");
     data.clear();
-    list2.set_count();
+    list2.invalidate();
   });
 
   scroll_check_box.on_state_changed([&] (bool on) {
@@ -908,8 +908,8 @@ void my_main_window::created_children () {
   main_split_view.second.second.get_column_layout().set_columns(columns);
   main_split_view.second.second.set_data(std::move(second_data));
 
-  list2.set_count();
-  list3.set_count();
+  list2.invalidate();
+  list3.invalidate();
 
   auto weight_columns = {
     layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 0.0F },
@@ -962,7 +962,7 @@ void my_main_window::created_children () {
   column_list.set_data(my_column_list_drawer());
   column_list.get_column_layout().set_columns(weight_columns);
 
-  column_list.list.set_count();
+  column_list.list.invalidate();
 
   table_view.create(main, core::rectangle(740, 50, 150, 250));
 
@@ -1019,10 +1019,10 @@ void my_main_window::created_children () {
   textbox.view.enable_select_by_mouse();
 
   htileview.create(main, core::rectangle(10, 580, 200, 250));
-  htileview.set_count();
+  htileview.invalidate();
 
   vtileview.create(main, core::rectangle(220, 580, 400, 250));
-  vtileview.set_count();
+  vtileview.invalidate();
 
   hscroll.create(main, core::rectangle(550, 305, 130, static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width())));
   progress.create(main, core::rectangle(550, 325, 130, static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width())));

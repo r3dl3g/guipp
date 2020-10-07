@@ -34,20 +34,6 @@ namespace gui {
         return list_state(*this);
       }
 
-      template<typename T, list_item_drawer<T> D>
-      inline void list_base::set_data (const std::vector<T>& data) {
-        data.items = indirect_list_data<T, D>(data);
-      }
-
-      template<typename T, list_item_drawer<T> D>
-      inline void list_base::set_data (std::initializer_list<T> args) {
-        data.items = const_list_data<T, D>(args);
-      }
-
-      inline void list_base::set_data (std::function<list_data_provider> dta) {
-        data.items = dta;
-      }
-
       inline std::size_t list_base::get_count () const {
         return data.items ? data.items().size() : 0;
       }
@@ -323,6 +309,26 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
+    template<typename U, list_item_drawer<U> D>
+    inline void basic_list<V, T>::set_data (const std::vector<U>& data) {
+      super::data.items = indirect_list_data<U, D>(data);
+      invalidate();
+    }
+
+    template<orientation_t V, typename T>
+    template<typename U, list_item_drawer<U> D>
+    inline void basic_list<V, T>::set_data (std::initializer_list<U> args) {
+      super::data.items = const_list_data<U, D>(args);
+      invalidate();
+    }
+
+    template<orientation_t V, typename T>
+    inline void basic_list<V, T>::set_data (std::function<list_data_provider> dta) {
+      super::data.items = dta;
+      invalidate();
+    }
+
+    template<orientation_t V, typename T>
     inline void basic_list<V, T>::set_item_size (size_type item_size) {
       traits.item_size = item_size;
     }
@@ -340,21 +346,6 @@ namespace gui {
 
     template<orientation_t V, typename T>
     void basic_list<V, T>::adjust_scroll_bar (const core::size& sz) {
-      if (super::is_scroll_bar_enabled()) {
-        scroll_bar::type invisible = traits.get_invisible_size(content_size(sz, true), super::get_count());
-        const bool show_scroll = (invisible > zero);
-        if (show_scroll) {
-          create_scroll_bar(sz);
-          scrollbar.place(get_scroll_bar_area(sz), IF_WIN32_ELSE(true, false));
-          scrollbar.set_max(std::max(invisible, zero));
-        }
-        scrollbar.set_visible(show_scroll);
-      }
-    }
-
-    template<orientation_t V, typename T>
-    void basic_list<V, T>::set_count () {
-      const auto sz = client_size();
       const auto cs = content_size(sz, true);
       scroll_bar::type invisible = traits.get_invisible_size(cs, get_count());
       scrollbar.set_min_max_step_page(zero, std::max(invisible, zero), traits.get_line_size(), traits.get_1(cs));
@@ -366,8 +357,13 @@ namespace gui {
           scrollbar.place(get_scroll_bar_area(sz), IF_WIN32_ELSE(true, false));
         }
         scrollbar.set_visible(show_scroll);
-        super::invalidate();
       }
+    }
+
+    template<orientation_t V, typename T>
+    void basic_list<V, T>::invalidate () {
+      adjust_scroll_bar();
+      super::invalidate();
     }
 
     template<orientation_t V, typename T>

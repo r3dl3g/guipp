@@ -88,7 +88,7 @@ namespace gui {
         typedef I tree_info;
         typedef typename tree_info::type type;
         typedef typename tree_info::reference reference;
-        typedef std::vector<type> roots_list;
+        typedef typename tree_info::list_type roots_list_type;
 
         void set_root (const type& root);
         void set_root (type&& root);
@@ -98,8 +98,8 @@ namespace gui {
         void add_root (const type& root);
         void add_root (type&& root);
 
-        const roots_list& get_roots () const;
-        void set_roots (const roots_list&);
+        const roots_list_type& get_roots () const;
+        void set_roots (const roots_list_type&);
 
         basic_tree (core::size::type item_size = list_defaults<>::item_size,
                     os::color background = color::white,
@@ -138,7 +138,7 @@ namespace gui {
         int size () const;
 
       private:
-        roots_list roots;
+        roots_list_type roots;
 
         struct depth_info {
           depth_info (reference ref, std::size_t depth);
@@ -201,6 +201,7 @@ namespace gui {
         typedef node::iterator iterator;
         typedef const node* reference;
         typedef core::range<iterator> node_range;
+        typedef std::vector<type> list_type;
 
         static bool has_sub_nodes (const node& n);
         static node_range sub_nodes (node const& n);

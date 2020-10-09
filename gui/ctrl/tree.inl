@@ -82,12 +82,12 @@ namespace gui {
       }
 
       template<typename I>
-      auto basic_tree<I>::get_roots () const -> const std::vector<type>& {
+      auto basic_tree<I>::get_roots () const -> const roots_list_type& {
         return roots;
       }
 
       template<typename I>
-      void basic_tree<I>::set_roots (const std::vector<type>& new_roots) {
+      void basic_tree<I>::set_roots (const roots_list_type& new_roots) {
         roots = new_roots;
       }
 

@@ -108,6 +108,7 @@ namespace gui {
         typedef fs::file_info type;
         typedef fs::filtered_iterator iterator;
         typedef fs::file_info reference;
+        typedef std::vector<type> list_type;
 
         static bool has_sub_nodes (type const& n);
         static reference make_reference (type const& n);

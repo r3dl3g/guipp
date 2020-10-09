@@ -19,6 +19,7 @@
 #include <numeric>
 #include <chrono>
 #include <fstream>
+#include <functional>
 
 #define NOTHING
 
@@ -263,33 +264,84 @@ namespace calc {
 
 } // namespace calc
 // --------------------------------------------------------------------------
-struct country_data : public gui::ctrl::list_data_t<std::string> {
+struct population_data {
 
-  struct country {
-    country ()
-      : population(0)
-    {}
+  std::vector<point> positives;
+  std::vector<point> deaths;
+  std::size_t population;
+  std::string name;
+  bool has_children;
 
-    std::vector<point> positives;
-    std::vector<point> deaths;
-    std::size_t population;
-    std::string region;
-    std::string name;
-  };
+  population_data (bool has_children = false)
+    : population(0)
+    , has_children(has_children)
+  {}
 
-  typedef std::map<std::string, country> map_type;
-  typedef std::vector<std::string> list_type;
+};
+// --------------------------------------------------------------------------
+struct country : public population_data {
+  typedef population_data super;
 
-  std::string at (std::size_t i) const override {
-    return countries[i];
+  country ()
+    : super(false)
+  {}
+
+  std::string region;
+};
+// --------------------------------------------------------------------------
+struct region : public population_data {
+  typedef population_data super;
+  typedef std::vector<std::reference_wrapper<population_data>> country_list_t;
+  typedef country_list_t::const_iterator iterator;
+
+  region ()
+    : super(true)
+  {}
+
+  country_list_t country_list;
+};
+// --------------------------------------------------------------------------
+struct region_tree_info {
+  typedef population_data type;
+  typedef region::iterator iterator;
+  typedef type const* reference;
+  typedef core::range<iterator> node_range;
+  typedef region::country_list_t list_type;
+
+  static bool has_sub_nodes (type const& n) {
+    return n.has_children;
   }
 
-  std::size_t size () const override {
-    return countries.size();
+  static node_range sub_nodes (type const& n) {
+    region const& r = static_cast<region const&>(n);
+    return node_range(r.country_list.begin(), r.country_list.end());
   }
 
-  list_type countries;
-  map_type data;
+  static reference make_reference (type const& n) {
+    return &n;
+  }
+
+  static type const& dereference (reference const& r) {
+    return *r;
+  }
+
+  static const std::string& label (type const& n) {
+    return n.name;
+  }
+
+  static const draw::pixmap& icon (type const&, bool has_children, bool is_open, bool selected) {
+    return tree::standard_icon(has_children, is_open, selected);
+  }
+};
+// --------------------------------------------------------------------------
+struct country_data {
+  typedef std::map<std::string, region> region_map_t;
+  typedef std::map<std::string, country> country_map_t;
+  typedef std::vector<std::reference_wrapper<population_data>> region_list_t;
+
+  region_map_t region_map;
+  country_map_t country_map;
+  region_list_t region_list;
   time_range x_range;
 };
 // --------------------------------------------------------------------------
@@ -340,6 +392,7 @@ struct covid19main : public main_type {
   typedef main_type super;
 
   typedef std::map<std::size_t, pixmap> pixmap_map_t;
+  typedef tree::basic_tree<region_tree_info> tree_view;
 
   covid19main ();
 
@@ -366,10 +419,10 @@ struct covid19main : public main_type {
   void showTable ();
 
   country_data data;
-  country_data::country option_data[options_count];
+  population_data option_data[options_count];
   chart_t chart_type;
 
-  vertical_list selection;
+  tree_view selection;
   layout::grid_adaption<7, 1> button_layout;
   text_button load_button;
   text_button table_button;
@@ -439,7 +492,7 @@ static auto fmty = [] (double i) {
   return ostreamfmt(i);
 };
 // --------------------------------------------------------------------------
-diagram::range_pair<std::time_t, double> get_mima (std::initializer_list<std::reference_wrapper<const country_data::country>> cs) {
+diagram::range_pair<std::time_t, double> get_mima (std::initializer_list<std::reference_wrapper<const population_data>> cs) {
   diagram::range_pair<std::time_t, double> r;
   for (auto& c : cs) {
     auto pmima = diagram::find_min_max_ignore_0<std::time_t, double>(c.get().positives);
@@ -457,7 +510,7 @@ template<diagram::scaling S>
 void drawChart (const graphics& graph,
                 const core::rectangle& area,
                 const std::string& title,
-                std::initializer_list<std::reference_wrapper<const country_data::country>> cs,
+                std::initializer_list<std::reference_wrapper<const population_data>> cs,
                 std::initializer_list<std::string> legends);
 // --------------------------------------------------------------------------
 std::array<os::color, 6> colors = {
@@ -480,7 +533,7 @@ template<>
 void drawChart<diagram::scaling::linear> (const graphics& graph,
                                           const core::rectangle& area,
                                           const std::string& title,
-                                          std::initializer_list<std::reference_wrapper<const country_data::country>> cs,
+                                          std::initializer_list<std::reference_wrapper<const population_data>> cs,
                                           std::initializer_list<std::string> legends) {
   auto mima = get_mima(cs);
   const auto xmima = mima.first;
@@ -508,7 +561,7 @@ template<>
 void drawChart<diagram::scaling::log> (const graphics& graph,
                                        const core::rectangle& area,
                                        const std::string& title,
-                                       std::initializer_list<std::reference_wrapper<const country_data::country>> cs,
+                                       std::initializer_list<std::reference_wrapper<const population_data>> cs,
                                        std::initializer_list<std::string> legends) {
   auto mima = get_mima(cs);
   const auto xmima = mima.first;
@@ -533,7 +586,7 @@ template<>
 void drawChart<diagram::scaling::symlog> (const graphics& graph,
                                           const core::rectangle& area,
                                           const std::string& title,
-                                          std::initializer_list<std::reference_wrapper<const country_data::country>> cs,
+                                          std::initializer_list<std::reference_wrapper<const population_data>> cs,
                                           std::initializer_list<std::string> legends) {
   auto mima = get_mima(cs);
   const auto xmima = mima.first;
@@ -566,7 +619,7 @@ std::string format_column (int i, double v) {
 // --------------------------------------------------------------------------
 covid19main::covid19main ()
   : chart_type(chart_t::country_chart)
-  , selection(40, color::very_light_gray, false)
+  , selection(40, color::white, false)
   , button_layout({layout::lay(load_button),
                   layout::lay(table_button),
                   layout::lay(chart_button),
@@ -603,7 +656,7 @@ covid19main::covid19main ()
     file_open_dialog::show(*this, "Open CSV", "Ok", "Cancel", [&] (const sys_fs::path& p) {
       load_data(p);
       clear_cache();
-      selection.set_data(data);
+      refresh();
     });
   });
 
@@ -688,8 +741,9 @@ covid19main::covid19main ()
     }
     clear_cache();
 
-    const auto& n = data.countries[sel];
-    const auto& c = data.data.at(n);
+    const auto r = selection.get_item(sel);
+    const auto& c = tree_view::tree_info::dereference(r);
+
     option_data[absolute_increase] = c;
 
 //    timer stopwatch;
@@ -727,7 +781,8 @@ covid19main::covid19main ()
 }
 // --------------------------------------------------------------------------
 void covid19main::refresh () {
-  selection.set_data(data);
+  selection.set_roots(data.region_list);
+  selection.update_node_list();
 }
 // --------------------------------------------------------------------------
 void covid19main::clear_cache () {
@@ -764,7 +819,7 @@ std::size_t covid19main::chart_count () const {
     case chart_t::r_value_chart:
     case chart_t::lethality_chart:
     case chart_t::per_100k_chart:
-      return data.countries.size();
+      return selection.size();
     default:
       return 0;
   }
@@ -852,62 +907,58 @@ void covid19main::draw_uncached (std::size_t idx,
       }
       break;
     case chart_t::cases_chart: {
-      const auto& n = data.countries[idx];
-      const auto& c = data.data.at(n);
+      const auto& c = tree_view::tree_info::dereference(selection.get_item(idx));
 
-      country_data::country ctry;
+      country ctry;
       ctry.positives = calc::rolling_mean(c.positives, 7);
       ctry.deaths = calc::rolling_mean(c.deaths, 7);
 
-      drawChart<diagram::scaling::log>(graph, area, n, {ctry}, {"positive", "dead"});
+      drawChart<diagram::scaling::log>(graph, area, c.name, {ctry}, {"positive", "dead"});
       break;
     }
     case chart_t::r_value_chart: {
-      const auto& n = data.countries[idx];
-      const auto& c = data.data.at(n);
+      const auto& c = tree_view::tree_info::dereference(selection.get_item(idx));
 
       auto med_pos = calc::rolling_mean(c.positives, 4);
 
-      country_data::country ctry;
+      country ctry;
       ctry.positives = calc::ratio(med_pos, med_pos, 4);
       ctry.deaths = calc::rolling_mean(ctry.positives, 7);
 
-      drawChart<diagram::scaling::log>(graph, area, n, {ctry}, {"R-Value", "R-Value/7-day"});
+      drawChart<diagram::scaling::log>(graph, area, c.name, {ctry}, {"R-Value", "R-Value/7-day"});
       break;
     }
     case chart_t::lethality_chart: {
-      const auto& n = data.countries[idx];
-      const auto& c = data.data.at(n);
+      const auto& c = tree_view::tree_info::dereference(selection.get_item(idx));
 
       auto acc_pos = calc::accumulated(c.positives);
       auto acc_dea = calc::accumulated(c.deaths);
       auto med_pos = calc::rolling_mean(c.positives, 7);
       auto med_dea = calc::rolling_mean(c.deaths, 7);
 
-      country_data::country ctry;
+      country ctry;
       ctry.positives = calc::ratio(acc_dea, acc_pos, 0);
       ctry.deaths = calc::ratio(med_dea, med_pos, 14);
 
-      drawChart<diagram::scaling::log>(graph, area, n,
+      drawChart<diagram::scaling::log>(graph, area, c.name,
       {ctry}, {"Deads/positives", "Deads/positives/14-day"});
       break;
     }
     case chart_t::per_100k_chart: {
-      const auto& n = data.countries[idx];
-      const auto& c = data.data.at(n);
+      const auto& c = tree_view::tree_info::dereference(selection.get_item(idx));
 
       auto acc_pos = calc::accumulated(c.positives);
       auto med_pos = calc::rolling_mean(c.positives, 7);
       auto acc_dea = calc::accumulated(c.deaths);
       auto med_dea = calc::rolling_mean(c.deaths, 7);
 
-      country_data::country pos, deads;
+      country pos, deads;
       pos.positives = calc::divide(acc_pos, c.population / 100000.0);
       pos.deaths = calc::divide(med_pos, c.population / 700000.0);
       deads.positives = calc::divide(acc_dea, c.population / 100000.0);
       deads.deaths = calc::divide(med_dea, c.population / 700000.0);
 
-      drawChart<diagram::scaling::log>(graph, area, ostreamfmt(n << " [" << std::separat_k << c.population << "]"),
+      drawChart<diagram::scaling::log>(graph, area, ostreamfmt(c.name << " [" << std::separat_k << c.population << "]"),
       {pos, deads}, {"per 100k cumulated", "per 100k last 7 days", "deads per 100k cumulated", "deads per 100k last 7 days"});
       break;
     }
@@ -919,8 +970,10 @@ typedef csv::tuple_reader<std::string, int, int, int, int, int, std::string, std
 void covid19main::load_data (const sys_fs::path& p) {
   using namespace util;
 
-  data.data.clear();
-  data.countries.clear();
+  data.region_map.clear();
+  data.country_map.clear();
+  data.region_list.clear();
+  data.x_range.clear();
 
   clog::info() << "Load CSV data from '" << p << "'";
   timer stopwatch;
@@ -943,17 +996,17 @@ void covid19main::load_data (const sys_fs::path& p) {
     }
 
     auto &n = std::get<6>(t);
-    auto i = data.data.find(n);
-    if (i == data.data.end()) {
-      auto p = data.data.insert(std::make_pair(n, country_data::country()));
+    auto i = data.country_map.find(n);
+    if (i == data.country_map.end()) {
+      auto p = data.country_map.insert(std::make_pair(n, country()));
       i = p.first;
       i->second.name = n;
       i->second.region = std::get<10>(t);
       i->second.population = std::get<9>(t);
     }
-    auto& country = *i;
-    country.second.positives.push_back({x, static_cast<double>(std::get<4>(t))});
-    country.second.deaths.push_back({x, static_cast<double>(std::get<5>(t))});
+    auto& country = i->second;
+    country.positives.push_back({x, static_cast<double>(std::get<4>(t))});
+    country.deaths.push_back({x, static_cast<double>(std::get<5>(t))});
   });
 
 //  csv::reader(',', true).read_csv_data(in, [&] (const csv::reader::string_list& l) {
@@ -966,7 +1019,7 @@ void covid19main::load_data (const sys_fs::path& p) {
 //    const double d = util::string::convert::to<int>(l[5]);
 //    auto i = data.data.find(l[6]);
 //    if (i == data.data.end()) {
-//      auto p = data.data.insert(std::make_pair(l[6], country_data::country()));
+//      auto p = data.data.insert(std::make_pair(l[6], country()));
 //      i = p.first;
 //      i->second.region = l[10];
 //      i->second.population = util::string::convert::to<std::size_t>(l[9]);
@@ -980,10 +1033,10 @@ void covid19main::load_data (const sys_fs::path& p) {
 
   clog::info() << "Inspected range: " << data.x_range;
   std::size_t count = data.x_range.size() / (60*60*24) + 1;
-  country_data::country world;
-  country_data::map_type regions;
-  for (auto& i : data.data) {
-    country_data::country& cntry = i.second;
+  region world;
+  world.name = "World";
+  for (auto& i : data.country_map) {
+    country& cntry = i.second;
 
     std::sort(cntry.positives.begin(), cntry.positives.end());
     std::sort(cntry.deaths.begin(), cntry.deaths.end());
@@ -1004,22 +1057,26 @@ void covid19main::load_data (const sys_fs::path& p) {
     world.population += cntry.population;
 
     if (cntry.region != "Other") {
-      auto& region = regions["- " + cntry.region];
+      std::string name = cntry.region;
+      auto& region = data.region_map[name];
+      region.name = name;
 
 //    clog::debug() << "Add " << cntry.name << " to region - " << cntry.region;
       calc::add(region.positives, cntry.positives);
       calc::add(region.deaths, cntry.deaths);
 
       region.population += cntry.population;
+      region.country_list.emplace_back(std::ref(cntry));
     }
   }
 
-  data.data.insert(std::make_move_iterator(begin(regions)),
-                   std::make_move_iterator(end(regions)));
-  data.data.insert(std::make_pair("- World", std::move(world)));
+  data.region_map.insert(std::make_move_iterator(begin(data.region_map)),
+                         std::make_move_iterator(end(data.region_map)));
+  data.region_map.insert(std::make_pair("- World", std::move(world)));
 
-  std::transform(std::begin(data.data), std::end(data.data), std::back_inserter(data.countries),
-                 [](country_data::map_type::value_type const& pair) { return pair.first; });
+  std::transform(std::begin(data.region_map), std::end(data.region_map),
+                 std::back_inserter(data.region_list),
+                 [](country_data::region_map_t::value_type& pair) { return std::ref<population_data>(pair.second); });
 }
 // --------------------------------------------------------------------------
 void test_fill_up () {

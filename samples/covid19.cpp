@@ -36,61 +36,6 @@ typedef diagram::point2d<std::time_t, double> point;
 typedef core::range<std::time_t> time_range;
 
 // --------------------------------------------------------------------------
-struct timer {
-  typedef std::chrono::system_clock clock;
-  typedef clock::duration duration;
-  typedef clock::time_point time_point;
-
-  inline timer () {
-    start();
-  }
-
-  inline void start () {
-    begin = clock::now();
-  }
-
-  inline duration stop () const {
-    return clock::now() - begin;
-  }
-
-private:
-  time_point begin;
-};
-
-// --------------------------------------------------------------------------
-struct average_timer {
-
-  inline average_timer ()
-    : count_ (0) 
-  {}
-
-  inline void start () {
-    timer_.start();
-  }
-
-  inline void stop () {
-    duration_ += timer_.stop();
-    ++count_;
-  }
-
-  inline timer::duration average_duration () const {
-    return duration_ / count_;
-  }
-
-  inline timer::duration cumulated_duration () const {
-    return duration_;
-  }
-
-  inline std::size_t count () const {
-    return count_;
-  }
-
-private:
-  timer timer_;
-  timer::duration duration_;
-  std::size_t count_;
-};
-// --------------------------------------------------------------------------
 namespace gui { namespace draw { namespace diagram {
   inline bool operator< (const point& lhs, const point& rhs) {
     return lhs.x < rhs.x;
@@ -121,7 +66,7 @@ namespace std {
     return out;
   }
 
-  inline std::ostream& operator<< (std::ostream& out, const timer& t) {
+  inline std::ostream& operator<< (std::ostream& out, const util::time::chronometer& t) {
     out << t.stop();
     return out;
   }
@@ -304,35 +249,39 @@ struct region : public population_data {
 struct region_tree_info {
   typedef population_data type;
   typedef region::iterator iterator;
-  typedef type const* reference;
+  typedef std::reference_wrapper<const population_data> reference;
   typedef core::range<iterator> node_range;
   typedef region::country_list_t list_type;
 
-  static bool has_sub_nodes (type const& n) {
+  static bool has_sub_nodes (population_data const& n) {
     return n.has_children;
   }
 
-  static node_range sub_nodes (type const& n) {
+  static node_range sub_nodes (population_data const& n) {
     region const& r = static_cast<region const&>(n);
     return node_range(r.country_list.begin(), r.country_list.end());
   }
 
-  static reference make_reference (type const& n) {
-    return &n;
+  static reference make_reference (population_data const& n) {
+    return std::ref(n);
   }
 
-  static type const& dereference (reference const& r) {
-    return *r;
+  static population_data const& dereference (reference const& r) {
+    return r.get();
   }
 
-  static const std::string& label (type const& n) {
+  static const std::string& label (population_data const& n) {
     return n.name;
   }
 
-  static const draw::pixmap& icon (type const&, bool has_children, bool is_open, bool selected) {
+  static const draw::pixmap& icon (population_data const&, bool has_children, bool is_open, bool selected) {
     return tree::standard_icon(has_children, is_open, selected);
   }
 };
+// --------------------------------------------------------------------------
+bool operator< (const std::reference_wrapper<const population_data>& lhs, const std::reference_wrapper<const population_data>& rhs) {
+  return &(lhs.get()) < &(rhs.get());
+}
 // --------------------------------------------------------------------------
 struct country_data {
   typedef std::map<std::string, region> region_map_t;
@@ -746,10 +695,11 @@ covid19main::covid19main ()
 
     option_data[absolute_increase] = c;
 
-//    timer stopwatch;
-    option_data[absolute_cumulated].positives = calc::accumulated(c.positives);
-    option_data[absolute_cumulated].deaths = calc::accumulated(c.deaths);
-//    clog::info() << "Duration for accumulation: " << stopwatch;
+    auto d = util::time::chronometer().process([&] () {
+      option_data[absolute_cumulated].positives = calc::accumulated(c.positives);
+      option_data[absolute_cumulated].deaths = calc::accumulated(c.deaths);
+    });
+    clog::info() << "Duration for accumulation: " << d;
 
     option_data[increase_median_7].positives = calc::rolling_mean(c.positives, 7);
     option_data[increase_median_7].deaths = calc::rolling_mean(c.deaths, 7);
@@ -776,6 +726,10 @@ covid19main::covid19main ()
     charts.invalidate();
     table.data.invalidate();
     table.rows.invalidate();
+  });
+
+  selection.on_content_changed([&] () {
+    charts.invalidate();
   });
 
 }
@@ -830,16 +784,16 @@ void covid19main::draw_at (std::size_t idx,
                            const core::rectangle& area,
                            const draw::brush& background,
                            item_state state) {
-//  static average_timer cached;
-//  static average_timer uncached;
+//  static util::time::average_chronometer cached;
+//  static util::time::average_chronometer uncached;
 
   const auto i = pixmap_cache.find(idx);
   if (i != pixmap_cache.end()) {
     const auto& px = i->second;
     if (px.scaled_size() == area.size()) {
-//      cached.start();
-      graph.copy_from(i->second, area.top_left());
-//      cached.stop();
+//      cached.process([&](){
+        graph.copy_from(i->second, area.top_left());
+//      });
 
 //      clog::info() << "Draw " << idx << " from cache (avg " << cached.average_duration() << " s";
       return;
@@ -850,9 +804,9 @@ void covid19main::draw_at (std::size_t idx,
 
   draw::pixmap px(area.size());
   draw::graphics g(px);
-//  uncached.start();
-  draw_uncached(idx, g, core::rectangle(area.size()), background, state);
-//  uncached.stop();
+//  uncached.process([&](){
+    draw_uncached(idx, g, core::rectangle(area.size()), background, state);
+//  });
   graph.copy_from(px, area.top_left());
 
 //  clog::info() << "Insert " << idx << " into cache (avg " << uncached.average_duration() << " s";
@@ -976,7 +930,7 @@ void covid19main::load_data (const sys_fs::path& p) {
   data.x_range.clear();
 
   clog::info() << "Load CSV data from '" << p << "'";
-  timer stopwatch;
+  util::time::chronometer stopwatch;
   std::ifstream in(p);
 
   if (!in.is_open()) {

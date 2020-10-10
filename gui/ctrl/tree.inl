@@ -264,12 +264,14 @@ namespace gui {
         }
         super::set_data(data);
         super::invalidate();
+        super::notify_content_changed();
       }
 
       template<typename I>
       void basic_tree<I>::collect_children (const type& n, std::size_t depth) {
-        data.nodes.emplace_back(depth_info(tree_info::make_reference(n), depth));
-        if (is_open(tree_info::make_reference(n))) {
+        auto ref = tree_info::make_reference(n);
+        data.nodes.emplace_back(depth_info(ref, depth));
+        if (is_open(ref)) {
           for (const auto& i : tree_info::sub_nodes(n)) {
             collect_children(i, depth + 1);
           }

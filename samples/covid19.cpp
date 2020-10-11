@@ -142,13 +142,11 @@ namespace calc {
 
   // --------------------------------------------------------------------------
   std::vector<point> divide (std::vector<point> v, double divisor) {
-    std::vector<point> result;
     const auto sz = v.size();
-    result.resize(sz);
     for (int i = 0; i < sz; ++i) {
-      result[i] = { v[i].x, (v[i].y / divisor) };
+      v[i].y = (v[i].y / divisor);
     }
-    return result;
+    return v;
   }
 
   // --------------------------------------------------------------------------
@@ -311,6 +309,8 @@ enum option {
 enum class chart_t {
   country_chart,
   cases_chart,
+  cumulated_chart,
+  relative_increase_chart,
   r_value_chart,
   lethality_chart,
   per_100k_chart
@@ -331,8 +331,10 @@ const std::array<std::string, options_count*2> heads = {
   "r-val/7",
   "lethal",
   "lethal/14",
-  "per 100k"
-  "per 100k/7"
+  "per 100k",
+  "per 100k/7",
+  "dead/100k",
+  "dead/100k/7"
 };
 // --------------------------------------------------------------------------
 typedef layout_main_window<gui::layout::border::layouter<40, 0, 150, 0>> main_type;
@@ -372,11 +374,13 @@ struct covid19main : public main_type {
   chart_t chart_type;
 
   tree_view selection;
-  layout::grid_adaption<7, 1> button_layout;
+  layout::grid_adaption<9, 1> button_layout;
   text_button load_button;
   text_button table_button;
   text_button chart_button;
   text_button cases_button;
+  text_button cumulated_button;
+  text_button relative_increase_button;
   text_button r_value_button;
   text_button lethality_button;
   text_button per100k_button;
@@ -560,7 +564,7 @@ std::string format_column (int i, double v) {
   if (i < 6) {
     return ostreamfmt(std::fixed << std::setprecision(0) << v);
   }
-  if ((i > 9) && (i < 12)) {
+  if (((i > 9) && (i < 12)) || (i > 13)) {
     return ostreamfmt(std::fixed << std::setprecision(3) << v);
   }
   return ostreamfmt(std::fixed << std::setprecision(2) << (v * 100.0) << '%');
@@ -573,6 +577,8 @@ covid19main::covid19main ()
                   layout::lay(table_button),
                   layout::lay(chart_button),
                   layout::lay(cases_button),
+                  layout::lay(cumulated_button),
+                  layout::lay(relative_increase_button),
                   layout::lay(r_value_button),
                   layout::lay(lethality_button),
                   layout::lay(per100k_button)})
@@ -586,6 +592,8 @@ covid19main::covid19main ()
     table_button.create(*this, "Show table");
     chart_button.create(*this, "Show chart");
     cases_button.create(*this, "Show cases");
+    cumulated_button.create(*this, "Show cumulated");
+    relative_increase_button.create(*this, "Show rel. inc.");
     r_value_button.create(*this, "R-Values");
     lethality_button.create(*this, "Show lethality");
     per100k_button.create(*this, "Per 100k");
@@ -619,6 +627,14 @@ covid19main::covid19main ()
 
   cases_button.on_clicked([&] () {
     showChart(chart_t::cases_chart);
+  });
+
+  cumulated_button.on_clicked([&] () {
+    showChart(chart_t::cumulated_chart);
+  });
+
+  relative_increase_button.on_clicked([&] () {
+    showChart(chart_t::relative_increase_chart);
   });
 
   r_value_button.on_clicked([&] () {
@@ -695,11 +711,11 @@ covid19main::covid19main ()
 
     option_data[absolute_increase] = c;
 
-    auto d = util::time::chronometer().process([&] () {
+//    auto d = util::time::chronometer().process([&] () {
       option_data[absolute_cumulated].positives = calc::accumulated(c.positives);
       option_data[absolute_cumulated].deaths = calc::accumulated(c.deaths);
-    });
-    clog::info() << "Duration for accumulation: " << d;
+//    });
+//    clog::info() << "Duration for accumulation: " << d;
 
     option_data[increase_median_7].positives = calc::rolling_mean(c.positives, 7);
     option_data[increase_median_7].deaths = calc::rolling_mean(c.deaths, 7);
@@ -770,6 +786,8 @@ std::size_t covid19main::chart_count () const {
     case chart_t::country_chart:
       return option_data[absolute_increase].positives.empty() ? 0 : options_count - 1;
     case chart_t::cases_chart:
+    case chart_t::cumulated_chart:
+    case chart_t::relative_increase_chart:
     case chart_t::r_value_chart:
     case chart_t::lethality_chart:
     case chart_t::per_100k_chart:
@@ -866,6 +884,26 @@ void covid19main::draw_uncached (std::size_t idx,
       country ctry;
       ctry.positives = calc::rolling_mean(c.positives, 7);
       ctry.deaths = calc::rolling_mean(c.deaths, 7);
+
+      drawChart<diagram::scaling::log>(graph, area, c.name, {ctry}, {"positive", "dead"});
+      break;
+    }
+    case chart_t::cumulated_chart: {
+      const auto& c = tree_view::tree_info::dereference(selection.get_item(idx));
+
+      country ctry;
+      ctry.positives = calc::accumulated(c.positives);
+      ctry.deaths = calc::accumulated(c.deaths);
+
+      drawChart<diagram::scaling::log>(graph, area, c.name, {ctry}, {"positive", "dead"});
+      break;
+    }
+    case chart_t::relative_increase_chart: {
+      const auto& c = tree_view::tree_info::dereference(selection.get_item(idx));
+
+      country ctry;
+      ctry.positives = calc::rolling_mean(calc::increase(calc::accumulated(c.positives)), 7);
+      ctry.deaths = calc::rolling_mean(calc::increase(calc::accumulated(c.deaths)), 7);
 
       drawChart<diagram::scaling::log>(graph, area, c.name, {ctry}, {"positive", "dead"});
       break;

@@ -564,7 +564,7 @@ namespace gui {
         return core::rectangle(core::point(static_cast<float>(sx.get_target().begin()),
                                            static_cast<float>(sy.get_target().begin())),
                                core::point(static_cast<float>(sx.get_target().end()),
-                                           static_cast<float>(sy.get_target().end())));
+                                           static_cast<float>(sy.get_target().end()))).grow({1, 1});
       }
 
       // --------------------------------------------------------------------------

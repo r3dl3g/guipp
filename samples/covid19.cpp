@@ -993,11 +993,16 @@ void covid19main::load_data (const sys_fs::path& p) {
     }
 
     const double file_size = sys_fs::file_size(p);
+    double last_step = 0;
 
     covid19reader::read_csv(in, ',', true, [&] (const covid19reader::tuple& t) {
       //    clog::info() << "Read tuple:" << t;
 
-      progress.set_value(in.tellg() / file_size);
+      const double next_step = in.tellg() / file_size;
+      if ((next_step - last_step) > 0.001) {
+        progress.set_value(next_step);
+        last_step = next_step;
+      }
 
       const auto x = time::tm2time_t(time::mktm(std::get<3>(t), std::get<2>(t), std::get<1>(t)));
 

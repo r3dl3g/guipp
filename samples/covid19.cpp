@@ -383,8 +383,10 @@ struct covid19main : public main_type {
   text_button per100k_button;
   ctrl::vertical_tile_view charts;
   ctrl::table_view table;
+
   ctrl::progress_bar progress;
   std::thread loading_thread;
+  sys_fs::path file_to_load;
 
   pixmap_map_t pixmap_cache;
 };
@@ -1167,16 +1169,22 @@ int gui_main(const std::vector<std::string>& args) {
 
   covid19main main;
 
+  if (args.size() > 1) {
+    main.file_to_load = args[1];
+  }
+
   main.create({50, 50, 800, 600});
   main.on_destroy(&quit_main_loop);
   main.set_title("Covid-19");
-  main.set_visible();
 
-  if (args.size() > 1) {
-    win::run_on_main([&] () {
-      main.load_data(args[1]);
-    });
-  }
+  main.on_show([&] () {
+    if (!main.file_to_load.empty()) {
+      main.load_data(main.file_to_load);
+      main.file_to_load.clear();
+    }
+  });
+
+  main.set_visible();
 
   return run_main_loop();
 }

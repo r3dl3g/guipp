@@ -993,14 +993,17 @@ void covid19main::load_data (const sys_fs::path& p) {
     }
 
     const double file_size = sys_fs::file_size(p);
-    double last_step = 0;
+
+    typedef std::chrono::system_clock clock;
+    clock::time_point last_step = clock::now();
+    const auto step = std::chrono::milliseconds(300);
 
     covid19reader::read_csv(in, ',', true, [&] (const covid19reader::tuple& t) {
       //    clog::info() << "Read tuple:" << t;
 
-      const double next_step = in.tellg() / file_size;
-      if ((next_step - last_step) > 0.001) {
-        progress.set_value(next_step);
+      const std::chrono::system_clock::time_point next_step = clock::now();
+      if ((next_step - last_step) > step) {
+        progress.set_value(in.tellg() / file_size);
         last_step = next_step;
       }
 

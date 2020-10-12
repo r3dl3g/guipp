@@ -170,34 +170,34 @@ namespace gui {
     // --------------------------------------------------------------------------
 
     using selection_changed_event = core::event_handler<ClientMessage, 0,
-                                                  core::params<event_source>::
-                                                  getter<win::get_client_data<0, event_source> >,
-                                                  0,
-                                                  win::event::functor<win::client_message_matcher<detail::SELECTION_CHANGE_MESSAGE>>>;
+                                                        core::params<event_source>::
+                                                        getter<win::get_client_data<0, event_source> >,
+                                                        0,
+                                                        win::event::functor<win::client_message_matcher<detail::SELECTION_CHANGE_MESSAGE>>>;
 
     using selection_commit_event = core::event_handler<ClientMessage, 0,
-                                                 core::params<>::
-                                                 getter<>,
-                                                 0,
-                                                 win::event::functor<win::client_message_matcher<detail::SELECTION_COMMIT_MESSAGE>>>;
+                                                       core::params<>::
+                                                       getter<>,
+                                                       0,
+                                                       win::event::functor<win::client_message_matcher<detail::SELECTION_COMMIT_MESSAGE>>>;
 
     using selection_cancel_event = core::event_handler<ClientMessage, 0,
-                                                 core::params<>::
-                                                 getter<>,
-                                                 0,
-                                                 win::event::functor<win::client_message_matcher<detail::SELECTION_CANCEL_MESSAGE>>>;
+                                                       core::params<>::
+                                                       getter<>,
+                                                       0,
+                                                       win::event::functor<win::client_message_matcher<detail::SELECTION_CANCEL_MESSAGE>>>;
 
     using hilite_changed_event = core::event_handler<ClientMessage, 0,
-                                               core::params<bool>::
-                                               getter<win::get_client_data<0, bool> >,
-                                               0,
-                                               win::event::functor<win::client_message_matcher<detail::HILITE_CHANGE_MESSAGE>>>;
+                                                     core::params<bool>::
+                                                     getter<win::get_client_data<0, bool> >,
+                                                     0,
+                                                     win::event::functor<win::client_message_matcher<detail::HILITE_CHANGE_MESSAGE>>>;
 
     using content_changed_event = core::event_handler<ClientMessage, 0,
-                                                core::params<>::
-                                                getter<>,
-                                                0,
-                                                win::event::functor<win::client_message_matcher<detail::CONTENT_CHANGED_MESSAGE>>>;
+                                                      core::params<>::
+                                                      getter<>,
+                                                      0,
+                                                      win::event::functor<win::client_message_matcher<detail::CONTENT_CHANGED_MESSAGE>>>;
 
 #endif // X11
        // --------------------------------------------------------------------------

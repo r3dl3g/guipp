@@ -21,7 +21,7 @@
 // Library includes
 //
 #include <gui/ctrl/progress_bar.h>
-
+#include <iomanip>
 
 //#define SHOW_TEXT_AREA
 
@@ -69,7 +69,7 @@ namespace gui {
       void progress_bar_base::set_value (type v) {
         data.value = v;
         if (data.max == 1) {
-          set_text(ostreamfmt(std::fixed << (v * 100) << "%"));
+          set_text(ostreamfmt(std::fixed << std::setprecision(1) << (v * 100) << "%"));
         } else {
           set_text(ostreamfmt(v));
         }

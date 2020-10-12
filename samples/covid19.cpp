@@ -3,6 +3,7 @@
 #include <gui/ctrl/std_dialogs.h>
 #include <gui/ctrl/tile_view.h>
 #include <gui/ctrl/table.h>
+#include <gui/ctrl/progress_bar.h>
 #include <gui/draw/diagram.h>
 #include <gui/draw/bitmap.h>
 #include <gui/core/grid.h>
@@ -81,13 +82,21 @@ namespace std {
 namespace calc {
 
   // --------------------------------------------------------------------------
-  std::vector<point> accumulated (std::vector<point> v) {
-    double prev = 0;
+  template<typename C>
+  std::vector<point> calc (std::vector<point> v, C c) {
     for (auto& i : v) {
-      prev += i.y;
-      i.y = prev;
+      i.y = c(i.y);
     }
     return v;
+  }
+
+  // --------------------------------------------------------------------------
+  std::vector<point> accumulated (const std::vector<point>& v) {
+    double prev = 0;
+    return calc(v, [&] (double i) {
+      prev += i;
+      return prev;
+    });
   }
 
   // --------------------------------------------------------------------------
@@ -129,24 +138,20 @@ namespace calc {
   }
 
   // --------------------------------------------------------------------------
-  std::vector<point> increase (std::vector<point> v) {
+  std::vector<point> increase (const std::vector<point>& v) {
     double prev = 1;
-    for (auto& i : v) {
-      const double next = i.y;
-      const double div = next / prev;
-      i.y = std::isfinite(div) ? div - 1.0 : 0.0;
-      prev = next;
-    }
-    return v;
+    return calc(v, [&] (double i) {
+      const double div = i / prev;
+      prev = i;
+      return std::isfinite(div) ? div - 1.0 : 0.0;
+    });
   }
 
   // --------------------------------------------------------------------------
-  std::vector<point> divide (std::vector<point> v, double divisor) {
-    const auto sz = v.size();
-    for (int i = 0; i < sz; ++i) {
-      v[i].y = (v[i].y / divisor);
-    }
-    return v;
+  std::vector<point> divide (const std::vector<point>& v, double divisor) {
+    return calc(v, [divisor] (double i) {
+      return i / divisor;
+    });
   }
 
   // --------------------------------------------------------------------------
@@ -194,15 +199,6 @@ namespace calc {
       }
       v = result;
     }
-  }
-
-  // --------------------------------------------------------------------------
-  typedef double (calculator) (double);
-  std::vector<point> calc (std::vector<point> v, calculator c) {
-    for (auto& i : v) {
-      i.y = c(i.y);
-    }
-    return v;
   }
 
 } // namespace calc
@@ -346,6 +342,7 @@ struct covid19main : public main_type {
   typedef tree::basic_tree<region_tree_info> tree_view;
 
   covid19main ();
+  ~covid19main ();
 
   void load_data (const sys_fs::path& p);
 
@@ -369,7 +366,7 @@ struct covid19main : public main_type {
   void showChart (chart_t t);
   void showTable ();
 
-  country_data data;
+  country_data full_data;
   population_data option_data[options_count];
   chart_t chart_type;
 
@@ -386,6 +383,8 @@ struct covid19main : public main_type {
   text_button per100k_button;
   ctrl::vertical_tile_view charts;
   ctrl::table_view table;
+  ctrl::progress_bar progress;
+  std::thread loading_thread;
 
   pixmap_map_t pixmap_cache;
 };
@@ -569,6 +568,13 @@ std::string format_column (int i, double v) {
   }
   return ostreamfmt(std::fixed << std::setprecision(2) << (v * 100.0) << '%');
 }
+
+// --------------------------------------------------------------------------
+covid19main::~covid19main () {
+  if (loading_thread.joinable()) {
+    loading_thread.join();
+  }
+}
 // --------------------------------------------------------------------------
 covid19main::covid19main ()
   : chart_type(chart_t::country_chart)
@@ -606,14 +612,16 @@ covid19main::covid19main ()
     get_layout().set_top(layout::lay(button_layout));
     get_layout().set_center(layout::lay(charts));
 
+    progress.create(*this, "Per 100k");
+
     set_children_visible();
+
+    progress.set_visible(false);
   });
 
   load_button.on_clicked([&] () {
     file_open_dialog::show(*this, "Open CSV", "Ok", "Cancel", [&] (const sys_fs::path& p) {
       load_data(p);
-      clear_cache();
-      refresh();
     });
   });
 
@@ -751,7 +759,7 @@ covid19main::covid19main ()
 }
 // --------------------------------------------------------------------------
 void covid19main::refresh () {
-  selection.set_roots(data.region_list);
+  selection.set_roots(full_data.region_list);
   selection.update_node_list();
 }
 // --------------------------------------------------------------------------
@@ -962,113 +970,111 @@ typedef csv::tuple_reader<std::string, int, int, int, int, int, std::string, std
 void covid19main::load_data (const sys_fs::path& p) {
   using namespace util;
 
-  data.region_map.clear();
-  data.country_map.clear();
-  data.region_list.clear();
-  data.x_range.clear();
+  if (loading_thread.joinable()) {
+    loading_thread.join();
+  }
 
   clog::info() << "Load CSV data from '" << p << "'";
-  util::time::chronometer stopwatch;
-  std::ifstream in(p);
 
-  if (!in.is_open()) {
-    clog::warn() << "Could not open file '" << p << "'";
-  }
+  auto s = client_size();
+  progress.place(core::rectangle(25, (s.height() - 25) / 2, s.width() - 50, 25));
 
-  covid19reader::read_csv(in, ',', true, [&] (const covid19reader::tuple& t) {
-//    clog::info() << "Read tuple:" << t;
+  loading_thread = std::thread([&, p] () {
 
-    const auto x = time::tm2time_t(time::mktm(std::get<3>(t), std::get<2>(t), std::get<1>(t)));
+    country_data data;
 
-    static time_range null_range(0);
-    if (data.x_range == null_range) {
-      data.x_range = { x, x };
-    } else {
-      data.x_range = core::min_max( data.x_range, { x, x });
+    util::time::chronometer stopwatch;
+    std::ifstream in(p);
+
+    if (!in.is_open()) {
+      clog::warn() << "Could not open file '" << p << "'";
     }
 
-    auto &n = std::get<6>(t);
-    auto i = data.country_map.find(n);
-    if (i == data.country_map.end()) {
-      auto p = data.country_map.insert(std::make_pair(n, country()));
-      i = p.first;
-      i->second.name = n;
-      i->second.region = std::get<10>(t);
-      i->second.population = std::get<9>(t);
-    }
-    auto& country = i->second;
-    country.positives.push_back({x, static_cast<double>(std::get<4>(t))});
-    country.deaths.push_back({x, static_cast<double>(std::get<5>(t))});
-  });
+    const double file_size = sys_fs::file_size(p);
 
-//  csv::reader(',', true).read_csv_data(in, [&] (const csv::reader::string_list& l) {
-//    if (l.size() < 11) {
-//      return;
-//    }
-//    // 0:dateRep, 1:day, 2:month, 3:year, 4:cases, 5:deaths, 6:countriesAndTerritories, 7:geoId, 8:countryterritoryCode, 9:popData2019, 10:continentExp, 11:Cumulative_number_for_14_days_of_COVID-19_cases_per_100000
-//    const auto x = time::tm2time_t(time::mktm(util::string::convert::to<int>(l[3]), util::string::convert::to<int>(l[2]), util::string::convert::to<int>(l[1])));
-//    const double p = util::string::convert::to<int>(l[4]);
-//    const double d = util::string::convert::to<int>(l[5]);
-//    auto i = data.data.find(l[6]);
-//    if (i == data.data.end()) {
-//      auto p = data.data.insert(std::make_pair(l[6], country()));
-//      i = p.first;
-//      i->second.region = l[10];
-//      i->second.population = util::string::convert::to<std::size_t>(l[9]);
-//    }
-//    auto& c = *i;
-//    c.second.positives.push_back({x, p});
-//    c.second.deaths.push_back({x, d});
-//  });
+    covid19reader::read_csv(in, ',', true, [&] (const covid19reader::tuple& t) {
+      //    clog::info() << "Read tuple:" << t;
 
-  clog::info() << "Duration for parsing: " << stopwatch;
+      progress.set_value(in.tellg() / file_size);
 
-  clog::info() << "Inspected range: " << data.x_range;
-  std::size_t count = data.x_range.size() / (60*60*24) + 1;
-  region world;
-  world.name = "World";
-  for (auto& i : data.country_map) {
-    country& cntry = i.second;
+      const auto x = time::tm2time_t(time::mktm(std::get<3>(t), std::get<2>(t), std::get<1>(t)));
 
-    std::sort(cntry.positives.begin(), cntry.positives.end());
-    std::sort(cntry.deaths.begin(), cntry.deaths.end());
+      static time_range null_range(0);
+      if (data.x_range == null_range) {
+        data.x_range = { x, x };
+      } else {
+        data.x_range = core::min_max( data.x_range, { x, x });
+      }
+
+      auto &n = std::get<6>(t);
+      auto i = data.country_map.find(n);
+      if (i == data.country_map.end()) {
+        auto p = data.country_map.insert(std::make_pair(n, country()));
+        i = p.first;
+        i->second.name = n;
+        i->second.region = std::get<10>(t);
+        i->second.population = std::get<9>(t);
+      }
+      auto& country = i->second;
+      country.positives.push_back({x, static_cast<double>(std::get<4>(t))});
+      country.deaths.push_back({x, static_cast<double>(std::get<5>(t))});
+    });
+
+    clog::info() << "Duration for parsing: " << stopwatch;
+
+    clog::info() << "Inspected range: " << data.x_range;
+    std::size_t count = data.x_range.size() / (60*60*24) + 1;
+    region world;
+    world.name = "World";
+    for (auto& i : data.country_map) {
+      country& cntry = i.second;
+
+      std::sort(cntry.positives.begin(), cntry.positives.end());
+      std::sort(cntry.deaths.begin(), cntry.deaths.end());
 
 #ifdef DEBUG
-    if (cntry.name == "San_Marino") {
-      clog::debug() << "Fill up " << cntry.name;
-    }
+      if (cntry.name == "San_Marino") {
+        clog::debug() << "Fill up " << cntry.name;
+      }
 #endif
 
-    calc::fill_up(cntry.positives, count, data.x_range);
-    calc::fill_up(cntry.deaths, count, data.x_range);
+      calc::fill_up(cntry.positives, count, data.x_range);
+      calc::fill_up(cntry.deaths, count, data.x_range);
 
-//    clog::debug() << "Add " << cntry.name << " to world";
-    calc::add(world.positives, cntry.positives);
-    calc::add(world.deaths, cntry.deaths);
+      //    clog::debug() << "Add " << cntry.name << " to world";
+      calc::add(world.positives, cntry.positives);
+      calc::add(world.deaths, cntry.deaths);
 
-    world.population += cntry.population;
+      world.population += cntry.population;
 
-    if (cntry.region != "Other") {
-      std::string name = cntry.region;
-      auto& region = data.region_map[name];
-      region.name = name;
+      if (cntry.region != "Other") {
+        std::string name = cntry.region;
+        auto& region = data.region_map[name];
+        region.name = name;
 
-//    clog::debug() << "Add " << cntry.name << " to region - " << cntry.region;
-      calc::add(region.positives, cntry.positives);
-      calc::add(region.deaths, cntry.deaths);
+        //    clog::debug() << "Add " << cntry.name << " to region - " << cntry.region;
+        calc::add(region.positives, cntry.positives);
+        calc::add(region.deaths, cntry.deaths);
 
-      region.population += cntry.population;
-      region.country_list.emplace_back(std::ref(cntry));
+        region.population += cntry.population;
+        region.country_list.emplace_back(std::ref(cntry));
+      }
     }
-  }
 
-  data.region_map.insert(std::make_move_iterator(begin(data.region_map)),
-                         std::make_move_iterator(end(data.region_map)));
-  data.region_map.insert(std::make_pair("- World", std::move(world)));
+    data.region_map.insert(std::make_pair("- World", std::move(world)));
 
-  std::transform(std::begin(data.region_map), std::end(data.region_map),
-                 std::back_inserter(data.region_list),
-                 [](country_data::region_map_t::value_type& pair) { return std::ref<population_data>(pair.second); });
+    std::transform(std::begin(data.region_map), std::end(data.region_map),
+                   std::back_inserter(data.region_list),
+                   [](country_data::region_map_t::value_type& pair) { return std::ref<population_data>(pair.second); });
+
+    full_data = std::move(data);
+
+    progress.set_visible(false);
+
+    clear_cache();
+    refresh();
+  });
+
 }
 // --------------------------------------------------------------------------
 void test_fill_up () {
@@ -1169,7 +1175,6 @@ int gui_main(const std::vector<std::string>& args) {
   if (args.size() > 1) {
     win::run_on_main([&] () {
       main.load_data(args[1]);
-      main.refresh();
     });
   }
 

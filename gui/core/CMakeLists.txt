@@ -19,7 +19,7 @@ if(NOT TARGET gui++-core-obj)
   message(STATUS "GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
 
   if (WIN32)
-    add_definitions(-DWIN32_LEAN_AND_MEAN)
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN)
   endif (WIN32)
 
   add_definitions(-DEXPERIMENTAL ${GUIPP_CXX_FLAGS})

@@ -23,7 +23,7 @@
 #include <util/string_util.h>
 #include <gui/ctrl/editbox.h>
 #include <gui/ctrl/edit.h>
-#include <gui/ctrl/clipboard.h>
+#include <gui/win/clipboard.h>
 
 
 namespace gui {
@@ -50,7 +50,7 @@ namespace gui {
 
       void editbox_base::create (const win::container& parent,
                                  const core::rectangle& r) {
-        window::create(clazz::get(), parent, r);
+        create(clazz::get(), parent, r);
       }
 
       void editbox_base::handle_create (window*, const core::rectangle&) {

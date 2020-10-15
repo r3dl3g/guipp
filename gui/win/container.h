@@ -54,6 +54,8 @@ namespace gui {
       void forward_focus (bool backward = false) const;
 
     protected:
+      using window::create;
+
       container (const container&);
       container (container&&);
 

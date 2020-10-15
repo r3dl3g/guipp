@@ -60,6 +60,7 @@ namespace gui {
         typedef core::basic_point<int> position;
         typedef core::range<position> range;
 
+        using control::create;
         void create (const win::container& parent,
                      const core::rectangle& r = core::rectangle::def);
 

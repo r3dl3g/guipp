@@ -21,7 +21,7 @@
 // Library includes
 //
 #include <util/string_util.h>
-#include <gui/ctrl/clipboard.h>
+#include <gui/win/clipboard.h>
 #include <limits>
 
 namespace gui {

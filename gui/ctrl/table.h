@@ -285,6 +285,7 @@ namespace gui {
         cell_view (const cell_view&) = delete;
         cell_view (cell_view&&) = delete;
 
+        using control::create;
         void create (const win::container& parent,
                      const core::rectangle& place = core::rectangle::def);
 

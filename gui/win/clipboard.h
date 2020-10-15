@@ -22,14 +22,14 @@
 //
 // Library includes
 //
-#include <gui/ctrl/control.h>
+#include <gui/win/window.h>
 
 
 namespace gui {
 
   namespace win {
 
-    class GUIPP_CTRL_EXPORT clipboard {
+    class GUIPP_WIN_EXPORT clipboard {
     public:
       typedef void (text_callback)(const std::string&);
 

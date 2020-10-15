@@ -327,7 +327,7 @@ namespace gui {
       template<template<typename U> class T>
       void cell_view<T>::create (const win::container& parent,
                                  const core::rectangle& place) {
-        window::create(clazz::get(), parent, place);
+        create(clazz::get(), parent, place);
       }
 
       template<template<typename U> class T>

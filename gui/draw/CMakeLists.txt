@@ -13,7 +13,7 @@ if(NOT TARGET gui++-draw-obj)
   include_directories(${GUIPP_INCLUDE_DIRS})
 
   if (WIN32)
-    add_definitions(-DWIN32_LEAN_AND_MEAN)
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN)
   endif (WIN32)
 
   add_definitions(${GUIPP_CXX_FLAGS})

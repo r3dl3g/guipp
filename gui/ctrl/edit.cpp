@@ -35,7 +35,7 @@
 //
 #include <util/string_util.h>
 #include <gui/ctrl/edit.h>
-#include <gui/ctrl/clipboard.h>
+#include <gui/win/clipboard.h>
 
 
 //#define SHOW_TEXT_AREA

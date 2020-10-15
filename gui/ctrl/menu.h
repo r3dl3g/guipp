@@ -274,6 +274,7 @@ namespace gui {
       main_menu (const main_menu&);
       main_menu (main_menu&&);
 
+      using control::create;
       void create (const win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 

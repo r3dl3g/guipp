@@ -35,7 +35,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     inline void button_base::create (const win::container& parent,
                                      const core::rectangle& place) {
-      window::create(clazz::get(), parent, place);
+      super::create(clazz::get(), parent, place);
     }
 
     inline const button_state button_base::get_state () const {

@@ -82,7 +82,7 @@ namespace gui {
       void set_top_most (bool toplevel);
 
       void create (const class_info&,
-                   const window&,
+                   const container&,
                    const core::rectangle& = core::rectangle::def);
 
       void create (const class_info&,
@@ -133,10 +133,10 @@ namespace gui {
       typedef modal_window super;
       using clazz = cls::popup_window_class<popup_window>;
 
-      void create (const window& parent, const core::rectangle& r = core::rectangle::def);
+      void create (const container& parent, const core::rectangle& r = core::rectangle::def);
 
     protected:
-      void create (const class_info& cls, const window& parent, const core::rectangle& r = core::rectangle::def);
+      void create (const class_info& cls, const container& parent, const core::rectangle& r = core::rectangle::def);
 
     };
 
@@ -146,10 +146,10 @@ namespace gui {
       typedef modal_window super;
       using clazz = cls::dialog_window_class<dialog_window>;
 
-      void create (const window& parent, const core::rectangle& r = core::rectangle::def);
+      void create (const container& parent, const core::rectangle& r = core::rectangle::def);
 
     protected:
-      void create (const class_info& cls, const window& parent, const core::rectangle& r = core::rectangle::def);
+      void create (const class_info& cls, const container& parent, const core::rectangle& r = core::rectangle::def);
 
     };
 

@@ -27,11 +27,11 @@ namespace gui {
       create(clazz::get(), r);
     }
 
-    inline void popup_window::create (const window& parent, const core::rectangle& r) {
+    inline void popup_window::create (const container& parent, const core::rectangle& r) {
       create(clazz::get(), parent, r);
     }
 
-    inline void dialog_window::create (const window& parent, const core::rectangle& r) {
+    inline void dialog_window::create (const container& parent, const core::rectangle& r) {
       create(clazz::get(), parent, r);
     }
 

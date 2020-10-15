@@ -808,10 +808,7 @@ namespace gui {
                                    &parent_return,
                                    &children_return,
                                    &nchildren_return));
-//      if (children_return) {
-//        x11::check_return(XFree(children_return));
-//      }
-      return (container*)detail::get_window(parent_return);
+      return static_cast<container*>(detail::get_window(parent_return));
     }
 
     bool window::is_child_of (const container& parent) const {
@@ -882,10 +879,11 @@ namespace gui {
       e.send_event = true;
       e.display = core::global::get_instance();
       e.window = get_id();
-      e.x = e.y = 0;
-      auto s = size();
-      e.width = s.width();
-      e.height = s.height();
+      auto p = place();
+      e.x = p.x();
+      e.y = p.y();
+      e.width = p.width();
+      e.height = p.height();
       e.count = 0;
       gui::os::event_result result;
 

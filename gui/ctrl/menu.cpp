@@ -786,7 +786,11 @@ namespace gui {
       }
     }
 
-    void popup_menu::popup_at (const core::point& pt, window& parent) {
+    void popup_menu::popup_at (const core::point& pt, control& parent) {
+      popup_at(pt + parent.position(), *parent.get_parent());
+    }
+
+    void popup_menu::popup_at (const core::point& pt, container& parent) {
       get_state().disable_redraw(false);
       data.init();
       data.set_hilite(0);
@@ -801,7 +805,7 @@ namespace gui {
       run_modal(parent);
     }
 
-    void popup_menu::popup_at (window& parent, menu_data& parent_data, const core::point& pt) {
+    void popup_menu::popup_at (container& parent, menu_data& parent_data, const core::point& pt) {
       get_state().disable_redraw(false);
       data.init();
       data.set_hilite(0);

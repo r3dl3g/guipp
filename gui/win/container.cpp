@@ -307,7 +307,7 @@ namespace gui {
 
 #ifdef WIN32
     void overlapped_window::create (const class_info& type,
-                                    const window& parent,
+                                    const container& parent,
                                     const core::rectangle& r) {
 #ifdef WIN32
       auto rect = r.os();
@@ -473,7 +473,7 @@ namespace gui {
     }
 
     void overlapped_window::create (const class_info& cls,
-                                    const window& parent,
+                                    const container& parent,
                                     const core::rectangle& r) {
       gui::os::instance display = core::global::get_instance();
       super::create(cls, DefaultRootWindow(display), r);
@@ -673,7 +673,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void popup_window::create (const class_info& cls, const window& parent, const core::rectangle& r) {
+    void popup_window::create (const class_info& cls, const container& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
 #ifdef X11
       gui::os::instance display = core::global::get_instance();
@@ -687,7 +687,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void dialog_window::create (const class_info& cls, const window& parent, const core::rectangle& r) {
+    void dialog_window::create (const class_info& cls, const container& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
       gui::os::instance display = core::global::get_instance();
       auto id = get_id();

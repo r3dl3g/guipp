@@ -237,7 +237,7 @@ namespace gui {
     }
 
     inline void popup_menu::popup_at (const core::point& pt, main_menu& parent) {
-      popup_at(parent, parent.data, pt);
+      popup_at(*parent.get_parent(), parent.data, pt);
     }
 
     inline popup_menu::positions::positions ()

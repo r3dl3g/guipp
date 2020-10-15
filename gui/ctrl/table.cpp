@@ -169,7 +169,7 @@ namespace gui {
         return -1;
       }
 
-      core::point::type layout::position_of (std::size_t idx) const {
+      core::point::type layout::position_of (int idx) const {
         core::point::type pos = -get_offset();
         for (std::size_t i = 0; i < idx; ++i) {
           pos += get_size(i);
@@ -496,6 +496,8 @@ namespace gui {
       , rows(geometrie, align, foreground, header_background)
       , enable_v_size(false)
       , enable_h_size(false)
+      , enable_hilite_(false)
+      , enable_selection_(false)
       , moved(false)
       , last_mouse_point(core::point::undefined)
     {
@@ -510,6 +512,8 @@ namespace gui {
       , rows(geometrie, rhs.rows)
       , enable_v_size(false)
       , enable_h_size(false)
+      , enable_hilite_(false)
+      , enable_selection_(false)
       , moved(false)
       , last_mouse_point(core::point::undefined)
     {
@@ -524,6 +528,8 @@ namespace gui {
       , rows(geometrie, std::move(rhs.rows))
       , enable_v_size(false)
       , enable_h_size(false)
+      , enable_hilite_(false)
+      , enable_selection_(false)
       , moved(false)
       , last_mouse_point(core::point::undefined)
     {
@@ -533,6 +539,22 @@ namespace gui {
     void table_view::enable_size (bool h_size, bool v_size) {
       enable_h_size = h_size;
       enable_v_size = v_size;
+    }
+
+    void table_view::enable_hilite (bool hilite) {
+      enable_hilite_ = hilite;
+    }
+
+    void table_view::enable_selection (bool selection) {
+      enable_selection_ = selection;
+    }
+
+    bool table_view::enable_hilite () const {
+      return enable_hilite_;
+    }
+
+    bool table_view::enable_selection () const {
+      return enable_selection_;
     }
 
     void table_view::handle_layout (const core::rectangle&) {
@@ -548,6 +570,12 @@ namespace gui {
     }
 
     void table_view::init () {
+      if (!enable_selection_) {
+        geometrie.selection.clear();
+      }
+      if (!enable_hilite_) {
+        geometrie.hilite.clear();
+      }
       set_scroll_maximum_calcer(default_scroll_maximum);
       get_layout().set_center_top_bottom_left_right(layout::lay(data), layout::lay(columns), layout::lay(hscroll), layout::lay(rows), layout::lay(vscroll));
       on_create(util::bind_method(this, &table_view::handle_created));
@@ -625,14 +653,22 @@ namespace gui {
       }
       if (geometrie.selection != selection) {
         geometrie.selection = selection;
-        make_selection_visible();
-        redraw_all();
+        if (geometrie.selection.is_valid()) {
+          make_selection_visible();
+          redraw_all();
+        }
         send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
       }
     }
 
     const table::position& table_view::get_selection () const {
       return geometrie.selection;
+    }
+
+    table::position table_view::get_valid_selection (const table::offset& offs) const {
+      const auto x = geometrie.selection.x() + offs.width();
+      const auto y = geometrie.selection.y() + offs.height();
+      return table::position(x < 0 ? 0 : x, y < 0 ? 0 : y);
     }
 
     void table_view::make_selection_visible () {
@@ -711,7 +747,7 @@ namespace gui {
     }
 
     void table_view::handle_left_btn_up (os::key_state keys, const core::point& pt) {
-      if (!moved && (last_mouse_point != core::point::undefined)) {
+      if (enable_selection_ && !moved && (last_mouse_point != core::point::undefined)) {
         auto new_selection = data.get_index_at_point(pt);
         const auto spawn = geometrie.spawns.get(new_selection);
         if (spawn.is_hidden()) {
@@ -737,7 +773,7 @@ namespace gui {
           moved = true;
         }
         last_mouse_point = pt;
-      } else {
+      } else if (enable_hilite_) {
         const auto new_hilite = data.get_index_at_point(pt);
         if (geometrie.hilite != new_hilite) {
           geometrie.hilite = new_hilite;
@@ -758,7 +794,7 @@ namespace gui {
     }
 
     void table_view::handle_column_left_btn_up (os::key_state keys, const core::point& pt) {
-      if (!moved && (last_mouse_point != core::point::undefined)) {
+      if (enable_selection_ && !moved && (last_mouse_point != core::point::undefined)) {
         const auto new_selection = columns.get_index_at_point(pt);
         if (get_selection() != new_selection) {
           set_selection(new_selection, event_source::mouse);
@@ -790,7 +826,7 @@ namespace gui {
       } else {
         const int idx = enable_h_size ? geometrie.widths.split_idx_at(pt.x(), 2.0F) : -1;
         columns.set_cursor(idx > -1 ? win::cursor::size_h() : win::cursor::arrow());
-        if (idx < 0) {
+        if (enable_hilite_ && (idx < 0)) {
           const auto new_hilite = columns.get_index_at_point(pt);
           if (geometrie.hilite != new_hilite) {
             geometrie.hilite = new_hilite;
@@ -812,7 +848,7 @@ namespace gui {
     }
 
     void table_view::handle_row_left_btn_up (os::key_state keys, const core::point& pt) {
-      if (!moved && (last_mouse_point != core::point::undefined)) {
+      if (enable_selection_ && !moved && (last_mouse_point != core::point::undefined)) {
         const auto new_selection = rows.get_index_at_point(pt);
         if (get_selection() != new_selection) {
           set_selection(new_selection, event_source::mouse);
@@ -844,7 +880,7 @@ namespace gui {
       } else {
         const int idx = enable_v_size ? geometrie.heights.split_idx_at(pt.y(), 2.0F) : -1;
         rows.set_cursor(idx > -1 ? win::cursor::size_v() : win::cursor::arrow());
-        if (idx < 0) {
+        if (enable_hilite_ && (idx < 0)) {
           const auto new_hilite = rows.get_index_at_point(pt);
           if (geometrie.hilite != new_hilite) {
             geometrie.hilite = new_hilite;
@@ -861,50 +897,66 @@ namespace gui {
       switch (key) {
       case win::keys::up:
       case win::keys::numpad::up:
-        set_selection(get_selection() - table::offset(0, 1), event_source::keyboard);
+        if (enable_selection_) {
+          set_selection(get_valid_selection(table::offset(0, -1)), event_source::keyboard);
+        }
         break;
       case win::keys::down:
       case win::keys::numpad::down:
-        set_selection(get_selection() + table::offset(0, 1), event_source::keyboard);
+        if (enable_selection_) {
+          set_selection(get_valid_selection(table::offset(0, 1)), event_source::keyboard);
+        }
         break;
       case win::keys::left:
       case win::keys::numpad::left:
-        set_selection(get_selection() - table::offset(1, 0), event_source::keyboard);
+        if (enable_selection_) {
+          set_selection(get_valid_selection(table::offset(-1, 0)), event_source::keyboard);
+        }
         break;
       case win::keys::right:
       case win::keys::numpad::right:
-        set_selection(get_selection() + table::offset(1, 0), event_source::keyboard);
+        if (enable_selection_) {
+          set_selection(get_valid_selection(table::offset(1, 0)), event_source::keyboard);
+        }
         break;
       case win::keys::page_up:
       case win::keys::numpad::page_up: {
-        const core::point pt = geometrie.position_of(geometrie.selection);
         core::size sz = data.client_size();
-        if (win::alt_key_bit_mask::is_set(state)) {
-          sz.height(0);
-        } else {
-          sz.width(0);
+        if (enable_selection_) {
+          const core::point pt = geometrie.position_of(geometrie.selection);
+          if (win::alt_key_bit_mask::is_set(state)) {
+            sz.height(0);
+          } else {
+            sz.width(0);
+          }
+          set_selection(geometrie.index_at(pt), event_source::logic);
         }
         set_scroll_pos(get_scroll_pos() - sz);
-        set_selection(geometrie.index_at(pt), event_source::logic);
         break;
       }
       case win::keys::page_down:
       case win::keys::numpad::page_down: {
-        const core::point pt = geometrie.position_of(geometrie.selection);
         core::size sz = data.client_size();
-        if (win::alt_key_bit_mask::is_set(state)) {
-          sz.height(0);
-        } else {
-          sz.width(0);
+        if (enable_selection_) {
+          const core::point pt = geometrie.position_of(geometrie.selection);
+          if (win::alt_key_bit_mask::is_set(state)) {
+            sz.height(0);
+          } else {
+            sz.width(0);
+          }
+          set_selection(geometrie.index_at(pt), event_source::logic);
         }
         set_scroll_pos(get_scroll_pos() + sz);
-        set_selection(geometrie.index_at(pt), event_source::logic);
         break;
       }
       break;
       case win::keys::home:
       case win::keys::numpad::home:
-        set_selection(table::position(0, 0), event_source::keyboard);
+        if (enable_selection_) {
+          set_selection(table::position(0, 0), event_source::keyboard);
+        } else {
+          set_scroll_pos(core::point::zero);
+        }
         break;
       case win::keys::f2:
       case win::keys::enter:

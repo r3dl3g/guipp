@@ -199,8 +199,8 @@ namespace gui {
         return sizes.get_default_data();
       }
 
-      inline core::size::type layout::get_size (std::size_t idx) const {
-        return sizes[idx];
+      inline core::size::type layout::get_size (int idx) const {
+        return idx > -1 ? sizes[idx] : 0;
       }
 
       inline std::size_t layout::get_first_idx () const {

@@ -594,7 +594,6 @@ covid19main::covid19main ()
 {
 
   on_create([&] (window*, core::rectangle) {
-//    selection.set_item_size(40);
     selection.create(*this);
     load_button.create(*this, "Load CSV");
     table_button.create(*this, "Show table");
@@ -667,15 +666,12 @@ covid19main::covid19main ()
     clear_cache();
   });
   charts.set_background(color::white);
-//  charts.set_border({ 10, 10 });
-//  charts.set_spacing({ 5, 5 });
-
   charts.set_data(covid19data{this});
 
   table.set_scroll_maximum_calcer([&](const core::size& size,
                                            const core::point&,
                                            const core::point&) {
-    return core::point(table.geometrie.widths.position_of(14) +
+    return core::point(table.geometrie.widths.position_of(options_count*2) +
                        table.geometrie.widths.get_offset() - size.width(),
                        table.geometrie.heights.position_of(option_data[absolute_increase].positives.size()) +
                        table.geometrie.heights.get_offset() + - size.height());

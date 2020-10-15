@@ -161,7 +161,7 @@ namespace gui {
         layout (core::size::type default_size);
 
         core::size::type get_default_size () const;
-        core::size::type get_size (std::size_t idx) const;
+        core::size::type get_size (int idx) const;
         core::point::type get_offset () const;
 
         std::size_t get_first_idx () const;
@@ -171,7 +171,7 @@ namespace gui {
         void set_offset (core::point::type offset);
 
         int index_at (core::point::type pt) const;
-        core::point::type position_of (std::size_t idx) const;
+        core::point::type position_of (int idx) const;
         int split_idx_at (core::point::type pt, core::size::type delta) const;
 
         void calc ();
@@ -417,6 +417,12 @@ namespace gui {
 
       void enable_size (bool h_size, bool v_size);
 
+      void enable_hilite (bool hilite);
+      void enable_selection (bool selection);
+
+      bool enable_hilite () const;
+      bool enable_selection () const;
+
       core::point get_scroll_pos () const;
       void set_scroll_pos (const core::point& pos);
 
@@ -468,10 +474,13 @@ namespace gui {
       edge_view edge;
 
     protected:
+      table::position get_valid_selection (const table::offset&) const;
       void redraw_all ();
 
       bool enable_v_size;
       bool enable_h_size;
+      bool enable_hilite_;
+      bool enable_selection_;
 
       bool moved;
       core::point last_mouse_point;

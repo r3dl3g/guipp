@@ -101,7 +101,7 @@ namespace gui {
     {}
 
     template<typename L, os::color B, typename ... A>
-    inline void group_window<L, B, A...>::create (const container& parent,
+    inline void group_window<L, B, A...>::create (container& parent,
                                                   const core::rectangle& r) {
       super::create(clazz::get(), parent, r);
     }

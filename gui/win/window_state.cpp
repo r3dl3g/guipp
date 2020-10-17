@@ -86,14 +86,6 @@ namespace gui {
       return set_flag(flags::redraw_disabled, on);
     }
 
-    bool window_state::set_in_event_handle (bool on) {
-      return set_flag(flags::in_event_handle, on);
-    }
-
-    bool window_state::is_in_event_handle () const {
-      return get_flag(flags::in_event_handle);
-    }
-
     bool window_state::set_needs_redraw (bool on) const {
       return set_flag(flags::needs_redraw, on);
     }

@@ -24,6 +24,7 @@
 //
 #include <util/ostreamfmt.h>
 #include <gui/win/window.h>
+#include <gui/win/widget.h>
 #include <gui/win/window_event_handler.h>
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
@@ -214,9 +215,9 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT control : public win::window {
+    class GUIPP_CTRL_EXPORT control : public win::widget {
     public:
-      typedef win::window super;
+      typedef win::widget super;
 
       void on_selection_changed (std::function<void(event_source)>&& f);
       void on_selection_commit (std::function<void()>&& f);
@@ -235,15 +236,15 @@ namespace gui {
       typedef control super;
       typedef win::window_class<client_control, background> clazz;
 
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const core::rectangle& r = core::rectangle::def);
     };
 
     // --------------------------------------------------------------------------
     template<os::color B>
-    inline void client_control<B>::create (const win::container& parent,
+    inline void client_control<B>::create (win::container& parent,
                                            const core::rectangle& r) {
-      super::create(clazz::get(), parent, r);
+      super::create(/*clazz::get(), */parent, r);
     }
 
   } // ctrl

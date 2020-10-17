@@ -257,16 +257,16 @@ namespace gui {
         win::global::unregister_utf8_window(get_id());
       }
 
-      void edit_base::create (const win::container& parent,
+      void edit_base::create (win::container& parent,
                               const std::string& txt,
                               const core::rectangle& place) {
         create(parent, place);
         set_text(txt);
       }
 
-      void edit_base::create (const win::container& parent,
+      void edit_base::create (win::container& parent,
                               const core::rectangle& place) {
-        super::create(clazz<>::get(), parent, place);
+        super::create(/*clazz<>::get(), */parent, place);
         prepare_input();
       }
 

@@ -44,7 +44,7 @@ namespace gui {
       }
     }
 
-    void drop_down::init (win::container* c, win::window* b) {
+    void drop_down::init (win::container* c, win::widget* b) {
       data.main = c;
       data.button = b;
     }

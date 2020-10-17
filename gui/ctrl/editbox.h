@@ -27,6 +27,10 @@
 
 namespace gui {
 
+  namespace win {
+    class window;
+  }
+
   namespace ctrl {
 
     // --------------------------------------------------------------------------
@@ -42,7 +46,7 @@ namespace gui {
         ~editbox_base ();
 
         using control::create;
-        void create (const win::container& parent,
+        void create (win::container& parent,
                      const core::rectangle& r = core::rectangle::def);
 
         void handle_key (os::key_state, os::key_symbol, const std::string&);
@@ -50,7 +54,7 @@ namespace gui {
       private:
         void init ();
 
-        void handle_create (window*, const core::rectangle&);
+        void handle_create (win::window*, const core::rectangle&);
 
         std::string& current_line ();
 

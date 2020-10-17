@@ -26,6 +26,7 @@
 // Library includes
 //
 #include <gui/win/window.h>
+#include <gui/win/widget.h>
 #include <gui/layout/layout.h>
 
 
@@ -40,6 +41,18 @@ namespace gui {
     }
 
     layout_function lay (win::window* w) {
+      return [=] (const core::rectangle& r) {
+        w->place(r);
+      };
+    }
+
+    layout_function lay (win::widget& w) {
+      return [&] (const core::rectangle& r) {
+        w.place(r);
+      };
+    }
+
+    layout_function lay (win::widget* w) {
       return [=] (const core::rectangle& r) {
         w->place(r);
       };
@@ -70,6 +83,12 @@ namespace gui {
 
     void layout_base::add (std::initializer_list<win::window*> list) {
       for (win::window* w : list) {
+        add(lay(w));
+      }
+    }
+
+    void layout_base::add (std::initializer_list<win::widget*> list) {
+      for (win::widget* w : list) {
         add(lay(w));
       }
     }

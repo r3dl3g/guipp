@@ -29,6 +29,8 @@ namespace gui {
 
   namespace win {
 
+    class widget;
+
     class GUIPP_WIN_EXPORT clipboard {
     public:
       typedef void (text_callback)(const std::string&);
@@ -37,6 +39,9 @@ namespace gui {
 
       void set_text (window&, const std::string&);
       void get_text (window&, const std::function<text_callback>&);
+
+      void set_text (widget&, const std::string&);
+      void get_text (widget&, const std::function<text_callback>&);
 
     private:
       clipboard ();

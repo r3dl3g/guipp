@@ -33,9 +33,9 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-    inline void button_base::create (const win::container& parent,
+    inline void button_base::create (win::container& parent,
                                      const core::rectangle& place) {
-      super::create(clazz::get(), parent, place);
+      super::create(/*clazz::get(), */parent, place);
     }
 
     inline const button_state button_base::get_state () const {
@@ -158,20 +158,20 @@ namespace gui {
     }
 
     template<class T, typename U, U D>
-    inline void basic_text_button<T, U, D>::create (const win::container& parent,
+    inline void basic_text_button<T, U, D>::create (win::container& parent,
                                                     const core::rectangle& place) {
       super::create(parent, place);
     }
 
     template<class T, typename U, U D>
-    inline void basic_text_button<T, U, D>::create (const win::container& parent,
+    inline void basic_text_button<T, U, D>::create (win::container& parent,
                                                     const std::string& txt,
                                                     const core::rectangle& place) {
       create(parent, const_text(txt), place);
     }
 
     template<class T, typename U, U D>
-    inline void basic_text_button<T, U, D>::create (const win::container& parent,
+    inline void basic_text_button<T, U, D>::create (win::container& parent,
                                                     const text_source& txt,
                                                     const core::rectangle& place) {
       super::create(parent, place);
@@ -225,7 +225,7 @@ namespace gui {
     }
 
     template<class T>
-    inline void custom_button<T>::create (const win::container& parent,
+    inline void custom_button<T>::create (win::container& parent,
                                           const core::rectangle& place) {
       super::create(parent, place);
     }

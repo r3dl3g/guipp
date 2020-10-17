@@ -21,8 +21,44 @@ if(NOT TARGET gui++-win-obj)
   set (INCLUDE_INSTALL_DIR include/guipp/gui/win)
   set (LIBRARY_INSTALL_DIR lib/guipp)
 
-  file(GLOB SOURCE_FILES "*.cpp")
-  file(GLOB INCLUDE_FILES "*.h" "*.inl")
+  set (SOURCE_FILES
+    clipboard.cpp
+    container.cpp
+    cursor.cpp
+    dbg_win_message.cpp
+    keys.cpp
+    widget.cpp
+    widget_state.cpp
+    window_class.cpp
+    window.cpp
+    window_event_handler.cpp
+    window_event_proc.cpp
+    window_state.cpp
+  )
+
+  set (INCLUDE_FILES
+    clipboard.h
+    container.h
+    container.inl
+    cursor.h
+    cursor.inl
+    dbg_win_message.h
+    keys.h
+    keys.inl
+    widget.h
+    widget.inl
+    widget_state.h
+    win32_container_class.h
+    win32keys.h
+    window_class.h
+    window_event_handler.h
+    window_event_proc.h
+    window.h
+    window.inl
+    window_state.h
+    x11_container_class.h
+    x11keys.h
+  )
 
   add_library(gui++-win-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
 

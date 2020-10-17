@@ -31,11 +31,11 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-    class window;
+    class widget;
 
     // --------------------------------------------------------------------------
-    struct GUIPP_WIN_EXPORT window_state {
-      window_state (const window& win)
+    struct GUIPP_WIN_EXPORT widget_state {
+      widget_state (const widget& win)
         : win(win)
       {}
 
@@ -44,13 +44,11 @@ namespace gui {
       bool is_enabled () const;
       bool is_focus_accepting () const;
       bool is_redraw_disabled () const;
-      bool is_overlapped () const;
 
       bool set_enable (bool on);
       bool set_visible (bool on);
       bool set_accept_focus (bool a);
       bool disable_redraw (bool on = true);
-      bool set_overlapped (bool on);
 
       bool set_needs_redraw (bool on) const;
       bool needs_redraw () const;
@@ -63,7 +61,6 @@ namespace gui {
           window_disabled,
           needs_redraw,
           is_visible,
-          is_overlapped,
           last_window_state_enum
         };
       };
@@ -71,9 +68,9 @@ namespace gui {
       bool get_flag (byte bit) const;
       bool set_flag (byte bit, bool a) const;
 
-      window& get_win () const;
+      widget& get_win () const;
 
-      const window& win;
+      const widget& win;
     };
 
     // --------------------------------------------------------------------------

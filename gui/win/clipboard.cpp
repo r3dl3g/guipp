@@ -22,6 +22,8 @@
 //
 #include <util/string_util.h>
 #include <gui/win/clipboard.h>
+#include <gui/win/container.h>
+#include <gui/win/widget.h>
 #include <limits>
 
 namespace gui {
@@ -172,6 +174,14 @@ namespace gui {
                         detail::UTF8_STRING,
                         detail::XSEL_DATA,
                         id, CurrentTime);
+    }
+
+    void clipboard::set_text (widget& w, const std::string& t) {
+      set_text(*w.get_parent(), t);
+    }
+
+    void clipboard::get_text (widget& w, const std::function<text_callback>& t) {
+      get_text(*w.get_parent(), t);
     }
 
 #endif // X11

@@ -207,6 +207,7 @@ namespace gui {
     }
 
     void container::init () {
+      focus_widget = nullptr;
 #ifdef X11
       static int initialized = x11::init_for_net_wm_state();
       (void)initialized;
@@ -221,6 +222,10 @@ namespace gui {
       on_show([&]() {
         set_children_visible();
       });
+    }
+
+    const std::vector<widget*>& container::get_widgets () const {
+      return widgets;
     }
 
     bool container::is_sub_window (const window* child) const {
@@ -291,6 +296,40 @@ namespace gui {
         }
       }
       window::shift_focus(backward);
+    }
+
+    void container::shift_focus (const widget&, bool backward ) const {
+
+    }
+
+    widget* container::get_focus_widget () const {
+      return focus_widget;
+    }
+
+    void container::set_focus_widget (widget* w) {
+      focus_widget = w;
+    }
+
+    void container::remove_widget (const widget* w) {
+      widgets.erase(std::find(widgets.begin(), widgets.end(), w));
+    }
+
+    void container::add_widget (widget* w) {
+      widgets.push_back(w);
+    }
+
+    void container::widget_to_front (widget* w) {
+      remove_widget(w);
+      widgets.push_back(w);
+    }
+
+    void container::widget_to_back (widget* w) {
+      remove_widget(w);
+      widgets.insert(widgets.begin(), w);
+    }
+
+    void container::invalidate (const core::rectangle& r) const {
+      x11::invalidate_window(get_id(), r);
     }
 
     // --------------------------------------------------------------------------

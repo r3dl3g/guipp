@@ -75,7 +75,7 @@ namespace gui {
       static int initialized = detail::init_control_messages();
       (void)initialized;
 #endif // X11
-      on_lost_focus([&] (window*) {
+      on_lost_focus([&] (win::window*) {
         invalidate();
       });
       on_mouse_leave([&] () {
@@ -87,9 +87,9 @@ namespace gui {
     }
 
     void scroll_bar::create (const win::class_info& type,
-                             const win::container& parent,
+                             win::container& parent,
                              const core::rectangle& place) {
-      super::create(type, parent, place);
+      super::create(/*type, */parent, place);
     }
 
     scroll_bar::type scroll_bar::get_min () const {

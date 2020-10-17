@@ -31,19 +31,19 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      inline column_list_layout::column_list_layout (win::window* main)
+      inline column_list_layout::column_list_layout (win::widget* main)
         : main(main)
         , list(nullptr)
       {}
 
-      inline column_list_layout::column_list_layout (win::window* main, const column_list_layout& rhs)
+      inline column_list_layout::column_list_layout (win::widget* main, const column_list_layout& rhs)
         : main(main)
         , list(nullptr)
         , widths(rhs.widths)
         , aligns(rhs.aligns)
       {}
 
-      inline column_list_layout::column_list_layout (win::window* main, column_list_layout&& rhs)
+      inline column_list_layout::column_list_layout (win::widget* main, column_list_layout&& rhs)
         : main(main)
         , list(std::move(rhs.list))
         , widths(std::move(rhs.widths))
@@ -76,7 +76,7 @@ namespace gui {
         data.list->resize(sz.size() - core::size(0, 20), false);
       }
 
-      inline void base_column_list_layout::set_header_and_list (win::window* header, list_type* list) {
+      inline void base_column_list_layout::set_header_and_list (win::widget* header, list_type* list) {
         data.list = list;
         data.header = header;
       }
@@ -91,16 +91,16 @@ namespace gui {
     } // detail
 
     // --------------------------------------------------------------------------
-    inline simple_column_list_layout::simple_column_list_layout (win::window* main)
+    inline simple_column_list_layout::simple_column_list_layout (win::widget* main)
       : super(main)
     {}
 
-    inline simple_column_list_layout::simple_column_list_layout (win::window* main, const simple_column_list_layout& rhs)
+    inline simple_column_list_layout::simple_column_list_layout (win::widget* main, const simple_column_list_layout& rhs)
       : super(main, rhs)
       , min_widths(rhs.min_widths)
     {}
 
-    inline simple_column_list_layout::simple_column_list_layout (win::window* main, simple_column_list_layout&& rhs)
+    inline simple_column_list_layout::simple_column_list_layout (win::widget* main, simple_column_list_layout&& rhs)
       : super(main, std::move(rhs))
       , min_widths(std::move(rhs.min_widths))
     {}
@@ -126,16 +126,16 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline weight_column_list_layout::weight_column_list_layout (win::window* main)
+    inline weight_column_list_layout::weight_column_list_layout (win::widget* main)
       : super(main)
     {}
 
-    inline weight_column_list_layout::weight_column_list_layout (win::window* main, const weight_column_list_layout& rhs)
+    inline weight_column_list_layout::weight_column_list_layout (win::widget* main, const weight_column_list_layout& rhs)
       : super(main, rhs)
       , weights(rhs.weights)
     {}
 
-    inline weight_column_list_layout::weight_column_list_layout (win::window* main, weight_column_list_layout&& rhs)
+    inline weight_column_list_layout::weight_column_list_layout (win::widget* main, weight_column_list_layout&& rhs)
       : super(main, std::move(rhs))
       , weights(std::move(rhs.weights))
     {}
@@ -237,9 +237,9 @@ namespace gui {
     }
 
     template<typename Layout, os::color background>
-    void column_list_header<Layout, background>::create (const win::container& parent,
+    void column_list_header<Layout, background>::create (win::container& parent,
                                                          const core::rectangle& place) {
-      super::create(clazz::get(), parent, place);
+      super::create(/*clazz::get(), */parent, place);
     }
 
     template<typename Layout, os::color background>
@@ -343,7 +343,7 @@ namespace gui {
       }
 
       template<typename Layout>
-      void base_column_list<Layout>::create (const win::container& parent,
+      void base_column_list<Layout>::create (win::container& parent,
                                              const core::rectangle& place) {
         super::create(clazz::get(), parent, place);
         header.create(*this, core::rectangle(0, 0, place.width(), 20));

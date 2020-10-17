@@ -49,7 +49,7 @@ namespace gui {
     }
 
     template<orientation_t H>
-    inline void basic_scroll_bar<H>::create (const win::container& parent,
+    inline void basic_scroll_bar<H>::create (win::container& parent,
                                              const core::rectangle& place) {
       super::create(clazz::get(), parent, place);
     }

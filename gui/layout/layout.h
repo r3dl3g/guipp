@@ -38,6 +38,7 @@ namespace gui {
 
   namespace win {
     class window;
+    class widget;
   }
 
   // --------------------------------------------------------------------------
@@ -54,6 +55,8 @@ namespace gui {
 
     GUIPP_LAYOUT_EXPORT layout_function lay (win::window&);
     GUIPP_LAYOUT_EXPORT layout_function lay (win::window*);
+    GUIPP_LAYOUT_EXPORT layout_function lay (win::widget&);
+    GUIPP_LAYOUT_EXPORT layout_function lay (win::widget*);
 
     template <typename T>
     struct is_layout {
@@ -127,6 +130,7 @@ namespace gui {
 
       void add (std::initializer_list<layout_function> list);
       void add (std::initializer_list<win::window*> list);
+      void add (std::initializer_list<win::widget*> list);
 
       void remove_all ();
 

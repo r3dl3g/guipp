@@ -36,7 +36,7 @@ namespace gui {
     class GUIPP_CTRL_EXPORT drop_down {
     public:
       void layout (const core::rectangle&) const;
-      void init (win::container*, win::window*);
+      void init (win::container*, win::widget*);
 
       core::rectangle label_place (const core::rectangle&) const;
       core::rectangle button_place (const core::rectangle&) const;
@@ -46,7 +46,7 @@ namespace gui {
         data ();
 
         win::container* main;
-        win::window* button;
+        win::widget* button;
 
       } data;
     };

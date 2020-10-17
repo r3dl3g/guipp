@@ -189,7 +189,7 @@ namespace gui {
       typedef std::function<mouse_fn> mouse_call;
       typedef std::function<key_fn> key_call;
 
-      menu_data (win::window* win);
+      menu_data (win::window* win = nullptr);
       menu_data (win::window* win, const menu_data& rhs);
       menu_data (win::window* win, menu_data&& rhs);
 
@@ -245,6 +245,8 @@ namespace gui {
 
       void check_hot_key (os::key_state st, os::key_symbol sym);
 
+      void set_window (win::window* win);
+
     private:
       win::window* win;
 
@@ -275,7 +277,7 @@ namespace gui {
       main_menu (main_menu&&);
 
       using control::create;
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       void paint (const draw::graphics& g);

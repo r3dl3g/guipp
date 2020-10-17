@@ -44,9 +44,9 @@ namespace gui {
       public:
         typedef ctrl::vertical_list list_type;
 
-        column_list_layout (win::window* main);
-        column_list_layout (win::window* main, const column_list_layout& rhs);
-        column_list_layout (win::window* main, column_list_layout&& rhs);
+        column_list_layout (win::widget* main);
+        column_list_layout (win::widget* main, const column_list_layout& rhs);
+        column_list_layout (win::widget* main, column_list_layout&& rhs);
 
         void init_auto_layout ();
         void layout (const core::rectangle& new_size);
@@ -77,7 +77,7 @@ namespace gui {
       protected:
         void redraw_views ();
 
-        win::window* main;
+        win::widget* main;
         list_type* list;
 
         std::vector<column_size_type> widths;
@@ -99,9 +99,9 @@ namespace gui {
     public:
       typedef detail::column_list_layout super;
 
-      simple_column_list_layout (win::window* main);
-      simple_column_list_layout (win::window* main, const simple_column_list_layout& rhs);
-      simple_column_list_layout (win::window* main, simple_column_list_layout&& rhs);
+      simple_column_list_layout (win::widget* main);
+      simple_column_list_layout (win::widget* main, const simple_column_list_layout& rhs);
+      simple_column_list_layout (win::widget* main, simple_column_list_layout&& rhs);
 
       void set_column_width (std::size_t i, column_size_type w, bool update = true);
       void set_column_count (std::size_t i);
@@ -128,9 +128,9 @@ namespace gui {
     public:
       typedef simple_column_list_layout super;
 
-      weight_column_list_layout (win::window* main);
-      weight_column_list_layout (win::window* main, const weight_column_list_layout& rhs);
-      weight_column_list_layout (win::window* main, weight_column_list_layout&& rhs);
+      weight_column_list_layout (win::widget* main);
+      weight_column_list_layout (win::widget* main, const weight_column_list_layout& rhs);
+      weight_column_list_layout (win::widget* main, weight_column_list_layout&& rhs);
 
       void layout (const core::rectangle& new_size);
 
@@ -156,13 +156,13 @@ namespace gui {
         typedef ctrl::vertical_list list_type;
 
         void layout (const core::rectangle& sz) const;
-        void set_header_and_list (win::window* header, list_type* list);
+        void set_header_and_list (win::widget* header, list_type* list);
 
       protected:
         struct data {
           data ();
 
-          win::window* header;
+          win::widget* header;
           list_type* list;
         } data;
 
@@ -197,7 +197,7 @@ namespace gui {
 
       void paint (const draw::graphics& g);
 
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       void set_cell_drawer (std::function<cell_draw> cd);
@@ -243,7 +243,7 @@ namespace gui {
         layout_type& get_column_layout ();
         const layout_type& get_column_layout () const;
 
-        void create (const container& parent,
+        void create (container& parent,
                      const core::rectangle& place = core::rectangle::def);
 
         header_type header;

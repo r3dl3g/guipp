@@ -73,7 +73,7 @@ namespace gui {
 
       group_window (const Args& ... args);
 
-      void create (const container& parent,
+      void create (container& parent,
                    const core::rectangle& r = core::rectangle::def);
 
     };

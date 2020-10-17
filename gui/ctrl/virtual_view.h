@@ -40,7 +40,7 @@ namespace gui {
 
       void init (ctrl::vertical_scroll_bar* vscroll,
                  ctrl::horizontal_scroll_bar* hscroll,
-                 win::window* edge,
+                 win::widget* edge,
                  view_type* client);
 
       void layout (const core::rectangle& new_size) const;
@@ -66,7 +66,7 @@ namespace gui {
 
       virtual_view ();
 
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const core::rectangle& r = core::rectangle::def);
 
       view_type             view;

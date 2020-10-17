@@ -31,44 +31,45 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    struct GUIPP_CTRL_EXPORT split_view_data {
-      split_view_data ();
-
-      win::window* first;
-      win::window* second;
-      ctrl::detail::slider_base* slider;
-      double split_pos;
-    };
-
-    // --------------------------------------------------------------------------
     template<orientation_t O>
-    class split_view {
-    public:
-      win::window* get_first () const;
-      win::window* get_second () const;
-      ctrl::detail::slider_base* get_slider () const;
-
-      void set_first (win::window* first);
-      void set_second (win::window* second);
-      void set_slider (ctrl::detail::slider_base* slider);
-
-      void set (win::window* first,
-                win::window* second,
-                ctrl::detail::slider_base* slider);
-
+    struct split_view_traits {
       static core::rectangle get_first_place (const core::rectangle&, double pos);
       static core::rectangle get_second_place (const core::rectangle&, double pos);
       static core::rectangle get_slider_place (const core::rectangle&, double pos);
-
       static core::size::type get_slider_width ();
+      static double get_split_pos (const core::point&, const core::size&);
+    };
 
-      double get_split_pos (const core::rectangle&) const;
+    // --------------------------------------------------------------------------
+    template<orientation_t O, typename First, typename Second>
+    class split_view {
+    public:
+      typedef split_view_traits<O> traits;
+
+      split_view ();
+
+      First* get_first () const;
+      Second* get_second () const;
+      ctrl::detail::slider_base* get_slider () const;
+
+      void set_first (First* first);
+      void set_second (Second* second);
+      void set_slider (ctrl::detail::slider_base* slider);
+
+      void set (First* first,
+                Second* second,
+                ctrl::detail::slider_base* slider);
+
+      double get_split_pos (const core::point&, const core::size&) const;
       void set_split_pos (double);
 
       void layout (const core::rectangle& sz) const;
 
     private:
-      split_view_data data;
+      First* first;
+      Second* second;
+      ctrl::detail::slider_base* slider;
+      double split_pos;
     };
 
     // --------------------------------------------------------------------------
@@ -77,62 +78,42 @@ namespace gui {
 
   namespace ctrl {
 
-    namespace detail {
-
-      // --------------------------------------------------------------------------
-      template<orientation_t O>
-      class split_view : public win::layout_container<layout::split_view<O> > {
-      public:
-        typedef win::layout_container<layout::split_view<O> > super;
-        typedef typename super::layout_type layout_type;
-        typedef win::window_class<split_view, IF_WIN32_ELSE((os::color)(COLOR_WINDOW + 1), color::white)> clazz;
-
-        typedef basic_framed_slider<O, draw::frame::raised_relief> slider_type;
-
-        split_view ();
-        split_view (split_view&& rhs);
-
-        void create (const win::container& parent,
-                     const core::rectangle& place = core::rectangle::def,
-                     double split_pos = 0.5);
-
-        double get_split_pos () const;
-        void set_split_pos (double pos);
-
-        slider_type slider;
-
-      private:
-        void init ();
-
-      };
-
-    } // namespace detail
-
     // --------------------------------------------------------------------------
     template<orientation_t O, typename First, typename Second>
-    class basic_split_view : public detail::split_view<O> {
+    class split_view : public win::layout_container<layout::split_view<O, First, Second> > {
     public:
-      typedef detail::split_view<O> super;
+      typedef win::layout_container<layout::split_view<O, First, Second>> super;
       typedef typename super::layout_type layout_type;
+      typedef win::window_class<split_view, IF_WIN32_ELSE((os::color)(COLOR_WINDOW + 1), color::white)> clazz;
 
-      basic_split_view ();
-      basic_split_view (basic_split_view&& rhs);
-      basic_split_view (First&& first, Second&& second);
+      typedef basic_framed_slider<O, draw::frame::raised_relief> slider_type;
 
-      void create (const win::container& parent,
+      split_view ();
+      split_view (split_view&& rhs);
+      split_view (First&& first, Second&& second);
+
+      void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def,
                    double split_pos = 0.5);
 
+      double get_split_pos () const;
+      void set_split_pos (double pos);
+
+      slider_type slider;
       First first;
       Second second;
+
+    private:
+      void init ();
+
     };
 
     // --------------------------------------------------------------------------
     template<typename First, typename Second>
-    using vertical_split_view = basic_split_view<orientation_t::vertical, First, Second>;
+    using vertical_split_view = split_view<orientation_t::vertical, First, Second>;
 
     template<typename First, typename Second>
-    using horizontal_split_view = basic_split_view<orientation_t::horizontal, First, Second>;
+    using horizontal_split_view = split_view<orientation_t::horizontal, First, Second>;
 
   } // ctrl
 

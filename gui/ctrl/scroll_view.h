@@ -41,7 +41,7 @@ namespace gui {
 
       void init (ctrl::vertical_scroll_bar* vscroll,
                  ctrl::horizontal_scroll_bar* hscroll,
-                 win::window* edge);
+                 win::widget* edge);
 
       core::rectangle layout (const core::rectangle& new_size, const core::rectangle& required) const;
 
@@ -53,7 +53,7 @@ namespace gui {
     protected:
       ctrl::vertical_scroll_bar*   vscroll;
       ctrl::horizontal_scroll_bar* hscroll;
-      win::window*                 edge;
+      win::widget*                 edge;
     };
 
     // --------------------------------------------------------------------------
@@ -110,7 +110,7 @@ namespace gui {
 
       vertical_scroll_bar& get_vscroll ();
       horizontal_scroll_bar& get_hscroll ();
-      window& get_edge ();
+      control& get_edge ();
 
     private:
       core::point           current_pos;
@@ -127,7 +127,7 @@ namespace gui {
       typedef scroll_view_base super;
       typedef win::window_class<scroll_view, background> clazz;
 
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
     };

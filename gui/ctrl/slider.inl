@@ -35,9 +35,9 @@ namespace gui {
       }
 
       template<orientation_t O>
-      inline void basic_slider<O>::create (const win::container& parent,
+      inline void basic_slider<O>::create (win::container& parent,
                                            const core::rectangle& place) {
-        super::create(clazz::get(), parent, place);
+        super::create(/*clazz::get(), */parent, place);
       }
 
       // --------------------------------------------------------------------------

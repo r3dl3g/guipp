@@ -36,10 +36,13 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace win {
 
+    class widget;
+
     // --------------------------------------------------------------------------
     class GUIPP_WIN_EXPORT container : public window {
     public:
       typedef window super;
+      typedef std::vector<widget*> widget_list_t;
 
       container ();
 
@@ -49,15 +52,32 @@ namespace gui {
       void set_children_visible (bool = true);
 
       std::vector<window*> get_children () const;
+      const std::vector<widget*>& get_widgets () const;
 
       void shift_focus (const window&, bool backward = false) const;
       void forward_focus (bool backward = false) const;
+
+      void shift_focus (const widget&, bool backward = false) const;
+      widget* get_focus_widget () const;
+      void set_focus_widget (widget*);
+
+      void remove_widget (const widget*);
+      void add_widget (widget*);
+
+      void widget_to_front (widget*);
+      void widget_to_back (widget*);
+
+      using window::invalidate;
+      void invalidate (const core::rectangle&) const;
 
     protected:
       using window::create;
 
       container (const container&);
       container (container&&);
+
+      widget_list_t widgets;
+      widget* focus_widget;
 
     private:
       void init ();
@@ -135,7 +155,7 @@ namespace gui {
       typedef modal_window super;
       using clazz = cls::popup_window_class<popup_window>;
 
-      void create (const container& parent, const core::rectangle& r = core::rectangle::def);
+      void create (container& parent, const core::rectangle& r = core::rectangle::def);
 
     protected:
       void create (const class_info& cls, const container& parent, const core::rectangle& r = core::rectangle::def);
@@ -148,7 +168,7 @@ namespace gui {
       typedef modal_window super;
       using clazz = cls::dialog_window_class<dialog_window>;
 
-      void create (const container& parent, const core::rectangle& r = core::rectangle::def);
+      void create (container& parent, const core::rectangle& r = core::rectangle::def);
 
     protected:
       void create (const class_info& cls, const container& parent, const core::rectangle& r = core::rectangle::def);

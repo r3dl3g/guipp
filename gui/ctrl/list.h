@@ -287,12 +287,12 @@ namespace gui {
                   bool grab_focus = true);
       basic_list (basic_list&& rhs);
 
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       template<typename U,
                list_item_drawer<U> F = default_list_item_drawer<U> >
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const core::rectangle& place,
                    std::function<list_data_provider> data);
 

@@ -32,7 +32,7 @@
 //
 #include <gui/core/event_container.h>
 #include <gui/core/gui_types.h>
-#include <gui/win/window_state.h>
+#include <gui/win/widget_state.h>
 #include <gui/win/window_class.h>
 #include <gui/win/window_event_handler.h>
 
@@ -48,29 +48,21 @@ namespace gui {
     class overlapped_window;
 
     // --------------------------------------------------------------------------
-    namespace detail {
-      void set_id (window* w, os::window id);
-    }
-
-    // --------------------------------------------------------------------------
-    class GUIPP_WIN_EXPORT window {
+    class GUIPP_WIN_EXPORT widget {
     public:
       typedef core::event_container::event_handler_function event_handler_function;
 
-      window ();
-      ~window ();
+      widget ();
+      ~widget ();
 
       os::window get_id () const;
-
       operator os::drawable() const;
 
-      void destroy ();
-      void close ();
-
-      void set_parent (const container& parent);
-      container* get_parent () const;
-      container* get_root_window () const;
-      overlapped_window* get_overlapped_window () const;
+      void set_parent (container& parent);
+      container* get_parent ();
+      const container* get_parent () const;
+      const container* get_root_window () const;
+      const overlapped_window* get_overlapped_window () const;
       bool is_child_of (const container& parent) const;
 
       bool is_valid () const;
@@ -79,8 +71,8 @@ namespace gui {
       bool is_toplevel () const;
       bool has_border () const;
 
-      const window_state get_state () const;
-      window_state get_state ();
+      const widget_state get_state () const;
+      widget_state get_state ();
 
       bool is_visible () const;
       void set_visible (bool s = true);
@@ -98,13 +90,14 @@ namespace gui {
 
       void shift_focus (bool backward = false) const;
 
-      void take_focus () const;
+      void take_focus ();
 
       void to_front ();
       void to_back ();
 
       void invalidate () const;
       void redraw () const;
+      void destroy ();
 
       core::size size () const;
       core::point position () const;
@@ -124,9 +117,6 @@ namespace gui {
       core::point client_to_screen (const core::point&) const;
       core::point screen_to_client (const core::point&) const;
 
-      std::string get_class_name () const;
-      const class_info& get_window_class () const;
-
       void set_cursor (os::cursor);
 
       void capture_pointer ();
@@ -142,9 +132,7 @@ namespace gui {
       typedef void(place_fn)(core::rectangle);
 
       void on_create (std::function<create_fn>&& f);
-
       void on_close (std::function<notification_fn>&& f);
-      void on_destroy (std::function<window_fn>&& f);
 
       void on_any_key_down (std::function<void(os::key_state, os::key_symbol, std::string)>&& f);
       void on_any_key_up (std::function<void(os::key_state, os::key_symbol)>&& f);
@@ -211,60 +199,36 @@ namespace gui {
       bool handle_event (const core::event&, gui::os::event_result&) const;
 
     protected:
-      window (const window&);
-      window (window&&);
+      widget (const widget&);
+      widget (widget&&);
 
-      window& operator= (const window&) = delete;
-      window& operator= (window&&) = delete;
+      widget& operator= (const widget&) = delete;
+      widget& operator= (widget&&) = delete;
 
-      void create (const class_info&,
-                   const container&,
-                   const core::rectangle& = core::rectangle::def);
-
-      void create (const class_info&,
-                   os::window parent,
-                   const core::rectangle&);
+      void create (container& parent,
+                   const core::rectangle& r = core::rectangle::def);
 
       void set_accept_focus (bool a);
 
       void register_event_handler (event_handler_function&& f, os::event_id mask);
 
     private:
-      friend struct window_state;
+      friend struct widget_state;
       bool get_flag (byte bit) const;
       void set_flag (byte bit, bool a);
 
     private:
-      friend void detail::set_id (window*, os::window);
-
-      static os::window create_window (const class_info&,
-                                       const core::rectangle& r,
-                                       os::window parent_id,
-                                       window* data);
-
-      void init ();
-
-      os::window id;
+      container* parent;
+      core::rectangle area;
       core::event_container events;
       std::bitset<sizeof(long) * 8> flags;
     };
 
     // --------------------------------------------------------------------------
-    template<os::color background = color::very_light_gray>
-    class client_window : public window {
-    public:
-      typedef window super;
-      typedef window_class<client_window, background> clazz;
-
-      void create (container& parent,
-                   const core::rectangle& r = core::rectangle::def);
-    };
-
-    // --------------------------------------------------------------------------
     template<class T>
-    typename std::enable_if<std::is_base_of<window, T>::value, std::ostream&>::type
+    typename std::enable_if<std::is_base_of<widget, T>::value, std::ostream&>::type
     operator<< (std::ostream& out, const T& t) {
-      out << "[" << t.get_id() << "]" << typeid(T).name();
+      out << "[" << t.place() << "]" << typeid(T).name();
       return out;
     }
 
@@ -272,4 +236,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/win/window.inl>
+#include <gui/win/widget.inl>

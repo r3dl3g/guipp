@@ -474,23 +474,27 @@ namespace gui {
       }
     }
 
+    void menu_data::set_window (win::window* w) {
+      win = w;
+    }
+
     // --------------------------------------------------------------------------
     main_menu::main_menu ()
-      : data(this)
+      : data(nullptr)
     {
       init();
     }
 
     main_menu::main_menu (const main_menu& rhs)
       : super(rhs)
-      , data(this, rhs.data)
+      , data(nullptr, rhs.data)
     {
       init();
     }
 
     main_menu::main_menu (main_menu&& rhs)
       : super(std::move(rhs))
-      , data(this, std::move(rhs.data))
+      , data(nullptr, std::move(rhs.data))
     {
       init();
     }
@@ -536,7 +540,7 @@ namespace gui {
       });
 
       on_create([&] (window *, const core::rectangle &) {
-        data.register_menu_keys(this);
+        data.register_menu_keys(get_parent());
       });
     }
 

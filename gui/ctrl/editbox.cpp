@@ -24,6 +24,7 @@
 #include <gui/ctrl/editbox.h>
 #include <gui/ctrl/edit.h>
 #include <gui/win/clipboard.h>
+#include <gui/win/window.h>
 
 
 namespace gui {
@@ -48,12 +49,12 @@ namespace gui {
         on_any_key_down(util::bind_method(this, &editbox_base::handle_key));
       }
 
-      void editbox_base::create (const win::container& parent,
+      void editbox_base::create (win::container& parent,
                                  const core::rectangle& r) {
-        create(clazz::get(), parent, r);
+        create(/*clazz::get(), */parent, r);
       }
 
-      void editbox_base::handle_create (window*, const core::rectangle&) {
+      void editbox_base::handle_create (win::window*, const core::rectangle&) {
         win::global::register_utf8_window(get_id());
       }
 

@@ -39,6 +39,7 @@ namespace gui {
   namespace win {
 
     class window;
+    class widget;
 
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT os::key_state get_key_state (const core::event& e);
@@ -375,6 +376,7 @@ namespace gui {
                                 long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0);
 
       GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, const window* w, const core::rectangle& r);
+      GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, const widget* w, const core::rectangle& r);
 
       GUIPP_WIN_EXPORT void prepare_win_for_event (const window* win, os::event_id mask);
       GUIPP_WIN_EXPORT void unprepare_win (const window* win);
@@ -806,6 +808,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, long l1 = 0, long l2 = 0);
+    GUIPP_WIN_EXPORT void send_client_message (const widget* win, Atom message, long l1 = 0, long l2 = 0);
 
     GUIPP_WIN_EXPORT void post_client_message (const window* win, Atom message, long l1 = 0, long l2 = 0);
 

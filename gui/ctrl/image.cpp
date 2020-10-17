@@ -27,9 +27,9 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-    void image::create (const container& parent,
+    void image::create (container& parent,
                         const core::rectangle& place) {
-      super::create(clazz::get(), parent, place);
+      super::create(/*clazz::get(), */parent, place);
     }
 
     // --------------------------------------------------------------------------

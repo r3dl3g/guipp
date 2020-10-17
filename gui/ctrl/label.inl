@@ -25,19 +25,19 @@ namespace gui {
 
     namespace detail {
 
-      inline void label_base::create (const win::container& parent,
+      inline void label_base::create (win::container& parent,
                                       const core::rectangle& place) {
-        super::create(clazz::get(), parent, place);
+        super::create(/*clazz::get(), */parent, place);
       }
 
-      inline void label_base::create (const win::container& parent,
+      inline void label_base::create (win::container& parent,
                                       const text_source& txt,
                                       const core::rectangle& place) {
         create(parent, place);
         set_text(txt);
       }
 
-      inline void label_base::create (const win::container& parent,
+      inline void label_base::create (win::container& parent,
                                       const std::string& txt,
                                       const core::rectangle& place) {
         create(parent, const_text(txt), place);

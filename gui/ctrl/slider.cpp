@@ -214,10 +214,10 @@ namespace gui {
           start_mouse_point = core::point::undefined;
           start_window_point = core::point::undefined;
         });
-        on_set_focus([&] (window*) {
+        on_set_focus([&] (win::window*) {
           invalidate();
         });
-        on_lost_focus([&] (window*) {
+        on_lost_focus([&] (win::window*) {
           invalidate();
         });
       }

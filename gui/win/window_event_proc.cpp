@@ -540,20 +540,6 @@ namespace gui {
       return false;
     }
 
-    struct in_event_handle_state {
-      inline in_event_handle_state (const window& win)
-        : state(win.get_state())
-      {
-        state.set_in_event_handle(true);
-      }
-
-      inline ~in_event_handle_state () {
-        state.set_in_event_handle(false);
-      }
-
-      window_state state;
-    };
-
     // --------------------------------------------------------------------------
     void process_event (const core::event& e, gui::os::event_result& resultValue) {
       win::window* win = win::detail::get_event_window(e);
@@ -563,7 +549,6 @@ namespace gui {
         resultValue = 0;
 
         try {
-          in_event_handle_state guard(*win);
           win->handle_event(e, resultValue);
         } catch (std::exception& ex) {
           clog::fatal() << "exception in run_main_loop: " << ex;

@@ -146,9 +146,9 @@ namespace gui {
 } // namespace gui
 
 // --------------------------------------------------------------------------
-class my_main_window : public win::layout_main_window<layout::win_attach> {
+class my_main_window : public win::layout_main_window<layout::attach_all> {
 public:
-  typedef win::layout_main_window<layout::win_attach> super;
+  typedef win::layout_main_window<layout::attach_all> super;
   typedef win::group_window<layout::horizontal_adaption<5, 5>, color::dark_gray> group_group_t;
   typedef win::cls::main_window_class<my_main_window, color::very_very_light_gray> myclazz;
 

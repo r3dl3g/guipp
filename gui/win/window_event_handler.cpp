@@ -29,7 +29,8 @@
 // Library includes
 //
 #include <gui/win/window_event_handler.h>
-#include <gui/win/window.h>
+#include <gui/win/container.h>
+#include <gui/win/widget.h>
 
 #ifdef WIN32
 # include <util/string_util.h>
@@ -321,6 +322,9 @@ namespace gui {
         send_client_message(win, message, w->get_id(), l1, l2);
       }
 
+      void send_client_message (const window* win, Atom message, const widget* w, const core::rectangle& rect) {
+      }
+
       void post_client_message (const window* win, Atom message, long l1, long l2) {
         x11::send_client_message(win, message, l1, l2);
       }
@@ -394,6 +398,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     void send_client_message (const window* win, Atom message, long l1, long l2) {
       x11::send_client_message(win, message, l1, l2);
+    }
+
+    void send_client_message (const widget* win, Atom message, long l1, long l2) {
+      x11::send_client_message(win->get_parent(), message, l1, l2);
     }
 
     void send_client_message (const window* win, Atom message, const core::size& sz) {

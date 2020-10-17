@@ -56,7 +56,7 @@ namespace gui {
       void enable (bool on = true);
       void disable ();
 
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
     private:

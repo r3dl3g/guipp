@@ -31,7 +31,7 @@ namespace gui {
     template<typename T>
     inline void virtual_layout<T>::init (ctrl::vertical_scroll_bar* vscroll,
                                          ctrl::horizontal_scroll_bar* hscroll,
-                                         win::window* edge,
+                                         win::widget* edge,
                                          view_type* client) {
       super::init(vscroll, hscroll, edge);
       this->client = client;
@@ -53,7 +53,7 @@ namespace gui {
   namespace ctrl {
 
     template<typename T, os::color B>
-    void virtual_view<T, B>::create (const win::container& parent,
+    void virtual_view<T, B>::create (win::container& parent,
                                      const core::rectangle& r) {
       super::create(clazz::get(), parent, r);
     }

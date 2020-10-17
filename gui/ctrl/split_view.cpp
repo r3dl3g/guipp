@@ -28,63 +28,63 @@ namespace gui {
   namespace layout {
 
     template<>
-    core::size::type split_view<orientation_t::vertical>::get_slider_width () {
+    core::size::type split_view_traits<orientation_t::vertical>::get_slider_width () {
       return 8;
     }
 
     template<>
-    core::size::type split_view<orientation_t::horizontal>::get_slider_width () {
+    core::size::type split_view_traits<orientation_t::horizontal>::get_slider_width () {
       return 8;
     }
 
     template<>
-    double split_view<orientation_t::vertical>::get_split_pos (const core::rectangle& sz) const {
-      return double(data.slider->position().x() + get_slider_width() / 2) / (double)sz.width();
+    double split_view_traits<orientation_t::vertical>::get_split_pos (const core::point& pt, const core::size& sz) {
+      return double(pt.x() + get_slider_width() / 2) / (double)sz.width();
     }
 
     template<>
-    double split_view<orientation_t::horizontal>::get_split_pos (const core::rectangle& sz) const {
-      return double(data.slider->position().y() + get_slider_width() / 2) / (double)sz.height();
+    double split_view_traits<orientation_t::horizontal>::get_split_pos (const core::point& pt, const core::size& sz) {
+      return double(pt.y() + get_slider_width() / 2) / (double)sz.height();
     }
 
     template<>
-    core::rectangle split_view<orientation_t::vertical>::get_first_place (const core::rectangle& sz,
-                                                                        double pos) {
+    core::rectangle split_view_traits<orientation_t::vertical>::get_first_place (const core::rectangle& sz,
+                                                                                 double pos) {
       const core::point::type x = core::point::type(sz.width() * pos - get_slider_width() / 2);
       return core::rectangle(core::point::zero, core::point(x, sz.height()));
     }
 
     template<>
-    core::rectangle split_view<orientation_t::vertical>::get_second_place (const core::rectangle& sz,
-                                                                         double pos) {
+    core::rectangle split_view_traits<orientation_t::vertical>::get_second_place (const core::rectangle& sz,
+                                                                                  double pos) {
       const core::point::type x2 = core::point::type(sz.width() * pos + get_slider_width() / 2);
       return core::rectangle(core::point(x2, 0), core::point(sz.width(), sz.height()));
     }
 
     template<>
-    core::rectangle split_view<orientation_t::vertical>::get_slider_place (const core::rectangle& sz,
-                                                                         double pos) {
+    core::rectangle split_view_traits<orientation_t::vertical>::get_slider_place (const core::rectangle& sz,
+                                                                                  double pos) {
       const core::point::type x = core::point::type(sz.width() * pos - get_slider_width() / 2);
       return core::rectangle(core::point(x, 0), core::size(get_slider_width(), sz.height()));
     }
 
     template<>
-    core::rectangle split_view<orientation_t::horizontal>::get_first_place (const core::rectangle& sz,
-                                                                          double pos) {
+    core::rectangle split_view_traits<orientation_t::horizontal>::get_first_place (const core::rectangle& sz,
+                                                                                   double pos) {
       const core::point::type y = core::point::type(sz.height() * pos - get_slider_width() / 2);
       return core::rectangle(core::point::zero, core::point(sz.width(), y));
     }
 
     template<>
-    core::rectangle split_view<orientation_t::horizontal>::get_second_place (const core::rectangle& sz,
-                                                                           double pos) {
+    core::rectangle split_view_traits<orientation_t::horizontal>::get_second_place (const core::rectangle& sz,
+                                                                                    double pos) {
       const core::point::type y2 = core::point::type(sz.height() * pos + get_slider_width() / 2);
       return core::rectangle(core::point(0, y2), core::point(sz.width(), sz.height()));
     }
 
     template<>
-    core::rectangle split_view<orientation_t::horizontal>::get_slider_place (const core::rectangle& sz,
-                                                                           double pos) {
+    core::rectangle split_view_traits<orientation_t::horizontal>::get_slider_place (const core::rectangle& sz,
+                                                                                    double pos) {
       const core::point::type y = core::point::type(sz.height() * pos - get_slider_width() / 2);
       return core::rectangle(core::point(0, y), core::size(sz.width(), get_slider_width()));
     }

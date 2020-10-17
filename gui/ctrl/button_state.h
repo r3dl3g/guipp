@@ -22,7 +22,7 @@
 //
 // Library includes
 //
-#include <gui/win/window_state.h>
+#include <gui/win/widget_state.h>
 #include <gui++-ctrl-export.h>
 
 
@@ -33,8 +33,8 @@ namespace gui {
     class button_base;
 
      // --------------------------------------------------------------------------
-    struct GUIPP_CTRL_EXPORT button_state : public win::window_state {
-      typedef window_state super;
+    struct GUIPP_CTRL_EXPORT button_state : public win::widget_state {
+      typedef widget_state super;
 
       button_state (const button_base& win);
 
@@ -47,7 +47,7 @@ namespace gui {
       bool set_checked (bool b);
 
     protected:
-      struct flags : public window_state::flags {
+      struct flags : public widget_state::flags {
         enum {
           button_hilited = last_window_state_enum,
           button_pushed,

@@ -98,7 +98,7 @@ namespace gui {
         basic_slider (const basic_slider& rhs);
         basic_slider (basic_slider&& rhs);
 
-        void create (const win::container& parent,
+        void create (win::container& parent,
                      const core::rectangle& place = core::rectangle::def);
 
         void set_value (core::point::type v);

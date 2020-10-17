@@ -163,9 +163,9 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    inline void basic_list<V, T>::create (const win::container& parent,
+    inline void basic_list<V, T>::create (win::container& parent,
                                           const core::rectangle& place) {
-      super::create(clazz::get(), parent, place);
+      super::create(/*clazz::get(), */parent, place);
       adjust_scroll_bar(place.size());
     }
 
@@ -301,7 +301,7 @@ namespace gui {
 
     template<orientation_t V, typename T>
     template<typename U, list_item_drawer<U> F>
-    inline void basic_list<V, T>::create (const win::container& parent,
+    inline void basic_list<V, T>::create (win::container& parent,
                                           const core::rectangle& place,
                                           std::function<list_data_provider> data) {
       super::create(clazz::get(), parent, place);

@@ -37,7 +37,7 @@ namespace gui {
 
     void scroll_view_base::init (ctrl::vertical_scroll_bar* vscroll,
                                  ctrl::horizontal_scroll_bar* hscroll,
-                                 win::window* edge) {
+                                 win::widget* edge) {
       this->vscroll = vscroll;
       this->hscroll = hscroll;
       this->edge = edge;
@@ -182,9 +182,9 @@ namespace gui {
 
     void scroll_view::layout (const core::rectangle& new_size) const {
       if (main) {
-        std::vector<win::window*> children = main->get_children();
+        std::vector<win::widget*> children = main->get_widgets();
         core::rectangle required = get_client_area(new_size);
-        for (win::window* win : children) {
+        for (win::widget* win : children) {
           if ((win != vscroll) && (win != hscroll) && (win != edge)) {
             required |= win->place();
             win->unregister_event_handler<win::move_event>(me);
@@ -194,7 +194,7 @@ namespace gui {
 
         super::layout(new_size, required);
 
-        for (win::window* win : children) {
+        for (win::widget* win : children) {
           if ((win != vscroll) && (win != hscroll) && (win != edge)) {
             win->on<win::move_event>(me);
             win->on<win::size_event>(se);
@@ -244,8 +244,8 @@ namespace gui {
         return;
       }
       get_layout().set_in_scroll_event(true);
-      std::vector<window*> children = get_children();
-      for (window* win : children) {
+      std::vector<win::widget*> children = get_widgets();
+      for (win::widget* win : children) {
         if ((win != &vscroll) && (win != &hscroll) && (win != &edge)) {
           win->move(win->position() - delta);
         }
@@ -312,7 +312,7 @@ namespace gui {
       return hscroll;
     }
 
-    win::window& scroll_view_base::get_edge () {
+    control& scroll_view_base::get_edge () {
       return edge;
     }
 

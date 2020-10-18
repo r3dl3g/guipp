@@ -30,7 +30,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   main.get_layout().add(lay(client));
   main.on_create([&] (window* parent, const rectangle& rect) {
-    client.create(main, rect);
+    client.create(main, rect.with_pos(core::point::zero));
     client.set_split_pos(0.5);
     client.first.set_text([&] () { return ostreamfmt(client.first.get_id() << " Left (" << client.first.place() << ")"); });
     client.second.set_split_pos(0.5);

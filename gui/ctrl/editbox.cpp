@@ -51,7 +51,7 @@ namespace gui {
 
       void editbox_base::create (win::container& parent,
                                  const core::rectangle& r) {
-        create(/*clazz::get(), */parent, r);
+        super::create(/*clazz::get(), */parent, r);
       }
 
       void editbox_base::handle_create (win::window*, const core::rectangle&) {

@@ -182,7 +182,7 @@ namespace gui {
     template<orientation_t V, typename T>
     void basic_list<V, T>::create_scroll_bar (const core::size& sz) {
       if (!scrollbar.is_valid()) {
-        scrollbar.create(*reinterpret_cast<win::container*>(this), get_scroll_bar_area(sz));
+        scrollbar.create(*get_parent(), get_scroll_bar_area(sz));
       }
     }
 
@@ -288,12 +288,12 @@ namespace gui {
 
     template<orientation_t V, typename T>
     core::rectangle basic_list<V, T>::content_area (const core::size& sz) const {
-      return core::rectangle(content_size(sz));
+      return core::rectangle(position(), content_size(sz));
     }
 
     template<orientation_t V, typename T>
     core::rectangle basic_list<V, T>::get_scroll_bar_area (const core::size& s) const {
-      core::rectangle r(s);
+      core::rectangle r(position(), s);
       float sz = static_cast<float>(scroll_bar::get_scroll_bar_width());
       traits.set_2(r, traits.get_2(r.size()) - sz, sz);
       return r;
@@ -490,7 +490,7 @@ namespace gui {
 
     template<orientation_t V>
     void linear_list<V>::paint (const draw::graphics& graph) {
-      const core::rectangle area(super::content_size(super::client_size(), false));
+      const core::rectangle area(super::position(), super::content_size(super::client_size(), false));
       core::rectangle place = area;
 
       draw::brush back_brush(super::get_background());

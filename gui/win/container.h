@@ -42,6 +42,7 @@ namespace gui {
     class GUIPP_WIN_EXPORT container : public window {
     public:
       typedef window super;
+      typedef std::vector<window*> window_list_t;
       typedef std::vector<widget*> widget_list_t;
 
       container ();
@@ -51,8 +52,8 @@ namespace gui {
 
       void set_children_visible (bool = true);
 
-      std::vector<window*> get_children () const;
-      const std::vector<widget*>& get_widgets () const;
+      window_list_t get_children () const;
+      const widget_list_t& get_widgets () const;
 
       void shift_focus (const window&, bool backward = false) const;
       void forward_focus (bool backward = false) const;

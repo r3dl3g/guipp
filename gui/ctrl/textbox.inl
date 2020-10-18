@@ -27,7 +27,7 @@ namespace gui {
 
       inline void textbox_base::create (win::container& parent,
                                         const core::rectangle& r) {
-        create(/*clazz::get(), */parent, r);
+        super::create(/*clazz::get(), */parent, r);
       }
 
       inline void textbox_base::create (win::container& parent,

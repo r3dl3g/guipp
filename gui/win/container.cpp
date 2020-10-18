@@ -38,6 +38,7 @@
 #include <gui/win/container.h>
 #include <gui/win/window_event_proc.h>
 #include <gui/win/window_event_handler.h>
+#include <gui/win/widget.h>
 
 #if !defined(GUIPP_BUILD_FOR_MOBILE)
 # define USE_INPUT_EATER
@@ -120,7 +121,7 @@ namespace gui {
       return child.get_parent() == this;
     }
 
-    void collect_children_deep (std::vector<window*>& list, const window& win) {
+    void collect_children_deep (container::window_list_t& list, const window& win) {
       if (win.is_valid()) {
         Window root = 0;
         Window parent = 0;
@@ -144,8 +145,8 @@ namespace gui {
       }
     }
 
-    std::vector<window*> get_deep_children (const window& win) {
-      std::vector<window*> list;
+    container::window_list_t get_deep_children (const window& win) {
+      container::window_list_t list;
       collect_children_deep(list, win);
       return list;
     }
@@ -164,8 +165,8 @@ namespace gui {
       }
     }
 
-    std::vector<window*> container::get_children () const {
-      std::vector<window*> list;
+    container::window_list_t container::get_children () const {
+      window_list_t list;
 
       if (is_valid()) {
         Window root = 0;
@@ -222,6 +223,29 @@ namespace gui {
       on_show([&]() {
         set_children_visible();
       });
+      register_event_handler([&] (const core::event& e, gui::os::event_result& r) {
+        bool result = false;
+        if (paint_event::match(e)) {
+          for (auto* w : widgets) {
+            result |= w->handle_event(e, r);
+          }
+        } else if (mouse_move_event::match(e)) {
+          const auto pt = get<core::point, XMotionEvent>::param(e);
+          for (auto* w : widgets) {
+            if (w->place().is_inside(pt)) {
+              result |= w->handle_event(e, r);
+            }
+          }
+        } else if (btn_down_event::match(e) || btn_up_event::match(e)) {
+          const auto pt = get<core::point, XButtonEvent>::param(e);
+          for (auto* w : widgets) {
+            if (w->place().is_inside(pt)) {
+              result |= w->handle_event(e, r);
+            }
+          }
+        }
+        return result;
+      }, paint_event::mask|mouse_move_event::mask|btn_down_event::mask|btn_up_event::mask);
     }
 
     const std::vector<widget*>& container::get_widgets () const {
@@ -254,7 +278,7 @@ namespace gui {
     }
 
     void container::shift_focus (const window& focus, bool backward) const {
-      std::vector<window*> children = get_children();
+      window_list_t children = get_children();
       if (children.size() > 0) {
         if (backward) {
           if (iterate_focus(children.rbegin(), children.rend(), &focus)) {
@@ -275,7 +299,7 @@ namespace gui {
     }
 
     void container::forward_focus (bool backward) const {
-      std::vector<window*> children = get_children();
+      window_list_t children = get_children();
       if (children.size() > 0) {
         if (backward) {
           for (auto i = children.rbegin(), e = children.rend(); i != e; ++i) {
@@ -311,7 +335,7 @@ namespace gui {
     }
 
     void container::remove_widget (const widget* w) {
-      widgets.erase(std::find(widgets.begin(), widgets.end(), w));
+      widgets.erase(std::find(widgets.begin(), widgets.end(), w), widgets.end());
     }
 
     void container::add_widget (widget* w) {

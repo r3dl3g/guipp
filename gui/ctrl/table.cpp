@@ -1039,7 +1039,7 @@ namespace gui {
         auto pt = geometrie.position_of(cell);
         auto sz = geometrie.get_size(cell);
         if (!editor.is_valid()) {
-          editor.create(*reinterpret_cast<container*>(&data), core::rectangle(0, 0, 10, 10));
+          editor.create(*get_parent(), core::rectangle(0, 0, 10, 10));
         }
         editor.place(core::rectangle(pt, sz));
         editor.set_text(data_source(cell));

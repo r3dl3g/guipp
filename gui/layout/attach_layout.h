@@ -31,6 +31,7 @@
 //
 #include <gui/layout/layout.h>
 #include <gui/win/window.h>
+#include <gui/win/widget.h>
 
 
 namespace gui {
@@ -184,6 +185,19 @@ namespace gui {
       }
 
       inline const void* key (const win::window* w) {
+        return w;
+      }
+
+      // --------------------------------------------------------------------------
+      inline core::rectangle place (const win::widget* w) {
+        return w->place();
+      }
+
+      inline void place (win::widget* w, const core::rectangle& r) {
+        w->place(r);
+      }
+
+      inline const void* key (const win::widget* w) {
         return w;
       }
 

@@ -133,7 +133,7 @@ namespace gui {
 
     template<orientation_t O, typename F, typename S>
     void split_view<O, F, S>::layout (const core::rectangle& sz) const {
-      clog::trace() << "split_view::layout(" << sz << ") split_pos: " << split_pos;
+      clog::debug() << "split_view::layout(" << sz << ") split_pos: " << split_pos;
       if (first) {
         first->place(traits::get_first_place(sz, split_pos), IF_WIN32_ELSE(true, false));
       }
@@ -155,7 +155,7 @@ namespace gui {
     template<orientation_t O, typename F, typename S>
     inline split_view<O, F, S>::split_view () {
       init();
-      super::get_layout().set(&first, &second, &slider);
+      layouter.set(&first, &second, &slider);
     }
 
     template<orientation_t O, typename F, typename S>
@@ -164,9 +164,10 @@ namespace gui {
       , slider(std::move(rhs.slider))
       , first(std::move(rhs.first))
       , second(std::move(rhs.second))
+      , layouter(std::move(rhs.layouter))
     {
       init();
-      super::get_layout().set(&first, &second, &(super::slider));
+      layouter.set(&first, &second, &slider);
     }
 
     template<orientation_t O, typename F, typename S>
@@ -175,20 +176,19 @@ namespace gui {
       , second(std::move(second))
     {
       init();
-      super::get_layout().set(&(this->first), &(this->second), &(super::slider));
+      layouter.set(&(this->first), &(this->second), &(this->slider));
     }
 
     template<orientation_t O, typename F, typename S>
     void split_view<O, F, S>::create (win::container& parent,
                                       const core::rectangle& place,
                                       double split_pos) {
-      super::create(clazz::get(), parent, place);
-      super::get_layout().set_split_pos(split_pos);
+      super::create(/*clazz::get(), */parent, place);
+      set_split_pos(split_pos);
 
-      core::rectangle sz(place.size());
-      slider.create(*this, layout_type::traits::get_slider_place(place, split_pos));
-      first.create(*this, layout_type::traits::get_first_place(sz, split_pos));
-      second.create(*this, layout_type::traits::get_second_place(sz, split_pos));
+      slider.create(*get_parent(), layout_type::traits::get_slider_place(place, split_pos));
+      first.create(*get_parent(), layout_type::traits::get_first_place(place, split_pos));
+      second.create(*get_parent(), layout_type::traits::get_second_place(place, split_pos));
 
       slider.set_visible();
       first.set_visible();
@@ -197,21 +197,34 @@ namespace gui {
 
     template<orientation_t O, typename F, typename S>
     inline double split_view<O, F, S>::get_split_pos () const {
-      return super::get_layout().get_split_pos(slider.position(), super::client_size());
+      return layouter.get_split_pos(slider.position(), client_size());
     }
 
     template<orientation_t O, typename F, typename S>
     inline void split_view<O, F, S>::set_split_pos (double pos) {
-      super::get_layout().set_split_pos(pos);
-      super::layout();
+      layouter.set_split_pos(pos);
+      layout();
     }
 
     template<orientation_t O, typename F, typename S>
     void split_view<O, F, S>::init () {
       slider.on_slide([&] (int) {
-        super::get_layout().set_split_pos(get_split_pos());
-        super::get_layout().layout(super::client_area());
+        layouter.set_split_pos(get_split_pos());
+        layout(super::client_area());
       });
+      super::on_layout([&] (const core::rectangle& r) {
+        layouter.layout(r);
+      });
+    }
+
+    template<orientation_t O, typename F, typename S>
+    inline void split_view<O, F, S>::layout () const {
+      layout(super::client_area());
+    }
+
+    template<orientation_t O, typename F, typename S>
+    inline void split_view<O, F, S>::layout (const core::rectangle& r) const {
+      layouter.layout(r);
     }
 
     // --------------------------------------------------------------------------

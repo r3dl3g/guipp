@@ -72,6 +72,13 @@ namespace gui {
       double split_pos;
     };
 
+    template<orientation_t O, typename First, typename Second>
+    struct is_layout<split_view<O, First, Second>> {
+      enum {
+        value = true
+      };
+    };
+
     // --------------------------------------------------------------------------
 
   } // namespace layout
@@ -80,10 +87,10 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation_t O, typename First, typename Second>
-    class split_view : public win::layout_container<layout::split_view<O, First, Second> > {
+    class split_view : public control {
     public:
-      typedef win::layout_container<layout::split_view<O, First, Second>> super;
-      typedef typename super::layout_type layout_type;
+      typedef control super;
+      typedef layout::split_view<O, First, Second> layout_type;
       typedef win::window_class<split_view, IF_WIN32_ELSE((os::color)(COLOR_WINDOW + 1), color::white)> clazz;
 
       typedef basic_framed_slider<O, draw::frame::raised_relief> slider_type;
@@ -99,11 +106,15 @@ namespace gui {
       double get_split_pos () const;
       void set_split_pos (double pos);
 
+      void layout () const;
+      void layout (const core::rectangle& sz) const;
+
       slider_type slider;
       First first;
       Second second;
 
     private:
+      layout_type layouter;
       void init ();
 
     };

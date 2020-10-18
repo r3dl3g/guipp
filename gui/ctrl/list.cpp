@@ -147,7 +147,7 @@ namespace gui {
         auto cell = super::get_selection();
         auto area = super::get_place_of_index(cell);
         if (!data.editor.is_valid()) {
-          data.editor.create(*reinterpret_cast<win::container*>(this), area);
+          data.editor.create(*get_parent(), area);
         }
         data.editor.place(area);
         data.editor.set_text(data.data_source(cell));

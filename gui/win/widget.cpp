@@ -334,10 +334,7 @@ namespace gui {
     }
 
     bool widget::is_visible () const {
-      if (is_valid()) {
-        return get_state().is_visible();
-      }
-      return false;
+      return (is_valid() && get_state().is_visible());
     }
 
     void widget::set_visible (bool s) {
@@ -424,7 +421,7 @@ namespace gui {
     }
 
     core::rectangle widget::client_area () const {
-      return core::rectangle(client_size());
+      return area;
     }
 
     void widget::move (const core::point& pt, bool repaint) {

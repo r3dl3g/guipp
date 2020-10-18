@@ -117,63 +117,67 @@ namespace gui {
     } //namespace detail
 
     // --------------------------------------------------------------------------
-    template<typename S, typename T>
-    template<What what, Where where, int offset>
-    inline void attach_t<S, T>::attach_fix (target_type target, source_type source) {
+    template<What what, Where where, int offset, typename T, typename S>
+    inline void attach::attach_fix (T target, S source)  {
       auto fkt = detail::target<what, where, offset, 10000>::adjust;
-      attachments.push_back(factory<S, T>()(target, source, fkt));
+      attachments.push_back(std::unique_ptr<attachment_t<T, S>>(new attachment_t<T, S>(target, source, fkt)));
     }
 
-    template<typename S, typename T>
-    template<What what, int relativ, int offset>
-    inline void attach_t<S, T>::attach_relative (target_type target, source_type source) {
+    template<What what, int relativ, int offset, typename T, typename S>
+    inline void attach::attach_relative (T target, S source) {
       auto fkt = detail::target<what, detail::convert_from<what>::where, offset, relativ>::adjust;
-      attachments.push_back(factory<S, T>()(target, source, fkt));
+      attachments.push_back(std::unique_ptr<attachment_t<T, S>>(new attachment_t<T, S>(target, source, fkt)));
     }
 
     // --------------------------------------------------------------------------
-    template<typename S, typename T>
-    void attach_t<S, T>::layout (const core::rectangle&) const {
+    void attach::layout (const core::rectangle&) const {
 
       struct place_and_size {
+        place_and_size ()
+          : attach(nullptr)
+        {}
+
         core::rectangle place;
         core::size size;
+        const attachment* attach;
       };
 
-      using source_places_t = std::map<source_key, place_and_size, source_comperator>;
-      using target_places_t = std::map<target_key, place_and_size, target_comperator>;
+      using source_places_t = std::map<const void*, place_and_size>;
+      using target_places_t = std::map<const void*, place_and_size>;
 
       source_places_t splaces;
       target_places_t tplaces;
 
-      for (const attachment& a : attachments) {
-        auto t_key = target_traits::key(a.target);
-        auto s_key = source_traits::key(a.source);
-        auto t_it = tplaces.find(t_key);
+      for (const auto& a : attachments) {
+        auto s_key = a->source_key();
         auto s_it = splaces.find(s_key);
 
         place_and_size source;
         if (s_it != splaces.end()) {
           source = s_it->second;
         } else {
-          source.place = source_traits::place(a.source);
-          source.size = source_traits::size(a.source);
+          source.place = a->source_place();
+          source.size = source.place.size();
+          source.attach = a.get();
           splaces[s_key] = source;
         }
 
+        auto t_key = a->target_key();
+        auto t_it = tplaces.find(t_key);
         if (t_it != tplaces.end()) {
-          a.adjust(t_it->second.place, source.size, source.place);
+          a->adjust(t_it->second.place, source.size, source.place);
         } else {
           place_and_size& r = tplaces[t_key];
-          r.place = target_traits::place(a.target);
-          r.size = target_traits::size(a.target);
+          r.place = a->target_place();
+          r.size = r.place.size();
+          r.attach = a.get();
           core::size diff = r.place.size() - r.size;
-          a.adjust(r.place, source.size, source.place);
+          a->adjust(r.place, source.size, source.place);
           r.size = r.place.size() - diff;
         }
       }
       for (auto& i : tplaces) {
-        target_traits::place(i.first, i.second.place);
+        i.second.attach->place(i.second.place);
       }
     }
 

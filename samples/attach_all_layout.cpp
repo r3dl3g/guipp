@@ -65,7 +65,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::ctrl;
   using namespace gui::core;
 
-  layout_main_window<attachable_layout<attach_all>> main;
+  layout_main_window<attachable_layout<attach>> main;
   label_center first, second, third;//, fourth, fifth;
   drawing fourth, fifth;
   using right_layout = vertical_adaption<0, 2>;
@@ -74,27 +74,23 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   attachable_layout<right_layout> right(right_layout{lay(second), lay(third)});
   attachable_layout<middle_layout> middle(middle_layout{any(fourth), any(fifth)});
 
-  attach_all& layout = main.get_layout();
+  attach& layout = main.get_layout();
 
-  namespace att = gui::layout::attach;
-  using rlay = att::lay<right_layout>;
-  using mlay = att::lay<middle_layout>;
-
-  layout.attach_relative<What::top, 0, 10>(att::win(first), att::win(main));
-  layout.attach_fix<What::bottom, Where::height, -10>(att::win(first), att::win(main));
-  layout.attach_relative<What::left, 0, 10>(att::win(first), att::win(main));
-  layout.attach_relative<What::right, make_relative(0.33), -10>(att::win(first), att::win(main));
+  layout.attach_relative<What::top, 0, 10>(&first, &main);
+  layout.attach_fix<What::bottom, Where::height, -10>(&first, &main);
+  layout.attach_relative<What::left, 0, 10>(&first, &main);
+  layout.attach_relative<What::right, make_relative(0.33), -10>(&first, &main);
 
 
-  layout.attach_relative<What::top, 0, 10>(rlay(right), att::win(main));
-  layout.attach_fix<What::bottom, Where::height, -10>(rlay(right), att::win(main));
-  layout.attach_relative<What::left, make_relative(0.66), 10>(rlay(right), att::win(main));
-  layout.attach_relative<What::right, make_relative(1.0), -10>(rlay(right), att::win(main));
+  layout.attach_relative<What::top, 0, 10>(&right, &main);
+  layout.attach_fix<What::bottom, Where::height, -10>(&right, &main);
+  layout.attach_relative<What::left, make_relative(0.66), 10>(&right, &main);
+  layout.attach_relative<What::right, make_relative(1.0), -10>(&right, &main);
 
-  layout.attach_relative<What::top, 0, 10>(mlay(middle), att::win(main));
-  layout.attach_fix<What::bottom, Where::height, -10>(mlay(middle), att::win(main));
-  layout.attach_fix<What::left, Where::x2, 10>(mlay(middle), att::win(first));
-  layout.attach_fix<What::right, Where::x, -10>(mlay(middle), rlay(right));
+  layout.attach_relative<What::top, 0, 10>(&middle, &main);
+  layout.attach_fix<What::bottom, Where::height, -10>(&middle, &main);
+  layout.attach_fix<What::left, Where::x2, 10>(&middle, &first);
+  layout.attach_fix<What::right, Where::x, -10>(&middle, &right);
 
   first.set_text([&] () { return ostreamfmt("1.:(" << first.place() << ")"); });
   second.set_text([&] () { return ostreamfmt("2.:(" << second.place() << ")"); });

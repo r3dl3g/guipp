@@ -470,10 +470,9 @@ namespace gui {
     template<typename Layout, typename ... Arguments>
     class column_list_t : public detail::base_column_list<Layout> {
     public:
-      static const std::size_t size = sizeof ... (Arguments);
-
       typedef Layout layout_type;
       typedef detail::base_column_list<layout_type> super;
+
       typedef std::tuple<Arguments ...> row_type;
       typedef const_column_list_data<Arguments ...> standard_data;
       typedef column_list_row_drawer_t<Arguments ...> row_drawer;
@@ -484,6 +483,8 @@ namespace gui {
                                      const core::rectangle&, // place
                                      const draw::brush&,     // background
                                      item_state);            // state
+
+      static const std::size_t count = sizeof ... (Arguments);
 
       column_list_t (core::size::type item_size = list_defaults<>::item_size,
                      os::color background = color::white,

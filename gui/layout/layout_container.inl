@@ -59,8 +59,6 @@ namespace gui {
         layouter.layout(r);
       }
 
-      void layout ();
-
       template<typename B, typename L, typename ... A>
       inline void layout_container_base<B, L, A...>::resize (const core::size& sz, bool repaint) {
         layouter.layout(core::rectangle(sz));

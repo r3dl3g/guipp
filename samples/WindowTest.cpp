@@ -146,9 +146,9 @@ namespace gui {
 } // namespace gui
 
 // --------------------------------------------------------------------------
-class my_main_window : public win::layout_main_window<layout::win_attach> {
+class my_main_window : public win::layout_main_window<layout::attach> {
 public:
-  typedef win::layout_main_window<layout::win_attach> super;
+  typedef win::layout_main_window<layout::attach> super;
   typedef win::group_window<layout::horizontal_adaption<5, 5>, color::dark_gray> group_group_t;
   typedef win::cls::main_window_class<my_main_window, color::very_very_light_gray> myclazz;
 
@@ -1136,45 +1136,45 @@ void my_main_window::created_children () {
   create_group<4>(group_group, vc_lineup_group, vc_lineup_labels);
 
   using namespace layout;
-  get_layout().attach_relative<What::left, make_relative(0.1), 20>(btn_group, *this);
-  get_layout().attach_relative<What::right, make_relative(0.9), -20>(btn_group, *this);
-  get_layout().attach_fix<What::top, Where::height, -45>(btn_group, *this);
-  get_layout().attach_fix<What::bottom, Where::height>(btn_group, *this);
+  get_layout().attach_relative<What::left, make_relative(0.1), 20>(&btn_group, this);
+  get_layout().attach_relative<What::right, make_relative(0.9), -20>(&btn_group, this);
+  get_layout().attach_fix<What::top, Where::height, -45>(&btn_group, this);
+  get_layout().attach_fix<What::bottom, Where::height, 0>(&btn_group, this);
 
-  get_layout().attach_relative<What::left, make_relative(0.1), 10>(hslider, *this);
-  get_layout().attach_relative<What::right, make_relative(0.9)>(hslider, *this);
+  get_layout().attach_relative<What::left, make_relative(0.1), 10>(&hslider, this);
+  get_layout().attach_relative<What::right, make_relative(0.9), 0>(&hslider, this);
 
-  get_layout().attach_fix<What::bottom, Where::y, -5>(vslider, btn_group);
+  get_layout().attach_fix<What::bottom, Where::y, -5>(&vslider, &btn_group);
 
-  get_layout().attach_fix<What::right, Where::x, -25>(column_list, vslider);
-  get_layout().attach_fix<What::left, Where::x, -20>(vscroll, vslider);
-  get_layout().attach_fix<What::right, Where::x, -3>(vscroll, vslider);
+  get_layout().attach_fix<What::right, Where::x, -25>(&column_list, &vslider);
+  get_layout().attach_fix<What::left, Where::x, -20>(&vscroll, &vslider);
+  get_layout().attach_fix<What::right, Where::x, -3>(&vscroll, &vslider);
 
-  get_layout().attach_fix<What::right, Where::x, -4>(group_group, vslider);
-  get_layout().attach_fix<What::bottom, Where::y2, -8>(group_group, hslider);
+  get_layout().attach_fix<What::right, Where::x, -4>(&group_group, &vslider);
+  get_layout().attach_fix<What::bottom, Where::y2, -8>(&group_group, &hslider);
 
-  get_layout().attach_fix<What::left, Where::x2, 2>(table_view, vslider);
-  get_layout().attach_fix<What::right, Where::width, -10>(table_view, *this);
+  get_layout().attach_fix<What::left, Where::x2, 2>(&table_view, &vslider);
+  get_layout().attach_fix<What::right, Where::width, -10>(&table_view, this);
 
-  get_layout().attach_fix<What::left, Where::x2, 2>(editor, vslider);
-  get_layout().attach_fix<What::right, Where::width, -10>(editor, *this);
-  get_layout().attach_fix<What::top, Where::y, 320>(editor, *this);
-  get_layout().attach_fix<What::bottom, Where::y2, -8>(editor, hslider);
+  get_layout().attach_fix<What::left, Where::x2, 2>(&editor, &vslider);
+  get_layout().attach_fix<What::right, Where::width, -10>(&editor, this);
+  get_layout().attach_fix<What::top, Where::y, 320>(&editor, this);
+  get_layout().attach_fix<What::bottom, Where::y2, -8>(&editor, &hslider);
 
-  get_layout().attach_fix<What::left, Where::x2, 2>(textbox, vslider);
-  get_layout().attach_fix<What::right, Where::width, -10>(textbox, *this);
-  get_layout().attach_fix<What::top, Where::y2, 4>(textbox, hslider);
-  get_layout().attach_fix<What::bottom, Where::height, -50>(textbox, *this);
+  get_layout().attach_fix<What::left, Where::x2, 2>(&textbox, &vslider);
+  get_layout().attach_fix<What::right, Where::width, -10>(&textbox, this);
+  get_layout().attach_fix<What::top, Where::y2, 4>(&textbox, &hslider);
+  get_layout().attach_fix<What::bottom, Where::height, -50>(&textbox, this);
 
-  get_layout().attach_fix<What::bottom, Where::y2, -8>(switch_button2, hslider);
-  get_layout().attach_fix<What::bottom, Where::y2, -8>(text_drop_down, hslider);
-  get_layout().attach_fix<What::bottom, Where::y2, -8>(color_drop_down, hslider);
+  get_layout().attach_fix<What::bottom, Where::y2, -8>(&switch_button2, &hslider);
+  get_layout().attach_fix<What::bottom, Where::y2, -8>(&text_drop_down, &hslider);
+  get_layout().attach_fix<What::bottom, Where::y2, -8>(&color_drop_down, &hslider);
 
-  get_layout().attach_fix<What::top, Where::y2, 4>(htileview, hslider);
-  get_layout().attach_fix<What::bottom, Where::height, -50>(htileview, *this);
+  get_layout().attach_fix<What::top, Where::y2, 4>(&htileview, &hslider);
+  get_layout().attach_fix<What::bottom, Where::height, -50>(&htileview, this);
 
-  get_layout().attach_fix<What::top, Where::y2, 4>(vtileview, hslider);
-  get_layout().attach_fix<What::bottom, Where::height, -50>(vtileview, *this);
+  get_layout().attach_fix<What::top, Where::y2, 4>(&vtileview, &hslider);
+  get_layout().attach_fix<What::bottom, Where::height, -50>(&vtileview, this);
 }
 
 ctrl::paint_function my_main_window::create_paint1 () {

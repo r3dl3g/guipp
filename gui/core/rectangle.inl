@@ -323,12 +323,22 @@ namespace gui {
 
     template<typename T, typename S>
     inline auto basic_rectangle<T, S>::with_y (const point_type y) const -> self {
-      return {point(x(), y), size()};
+      return {point_t(x(), y), size()};
     }
 
     template<typename T, typename S>
     inline auto basic_rectangle<T, S>::with_pos (const point_t& pt) const -> self {
       return {pt, size()};
+    }
+
+    template<typename T, typename S>
+    inline auto basic_rectangle<T, S>::with_horizontal (const point_type x, const size_type w) const -> self {
+      return {point_t(x, y()), size_t(w, height())};
+    }
+
+    template<typename T, typename S>
+    inline auto basic_rectangle<T, S>::with_vertical (const point_type y, const size_type h) const -> self {
+      return {point_t(x(), y), size_t(width(), h)};
     }
 
     template<typename T, typename S>

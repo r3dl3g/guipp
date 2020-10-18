@@ -110,6 +110,9 @@ namespace gui {
       self with_width (const size_type w) const;
       self with_height (const size_type h) const;
 
+      self with_horizontal (const point_type x, const size_type w) const;
+      self with_vertical (const point_type y, const size_type h) const;
+
       self right_width (const size_type w) const;
       self bottom_height (const size_type h) const;
 

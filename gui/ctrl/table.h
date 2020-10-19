@@ -182,6 +182,7 @@ namespace gui {
         core::point::type first_offset;
 
         data::vector<core::size::type> sizes;
+        mutable std::vector<core::point::type> positions;
       };
 
       // --------------------------------------------------------------------------

@@ -130,6 +130,13 @@ namespace gui {
       void layout::set_size (std::size_t idx, core::size::type size) {
         if (sizes[idx] != size) {
           sizes[idx] = size;
+          if (idx > 0) {
+            if (idx < positions.size()) {
+              positions.resize(idx - 1);
+            }
+          } else {
+            positions.clear();
+          }
           calc();
         }
       }
@@ -170,11 +177,21 @@ namespace gui {
       }
 
       core::point::type layout::position_of (int idx) const {
-        core::point::type pos = -get_offset();
-        for (std::size_t i = 0; i < idx; ++i) {
-          pos += get_size(i);
+        if (idx < 1) {
+          return -get_offset();
         }
-        return pos;
+        if (idx <= positions.size()) {
+          return positions[idx - 1] - get_offset();
+        }
+        const int startidx = std::max(0, static_cast<int>(positions.size()));
+        core::point::type pos = startidx == 0 ? 0 : positions[startidx - 1];
+        positions.resize(idx);
+        clog::trace() << "Calc position for idx " << startidx << " to " << idx;
+        for (std::size_t i = startidx; i < idx; ++i) {
+          pos += get_size(i);
+          positions[i] = pos;
+        }
+        return pos - get_offset();
       }
 
       void layout::calc () {
@@ -1001,6 +1018,8 @@ namespace gui {
                    align, foreground, background, header_background)
       , enable_edit(true)
     {
+      enable_hilite(true);
+      enable_selection(true);
       on_selection_commit(util::bind_method(this, &table_edit::enter_edit));
 
       editor.on_btn_down([&](os::key_state, const core::point & pt) {

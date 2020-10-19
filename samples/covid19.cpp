@@ -992,7 +992,7 @@ void covid19main::load_data (const sys_fs::path& p) {
 
     typedef std::chrono::system_clock clock;
     clock::time_point last_step = clock::now();
-    const auto step = std::chrono::milliseconds(300);
+    const auto step = std::chrono::milliseconds(100);
 
     covid19reader::read_csv(in, ',', true, [&] (const covid19reader::tuple& t) {
       //    clog::info() << "Read tuple:" << t;

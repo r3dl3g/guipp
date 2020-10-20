@@ -615,29 +615,29 @@ namespace gui {
       core::event e;
       std::function<simple_action> action;
 
-//      auto x11_fd = ConnectionNumber(display);
-
+      // http://www.linuxquestions.org/questions/showthread.php?p=2431345#post2431345
       // Create a File Description Set containing x11_fd
+      auto x11_fd = ConnectionNumber(display);
 
-      // Define our timeout. Ten milliseconds sounds good.
-//      timeval timeout {.tv_sec = 1, .tv_usec = 0 };
+      fd_set in_fds;
 
       while (running) {
-
-//        fd_set in_fds;
-//        FD_ZERO(&in_fds);
-//        FD_SET(x11_fd, &in_fds);
-
-//        // Wait for next XEvent or a timer out
-//        int num_ready_fds = select(x11_fd + 1, &in_fds, NULL, NULL, &timeout);
-
-//        clog::debug() << "select returned: " << num_ready_fds;
 
         while (x11::queued_actions.try_dequeue(action)) {
           action();
         }
 
-        while (XPending(display) && running) {
+        FD_ZERO(&in_fds);
+        FD_SET(x11_fd, &in_fds);
+
+        // Define our timeout. Ten milliseconds sounds good.
+        timeval timeout {.tv_sec = 0, .tv_usec = 10000 };
+        // Wait for next XEvent or a timer out
+        const int num_ready_fds = select(x11_fd + 1, &in_fds, NULL, NULL, &timeout);
+
+//        clog::debug() << "select returned: " << num_ready_fds;
+
+        if (num_ready_fds > 0) while (XPending(display) && running) {
 
           XNextEvent(display, &e);
 
@@ -662,7 +662,7 @@ namespace gui {
             update_last_place(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));
           }
 
-        }
+        };
 
         for (auto& w : x11::s_invalidated_windows) {
           win::window* win = detail::get_window(w.first);
@@ -671,8 +671,6 @@ namespace gui {
           }
         }
         x11::s_invalidated_windows.clear();
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
       }
       return resultValue;

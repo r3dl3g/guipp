@@ -227,19 +227,21 @@ namespace gui {
         bool result = false;
         if (paint_event::match(e)) {
           for (auto* w : widgets) {
-            result |= w->handle_event(e, r);
+            if (w->is_visible()) {
+              result |= w->handle_event(e, r);
+            }
           }
         } else if (mouse_move_event::match(e)) {
           const auto pt = get<core::point, XMotionEvent>::param(e);
           for (auto* w : widgets) {
-            if (w->place().is_inside(pt)) {
+            if (w->place().is_inside(pt) && w->is_enabled()) {
               result |= w->handle_event(e, r);
             }
           }
         } else if (btn_down_event::match(e) || btn_up_event::match(e)) {
           const auto pt = get<core::point, XButtonEvent>::param(e);
           for (auto* w : widgets) {
-            if (w->place().is_inside(pt)) {
+            if (w->place().is_inside(pt) && w->is_enabled()) {
               result |= w->handle_event(e, r);
             }
           }

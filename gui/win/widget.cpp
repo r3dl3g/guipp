@@ -82,9 +82,7 @@ namespace gui {
       parent = &p;
       area = r;
       parent->add_widget(this);
-#ifdef X11
-      x11::send_client_message(parent, core::x11::WM_CREATE_WINDOW, this, r);
-#endif // X11
+      notify_event(core::x11::WM_CREATE_WINDOW, this, r);
     }
 
     core::point widget::window_to_screen (const core::point& pt) const {
@@ -499,6 +497,34 @@ namespace gui {
       }
     }
     
+    void widget::notify_event (Atom message, long l1, long l2, long l3, long l4, long l5) const {
+      XEvent event;
+      XClientMessageEvent& client = event.xclient;
+
+      client.type = ClientMessage;
+      client.serial = 0;
+      client.send_event = True;
+      client.display = core::global::get_instance();
+      client.window = get_id();
+      client.message_type = message;
+      client.format = 32;
+      client.data.l[0] = l1;
+      client.data.l[1] = l2;
+      client.data.l[2] = l3;
+      client.data.l[3] = l4;
+      client.data.l[4] = l5;
+
+      gui::os::event_result result = 0;
+      handle_event(event, result);
+    }
+
+    void widget::notify_event (Atom message, const widget* w, const core::rectangle& rect) const {
+      XRectangle r = rect;
+      long l1 = (long)r.x << 16 | (long)r.y;
+      long l2 = (long)r.width << 16 | (long)r.height;
+      notify_event(message, reinterpret_cast<long>(w), l1, l2);
+    }
+
     // --------------------------------------------------------------------------
 
   } // win

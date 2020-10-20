@@ -198,6 +198,9 @@ namespace gui {
 
       bool handle_event (const core::event&, gui::os::event_result&) const;
 
+      void notify_event (Atom message, long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0) const;
+      void notify_event (Atom message, const widget* w, const core::rectangle& rect) const;
+
     protected:
       widget (const widget&);
       widget (widget&&);

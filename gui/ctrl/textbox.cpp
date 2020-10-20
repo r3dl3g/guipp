@@ -329,7 +329,7 @@ namespace gui {
       }
 
       void textbox_base::notify_selection_changed () const {
-        send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+        notify_event(detail::SELECTION_CHANGE_MESSAGE);
       }
 
       textbox_base::position textbox_base::find_prev_word (const textbox_base::position& pos) {

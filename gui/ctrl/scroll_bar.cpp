@@ -205,7 +205,7 @@ namespace gui {
     }
 
     void scroll_bar::send_notify () {
-      send_client_message(this, detail::SCROLLBAR_MESSAGE, static_cast<long>(data.value));
+      super::notify_event(detail::SCROLLBAR_MESSAGE, static_cast<long>(data.value));
     }
 
     void scroll_bar::handle_wheel (const core::point::type delta, const core::point&) {

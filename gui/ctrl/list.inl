@@ -211,7 +211,7 @@ namespace gui {
       if (data.selection != -1) {
         data.selection = -1;
         if (notify != event_source::logic) {
-          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
+          super::notify_event(detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
           super::invalidate();
         }
       }
@@ -226,7 +226,7 @@ namespace gui {
       if (super::get_hilite() != new_hilite) {
         data.hilite = new_hilite;
         if (notify) {
-          send_client_message(this, detail::HILITE_CHANGE_MESSAGE, new_hilite != -1);
+          super::notify_event(detail::HILITE_CHANGE_MESSAGE, new_hilite != -1);
           super::invalidate();
         }
       }
@@ -237,7 +237,7 @@ namespace gui {
       if (super::get_hilite() != -1) {
         data.hilite = -1;
         if (notify) {
-          send_client_message(this, detail::HILITE_CHANGE_MESSAGE, false);
+          super::notify_event(detail::HILITE_CHANGE_MESSAGE, false);
           super::invalidate();
         }
       }
@@ -254,7 +254,7 @@ namespace gui {
         });
       }
       super::on_left_btn_dblclk([&] (os::key_state keys, const core::point & pt) {
-        send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+        super::notify_event(detail::SELECTION_COMMIT_MESSAGE);
       });
       super::on_mouse_leave([&] () {
         clear_hilite();
@@ -295,7 +295,7 @@ namespace gui {
     core::rectangle basic_list<V, T>::get_scroll_bar_area (const core::size& s) const {
       core::rectangle r(position(), s);
       float sz = static_cast<float>(scroll_bar::get_scroll_bar_width());
-      traits.set_2(r, traits.get_2(r.size()) - sz, sz);
+      traits.set_2(r, traits.get_2(r.bottom_right()) - sz, sz);
       return r;
     }
 
@@ -390,7 +390,7 @@ namespace gui {
         super::data.selection = new_selection;
         make_selection_visible();
         if (notify != event_source::logic) {
-          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
+          super::notify_event(detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
           super::invalidate();
         }
       }
@@ -545,7 +545,7 @@ namespace gui {
                       event_source::keyboard);
         break;
       case win::keys::enter:
-        send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+        super::notify_event(detail::SELECTION_COMMIT_MESSAGE);
         break;
       }
     }

@@ -322,9 +322,6 @@ namespace gui {
         send_client_message(win, message, w->get_id(), l1, l2);
       }
 
-      void send_client_message (const window* win, Atom message, const widget* w, const core::rectangle& rect) {
-      }
-
       void post_client_message (const window* win, Atom message, long l1, long l2) {
         x11::send_client_message(win, message, l1, l2);
       }

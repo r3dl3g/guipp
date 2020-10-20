@@ -366,6 +366,8 @@ struct covid19main : public main_type {
   void showChart (chart_t t);
   void showTable ();
 
+  void select_country (int t);
+
   country_data full_data;
   population_data option_data[options_count];
   chart_t chart_type;
@@ -706,54 +708,57 @@ covid19main::covid19main ()
   }));
 
   selection.on_selection_changed([&] (event_source) {
-    int sel = selection.get_selection();
     if (!selection.has_selection()) {
       return;
     }
-    clear_cache();
-
-    const auto r = selection.get_item(sel);
-    const auto& c = tree_view::tree_info::dereference(r);
-
-    option_data[absolute_increase] = c;
-
-//    auto d = util::time::chronometer().process([&] () {
-      option_data[absolute_cumulated].positives = calc::accumulated(c.positives);
-      option_data[absolute_cumulated].deaths = calc::accumulated(c.deaths);
-//    });
-//    clog::info() << "Duration for accumulation: " << d;
-
-    option_data[increase_median_7].positives = calc::rolling_mean(c.positives, 7);
-    option_data[increase_median_7].deaths = calc::rolling_mean(c.deaths, 7);
-
-    option_data[relative_increase].positives = calc::increase(option_data[absolute_cumulated].positives);
-    option_data[relative_increase].deaths = calc::increase(option_data[absolute_cumulated].deaths);
-
-    option_data[relative_median_7_increase].positives = calc::rolling_mean(option_data[relative_increase].positives, 7);
-    option_data[relative_median_7_increase].deaths = calc::rolling_mean(option_data[relative_increase].deaths, 7);
-
-    option_data[r_value].deaths = calc::rolling_mean(c.positives, 4);
-    option_data[r_value].positives = calc::ratio(option_data[r_value].deaths, option_data[r_value].deaths, 4);
-    option_data[r_value].deaths = calc::rolling_mean(option_data[r_value].positives, 7);
-
-    option_data[lethality].positives = calc::ratio(option_data[absolute_cumulated].deaths, option_data[absolute_cumulated].positives, 0);
-    option_data[lethality].deaths = calc::ratio(option_data[increase_median_7].deaths, option_data[increase_median_7].positives, 14);
-
-    option_data[per_100k].positives = calc::divide(option_data[absolute_cumulated].positives, static_cast<double>(c.population) / 100000.0);
-    option_data[per_100k].deaths = calc::divide(option_data[increase_median_7].positives, static_cast<double>(c.population) / 700000.0);
-
-    option_data[deads_per_100k].positives = calc::divide(option_data[absolute_cumulated].deaths, static_cast<double>(c.population) / 100000.0);
-    option_data[deads_per_100k].deaths = calc::divide(option_data[increase_median_7].deaths, static_cast<double>(c.population) / 700000.0);
-
-    charts.invalidate();
-    table.data.invalidate();
-    table.rows.invalidate();
+    select_country(selection.get_selection());
   });
 
   selection.on_content_changed([&] () {
     charts.invalidate();
   });
 
+}
+// --------------------------------------------------------------------------
+void covid19main::select_country (int sel) {
+  clear_cache();
+
+  const auto r = selection.get_item(sel);
+  const auto& c = tree_view::tree_info::dereference(r);
+
+  option_data[absolute_increase] = c;
+
+//    auto d = util::time::chronometer().process([&] () {
+    option_data[absolute_cumulated].positives = calc::accumulated(c.positives);
+    option_data[absolute_cumulated].deaths = calc::accumulated(c.deaths);
+//    });
+//    clog::info() << "Duration for accumulation: " << d;
+
+  option_data[increase_median_7].positives = calc::rolling_mean(c.positives, 7);
+  option_data[increase_median_7].deaths = calc::rolling_mean(c.deaths, 7);
+
+  option_data[relative_increase].positives = calc::increase(option_data[absolute_cumulated].positives);
+  option_data[relative_increase].deaths = calc::increase(option_data[absolute_cumulated].deaths);
+
+  option_data[relative_median_7_increase].positives = calc::rolling_mean(option_data[relative_increase].positives, 7);
+  option_data[relative_median_7_increase].deaths = calc::rolling_mean(option_data[relative_increase].deaths, 7);
+
+  option_data[r_value].deaths = calc::rolling_mean(c.positives, 4);
+  option_data[r_value].positives = calc::ratio(option_data[r_value].deaths, option_data[r_value].deaths, 4);
+  option_data[r_value].deaths = calc::rolling_mean(option_data[r_value].positives, 7);
+
+  option_data[lethality].positives = calc::ratio(option_data[absolute_cumulated].deaths, option_data[absolute_cumulated].positives, 0);
+  option_data[lethality].deaths = calc::ratio(option_data[increase_median_7].deaths, option_data[increase_median_7].positives, 14);
+
+  option_data[per_100k].positives = calc::divide(option_data[absolute_cumulated].positives, static_cast<double>(c.population) / 100000.0);
+  option_data[per_100k].deaths = calc::divide(option_data[increase_median_7].positives, static_cast<double>(c.population) / 700000.0);
+
+  option_data[deads_per_100k].positives = calc::divide(option_data[absolute_cumulated].deaths, static_cast<double>(c.population) / 100000.0);
+  option_data[deads_per_100k].deaths = calc::divide(option_data[increase_median_7].deaths, static_cast<double>(c.population) / 700000.0);
+
+  charts.invalidate();
+  table.data.invalidate();
+  table.rows.invalidate();
 }
 // --------------------------------------------------------------------------
 void covid19main::refresh () {
@@ -1079,6 +1084,7 @@ void covid19main::load_data (const sys_fs::path& p) {
 
     clear_cache();
     refresh();
+    select_country(4);
   });
 
 }

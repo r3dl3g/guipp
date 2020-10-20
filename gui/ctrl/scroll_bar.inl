@@ -56,7 +56,8 @@ namespace gui {
 
     template<orientation_t H>
     inline auto basic_scroll_bar<H>::get_geometry () const -> geometry {
-      core::size sz = client_size();
+      const core::rectangle p = place();
+      const core::size sz = p.size();
       type l = length(sz);
       type t = thickness(sz);
       type b = button_size(l, t);
@@ -64,7 +65,9 @@ namespace gui {
       type th = thumb_size(s, b);
       type sc = get_scale(s, th);
       type tt = thumb_top(b, sc);
-      return {l, t, b, s, th, sc, tt};
+      type pos = core::orientation_traits<H>::get_1(p.top_left());
+      type o = core::orientation_traits<H>::get_2(p.bottom_right());
+      return {l, t, b, s, th, sc, tt, pos, o};
     }
 
     template<orientation_t H>
@@ -99,28 +102,32 @@ namespace gui {
 
     template<orientation_t H>
     inline core::rectangle basic_scroll_bar<H>::up_button_place (const geometry& m) const {
-      return core::rectangle(core::point::zero, build_size(m.button_size, m.thickness));
+      return core::rectangle(build_pos(m.pos, m.other), build_size(m.button_size, m.thickness));
     }
 
     template<orientation_t H>
     inline core::rectangle basic_scroll_bar<H>::down_button_place (const geometry& m) const {
-      return core::rectangle(build_pos(m.length - m.button_size), build_size(m.button_size, m.thickness));
+      return core::rectangle(build_pos(m.pos + m.length - m.button_size, m.other),
+                             build_size(m.button_size, m.thickness));
     }
 
     template<orientation_t H>
     inline core::rectangle basic_scroll_bar<H>::page_up_place (const geometry& m) const {
-      return core::rectangle(build_pos(m.button_size), build_size(m.thumb_top - m.button_size, m.thickness));
+      return core::rectangle(build_pos(m.pos + m.button_size, m.other),
+                             build_size(m.thumb_top - m.button_size, m.thickness));
     }
 
     template<orientation_t H>
     inline core::rectangle basic_scroll_bar<H>::page_down_place (const geometry& m) const {
       type tmb_bottom = m.thumb_top + m.thumb_size;
-      return core::rectangle(build_pos(tmb_bottom), build_size(m.length - m.button_size - tmb_bottom, m.thickness));
+      return core::rectangle(build_pos(m.pos + tmb_bottom, m.other),
+                             build_size(m.length - m.button_size - tmb_bottom, m.thickness));
     }
 
     template<orientation_t H>
     inline core::rectangle basic_scroll_bar<H>::thumb_button_place (const geometry& m) const {
-      return core::rectangle(build_pos(m.thumb_top), build_size(m.thumb_size, m.thickness));
+      return core::rectangle(build_pos(m.pos + m.thumb_top, m.other),
+                             build_size(m.thumb_size, m.thickness));
     }
 
     template<orientation_t H>
@@ -234,24 +241,24 @@ namespace gui {
 
     template<>
     inline core::size basic_scroll_bar<orientation_t::horizontal>::build_size (type pos,
-                                                                             type thickness) {
+                                                                               type thickness) {
       return core::size(pos, thickness);
     }
 
     template<>
     inline core::size basic_scroll_bar<orientation_t::vertical>::build_size (type pos,
-                                                                           type thickness) {
+                                                                             type thickness) {
       return core::size(thickness, pos);
     }
 
     template<>
-    inline core::point basic_scroll_bar<orientation_t::horizontal>::build_pos (type pos) {
-      return core::point(pos, 0);
+    inline core::point basic_scroll_bar<orientation_t::horizontal>::build_pos (type pos, type other) {
+      return core::point(pos, other);
     }
 
     template<>
-    inline core::point basic_scroll_bar<orientation_t::vertical>::build_pos (type pos) {
-      return core::point(0, pos);
+    inline core::point basic_scroll_bar<orientation_t::vertical>::build_pos (type pos, type other) {
+      return core::point(other, pos);
     }
 
     // --------------------------------------------------------------------------

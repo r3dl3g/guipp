@@ -23,6 +23,7 @@
 // Library includes
 //
 #include <gui/ctrl/control.h>
+#include <gui/core/orientation_traits.h>
 
 
 namespace gui {
@@ -233,6 +234,8 @@ namespace gui {
         type thumb_size;
         type scale;
         type thumb_top;
+        type pos;
+        type other;
       };
 
       geometry get_geometry () const;
@@ -250,7 +253,7 @@ namespace gui {
       type get_scale (type spc_size, type tmb_size) const;
 
       static core::size build_size (type pos, type thickness);
-      static core::point build_pos (type pos);
+      static core::point build_pos (type pos, type other);
 
       static type length (const core::size& sz);
       static type thickness (const core::size& sz);

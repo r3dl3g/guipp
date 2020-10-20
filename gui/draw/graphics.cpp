@@ -711,13 +711,16 @@ namespace gui {
       : p(std::move(f))
     {}
 
+#define NOT_IMAGE_CACHE
+
     void buffered_paint::operator() (os::window id, const os::graphics& g) {
       if (p) {
         draw::graphics graph(id, g);
-#ifndef BUILD_FOR_ARM
+#if !defined(BUILD_FOR_ARM) && !defined(NOT_IMAGE_CACHE)
         const auto area = graph.area();
         draw::pixmap buffer(area.size());
         draw::graphics buffer_graph(buffer);
+        buffer_graph.clear(color::white);
         p(buffer_graph);
         graph.copy_from(buffer_graph);
 #else

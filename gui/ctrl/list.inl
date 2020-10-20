@@ -370,7 +370,7 @@ namespace gui {
     inline int basic_list<V, T>::get_index_at_point (const core::point& pt) {
       auto rect = content_area(client_size());
       if (rect.is_inside(pt)) {
-        return traits.get_index_at_point(rect.size(), pt, get_scroll_pos(), get_count());
+        return traits.get_index_at_point(rect.size(), pt + -position(), get_scroll_pos(), get_count());
       }
       return -1;
     }
@@ -490,17 +490,20 @@ namespace gui {
 
     template<orientation_t V>
     void linear_list<V>::paint (const draw::graphics& graph) {
-      const core::rectangle area(super::position(), super::content_size(super::client_size(), false));
+      const core::rectangle area = super::content_area(super::client_size());
+      draw::clip clp(graph, area);
+
       core::rectangle place = area;
 
       draw::brush back_brush(super::get_background());
       graph.fill(draw::rectangle(area), back_brush);
 
-      const auto list_sz = super::get_list_size();
+      const auto list_sz = super::get_list_size() + super::traits.get_1(area.top_left());
       const auto last = super::get_count();
       const auto first = static_cast<decltype(last)>(super::get_scroll_pos() / super::get_item_dimension());
 
       super::traits.set_1(place, super::get_item_dimension() * first - super::get_scroll_pos(), super::get_item_dimension());
+      place.move(area.position());
 
       for (auto idx = first; (idx < last) && (super::traits.get_1(place.top_left()) < list_sz); ++idx) {
         super::draw_item(idx, graph, place, back_brush, super::get_item_state(static_cast<int>(idx)));

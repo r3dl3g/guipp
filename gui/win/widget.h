@@ -200,6 +200,7 @@ namespace gui {
 
       void notify_event (Atom message, long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0) const;
       void notify_event (Atom message, const widget* w, const core::rectangle& rect) const;
+      void notify_event (Atom message, const core::rectangle& rect) const;
 
     protected:
       widget (const widget&);
@@ -214,6 +215,10 @@ namespace gui {
       void set_accept_focus (bool a);
 
       void register_event_handler (event_handler_function&& f, os::event_id mask);
+
+      void notify_size (const core::size&) const;
+      void notify_move (const core::point&) const;
+      void notify_place (const core::rectangle&) const;
 
     private:
       friend struct widget_state;

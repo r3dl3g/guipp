@@ -56,8 +56,9 @@ namespace gui {
 
     template<orientation_t H>
     inline auto basic_scroll_bar<H>::get_geometry () const -> geometry {
-      const core::rectangle p = place();
-      const core::size sz = p.size();
+      const core::rectangle r = place();
+      const core::point pt = r.top_left();
+      const core::size sz = r.size();
       type l = length(sz);
       type t = thickness(sz);
       type b = button_size(l, t);
@@ -65,8 +66,8 @@ namespace gui {
       type th = thumb_size(s, b);
       type sc = get_scale(s, th);
       type tt = thumb_top(b, sc);
-      type pos = core::orientation_traits<H>::get_1(p.top_left());
-      type o = core::orientation_traits<H>::get_2(p.bottom_right());
+      type pos = core::orientation_traits<H>::get_1(pt);
+      type o = core::orientation_traits<H>::get_2(pt);
       return {l, t, b, s, th, sc, tt, pos, o};
     }
 

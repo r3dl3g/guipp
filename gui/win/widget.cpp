@@ -23,6 +23,7 @@
 //
 #include <algorithm>
 #include <map>
+#include <set>
 
 // --------------------------------------------------------------------------
 //
@@ -119,7 +120,16 @@ namespace gui {
       }
     }
 
+//    namespace {
+//      std::set<const widget*> active_handler;
+//    }
+
     bool widget::handle_event (const core::event& e, gui::os::event_result& result) const {
+//      if (active_handler.find(this) != active_handler.end()) {
+//        return false;
+//      }
+//      active_handler.insert(this);
+
       if (any_key_up_event::match(e)) {
         os::key_symbol key = get_key_symbol(e);
         if (key == keys::tab) {
@@ -133,6 +143,7 @@ namespace gui {
       if (is_enabled()) {
         res = events.handle_event(e, result);
       }
+//      active_handler.erase(this);
       return res;
     }
 
@@ -367,18 +378,19 @@ namespace gui {
       }
 
       XEvent event;
-
       XExposeEvent& e = event.xexpose;
+
+      const auto p = place();
+
       e.type = Expose;
       e.serial = 0;
       e.send_event = true;
       e.display = core::global::get_instance();
       e.window = parent->get_id();
-      auto p = place();
-      e.x = p.x();
-      e.y = p.y();
-      e.width = p.width();
-      e.height = p.height();
+      e.x = p.os_x();
+      e.y = p.os_y();
+      e.width = p.os_width();
+      e.height = p.os_height();
       e.count = 0;
       gui::os::event_result result;
 
@@ -425,6 +437,7 @@ namespace gui {
     void widget::move (const core::point& pt, bool repaint) {
       if (position() != pt) {
         area.set_position(pt);
+        notify_move(pt);
         if (repaint) {
           invalidate();
         }
@@ -442,6 +455,7 @@ namespace gui {
             set_visible();
           }
           area.set_size(sz);
+          notify_size(sz);
           if (repaint) {
             invalidate();
           }
@@ -459,6 +473,7 @@ namespace gui {
           set_visible();
         }
         area = r;
+        notify_place(r);
         if (repaint) {
           invalidate();
         }
@@ -523,6 +538,48 @@ namespace gui {
       long l1 = (long)r.x << 16 | (long)r.y;
       long l2 = (long)r.width << 16 | (long)r.height;
       notify_event(message, reinterpret_cast<long>(w), l1, l2);
+    }
+
+    void widget::notify_event (Atom message, const core::rectangle& rect) const {
+      XRectangle r = rect;
+      long l1 = (long)r.x << 16 | (long)r.y;
+      long l2 = (long)r.width << 16 | (long)r.height;
+      notify_event(message, l2, l1, l2);
+    }
+
+    void widget::notify_size (const core::size& sz) const {
+      XEvent event;
+      XConfigureEvent& ev = event.xconfigure;
+      ev.type  = ConfigureNotify;
+      ev.width = sz.os_width();
+      ev.height = sz.os_height();
+      gui::os::event_result result = 0;
+      notify_event(core::WM_LAYOUT_WINDOW, area);
+      handle_event(event, result);
+    }
+
+    void widget::notify_move (const core::point& pt) const {
+      XEvent event;
+      XConfigureEvent& ev = event.xconfigure;
+      ev.type  = ConfigureNotify;
+      ev.x = pt.os_x();
+      ev.y = pt.os_y();
+      gui::os::event_result result = 0;
+      notify_event(core::WM_LAYOUT_WINDOW, area);
+      handle_event(event, result);
+    }
+
+    void widget::notify_place (const core::rectangle& r) const {
+      XEvent event;
+      XConfigureEvent& ev = event.xconfigure;
+      ev.type  = ConfigureNotify;
+      ev.x = r.os_x();
+      ev.y = r.os_y();
+      ev.width = r.os_width();
+      ev.height = r.os_height();
+      gui::os::event_result result = 0;
+      notify_event(core::WM_LAYOUT_WINDOW, area);
+      handle_event(event, result);
     }
 
     // --------------------------------------------------------------------------

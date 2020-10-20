@@ -204,7 +204,9 @@ namespace gui {
     template<orientation_t V>
     void basic_tile_view<V>::paint (const draw::graphics& graph) {
       const auto list_size = super::content_size(super::client_size());
-      const core::rectangle area(list_size);
+      const core::rectangle area(super::position(), list_size);
+
+      draw::clip clp(graph, area);
 
       draw::brush back_brush(super::get_background());
 
@@ -224,6 +226,7 @@ namespace gui {
 
         int idx = first_line * per_line;
         core::rectangle place = super::traits.get_place_of_index(list_size, idx, scp);
+        place.move(area.position());
 
         const auto start = super::traits.get_1(place.top_left());
 
@@ -234,14 +237,17 @@ namespace gui {
             graph.fill(draw::rectangle(place), back_brush);
           }
           place = super::traits.get_place_of_index(list_size, idx + 1, scp);
+          place.move(area.position());
         }
 
         const int last_line = core::div_ceil(idx, per_line);
 
+        place.move(area.position());
         place = get_full_place_of_index(idx);
         for (; (super::traits.get_1(place.top_left()) < list_sz); ++idx) {
           graph.fill(draw::rectangle(place), back_brush);
           place = get_full_place_of_index(idx + 1);
+          place.move(area.position());
         }
 
         const auto ib = super::traits.get_item_border();
@@ -251,6 +257,7 @@ namespace gui {
           for (int line = first_line; line < last_line; ++line) {
             super::traits.set_1(place, lsz * line - scp + lb + lsz - lsp, lsp);
             super::traits.set_2(place, ib, lw);
+            place.move(area.position());
             graph.fill(draw::rectangle(place), back_brush);
           }
         }
@@ -259,19 +266,20 @@ namespace gui {
         const auto max_width = super::traits.get_2(area.x2y2());
         if (max_width > width) {
           core::rectangle space = area;
-          super::traits.set_2(space, width, max_width - width);
+          super::traits.set_2(space, width + super::traits.get_2(area.top_left()), max_width - width);
           graph.fill(draw::rectangle(space), back_brush);
         }
 
         if (ib > 0) {
           core::rectangle space = area;
-          super::traits.set_2(space, super::traits.get_1(area.top_left()), ib);
+          super::traits.set_2(space, super::traits.get_2(area.top_left()), ib);
           graph.fill(draw::rectangle(space), back_brush);
         }
 
-        if (start > 0) {
+        const auto origin = super::traits.get_1(area.top_left());
+        if (start > origin) {
           core::rectangle space = area;
-          super::traits.set_1(space, super::traits.get_2(area.top_left()), start);
+          super::traits.set_1(space, origin, start);
           graph.fill(draw::rectangle(space), back_brush);
         }
       }
@@ -307,7 +315,7 @@ namespace gui {
           event_source::keyboard);
         break;
       case win::keys::enter:
-        send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+        super::notify_event(detail::SELECTION_COMMIT_MESSAGE);
         break;
       }
     }

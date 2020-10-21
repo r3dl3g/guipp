@@ -231,19 +231,19 @@ namespace gui {
                               const std::function<filter::selection_and_hilite>& selection_filter,
                               const std::function<filter::selection_and_hilite>& hilite_filter) {
           if (drawer) {
-            const core::size max_sz = place.size();
+            const auto max_sz = place.x2y2();
             position cell(0, static_cast<position::type>(geometrie.heights.get_first_idx()));
-            core::point::type y = geometrie.heights.get_first_offset();
+            core::point::type y = geometrie.heights.get_first_offset() + place.y();
 
             std::set<position> painted_spawns;
 
-            while (y < max_sz.height()) {
+            while (y < max_sz.y()) {
               const core::size::type height = geometrie.heights.get_size(cell.y());
 
               cell.x(static_cast<int>(geometrie.widths.get_first_idx()));
-              core::point::type x = geometrie.widths.get_first_offset();
+              core::point::type x = geometrie.widths.get_first_offset() + place.x();
 
-              while (x < max_sz.width()) {
+              while (x < max_sz.x()) {
                 const core::size::type width = geometrie.widths.get_size(cell.x());
                 core::rectangle area(x, y, width, height);
                 const auto spwn = geometrie.spawns.get(cell);
@@ -297,14 +297,13 @@ namespace gui {
                                 const std::function<filter::selection_and_hilite>& selection_filter,
                                 const std::function<filter::selection_and_hilite>& hilite_filter) {
           if (drawer) {
-            const core::size max_sz = place.size();
             position cell(static_cast<position::type>(geometrie.widths.get_first_idx()), 0);
-            core::point::type x = geometrie.widths.get_first_offset();
+            core::point::type x = geometrie.widths.get_first_offset() + place.x();
 
-            while (x < max_sz.width()) {
+            while (x < place.x2()) {
               const core::size::type width = geometrie.widths.get_size(cell.x());
               drawer(cell, graph,
-                     core::rectangle(x, 0, width, max_sz.height()),
+                     core::rectangle(x, place.y(), width, place.height()),
                      aligns.get(cell.x()),
                      foregrounds.get(cell.x()),
                      backgrounds.get(cell.x()),
@@ -326,15 +325,14 @@ namespace gui {
                              const std::function<filter::selection_and_hilite>& selection_filter,
                              const std::function<filter::selection_and_hilite>& hilite_filter) {
           if (drawer) {
-            const core::size max_sz = place.size();
             position cell(0, static_cast<position::type>(geometrie.heights.get_first_idx()));
-            core::point::type y = geometrie.heights.get_first_offset();
+            core::point::type y = geometrie.heights.get_first_offset() + place.y();
 
-            while (y < max_sz.height()) {
+            while (y < place.y2()) {
               const core::size::type height = geometrie.heights.get_size(cell.y());
 
               drawer(cell, graph,
-                     core::rectangle(0, y, max_sz.width(), height),
+                     core::rectangle(place.x(), y, place.width(), height),
                      aligns.get(cell.y()),
                      foregrounds.get(cell.y()),
                      backgrounds.get(cell.y()),

@@ -295,7 +295,7 @@ namespace gui {
     core::rectangle basic_list<V, T>::get_scroll_bar_area (const core::size& s) const {
       core::rectangle r(position(), s);
       float sz = static_cast<float>(scroll_bar::get_scroll_bar_width());
-      traits.set_2(r, traits.get_2(r.bottom_right()) - sz, sz);
+      traits.set_2(r, traits.get_2(r.x2y2()) - sz, sz);
       return r;
     }
 
@@ -456,7 +456,7 @@ namespace gui {
     template<orientation_t V, typename T>
     void basic_list<V, T>::handle_left_btn_up (os::key_state keys, const core::point& pt) {
       if (!super::is_moved() && (super::get_last_mouse_point() != core::point::undefined)) {
-        const int new_selection = traits.get_index_at_point(content_size(client_size()), pt, get_scroll_pos(), get_count());
+        const int new_selection = get_index_at_point(pt);
         if (new_selection != super::get_selection()) {
           if ((new_selection < 0) || win::control_key_bit_mask::is_set(keys)) {
             clear_selection(event_source::mouse);

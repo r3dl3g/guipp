@@ -56,7 +56,7 @@ namespace gui {
 
     template<orientation_t H>
     inline auto basic_scroll_bar<H>::get_geometry () const -> geometry {
-      const core::rectangle r = place();
+      const core::rectangle r = super::client_area();
       const core::point pt = r.top_left();
       const core::size sz = r.size();
       type l = length(sz);

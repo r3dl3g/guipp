@@ -301,26 +301,6 @@ namespace gui {
     }
 
     void container::forward_focus (bool backward) const {
-      window_list_t children = get_children();
-      if (children.size() > 0) {
-        if (backward) {
-          for (auto i = children.rbegin(), e = children.rend(); i != e; ++i) {
-            window* next = *i;
-            if (next->can_accept_focus()) {
-              next->take_focus();
-              return;
-            }
-          }
-        } else {
-          for (auto i = children.begin(), e = children.end(); i != e; ++i) {
-            window* next = *i;
-            if (next->can_accept_focus()) {
-              next->take_focus();
-              return;
-            }
-          }
-        }
-      }
       window::shift_focus(backward);
     }
 

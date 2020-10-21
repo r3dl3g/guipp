@@ -37,9 +37,6 @@
 #include <gui/win/window_event_handler.h>
 
 
-//#define NO_CAPTURE
-
-
 namespace gui {
 
   namespace win {
@@ -120,15 +117,17 @@ namespace gui {
       }
     }
 
-//    namespace {
-//      std::set<const widget*> active_handler;
-//    }
+    namespace {
+      std::set<std::pair<const widget*, os::event_id>> active_handler;
+    }
 
     bool widget::handle_event (const core::event& e, gui::os::event_result& result) const {
-//      if (active_handler.find(this) != active_handler.end()) {
-//        return false;
-//      }
-//      active_handler.insert(this);
+      const auto key = std::make_pair(this, e.type);
+      if (active_handler.find(key) != active_handler.end()) {
+        clog::warn() << "already in handle_event for widget: " << this << " " << e;
+        return false;
+      }
+      active_handler.insert(key);
 
       if (any_key_up_event::match(e)) {
         os::key_symbol key = get_key_symbol(e);
@@ -138,12 +137,12 @@ namespace gui {
         }
       }
 
-//      clog::trace() << "handle_event: " << e;
+//      clog::trace() << "handle_event: for widget: " << this << " " << e;
       bool res = false;
       if (is_enabled()) {
         res = events.handle_event(e, result);
       }
-//      active_handler.erase(this);
+      active_handler.erase(key);
       return res;
     }
 
@@ -554,8 +553,8 @@ namespace gui {
       ev.width = sz.os_width();
       ev.height = sz.os_height();
       gui::os::event_result result = 0;
-      notify_event(core::WM_LAYOUT_WINDOW, area);
       handle_event(event, result);
+      notify_event(core::WM_LAYOUT_WINDOW, area);
     }
 
     void widget::notify_move (const core::point& pt) const {
@@ -565,8 +564,8 @@ namespace gui {
       ev.x = pt.os_x();
       ev.y = pt.os_y();
       gui::os::event_result result = 0;
-      notify_event(core::WM_LAYOUT_WINDOW, area);
       handle_event(event, result);
+      notify_event(core::WM_LAYOUT_WINDOW, area);
     }
 
     void widget::notify_place (const core::rectangle& r) const {
@@ -578,8 +577,8 @@ namespace gui {
       ev.width = r.os_width();
       ev.height = r.os_height();
       gui::os::event_result result = 0;
-      notify_event(core::WM_LAYOUT_WINDOW, area);
       handle_event(event, result);
+      notify_event(core::WM_LAYOUT_WINDOW, area);
     }
 
     // --------------------------------------------------------------------------

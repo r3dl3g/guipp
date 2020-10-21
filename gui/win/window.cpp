@@ -23,6 +23,7 @@
 //
 #include <algorithm>
 #include <map>
+#include <set>
 
 #ifdef X11
 # include <X11/cursorfont.h>
@@ -39,7 +40,7 @@
 #include <gui/win/window_event_handler.h>
 
 
-//#define NO_CAPTURE
+#define NO_CAPTURE
 
 
 namespace gui {
@@ -203,7 +204,18 @@ namespace gui {
       }
     }
 
+    namespace {
+      std::set<std::pair<const window*, os::event_id>> active_handler;
+    }
+
     bool window::handle_event (const core::event& e, gui::os::event_result& result) const {
+      const auto key = std::make_pair(this, e.type);
+      if (active_handler.find(key) != active_handler.end()) {
+        clog::warn() << "already in handle_event for window: " << this << " " << e;
+        return false;
+      }
+      active_handler.insert(key);
+
       if (any_key_up_event::match(e)) {
         os::key_symbol key = get_key_symbol(e);
         if (key == keys::tab) {
@@ -212,11 +224,12 @@ namespace gui {
         }
       }
 
-//      clog::trace() << "handle_event: " << e;
+//      clog::trace() << "handle_event: for window: " << this << " " << e;
       bool res = false;
       if (is_enabled()) {
         res = events.handle_event(e, result);
       }
+      active_handler.erase(key);
       return res;
     }
 

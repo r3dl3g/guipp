@@ -81,6 +81,7 @@ namespace gui {
     typedef RECT rectangle;
 
     typedef UINT event_id;
+    typedef UINT message_type;
     typedef LRESULT event_result;
 
     namespace win32 {

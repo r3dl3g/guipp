@@ -40,7 +40,7 @@
 #include <gui/win/window_event_handler.h>
 
 
-#define NO_CAPTURE
+//#define NO_CAPTURE
 
 
 namespace gui {
@@ -215,7 +215,6 @@ namespace gui {
         return false;
       }
       active_handler.insert(key);
-
       if (any_key_up_event::match(e)) {
         os::key_symbol key = get_key_symbol(e);
         if (key == keys::tab) {
@@ -708,6 +707,10 @@ namespace gui {
       return id;
     }
 
+    void window::notify_event (os::message_type message, long l1, long l2) const {
+      send_client_message(this, message, l1, l2);
+    }
+    
     std::string window::get_class_name () const {
       char class_name[256];
       GetClassName(id, class_name, 256);
@@ -1167,6 +1170,27 @@ namespace gui {
 
     std::string window::get_class_name () const {
       return hidden::window_class_map[get_id()];
+    }
+
+    void window::notify_event (os::message_type message, long l1, long l2) const {
+      XEvent event;
+      XClientMessageEvent& client = event.xclient;
+
+      client.type = ClientMessage;
+      client.serial = 0;
+      client.send_event = True;
+      client.display = core::global::get_instance();
+      client.window = get_id();
+      client.message_type = message;
+      client.format = 32;
+      client.data.l[0] = l1;
+      client.data.l[1] = l2;
+      client.data.l[2] = 0;
+      client.data.l[3] = 0;
+      client.data.l[4] = 0;
+
+      gui::os::event_result result = 0;
+      handle_event(event, result);
     }
 
 #endif // X11

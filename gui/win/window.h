@@ -210,6 +210,8 @@ namespace gui {
 
       bool handle_event (const core::event&, gui::os::event_result&) const;
 
+      void notify_event (os::message_type message, long l1 = 0, long l2 = 0) const;
+
     protected:
       window (const window&);
       window (window&&);

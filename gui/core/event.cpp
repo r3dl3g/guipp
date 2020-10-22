@@ -666,21 +666,8 @@ namespace std {
       case ColormapNotify:
         out << window(e.xcolormap);
       break;
-      case ClientMessage: {
-        using namespace gui::core;;
-        if (e.xclient.message_type == x11::WM_CREATE_WINDOW) {
-          out << " WM_CREATE_WINDOW ";
-        } else if (e.xclient.message_type == x11::WM_DELETE_WINDOW) {
-          out << " WM_DELETE_WINDOW ";
-        } else if (e.xclient.message_type == WM_LAYOUT_WINDOW) {
-          out << " WM_LAYOUT_WINDOW ";
-        } else if (e.xclient.message_type == x11::WM_PROTOCOLS) {
-          out << " WM_PROTOCOLS ";
-        } else if (e.xclient.message_type == x11::WM_TAKE_FOCUS) {
-          out << " WM_TAKE_FOCUS ";
-        }
-        out << window(e.xclient);
-      }
+      case ClientMessage:
+        out << " " << XGetAtomName(gui::core::global::get_instance(), e.xclient.message_type) << " " << window(e.xclient);
       break;
       case MappingNotify:
         out << window(e.xmapping) << count(e.xmapping);

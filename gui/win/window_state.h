@@ -52,9 +52,6 @@ namespace gui {
       bool disable_redraw (bool on = true);
       bool set_overlapped (bool on);
 
-      bool set_in_event_handle (bool on);
-      bool is_in_event_handle () const;
-
       bool set_needs_redraw (bool on) const;
       bool needs_redraw () const;
 
@@ -64,7 +61,6 @@ namespace gui {
           focus_accepting = 0,
           redraw_disabled,
           window_disabled,
-          in_event_handle,
           needs_redraw,
           is_visible,
           is_overlapped,

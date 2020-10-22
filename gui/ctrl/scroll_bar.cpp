@@ -87,7 +87,7 @@ namespace gui {
     }
 
     void scroll_bar::create (const win::class_info& type,
-                             const win::container& parent,
+                             win::container& parent,
                              const core::rectangle& place) {
       super::create(type, parent, place);
     }
@@ -205,7 +205,7 @@ namespace gui {
     }
 
     void scroll_bar::send_notify () {
-      send_client_message(this, detail::SCROLLBAR_MESSAGE, static_cast<long>(data.value));
+      super::notify_event(detail::SCROLLBAR_MESSAGE, static_cast<long>(data.value));
     }
 
     void scroll_bar::handle_wheel (const core::point::type delta, const core::point&) {

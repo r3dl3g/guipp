@@ -275,7 +275,7 @@ namespace gui {
       main_menu (main_menu&&);
 
       using control::create;
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       void paint (const draw::graphics& g);

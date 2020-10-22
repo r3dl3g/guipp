@@ -145,21 +145,21 @@ namespace gui {
     // --------------------------------------------------------------------------
     void basic_button_traits::set_hilited (button_base& btn, bool h) {
       if (btn.get_state().set_hilited(h)) {
-        send_client_message(&btn, detail::HILITE_CHANGE_MESSAGE, h);
+        btn.notify_event(detail::HILITE_CHANGE_MESSAGE, h);
         btn.invalidate();
       }
     }
 
     void basic_button_traits::set_pushed (button_base& btn, bool p) {
       if (btn.get_state().set_pushed(p)) {
-        send_client_message(&btn, p ? detail::BN_PUSHED_MESSAGE : detail::BN_UNPUSHED_MESSAGE);
+        btn.notify_event(p ? detail::BN_PUSHED_MESSAGE : detail::BN_UNPUSHED_MESSAGE);
         btn.invalidate();
       }
     }
 
     void basic_button_traits::set_checked (button_base& btn, bool f) {
       if (btn.get_state().set_checked(f)) {
-        send_client_message(&btn, detail::BN_STATE_MESSAGE, f ? 1 : 0);
+        btn.notify_event(detail::BN_STATE_MESSAGE, f ? 1 : 0);
         btn.invalidate();
       }
     }
@@ -170,14 +170,14 @@ namespace gui {
         if (btn.is_pushed()) {
           set_pushed(btn, false);
           if (btn.client_area().is_inside(pos)) {
-            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+            btn.notify_event(detail::BN_CLICKED_MESSAGE);
           }
         }
       });
       btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
         if (((k == win::keys::enter) || (k == win::keys::space)) && btn.is_pushed()) {
           set_pushed(btn, false);
-          send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+          btn.notify_event(detail::BN_CLICKED_MESSAGE);
         }
       });
     }
@@ -190,7 +190,7 @@ namespace gui {
           set_pushed(btn, false);
           if (btn.client_area().is_inside(pos)) {
             set_checked(btn, !btn.is_checked());
-            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+            btn.notify_event(detail::BN_CLICKED_MESSAGE);
           }
         }
       });
@@ -198,7 +198,7 @@ namespace gui {
         if (((k == win::keys::enter) || (k == win::keys::space)) && btn.is_pushed()) {
           set_pushed(btn, false);
           set_checked(btn, !btn.is_checked());
-          send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+          btn.notify_event(detail::BN_CLICKED_MESSAGE);
         }
       });
     }
@@ -211,7 +211,7 @@ namespace gui {
           set_pushed(btn, false);
           if (!btn.is_checked() && btn.client_area().is_inside(pos)) {
             set_checked(btn, true);
-            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+            btn.notify_event(detail::BN_CLICKED_MESSAGE);
           }
         }
       });
@@ -220,7 +220,7 @@ namespace gui {
           set_pushed(btn, false);
           if (!btn.is_checked()) {
             set_checked(btn, true);
-            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+            btn.notify_event(detail::BN_CLICKED_MESSAGE);
           }
         }
       });
@@ -270,7 +270,7 @@ namespace gui {
           set_pushed(btn, false);
           if (btn.client_area().is_inside(pos)) {
             set_checked(btn, !btn.is_checked());
-            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+            btn.notify_event(detail::BN_CLICKED_MESSAGE);
           }
         }
       });
@@ -278,7 +278,7 @@ namespace gui {
         if (((k == win::keys::enter) || (k == win::keys::space)) && btn.is_pushed()) {
           set_pushed(btn, false);
           set_checked(btn, !btn.is_checked());
-          send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+          btn.notify_event(detail::BN_CLICKED_MESSAGE);
         }
       });
     }
@@ -291,7 +291,7 @@ namespace gui {
           set_pushed(btn, false);
           if (!btn.is_checked() && btn.client_area().is_inside(pos)) {
             set_checked(btn, true);
-            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+            btn.notify_event(detail::BN_CLICKED_MESSAGE);
           }
         }
       });
@@ -300,7 +300,7 @@ namespace gui {
           set_pushed(btn, false);
           if (!btn.is_checked()) {
             set_checked(btn, true);
-            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+            btn.notify_event(detail::BN_CLICKED_MESSAGE);
           }
         }
       });

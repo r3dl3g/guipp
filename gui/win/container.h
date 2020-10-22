@@ -40,6 +40,7 @@ namespace gui {
     class GUIPP_WIN_EXPORT container : public window {
     public:
       typedef window super;
+      typedef std::vector<window*> window_list_t;
 
       container ();
 
@@ -48,7 +49,7 @@ namespace gui {
 
       void set_children_visible (bool = true);
 
-      std::vector<window*> get_children () const;
+      window_list_t get_children () const;
 
       void shift_focus (const window&, bool backward = false) const;
       void forward_focus (bool backward = false) const;
@@ -135,7 +136,7 @@ namespace gui {
       typedef modal_window super;
       using clazz = cls::popup_window_class<popup_window>;
 
-      void create (const container& parent, const core::rectangle& r = core::rectangle::def);
+      void create (container& parent, const core::rectangle& r = core::rectangle::def);
 
     protected:
       void create (const class_info& cls, const container& parent, const core::rectangle& r = core::rectangle::def);
@@ -148,7 +149,7 @@ namespace gui {
       typedef modal_window super;
       using clazz = cls::dialog_window_class<dialog_window>;
 
-      void create (const container& parent, const core::rectangle& r = core::rectangle::def);
+      void create (container& parent, const core::rectangle& r = core::rectangle::def);
 
     protected:
       void create (const class_info& cls, const container& parent, const core::rectangle& r = core::rectangle::def);

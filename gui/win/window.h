@@ -210,6 +210,10 @@ namespace gui {
 
       bool handle_event (const core::event&, gui::os::event_result&) const;
 
+      void notify_event (Atom message, long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0) const;
+      void notify_event (Atom message, const window* w, const core::rectangle& rect) const;
+      void notify_event (Atom message, const core::rectangle& rect) const;
+
     protected:
       window (const window&);
       window (window&&);
@@ -218,7 +222,7 @@ namespace gui {
       window& operator= (window&&) = delete;
 
       void create (const class_info&,
-                   const container&,
+                   container&,
                    const core::rectangle& = core::rectangle::def);
 
       void create (const class_info&,
@@ -256,7 +260,7 @@ namespace gui {
       typedef window super;
       typedef window_class<client_window, background> clazz;
 
-      void create (const container& parent,
+      void create (container& parent,
                    const core::rectangle& r = core::rectangle::def);
     };
 

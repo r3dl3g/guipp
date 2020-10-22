@@ -141,7 +141,7 @@ namespace gui {
     }
 
     void control::notify_content_changed () const {
-      send_client_message(this, detail::CONTENT_CHANGED_MESSAGE);
+      notify_event(detail::CONTENT_CHANGED_MESSAGE);
     }
 
   } // ctrl

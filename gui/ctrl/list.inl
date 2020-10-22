@@ -163,7 +163,7 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    inline void basic_list<V, T>::create (const win::container& parent,
+    inline void basic_list<V, T>::create (win::container& parent,
                                           const core::rectangle& place) {
       super::create(clazz::get(), parent, place);
       adjust_scroll_bar(place.size());
@@ -211,7 +211,7 @@ namespace gui {
       if (data.selection != -1) {
         data.selection = -1;
         if (notify != event_source::logic) {
-          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
+          super::notify_event(detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
           super::invalidate();
         }
       }
@@ -226,7 +226,7 @@ namespace gui {
       if (super::get_hilite() != new_hilite) {
         data.hilite = new_hilite;
         if (notify) {
-          send_client_message(this, detail::HILITE_CHANGE_MESSAGE, new_hilite != -1);
+          super::notify_event(detail::HILITE_CHANGE_MESSAGE, new_hilite != -1);
           super::invalidate();
         }
       }
@@ -237,7 +237,7 @@ namespace gui {
       if (super::get_hilite() != -1) {
         data.hilite = -1;
         if (notify) {
-          send_client_message(this, detail::HILITE_CHANGE_MESSAGE, false);
+          super::notify_event(detail::HILITE_CHANGE_MESSAGE, false);
           super::invalidate();
         }
       }
@@ -254,7 +254,7 @@ namespace gui {
         });
       }
       super::on_left_btn_dblclk([&] (os::key_state keys, const core::point & pt) {
-        send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+        super::notify_event(detail::SELECTION_COMMIT_MESSAGE);
       });
       super::on_mouse_leave([&] () {
         clear_hilite();
@@ -295,13 +295,13 @@ namespace gui {
     core::rectangle basic_list<V, T>::get_scroll_bar_area (const core::size& s) const {
       core::rectangle r(s);
       float sz = static_cast<float>(scroll_bar::get_scroll_bar_width());
-      traits.set_2(r, traits.get_2(r.size()) - sz, sz);
+      traits.set_2(r, traits.get_2(r.x2y2()) - sz, sz);
       return r;
     }
 
     template<orientation_t V, typename T>
     template<typename U, list_item_drawer<U> F>
-    inline void basic_list<V, T>::create (const win::container& parent,
+    inline void basic_list<V, T>::create (win::container& parent,
                                           const core::rectangle& place,
                                           std::function<list_data_provider> data) {
       super::create(clazz::get(), parent, place);
@@ -390,7 +390,7 @@ namespace gui {
         super::data.selection = new_selection;
         make_selection_visible();
         if (notify != event_source::logic) {
-          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
+          super::notify_event(detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
           super::invalidate();
         }
       }
@@ -456,7 +456,7 @@ namespace gui {
     template<orientation_t V, typename T>
     void basic_list<V, T>::handle_left_btn_up (os::key_state keys, const core::point& pt) {
       if (!super::is_moved() && (super::get_last_mouse_point() != core::point::undefined)) {
-        const int new_selection = traits.get_index_at_point(content_size(client_size()), pt, get_scroll_pos(), get_count());
+        const int new_selection = get_index_at_point(pt);
         if (new_selection != super::get_selection()) {
           if ((new_selection < 0) || win::control_key_bit_mask::is_set(keys)) {
             clear_selection(event_source::mouse);
@@ -545,7 +545,7 @@ namespace gui {
                       event_source::keyboard);
         break;
       case win::keys::enter:
-        send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+        super::notify_event(detail::SELECTION_COMMIT_MESSAGE);
         break;
       }
     }

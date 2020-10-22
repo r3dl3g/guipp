@@ -114,7 +114,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<os::color B>
-    inline void client_window<B>::create (const container& parent,
+    inline void client_window<B>::create (container& parent,
                                           const core::rectangle& r) {
       super::create(clazz::get(), parent, r);
     }

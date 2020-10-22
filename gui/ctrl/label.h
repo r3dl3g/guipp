@@ -44,14 +44,14 @@ namespace gui {
         label_base (const label_base& rhs);
         label_base (label_base&& rhs);
 
-        void create (const win::container& parent,
+        void create (win::container& parent,
                      const core::rectangle& place = core::rectangle::def);
 
-        void create (const win::container& parent,
+        void create (win::container& parent,
                      const text_source& txt,
                      const core::rectangle& place = core::rectangle::def);
 
-        void create (const win::container& parent,
+        void create (win::container& parent,
                      const std::string& txt,
                      const core::rectangle& place = core::rectangle::def);
 

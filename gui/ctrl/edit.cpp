@@ -257,14 +257,14 @@ namespace gui {
         win::global::unregister_utf8_window(get_id());
       }
 
-      void edit_base::create (const win::container& parent,
+      void edit_base::create (win::container& parent,
                               const std::string& txt,
                               const core::rectangle& place) {
         create(parent, place);
         set_text(txt);
       }
 
-      void edit_base::create (const win::container& parent,
+      void edit_base::create (win::container& parent,
                               const core::rectangle& place) {
         super::create(clazz<>::get(), parent, place);
         prepare_input();
@@ -466,7 +466,7 @@ namespace gui {
           break;
         case win::keys::escape:
           set_selection(range(), event_source::keyboard);
-          send_client_message(this, detail::SELECTION_CANCEL_MESSAGE);
+          notify_event(detail::SELECTION_CANCEL_MESSAGE);
           break;
         case win::keys::clear:
           set_selection(range(0, data.text.size()), event_source::keyboard);
@@ -476,7 +476,7 @@ namespace gui {
         case win::keys::tab:
           break;
         case win::keys::enter:
-          send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+          notify_event(detail::SELECTION_COMMIT_MESSAGE);
           break;
         default: {
           if (ctrl) {

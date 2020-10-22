@@ -48,7 +48,7 @@ namespace gui {
         on_any_key_down(util::bind_method(this, &editbox_base::handle_key));
       }
 
-      void editbox_base::create (const win::container& parent,
+      void editbox_base::create (win::container& parent,
                                  const core::rectangle& r) {
         create(clazz::get(), parent, r);
       }

@@ -73,7 +73,7 @@ namespace gui {
     }
 
     template<orientation_t O, os::color FG, os::color BG, typename B, typename L>
-    void toggle_group<O, FG, BG, B, L>::create (const win::container& parent,
+    void toggle_group<O, FG, BG, B, L>::create (win::container& parent,
                                                 const core::rectangle& place) {
       super::create(parent, place);
       for (auto& b : buttons) {

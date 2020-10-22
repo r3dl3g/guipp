@@ -68,6 +68,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     class GUIPP_DRAW_EXPORT graphics {
     public:
+      typedef std::vector<core::rectangle> clipping_stack_t;
+
       graphics (os::drawable target, os::graphics gc);
       graphics (draw::basic_map& target);
       graphics (const graphics&);
@@ -144,7 +146,9 @@ namespace gui {
       friend struct clip;
       void push_clipping (const core::rectangle&) const;
       void pop_clipping () const;
-      void restore_clipping () const;
+
+      void set_clip_rect (const core::rectangle&) const;
+      void clear_clip_rect () const;
 
     private:
       void destroy ();
@@ -153,7 +157,7 @@ namespace gui {
       os::drawable target;
       bool own_gc;
       bool ref_gc;
-      mutable std::vector<IF_WIN32_ELSE(HRGN, os::rectangle)> clipping_stack;
+      mutable clipping_stack_t clipping_stack;
     };
 
     // --------------------------------------------------------------------------

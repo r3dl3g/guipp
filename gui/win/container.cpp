@@ -120,7 +120,7 @@ namespace gui {
       return child.get_parent() == this;
     }
 
-    void collect_children_deep (std::vector<window*>& list, const window& win) {
+    void collect_children_deep (container::window_list_t& list, const window& win) {
       if (win.is_valid()) {
         Window root = 0;
         Window parent = 0;
@@ -144,8 +144,8 @@ namespace gui {
       }
     }
 
-    std::vector<window*> get_deep_children (const window& win) {
-      std::vector<window*> list;
+    container::window_list_t get_deep_children (const window& win) {
+      container::window_list_t list;
       collect_children_deep(list, win);
       return list;
     }
@@ -164,8 +164,8 @@ namespace gui {
       }
     }
 
-    std::vector<window*> container::get_children () const {
-      std::vector<window*> list;
+    container::window_list_t container::get_children () const {
+      window_list_t list;
 
       if (is_valid()) {
         Window root = 0;
@@ -249,7 +249,7 @@ namespace gui {
     }
 
     void container::shift_focus (const window& focus, bool backward) const {
-      std::vector<window*> children = get_children();
+      window_list_t children = get_children();
       if (children.size() > 0) {
         if (backward) {
           if (iterate_focus(children.rbegin(), children.rend(), &focus)) {
@@ -270,26 +270,6 @@ namespace gui {
     }
 
     void container::forward_focus (bool backward) const {
-      std::vector<window*> children = get_children();
-      if (children.size() > 0) {
-        if (backward) {
-          for (auto i = children.rbegin(), e = children.rend(); i != e; ++i) {
-            window* next = *i;
-            if (next->can_accept_focus()) {
-              next->take_focus();
-              return;
-            }
-          }
-        } else {
-          for (auto i = children.begin(), e = children.end(); i != e; ++i) {
-            window* next = *i;
-            if (next->can_accept_focus()) {
-              next->take_focus();
-              return;
-            }
-          }
-        }
-      }
       window::shift_focus(backward);
     }
 

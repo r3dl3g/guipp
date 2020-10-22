@@ -127,7 +127,7 @@ namespace gui {
       typedef scroll_view_base super;
       typedef win::window_class<scroll_view, background> clazz;
 
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
     };

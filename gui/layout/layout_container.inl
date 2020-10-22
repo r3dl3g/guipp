@@ -59,8 +59,6 @@ namespace gui {
         layouter.layout(r);
       }
 
-      void layout ();
-
       template<typename B, typename L, typename ... A>
       inline void layout_container_base<B, L, A...>::resize (const core::size& sz, bool repaint) {
         layouter.layout(core::rectangle(sz));
@@ -101,7 +99,7 @@ namespace gui {
     {}
 
     template<typename L, os::color B, typename ... A>
-    inline void group_window<L, B, A...>::create (const container& parent,
+    inline void group_window<L, B, A...>::create (container& parent,
                                                   const core::rectangle& r) {
       super::create(clazz::get(), parent, r);
     }

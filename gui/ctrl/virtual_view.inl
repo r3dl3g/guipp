@@ -53,7 +53,7 @@ namespace gui {
   namespace ctrl {
 
     template<typename T, os::color B>
-    void virtual_view<T, B>::create (const win::container& parent,
+    void virtual_view<T, B>::create (win::container& parent,
                                      const core::rectangle& r) {
       super::create(clazz::get(), parent, r);
     }

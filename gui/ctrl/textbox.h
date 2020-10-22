@@ -61,10 +61,10 @@ namespace gui {
         typedef core::range<position> range;
 
         using control::create;
-        void create (const win::container& parent,
+        void create (win::container& parent,
                      const core::rectangle& r = core::rectangle::def);
 
-        void create (const win::container& parent,
+        void create (win::container& parent,
                      const std::string& txt,
                      const core::rectangle& place = core::rectangle::def);
 

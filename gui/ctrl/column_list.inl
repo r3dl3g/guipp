@@ -237,7 +237,7 @@ namespace gui {
     }
 
     template<typename Layout, os::color background>
-    void column_list_header<Layout, background>::create (const win::container& parent,
+    void column_list_header<Layout, background>::create (win::container& parent,
                                                          const core::rectangle& place) {
       super::create(clazz::get(), parent, place);
     }
@@ -343,7 +343,7 @@ namespace gui {
       }
 
       template<typename Layout>
-      void base_column_list<Layout>::create (const win::container& parent,
+      void base_column_list<Layout>::create (win::container& parent,
                                              const core::rectangle& place) {
         super::create(clazz::get(), parent, place);
         header.create(*this, core::rectangle(0, 0, place.width(), 20));

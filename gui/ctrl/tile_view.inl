@@ -307,7 +307,7 @@ namespace gui {
           event_source::keyboard);
         break;
       case win::keys::enter:
-        send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+        super::notify_event(detail::SELECTION_COMMIT_MESSAGE);
         break;
       }
     }

@@ -127,12 +127,12 @@ namespace calc {
 
     const auto sz = divident.size();
     std::vector<point> result;
-    result.resize(sz - offset);
+    result.resize(sz);
     for (int i = offset; i < sz; ++i) {
       const auto& divid = divident[i];
       const auto& divis = divisor[i - offset];
       const double div = divid.y / divis.y;
-      result[i - offset] = { divid.x, std::isfinite(div) ? div : 1.0 };
+      result[i] = { divid.x, std::isfinite(div) ? div : 1.0 };
     }
     return result;
   }

@@ -66,7 +66,7 @@ namespace gui {
 
       virtual_view ();
 
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const core::rectangle& r = core::rectangle::def);
 
       view_type             view;

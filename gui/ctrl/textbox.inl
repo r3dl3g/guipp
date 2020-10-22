@@ -25,12 +25,12 @@ namespace gui {
 
     namespace detail {
 
-      inline void textbox_base::create (const win::container& parent,
+      inline void textbox_base::create (win::container& parent,
                                         const core::rectangle& r) {
         create(clazz::get(), parent, r);
       }
 
-      inline void textbox_base::create (const win::container& parent,
+      inline void textbox_base::create (win::container& parent,
                                         const std::string& txt,
                                         const core::rectangle& place) {
         create(parent, place);

@@ -23,6 +23,7 @@
 //
 #include <algorithm>
 #include <map>
+#include <set>
 
 #ifdef X11
 # include <X11/cursorfont.h>
@@ -145,7 +146,7 @@ namespace gui {
     }
 
     void window::create (const class_info& type,
-                         const container& parent,
+                         container& parent,
                          const core::rectangle& r) {
       if (parent.is_valid()) {
         create(type, parent.get_id(), r);
@@ -203,7 +204,17 @@ namespace gui {
       }
     }
 
+    namespace {
+      std::set<std::pair<const window*, os::event_id>> active_handler;
+    }
+
     bool window::handle_event (const core::event& e, gui::os::event_result& result) const {
+      const auto key = std::make_pair(this, e.type);
+      if (active_handler.find(key) != active_handler.end()) {
+        clog::warn() << "already in handle_event for window: " << this << " " << e;
+        return false;
+      }
+      active_handler.insert(key);
       if (any_key_up_event::match(e)) {
         os::key_symbol key = get_key_symbol(e);
         if (key == keys::tab) {
@@ -212,11 +223,12 @@ namespace gui {
         }
       }
 
-//      clog::trace() << "handle_event: " << e;
+//      clog::trace() << "handle_event: for window: " << this << " " << e;
       bool res = false;
       if (is_enabled()) {
         res = events.handle_event(e, result);
       }
+      active_handler.erase(key);
       return res;
     }
 
@@ -864,10 +876,7 @@ namespace gui {
 
       auto state = get_state();
 
-      if (state.is_redraw_disabled()) {
-        return;
-      }
-      if (!is_visible()) {
+      if (state.is_redraw_disabled() || !is_visible()) {
         return;
       }
 
@@ -880,10 +889,10 @@ namespace gui {
       e.display = core::global::get_instance();
       e.window = get_id();
       auto p = place();
-      e.x = p.x();
-      e.y = p.y();
-      e.width = p.width();
-      e.height = p.height();
+      e.x = p.os_x();
+      e.y = p.os_y();
+      e.width = p.os_width();
+      e.height = p.os_height();
       e.count = 0;
       gui::os::event_result result;
 
@@ -1157,6 +1166,41 @@ namespace gui {
 
     std::string window::get_class_name () const {
       return hidden::window_class_map[get_id()];
+    }
+
+    void window::notify_event (Atom message, long l1, long l2, long l3, long l4, long l5) const {
+      XEvent event;
+      XClientMessageEvent& client = event.xclient;
+
+      client.type = ClientMessage;
+      client.serial = 0;
+      client.send_event = True;
+      client.display = core::global::get_instance();
+      client.window = get_id();
+      client.message_type = message;
+      client.format = 32;
+      client.data.l[0] = l1;
+      client.data.l[1] = l2;
+      client.data.l[2] = l3;
+      client.data.l[3] = l4;
+      client.data.l[4] = l5;
+
+      gui::os::event_result result = 0;
+      handle_event(event, result);
+    }
+
+    void window::notify_event (Atom message, const window* w, const core::rectangle& rect) const {
+      XRectangle r = rect;
+      long l1 = (long)r.x << 16 | (long)r.y;
+      long l2 = (long)r.width << 16 | (long)r.height;
+      notify_event(message, reinterpret_cast<long>(w), l1, l2);
+    }
+
+    void window::notify_event (Atom message, const core::rectangle& rect) const {
+      XRectangle r = rect;
+      long l1 = (long)r.x << 16 | (long)r.y;
+      long l2 = (long)r.width << 16 | (long)r.height;
+      notify_event(message, l2, l1, l2);
     }
 
 #endif // X11

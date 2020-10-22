@@ -197,7 +197,7 @@ namespace gui {
     {}
 
     // --------------------------------------------------------------------------
-    inline void main_menu::create (const win::container& parent,
+    inline void main_menu::create (win::container& parent,
                                    const core::rectangle& place) {
       create(clazz::get(), parent, place);
     }

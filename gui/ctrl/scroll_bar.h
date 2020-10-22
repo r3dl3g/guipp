@@ -128,7 +128,7 @@ namespace gui {
       scroll_bar (scroll_bar&&);
 
       void create (const win::class_info& type,
-                   const win::container& parent,
+                   win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       void set_state (scrollbar_state);
@@ -217,7 +217,7 @@ namespace gui {
       basic_scroll_bar (const basic_scroll_bar& rhs);
       basic_scroll_bar (basic_scroll_bar&& rhs);
 
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       void handle_left_btn_down (os::key_state, const core::point&);

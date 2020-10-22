@@ -178,7 +178,7 @@ namespace gui {
       button_base (const button_base&);
       button_base (button_base&&);
 
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       const button_state get_state () const;
@@ -311,12 +311,12 @@ namespace gui {
       basic_text_button (const basic_text_button& rhs);
       basic_text_button (basic_text_button&& rhs);
 
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const std::string& txt,
                    const core::rectangle& place = core::rectangle::def);
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const text_source& txt,
                    const core::rectangle& place = core::rectangle::def);
 
@@ -388,7 +388,7 @@ namespace gui {
       custom_button (const custom_button& rhs);
       custom_button (custom_button&& rhs);
 
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
       void set_drawer (std::function<button_drawer> d);
 

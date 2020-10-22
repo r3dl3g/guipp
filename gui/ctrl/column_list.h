@@ -197,7 +197,7 @@ namespace gui {
 
       void paint (const draw::graphics& g);
 
-      void create (const win::container& parent,
+      void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       void set_cell_drawer (std::function<cell_draw> cd);
@@ -243,7 +243,7 @@ namespace gui {
         layout_type& get_column_layout ();
         const layout_type& get_column_layout () const;
 
-        void create (const container& parent,
+        void create (container& parent,
                      const core::rectangle& place = core::rectangle::def);
 
         header_type header;

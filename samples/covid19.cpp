@@ -127,12 +127,12 @@ namespace calc {
 
     const auto sz = divident.size();
     std::vector<point> result;
-    result.resize(sz - offset);
+    result.resize(sz);
     for (int i = offset; i < sz; ++i) {
       const auto& divid = divident[i];
       const auto& divis = divisor[i - offset];
       const double div = divid.y / divis.y;
-      result[i - offset] = { divid.x, std::isfinite(div) ? div : 1.0 };
+      result[i] = { divid.x, std::isfinite(div) ? div : 1.0 };
     }
     return result;
   }
@@ -497,8 +497,6 @@ void drawChart<diagram::scaling::linear> (const graphics& graph,
 
   const auto l = diagram::limits<double, diagram::scaling::linear>::calc(ymima.begin(), ymima.end());
   diagram::chart<std::time_t, double> d(area, xmima, l);
-//  check_points(d.get_scale_x(), d.get_scale_y(), c.positives);
-//  check_points(d.get_scale_x(), d.get_scale_y(), c.deaths);
   d.fill_area(graph);
   d.draw_xscale(graph, 60*60*24*61, 60*60*24*7, fmtx);
   const auto steps = diagram::next_smaller_pow10(std::max(std::abs(l.begin()), std::abs(l.end()))/3);
@@ -813,6 +811,8 @@ void covid19main::draw_at (std::size_t idx,
                            const core::rectangle& area,
                            const draw::brush& background,
                            item_state state) {
+//  draw_uncached(idx, graph, area, background, state);
+
 //  static util::time::average_chronometer cached;
 //  static util::time::average_chronometer uncached;
 

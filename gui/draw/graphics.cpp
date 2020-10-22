@@ -283,30 +283,14 @@ namespace gui {
       return core::native_rect(r);
     }
 
-    void graphics::push_clipping (const core::rectangle& r) const {
-      if (clipping_stack.empty()) {
-        clipping_stack.push_back(hr);
-      } else {
-        clipping_stack.push_back(clipping_stack.back() & rect);
-      }
-
+    void graphics::set_clip_rect (const core::rectangle& rect) const {
       SelectClipRgn(gc, NULL);
-
-      os::rectangle r = clipping_stack.back().os();
+      os::rectangle r = rect.os();
       IntersectClipRect(gc, r.left, r.top, r.right, r.bottom);
     }
 
-    void graphics::pop_clipping () const {
-      if (!clipping_stack.empty()) {
-        HRGN hr = clipping_stack.back();
-        DeleteObject(hr);
-        clipping_stack.pop_back();
-      }
+    void graphics::clear_clip_rect () const {
       SelectClipRgn(gc, NULL);
-      if (!clipping_stack.empty()) {
-        os::rectangle r = clipping_stack.back().os();
-        IntersectClipRect(gc, r.left, r.top, r.right, r.bottom);
-      }
     }
 
 #endif // WIN32
@@ -371,6 +355,7 @@ namespace gui {
 #ifdef USE_XFT
       get_xft();
 #endif // USE_XFT
+      clear_clip_rect();
     }
 
     graphics::graphics (draw::basic_map& target)
@@ -384,6 +369,7 @@ namespace gui {
 #ifdef USE_XFT
       get_xft();
 #endif // USE_XFT
+      clear_clip_rect();
     }
 
     graphics::graphics (const graphics& rhs)
@@ -396,6 +382,7 @@ namespace gui {
       get_xft();
 #endif // USE_XFT
       operator= (rhs);
+      clear_clip_rect();
     }
 
     graphics::~graphics () {
@@ -571,37 +558,19 @@ namespace gui {
       return get_drawable_area(target);
     }
 
-    void graphics::push_clipping (const core::rectangle& rect) const {
-      if (clipping_stack.empty()) {
-        clipping_stack.push_back(rect);
-      } else {
-        clipping_stack.push_back(clipping_stack.back() & rect);
-      }
-
-      os::rectangle r = clipping_stack.back().os();
+    void graphics::set_clip_rect (const core::rectangle& rect) const {
+      os::rectangle r = rect.os();
       XSetClipRectangles(get_instance(), gc, 0, 0, &r, 1, Unsorted);
 #ifdef USE_XFT
       XftDrawSetClipRectangles(get_xft(), 0, 0, &r, 1);
 #endif // USE_XFT
     }
 
-    void graphics::pop_clipping () const {
-      if (!clipping_stack.empty()) {
-        clipping_stack.pop_back();
-      }
-
-      if (clipping_stack.empty()) {
-        XSetClipMask(get_instance(), gc, None);
+    void graphics::clear_clip_rect () const {
+      XSetClipMask(get_instance(), gc, None);
 #ifdef USE_XFT
-        XftDrawSetClip(get_xft(), None);
+      XftDrawSetClip(get_xft(), None);
 #endif // USE_XFT
-      } else {
-        os::rectangle r = clipping_stack.back().os();
-        XSetClipRectangles(get_instance(), gc, 0, 0, &r, 1, Unsorted);
-#ifdef USE_XFT
-        XftDrawSetClipRectangles(get_xft(), 0, 0, &r, 1);
-#endif // USE_XFT
-      }
     }
 
 #ifdef USE_XFT
@@ -616,6 +585,27 @@ namespace gui {
 
 #endif // X11
     // --------------------------------------------------------------------------
+
+    void graphics::push_clipping (const core::rectangle& rect) const {
+      if (clipping_stack.empty()) {
+        clipping_stack.push_back(rect);
+      } else {
+        clipping_stack.push_back(clipping_stack.back() & rect);
+      }
+      set_clip_rect(clipping_stack.back());
+    }
+
+    void graphics::pop_clipping () const {
+      if (!clipping_stack.empty()) {
+        clipping_stack.pop_back();
+      }
+
+      if (clipping_stack.empty()) {
+        clear_clip_rect();
+      } else {
+        set_clip_rect(clipping_stack.back());
+      }
+    }
 
     const graphics& graphics::clear (os::color color) const {
       return draw(rectangle(area()), color, color);

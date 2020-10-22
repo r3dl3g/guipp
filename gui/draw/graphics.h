@@ -147,6 +147,9 @@ namespace gui {
       void push_clipping (const core::rectangle&) const;
       void pop_clipping () const;
 
+      void set_clip_rect (const core::rectangle&) const;
+      void clear_clip_rect () const;
+
     private:
       void destroy ();
 

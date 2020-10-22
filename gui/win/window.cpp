@@ -877,10 +877,7 @@ namespace gui {
 
       auto state = get_state();
 
-      if (state.is_redraw_disabled()) {
-        return;
-      }
-      if (!is_visible()) {
+      if (state.is_redraw_disabled() || !is_visible()) {
         return;
       }
 
@@ -893,10 +890,10 @@ namespace gui {
       e.display = core::global::get_instance();
       e.window = get_id();
       auto p = place();
-      e.x = p.x();
-      e.y = p.y();
-      e.width = p.width();
-      e.height = p.height();
+      e.x = p.os_x();
+      e.y = p.os_y();
+      e.width = p.os_width();
+      e.height = p.os_height();
       e.count = 0;
       gui::os::event_result result;
 

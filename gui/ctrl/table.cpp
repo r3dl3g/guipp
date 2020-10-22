@@ -231,6 +231,8 @@ namespace gui {
                               const std::function<filter::selection_and_hilite>& selection_filter,
                               const std::function<filter::selection_and_hilite>& hilite_filter) {
           if (drawer) {
+            draw::clip clp(graph, place);
+
             const auto max_sz = place.x2y2();
             position cell(0, static_cast<position::type>(geometrie.heights.get_first_idx()));
             core::point::type y = geometrie.heights.get_first_offset() + place.y();
@@ -297,6 +299,8 @@ namespace gui {
                                 const std::function<filter::selection_and_hilite>& selection_filter,
                                 const std::function<filter::selection_and_hilite>& hilite_filter) {
           if (drawer) {
+            draw::clip clp(graph, place);
+
             position cell(static_cast<position::type>(geometrie.widths.get_first_idx()), 0);
             core::point::type x = geometrie.widths.get_first_offset() + place.x();
 
@@ -325,6 +329,8 @@ namespace gui {
                              const std::function<filter::selection_and_hilite>& selection_filter,
                              const std::function<filter::selection_and_hilite>& hilite_filter) {
           if (drawer) {
+            draw::clip clp(graph, place);
+
             position cell(0, static_cast<position::type>(geometrie.heights.get_first_idx()));
             core::point::type y = geometrie.heights.get_first_offset() + place.y();
 

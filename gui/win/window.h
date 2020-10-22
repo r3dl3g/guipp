@@ -210,9 +210,7 @@ namespace gui {
 
       bool handle_event (const core::event&, gui::os::event_result&) const;
 
-      void notify_event (Atom message, long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0) const;
-      void notify_event (Atom message, const window* w, const core::rectangle& rect) const;
-      void notify_event (Atom message, const core::rectangle& rect) const;
+      void notify_event (os::message_type message, long l1 = 0, long l2 = 0) const;
 
     protected:
       window (const window&);

@@ -707,6 +707,10 @@ namespace gui {
       return id;
     }
 
+    void window::notify_event (os::message_type message, long l1, long l2) const {
+      send_client_message(this, message, l1, l2);
+    }
+    
     std::string window::get_class_name () const {
       char class_name[256];
       GetClassName(id, class_name, 256);
@@ -1168,7 +1172,7 @@ namespace gui {
       return hidden::window_class_map[get_id()];
     }
 
-    void window::notify_event (Atom message, long l1, long l2, long l3, long l4, long l5) const {
+    void window::notify_event (os::message_type message, long l1, long l2) const {
       XEvent event;
       XClientMessageEvent& client = event.xclient;
 
@@ -1181,26 +1185,12 @@ namespace gui {
       client.format = 32;
       client.data.l[0] = l1;
       client.data.l[1] = l2;
-      client.data.l[2] = l3;
-      client.data.l[3] = l4;
-      client.data.l[4] = l5;
+      client.data.l[2] = 0;
+      client.data.l[3] = 0;
+      client.data.l[4] = 0;
 
       gui::os::event_result result = 0;
       handle_event(event, result);
-    }
-
-    void window::notify_event (Atom message, const window* w, const core::rectangle& rect) const {
-      XRectangle r = rect;
-      long l1 = (long)r.x << 16 | (long)r.y;
-      long l2 = (long)r.width << 16 | (long)r.height;
-      notify_event(message, reinterpret_cast<long>(w), l1, l2);
-    }
-
-    void window::notify_event (Atom message, const core::rectangle& rect) const {
-      XRectangle r = rect;
-      long l1 = (long)r.x << 16 | (long)r.y;
-      long l2 = (long)r.width << 16 | (long)r.height;
-      notify_event(message, l2, l1, l2);
     }
 
 #endif // X11

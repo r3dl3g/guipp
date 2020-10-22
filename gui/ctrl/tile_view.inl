@@ -242,8 +242,8 @@ namespace gui {
 
         const int last_line = core::div_ceil(idx, per_line);
 
-        place.move(area.position());
         place = get_full_place_of_index(idx);
+        place.move(area.position());
         for (; (super::traits.get_1(place.top_left()) < list_sz); ++idx) {
           graph.fill(draw::rectangle(place), back_brush);
           place = get_full_place_of_index(idx + 1);
@@ -279,7 +279,7 @@ namespace gui {
         const auto origin = super::traits.get_1(area.top_left());
         if (start > origin) {
           core::rectangle space = area;
-          super::traits.set_1(space, origin, start);
+          super::traits.set_1(space, origin, start - origin);
           graph.fill(draw::rectangle(space), back_brush);
         }
       }

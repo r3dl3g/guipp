@@ -284,9 +284,16 @@ namespace gui {
     }
 
     void graphics::push_clipping (const core::rectangle& r) const {
-      HRGN hr = CreateRectRgn(r.os_x(), r.os_y(), r.os_x2(), r.os_y2());
-      SelectClipRgn(gc, hr);
-      clipping_stack.push_back(hr);
+      if (clipping_stack.empty()) {
+        clipping_stack.push_back(hr);
+      } else {
+        clipping_stack.push_back(clipping_stack.back() & rect);
+      }
+
+      SelectClipRgn(gc, NULL);
+
+      os::rectangle r = clipping_stack.back().os();
+      IntersectClipRect(gc, r.left, r.top, r.right, r.bottom);
     }
 
     void graphics::pop_clipping () const {
@@ -295,14 +302,11 @@ namespace gui {
         DeleteObject(hr);
         clipping_stack.pop_back();
       }
-      restore_clipping();
-    }
-
-    void graphics::restore_clipping () const {
-      if (clipping_stack.size()) {
-        SelectClipRgn(gc, clipping_stack.back());
-      }
       SelectClipRgn(gc, NULL);
+      if (!clipping_stack.empty()) {
+        os::rectangle r = clipping_stack.back().os();
+        IntersectClipRect(gc, r.left, r.top, r.right, r.bottom);
+      }
     }
 
 #endif // WIN32
@@ -568,8 +572,13 @@ namespace gui {
     }
 
     void graphics::push_clipping (const core::rectangle& rect) const {
-      os::rectangle r = rect.os();
-      clipping_stack.push_back(r);
+      if (clipping_stack.empty()) {
+        clipping_stack.push_back(rect);
+      } else {
+        clipping_stack.push_back(clipping_stack.back() & rect);
+      }
+
+      os::rectangle r = clipping_stack.back().os();
       XSetClipRectangles(get_instance(), gc, 0, 0, &r, 1, Unsorted);
 #ifdef USE_XFT
       XftDrawSetClipRectangles(get_xft(), 0, 0, &r, 1);
@@ -580,17 +589,14 @@ namespace gui {
       if (!clipping_stack.empty()) {
         clipping_stack.pop_back();
       }
-      restore_clipping();
-    }
 
-    void graphics::restore_clipping () const {
       if (clipping_stack.empty()) {
         XSetClipMask(get_instance(), gc, None);
 #ifdef USE_XFT
         XftDrawSetClip(get_xft(), None);
 #endif // USE_XFT
       } else {
-        os::rectangle& r = clipping_stack.back();
+        os::rectangle r = clipping_stack.back().os();
         XSetClipRectangles(get_instance(), gc, 0, 0, &r, 1, Unsorted);
 #ifdef USE_XFT
         XftDrawSetClipRectangles(get_xft(), 0, 0, &r, 1);

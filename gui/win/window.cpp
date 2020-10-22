@@ -146,7 +146,7 @@ namespace gui {
     }
 
     void window::create (const class_info& type,
-                         const container& parent,
+                         container& parent,
                          const core::rectangle& r) {
       if (parent.is_valid()) {
         create(type, parent.get_id(), r);

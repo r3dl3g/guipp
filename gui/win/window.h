@@ -218,7 +218,7 @@ namespace gui {
       window& operator= (window&&) = delete;
 
       void create (const class_info&,
-                   const container&,
+                   container&,
                    const core::rectangle& = core::rectangle::def);
 
       void create (const class_info&,

@@ -41,6 +41,7 @@ namespace gui {
 
       static const font& system ();
       static const font& system_bold ();
+      static const font& system_small ();
       static const font& menu ();
       static const font& monospace ();
       static const font& serif ();

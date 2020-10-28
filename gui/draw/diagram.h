@@ -173,18 +173,12 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<orientation_t V>
+      template<orientation_t V, origin_t O>
       text_origin_t scale_text_origin ();
 
-      template<>
-      constexpr text_origin_t scale_text_origin<orientation_t::horizontal> () {
-        return text_origin_t::top_hcenter;
-      }
-
-      template<>
-      constexpr text_origin_t scale_text_origin<orientation_t::vertical> () {
-        return text_origin_t::vcenter_right;
-      }
+      // --------------------------------------------------------------------------
+      template<typename T, orientation_t V, origin_t O = origin_t::start>
+      struct scale_dim {};
 
       // --------------------------------------------------------------------------
       template<typename T>
@@ -210,12 +204,13 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, orientation_t V, scaling S = scaling::linear>
+      template<typename T, orientation_t V, scaling S = scaling::linear, origin_t O = origin_t::start>
       struct scale {
         typedef core::orientation_traits<V> traits;
         typedef std::string (formatter_f) (T);
         typedef std::function<formatter_f> formatter;
         typedef scaler<T, S> scaler_type;
+        typedef scale_dim<T, V, O> tick_dimension;
 
         scale (const core::point& pos,
                const scaler_type& sc,

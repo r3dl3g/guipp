@@ -120,7 +120,7 @@ namespace calc {
   // --------------------------------------------------------------------------
   std::vector<point> ratio (const std::vector<point>& divident,
                             const std::vector<point>& divisor,
-                            int offset) {
+                            int offset = 0) {
     if ((divisor.size() + offset) < divident.size()) {
       throw std::out_of_range("divisor list is to small!");
     }
@@ -171,7 +171,12 @@ namespace calc {
   }
 
   // --------------------------------------------------------------------------
-  void fill_up (std::vector<point>& v, const std::size_t count, const time_range& r) {
+  typedef double (fill_value) (std::time_t, double);
+  auto default_fill_value = [] (std::time_t, double) { return 0.0; };
+  auto last_fill_value = [] (std::time_t, double v) { return v; };
+  // --------------------------------------------------------------------------
+  void fill_up (std::vector<point>& v, const std::size_t count, const time_range& r,
+                fill_value f = default_fill_value) {
     if ((v.size() == count) && (v.front().x == r.begin()) && (v.back().x == r.end())) {
       return;
     } else {
@@ -182,18 +187,21 @@ namespace calc {
       const auto ie = v.cend();
       const auto oe = result.end();
       std::time_t dt = r.begin();
+      double last = 0.0;
       while (o < oe) {
         if (i < ie) {
           while ((i->x > dt) && (o < oe)) {
-           *o++ = { dt, 0.0 };
+           *o++ = { dt, f(dt, last) };
             dt += 60*60*24;
           }
           if (o < oe) {
             dt = i->x + 60*60*24;
-            *o++ = *i++;
+            *o = *i++;
+            last = o->y;
+            ++o;
           }
         } else {
-          *o++ = { dt, 0.0 };
+          *o++ = { dt, f(dt, last) };
           dt += 60*60*24;
         }
       }
@@ -207,6 +215,8 @@ struct population_data {
 
   std::vector<point> positives;
   std::vector<point> deaths;
+  std::vector<point> cases_per_week;
+  std::vector<point> tests_per_week;
   std::size_t population;
   std::string name;
   bool has_children;
@@ -299,6 +309,7 @@ enum option {
   lethality = 6,
   per_100k = 7,
   deads_per_100k = 8,
+  tests_per_week = 9,
   options_count
 };
 // --------------------------------------------------------------------------
@@ -309,7 +320,8 @@ enum class chart_t {
   relative_increase_chart,
   r_value_chart,
   lethality_chart,
-  per_100k_chart
+  per_100k_chart,
+  tests_chart
 };
 // --------------------------------------------------------------------------
 const std::array<std::string, options_count*2> heads = {
@@ -330,10 +342,12 @@ const std::array<std::string, options_count*2> heads = {
   "per 100k",
   "per 100k/7",
   "dead/100k",
-  "dead/100k/7"
+  "dead/100k/7",
+  "tests/7",
+  "cases/7"
 };
 // --------------------------------------------------------------------------
-typedef layout_main_window<gui::layout::border::layouter<40, 0, 150, 0>> main_type;
+typedef layout_main_window<gui::layout::border::layouter<0, 100, 150, 0>> main_type;
 // --------------------------------------------------------------------------
 struct covid19main : public main_type {
   typedef main_type super;
@@ -344,7 +358,9 @@ struct covid19main : public main_type {
   covid19main ();
   ~covid19main ();
 
-  void load_data (const sys_fs::path& p);
+  void load_data (const std::vector<std::string>&);
+  void load_tests_data (std::istream& in, const double file_size);
+  void load_cases_data (std::istream& in, const double file_size);
 
   void draw_uncached (std::size_t idx,
                       const draw::graphics&,
@@ -373,7 +389,7 @@ struct covid19main : public main_type {
   chart_t chart_type;
 
   tree_view selection;
-  layout::grid_adaption<9, 1> button_layout;
+  layout::grid_adaption<5, 2> button_layout;
   text_button load_button;
   text_button table_button;
   text_button chart_button;
@@ -383,12 +399,12 @@ struct covid19main : public main_type {
   text_button r_value_button;
   text_button lethality_button;
   text_button per100k_button;
+  text_button tests_button;
   ctrl::vertical_tile_view charts;
   ctrl::table_view table;
 
   ctrl::progress_bar progress;
   std::thread loading_thread;
-  sys_fs::path file_to_load;
 
   pixmap_map_t pixmap_cache;
 };
@@ -448,6 +464,10 @@ static auto fmty = [] (double i) {
   return ostreamfmt(i);
 };
 // --------------------------------------------------------------------------
+static auto fmt_p100 = [] (double i) {
+  return ostreamfmt(i * 100 << '%');
+};
+// --------------------------------------------------------------------------
 diagram::range_pair<std::time_t, double> get_mima (std::initializer_list<std::reference_wrapper<const population_data>> cs) {
   diagram::range_pair<std::time_t, double> r;
   for (auto& c : cs) {
@@ -459,6 +479,26 @@ diagram::range_pair<std::time_t, double> get_mima (std::initializer_list<std::re
       r = diagram::get_min_max(diagram::get_min_max(pmima, r), diagram::get_min_max(dmima, r));
     }
   }
+//  static std::time_t date_2020_02_15 = util::time::tm2time_t(util::time::mktm(2020, 2, 20));
+//  r.first = core::range<std::time_t>(date_2020_02_15, r.first.end());
+  return r;
+  }
+// --------------------------------------------------------------------------
+diagram::range_pair<std::time_t, double> get_tests_mima (std::initializer_list<std::reference_wrapper<const population_data>> cs) {
+  diagram::range_pair<std::time_t, double> r;
+  for (auto& c : cs) {
+    if (!c.get().cases_per_week.empty() && !c.get().tests_per_week.empty()) {
+      auto pmima = diagram::find_min_max_ignore_0<std::time_t, double>(c.get().cases_per_week);
+      auto dmima = diagram::find_min_max_ignore_0<std::time_t, double>(c.get().tests_per_week);
+      if (r.first.empty() && r.second.empty()) {
+        r = diagram::get_min_max(pmima, dmima);
+      } else {
+        r = diagram::get_min_max(diagram::get_min_max(pmima, r), diagram::get_min_max(dmima, r));
+      }
+    }
+  }
+//  static std::time_t date_2020_02_15 = util::time::tm2time_t(util::time::mktm(2020, 2, 20));
+//  r.first = core::range<std::time_t>(date_2020_02_15, r.first.end());
   return r;
   }
 // --------------------------------------------------------------------------
@@ -485,6 +525,21 @@ std::vector<diagram::legend_label> build_legend_labels ( std::initializer_list<s
   return legends;
 }
 // --------------------------------------------------------------------------
+void drawEmptyChart (const graphics& graph,
+                     const core::rectangle& area,
+                     const std::string& title,
+                     std::initializer_list<std::string> legends) {
+  static std::time_t date_2020_01_01 = util::time::tm2time_t(util::time::mktm(2020, 1, 1));
+  static std::time_t date_2020_12_31 = util::time::tm2time_t(util::time::mktm(2020, 12, 31));
+  diagram::chart<std::time_t, double> d(area, {date_2020_01_01, date_2020_12_31}, {0, 1});
+  d.fill_area(graph);
+  d.draw_xscale(graph, 60*60*24*61, 60*60*24*7, fmtx);
+  d.draw_yscale(graph, 0.2, 0.1, fmty);
+  d.draw_axis(graph);
+  d.draw_title(graph, title);
+  d.draw_legend(graph, build_legend_labels(legends));
+}
+// --------------------------------------------------------------------------
 template<>
 void drawChart<diagram::scaling::linear> (const graphics& graph,
                                           const core::rectangle& area,
@@ -494,6 +549,11 @@ void drawChart<diagram::scaling::linear> (const graphics& graph,
   auto mima = get_mima(cs);
   const auto xmima = mima.first;
   const auto ymima = mima.second;
+
+  if (xmima.empty() || ymima.empty()) {
+    drawEmptyChart(graph, area, title, legends);
+    return;
+  }
 
   const auto l = diagram::limits<double, diagram::scaling::linear>::calc(ymima.begin(), ymima.end());
   diagram::chart<std::time_t, double> d(area, xmima, l);
@@ -523,6 +583,11 @@ void drawChart<diagram::scaling::log> (const graphics& graph,
   const auto xmima = mima.first;
   const auto ymima = mima.second;
 
+  if (xmima.empty() || ymima.empty()) {
+    drawEmptyChart(graph, area, title, legends);
+    return;
+  }
+
   const auto l = diagram::limits<double, diagram::scaling::log>::calc(std::max(ymima.begin(), ymima.end()/1e6), ymima.end());
   diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::log> d(area, xmima, l);
   d.fill_area(graph);
@@ -548,6 +613,11 @@ void drawChart<diagram::scaling::symlog> (const graphics& graph,
   const auto xmima = mima.first;
   const auto ymima = mima.second;
 
+  if (xmima.empty() || ymima.empty()) {
+    drawEmptyChart(graph, area, title, legends);
+    return;
+  }
+
   const auto l = diagram::limits<double, diagram::scaling::symlog>::calc(std::max(ymima.begin(), ymima.end()/1e6), ymima.end());
   diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::symlog> d(area, xmima, l);
   d.fill_area(graph);
@@ -563,8 +633,51 @@ void drawChart<diagram::scaling::symlog> (const graphics& graph,
   d.draw_legend(graph, build_legend_labels(legends));
 }
 // --------------------------------------------------------------------------
+void drawTestsChart (const graphics& graph,
+                     const core::rectangle& area,
+                     const std::string& title,
+                     std::initializer_list<std::reference_wrapper<const population_data>> cs,
+                     std::initializer_list<std::string> legends) {
+  auto mima = get_tests_mima(cs);
+  const auto xmima = mima.first;
+  const auto ymima = mima.second;
+
+  if (xmima.empty() || ymima.empty()) {
+    drawEmptyChart(graph, area, title, legends);
+    return;
+  }
+
+  const auto l = diagram::limits<double, diagram::scaling::log>::calc(std::max(ymima.begin(), ymima.end()/1e6), ymima.end());
+  diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::log> d(area, xmima, l);
+
+  diagram::scaler<double> y2scale({0, 0.5}, d.get_scale_y().get_target());
+
+  d.fill_area(graph);
+  d.draw_xscale(graph, 60*60*24*61, 60*60*24*7, fmtx);
+  d.draw_yscale(graph, 1, 1, fmty);
+
+  core::point py2 = {static_cast<core::point::type>(d.get_scale_x().get_target().end()),
+                     static_cast<core::point::type>(y2scale.get_target().begin())};
+  typedef diagram::scale<double, orientation_t::vertical, diagram::scaling::linear, origin_t::end> scaley2;
+  graph.text(scaley2(py2, y2scale, 0.1, 0.025, 3, 2,
+                     color::very_light_gray, color::very_very_light_gray, fmt_p100),
+             font::serif(), color::black);
+
+  int i = 0;
+  for (auto& c : cs) {
+    d.draw_line_graph(graph, c.get().tests_per_week, colors[(i++) % 6]);
+    d.draw_line_graph(graph, c.get().cases_per_week, colors[(i++) % 6]);
+    auto ratio = calc::ratio(c.get().cases_per_week, c.get().tests_per_week);
+    graph.frame(diagram::line_graph<std::time_t, double, std::vector<point>>(d.get_scale_x(), y2scale, ratio), colors[(i++) % 6]);
+  }
+
+  d.draw_axis(graph);
+  d.draw_title(graph, title);
+  d.draw_legend(graph, build_legend_labels(legends));
+}
+// --------------------------------------------------------------------------
 std::string format_column (int i, double v) {
-  if (i < 6) {
+  if ((i < 6) || (i > 17)) {
     return ostreamfmt(std::fixed << std::setprecision(0) << v);
   }
   if (((i > 9) && (i < 12)) || (i > 13)) {
@@ -591,7 +704,8 @@ covid19main::covid19main ()
                   layout::lay(relative_increase_button),
                   layout::lay(r_value_button),
                   layout::lay(lethality_button),
-                  layout::lay(per100k_button)})
+                  layout::lay(per100k_button),
+                  layout::lay(tests_button)})
   , table(64, 20)
 {
 
@@ -606,13 +720,14 @@ covid19main::covid19main ()
     r_value_button.create(*this, "R-Values");
     lethality_button.create(*this, "Show lethality");
     per100k_button.create(*this, "Per 100k");
+    tests_button.create(*this, "Tests");
 
     charts.create(*this);
     table.create(*this);
     table.set_visible(false);
 
     get_layout().set_left(layout::lay(selection));
-    get_layout().set_top(layout::lay(button_layout));
+    get_layout().set_bottom(layout::lay(button_layout));
     get_layout().set_center(layout::lay(charts));
 
     progress.create(*this, "Per 100k");
@@ -624,41 +739,19 @@ covid19main::covid19main ()
 
   load_button.on_clicked([&] () {
     file_open_dialog::show(*this, "Open CSV", "Ok", "Cancel", [&] (const sys_fs::path& p) {
-      load_data(p);
+      load_data({p});
     });
   });
 
-  table_button.on_clicked([&] () {
-    showTable();
-  });
-
-  chart_button.on_clicked([&] () {
-    showChart(chart_t::country_chart);
-  });
-
-  cases_button.on_clicked([&] () {
-    showChart(chart_t::cases_chart);
-  });
-
-  cumulated_button.on_clicked([&] () {
-    showChart(chart_t::cumulated_chart);
-  });
-
-  relative_increase_button.on_clicked([&] () {
-    showChart(chart_t::relative_increase_chart);
-  });
-
-  r_value_button.on_clicked([&] () {
-    showChart(chart_t::r_value_chart);
-  });
-
-  lethality_button.on_clicked([&] () {
-    showChart(chart_t::lethality_chart);
-  });
-
-  per100k_button.on_clicked([&] () {
-    showChart(chart_t::per_100k_chart);
-  });
+  table_button.on_clicked([&] () { showTable(); });
+  chart_button.on_clicked([&] () { showChart(chart_t::country_chart); });
+  cases_button.on_clicked([&] () { showChart(chart_t::cases_chart); });
+  cumulated_button.on_clicked([&] () { showChart(chart_t::cumulated_chart); });
+  relative_increase_button.on_clicked([&] () { showChart(chart_t::relative_increase_chart); });
+  r_value_button.on_clicked([&] () { showChart(chart_t::r_value_chart); });
+  lethality_button.on_clicked([&] () { showChart(chart_t::lethality_chart); });
+  per100k_button.on_clicked([&] () { showChart(chart_t::per_100k_chart); });
+  tests_button.on_clicked([&] () { showChart(chart_t::tests_chart); });
 
   charts.on_size([&] (const core::size& sz) {
     const auto w = sz.width() - ctrl::scroll_bar::get_scroll_bar_width();
@@ -680,14 +773,14 @@ covid19main::covid19main ()
   });
 
   table.data.set_drawer(ctrl::table::default_data_drawer([&](const ctrl::table::position& cell) -> std::string {
-    int id0 = cell.x() / 2;
+    const int id0 = cell.x() / 2;
+    const auto& d = option_data[id0];
+    const bool first = cell.x() % 2;
     if (id0 < options_count) {
-      const auto& d = option_data[id0];
-      if (cell.x() % 2) {
+      if (first) {
         if (cell.y() < d.deaths.size()) {
           return format_column(cell.x(), d.deaths[cell.y()].y);
         }
-
       } else if (cell.y() < d.positives.size()) {
         return format_column(cell.x(), d.positives[cell.y()].y);
       }
@@ -756,6 +849,9 @@ void covid19main::select_country (int sel) {
   option_data[deads_per_100k].positives = calc::divide(option_data[absolute_cumulated].deaths, static_cast<double>(c.population) / 100000.0);
   option_data[deads_per_100k].deaths = calc::divide(option_data[increase_median_7].deaths, static_cast<double>(c.population) / 700000.0);
 
+  option_data[tests_per_week].positives = c.tests_per_week;
+  option_data[tests_per_week].deaths = c.cases_per_week;
+
   charts.invalidate();
   table.data.invalidate();
   table.rows.invalidate();
@@ -802,6 +898,7 @@ std::size_t covid19main::chart_count () const {
     case chart_t::r_value_chart:
     case chart_t::lethality_chart:
     case chart_t::per_100k_chart:
+    case chart_t::tests_chart:
       return selection.size();
     default:
       return 0;
@@ -887,6 +984,11 @@ void covid19main::draw_uncached (std::size_t idx,
           {option_data[per_100k], option_data[deads_per_100k]},
           {"per 100k cumulated", "per 100k last 7 days", "deads per 100k cumulated", "deads per 100k last 7 days"});
           break;
+        case 7:
+          drawTestsChart(graph, area, "Tests",
+          {option_data[absolute_increase]},
+          {"Cases per week", "Tests per week", "Positive ratio [%]"});
+          break;
       }
       break;
     case chart_t::cases_chart: {
@@ -965,128 +1067,273 @@ void covid19main::draw_uncached (std::size_t idx,
       {pos, deads}, {"per 100k cumulated", "per 100k last 7 days", "deads per 100k cumulated", "deads per 100k last 7 days"});
       break;
     }
+    case chart_t::tests_chart: {
+      const auto& ctry = tree_view::tree_info::dereference(selection.get_item(idx));
+      drawTestsChart(graph, area, ctry.name, {ctry}, {"Tests per week", "Cases per week", "Positive ratio [%]"});
+      break;
+    }
   }
 }
 // --------------------------------------------------------------------------
-typedef csv::tuple_reader<std::string, int, int, int, int, int, std::string, std::string, std::string, std::size_t, std::string, std::string> covid19reader;
+std::vector<std::string> covid19_cases_header = {
+ "dateRep","day","month","year","cases","deaths","countriesAndTerritories","geoId","countryterritoryCode",
+  "popData2019","continentExp","Cumulative_number_for_14_days_of_COVID-19_cases_per_100000"
+};
+typedef csv::tuple_reader<csv::skip, int, int, int, int, int, std::string, csv::skip, csv::skip, std::size_t, std::string, csv::skip> covid19_cases_reader;
 // --------------------------------------------------------------------------
-void covid19main::load_data (const sys_fs::path& p) {
+std::vector<std::string> covid19_tests_header = {
+  "country","country_code","year_week","new_cases","tests_done","population","testing_rate","positivity_rate","testing_data_source"
+};
+typedef csv::tuple_reader<std::string, csv::skip, std::string, int, int, csv::skip, csv::skip, csv::skip, csv::skip> covid19_tests_reader;
+// --------------------------------------------------------------------------
+struct utf_bom_t {
+  uint8_t size;
+  char c[4];
+  bool operator== (const utf_bom_t& rhs) const;
+  bool operator!= (const utf_bom_t& rhs) const;
+};
+// --------------------------------------------------------------------------
+bool utf_bom_t::operator== (const utf_bom_t& rhs) const {
+  return (c[0] == rhs.c[0]) &&
+      (c[1] == rhs.c[1]) &&
+      ((size < 3) || (c[2] == rhs.c[2])) &&
+      ((size < 4) || (c[3] == rhs.c[3]));
+}
+// --------------------------------------------------------------------------
+bool utf_bom_t::operator!= (const utf_bom_t& rhs) const {
+  return !operator==(rhs);
+}
+// --------------------------------------------------------------------------
+const utf_bom_t no_utf_bom = { 0, 0, 0, 0, 0 };
+const utf_bom_t utf_8_bom = { 3, '\xef', '\xbb', '\xbf', 0 };
+const utf_bom_t utf_32le_bom = { 4, '\xff', '\xfe', 0, 0 };
+const utf_bom_t utf_32be_bom = { 4, 0, 0, '\xfe', '\xff' };
+const utf_bom_t utf_16le_bom = { 2, '\xff', '\xfe', 0, 0 };
+const utf_bom_t utf_16be_bom = { 2, '\xfe', '\xff', 0, 0 };
+const utf_bom_t utf_boms[] = { utf_8_bom, utf_32le_bom, utf_32be_bom, utf_16le_bom, utf_16be_bom };
+// --------------------------------------------------------------------------
+const utf_bom_t &read_utf_bom (std::istream& in) {
+  utf_bom_t bom;
+  in.read(bom.c, 4);
+  for (const utf_bom_t& utf_bom : utf_boms) {
+    if (utf_bom == bom) {
+      in.seekg(utf_bom.size);
+      return utf_bom;
+    }
+  }
+  in.seekg(0);
+  return no_utf_bom;
+}
+// --------------------------------------------------------------------------
+struct timed_progress {
+  typedef std::chrono::system_clock clock;
+
+  timed_progress (ctrl::progress_bar& progress, const core::size& s, const double file_size)
+    : progress(progress)
+    , file_size(file_size)
+    , step(std::chrono::milliseconds(100))
+  {
+    progress.place(core::rectangle(25, (s.height() - 25) / 2, s.width() - 50, 25));
+    progress.set_value(0);
+    last_step = clock::now();
+  }
+
+  ~timed_progress () {
+    progress.set_visible(false);
+  }
+
+  void operator() (double pos) {
+    const std::chrono::system_clock::time_point next_step = clock::now();
+    if ((next_step - last_step) > step) {
+      progress.set_value(pos / file_size);
+      last_step = next_step;
+    }
+  }
+
+  ctrl::progress_bar& progress;
+  clock::time_point last_step;
+  const double file_size;
+  const std::chrono::milliseconds step;
+};
+// --------------------------------------------------------------------------
+void covid19main::load_tests_data (std::istream& in, const double file_size) {
+  timed_progress prgrs(progress, client_size(), file_size);
+  util::time::chronometer stopwatch;
+  country_data::country_map_t& country_map = full_data.country_map;
+  const auto x_range = full_data.x_range;
+
+  for (auto& i : country_map) {
+    country& cntry = i.second;
+    cntry.cases_per_week.clear();
+    cntry.tests_per_week.clear();
+  }
+
+  covid19_tests_reader::read_csv(in, ',', false, [&] (const covid19_tests_reader::tuple& t) {
+    const auto &n = std::get<0>(t);
+    auto& cntry = country_map[n];
+
+    const std::string year_week = std::get<2>(t);
+    int idx = year_week.find("-W");
+    if (idx != std::string::npos) {
+      auto year = util::string::convert::to<int>(year_week.substr(0, idx));
+      auto week = util::string::convert::to<int>(year_week.substr(idx + 2));
+      const auto x = time::tm2time_t(time::mktm(year, 1, week * 7 - 6));
+
+      cntry.cases_per_week.push_back({x, static_cast<double>(std::get<3>(t))});
+      cntry.tests_per_week.push_back({x, static_cast<double>(std::get<4>(t))});
+    }
+  });
+
+  clog::info() << "Duration for parsing: " << stopwatch;
+  std::size_t count = x_range.size() / (60*60*24) + 1;
+
+  for (auto& i : country_map) {
+    country& cntry = i.second;
+    if (!cntry.cases_per_week.empty()) {
+      std::sort(cntry.cases_per_week.begin(), cntry.cases_per_week.end());
+      calc::fill_up(cntry.cases_per_week, count, x_range, calc::last_fill_value);
+    }
+
+    if (!cntry.tests_per_week.empty()) {
+      std::sort(cntry.tests_per_week.begin(), cntry.tests_per_week.end());
+      calc::fill_up(cntry.tests_per_week, count, x_range, calc::last_fill_value);
+    }
+  }
+
+  clear_cache();
+  refresh();
+  select_country(4);
+}
+// --------------------------------------------------------------------------
+void covid19main::load_cases_data (std::istream& in, const double file_size) {
+  timed_progress prgrs(progress, client_size(), file_size);
+  util::time::chronometer stopwatch;
+
+  country_data data;
+
+  covid19_cases_reader::read_csv(in, ',', false, [&] (const covid19_cases_reader::tuple& t) {
+    //    clog::info() << "Read tuple:" << t;
+
+    prgrs(in.tellg());
+
+    const auto x = time::tm2time_t(time::mktm(std::get<3>(t), std::get<2>(t), std::get<1>(t)));
+
+    static time_range null_range(0);
+    if (data.x_range == null_range) {
+      data.x_range = { x, x };
+    } else {
+      data.x_range = core::min_max( data.x_range, { x, x });
+    }
+
+    auto &n = std::get<6>(t);
+    auto i = data.country_map.find(n);
+    if (i == data.country_map.end()) {
+      auto p = data.country_map.insert(std::make_pair(n, country()));
+      i = p.first;
+      i->second.name = n;
+      i->second.region = std::get<10>(t);
+      i->second.population = std::get<9>(t);
+    }
+    auto& country = i->second;
+    country.positives.push_back({x, static_cast<double>(std::get<4>(t))});
+    country.deaths.push_back({x, static_cast<double>(std::get<5>(t))});
+  });
+
+  clog::info() << "Duration for parsing: " << stopwatch;
+
+  clog::info() << "Inspected range: " << data.x_range;
+  std::size_t count = data.x_range.size() / (60*60*24) + 1;
+  region world;
+  world.name = "World";
+  for (auto& i : data.country_map) {
+    country& cntry = i.second;
+
+    std::sort(cntry.positives.begin(), cntry.positives.end());
+    std::sort(cntry.deaths.begin(), cntry.deaths.end());
+
+#ifdef DEBUG
+    if (cntry.name == "San_Marino") {
+      clog::debug() << "Fill up " << cntry.name;
+    }
+#endif
+
+    calc::fill_up(cntry.positives, count, data.x_range);
+    calc::fill_up(cntry.deaths, count, data.x_range);
+
+    //    clog::debug() << "Add " << cntry.name << " to world";
+    calc::add(world.positives, cntry.positives);
+    calc::add(world.deaths, cntry.deaths);
+
+    world.population += cntry.population;
+
+    if (cntry.region != "Other") {
+      std::string name = cntry.region;
+      auto& region = data.region_map[name];
+      region.name = name;
+
+      //    clog::debug() << "Add " << cntry.name << " to region - " << cntry.region;
+      calc::add(region.positives, cntry.positives);
+      calc::add(region.deaths, cntry.deaths);
+
+      region.population += cntry.population;
+      region.country_list.emplace_back(std::ref(cntry));
+    }
+  }
+
+  data.region_map.insert(std::make_pair("- World", std::move(world)));
+
+  std::transform(std::begin(data.region_map), std::end(data.region_map),
+                 std::back_inserter(data.region_list),
+                 [](country_data::region_map_t::value_type& pair) { return std::ref<population_data>(pair.second); });
+
+  full_data = std::move(data);
+
+  clear_cache();
+  refresh();
+  select_country(4);
+}
+// --------------------------------------------------------------------------
+void covid19main::load_data (const std::vector<std::string>& args) {
   using namespace util;
 
   if (loading_thread.joinable()) {
     loading_thread.join();
   }
 
-  clog::info() << "Load CSV data from '" << p << "'";
+  const auto count = args.size();
 
-  auto s = client_size();
-  progress.place(core::rectangle(25, (s.height() - 25) / 2, s.width() - 50, 25));
+  loading_thread = std::thread([&, args] () {
 
-  loading_thread = std::thread([&, p] () {
+    for (auto& p : args) {
+      clog::info() << "Load CSV data from '" << p << "'";
 
-    country_data data;
+      std::ifstream in(p);
 
-    util::time::chronometer stopwatch;
-    std::ifstream in(p);
-
-    if (!in.is_open()) {
-      clog::warn() << "Could not open file '" << p << "'";
-    }
-
-    const double file_size = sys_fs::file_size(p);
-
-    typedef std::chrono::system_clock clock;
-    clock::time_point last_step = clock::now();
-    const auto step = std::chrono::milliseconds(100);
-
-    covid19reader::read_csv(in, ',', true, [&] (const covid19reader::tuple& t) {
-      //    clog::info() << "Read tuple:" << t;
-
-      const std::chrono::system_clock::time_point next_step = clock::now();
-      if ((next_step - last_step) > step) {
-        progress.set_value(in.tellg() / file_size);
-        last_step = next_step;
+      if (!in.is_open()) {
+        clog::warn() << "Could not open file '" << p << "'";
       }
 
-      const auto x = time::tm2time_t(time::mktm(std::get<3>(t), std::get<2>(t), std::get<1>(t)));
+      const double file_size = sys_fs::file_size(p);
+      const utf_bom_t bom = read_utf_bom(in);
+      const auto header = csv::parse_csv_line(in, ',');
 
-      static time_range null_range(0);
-      if (data.x_range == null_range) {
-        data.x_range = { x, x };
+      if (header == covid19_cases_header) {
+        load_cases_data(in, file_size);
+      } else if (header == covid19_tests_header) {
+        if (full_data.country_map.empty()) {
+          win::run_on_main([&] () {
+            ctrl::message_dialog::show(*this, "Warning!", "You have to load cases data first!", "Ok");
+          });
+        } else {
+          load_tests_data(in, file_size);
+        }
       } else {
-        data.x_range = core::min_max( data.x_range, { x, x });
-      }
-
-      auto &n = std::get<6>(t);
-      auto i = data.country_map.find(n);
-      if (i == data.country_map.end()) {
-        auto p = data.country_map.insert(std::make_pair(n, country()));
-        i = p.first;
-        i->second.name = n;
-        i->second.region = std::get<10>(t);
-        i->second.population = std::get<9>(t);
-      }
-      auto& country = i->second;
-      country.positives.push_back({x, static_cast<double>(std::get<4>(t))});
-      country.deaths.push_back({x, static_cast<double>(std::get<5>(t))});
-    });
-
-    clog::info() << "Duration for parsing: " << stopwatch;
-
-    clog::info() << "Inspected range: " << data.x_range;
-    std::size_t count = data.x_range.size() / (60*60*24) + 1;
-    region world;
-    world.name = "World";
-    for (auto& i : data.country_map) {
-      country& cntry = i.second;
-
-      std::sort(cntry.positives.begin(), cntry.positives.end());
-      std::sort(cntry.deaths.begin(), cntry.deaths.end());
-
-#ifdef DEBUG
-      if (cntry.name == "San_Marino") {
-        clog::debug() << "Fill up " << cntry.name;
-      }
-#endif
-
-      calc::fill_up(cntry.positives, count, data.x_range);
-      calc::fill_up(cntry.deaths, count, data.x_range);
-
-      //    clog::debug() << "Add " << cntry.name << " to world";
-      calc::add(world.positives, cntry.positives);
-      calc::add(world.deaths, cntry.deaths);
-
-      world.population += cntry.population;
-
-      if (cntry.region != "Other") {
-        std::string name = cntry.region;
-        auto& region = data.region_map[name];
-        region.name = name;
-
-        //    clog::debug() << "Add " << cntry.name << " to region - " << cntry.region;
-        calc::add(region.positives, cntry.positives);
-        calc::add(region.deaths, cntry.deaths);
-
-        region.population += cntry.population;
-        region.country_list.emplace_back(std::ref(cntry));
+        win::run_on_main([&] () {
+          ctrl::message_dialog::show(*this, "Warning!", "Type of csv file could not be recognized", "Ok");
+        });
       }
     }
-
-    data.region_map.insert(std::make_pair("- World", std::move(world)));
-
-    std::transform(std::begin(data.region_map), std::end(data.region_map),
-                   std::back_inserter(data.region_list),
-                   [](country_data::region_map_t::value_type& pair) { return std::ref<population_data>(pair.second); });
-
-    full_data = std::move(data);
-
-    progress.set_visible(false);
-
-    clear_cache();
-    refresh();
-    select_country(4);
   });
-
 }
 // --------------------------------------------------------------------------
 void test_fill_up () {
@@ -1169,6 +1416,12 @@ void test_fill_up () {
   EXPECT_EQUAL(test7.back().x, (time::tm2time_t(time::mktm(2020, 3, 31))));
 }
 // --------------------------------------------------------------------------
+template<typename T>
+std::vector<T> slice (const std::vector<T>& v, std::size_t first = 0, std::size_t last = -1) {
+  const auto end = (last == -1) ? v.end() : v.begin() + last;
+  return std::vector<T>(v.begin() + first, end);
+}
+// --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& args) {
   logging::file_logger l((sys_fs::temp_directory_path() / "covid19.log").string(),
                          logging::level::info, logging::core::get_standard_formatter());
@@ -1179,20 +1432,15 @@ int gui_main(const std::vector<std::string>& args) {
 
   covid19main main;
 
-  if (args.size() > 1) {
-    main.file_to_load = args[1];
-  }
-
   main.create({50, 50, 800, 600});
   main.on_destroy(&quit_main_loop);
   main.set_title("Covid-19");
 
-  main.on_show([&] () {
-    if (!main.file_to_load.empty()) {
-      main.load_data(main.file_to_load);
-      main.file_to_load.clear();
-    }
-  });
+  if (args.size() > 1) {
+    main.on_show([&] () {
+      main.load_data(slice(args, 1));
+    });
+  }
 
   main.set_visible();
 

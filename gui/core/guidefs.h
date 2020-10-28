@@ -212,6 +212,40 @@ namespace gui {
   };
 
   // --------------------------------------------------------------------------
+  template<origin_t, orientation_t>
+  struct alignment {};
+
+  template<>
+  struct alignment <origin_t::start, orientation_t::horizontal> {
+    static constexpr alignment_t value = alignment_t::left;
+  };
+
+  template<>
+  struct alignment <origin_t::center, orientation_t::horizontal> {
+    static constexpr alignment_t value = alignment_t::hcenter;
+  };
+
+  template<>
+  struct alignment <origin_t::end, orientation_t::horizontal> {
+    static constexpr alignment_t value = alignment_t::right;
+  };
+
+  template<>
+  struct alignment <origin_t::start, orientation_t::vertical> {
+    static constexpr alignment_t value = alignment_t::top;
+  };
+
+  template<>
+  struct alignment <origin_t::center, orientation_t::vertical> {
+    static constexpr alignment_t value = alignment_t::vcenter;
+  };
+
+  template<>
+  struct alignment <origin_t::end, orientation_t::vertical> {
+    static constexpr alignment_t value = alignment_t::bottom;
+  };
+
+  // --------------------------------------------------------------------------
   namespace core {
 
     namespace global {

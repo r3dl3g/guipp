@@ -138,7 +138,7 @@ namespace gui {
     } // detail
 
     // --------------------------------------------------------------------------
-    template<text_origin_t alignment,
+    template<text_origin_t origin,
              draw::frame::drawer frame = draw::frame::sunken_relief,
              os::color foreground = color::black,
              os::color background = color::white>
@@ -163,7 +163,7 @@ namespace gui {
     using edit_center = basic_edit<text_origin_t::center>;
 
     // --------------------------------------------------------------------------
-    template<text_origin_t alignment,
+    template<text_origin_t origin,
              char C = '#',
              draw::frame::drawer frame = draw::frame::sunken_relief,
              os::color foreground = color::black,

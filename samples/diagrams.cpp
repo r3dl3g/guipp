@@ -1,5 +1,4 @@
 
-
 #include <gui/win/container.h>
 #include <logging/core.h>
 #include <gui/draw/diagram.h>

@@ -125,6 +125,11 @@ namespace gui {
       return f;
     }
 
+    const font& font::system_small () {
+      static font f = font::system().with_size(font::system().size() * 4 / 5);
+      return f;
+    }
+
     const font& font::menu () {
       static font f(get_menu_font());
       return f;
@@ -301,6 +306,11 @@ namespace gui {
 
     const font& font::system_bold () {
       static font f("FreeSans", STD_FONT_SIZE, font::bold);
+      return f;
+    }
+
+    const font& font::system_small () {
+      static font f("FreeSans", STD_FONT_SIZE * 4 / 5);
       return f;
     }
 

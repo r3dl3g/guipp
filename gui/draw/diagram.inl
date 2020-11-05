@@ -755,7 +755,7 @@ namespace gui {
                                 color::very_light_gray,
                                 color::very_very_light_gray,
                                 fmt),
-                   font::system(), color::black);
+                   font::system_small(), color::black);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
@@ -766,7 +766,7 @@ namespace gui {
                                 color::very_light_gray,
                                 color::very_very_light_gray,
                                 fmt),
-                   font::system(), color::black);
+                   font::system_small(), color::black);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>

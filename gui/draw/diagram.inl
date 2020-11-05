@@ -197,23 +197,74 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, orientation_t V>
-      struct scale_dim {
-      };
-
-      // --------------------------------------------------------------------------
       template<typename T>
-      struct scale_dim<T, orientation_t::horizontal> {
+      struct scale_dim<T, orientation_t::horizontal, origin_t::start> {
         static constexpr T main_tick_length = 3;
         static constexpr T sub_tick_length = 1;
       };
 
-      // --------------------------------------------------------------------------
       template<typename T>
-      struct scale_dim<T, orientation_t::vertical> {
+      struct scale_dim<T, orientation_t::horizontal, origin_t::center> {
+        static constexpr T main_tick_length = 3;
+        static constexpr T sub_tick_length = 1;
+      };
+
+      template<typename T>
+      struct scale_dim<T, orientation_t::horizontal, origin_t::end> {
         static constexpr T main_tick_length = -3;
         static constexpr T sub_tick_length = -1;
       };
+
+      // --------------------------------------------------------------------------
+      template<typename T>
+      struct scale_dim<T, orientation_t::vertical, origin_t::start> {
+        static constexpr T main_tick_length = -3;
+        static constexpr T sub_tick_length = -1;
+      };
+
+      template<typename T>
+      struct scale_dim<T, orientation_t::vertical, origin_t::center> {
+        static constexpr T main_tick_length = 1;
+        static constexpr T sub_tick_length = 1;
+      };
+
+      template<typename T>
+      struct scale_dim<T, orientation_t::vertical, origin_t::end> {
+        static constexpr T main_tick_length = 1;
+        static constexpr T sub_tick_length = 1;
+      };
+
+      // --------------------------------------------------------------------------
+      template<>
+      constexpr text_origin_t scale_text_origin<orientation_t::horizontal, origin_t::start> () {
+        return text_origin_t::top_hcenter;
+      }
+
+      template<>
+      constexpr text_origin_t scale_text_origin<orientation_t::horizontal, origin_t::center> () {
+        return text_origin_t::top_hcenter;
+      }
+
+      template<>
+      constexpr text_origin_t scale_text_origin<orientation_t::horizontal, origin_t::end> () {
+        return text_origin_t::bottom_hcenter;
+      }
+
+      // --------------------------------------------------------------------------
+      template<>
+      constexpr text_origin_t scale_text_origin<orientation_t::vertical, origin_t::start> () {
+        return text_origin_t::vcenter_right;
+      }
+
+      template<>
+      constexpr text_origin_t scale_text_origin<orientation_t::vertical, origin_t::center> () {
+        return text_origin_t::vcenter_left;
+      }
+
+      template<>
+      constexpr text_origin_t scale_text_origin<orientation_t::vertical, origin_t::end> () {
+        return text_origin_t::vcenter_left;
+      }
 
       // --------------------------------------------------------------------------
       template<typename T>
@@ -407,16 +458,16 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, orientation_t V, scaling S>
-      scale<T, V, S>::scale (const core::point& pos,
-                             const scaler_type& sc,
-                             T main,
-                             T sub,
-                             T main_ticks_length,
-                             T sub_ticks_length,
-                             os::color main_color,
-                             os::color sub_color,
-                             formatter fmt)
+      template<typename T, orientation_t V, scaling S, origin_t O>
+      scale<T, V, S, O>::scale (const core::point& pos,
+                                const scaler_type& sc,
+                                T main,
+                                T sub,
+                                T main_ticks_length,
+                                T sub_ticks_length,
+                                os::color main_color,
+                                os::color sub_color,
+                                formatter fmt)
         : pos(pos)
         , sc(sc)
         , main(main)
@@ -428,15 +479,15 @@ namespace gui {
         , fmt(fmt)
       {}
 
-      template<typename T, orientation_t V, scaling S>
-      void scale<T, V, S>::operator() (const graphics& g, const font& font, os::color color) const {
+      template<typename T, orientation_t V, scaling S, origin_t O>
+      void scale<T, V, S, O>::operator() (const graphics& g, const font& font, os::color color) const {
 
         core::point p0, p1, p2;
         const T d2 = static_cast<T>(traits::get_2(pos));
 
-        traits::set_2(p0, static_cast<float>(d2 + scale_dim<T, V>::main_tick_length));
+        traits::set_2(p0, static_cast<float>(d2 + tick_dimension::main_tick_length));
         traits::set_2(p1, static_cast<float>(d2 + main_ticks_length));
-        traits::set_2(p2, static_cast<float>(d2 + scale_dim<T, V>::main_tick_length * 2));
+        traits::set_2(p2, static_cast<float>(d2 + tick_dimension::main_tick_length * 2));
 
         const auto main_step = detail::scale_fn<T, S>::step(main);
 
@@ -450,12 +501,12 @@ namespace gui {
           g.frame(line(p0, p1), main_color);
 
           traits::set_1(p2, static_cast<float>(d1));
-          g.text(draw::text(fmt(i), p2, scale_text_origin<V>()), font, color);
+          g.text(draw::text(fmt(i), p2, scale_text_origin<V, O>()), font, color);
 
           const T sub_step = detail::scale_fn<T, S>::sub(i, sub, min);
           paint::draw_sub_ticks<T, V, S>(g, sub_color, sc,
                                          i, sub_step, std::min(detail::scale_fn<T, S>::inc(i, main_step, min), max),
-                                         d2 + scale_dim<T, V>::sub_tick_length, d2 + sub_ticks_length);
+                                         d2 + tick_dimension::sub_tick_length, d2 + sub_ticks_length);
 
         }
         //        paint::draw_axis<T, V, S>(g, pos, color, sc);
@@ -722,8 +773,8 @@ namespace gui {
 
       template<typename X, typename Y, scaling SX, scaling SY>
       chart<X, Y, SX, SY>::chart (const core::rectangle& area, core::range<X> range_x, core::range<Y> range_y)
-        : p0(static_cast<float>(area.x() + 80), static_cast<float>(area.y2() - 50))
-        , scale_x(range_x, {static_cast<X>(p0.x()), static_cast<X>(area.x2() - 20)})
+        : p0(static_cast<float>(area.x() + 50), static_cast<float>(area.y2() - 50))
+        , scale_x(range_x, {static_cast<X>(p0.x()), static_cast<X>(area.x2() - 50)})
         , scale_y(range_y, {static_cast<Y>(p0.y()), static_cast<Y>(area.y() + 20)})
       {}
 

@@ -78,9 +78,9 @@ void test_parse_csv_line () {
   using namespace util::csv;
 
   std::istringstream buffer("0123.456;'test'");
-  reader::string_list list = reader().parse_csv_line(buffer);
+  std::vector<std::string> list = parse_csv_line(buffer);
 
-  reader::string_list expected = {"0123.456", "test"};
+  std::vector<std::string> expected = {"0123.456", "test"};
   EXPECT_EQUAL(list, expected);
 }
 
@@ -91,7 +91,7 @@ void test_parse_csv_data () {
   std::istringstream buffer("0123.456;'test'\n1234.567;'foo'");
   typedef std::vector<std::vector<std::string>> matrix;
   matrix m;
-  reader().read_csv_data(buffer, [&] (const reader::string_list& l) {
+  read_csv_data(buffer, ';', false, [&] (const std::vector<std::string>& l) {
     m.push_back(l);
   });
 
@@ -106,7 +106,7 @@ void test_parse_csv_data_ignore_header () {
   std::istringstream buffer("0123.456;'test'\n1234.567;'foo'");
   typedef std::vector<std::vector<std::string>> matrix;
   matrix m;
-  reader(';', true).read_csv_data(buffer, [&] (const reader::string_list& l) {
+  read_csv_data(buffer, ';', true, [&] (const std::vector<std::string>& l) {
     m.push_back(l);
   });
 

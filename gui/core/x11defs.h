@@ -82,6 +82,7 @@ namespace gui {
     typedef XRectangle rectangle;
 
     typedef int event_id;
+    typedef Atom message_type;
     typedef int event_result;
 
     namespace x11 {

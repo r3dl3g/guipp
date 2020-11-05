@@ -1204,6 +1204,7 @@ void covid19main::load_tests_data (std::istream& in, const double file_size) {
   refresh();
   select_country(4);
 }
+std::set<std::string> favorite_countries = {"Austria", "Belgium", "France", "Germany", "Italy", "Netherlands", "Portugal", "Spain", "Sweden", "United Kingdom"};
 // --------------------------------------------------------------------------
 void covid19main::load_cases_data (std::istream& in, const double file_size) {
   timed_progress prgrs(progress, client_size(), file_size);
@@ -1243,8 +1244,9 @@ void covid19main::load_cases_data (std::istream& in, const double file_size) {
 
   clog::info() << "Inspected range: " << data.x_range;
   std::size_t count = data.x_range.size() / (60*60*24) + 1;
-  region world;
+  region world, favorites;
   world.name = "World";
+  favorites.name = "Favorites";
   for (auto& i : data.country_map) {
     country& cntry = i.second;
 
@@ -1278,9 +1280,18 @@ void covid19main::load_cases_data (std::istream& in, const double file_size) {
       region.population += cntry.population;
       region.country_list.emplace_back(std::ref(cntry));
     }
+
+    if (favorite_countries.find(cntry.name) != favorite_countries.end()) {
+      calc::add(favorites.positives, cntry.positives);
+      calc::add(favorites.deaths, cntry.deaths);
+
+      favorites.population += cntry.population;
+      favorites.country_list.emplace_back(std::ref(cntry));
+    }
   }
 
   data.region_map.insert(std::make_pair("- World", std::move(world)));
+  data.region_map.insert(std::make_pair("- Favorites", std::move(favorites)));
 
   std::transform(std::begin(data.region_map), std::end(data.region_map),
                  std::back_inserter(data.region_list),

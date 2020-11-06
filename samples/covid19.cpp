@@ -1177,7 +1177,7 @@ void covid19main::load_tests_data (std::istream& in, const double file_size) {
     if (idx != std::string::npos) {
       auto year = util::string::convert::to<int>(year_week.substr(0, idx));
       auto week = util::string::convert::to<int>(year_week.substr(idx + 2));
-      const auto x = time::tm2time_t(time::mktm(year, 1, week * 7 - 6));
+      const auto x = time::first_day_of_week(year, week);
 
       cntry.cases_per_week.push_back({x, static_cast<double>(std::get<3>(t))});
       cntry.tests_per_week.push_back({x, static_cast<double>(std::get<4>(t))});
@@ -1427,6 +1427,39 @@ void test_fill_up () {
   EXPECT_EQUAL(test7.back().x, (time::tm2time_t(time::mktm(2020, 3, 31))));
 }
 // --------------------------------------------------------------------------
+void test_week2day () {
+//  for (int offset = 0; offset < 10; ++offset) {
+//    for (int week = 1; week < 4; ++week) {
+//      const auto t = time::mktm(2020, 1, week * 7 - offset);
+//      const auto day = time::tm2time_t(t);
+//      clog::debug() << "Offset: " << offset << ", Week: " << week << ", day: " << util::time::format_date(day);
+
+//    }
+//  }
+  static std::string weekday[] = {"So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"};
+  for (int y = 1970; y < 2030; ++y) {
+    for (int day = 0; day < 366; ++day) {
+      const auto t = time::tm2time_t(time::mktm(y, 1, day));
+      const auto tm = time::time_t2tm(t);
+      const int week = time::week_of_year(tm);
+
+      if (day == 1) {
+        clog::debug() << "   Day: " << util::time::format_date(tm) << ", Week: " << week << ", Year-day: " << tm.tm_yday << ", Week-day: " << weekday[tm.tm_wday];
+      }
+
+      if (tm.tm_wday == 1) { // Monday
+        const auto fd = time::first_day_of_week(time::year_of(tm), week);
+
+        if (fd != t) {
+          const auto fdtm = time::time_t2tm(fd);
+          clog::debug() << "Firstday: " << util::time::format_date(tm) << ", Week-day: " << weekday[tm.tm_wday]
+                        << ", First Week-day: " << util::time::format_date(fdtm) << ", Week-day: " << weekday[fdtm.tm_wday];
+        }
+      }
+    }
+  }
+}
+// --------------------------------------------------------------------------
 template<typename T>
 std::vector<T> slice (const std::vector<T>& v, std::size_t first = 0, std::size_t last = -1) {
   const auto end = (last == -1) ? v.end() : v.begin() + last;
@@ -1437,9 +1470,11 @@ int gui_main(const std::vector<std::string>& args) {
   logging::file_logger l((sys_fs::temp_directory_path() / "covid19.log").string(),
                          logging::level::info, logging::core::get_standard_formatter());
 
-  clog::info() << "Current working dir:" << sys_fs::current_path();
-
 //  test_fill_up();
+//  test_week2day();
+//  return 0;
+
+  clog::info() << "Current working dir:" << sys_fs::current_path();
 
   covid19main main;
 

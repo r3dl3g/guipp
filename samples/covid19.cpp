@@ -506,6 +506,7 @@ template<diagram::scaling S>
 void drawChart (const graphics& graph,
                 const core::rectangle& area,
                 const std::string& title,
+                typename diagram::scale<double, orientation_t::vertical, S>::formatter fmt,
                 std::initializer_list<std::reference_wrapper<const population_data>> cs,
                 std::initializer_list<std::string> legends);
 // --------------------------------------------------------------------------
@@ -528,13 +529,14 @@ std::vector<diagram::legend_label> build_legend_labels ( std::initializer_list<s
 void drawEmptyChart (const graphics& graph,
                      const core::rectangle& area,
                      const std::string& title,
+                     diagram::scale<double, orientation_t::vertical>::formatter fmt,
                      std::initializer_list<std::string> legends) {
   static std::time_t date_2020_01_01 = util::time::tm2time_t(util::time::mktm(2020, 1, 1));
   static std::time_t date_2020_12_31 = util::time::tm2time_t(util::time::mktm(2020, 12, 31));
   diagram::chart<std::time_t, double> d(area, {date_2020_01_01, date_2020_12_31}, {0, 1});
   d.fill_area(graph);
   d.draw_xscale(graph, 60*60*24*61, 60*60*24*7, fmtx);
-  d.draw_yscale(graph, 0.2, 0.1, fmty);
+  d.draw_yscale(graph, 0.2, 0.1, fmt);
   d.draw_axis(graph);
   d.draw_title(graph, title);
   d.draw_legend(graph, build_legend_labels(legends));
@@ -544,6 +546,7 @@ template<>
 void drawChart<diagram::scaling::linear> (const graphics& graph,
                                           const core::rectangle& area,
                                           const std::string& title,
+                                          diagram::scale<double, orientation_t::vertical, diagram::scaling::linear>::formatter fmt,
                                           std::initializer_list<std::reference_wrapper<const population_data>> cs,
                                           std::initializer_list<std::string> legends) {
   auto mima = get_mima(cs);
@@ -551,7 +554,7 @@ void drawChart<diagram::scaling::linear> (const graphics& graph,
   const auto ymima = mima.second;
 
   if (xmima.empty() || ymima.empty()) {
-    drawEmptyChart(graph, area, title, legends);
+    drawEmptyChart(graph, area, title, fmt, legends);
     return;
   }
 
@@ -562,7 +565,7 @@ void drawChart<diagram::scaling::linear> (const graphics& graph,
   d.fill_area(graph);
   d.draw_xscale(graph, 60*60*24*61, 60*60*24*7, fmtx);
   const auto steps = diagram::next_smaller_pow10(std::max(std::abs(l.begin()), std::abs(l.end()))/3);
-  d.draw_yscale(graph, steps, steps/5, fmty);
+  d.draw_yscale(graph, steps, steps/5, fmt);
   int i = 0;
   for (auto& c : cs) {
     d.draw_line_graph(graph, c.get().positives, colors[(i++) % 6]);
@@ -577,6 +580,7 @@ template<>
 void drawChart<diagram::scaling::log> (const graphics& graph,
                                        const core::rectangle& area,
                                        const std::string& title,
+                                       diagram::scale<double, orientation_t::vertical, diagram::scaling::log>::formatter fmt,
                                        std::initializer_list<std::reference_wrapper<const population_data>> cs,
                                        std::initializer_list<std::string> legends) {
   auto mima = get_mima(cs);
@@ -584,7 +588,7 @@ void drawChart<diagram::scaling::log> (const graphics& graph,
   const auto ymima = mima.second;
 
   if (xmima.empty() || ymima.empty()) {
-    drawEmptyChart(graph, area, title, legends);
+    drawEmptyChart(graph, area, title, fmt, legends);
     return;
   }
 
@@ -592,7 +596,7 @@ void drawChart<diagram::scaling::log> (const graphics& graph,
   diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::log> d(area, xmima, l);
   d.fill_area(graph);
   d.draw_xscale(graph, 60*60*24*61, 60*60*24*7, fmtx);
-  d.draw_yscale(graph, 1, 1, fmty);
+  d.draw_yscale(graph, 1, 1, fmt);
   int i = 0;
   for (auto& c : cs) {
     d.draw_line_graph(graph, c.get().positives, colors[(i++) % 6]);
@@ -607,6 +611,7 @@ template<>
 void drawChart<diagram::scaling::symlog> (const graphics& graph,
                                           const core::rectangle& area,
                                           const std::string& title,
+                                          diagram::scale<double, orientation_t::vertical, diagram::scaling::symlog>::formatter fmt,
                                           std::initializer_list<std::reference_wrapper<const population_data>> cs,
                                           std::initializer_list<std::string> legends) {
   auto mima = get_mima(cs);
@@ -614,7 +619,7 @@ void drawChart<diagram::scaling::symlog> (const graphics& graph,
   const auto ymima = mima.second;
 
   if (xmima.empty() || ymima.empty()) {
-    drawEmptyChart(graph, area, title, legends);
+    drawEmptyChart(graph, area, title, fmt, legends);
     return;
   }
 
@@ -622,7 +627,7 @@ void drawChart<diagram::scaling::symlog> (const graphics& graph,
   diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::symlog> d(area, xmima, l);
   d.fill_area(graph);
   d.draw_xscale(graph, 60*60*24*61, 60*60*24*7, fmtx);
-  d.draw_yscale(graph, 1, 1, fmty);
+  d.draw_yscale(graph, 1, 1, fmt);
   int i = 0;
   for (auto& c : cs) {
     d.draw_line_graph(graph, c.get().positives, colors[(i++) % 6]);
@@ -643,7 +648,7 @@ void drawTestsChart (const graphics& graph,
   const auto ymima = mima.second;
 
   if (xmima.empty() || ymima.empty()) {
-    drawEmptyChart(graph, area, title, legends);
+    drawEmptyChart(graph, area, title, fmty, legends);
     return;
   }
 
@@ -950,37 +955,37 @@ void covid19main::draw_uncached (std::size_t idx,
     case chart_t::country_chart:
       switch (idx) {
         case 0:
-          drawChart<diagram::scaling::linear>(graph, area, "Increase positives/deads",
+          drawChart<diagram::scaling::linear>(graph, area, "Increase positives/deads", fmty,
           {option_data[absolute_increase], option_data[increase_median_7]},
           {"positive", "dead", "positive/7-day", "dead/7-day"});
           break;
         case 1:
-          drawChart<diagram::scaling::log>(graph, area, "Logarithmic Increase pos./deads",
+          drawChart<diagram::scaling::log>(graph, area, "Logarithmic Increase pos./deads", fmty,
           {option_data[absolute_increase], option_data[increase_median_7]},
           {"positive", "dead", "positive/7-day", "dead/7-day"});
           break;
         case 2:
-          drawChart<diagram::scaling::log>(graph, area, "Cumulated positives/deads",
+          drawChart<diagram::scaling::log>(graph, area, "Cumulated positives/deads", fmty,
           {option_data[absolute_cumulated]},
           {"positive", "dead"});
           break;
         case 3:
-          drawChart<diagram::scaling::log>(graph, area, "Logarithmic relative Inncrease",
+          drawChart<diagram::scaling::log>(graph, area, "Logarithmic relative Inncrease", fmt_p100,
           {option_data[relative_increase], option_data[relative_median_7_increase]},
           {"positive", "dead", "positive/7-day", "dead/7-day"});
           break;
         case 4:
-          drawChart<diagram::scaling::log>(graph, area, "R-Value",
+          drawChart<diagram::scaling::log>(graph, area, "R-Value", fmty,
           {option_data[r_value]},
           {"R-Value", "R-Value/7-day"});
           break;
         case 5:
-          drawChart<diagram::scaling::log>(graph, area, "Lethality",
+          drawChart<diagram::scaling::log>(graph, area, "Lethality", fmt_p100,
           {option_data[lethality]},
           {"Deads/positives", "Deads/positives/14-day"});
           break;
         case 6:
-          drawChart<diagram::scaling::log>(graph, area, "Per 100.000",
+          drawChart<diagram::scaling::log>(graph, area, "Per 100.000", fmty,
           {option_data[per_100k], option_data[deads_per_100k]},
           {"per 100k cumulated", "per 100k last 7 days", "deads per 100k cumulated", "deads per 100k last 7 days"});
           break;
@@ -998,7 +1003,7 @@ void covid19main::draw_uncached (std::size_t idx,
       ctry.positives = calc::rolling_mean(c.positives, 7);
       ctry.deaths = calc::rolling_mean(c.deaths, 7);
 
-      drawChart<diagram::scaling::log>(graph, area, c.name, {ctry}, {"positive", "dead"});
+      drawChart<diagram::scaling::log>(graph, area, c.name, fmty, {ctry}, {"positive", "dead"});
       break;
     }
     case chart_t::cumulated_chart: {
@@ -1008,7 +1013,7 @@ void covid19main::draw_uncached (std::size_t idx,
       ctry.positives = calc::accumulated(c.positives);
       ctry.deaths = calc::accumulated(c.deaths);
 
-      drawChart<diagram::scaling::log>(graph, area, c.name, {ctry}, {"positive", "dead"});
+      drawChart<diagram::scaling::log>(graph, area, c.name, fmty, {ctry}, {"positive", "dead"});
       break;
     }
     case chart_t::relative_increase_chart: {
@@ -1018,7 +1023,7 @@ void covid19main::draw_uncached (std::size_t idx,
       ctry.positives = calc::rolling_mean(calc::increase(calc::accumulated(c.positives)), 7);
       ctry.deaths = calc::rolling_mean(calc::increase(calc::accumulated(c.deaths)), 7);
 
-      drawChart<diagram::scaling::log>(graph, area, c.name, {ctry}, {"positive", "dead"});
+      drawChart<diagram::scaling::log>(graph, area, c.name, fmt_p100, {ctry}, {"positive", "dead"});
       break;
     }
     case chart_t::r_value_chart: {
@@ -1030,7 +1035,7 @@ void covid19main::draw_uncached (std::size_t idx,
       ctry.positives = calc::ratio(med_pos, med_pos, 4);
       ctry.deaths = calc::rolling_mean(ctry.positives, 7);
 
-      drawChart<diagram::scaling::log>(graph, area, c.name, {ctry}, {"R-Value", "R-Value/7-day"});
+      drawChart<diagram::scaling::log>(graph, area, c.name, fmty, {ctry}, {"R-Value", "R-Value/7-day"});
       break;
     }
     case chart_t::lethality_chart: {
@@ -1045,7 +1050,7 @@ void covid19main::draw_uncached (std::size_t idx,
       ctry.positives = calc::ratio(acc_dea, acc_pos, 0);
       ctry.deaths = calc::ratio(med_dea, med_pos, 14);
 
-      drawChart<diagram::scaling::log>(graph, area, c.name,
+      drawChart<diagram::scaling::log>(graph, area, c.name, fmt_p100,
       {ctry}, {"Deads/positives", "Deads/positives/14-day"});
       break;
     }
@@ -1063,7 +1068,7 @@ void covid19main::draw_uncached (std::size_t idx,
       deads.positives = calc::divide(acc_dea, c.population / 100000.0);
       deads.deaths = calc::divide(med_dea, c.population / 700000.0);
 
-      drawChart<diagram::scaling::log>(graph, area, ostreamfmt(c.name << " [" << std::separat_k << c.population << "]"),
+      drawChart<diagram::scaling::log>(graph, area, ostreamfmt(c.name << " [" << std::separat_k << c.population << "]"), fmty,
       {pos, deads}, {"per 100k cumulated", "per 100k last 7 days", "deads per 100k cumulated", "deads per 100k last 7 days"});
       break;
     }

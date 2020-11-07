@@ -219,6 +219,9 @@ namespace gui {
         : adjust(adjust)
       {}
 
+      virtual ~attachment ()
+      {}
+
       adjust_function adjust;
 
       virtual core::rectangle source_place () const = 0;

@@ -9,6 +9,7 @@
 #include <gui/core/grid.h>
 #include <gui/layout/grid_layout.h>
 #include <gui/layout/adaption_layout.h>
+#include <gui/layout/lineup_layout.h>
 #include <logging/core.h>
 #include <logging/file_logger.h>
 #include <util/csv_reader.h>
@@ -347,7 +348,7 @@ const std::array<std::string, options_count*2> heads = {
   "cases/7"
 };
 // --------------------------------------------------------------------------
-typedef layout_main_window<gui::layout::border::layouter<0, 100, 150, 0>> main_type;
+typedef layout_main_window<gui::layout::border::sym_layouter<0, 100, 150, 0>> main_type;
 // --------------------------------------------------------------------------
 struct covid19main : public main_type {
   typedef main_type super;
@@ -402,6 +403,12 @@ struct covid19main : public main_type {
   text_button tests_button;
   ctrl::vertical_tile_view charts;
   ctrl::table_view table;
+
+  layout::vertical_lineup<20, 5, 2> edge_layput;
+  ctrl::label_left width_label;
+  ctrl::label_left height_label;
+  ctrl::horizontal_scroll_bar width;
+  ctrl::horizontal_scroll_bar height;
 
   ctrl::progress_bar progress;
   std::thread loading_thread;
@@ -711,6 +718,10 @@ covid19main::covid19main ()
                   layout::lay(lethality_button),
                   layout::lay(per100k_button),
                   layout::lay(tests_button)})
+  , edge_layput({layout::lay(width_label),
+                layout::lay(width),
+                layout::lay(height_label),
+                layout::lay(height)})
   , table(64, 20)
 {
 
@@ -727,6 +738,11 @@ covid19main::covid19main ()
     per100k_button.create(*this, "Per 100k");
     tests_button.create(*this, "Tests");
 
+    width_label.create(*this, "Width");
+    height_label.create(*this, "Height");
+    width.create(*this);
+    height.create(*this);
+
     charts.create(*this);
     table.create(*this);
     table.set_visible(false);
@@ -734,6 +750,7 @@ covid19main::covid19main ()
     get_layout().set_left(layout::lay(selection));
     get_layout().set_bottom(layout::lay(button_layout));
     get_layout().set_center(layout::lay(charts));
+    get_layout().set_bottom_left(layout::lay(edge_layput));
 
     progress.create(*this, "Per 100k");
 
@@ -759,10 +776,13 @@ covid19main::covid19main ()
   tests_button.on_clicked([&] () { showChart(chart_t::tests_chart); });
 
   charts.on_size([&] (const core::size& sz) {
-    const auto w = sz.width() - ctrl::scroll_bar::get_scroll_bar_width();
-    const auto c = std::max(1.0, std::floor(w / 580.0));
-    const auto i = std::max(320.0, std::floor(w / c));
-    charts.set_item_size({ static_cast<core::size::type>(i), static_cast<core::size::type>(std::floor(i * 3.0 / 4.0)) });
+    const auto w_space = sz.width() - ctrl::scroll_bar::get_scroll_bar_width();
+    const auto c = std::max(1.0, std::floor(w_space / 580.0));
+    const auto w = std::max(320.0, std::floor(w_space / c));
+    const auto h = std::floor(w * 3.0 / 4.0);
+    width.set_value(static_cast<scroll_bar::type>(w));
+    height.set_value(static_cast<scroll_bar::type>(h));
+    charts.set_item_size({ static_cast<core::size::type>(w), static_cast<core::size::type>(h) });
     clear_cache();
   });
   charts.set_background(color::white);
@@ -813,6 +833,21 @@ covid19main::covid19main ()
   });
 
   selection.on_content_changed([&] () {
+    clear_cache();
+    charts.invalidate();
+  });
+
+  width.set_min_max_step_page(200, 1800, 4, 20);
+  height.set_min_max_step_page(200, 950, 4, 20);
+
+  width.on_scroll([&] (core::point::type w) {
+    charts.set_item_size({ static_cast<core::size::type>(w),
+                           static_cast<core::size::type>(height.get_value()) });
+    charts.invalidate();
+  });
+  height.on_scroll([&] (core::point::type h) {
+    charts.set_item_size({ static_cast<core::size::type>(width.get_value()),
+                           static_cast<core::size::type>(h) });
     charts.invalidate();
   });
 
@@ -1209,7 +1244,7 @@ void covid19main::load_tests_data (std::istream& in, const double file_size) {
   refresh();
   select_country(4);
 }
-std::set<std::string> favorite_countries = {"Austria", "Belgium", "France", "Germany", "Italy", "Netherlands", "Portugal", "Spain", "Sweden", "United Kingdom"};
+std::set<std::string> favorite_countries = {"Austria", "Belgium", "France", "Germany", "Italy", "Netherlands", "Norway", "Portugal", "Spain", "Sweden", "United Kingdom"};
 // --------------------------------------------------------------------------
 void covid19main::load_cases_data (std::istream& in, const double file_size) {
   timed_progress prgrs(progress, client_size(), file_size);

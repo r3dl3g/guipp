@@ -1126,45 +1126,6 @@ std::vector<std::string> covid19_tests_header = {
 };
 typedef csv::tuple_reader<std::string, csv::skip, std::string, int, int, csv::skip, csv::skip, csv::skip, csv::skip> covid19_tests_reader;
 // --------------------------------------------------------------------------
-struct utf_bom_t {
-  uint8_t size;
-  char c[4];
-  bool operator== (const utf_bom_t& rhs) const;
-  bool operator!= (const utf_bom_t& rhs) const;
-};
-// --------------------------------------------------------------------------
-bool utf_bom_t::operator== (const utf_bom_t& rhs) const {
-  return (c[0] == rhs.c[0]) &&
-      (c[1] == rhs.c[1]) &&
-      ((size < 3) || (c[2] == rhs.c[2])) &&
-      ((size < 4) || (c[3] == rhs.c[3]));
-}
-// --------------------------------------------------------------------------
-bool utf_bom_t::operator!= (const utf_bom_t& rhs) const {
-  return !operator==(rhs);
-}
-// --------------------------------------------------------------------------
-const utf_bom_t no_utf_bom = { 0, 0, 0, 0, 0 };
-const utf_bom_t utf_8_bom = { 3, '\xef', '\xbb', '\xbf', 0 };
-const utf_bom_t utf_32le_bom = { 4, '\xff', '\xfe', 0, 0 };
-const utf_bom_t utf_32be_bom = { 4, 0, 0, '\xfe', '\xff' };
-const utf_bom_t utf_16le_bom = { 2, '\xff', '\xfe', 0, 0 };
-const utf_bom_t utf_16be_bom = { 2, '\xfe', '\xff', 0, 0 };
-const utf_bom_t utf_boms[] = { utf_8_bom, utf_32le_bom, utf_32be_bom, utf_16le_bom, utf_16be_bom };
-// --------------------------------------------------------------------------
-const utf_bom_t &read_utf_bom (std::istream& in) {
-  utf_bom_t bom;
-  in.read(bom.c, 4);
-  for (const utf_bom_t& utf_bom : utf_boms) {
-    if (utf_bom == bom) {
-      in.seekg(utf_bom.size);
-      return utf_bom;
-    }
-  }
-  in.seekg(0);
-  return no_utf_bom;
-}
-// --------------------------------------------------------------------------
 struct timed_progress {
   typedef std::chrono::system_clock clock;
 
@@ -1347,13 +1308,11 @@ void covid19main::load_cases_data (std::istream& in, const double file_size) {
 void covid19main::load_data (const std::vector<std::string>& args) {
   using namespace util;
 
-  if (loading_thread.joinable()) {
-    loading_thread.join();
-  }
+//  if (loading_thread.joinable()) {
+//    loading_thread.join();
+//  }
 
-  const auto count = args.size();
-
-  loading_thread = std::thread([&, args] () {
+//  loading_thread = std::thread([&, args] () {
 
     for (auto& p : args) {
       clog::info() << "Load CSV data from '" << p << "'";
@@ -1365,26 +1324,26 @@ void covid19main::load_data (const std::vector<std::string>& args) {
       }
 
       const double file_size = sys_fs::file_size(p);
-      const utf_bom_t bom = read_utf_bom(in);
+      const bom::utf_bom_t bom(in);
       const auto header = csv::parse_csv_line(in, ',');
 
       if (header == covid19_cases_header) {
         load_cases_data(in, file_size);
       } else if (header == covid19_tests_header) {
         if (full_data.country_map.empty()) {
-          win::run_on_main([&] () {
+//          win::run_on_main([&] () {
             ctrl::message_dialog::show(*this, "Warning!", "You have to load cases data first!", "Ok");
-          });
+//          });
         } else {
           load_tests_data(in, file_size);
         }
       } else {
-        win::run_on_main([&] () {
+//        win::run_on_main([&] () {
           ctrl::message_dialog::show(*this, "Warning!", "Type of csv file could not be recognized", "Ok");
-        });
+//        });
       }
     }
-  });
+//  });
 }
 // --------------------------------------------------------------------------
 void test_fill_up () {
@@ -1500,12 +1459,6 @@ void test_week2day () {
   }
 }
 // --------------------------------------------------------------------------
-template<typename T>
-std::vector<T> slice (const std::vector<T>& v, std::size_t first = 0, std::size_t last = -1) {
-  const auto end = (last == -1) ? v.end() : v.begin() + last;
-  return std::vector<T>(v.begin() + first, end);
-}
-// --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& args) {
   logging::file_logger l((sys_fs::temp_directory_path() / "covid19.log").string(),
                          logging::level::info, logging::core::get_standard_formatter());
@@ -1524,7 +1477,7 @@ int gui_main(const std::vector<std::string>& args) {
 
   if (args.size() > 1) {
     main.on_show([&] () {
-      main.load_data(slice(args, 1));
+      main.load_data(util::slice(args, 1));
     });
   }
 

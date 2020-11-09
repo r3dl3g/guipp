@@ -278,6 +278,70 @@ namespace gui {
         }
       }
 
+      // --------------------------------------------------------------------------
+      template<int TO, int BO, int LE, int RI>
+      sym_layouter<TO, BO, LE, RI>::sym_layouter (win::container* p)
+        : super(p)
+      {}
+
+      template<int TO, int BO, int LE, int RI>
+      inline const layout_function& sym_layouter<TO, BO, LE, RI>::get_top_left () const {
+        return data.top_left;
+      }
+
+      template<int TO, int BO, int LE, int RI>
+      inline const layout_function& sym_layouter<TO, BO, LE, RI>::get_top_right () const {
+        return data.top_right;
+      }
+
+      template<int TO, int BO, int LE, int RI>
+      inline const layout_function& sym_layouter<TO, BO, LE, RI>::get_bottom_left () const {
+        return data.bottom_left;
+      }
+
+      template<int TO, int BO, int LE, int RI>
+      inline const layout_function& sym_layouter<TO, BO, LE, RI>::get_bottom_right () const {
+        return data.bottom_right;
+      }
+
+      template<int TO, int BO, int LE, int RI>
+      inline void sym_layouter<TO, BO, LE, RI>::set_top_left (layout_function top_left) {
+        data.top_left = top_left;
+      }
+
+      template<int TO, int BO, int LE, int RI>
+      inline void sym_layouter<TO, BO, LE, RI>::set_top_right (layout_function top_right) {
+        data.top_right = top_right;
+      }
+
+      template<int TO, int BO, int LE, int RI>
+      inline void sym_layouter<TO, BO, LE, RI>::set_bottom_left (layout_function bottom_left) {
+        data.bottom_left = bottom_left;
+      }
+
+      template<int TO, int BO, int LE, int RI>
+      inline void sym_layouter<TO, BO, LE, RI>::set_bottom_right (layout_function bottom_right) {
+        data.bottom_right = bottom_right;
+      }
+
+      template<int TO, int BO, int LE, int RI>
+      void sym_layouter<TO, BO, LE, RI>::layout (const core::rectangle& r) {
+        clog::trace() << "border::sym_layouter(" << r << ")";
+        if (get_top_left()) {
+          get_top_left()(core::rectangle(r.x(), r.y(), LE, TO));
+        }
+        if (get_top_right()) {
+          get_top_right()(core::rectangle(r.x2() - RI, r.y(), RI, TO));
+        }
+        if (get_bottom_left()) {
+          get_bottom_left()(core::rectangle(r.x(), r.y2() - BO, LE, BO));
+        }
+        if (get_bottom_right()) {
+          get_bottom_right()(core::rectangle(r.x2() - RI, r.y2() - BO, RI, BO));
+        }
+        super::layout(r);
+      }
+
     } // namespace border
 
   } // namespace layout

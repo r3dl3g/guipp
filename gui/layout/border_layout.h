@@ -122,6 +122,34 @@ namespace gui {
 
       };
 
+      template<int TO = 0, int BO = 0, int LE = 0, int RI = 0>
+      class sym_layouter : public layouter<TO, BO, LE, RI, type_t::all_symmetric> {
+      public:
+        typedef layouter<TO, BO, LE, RI, type_t::all_symmetric> super;
+
+        sym_layouter (win::container* p = nullptr);
+
+        const layout_function& get_top_left () const;
+        const layout_function& get_top_right () const;
+        const layout_function& get_bottom_left () const;
+        const layout_function& get_bottom_right () const;
+
+        void set_top_left (layout_function top_left);
+        void set_top_right (layout_function top_right);
+        void set_bottom_left (layout_function bottom_left);
+        void set_bottom_right (layout_function bottom_right);
+
+        void layout (const core::rectangle& sz);
+
+      protected:
+        struct {
+          layout_function top_left;
+          layout_function top_right;
+          layout_function bottom_left;
+          layout_function bottom_right;
+        } data;
+      };
+
     } // namespace border
 
     template<int TO, int BO, int LE, int RI, border::type_t T>

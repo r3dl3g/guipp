@@ -738,8 +738,8 @@ covid19main::covid19main ()
     per100k_button.create(*this, "Per 100k");
     tests_button.create(*this, "Tests");
 
-    width_label.create(*this, "Width");
-    height_label.create(*this, "Height");
+    width_label.create(*this, [&] () { return ostreamfmt("Width: " << width.get_value()); });
+    height_label.create(*this, [&] () { return ostreamfmt("Height: " << height.get_value()); });
     width.create(*this);
     height.create(*this);
 
@@ -844,11 +844,13 @@ covid19main::covid19main ()
     charts.set_item_size({ static_cast<core::size::type>(w),
                            static_cast<core::size::type>(height.get_value()) });
     charts.invalidate();
+    width_label.invalidate();
   });
   height.on_scroll([&] (core::point::type h) {
     charts.set_item_size({ static_cast<core::size::type>(width.get_value()),
                            static_cast<core::size::type>(h) });
     charts.invalidate();
+    height_label.invalidate();
   });
 
 }
@@ -1308,11 +1310,11 @@ void covid19main::load_cases_data (std::istream& in, const double file_size) {
 void covid19main::load_data (const std::vector<std::string>& args) {
   using namespace util;
 
-//  if (loading_thread.joinable()) {
-//    loading_thread.join();
-//  }
+  if (loading_thread.joinable()) {
+    loading_thread.join();
+  }
 
-//  loading_thread = std::thread([&, args] () {
+  loading_thread = std::thread([&, args] () {
 
     for (auto& p : args) {
       clog::info() << "Load CSV data from '" << p << "'";
@@ -1331,19 +1333,20 @@ void covid19main::load_data (const std::vector<std::string>& args) {
         load_cases_data(in, file_size);
       } else if (header == covid19_tests_header) {
         if (full_data.country_map.empty()) {
-//          win::run_on_main([&] () {
+          win::run_on_main([&] () {
             ctrl::message_dialog::show(*this, "Warning!", "You have to load cases data first!", "Ok");
-//          });
+          });
         } else {
           load_tests_data(in, file_size);
         }
       } else {
-//        win::run_on_main([&] () {
+        win::run_on_main([&] () {
           ctrl::message_dialog::show(*this, "Warning!", "Type of csv file could not be recognized", "Ok");
-//        });
+        });
       }
+      charts.invalidate();
     }
-//  });
+  });
 }
 // --------------------------------------------------------------------------
 void test_fill_up () {

@@ -49,6 +49,8 @@ struct separate_thousands : std::numpunct<char> {
   string_type do_grouping() const override { return "\3"; } // groups of 3 digit
 };
 
+std::set<std::string> favorite_countries = {"Austria", "Belgium", "France", "Germany", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Spain", "Sweden", "United_Kingdom"};
+
 // --------------------------------------------------------------------------
 namespace std {
 
@@ -132,8 +134,8 @@ namespace calc {
     for (int i = offset; i < sz; ++i) {
       const auto& divid = divident[i];
       const auto& divis = divisor[i - offset];
-      const double div = divid.y / divis.y;
-      result[i] = { divid.x, std::isfinite(div) ? div : 1.0 };
+      const double div = divis.y ? divid.y / divis.y : 0.0;
+      result[i] = { divid.x, div };
     }
     return result;
   }
@@ -1205,9 +1207,8 @@ void covid19main::load_tests_data (std::istream& in, const double file_size) {
 
   clear_cache();
   refresh();
-  select_country(4);
+  select_country(0);
 }
-std::set<std::string> favorite_countries = {"Austria", "Belgium", "France", "Germany", "Italy", "Netherlands", "Norway", "Portugal", "Spain", "Sweden", "United Kingdom"};
 // --------------------------------------------------------------------------
 void covid19main::load_cases_data (std::istream& in, const double file_size) {
   timed_progress prgrs(progress, client_size(), file_size);
@@ -1220,7 +1221,13 @@ void covid19main::load_cases_data (std::istream& in, const double file_size) {
 
     prgrs(in.tellg());
 
-    const auto x = time::tm2time_t(time::mktm(std::get<3>(t), std::get<2>(t), std::get<1>(t)));
+    auto year = std::get<3>(t);
+    auto month = std::get<2>(t);
+    auto day = std::get<1>(t);
+    if ((year != 2020) && (year != 2019)) {
+      clog::info() << "Unexpected year:" << year;
+    }
+    const auto x = time::tm2time_t(time::mktm(year, month, day));
 
     static time_range null_range(0);
     if (data.x_range == null_range) {
@@ -1270,6 +1277,7 @@ void covid19main::load_cases_data (std::istream& in, const double file_size) {
     calc::add(world.deaths, cntry.deaths);
 
     world.population += cntry.population;
+    world.country_list.emplace_back(std::ref(cntry));
 
     if (cntry.region != "Other") {
       std::string name = cntry.region;
@@ -1304,7 +1312,7 @@ void covid19main::load_cases_data (std::istream& in, const double file_size) {
 
   clear_cache();
   refresh();
-  select_country(4);
+  select_country(0);
 }
 // --------------------------------------------------------------------------
 void covid19main::load_data (const std::vector<std::string>& args) {

@@ -115,6 +115,128 @@ void test_parse_csv_data_ignore_header () {
 }
 
 // --------------------------------------------------------------------------
+void test_parse_csv_tuple () {
+  using namespace util::csv;
+  typedef tuple_reader<double, double> test_reader;
+
+  std::istringstream buffer("Eins;Zwei\n1.1;2.2\n3.3;4.4\n5.5;6.6");
+  int count = 0;
+  test_reader::read_csv(buffer, ';', true, [&](const test_reader::tuple& t) {
+    switch (count) {
+      case 0:
+        EXPECT_EQUAL(std::get<0>(t), 1.1);
+        EXPECT_EQUAL(std::get<1>(t), 2.2);
+      break;
+      case 1:
+        EXPECT_EQUAL(std::get<0>(t), 3.3);
+        EXPECT_EQUAL(std::get<1>(t), 4.4);
+      break;
+      case 2:
+        EXPECT_EQUAL(std::get<0>(t), 5.5);
+        EXPECT_EQUAL(std::get<1>(t), 6.6);
+      break;
+    }
+    ++count;
+  });
+
+}
+
+// --------------------------------------------------------------------------
+void test_parse_csv_tuple_empty_end () {
+  using namespace util::csv;
+  typedef tuple_reader<double, double> test_reader;
+
+  std::istringstream buffer("Eins;Zwei\n1.1;\n3.3;\n5.5;");
+  int count = 0;
+  test_reader::read_csv(buffer, ';', true, [&](const test_reader::tuple& t) {
+    switch (count) {
+      case 0:
+        EXPECT_EQUAL(std::get<0>(t), 1.1);
+        EXPECT_EQUAL(std::get<1>(t), 0.0);
+      break;
+      case 1:
+        EXPECT_EQUAL(std::get<0>(t), 3.3);
+        EXPECT_EQUAL(std::get<1>(t), 0.0);
+      break;
+      case 2:
+        EXPECT_EQUAL(std::get<0>(t), 5.5);
+        EXPECT_EQUAL(std::get<1>(t), 0.0);
+      break;
+    }
+    ++count;
+  });
+
+}
+// --------------------------------------------------------------------------
+void test_parse_csv_tuple_cut () {
+  using namespace util::csv;
+  typedef tuple_reader<double, double> test_reader;
+
+  std::istringstream buffer("Eins;Zwei\n1.1;2.2\n3.3");
+  int count = 0;
+  test_reader::read_csv(buffer, ';', true, [&](const test_reader::tuple& t) {
+    switch (count) {
+      case 0:
+        EXPECT_EQUAL(std::get<0>(t), 1.1);
+        EXPECT_EQUAL(std::get<1>(t), 2.2);
+      break;
+      case 1:
+        EXPECT_EQUAL(std::get<0>(t), 3.3);
+        EXPECT_EQUAL(std::get<1>(t), 0.0);
+      break;
+    }
+    ++count;
+  });
+  EXPECT_EQUAL(count, 2);
+
+}
+// --------------------------------------------------------------------------
+void test_parse_csv_tuple_skip_1 () {
+  using namespace util::csv;
+  typedef tuple_reader<skip, double> test_reader;
+
+  std::istringstream buffer("Eins;Zwei\n1.1;2.2\n3.3;4.4\n5.5;6.6");
+  int count = 0;
+  test_reader::read_csv(buffer, ';', true, [&](const test_reader::tuple& t) {
+    switch (count) {
+      case 0:
+        EXPECT_EQUAL(std::get<0>(t), skip());
+        EXPECT_EQUAL(std::get<1>(t), 2.2);
+      break;
+      case 1:
+        EXPECT_EQUAL(std::get<0>(t), skip());
+        EXPECT_EQUAL(std::get<1>(t), 4.4);
+      break;
+    }
+    ++count;
+  });
+
+}
+
+// --------------------------------------------------------------------------
+void test_parse_csv_tuple_skip_2 () {
+  using namespace util::csv;
+  typedef tuple_reader<double, skip> test_reader;
+
+  std::istringstream buffer("Eins;Zwei\n1.1;2.2\n3.3;4.4\n5.5;6.6");
+  int count = 0;
+  test_reader::read_csv(buffer, ';', true, [&](const test_reader::tuple& t) {
+    switch (count) {
+      case 0:
+        EXPECT_EQUAL(std::get<0>(t), 1.1);
+        EXPECT_EQUAL(std::get<1>(t), skip());
+      break;
+      case 1:
+        EXPECT_EQUAL(std::get<0>(t), 3.3);
+        EXPECT_EQUAL(std::get<1>(t), skip());
+      break;
+    }
+    ++count;
+  });
+
+}
+
+// --------------------------------------------------------------------------
 void test_main (const testing::start_params&) {
   std::cout << "Running csv_test" << std::endl;
   run_test(test_parse_text);
@@ -126,6 +248,11 @@ void test_main (const testing::start_params&) {
   run_test(test_parse_csv_line);
   run_test(test_parse_csv_data);
   run_test(test_parse_csv_data_ignore_header);
+  run_test(test_parse_csv_tuple);
+  run_test(test_parse_csv_tuple_empty_end);
+  run_test(test_parse_csv_tuple_cut);
+  run_test(test_parse_csv_tuple_skip_1);
+  run_test(test_parse_csv_tuple_skip_2);
 }
 
 // --------------------------------------------------------------------------

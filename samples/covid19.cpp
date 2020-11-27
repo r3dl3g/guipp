@@ -49,7 +49,7 @@ struct separate_thousands : std::numpunct<char> {
   string_type do_grouping() const override { return "\3"; } // groups of 3 digit
 };
 
-std::set<std::string> favorite_countries = {"Austria", "Belgium", "France", "Germany", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Spain", "Sweden", "United_Kingdom"};
+std::set<std::string> favorite_countries = {"Austria", "Belgium", "France", "Germany", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Switzerland", "Spain", "Sweden", "United_Kingdom"};
 
 // --------------------------------------------------------------------------
 namespace std {
@@ -231,6 +231,8 @@ struct population_data {
 
 };
 // --------------------------------------------------------------------------
+typedef std::reference_wrapper<const population_data> population_data_ref;
+// --------------------------------------------------------------------------
 struct country : public population_data {
   typedef population_data super;
 
@@ -256,7 +258,7 @@ struct region : public population_data {
 struct region_tree_info {
   typedef population_data type;
   typedef region::iterator iterator;
-  typedef std::reference_wrapper<const population_data> reference;
+  typedef population_data_ref reference;
   typedef core::range<iterator> node_range;
   typedef region::country_list_t list_type;
 
@@ -286,7 +288,7 @@ struct region_tree_info {
   }
 };
 // --------------------------------------------------------------------------
-bool operator< (const std::reference_wrapper<const population_data>& lhs, const std::reference_wrapper<const population_data>& rhs) {
+bool operator< (const population_data_ref& lhs, const population_data_ref& rhs) {
   return &(lhs.get()) < &(rhs.get());
 }
 // --------------------------------------------------------------------------
@@ -477,7 +479,7 @@ static auto fmt_p100 = [] (double i) {
   return ostreamfmt(i * 100 << '%');
 };
 // --------------------------------------------------------------------------
-diagram::range_pair<std::time_t, double> get_mima (std::initializer_list<std::reference_wrapper<const population_data>> cs) {
+diagram::range_pair<std::time_t, double> get_mima (std::initializer_list<population_data_ref> cs) {
   diagram::range_pair<std::time_t, double> r;
   for (auto& c : cs) {
     auto pmima = diagram::find_min_max_ignore_0<std::time_t, double>(c.get().positives);
@@ -493,7 +495,7 @@ diagram::range_pair<std::time_t, double> get_mima (std::initializer_list<std::re
   return r;
   }
 // --------------------------------------------------------------------------
-diagram::range_pair<std::time_t, double> get_tests_mima (std::initializer_list<std::reference_wrapper<const population_data>> cs) {
+diagram::range_pair<std::time_t, double> get_tests_mima (std::initializer_list<population_data_ref> cs) {
   diagram::range_pair<std::time_t, double> r;
   for (auto& c : cs) {
     if (!c.get().cases_per_week.empty() && !c.get().tests_per_week.empty()) {
@@ -509,15 +511,22 @@ diagram::range_pair<std::time_t, double> get_tests_mima (std::initializer_list<s
 //  static std::time_t date_2020_02_15 = util::time::tm2time_t(util::time::mktm(2020, 2, 20));
 //  r.first = core::range<std::time_t>(date_2020_02_15, r.first.end());
   return r;
-  }
+}
+// --------------------------------------------------------------------------
+using range_builder = gui::core::range<double> (*) (gui::core::range<double>);
+// --------------------------------------------------------------------------
+gui::core::range<double> default_range_builder (gui::core::range<double> ymima) {
+  return {std::max(ymima.begin(), ymima.end()/1e6), ymima.end()};
+}
 // --------------------------------------------------------------------------
 template<diagram::scaling S>
 void drawChart (const graphics& graph,
                 const core::rectangle& area,
                 const std::string& title,
                 typename diagram::scale<double, orientation_t::vertical, S>::formatter fmt,
-                std::initializer_list<std::reference_wrapper<const population_data>> cs,
-                std::initializer_list<std::string> legends);
+                std::initializer_list<population_data_ref> cs,
+                std::initializer_list<std::string> legends,
+                range_builder = default_range_builder);
 // --------------------------------------------------------------------------
 std::array<os::color, 6> colors = {
   color::light_red, color::light_green,
@@ -556,11 +565,12 @@ void drawChart<diagram::scaling::linear> (const graphics& graph,
                                           const core::rectangle& area,
                                           const std::string& title,
                                           diagram::scale<double, orientation_t::vertical, diagram::scaling::linear>::formatter fmt,
-                                          std::initializer_list<std::reference_wrapper<const population_data>> cs,
-                                          std::initializer_list<std::string> legends) {
+                                          std::initializer_list<population_data_ref> cs,
+                                          std::initializer_list<std::string> legends,
+                                          range_builder r) {
   auto mima = get_mima(cs);
   const auto xmima = mima.first;
-  const auto ymima = mima.second;
+  const auto ymima = r(mima.second);
 
   if (xmima.empty() || ymima.empty()) {
     drawEmptyChart(graph, area, title, fmt, legends);
@@ -590,18 +600,19 @@ void drawChart<diagram::scaling::log> (const graphics& graph,
                                        const core::rectangle& area,
                                        const std::string& title,
                                        diagram::scale<double, orientation_t::vertical, diagram::scaling::log>::formatter fmt,
-                                       std::initializer_list<std::reference_wrapper<const population_data>> cs,
-                                       std::initializer_list<std::string> legends) {
+                                       std::initializer_list<population_data_ref> cs,
+                                       std::initializer_list<std::string> legends,
+                                       range_builder r) {
   auto mima = get_mima(cs);
   const auto xmima = mima.first;
-  const auto ymima = mima.second;
+  const auto ymima = r(mima.second);
 
   if (xmima.empty() || ymima.empty()) {
     drawEmptyChart(graph, area, title, fmt, legends);
     return;
   }
 
-  const auto l = diagram::limits<double, diagram::scaling::log>::calc(std::max(ymima.begin(), ymima.end()/1e6), ymima.end());
+  const auto l = diagram::limits<double, diagram::scaling::log>::calc(ymima.begin(), ymima.end());
   diagram::chart<std::time_t, double, diagram::scaling::linear, diagram::scaling::log> d(area, xmima, l);
   d.fill_area(graph);
   d.draw_xscale(graph, 60*60*24*61, 60*60*24*7, fmtx);
@@ -621,11 +632,12 @@ void drawChart<diagram::scaling::symlog> (const graphics& graph,
                                           const core::rectangle& area,
                                           const std::string& title,
                                           diagram::scale<double, orientation_t::vertical, diagram::scaling::symlog>::formatter fmt,
-                                          std::initializer_list<std::reference_wrapper<const population_data>> cs,
-                                          std::initializer_list<std::string> legends) {
+                                          std::initializer_list<population_data_ref> cs,
+                                          std::initializer_list<std::string> legends,
+                                          range_builder r) {
   auto mima = get_mima(cs);
   const auto xmima = mima.first;
-  const auto ymima = mima.second;
+  const auto ymima = r(mima.second);
 
   if (xmima.empty() || ymima.empty()) {
     drawEmptyChart(graph, area, title, fmt, legends);
@@ -650,7 +662,7 @@ void drawChart<diagram::scaling::symlog> (const graphics& graph,
 void drawTestsChart (const graphics& graph,
                      const core::rectangle& area,
                      const std::string& title,
-                     std::initializer_list<std::reference_wrapper<const population_data>> cs,
+                     std::initializer_list<population_data_ref> cs,
                      std::initializer_list<std::string> legends) {
   auto mima = get_tests_mima(cs);
   const auto xmima = mima.first;
@@ -1026,7 +1038,10 @@ void covid19main::draw_uncached (std::size_t idx,
         case 6:
           drawChart<diagram::scaling::log>(graph, area, "Per 100.000", fmty,
           {option_data[per_100k], option_data[deads_per_100k]},
-          {"per 100k cumulated", "per 100k last 7 days", "deads per 100k cumulated", "deads per 100k last 7 days"});
+          {"per 100k cumulated", "per 100k last 7 days", "deads per 100k cumulated", "deads per 100k last 7 days"},
+          [] (gui::core::range<double>) {
+            return gui::core::range<double>(0.001, 10000.0);
+          });
           break;
         case 7:
           drawTestsChart(graph, area, "Tests",
@@ -1108,7 +1123,10 @@ void covid19main::draw_uncached (std::size_t idx,
       deads.deaths = calc::divide(med_dea, c.population / 700000.0);
 
       drawChart<diagram::scaling::log>(graph, area, ostreamfmt(c.name << " [" << std::separat_k << c.population << "]"), fmty,
-      {pos, deads}, {"per 100k cumulated", "per 100k last 7 days", "deads per 100k cumulated", "deads per 100k last 7 days"});
+      {pos, deads}, {"per 100k cumulated", "per 100k last 7 days", "deads per 100k cumulated", "deads per 100k last 7 days"},
+      [] (gui::core::range<double>) {
+       return gui::core::range<double>(0.001, 10000.0);
+      });
       break;
     }
     case chart_t::tests_chart: {

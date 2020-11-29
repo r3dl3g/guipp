@@ -38,7 +38,7 @@ namespace gui {
       }
 
       editbox_base::~editbox_base () {
-        win::global::unregister_utf8_window(get_id());
+        win::global::unregister_utf8_window(*this);
       }
 
       void editbox_base::init () {
@@ -54,7 +54,7 @@ namespace gui {
       }
 
       void editbox_base::handle_create (window*, const core::rectangle&) {
-        win::global::register_utf8_window(get_id());
+        win::global::register_utf8_window(*this);
       }
 
       std::string& editbox_base::current_line () {

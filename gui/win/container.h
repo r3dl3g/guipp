@@ -61,6 +61,8 @@ namespace gui {
       container (container&&);
 
     private:
+      os::window get_id () const;
+
       void init ();
     };
 
@@ -90,6 +92,9 @@ namespace gui {
 
       void create (const class_info&,
                    const core::rectangle& = core::rectangle::def);
+
+    private:
+      os::window get_id () const;
     };
 
     // --------------------------------------------------------------------------

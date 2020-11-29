@@ -142,11 +142,11 @@ namespace gui {
         }
         return false;
       });
-      XSetSelectionOwner(core::global::get_instance(), detail::CLIPBOARD, win.get_id(), CurrentTime);
+      XSetSelectionOwner(core::global::get_instance(), detail::CLIPBOARD, detail::get_window_id(win), CurrentTime);
     }
 
     void clipboard::get_text (window& win, const std::function<clipboard::text_callback>& cb) {
-      auto id = win.get_id();
+      auto id = detail::get_window_id(win);
       //Atom incrid = XInternAtom(display, "INCR", False);
       x11::prepare_win_for_event(&win, PropertyChangeMask);
       int fid = global::register_message_filter([&](const core::event & e)->bool {

@@ -62,6 +62,7 @@ namespace gui {
     namespace detail {
 
       GUIPP_WIN_EXPORT window* get_window (os::window id);
+      GUIPP_WIN_EXPORT os::window get_window_id (const window& win);
       GUIPP_WIN_EXPORT void set_window (os::window id, window* win);
       GUIPP_WIN_EXPORT void unset_window (os::window id);
 
@@ -87,8 +88,8 @@ namespace gui {
 
       GUIPP_WIN_EXPORT std::thread::id get_current_thread_id ();
 
-      GUIPP_WIN_EXPORT void register_utf8_window (os::window);
-      GUIPP_WIN_EXPORT void unregister_utf8_window (os::window);
+      GUIPP_WIN_EXPORT void register_utf8_window (const window&);
+      GUIPP_WIN_EXPORT void unregister_utf8_window (const window&);
 
     } // namespace global
 

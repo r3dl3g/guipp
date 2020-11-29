@@ -32,16 +32,16 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.on_create([&] (window* parent, const rectangle& rect) {
     client.create(main, rect.with_pos(core::point::zero));
     client.set_split_pos(0.5);
-    client.first.set_text([&] () { return ostreamfmt(client.first.get_id() << " Left (" << client.first.place() << ")"); });
+    client.first.set_text([&] () { return ostreamfmt(client.first << " Left (" << client.first.place() << ")"); });
     client.second.set_split_pos(0.5);
-    client.second.first.set_text([&] () { return ostreamfmt(client.second.first.get_id() << " Top (" << client.second.first.place() << ")"); });
-    client.second.second.set_text([&] () { return ostreamfmt(client.second.second.get_id() << " Bottom (" << client.second.second.place() << ")"); });
+    client.second.first.set_text([&] () { return ostreamfmt(client.second.first << " Top (" << client.second.first.place() << ")"); });
+    client.second.second.set_text([&] () { return ostreamfmt(client.second.second << " Bottom (" << client.second.second.place() << ")"); });
   });
   main.on_lost_focus([&] (window* next) {
-    main.set_title(ostreamfmt("Lost focus to: " << (next ? next->get_id() : 0)));
+    main.set_title(ostreamfmt("Lost focus to: " << *next));
   });
   main.on_set_focus([&] (window* prev) {
-    main.set_title(ostreamfmt("Got focus from: " << (prev ? prev->get_id() : 0)));
+    main.set_title(ostreamfmt("Got focus from: " << *prev));
   });
 
   main.create({50, 50, 800, 600});

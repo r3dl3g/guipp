@@ -843,9 +843,9 @@ void my_main_window::query_state () {
 }
 
 void my_main_window::onCreated (win::window* w, const core::rectangle& r) {
-  clog::debug() << "Main created: this:" << std::hex << get_id() << ", w:" << w << ", rect:" << std::dec << r;
+  clog::debug() << "Main created: this:" << *this << ", w:" << w << ", rect:" << std::dec << r;
   created_children();
-  clog::debug() << "Children created: this:" << std::hex << get_id() << ", count:" << get_children().size();
+  clog::debug() << "Children created: this:" << *this << ", count:" << get_children().size();
 }
 
 template<int T, typename C>
@@ -867,7 +867,7 @@ void my_main_window::created_children () {
 
   my_main_window& main = *this;
 
-  win::detail::get_window(get_id());
+  win::detail::get_window(win::detail::get_window_id(*this));
 
   scroll_view.create(main, core::rectangle(0, 0, 300, 330));
 
@@ -991,7 +991,7 @@ void my_main_window::created_children () {
   table_view.enable_size(true, true);
 
   editor.create(main, core::rectangle(740, 320, 150, 250));
-  clog::debug() << "Create editor: " << editor.get_id();
+  clog::debug() << "Create editor: " << editor;
   editor.view.set_text("1. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
                        "2. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
                        "3. magna aliquyam erat, sed diam voluptua.\n"

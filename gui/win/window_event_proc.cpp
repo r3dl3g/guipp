@@ -211,6 +211,10 @@ namespace gui {
       }
 
 #else
+      os::window get_window_id (const window& win) {
+        return win.get_id();
+      }
+
       window* get_window (os::window id) {
         Atom     actual_type = 0;
         int      actual_format = -1;
@@ -312,7 +316,7 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
         auto dpy = core::global::get_instance();
-        os::window root = win ? win->get_id() : DefaultRootWindow(dpy);
+        os::window root = win ? detail::get_window_id(*win) : DefaultRootWindow(dpy);
         XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root, False, GrabModeAsync, GrabModeAsync);
         if (win && win->is_valid()) {
           x11::prepare_win_for_event(win, KeyPressMask);
@@ -381,9 +385,9 @@ namespace gui {
         return nullptr;
       }
 
-      void register_utf8_window (os::window) {}
+      void register_utf8_window (const window&) {}
 
-      void unregister_utf8_window (os::window) {}
+      void unregister_utf8_window (const window&) {}
 
 #endif // WIN32
 
@@ -420,7 +424,9 @@ namespace gui {
         return nullptr;
       }
       
-      void register_utf8_window (os::window id) {
+      void register_utf8_window (const window& win) {
+        os::window id = detail::get_window_id(win);
+
         if (!id) {
           return;
         }
@@ -447,7 +453,9 @@ namespace gui {
         x11::s_window_ic_map[id] = ic;
       }
 
-      void unregister_utf8_window (os::window id) {
+      void unregister_utf8_window (const window& win) {
+        os::window id = detail::get_window_id(win);
+
         x11::window_ic_map::iterator i = x11::s_window_ic_map.find(id);
         if (i != x11::s_window_ic_map.end()) {
           XIC ic = i->second;
@@ -520,7 +528,7 @@ namespace gui {
       switch (e.type) {
       case ButtonPress:
       case ButtonRelease: {
-        if (e.xbutton.window == w.get_id()) {
+        if (e.xbutton.window == detail::get_window_id(w)) {
           return false;
         }
         int x, y;

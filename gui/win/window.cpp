@@ -104,7 +104,7 @@ namespace gui {
     inline std::ostream& operator<< (std::ostream& out, const log_hierarchy& lh) {
       const window* w = lh.win;
       while (w) {
-        out << " -> " << w->get_id();
+        out << " -> " << detail::get_window_id(*w);
         w = w->get_parent();
       }
       return out;
@@ -131,8 +131,8 @@ namespace gui {
       if (rhs.is_valid()) {
         container* parent = rhs.get_parent();
         create(rhs.get_window_class(),
-               parent ? parent->get_id()
-               : IF_WIN32_ELSE(NULL, DefaultRootWindow(core::global::get_instance())),
+               parent ? detail::get_window_id(*parent)
+                      : IF_WIN32_ELSE(NULL, DefaultRootWindow(core::global::get_instance())),
                rhs.place());
       }
     }
@@ -149,7 +149,7 @@ namespace gui {
                          container& parent,
                          const core::rectangle& r) {
       if (parent.is_valid()) {
-        create(type, parent.get_id(), r);
+        create(type, detail::get_window_id(parent), r);
       }
     }
 
@@ -809,7 +809,7 @@ namespace gui {
     void window::set_parent (const container& parent) {
       core::point pt = position();
       x11::check_return(XReparentWindow(core::global::get_instance(), get_id(),
-                                        parent.get_id(), pt.x(), pt.y()));
+                                        detail::get_window_id(parent), pt.x(), pt.y()));
     }
 
     container* window::get_parent () const {

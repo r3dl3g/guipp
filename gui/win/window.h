@@ -60,10 +60,6 @@ namespace gui {
       window ();
       ~window ();
 
-      os::window get_id () const;
-
-      operator os::drawable() const;
-
       void destroy ();
       void close ();
 
@@ -212,6 +208,8 @@ namespace gui {
 
       void notify_event (os::message_type message, long l1 = 0, long l2 = 0) const;
 
+      operator os::drawable() const;
+
     protected:
       window (const window&);
       window (window&&);
@@ -236,9 +234,13 @@ namespace gui {
       bool get_flag (byte bit) const;
       void set_flag (byte bit, bool a);
 
+
     private:
       friend void detail::set_id (window*, os::window);
+      friend os::window detail::get_window_id (const window&);
 
+      os::window get_id () const;
+    private:
       static os::window create_window (const class_info&,
                                        const core::rectangle& r,
                                        os::window parent_id,
@@ -266,7 +268,7 @@ namespace gui {
     template<class T>
     typename std::enable_if<std::is_base_of<window, T>::value, std::ostream&>::type
     operator<< (std::ostream& out, const T& t) {
-      out << "[" << t.get_id() << "]" << typeid(T).name();
+      out << "[" << detail::get_window_id(t) << "]" << typeid(T).name();
       return out;
     }
 

@@ -296,7 +296,7 @@ namespace gui {
           client.serial = 0;
           client.send_event = True;
           client.display = core::global::get_instance();
-          client.window = win->get_id();
+          client.window = detail::get_window_id(*win);
           client.message_type = message;
           client.format = 32;
           client.data.l[0] = l1;
@@ -318,7 +318,7 @@ namespace gui {
         XRectangle r = rect;
         long l1 = (long)r.x << 16 | (long)r.y;
         long l2 = (long)r.width << 16 | (long)r.height;
-        send_client_message(win, message, w->get_id(), l1, l2);
+        send_client_message(win, message, detail::get_window_id(*w), l1, l2);
       }
 
       void post_client_message (const window* win, Atom message, long l1, long l2) {
@@ -330,14 +330,15 @@ namespace gui {
       }
 
       void prepare_win_for_event (const window* win, os::event_id mask) {
-        if (win && win->get_id()) {
+        os::window id = win ? detail::get_window_id(*win) : 0;
+        if (id) {
           auto i = window_event_mask.find(win);
           if (i != window_event_mask.end()) {
             i->second |= mask;
-            XSelectInput(core::global::get_instance(), win->get_id(), i->second);
+            XSelectInput(core::global::get_instance(), id, i->second);
           } else {
             window_event_mask[win] = mask;
-            XSelectInput(core::global::get_instance(), win->get_id(), mask);
+            XSelectInput(core::global::get_instance(), id, mask);
           }
         } else {
           os::event_id& old_mask = window_event_mask[win];

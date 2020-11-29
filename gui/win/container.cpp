@@ -128,7 +128,7 @@ namespace gui {
         unsigned int nchildren = 0;
 
         if (x11::check_status(XQueryTree(core::global::get_instance(),
-                                         win.get_id(),
+                                         detail::get_window_id(win),
                                          &root,
                                          &parent,
                                          &children,
@@ -204,6 +204,10 @@ namespace gui {
     container::container (container&& rhs)
       : super(std::move(rhs)) {
       init();
+    }
+
+    os::window container::get_id () const {
+      return detail::get_window_id(*this);
     }
 
     void container::init () {
@@ -446,6 +450,10 @@ namespace gui {
       XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureNotifyMask, &xev);
     }
 
+    os::window overlapped_window::get_id () const {
+      return detail::get_window_id(*this);
+    }
+
     void overlapped_window::create (const class_info& cls,
                                     const core::rectangle& r) {
       super::create(cls, DefaultRootWindow(core::global::get_instance()), r);
@@ -458,7 +466,7 @@ namespace gui {
       gui::os::instance display = core::global::get_instance();
       super::create(cls, DefaultRootWindow(display), r);
       get_state().set_overlapped(true);
-      XSetTransientForHint(display, get_id(), parent.get_id());
+      XSetTransientForHint(display, get_id(), detail::get_window_id(parent));
     }
 
     void overlapped_window::set_title (const std::string& title) {
@@ -639,16 +647,18 @@ namespace gui {
 #ifdef X11
       gui::os::instance display = core::global::get_instance();
 
-      change_property(display, get_id(), "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_NORMAL");
-      set_wm_protocols(display, get_id());
+      os::window id = detail::get_window_id(*this);
 
-      XWMHints* hints = XGetWMHints(display, get_id());
+      change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_NORMAL");
+      set_wm_protocols(display, id);
+
+      XWMHints* hints = XGetWMHints(display, id);
       if (!hints) {
         hints = XAllocWMHints();
       }
       hints->flags |= InputHint;
       hints->input = True;
-      XSetWMHints(display, get_id(), hints);
+      XSetWMHints(display, id, hints);
 #endif // X11
     }
 
@@ -658,11 +668,13 @@ namespace gui {
 #ifdef X11
       gui::os::instance display = core::global::get_instance();
 
-      change_property(display, get_id(), "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU");
+      os::window id = detail::get_window_id(*this);
+
+      change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU");
 
       XSetWindowAttributes wa;
       wa.override_redirect = 1;
-      XChangeWindowAttributes(display, get_id(), CWOverrideRedirect, &wa);
+      XChangeWindowAttributes(display, id, CWOverrideRedirect, &wa);
 #endif // X11
     }
 
@@ -670,11 +682,11 @@ namespace gui {
     void dialog_window::create (const class_info& cls, const container& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
       gui::os::instance display = core::global::get_instance();
-      auto id = get_id();
 #ifdef X11
+      auto id = detail::get_window_id(*this);
       change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DIALOG");
       change_property(display, id, "_NET_WM_STATE", "_NET_WM_STATE_MODAL");
-      change_property(display, id, "WM_CLIENT_LEADER", parent.get_id());
+      change_property(display, id, "WM_CLIENT_LEADER", detail::get_window_id(parent));
       set_wm_protocols(display, id);
 #endif // X11
     }

@@ -254,7 +254,7 @@ namespace gui {
       }
 
       edit_base::~edit_base () {
-        win::global::unregister_utf8_window(get_id());
+        win::global::unregister_utf8_window(*this);
       }
 
       void edit_base::create (win::container& parent,
@@ -296,7 +296,7 @@ namespace gui {
       }
 
       void edit_base::prepare_input () {
-        win::global::register_utf8_window(get_id());
+        win::global::register_utf8_window(*this);
       }
 
       void edit_base::set_selection (const edit_base::range& sel, event_source) {

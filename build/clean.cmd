@@ -2,9 +2,9 @@
 
 call get_versions.cmd
 
-pushd %TARGET_DIR%
+pushd %BUILD_DIR%
 
-msbuild IT3DCamCtrlPrj.sln /m /p:Configuration=Debug /t:Clean
-msbuild IT3DCamCtrlPrj.sln /m /p:Configuration=Release /t:Clean
+msbuild gui-lib.sln /m /p:Configuration=Debug /t:Clean
+msbuild gui-lib.sln /m /p:Configuration=Release /t:Clean
 
 popd

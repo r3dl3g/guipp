@@ -76,6 +76,10 @@ namespace gui {
         w->id = id;
       }
 
+      os::window get_window_id (const window& win) {
+        return win.get_id();
+      }
+
     } // namespace detail
 
 #ifdef WIN32
@@ -211,10 +215,6 @@ namespace gui {
       }
 
 #else
-      os::window get_window_id (const window& win) {
-        return win.get_id();
-      }
-
       window* get_window (os::window id) {
         Atom     actual_type = 0;
         int      actual_format = -1;
@@ -311,7 +311,7 @@ namespace gui {
         if (shift_key_bit_mask::is_set(hk.get_modifiers())) {
           modifiers |= MOD_SHIFT;
         }
-        os::window root = win ? win->get_id() : NULL;
+        os::window root = win ? detail::get_window_id(*win) : NULL;
         RegisterHotKey(root, hk.get_key(), modifiers, hk.get_key());
 #endif // WIN32
 #ifdef X11
@@ -515,7 +515,7 @@ namespace gui {
         POINT pt = {GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)};
         ClientToScreen(e.id, &pt);
         RECT r;
-        GetWindowRect(w.get_id(), &r);
+        GetWindowRect(detail::get_window_id(w), &r);
         return !PtInRect(&r, pt);
       }
       }

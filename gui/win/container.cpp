@@ -53,7 +53,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     bool container::is_parent_of (const window& child) const {
-      return is_valid() && child.is_valid() && IsChild(get_id(), child.get_id()) != FALSE;
+      return is_valid() && child.is_valid() && IsChild(get_id(), detail::get_window_id(child)) != FALSE;
     }
 
     std::vector<window*> container::get_children () const {
@@ -289,6 +289,10 @@ namespace gui {
 #endif
     }
 
+    os::window overlapped_window::get_id () const {
+      return detail::get_window_id(*this);
+    }
+
 #ifdef WIN32
     void overlapped_window::create (const class_info& type,
                                     const container& parent,
@@ -296,7 +300,7 @@ namespace gui {
 #ifdef WIN32
       auto rect = r.os();
       AdjustWindowRectEx(&rect, type.get_style(), FALSE, type.get_ex_style());
-      window::create(type, parent.get_id(), core::rectangle(rect));
+      window::create(type, detail::get_window_id(parent), core::rectangle(rect));
 #else
       window::create(type, parent.get_id(), r);
 #endif // WIN32
@@ -448,10 +452,6 @@ namespace gui {
       xev.xclient.data.l[3] = a3;
 
       XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureNotifyMask, &xev);
-    }
-
-    os::window overlapped_window::get_id () const {
-      return detail::get_window_id(*this);
     }
 
     void overlapped_window::create (const class_info& cls,

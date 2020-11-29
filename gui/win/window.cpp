@@ -476,7 +476,7 @@ namespace gui {
 
     void window::set_parent (const container& parent) {
       if (is_valid() && parent.is_valid()) {
-        SetParent(get_id(), parent.get_id());
+        SetParent(get_id(), detail::get_window_id(parent));
       }
     }
 
@@ -485,7 +485,7 @@ namespace gui {
     }
 
     bool window::is_child_of (const container& parent) const {
-      return is_valid() && parent.is_valid() && IsChild(parent.get_id(), get_id()) != FALSE;
+      return is_valid() && parent.is_valid() && IsChild(detail::get_window_id(parent), get_id()) != FALSE;
     }
 
     void window::set_visible (bool s) {

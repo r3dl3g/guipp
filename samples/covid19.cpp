@@ -775,7 +775,7 @@ covid19main::covid19main ()
 
   load_button.on_clicked([&] () {
     file_open_dialog::show(*this, "Open CSV", "Ok", "Cancel", [&] (const sys_fs::path& p) {
-      load_data({p});
+      load_data({p.string()});
     });
   });
 
@@ -807,7 +807,7 @@ covid19main::covid19main ()
                                            const core::point&) {
     return core::point(table.geometrie.widths.position_of(options_count*2) +
                        table.geometrie.widths.get_offset() - size.width(),
-                       table.geometrie.heights.position_of(option_data[absolute_increase].positives.size()) +
+                       table.geometrie.heights.position_of(static_cast<int>(option_data[absolute_increase].positives.size())) +
                        table.geometrie.heights.get_offset() + - size.height());
   });
 
@@ -995,12 +995,13 @@ void covid19main::draw_at (std::size_t idx,
   pixmap_cache[idx] = std::move(px);
 }
 // --------------------------------------------------------------------------
-void covid19main::draw_uncached (std::size_t idx,
+void covid19main::draw_uncached (std::size_t idx_,
                                  const draw::graphics& graph,
                                  const core::rectangle& area,
                                  const draw::brush& background,
                                  item_state state) const {
   //  auto inner = draw::frame::sunken_relief(graph, area);
+  const int idx = static_cast<int>(idx_);
   graph.fill(draw::rectangle(area), background);
   switch (chart_type) {
     case chart_t::country_chart:
@@ -1168,7 +1169,7 @@ struct timed_progress {
   void operator() (double pos) {
     const std::chrono::system_clock::time_point next_step = clock::now();
     if ((next_step - last_step) > step) {
-      progress.set_value(pos / file_size);
+      progress.set_value(static_cast<ctrl::progress_bar::type>(pos / file_size));
       last_step = next_step;
     }
   }
@@ -1196,7 +1197,7 @@ void covid19main::load_tests_data (std::istream& in, const double file_size) {
     auto& cntry = country_map[n];
 
     const std::string year_week = std::get<2>(t);
-    int idx = year_week.find("-W");
+    auto idx = year_week.find("-W");
     if (idx != std::string::npos) {
       auto year = util::string::convert::to<int>(year_week.substr(0, idx));
       auto week = util::string::convert::to<int>(year_week.substr(idx + 2));
@@ -1237,7 +1238,7 @@ void covid19main::load_cases_data (std::istream& in, const double file_size) {
   covid19_cases_reader::read_csv(in, ',', false, [&] (const covid19_cases_reader::tuple& t) {
     //    clog::info() << "Read tuple:" << t;
 
-    prgrs(in.tellg());
+    prgrs(static_cast<double>(in.tellg()));
 
     auto year = std::get<3>(t);
     auto month = std::get<2>(t);
@@ -1351,7 +1352,7 @@ void covid19main::load_data (const std::vector<std::string>& args) {
         clog::warn() << "Could not open file '" << p << "'";
       }
 
-      const double file_size = sys_fs::file_size(p);
+      const double file_size = static_cast<double>(sys_fs::file_size(p));
       const bom::utf_bom_t bom(in);
       const auto header = csv::parse_csv_line(in, ',');
 

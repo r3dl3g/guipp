@@ -187,7 +187,7 @@ namespace gui {
         core::point::type pos = startidx == 0 ? 0 : positions[startidx - 1];
         positions.resize(idx);
         clog::trace() << "Calc position for idx " << startidx << " to " << idx;
-        for (std::size_t i = startidx; i < idx; ++i) {
+        for (int i = startidx; i < idx; ++i) {
           pos += get_size(i);
           positions[i] = pos;
         }
@@ -200,7 +200,7 @@ namespace gui {
         first_offset = 0;
         while (pos <= 0) {
           first_offset = pos;
-          pos += get_size(first_idx);
+          pos += get_size(static_cast<int>(first_idx));
           ++first_idx;
         }
         --first_idx;

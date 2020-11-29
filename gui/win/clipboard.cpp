@@ -39,7 +39,8 @@ namespace gui {
 
     void clipboard::set_text (window& win, const std::string& t) {
       text = t;
-      if (OpenClipboard(win.get_id())) {
+      auto id = detail::get_window_id(win);
+      if (OpenClipboard(id)) {
         const std::size_t len = text.size() + 1;
         HGLOBAL hmem = GlobalAlloc(GMEM_DDESHARE, len);
         if (hmem) {
@@ -54,7 +55,8 @@ namespace gui {
     }
 
     void clipboard::get_text (window& win, const std::function<clipboard::text_callback>& cb) {
-      if (OpenClipboard(win.get_id())) {
+      auto id = detail::get_window_id(win);
+      if (OpenClipboard(id)) {
         HANDLE hmem = GetClipboardData(CF_UNICODETEXT);
         if (hmem) {
           const wchar_t* data = static_cast<wchar_t*>(GlobalLock(hmem));

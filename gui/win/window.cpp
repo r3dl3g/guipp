@@ -559,13 +559,13 @@ namespace gui {
     core::size window::client_size () const {
       RECT r;
       GetClientRect(get_id(), &r);
-      return core::size(r); //
+      return core::size(r);
     }
 
     core::rectangle window::client_area () const {
       RECT r;
       GetClientRect(get_id(), &r);
-      return core::rectangle(r); //
+      return core::rectangle(r);
     }
 
     void window::move (const core::point& pt, bool repaint) {
@@ -1113,14 +1113,6 @@ namespace gui {
       if (type.get_background() == color::transparent) {
         mask |= CWBackPixmap;
         wa.background_pixmap = None;
-//      } else if (color::get_alpha(type.get_background()) != 0) {
-//        int a = color::get_alpha(type.get_background());
-//        int r = color::get_red(type.get_background()) * a / 256;
-//        int g = color::get_green(type.get_background()) * a / 256;
-//        int b = color::get_blue(type.get_background()) * a / 256;
-//        wa.background_pixel = color::calc_rgba(r, g, b, a);
-//        wa.border_pixel = wa.background_pixel;
-//        mask |= (CWBackPixel | CWBorderPixel);
       } else {
         wa.background_pixel = type.get_background();
         wa.border_pixel = 0;

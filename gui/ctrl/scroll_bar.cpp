@@ -238,7 +238,7 @@ namespace gui {
                       scrollbar_state hilite,
                       bool is_enabled,
                       bool horizontal,
-                      bool /*has_focus*/,
+                      bool has_focus,
                       const core::rectangle& up,
                       const core::rectangle& down,
                       const core::rectangle& thumb,
@@ -275,6 +275,12 @@ namespace gui {
           paint::simple_frame(g, thumb, scrollbar_state::thumb_button == hilite, 3, horizontal ? 3 : 13);
           if (scrollbar_state::thumb_button == state) {
             draw::frame::sunken_relief(g, thumb.shrinked(core::size::two));
+          }
+          if (has_focus) {
+            core::rectangle area = thumb;
+            area.shrink({2, 2});
+            g.frame(draw::rectangle(area), draw::pen(color::very_light_blue, 1, draw::pen::Style::solid));
+
           }
         }
       }

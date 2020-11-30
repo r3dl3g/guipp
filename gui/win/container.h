@@ -44,7 +44,7 @@ namespace gui {
 
       container ();
 
-      bool is_parent_of (const window& parent) const;
+      bool is_parent_of (const window& child) const;
       bool is_sub_window (const window* child) const;
 
       void set_children_visible (bool = true);

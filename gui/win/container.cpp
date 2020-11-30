@@ -241,12 +241,16 @@ namespace gui {
     bool iterate_focus (iterator begin, iterator end, const window* focus) {
       auto i = std::find(begin, end, focus);
       if (i != end) {
-        do {
+        ++i;
+        while (*i != focus) {
+          if (i == end) {
+            i = begin;
+          }
+          if ((*i)->can_accept_focus()) {
+            (*i)->take_focus();
+            return true;
+          }
           ++i;
-        } while ((i != end) && !(*i)->can_accept_focus());
-        if (i != end) {
-          (*i)->take_focus();
-          return true;
         }
       }
       return false;
@@ -297,13 +301,9 @@ namespace gui {
     void overlapped_window::create (const class_info& type,
                                     const container& parent,
                                     const core::rectangle& r) {
-#ifdef WIN32
       auto rect = r.os();
       AdjustWindowRectEx(&rect, type.get_style(), FALSE, type.get_ex_style());
       window::create(type, detail::get_window_id(parent), core::rectangle(rect));
-#else
-      window::create(type, parent.get_id(), r);
-#endif // WIN32
     }
 
     void overlapped_window::create (const class_info& type,

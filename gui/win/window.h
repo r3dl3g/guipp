@@ -221,9 +221,9 @@ namespace gui {
                    container&,
                    const core::rectangle& = core::rectangle::def);
 
-      void create (const class_info&,
-                   os::window parent,
-                   const core::rectangle&);
+      void create_internal (const class_info&,
+                            os::window parent,
+                            const core::rectangle&);
 
       void set_accept_focus (bool a);
 
@@ -240,6 +240,7 @@ namespace gui {
       friend os::window detail::get_window_id (const window&);
 
       os::window get_id () const;
+
     private:
       static os::window create_window (const class_info&,
                                        const core::rectangle& r,
@@ -268,7 +269,7 @@ namespace gui {
     template<class T>
     typename std::enable_if<std::is_base_of<window, T>::value, std::ostream&>::type
     operator<< (std::ostream& out, const T& t) {
-      out << "[" << detail::get_window_id(t) << "]" << typeid(T).name();
+      out << "[" << detail::get_window_id(t) << "] (" << typeid(T).name() << ')';
       return out;
     }
 

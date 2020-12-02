@@ -350,7 +350,7 @@ namespace gui {
         return detail::g_next_filter_id++;
       }
 
-      void unregister_message_filter (int& id) {
+      void unregister_message_filter (int id) {
         auto e = detail::message_filters.end();
         auto b = detail::message_filters.begin();
         auto i = std::find_if(b, e, [id](const detail::filter_call_entry & e)->bool {
@@ -359,7 +359,6 @@ namespace gui {
         if (i != e) {
           detail::message_filters.erase(i);
         }
-        id = 0;
       }
 
 #ifdef WIN32

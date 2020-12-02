@@ -867,8 +867,6 @@ void my_main_window::created_children () {
 
   my_main_window& main = *this;
 
-  win::detail::get_window(win::detail::get_window_id(*this));
-
   scroll_view.create(main, core::rectangle(0, 0, 300, 330));
 
   window1.create(scroll_view, core::rectangle(10, 10, 100, 280));

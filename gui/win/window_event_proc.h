@@ -81,7 +81,7 @@ namespace gui {
       GUIPP_WIN_EXPORT void unregister_hot_key (const hot_key&);
 
       GUIPP_WIN_EXPORT int register_message_filter (detail::filter_call filter);
-      GUIPP_WIN_EXPORT void unregister_message_filter (int& id);
+      GUIPP_WIN_EXPORT void unregister_message_filter (int id);
 
       GUIPP_WIN_EXPORT window* get_current_focus_window ();
       GUIPP_WIN_EXPORT window* get_application_main_window ();

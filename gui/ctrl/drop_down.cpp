@@ -282,6 +282,7 @@ namespace gui {
       data.popup.on_hide([&] () {
         if (data.filter_id) {
           win::global::unregister_message_filter(data.filter_id);
+          data.filter_id = 0;
         }
       });
       data.popup.create(*this, place);

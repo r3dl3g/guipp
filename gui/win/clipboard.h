@@ -36,7 +36,7 @@ namespace gui {
       static clipboard& get ();
 
       void set_text (window&, const std::string&);
-      void get_text (window&, const std::function<text_callback>&);
+      void get_text (window&, std::function<text_callback>&&);
 
     private:
       clipboard ();

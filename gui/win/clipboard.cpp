@@ -54,7 +54,7 @@ namespace gui {
       }
     }
 
-    void clipboard::get_text (window& win, const std::function<clipboard::text_callback>& cb) {
+    void clipboard::get_text (window& win, std::function<clipboard::text_callback>&& cb) {
       auto id = detail::get_window_id(win);
       if (OpenClipboard(id)) {
         HANDLE hmem = GetClipboardData(CF_UNICODETEXT);
@@ -100,14 +100,7 @@ namespace gui {
       : filter_id(0)
     {
       detail::init_clipboard_atoms();
-    }
-
-    void clipboard::set_text (window& win, const std::string& t) {
-      text = t;
-      if (filter_id) {
-        global::unregister_message_filter(filter_id);
-      }
-      filter_id = global::register_message_filter([&](const core::event & e)->bool {
+      global::register_message_filter([&](const core::event & e)->bool {
         if ((e.type == SelectionRequest) &&
             (e.xselectionrequest.selection == detail::CLIPBOARD)) {
 
@@ -144,14 +137,20 @@ namespace gui {
         }
         return false;
       });
+    }
+
+    void clipboard::set_text (window& win, const std::string& t) {
+      text = t;
       XSetSelectionOwner(core::global::get_instance(), detail::CLIPBOARD, detail::get_window_id(win), CurrentTime);
     }
 
-    void clipboard::get_text (window& win, const std::function<clipboard::text_callback>& cb) {
-      auto id = detail::get_window_id(win);
-      //Atom incrid = XInternAtom(display, "INCR", False);
+    void clipboard::get_text (window& win, std::function<clipboard::text_callback>&& cb) {
       x11::prepare_win_for_event(&win, PropertyChangeMask);
-      int fid = global::register_message_filter([&](const core::event & e)->bool {
+      if (filter_id) {
+        global::unregister_message_filter(filter_id);
+        filter_id = 0;
+      }
+      filter_id = global::register_message_filter([&, cb](const core::event & e)->bool {
         if ((e.type != SelectionNotify) || (e.xselection.selection != detail::CLIPBOARD)) {
           return false;
         }
@@ -165,15 +164,16 @@ namespace gui {
           cb(std::string(result, ressize));
         }
         XDeleteProperty(e.xselection.display, e.xselection.requestor, e.xselection.property);
+        global::unregister_message_filter(filter_id);
+        filter_id = 0;
 
-        global::unregister_message_filter(fid);
         return true;
       });
       XConvertSelection(core::global::get_instance(),
                         detail::CLIPBOARD,
                         detail::UTF8_STRING,
                         detail::XSEL_DATA,
-                        id, CurrentTime);
+                        detail::get_window_id(win), CurrentTime);
     }
 
 #endif // X11

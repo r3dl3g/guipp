@@ -130,10 +130,10 @@ namespace gui {
       init();
       if (rhs.is_valid()) {
         container* parent = rhs.get_parent();
-        create(rhs.get_window_class(),
-               parent ? detail::get_window_id(*parent)
-                      : IF_WIN32_ELSE(NULL, DefaultRootWindow(core::global::get_instance())),
-               rhs.place());
+        create_internal(rhs.get_window_class(),
+                        parent ? detail::get_window_id(*parent)
+                               : IF_WIN32_ELSE(NULL, DefaultRootWindow(core::global::get_instance())),
+                        rhs.place());
       }
     }
 
@@ -149,13 +149,13 @@ namespace gui {
                          container& parent,
                          const core::rectangle& r) {
       if (parent.is_valid()) {
-        create(type, detail::get_window_id(parent), r);
+        create_internal(type, detail::get_window_id(parent), r);
       }
     }
 
-    void window::create (const class_info& type,
-                         os::window parent_id,
-                         const core::rectangle& r) {
+    void window::create_internal (const class_info& type,
+                                  os::window parent_id,
+                                  const core::rectangle& r) {
 
       if (get_id()) {
         destroy();

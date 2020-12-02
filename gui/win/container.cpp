@@ -456,7 +456,7 @@ namespace gui {
 
     void overlapped_window::create (const class_info& cls,
                                     const core::rectangle& r) {
-      super::create(cls, DefaultRootWindow(core::global::get_instance()), r);
+      create_internal(cls, DefaultRootWindow(core::global::get_instance()), r);
       get_state().set_overlapped(true);
     }
 
@@ -464,7 +464,7 @@ namespace gui {
                                     const container& parent,
                                     const core::rectangle& r) {
       gui::os::instance display = core::global::get_instance();
-      super::create(cls, DefaultRootWindow(display), r);
+      create_internal(cls, DefaultRootWindow(display), r);
       get_state().set_overlapped(true);
       XSetTransientForHint(display, get_id(), detail::get_window_id(parent));
     }

@@ -50,7 +50,7 @@ namespace gui {
       private:
         void init ();
 
-        void handle_create (window*, const core::rectangle&);
+        void handle_create ();
 
         std::string& current_line ();
 

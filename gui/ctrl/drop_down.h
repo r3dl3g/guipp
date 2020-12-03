@@ -143,7 +143,7 @@ namespace gui {
       ~drop_down_list ();
 
     private:
-      void create_children (window*, const core::rectangle& r);
+      void create_children ();
       void create_popup (const core::rectangle& place);
 
       void handle_move (const core::point&);

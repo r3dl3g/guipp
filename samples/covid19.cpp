@@ -739,7 +739,7 @@ covid19main::covid19main ()
   , table(64, 20)
 {
 
-  on_create([&] (window*, core::rectangle) {
+  on_create([&] () {
     selection.create(*this);
     load_button.create(*this, "Load CSV");
     table_button.create(*this, "Show table");

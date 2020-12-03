@@ -88,7 +88,8 @@ namespace gui {
     }
 
     template<typename T, os::color B>
-    void virtual_view<T, B>::handle_create (win::window*, const core::rectangle& r) {
+    void virtual_view<T, B>::handle_create () {
+      core::rectangle r = super::client_area();
       vscroll.create(*this, layout::scroll_view::get_vscroll_area(r, true));
       hscroll.create(*this, layout::scroll_view::get_hscroll_area(r, true));
       edge.create(*this, layout::scroll_view::get_edge_area(r));

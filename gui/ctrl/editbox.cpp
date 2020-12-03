@@ -53,7 +53,7 @@ namespace gui {
         create(clazz::get(), parent, r);
       }
 
-      void editbox_base::handle_create (window*, const core::rectangle&) {
+      void editbox_base::handle_create () {
         win::global::register_utf8_window(*this);
       }
 

@@ -433,7 +433,7 @@ namespace gui {
 
       void make_selection_visible ();
 
-      void handle_created (win::window* win, const core::rectangle& place);
+      void handle_created ();
       void handle_layout (const core::rectangle& sz);
 
       void handle_left_btn_down (os::key_state, const core::point& pt);

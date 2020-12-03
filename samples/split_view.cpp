@@ -29,8 +29,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   vertical_split_view<label_t, labels> client;
 
   main.get_layout().add(lay(client));
-  main.on_create([&] (window* parent, const rectangle& rect) {
-    client.create(main, rect.with_pos(core::point::zero));
+  main.on_create([&] () {
+    client.create(main, main.client_area());
     client.set_split_pos(0.5);
     client.first.set_text([&] () { return ostreamfmt(client.first << " Left (" << client.first.place() << ")"); });
     client.second.set_split_pos(0.5);

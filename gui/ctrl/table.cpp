@@ -734,7 +734,7 @@ namespace gui {
       hscroll.set_max(pos.x());
     }
 
-    void table_view::handle_created (win::window*, const core::rectangle& place) {
+    void table_view::handle_created () {
       edge.create(*this, core::rectangle(0, 0, row_width(), column_height()));
       data.create(*this, core::rectangle(row_width(), column_height(), 160, 80));
       columns.create(*this, core::rectangle(row_width(), 0, 160, column_height()));
@@ -742,9 +742,10 @@ namespace gui {
       vscroll.create(*this, core::rectangle(240, 0, static_cast<core::size::type>(scroll_bar::scroll_bar_width), 80));
       hscroll.create(*this, core::rectangle(0, 100, 240, static_cast<core::size::type>(scroll_bar::scroll_bar_width)));
 
-      vscroll.set_max(place.height() * 2);
+      core::rectangle r = place();
+      vscroll.set_max(r.height() * 2);
       vscroll.set_step(column_height());
-      hscroll.set_max(place.width() * 2);
+      hscroll.set_max(r.width() * 2);
       hscroll.set_step(row_width());
 
       edge.set_visible();

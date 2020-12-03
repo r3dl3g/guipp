@@ -20,8 +20,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   layout_main_window<gui::layout::border::layouter<3, 3, 3, 3>> main;
   sorted_dir_tree client;
 
-  main.on_create([&] (window* parent, const rectangle& rect) {
-    client.create(main, rect);
+  main.on_create([&] () {
+    client.create(main, main.client_area());
 
     sys_fs::path current = sys_fs::current_path();
     client.set_roots(fs::get_all_root_file_infos());

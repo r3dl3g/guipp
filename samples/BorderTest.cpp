@@ -49,7 +49,7 @@ public:
   typedef layout_main_window<gui::layout::border::layouter<40, 30, 100, 250>> super;
   my_main_window ();
 
-  void onCreated (window*, const core::rectangle&);
+  void onCreated ();
   void cut ();
   void copy ();
   void paste ();
@@ -230,7 +230,7 @@ pixmap create_text_pixmap (const std::string& str,
 }
 
 // --------------------------------------------------------------------------
-void my_main_window::onCreated (win::window*, const core::rectangle&) {
+void my_main_window::onCreated () {
   top_view.create(*this);
 
   menu.data.add_entries({

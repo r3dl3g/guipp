@@ -75,7 +75,7 @@ namespace gui {
       client_control<>      edge;
 
     private:
-      void handle_create (win::window*, const core::rectangle& r);
+      void handle_create ();
 
     };
 

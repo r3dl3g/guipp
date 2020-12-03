@@ -154,7 +154,7 @@ public:
 
   my_main_window ();
 
-  void onCreated (win::window*, const core::rectangle&);
+  void onCreated ();
   void created_children ();
   void query_state ();
   void set_size_null ();
@@ -842,8 +842,8 @@ void my_main_window::query_state () {
   }
 }
 
-void my_main_window::onCreated (win::window* w, const core::rectangle& r) {
-  clog::debug() << "Main created: this:" << *this << ", w:" << w << ", rect:" << std::dec << r;
+void my_main_window::onCreated () {
+  clog::debug() << "Main created: this: " << *this;
   created_children();
   clog::debug() << "Children created: this:" << *this << ", count:" << get_children().size();
 }

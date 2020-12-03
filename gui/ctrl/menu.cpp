@@ -535,7 +535,7 @@ namespace gui {
         handle_key(key);
       });
 
-      on_create([&] (window *, const core::rectangle &) {
+      on_create([&] () {
         data.register_menu_keys(this);
       });
     }

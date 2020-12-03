@@ -54,11 +54,11 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     })
   );
 
-  main.on_create([&] (window* parent, const rectangle& rect) {
+  main.on_create([&] () {
     menu.create(main);
     menu.set_visible();
 
-    client.create(main, rect.with_pos(gui::core::point::zero));
+    client.create(main, main.client_area());
     client.set_split_pos(0.5);
     main.get_layout().set_top(lay(menu));
     main.get_layout().set_center(lay(client));

@@ -187,10 +187,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    using create_event = core::event_handler<WM_CREATE, 0,
-                                       core::params<window*, core::rectangle>::
-                                       getter<get_window_from_cs,
-                                              get_rect<CREATESTRUCT>>>;
+    using create_event = core::event_handler<WM_CREATE, 0, core::params<>::getter<>>;
 
     using close_event = core::event_handler<WM_CLOSE, 0, core::params<>::getter<>, 1>;
 
@@ -597,10 +594,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    using create_event = core::event_handler<ClientMessage, 0,
-                                             core::params<window*, core::rectangle>::
-                                             getter<get_client_data<0, window*>, get_client_data_rect>,
-                                             0,
+    using create_event = core::event_handler<ClientMessage, 0, core::params<>::getter<>, 0,
                                              event::functor<client_message_matcher<core::x11::WM_CREATE_WINDOW>>>;
 
     using close_event = core::event_handler<ClientMessage, 0,
@@ -826,10 +820,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    using create_event = core::event_handler<QEvent::Create, 0,
-                                             core::params<window*, core::rectangle>::
-                                             getter<get_client_data<0, window*>, get_client_data_rect>,
-                                             0>;
+    using create_event = core::event_handler<QEvent::Create, 0, core::params<>::getter<>>;
 
     using close_event = core::event_handler<QEvent::Close, 0,
                                             core::params<>::getter<>, 1,

@@ -98,7 +98,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   fourth.set_text([&] () { return ostreamfmt("4.:(" << fourth.place() << ")"); });
   fifth.set_text([&] () { return ostreamfmt("5.:(" << fifth.place() << ")"); });
 
-  main.on_create([&] (window* parent, const rectangle& rect) {
+  main.on_create([&] () {
     first.create(main);
     second.create(main);
     third.create(main);

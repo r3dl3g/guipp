@@ -87,7 +87,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.get_layout().set_left(lay(left));
   main.get_layout().set_right(lay(right));
 
-  main.on_create([&] (window* parent, const core::rectangle& rect) {
+  main.on_create([&] () {
     int i = 0;
     for (auto& l : top_labels) {
       l.create(main);

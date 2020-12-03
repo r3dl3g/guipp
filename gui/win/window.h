@@ -128,7 +128,6 @@ namespace gui {
       void capture_pointer ();
       void uncapture_pointer ();
 
-      typedef void(create_fn)(window*, core::rectangle);
       typedef void(notification_fn)();
       typedef void(mouse_fn)(os::key_state, core::point);
       typedef void(wheel_fn)(core::point::type, core::point);
@@ -137,7 +136,7 @@ namespace gui {
       typedef void(size_fn)(core::size);
       typedef void(place_fn)(core::rectangle);
 
-      void on_create (std::function<create_fn>&& f);
+      void on_create (std::function<notification_fn>&& f);
 
       void on_close (std::function<notification_fn>&& f);
       void on_destroy (std::function<window_fn>&& f);

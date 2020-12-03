@@ -257,7 +257,7 @@ namespace gui {
       }
     }
 
-    void drop_down_list::create_children (window*, const core::rectangle& r) {
+    void drop_down_list::create_children () {
       data.button.create(*this);//, get_layout().button_place(r));
       data.button.set_visible();
     }
@@ -266,8 +266,8 @@ namespace gui {
       data.popup.on_size([&] (const core::size & sz) {
         data.items.place(core::rectangle(sz));
       });
-      data.popup.on_create([&] (window *, const core::rectangle & r) {
-        data.items.create(data.popup, core::rectangle(r.size()));
+      data.popup.on_create([&] () {
+        data.items.create(data.popup, data.popup.client_area());
         data.items.set_visible();
       });
       data.popup.on_show([&] () {

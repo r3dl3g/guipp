@@ -253,6 +253,10 @@ namespace gui {
     template<typename T, typename S>
     const basic_rectangle<T, S> basic_rectangle<T, S>::def(0, 0, 1, 1);
 #endif // X11
+#ifdef QT_WIDGETS_LIB
+    template<typename T, typename S>
+    const basic_rectangle<T, S> basic_rectangle<T, S>::def(0, 0, -1, -1);
+#endif // QT_WIDGETS_LIB
 
     template<typename T, typename S>
     basic_rectangle<T, S>::basic_rectangle (const gui::os::rectangle& r)
@@ -264,6 +268,10 @@ namespace gui {
       : pos(global::scale<T>(r.x), global::scale<T>(r.y))
       , sz(global::scale<S>(r.width), global::scale<S>(r.height))
 #endif // X11
+#ifdef QT_WIDGETS_LIB
+    : pos(global::scale<T>(r.x()), global::scale<T>(r.y()))
+    , sz(global::scale<S>(r.width()), global::scale<S>(r.height()))
+#endif // QT_WIDGETS_LIB
     {}
 
     template<typename T, typename S>

@@ -691,7 +691,7 @@ namespace gui {
       : p(std::move(f))
     {}
 
-    void paint::operator() (os::window id, const os::graphics& g) {
+    void paint::operator() (os::window id, os::graphics g) {
       if (p) {
         draw::graphics graph(id, g);
         p(graph);
@@ -709,7 +709,7 @@ namespace gui {
 
 //#define NOT_IMAGE_CACHE
 
-    void buffered_paint::operator() (os::window id, const os::graphics& g) {
+    void buffered_paint::operator() (os::window id, os::graphics g) {
       if (p) {
         draw::graphics graph(id, g);
 #if !defined(BUILD_FOR_ARM) && !defined(NOT_IMAGE_CACHE)

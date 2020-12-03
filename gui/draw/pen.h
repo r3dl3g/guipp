@@ -33,21 +33,18 @@ namespace gui {
 
     struct GUIPP_DRAW_EXPORT /*immutable*/ pen {
 
-#ifdef WIN32
+#if defined(WIN32) || defined(X11) || defined(X11) || defined(QT_WIDGETS_LIB)
       typedef float size_type;
-#endif // WIN32
-#ifdef X11
-      typedef float size_type;
-#endif // X11
+#endif // WIN32 | X11
 
       enum struct Style : int {
-        solid = IF_WIN32_ELSE(PS_SOLID, LineSolid),
-        dash = IF_WIN32_ELSE(PS_DASH, LineOnOffDash),
-        dot = IF_WIN32_ELSE(PS_DOT, LineOnOffDash | 0x010),
-        dashDot = IF_WIN32_ELSE(PS_DASHDOT, LineOnOffDash | 0x020),
-        dashDotDot = IF_WIN32_ELSE(PS_DASHDOTDOT, LineOnOffDash | 0x030),
-        hairLine = IF_WIN32_ELSE(PS_NULL, LineSolid | 0x040),
-        insideFrame = IF_WIN32_ELSE(PS_INSIDEFRAME, LineSolid | 0x050)
+        solid = IF_WIN32_ELSE(PS_SOLID, IF_X11_ELSE(LineSolid, IF_QT_ELSE(Qt::PenStyle::SolidLine, 0))),
+        dash = IF_WIN32_ELSE(PS_DASH, IF_X11_ELSE(LineOnOffDash, IF_QT_ELSE(Qt::PenStyle::DashLine, 0))),
+        dot = IF_WIN32_ELSE(PS_DOT, IF_X11_ELSE(LineOnOffDash | 0x010, IF_QT_ELSE(Qt::PenStyle::DotLine, 0))),
+        dashDot = IF_WIN32_ELSE(PS_DASHDOT, IF_X11_ELSE(LineOnOffDash | 0x020, IF_QT_ELSE(Qt::PenStyle::DashDotLine, 0))),
+        dashDotDot = IF_WIN32_ELSE(PS_DASHDOTDOT, IF_X11_ELSE(LineOnOffDash | 0x030, IF_QT_ELSE(Qt::PenStyle::DashDotDotLine, 0))),
+        hairLine = IF_WIN32_ELSE(PS_NULL, IF_X11_ELSE(LineSolid | 0x040, IF_QT_ELSE(Qt::PenStyle::SolidLine, 0))),
+        insideFrame = IF_WIN32_ELSE(PS_INSIDEFRAME, IF_X11_ELSE(LineSolid | 0x050, IF_QT_ELSE(Qt::PenStyle::SolidLine, 0)))
       };
 
       pen (const os::color& = color::black, size_type = 1, Style = Style::solid);
@@ -68,9 +65,9 @@ namespace gui {
       os::size_type os_size () const;
       Style style () const;
 
-      pen with_size(size_type) const;
-      pen with_os_size(os::size_type) const;
-      pen with_style(Style) const;
+      pen with_size (size_type) const;
+      pen with_os_size (os::size_type) const;
+      pen with_style (Style) const;
       pen with_color (const os::color&) const;
 
       bool operator== (const pen&) const;
@@ -80,11 +77,11 @@ namespace gui {
       os::pen id;
       os::win32::pen_type info;
 #endif // WIN32
-#ifdef X11
+#if defined(X11) || defined(QT_WIDGETS_LIB)
       const os::color m_color;
       const size_type m_size;
       const Style m_style;
-#endif // X11
+#endif // X11 || QT_WIDGETS_LIB
 
     };
 

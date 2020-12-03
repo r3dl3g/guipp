@@ -58,6 +58,7 @@ namespace std {
       case gui::core::os::platform_t::win32: out << "win32"; break;
       case gui::core::os::platform_t::x11:   out << "x11"; break;
       case gui::core::os::platform_t::cocoa: out << "cocoa"; break;
+      case gui::core::os::platform_t::qt:    out << "qt"; break;
       default: out << "unknown:" << static_cast<gui::byte>(p); break;
     }
     return out;

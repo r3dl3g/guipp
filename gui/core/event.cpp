@@ -529,7 +529,189 @@ namespace std {
         DEFINE_MESSAGE(MappingNotify),
         DEFINE_MESSAGE(GenericEvent)
 #endif // X11
-};
+
+#ifdef QT_WIDGETS_LIB
+        DEFINE_MESSAGE(QEvent::Type::None),
+        DEFINE_MESSAGE(QEvent::Type::Timer),
+        DEFINE_MESSAGE(QEvent::Type::MouseButtonPress),
+        DEFINE_MESSAGE(QEvent::Type::MouseButtonRelease),
+        DEFINE_MESSAGE(QEvent::Type::MouseButtonDblClick),
+        DEFINE_MESSAGE(QEvent::Type::MouseMove),
+        DEFINE_MESSAGE(QEvent::Type::KeyPress),
+        DEFINE_MESSAGE(QEvent::Type::KeyRelease),
+        DEFINE_MESSAGE(QEvent::Type::FocusIn),
+        DEFINE_MESSAGE(QEvent::Type::FocusOut),
+        DEFINE_MESSAGE(QEvent::Type::FocusAboutToChange),
+        DEFINE_MESSAGE(QEvent::Type::Enter),
+        DEFINE_MESSAGE(QEvent::Type::Leave),
+        DEFINE_MESSAGE(QEvent::Type::Paint),
+        DEFINE_MESSAGE(QEvent::Type::Move),
+        DEFINE_MESSAGE(QEvent::Type::Resize),
+        DEFINE_MESSAGE(QEvent::Type::Create),
+        DEFINE_MESSAGE(QEvent::Type::Destroy),
+        DEFINE_MESSAGE(QEvent::Type::Show),
+        DEFINE_MESSAGE(QEvent::Type::Hide),
+        DEFINE_MESSAGE(QEvent::Type::Close),
+        DEFINE_MESSAGE(QEvent::Type::Quit),
+        DEFINE_MESSAGE(QEvent::Type::ParentChange),
+        DEFINE_MESSAGE(QEvent::Type::ParentAboutToChange),
+        DEFINE_MESSAGE(QEvent::Type::ThreadChange),
+        DEFINE_MESSAGE(QEvent::Type::WindowActivate),
+        DEFINE_MESSAGE(QEvent::Type::WindowDeactivate),
+        DEFINE_MESSAGE(QEvent::Type::ShowToParent),
+        DEFINE_MESSAGE(QEvent::Type::HideToParent),
+        DEFINE_MESSAGE(QEvent::Type::Wheel),
+        DEFINE_MESSAGE(QEvent::Type::WindowTitleChange),
+        DEFINE_MESSAGE(QEvent::Type::WindowIconChange),
+        DEFINE_MESSAGE(QEvent::Type::ApplicationWindowIconChange),
+        DEFINE_MESSAGE(QEvent::Type::ApplicationFontChange),
+        DEFINE_MESSAGE(QEvent::Type::ApplicationLayoutDirectionChange),
+        DEFINE_MESSAGE(QEvent::Type::ApplicationPaletteChange),
+        DEFINE_MESSAGE(QEvent::Type::PaletteChange),
+        DEFINE_MESSAGE(QEvent::Type::Clipboard),
+        DEFINE_MESSAGE(QEvent::Type::Speech),
+        DEFINE_MESSAGE(QEvent::Type::MetaCall),
+        DEFINE_MESSAGE(QEvent::Type::SockAct),
+        DEFINE_MESSAGE(QEvent::Type::WinEventAct),
+        DEFINE_MESSAGE(QEvent::Type::DeferredDelete),
+        DEFINE_MESSAGE(QEvent::Type::DragEnter),
+        DEFINE_MESSAGE(QEvent::Type::DragMove),
+        DEFINE_MESSAGE(QEvent::Type::DragLeave),
+        DEFINE_MESSAGE(QEvent::Type::Drop),
+        DEFINE_MESSAGE(QEvent::Type::DragResponse),
+        DEFINE_MESSAGE(QEvent::Type::ChildAdded),
+        DEFINE_MESSAGE(QEvent::Type::ChildPolished),
+        DEFINE_MESSAGE(QEvent::Type::ChildRemoved),
+        DEFINE_MESSAGE(QEvent::Type::ShowWindowRequest),
+        DEFINE_MESSAGE(QEvent::Type::PolishRequest),
+        DEFINE_MESSAGE(QEvent::Type::Polish),
+        DEFINE_MESSAGE(QEvent::Type::LayoutRequest),
+        DEFINE_MESSAGE(QEvent::Type::UpdateRequest),
+        DEFINE_MESSAGE(QEvent::Type::UpdateLater),
+        DEFINE_MESSAGE(QEvent::Type::EmbeddingControl),
+        DEFINE_MESSAGE(QEvent::Type::ActivateControl),
+        DEFINE_MESSAGE(QEvent::Type::DeactivateControl),
+        DEFINE_MESSAGE(QEvent::Type::ContextMenu),
+        DEFINE_MESSAGE(QEvent::Type::InputMethod),
+        DEFINE_MESSAGE(QEvent::Type::TabletMove),
+        DEFINE_MESSAGE(QEvent::Type::LocaleChange),
+        DEFINE_MESSAGE(QEvent::Type::LanguageChange),
+        DEFINE_MESSAGE(QEvent::Type::LayoutDirectionChange),
+        DEFINE_MESSAGE(QEvent::Type::Style),
+        DEFINE_MESSAGE(QEvent::Type::TabletPress),
+        DEFINE_MESSAGE(QEvent::Type::TabletRelease),
+        DEFINE_MESSAGE(QEvent::Type::OkRequest),
+        DEFINE_MESSAGE(QEvent::Type::HelpRequest),
+        DEFINE_MESSAGE(QEvent::Type::IconDrag),
+        DEFINE_MESSAGE(QEvent::Type::FontChange),
+        DEFINE_MESSAGE(QEvent::Type::EnabledChange),
+        DEFINE_MESSAGE(QEvent::Type::ActivationChange),
+        DEFINE_MESSAGE(QEvent::Type::StyleChange),
+        DEFINE_MESSAGE(QEvent::Type::IconTextChange),
+        DEFINE_MESSAGE(QEvent::Type::ModifiedChange),
+        DEFINE_MESSAGE(QEvent::Type::MouseTrackingChange),
+        DEFINE_MESSAGE(QEvent::Type::WindowBlocked),
+        DEFINE_MESSAGE(QEvent::Type::WindowUnblocked),
+        DEFINE_MESSAGE(QEvent::Type::WindowStateChange),
+        DEFINE_MESSAGE(QEvent::Type::ReadOnlyChange),
+        DEFINE_MESSAGE(QEvent::Type::ToolTip),
+        DEFINE_MESSAGE(QEvent::Type::WhatsThis),
+        DEFINE_MESSAGE(QEvent::Type::StatusTip),
+        DEFINE_MESSAGE(QEvent::Type::ActionChanged),
+        DEFINE_MESSAGE(QEvent::Type::ActionAdded),
+        DEFINE_MESSAGE(QEvent::Type::ActionRemoved),
+        DEFINE_MESSAGE(QEvent::Type::FileOpen),
+        DEFINE_MESSAGE(QEvent::Type::Shortcut),
+        DEFINE_MESSAGE(QEvent::Type::ShortcutOverride),
+        DEFINE_MESSAGE(QEvent::Type::WhatsThisClicked),
+        DEFINE_MESSAGE(QEvent::Type::ToolBarChange),
+        DEFINE_MESSAGE(QEvent::Type::ApplicationActivate),
+        DEFINE_MESSAGE(QEvent::Type::ApplicationActivated),
+        DEFINE_MESSAGE(QEvent::Type::ApplicationDeactivate),
+        DEFINE_MESSAGE(QEvent::Type::ApplicationDeactivated),
+        DEFINE_MESSAGE(QEvent::Type::QueryWhatsThis),
+        DEFINE_MESSAGE(QEvent::Type::EnterWhatsThisMode),
+        DEFINE_MESSAGE(QEvent::Type::LeaveWhatsThisMode),
+        DEFINE_MESSAGE(QEvent::Type::ZOrderChange),
+        DEFINE_MESSAGE(QEvent::Type::HoverEnter),
+        DEFINE_MESSAGE(QEvent::Type::HoverLeave),
+        DEFINE_MESSAGE(QEvent::Type::HoverMove),
+#ifdef QT_KEYPAD_NAVIGATION
+        DEFINE_MESSAGE(QEvent::Type::EnterEditFocus),
+        DEFINE_MESSAGE(QEvent::Type::LeaveEditFocus),
+#endif
+        DEFINE_MESSAGE(QEvent::Type::AcceptDropsChange),
+        DEFINE_MESSAGE(QEvent::Type::ZeroTimerEvent),
+        DEFINE_MESSAGE(QEvent::Type::GraphicsSceneMouseMove),
+        DEFINE_MESSAGE(QEvent::Type::GraphicsSceneMousePress),
+        DEFINE_MESSAGE(QEvent::Type::GraphicsSceneMouseRelease),
+        DEFINE_MESSAGE(QEvent::Type::GraphicsSceneMouseDoubleClick),
+        DEFINE_MESSAGE(QEvent::Type::GraphicsSceneContextMenu),
+        DEFINE_MESSAGE(QEvent::Type::GraphicsSceneHoverEnter),
+        DEFINE_MESSAGE(QEvent::Type::GraphicsSceneHoverMove),
+        DEFINE_MESSAGE(QEvent::Type::GraphicsSceneHoverLeave),
+        DEFINE_MESSAGE(QEvent::Type::GraphicsSceneHelp),
+        DEFINE_MESSAGE(QEvent::Type::GraphicsSceneDragEnter),
+        DEFINE_MESSAGE(QEvent::Type::GraphicsSceneDragMove),
+        DEFINE_MESSAGE(QEvent::Type::GraphicsSceneDragLeave),
+        DEFINE_MESSAGE(QEvent::Type::GraphicsSceneDrop),
+        DEFINE_MESSAGE(QEvent::Type::GraphicsSceneWheel),
+        DEFINE_MESSAGE(QEvent::Type::KeyboardLayoutChange),
+        DEFINE_MESSAGE(QEvent::Type::DynamicPropertyChange),
+        DEFINE_MESSAGE(QEvent::Type::TabletEnterProximity),
+        DEFINE_MESSAGE(QEvent::Type::TabletLeaveProximity),
+        DEFINE_MESSAGE(QEvent::Type::NonClientAreaMouseMove),
+        DEFINE_MESSAGE(QEvent::Type::NonClientAreaMouseButtonPress),
+        DEFINE_MESSAGE(QEvent::Type::NonClientAreaMouseButtonRelease),
+        DEFINE_MESSAGE(QEvent::Type::NonClientAreaMouseButtonDblClick),
+        DEFINE_MESSAGE(QEvent::Type::MacSizeChange),
+        DEFINE_MESSAGE(QEvent::Type::ContentsRectChange),
+        DEFINE_MESSAGE(QEvent::Type::MacGLWindowChange),
+        DEFINE_MESSAGE(QEvent::Type::FutureCallOut),
+        DEFINE_MESSAGE(QEvent::Type::GraphicsSceneResize ),
+        DEFINE_MESSAGE(QEvent::Type::GraphicsSceneMove ),
+        DEFINE_MESSAGE(QEvent::Type::CursorChange),
+        DEFINE_MESSAGE(QEvent::Type::ToolTipChange),
+        DEFINE_MESSAGE(QEvent::Type::NetworkReplyUpdated),
+        DEFINE_MESSAGE(QEvent::Type::GrabMouse),
+        DEFINE_MESSAGE(QEvent::Type::UngrabMouse),
+        DEFINE_MESSAGE(QEvent::Type::GrabKeyboard),
+        DEFINE_MESSAGE(QEvent::Type::UngrabKeyboard),
+        DEFINE_MESSAGE(QEvent::Type::MacGLClearDrawable),
+        DEFINE_MESSAGE(QEvent::Type::StateMachineSignal),
+        DEFINE_MESSAGE(QEvent::Type::StateMachineWrapped),
+        DEFINE_MESSAGE(QEvent::Type::TouchBegin),
+        DEFINE_MESSAGE(QEvent::Type::TouchUpdate),
+        DEFINE_MESSAGE(QEvent::Type::TouchEnd),
+#ifndef QT_NO_GESTURES
+        DEFINE_MESSAGE(QEvent::Type::NativeGesture),
+#endif
+        DEFINE_MESSAGE(QEvent::Type::RequestSoftwareInputPanel),
+        DEFINE_MESSAGE(QEvent::Type::CloseSoftwareInputPanel),
+        DEFINE_MESSAGE(QEvent::Type::WinIdChange),
+#ifndef QT_NO_GESTURES
+        DEFINE_MESSAGE(QEvent::Type::Gesture),
+        DEFINE_MESSAGE(QEvent::Type::GestureOverride),
+#endif
+        DEFINE_MESSAGE(QEvent::Type::ScrollPrepare),
+        DEFINE_MESSAGE(QEvent::Type::Scroll),
+        DEFINE_MESSAGE(QEvent::Type::Expose),
+        DEFINE_MESSAGE(QEvent::Type::InputMethodQuery),
+        DEFINE_MESSAGE(QEvent::Type::OrientationChange),
+        DEFINE_MESSAGE(QEvent::Type::TouchCancel),
+        DEFINE_MESSAGE(QEvent::Type::ThemeChange),
+        DEFINE_MESSAGE(QEvent::Type::SockClose),
+        DEFINE_MESSAGE(QEvent::Type::PlatformPanel),
+        DEFINE_MESSAGE(QEvent::Type::StyleAnimationUpdate),
+        DEFINE_MESSAGE(QEvent::Type::ApplicationStateChange),
+        DEFINE_MESSAGE(QEvent::Type::WindowChangeInternal),
+        DEFINE_MESSAGE(QEvent::Type::ScreenChangeInternal),
+        DEFINE_MESSAGE(QEvent::Type::PlatformSurface),
+        DEFINE_MESSAGE(QEvent::Type::Pointer),
+        DEFINE_MESSAGE(QEvent::Type::TabletTrackingChange)
+#endif // QT_WIDGETS_LIB
+
+      };
       return message_map;
       }
 
@@ -678,7 +860,6 @@ namespace std {
     }
     return out;
   }
-
 #endif // X11
 
 #ifdef WIN32
@@ -696,8 +877,18 @@ namespace std {
     out << " window: " << e.id;
     return out;
   }
-
 #endif // WIN32
 
+#ifdef QT_WIDGETS_LIB
+  std::ostream& operator<< (std::ostream& out, const gui::core::event& e) {
+    const char* msg = detail::get_message_map()[e.type()];
+    if (msg) {
+      out << msg;
+    } else {
+      out << "0x" << std::hex << e.type();
+    }
+    return out;
+  }
+#endif // QT_WIDGETS_LIB
 
 }

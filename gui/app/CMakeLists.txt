@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-project("gui++-app" CXX)
+project("gui++::app" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
@@ -20,7 +20,7 @@ if(NOT TARGET gui++-app-obj)
 
   add_library(gui++-app-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
 
-  set_target_properties(gui++-app-obj PROPERTIES 
+  set_target_properties(gui++-app-obj PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
                         CXX_STANDARD 11

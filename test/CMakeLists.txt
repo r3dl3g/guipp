@@ -12,12 +12,6 @@ if(NOT CMAKE_DEBUG_POSTFIX)
   set(CMAKE_DEBUG_POSTFIX d)
 endif()
 
-if (APPLE)
-  add_definitions(-DCOCOA -std=c++11)
-elseif (UNIX)
-  add_definitions(-DX11 -std=c++11)
-endif()
-
 add_subdirectory(./../gui gui)
 
 set(Boost_USE_STATIC_LIBS ON)

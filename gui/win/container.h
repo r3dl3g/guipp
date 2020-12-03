@@ -29,6 +29,9 @@
 #ifdef X11
 #include <gui/win/x11_container_class.h>
 #endif // X11
+#ifdef QT_WIDGETS_LIB
+#include <gui/win/x11_container_class.h>
+#endif // QT_WIDGETS_LIB
 
 
 namespace gui {

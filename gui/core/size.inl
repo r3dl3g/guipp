@@ -95,32 +95,31 @@ namespace gui {
 
     template<typename T>
     inline basic_size<T>::basic_size (const gui::os::size& s)
-      : w(global::scale<T>(s.cx))
-      , h(global::scale<T>(s.cy))
+      : w(global::scale<T>(IF_QT_ELSE(s.width(), s.cx)))
+      , h(global::scale<T>(IF_QT_ELSE(s.height(), s.cy)))
     {}
 
     template<typename T>
     inline basic_size<T>::basic_size (const gui::os::point& pt)
-      : w(global::scale<T>(pt.x))
-      , h(global::scale<T>(pt.y))
+      : w(global::scale<T>(IF_QT_ELSE(pt.x(), pt.x)))
+      , h(global::scale<T>(IF_QT_ELSE(pt.y(), pt.y)))
     {}
 
-#ifdef WIN32
     template<typename T>
     inline basic_size<T>::basic_size (const gui::os::rectangle& r)
+#ifdef WIN32
       : w(global::scale<T>(r.right - r.left))
       , h(global::scale<T>(r.bottom - r.top))
-    {}
-
 #endif // WIN32
 #ifdef X11
-    template<typename T>
-    inline basic_size<T>::basic_size (const gui::os::rectangle& r)
       : w(global::scale<T>(r.width))
       , h(global::scale<T>(r.height))
-    {}
-
 #endif // X11
+#ifdef QT_WIDGETS_LIB
+      : w(global::scale<T>(r.width()))
+      , h(global::scale<T>(r.height()))
+#endif // QT_WIDGETS_LIB
+    {}
 
     template<typename T>
     inline void basic_size<T>::clear (type v) {

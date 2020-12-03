@@ -112,6 +112,9 @@ namespace gui {
     template<>
     struct part_defaults<core::os::platform_t::x11> : public bgra_parts {};
 
+    template<>
+    struct part_defaults<core::os::platform_t::qt> : public rgba_parts {};
+
     enum struct part : type {
       red = part_defaults<>::red,
       green = part_defaults<>::green,

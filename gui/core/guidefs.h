@@ -40,10 +40,13 @@
 #endif // WIN32
 #ifdef X11
 # include <gui/core/x11defs.h>
-#endif
+#endif // X11
 #ifdef COCOA
 # include <gui/core/cocoadefs.h>
-#endif
+#endif // COCOA
+#ifdef QT_WIDGETS_LIB
+# include <gui/core/qtdefs.h>
+#endif // QT_WIDGETS_LIB
 
 #if !defined(WIN32) && !defined(X11) && !defined(COCOA)
 # pragma error "Unknown target system"

@@ -38,16 +38,16 @@ namespace gui {
   namespace core {
 
     // --------------------------------------------------------------------------
-    using event = IF_WIN32_ELSE(win32::event, IF_X11_ELSE(XEvent, CGEventRef));
-
-    typedef bool (event_handler_callback)(const event&, gui::os::event_result&);
-
 #ifdef WIN32
+    using event = win32::event;
+
     const gui::os::event_id WM_LAYOUT_WINDOW = WM_USER + 0x100;
 #endif //WIN32
 
 #ifdef X11
     // --------------------------------------------------------------------------
+    using event = XEvent;
+
     extern Atom WM_LAYOUT_WINDOW;
 
     namespace x11 {
@@ -65,6 +65,15 @@ namespace gui {
     } // namespace x11
 #endif // X11
 
+#ifdef COCOA
+    using event = CGEventRef;
+#endif // COCOA
+
+#ifdef QT_WIDGETS_LIB
+    using event = QEvent;
+#endif // QT_WIDGETS_LIB
+
+    typedef bool (event_handler_callback)(const event&, gui::os::event_result&);
 
   } // core
 

@@ -45,17 +45,25 @@ namespace gui {
     template<>
     struct window_class_defaults<core::os::platform_t::win32> {
       static constexpr win::cursor_type cursor = win::cursor_type::arrow;
-      static constexpr os::style style = IF_WIN32_ELSE(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP, 0);
-      static constexpr os::style ex_style = IF_WIN32_ELSE(WS_EX_NOPARENTNOTIFY, 0);
-      static constexpr os::style class_style = IF_WIN32_ELSE(CS_DBLCLKS, 0);
+      static constexpr os::style style = IF_WIN32_ELSE(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP, static_cast<os::style>(0));
+      static constexpr os::style ex_style = IF_WIN32_ELSE(WS_EX_NOPARENTNOTIFY, static_cast<os::style>(0));
+      static constexpr os::style class_style = IF_WIN32_ELSE(CS_DBLCLKS, static_cast<os::style>(0));
     };
 
     template<>
     struct window_class_defaults<core::os::platform_t::x11> {
       static constexpr win::cursor_type cursor = win::cursor_type::none;
-      static constexpr os::style style = 0;
-      static constexpr os::style ex_style = 0;
-      static constexpr os::style class_style = IF_X11_ELSE(InputOutput, 0);
+      static constexpr os::style style = static_cast<os::style>(0);
+      static constexpr os::style ex_style = static_cast<os::style>(0);
+      static constexpr os::style class_style = IF_X11_ELSE(InputOutput, static_cast<os::style>(0));
+    };
+
+    template<>
+    struct window_class_defaults<core::os::platform_t::qt> {
+      static constexpr win::cursor_type cursor = win::cursor_type::arrow;
+      static constexpr os::style style = IF_QT_ELSE(Qt::Widget, static_cast<os::style>(0));
+      static constexpr os::style ex_style = static_cast<os::style>(0);
+      static constexpr os::style class_style = static_cast<os::style>(0);
     };
 
     class GUIPP_WIN_EXPORT class_info {

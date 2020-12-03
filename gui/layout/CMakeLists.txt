@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-project("gui++-layout" CXX)
+project("gui++::layout" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
@@ -11,10 +11,6 @@ if(NOT TARGET gui++-layout-obj)
   set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
   set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} PARENT_SCOPE)
   include_directories(${GUIPP_INCLUDE_DIRS})
-
-  if (WIN32)
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN)
-  endif (WIN32)
 
   add_definitions(${GUIPP_CXX_FLAGS})
 
@@ -41,7 +37,7 @@ if(NOT TARGET gui++-layout-obj)
     layout.inl
     lineup_layout.inl
     weighted_layout.inl
-    )
+  )
 
   add_library(gui++-layout-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
 
@@ -49,7 +45,7 @@ if(NOT TARGET gui++-layout-obj)
     POSITION_INDEPENDENT_CODE ON
     FOLDER libraries
     CXX_STANDARD 11
-    )
+  )
 
   if(GUIPP_BUILD_STATIC_MODULE_LIBS)
     add_definitions(-DGUIPP_BUILT_AS_STATIC)
@@ -80,7 +76,7 @@ if(NOT TARGET gui++-layout-obj)
     EXPORT_MACRO_NAME GUIPP_LAYOUT_EXPORT
     EXPORT_FILE_NAME gui++-layout-export.h
     STATIC_DEFINE GUIPP_BUILT_AS_STATIC
-    )
+  )
 
   if (GUIPP_STANDALONE_BUILD)
     install(FILES ${INCLUDE_FILES}

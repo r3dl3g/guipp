@@ -170,7 +170,7 @@ namespace gui {
       template<typename T, typename F>
       paint (T* t, F f);
 
-      void operator() (os::window, const os::graphics& g);
+      void operator() (os::window, os::graphics g);
 
     private:
       painter p;
@@ -186,7 +186,7 @@ namespace gui {
       template<typename T, typename F>
       buffered_paint (T* t, F f);
 
-      void operator() (os::window, const os::graphics& g);
+      void operator() (os::window, os::graphics g);
 
     private:
       painter p;

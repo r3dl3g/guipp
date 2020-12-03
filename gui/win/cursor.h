@@ -20,6 +20,14 @@
 
 // --------------------------------------------------------------------------
 //
+// Common includes
+//
+#ifdef X11
+# include <X11/cursorfont.h>
+#endif // X11
+
+// --------------------------------------------------------------------------
+//
 // Library includes
 //
 #include <gui/core/guidefs.h>
@@ -30,18 +38,18 @@ namespace gui {
 
   namespace win {
 
-    enum class cursor_type {
-      none,
-      arrow,
-      size_h,
-      size_v,
-      size_ne_sw,
-      size_nw_se,
-      move,
-      ibeam,
-      cross,
-      wait,
-      no
+    enum class cursor_type : IF_QT_ELSE(int, os::cursor_type) {
+      none        = IF_QT_ELSE(Qt::CursorShape::CustomCursor, 0),
+      arrow       = IF_WIN32_ELSE(IDC_ARROW, IF_QT_ELSE(Qt::CursorShape::ArrowCursor, XC_arrow)),
+      size_h      = IF_WIN32_ELSE(IDC_SIZEWE, IF_QT_ELSE(Qt::CursorShape::SizeHorCursor, XC_sb_h_double_arrow)),
+      size_v      = IF_WIN32_ELSE(IDC_SIZENS, IF_QT_ELSE(Qt::CursorShape::SizeVerCursor, XC_sb_v_double_arrow)),
+      size_ne_sw  = IF_WIN32_ELSE(IDC_SIZENESW, IF_QT_ELSE(Qt::CursorShape::SizeBDiagCursor, XC_bottom_left_corner)),
+      size_nw_se  = IF_WIN32_ELSE(IDC_SIZENWSE, IF_QT_ELSE(Qt::CursorShape::SizeFDiagCursor, XC_bottom_right_corner)),
+      move        = IF_WIN32_ELSE(IDC_SIZEALL, IF_QT_ELSE(Qt::CursorShape::DragMoveCursor, XC_fleur)),
+      ibeam       = IF_WIN32_ELSE(IDC_IBEAM, IF_QT_ELSE(Qt::CursorShape::IBeamCursor, XC_xterm)),
+      cross       = IF_WIN32_ELSE(IDC_CROSS, IF_QT_ELSE(Qt::CursorShape::CrossCursor, XC_crosshair)),
+      wait        = IF_WIN32_ELSE(IDC_WAIT, IF_QT_ELSE(Qt::CursorShape::WaitCursor, XC_watch)),
+      no          = IF_WIN32_ELSE(IDC_NO, IF_QT_ELSE(Qt::CursorShape::ForbiddenCursor, XC_pirate))
     };
 
     class GUIPP_WIN_EXPORT cursor {
@@ -60,16 +68,16 @@ namespace gui {
 
       static const cursor& get (win::cursor_type t);
 
-      cursor ();
-
-      operator os::cursor () const;
+      operator const os::cursor& () const;
 
       operator bool () const;
 
-    private:
-      cursor (os::cursor_type t);
+      cursor ();
 
-      os::cursor_type type;
+    private:
+      cursor (cursor_type t);
+
+      cursor_type type;
       mutable os::cursor id;
     };
 

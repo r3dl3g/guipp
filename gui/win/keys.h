@@ -40,6 +40,10 @@
 # include <gui/win/x11keys.h>
 #endif // X11
 
+#ifdef QT_WIDGETS_LIB
+# include <gui/win/qtkeys.h>
+#endif // X11
+
 namespace gui {
 
   namespace win {

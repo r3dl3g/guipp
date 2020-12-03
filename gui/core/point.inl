@@ -81,26 +81,25 @@ namespace gui {
 
     template<typename T>
     inline basic_point<T>::basic_point (const gui::os::point& rhs)
-      : x_(global::scale<T>(rhs.x))
-      , y_(global::scale<T>(rhs.y))
+      : x_(global::scale<T>(IF_QT_ELSE(rhs.x(), rhs.x)))
+      , y_(global::scale<T>(IF_QT_ELSE(rhs.y(), rhs.y)))
     {}
 
-#ifdef WIN32
-    template<typename T>
-    inline basic_point<T>::basic_point (const gui::os::rectangle& rhs)
-      : x_(global::scale<T>(rhs.left))
-      , y_(global::scale<T>(rhs.top))
-    {}
-
-#endif // WIN32
-#ifdef X11
     template<typename T>
     inline basic_point<T>::basic_point (const gui::os::rectangle& r)
+#ifdef WIN32
+      : x_(global::scale<T>(r.left))
+      , y_(global::scale<T>(r.top))
+#endif // WIN32
+#ifdef X11
       : x_(global::scale<T>(r.x))
       , y_(global::scale<T>(r.y))
-    {}
-
 #endif // X11
+#ifdef QT_WIDGETS_LIB
+      : x_(global::scale<T>(r.x()))
+      , y_(global::scale<T>(r.y()))
+#endif // QT_WIDGETS_LIB
+    {}
 
     template<typename T>
     inline auto basic_point<T>::operator+ (const size_t& s) const -> self {

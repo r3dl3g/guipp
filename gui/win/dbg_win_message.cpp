@@ -34,33 +34,37 @@ namespace gui {
   namespace win {
 
     bool is_frequent_event (const core::event& e) {
-      switch (e.type) {
 #ifdef WIN32
-      case WM_MOUSEMOVE:
-      case WM_NCMOUSEMOVE:
-      case WM_NCHITTEST:
-      case WM_SETCURSOR:
-      case WM_CTLCOLORBTN:
-      case WM_CTLCOLORDLG:
-      case WM_CTLCOLOREDIT:
-      case WM_CTLCOLORLISTBOX:
-      case WM_CTLCOLORMSGBOX:
-      case WM_CTLCOLORSCROLLBAR:
-      case WM_CTLCOLORSTATIC:
-      case WM_ENTERIDLE:
-      case WM_CANCELMODE:
-      case 0x0118:      // WM_SYSTIMER (caret blink)
-#else
-      case ConfigureNotify:
-      case MotionNotify:
-      case EnterNotify:
-      case LeaveNotify:
-      case Expose:
-      case NoExpose:
+      switch (e.type) {
+        case WM_MOUSEMOVE:
+        case WM_NCMOUSEMOVE:
+        case WM_NCHITTEST:
+        case WM_SETCURSOR:
+        case WM_CTLCOLORBTN:
+        case WM_CTLCOLORDLG:
+        case WM_CTLCOLOREDIT:
+        case WM_CTLCOLORLISTBOX:
+        case WM_CTLCOLORMSGBOX:
+        case WM_CTLCOLORSCROLLBAR:
+        case WM_CTLCOLORSTATIC:
+        case WM_ENTERIDLE:
+        case WM_CANCELMODE:
+        case 0x0118:      // WM_SYSTIMER (caret blink)
+#elif X11
+      switch (e.type) {
+        case ConfigureNotify:
+        case MotionNotify:
+        case EnterNotify:
+        case LeaveNotify:
+        case Expose:
+        case NoExpose:
+#elif QT_WIDGETS_LIB
+      switch (e.type()) {
+        case QEvent::Type::MouseMove:
 #endif
-        return true;
-      default:
-        return false;
+          return true;
+        default:
+          return false;
       }
     }
 

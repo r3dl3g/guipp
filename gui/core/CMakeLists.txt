@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-project("gui++-core" CXX)
+project("gui++::core" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
@@ -17,10 +17,6 @@ if(NOT TARGET gui++-core-obj)
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
   message(STATUS "GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
-
-  if (WIN32)
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN)
-  endif (WIN32)
 
   add_definitions(-DEXPERIMENTAL ${GUIPP_CXX_FLAGS})
 

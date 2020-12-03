@@ -167,6 +167,14 @@ namespace gui {
 #endif // X11
     }
 
+    window::operator os::drawable() const {
+#ifdef QT_WIDGETS_LIB
+      return nullptr;
+#else
+      return get_id();
+#endif
+    }
+
     core::point window::window_to_screen (const core::point& pt) const {
       window* p = get_parent();
       return p ? p->client_to_screen(pt) : pt;

@@ -226,11 +226,11 @@ void test_bitmap_get_image_mask () {
 
   draw::pixmap mem(20, 20);
   {
-    gui::os::instance display = core::global::get_instance();
-
     draw::graphics gc(mem);
     gc.clear(color::gray);
+
 #ifdef X11
+    gui::os::instance display = core::global::get_instance();
     pix.invert();
 
     XSetClipMask(display, gc, mask);

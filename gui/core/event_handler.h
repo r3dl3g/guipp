@@ -42,7 +42,7 @@ namespace gui {
     template<gui::os::event_id id>
     struct event_id_matcher {
       inline bool operator() (const event& e) {
-        return (e.type == id);
+        return (IF_QT_ELSE(e.type(), e.type) == id);
       }
     };
 
@@ -152,7 +152,15 @@ namespace gui {
 
       bool operator() (const event& e, gui::os::event_result& result) {
         if (matcher(e) && caller) {
-          if (e.type != IF_WIN32_ELSE(WM_MOUSEMOVE, MotionNotify)) {
+#ifdef WIN32
+        if (e.type != WM_MOUSEMOVE) {
+#endif // WIN32
+#ifdef X11
+        if (e.type != MotionNotify) {
+#endif // X11
+#ifdef QT_WIDGETS_LIB
+        if (e.type() != QEvent::Type::MouseMove) {
+#endif // QT_WIDGETS_LIB
             clog::trace() << "Call " << e;
           }
           caller(e);

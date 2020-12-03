@@ -8,9 +8,10 @@ include (GenerateExportHeader)
 
 option(GUIPP_BUILD_STATIC_MODULE_LIBS "On to build a static library for each submodule, Off to build shared libraries. Default Off" OFF)
 option(GUIPP_BUILD_SHARED_MODULE_LIBS "On to build a shared library for each submodule, Off to build static libraries. default Off" OFF)
-option(GUIPP_USE_XCB "On to make use uf the xcb library. Default Off" OFF)
+option(GUIPP_USE_XCB "On to make use of the xcb library. Default Off" OFF)
 option(GUIPP_STANDALONE_BUILD "On to make an installable standalone build, Off to build as part of a project. Default Off" OFF)
 option(GUIPP_BUILD_FOR_MOBILE "On to optimize for smartphone, Off to optimize for dekstop. Default Off" OFF)
+option(GUIPP_USE_QT "On to make use of the Qt library. Default Off" OFF)
 
 if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
@@ -43,9 +44,21 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   set (INCLUDE_INSTALL_DIR include/guipp/gui)
   set (LIBRARY_INSTALL_DIR lib/guipp)
 
-  if (APPLE)
+  if (GUIPP_USE_QT)
+    message(STATUS "GUIPP: build with Qt5!")
+    find_package(Qt5Widgets REQUIRED)
+
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES})
+    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} ${Qt5Widgets_DEFINITIONS} -lstdc++fs)
+    set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${Qt5Widgets_INCLUDES} /usr/local/src/qt-everywhere-opensource-src-5.9.5/qtbase/include)
+
+    message(STATUS "GUIPP: Qt5Widgets_DEFINITIONS: " ${Qt5Widgets_DEFINITIONS})
+    message(STATUS "GUIPP: Qt5Widgets_INCLUDES: " ${Qt5Widgets_INCLUDES})
+
+  elseif (APPLE)
     message(STATUS "GUIPP: build for Apple!")
-    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS})
+    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DCOCOA -lstdc++fs)
+
   elseif (UNIX)
     message(STATUS "GUIPP: build for Unix!")
     find_package(X11 REQUIRED)
@@ -57,7 +70,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
         message(SEND_ERROR "Xdmcp library is required!")
       endif()
       set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${X11_LIBRARIES} ${X11_Xdmcp_LIB})
-      set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DX11)
+      set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DX11 -lstdc++fs)
       set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS})
 
       if (X11_Xrender_FOUND)
@@ -92,8 +105,8 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     else()
       message(SEND_ERROR "X11 libraries are required!")
     endif(X11_FOUND)
-
     #        set (GUIPP_SYS_LIBRARIES X11 Xft fontconfig xcb Xdmcp bsd dl freetype Xrender expat Xau z png16)
+
   elseif (WIN32)
     message(STATUS "GUIPP: build for Win32!")
     set (GUIPP_SYS_LIBRARIES Shcore)
@@ -106,7 +119,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
   if (GUIPP_BUILD_STATIC_MODULE_LIBS)
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_BUILT_AS_STATIC)
-    set (GUIPP_LIBRARIES
+    set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES}
       gui++-ctrl-static
       gui++-io-static
       gui++-draw-static
@@ -119,7 +132,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       )
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${LOGGING_SYS_LIBRARIES} ${UTIL_SYS_LIBRARIES})
   elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
-    set (GUIPP_LIBRARIES
+    set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES}
       gui++-ctrl
       gui++-io
       gui++-draw
@@ -132,7 +145,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       )
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${LOGGING_SYS_LIBRARIES} ${UTIL_SYS_LIBRARIES})
   else()
-    set (GUIPP_LIBRARIES ${LOGGING_LIBRARIES} ${UTIL_LIBRARIES} gui++)
+    set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES} ${LOGGING_LIBRARIES} ${UTIL_LIBRARIES} gui++)
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${LOGGING_SYS_LIBRARIES} ${UTIL_SYS_LIBRARIES})
   endif()
 

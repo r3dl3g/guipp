@@ -29,10 +29,6 @@ namespace gui {
       return id;
     }
 
-    inline window::operator os::drawable() const {
-      return get_id();
-    }
-
     inline bool window::get_flag (byte bit) const {
       return flags.test(bit);
     }

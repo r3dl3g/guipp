@@ -18,6 +18,10 @@
 #include <fstream>
 #include <string.h>
 
+#ifdef QT_WIDGETS_LIB
+#include <QtWidgets/qapplication.h>
+#endif // QT_WIDGETS_LIB
+
  // --------------------------------------------------------------------------
 //
 // Library includes
@@ -52,12 +56,14 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
   gui::core::global::init(hInstance);
 #endif // WIN32
 
-#ifdef X11
+#if defined(X11) || defined(QT_WIDGETS_LIB)
 int main (int argc, char* argv[]) {
+  std::vector<std::string> args(argv, argv + argc);
+#endif // X11 || QT_WIDGETS_LIB
 
+#ifdef X11
   const char* display = NULL;
 
-  std::vector<std::string> args(argv, argv + argc);
   for (int i = 0; i < argc; ++i) {
     if (strcmp(argv[i], "-d") == 0) {
       ++i;
@@ -72,6 +78,10 @@ int main (int argc, char* argv[]) {
 
   gui::core::global::init(XOpenDisplay(display));
 #endif // X11
+#ifdef QT_WIDGETS_LIB
+  QApplication qapplication(argc, argv);
+  gui::core::global::init(&qapplication);
+#endif // QT_WIDGETS_LIB
 
   int ret = 0;
   try {

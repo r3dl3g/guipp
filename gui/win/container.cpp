@@ -301,12 +301,12 @@ namespace gui {
                                     const core::rectangle& r) {
       auto rect = r.os();
       AdjustWindowRectEx(&rect, type.get_style(), FALSE, type.get_ex_style());
-      window::create(type, detail::get_window_id(parent), core::rectangle(rect));
+      window::create_internal(type, detail::get_window_id(parent), core::rectangle(rect));
     }
 
     void overlapped_window::create (const class_info& type,
                                     const core::rectangle& r) {
-      window::create(type, GetDesktopWindow(), r);
+      window::create_internal(type, GetDesktopWindow(), r);
     }
 
     void overlapped_window::set_title (const std::string& title) {

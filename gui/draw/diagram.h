@@ -52,24 +52,24 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<typename X, typename Y, typename P>
       struct get {
-        inline static X x (const P& p) {
+        inline static const X x (const P& p) {
           return p.x;
         }
 
-        inline static Y y (const P& p) {
+        inline static const Y y (const P& p) {
           return p.y;
         }
       };
 
       // --------------------------------------------------------------------------
       template<typename X, typename Y, typename P>
-      inline X get_x (const P& p) {
+      inline const X get_x (const P& p) {
         return get<X, Y, P>::x(p);
       }
 
       // --------------------------------------------------------------------------
       template<typename X, typename Y, typename P>
-      inline Y get_y (const P& p) {
+      inline const Y get_y (const P& p) {
         return get<X, Y, P>::y(p);
       }
 

@@ -44,9 +44,9 @@ namespace gui {
 
     class_info::class_info ()
       : background(0)
-      , class_style(0)
-      , style(0)
-      , ex_style(0)
+      , class_style(static_cast<os::style>(0))
+      , style(static_cast<os::style>(0))
+      , ex_style(static_cast<os::style>(0))
     {}
 
     class_info::class_info (const class_info& rhs)

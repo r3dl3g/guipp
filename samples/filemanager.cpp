@@ -39,7 +39,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   });
 
   file_sub_menu.data.add_entry(
-    menu_entry("Exit", 'x', &gui::win::detail::quit_main_loop, hot_key(keys::f4, state::alt), true)
+    menu_entry("Exit", 'x', &gui::win::quit_main_loop, hot_key(keys::f4, state::alt), true)
   );
 
   edit_sub_menu.data.add_entries({

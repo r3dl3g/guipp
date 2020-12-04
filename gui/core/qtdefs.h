@@ -63,8 +63,8 @@ namespace gui {
     typedef QSize size;
     typedef QRect rectangle;
 
-    typedef QEvent::Type event_id;
-    typedef QEvent::Type message_type;
+    typedef /*QEvent::Type*/int event_id;
+    typedef /*QEvent::Type*/int message_type;
     typedef int event_result;
 
   } // os

@@ -71,6 +71,9 @@ namespace gui {
 
 #ifdef QT_WIDGETS_LIB
     using event = QEvent;
+
+    const gui::os::event_id WM_LAYOUT_WINDOW = QEvent::User + 0x100;
+
 #endif // QT_WIDGETS_LIB
 
     typedef bool (event_handler_callback)(const event&, gui::os::event_result&);

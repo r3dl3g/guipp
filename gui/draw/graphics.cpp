@@ -637,15 +637,15 @@ namespace gui {
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) const {
       if (bmp) {
         if (bmp.depth() == depth()) {
-          return copy_from(bmp.get_id(), src, pt);
+          return copy_from((const os::drawable&)bmp, src, pt);
         } else {
           switch (depth()) {
             case 24: {
-              return copy_from(pixmap(bmp.get<pixel_format_t::RGB>()).get_id(), src, pt);
+              return copy_from(pixmap(bmp.get<pixel_format_t::RGB>()), src, pt);
               break;
             }
             case 32: {
-              return copy_from(pixmap(bmp.get<pixel_format_t::RGBA>()).get_id(), src, pt);
+              return copy_from(pixmap(bmp.get<pixel_format_t::RGBA>()), src, pt);
               break;
             }
           }
@@ -657,15 +657,15 @@ namespace gui {
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_rect& src, const core::native_point& pt) const {
       if (bmp) {
         if (bmp.depth() == depth()) {
-          return copy_from(bmp.get_id(), src, pt);
+          return copy_from((const os::drawable&)bmp, src, pt);
         } else {
           switch (depth()) {
             case 24: {
-              return copy_from(pixmap(bmp.get<pixel_format_t::RGB>()).get_id(), src, pt);
+              return copy_from(pixmap(bmp.get<pixel_format_t::RGB>()), src, pt);
               break;
             }
             case 32: {
-              return copy_from(pixmap(bmp.get<pixel_format_t::RGBA>()).get_id(), src, pt);
+              return copy_from(pixmap(bmp.get<pixel_format_t::RGBA>()), src, pt);
               break;
             }
           }

@@ -131,7 +131,6 @@ namespace gui {
       typedef void(notification_fn)();
       typedef void(mouse_fn)(os::key_state, core::point);
       typedef void(wheel_fn)(core::point::type, core::point);
-      typedef void(window_fn)(window*);
       typedef void(move_fn)(core::point);
       typedef void(size_fn)(core::size);
       typedef void(place_fn)(core::rectangle);
@@ -139,7 +138,7 @@ namespace gui {
       void on_create (std::function<notification_fn>&& f);
 
       void on_close (std::function<notification_fn>&& f);
-      void on_destroy (std::function<window_fn>&& f);
+      void on_destroy (std::function<notification_fn>&& f);
 
       void on_any_key_down (std::function<void(os::key_state, os::key_symbol, std::string)>&& f);
       void on_any_key_up (std::function<void(os::key_state, os::key_symbol)>&& f);
@@ -176,19 +175,14 @@ namespace gui {
       void on_show (std::function<notification_fn>&& f);
       void on_hide (std::function<notification_fn>&& f);
 
-      void on_set_focus (std::function<window_fn>&& f);
-      void on_lost_focus (std::function<window_fn>&& f);
+      void on_set_focus (std::function<notification_fn>&& f);
+      void on_lost_focus (std::function<notification_fn>&& f);
 
       void on_mouse_enter (std::function<notification_fn>&& f);
       void on_mouse_leave (std::function<notification_fn>&& f);
 
       void on_move (std::function<move_fn>&& f);
       void on_size (std::function<size_fn>&& f);
-      void on_place (std::function<place_fn>&& f);
-
-      void on_moving (std::function<move_fn>&& f);
-      void on_sizing (std::function<size_fn>&& f);
-      void on_placing (std::function<place_fn>&& f);
 
       void on_layout (std::function<place_fn>&& f);
 

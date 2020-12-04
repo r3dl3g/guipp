@@ -114,7 +114,7 @@ namespace gui {
         button_layout.add(layout::lay(btn));
         ++i;
       }
-      super::on_set_focus([&] (win::window*) {
+      super::on_set_focus([&] () {
         if (!buttons.empty()) {
           buttons.back().take_focus();
         }

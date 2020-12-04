@@ -62,6 +62,12 @@ namespace gui {
 
     }
 
+    GUIPP_WIN_EXPORT void send_client_message (const window* win, os::message_type message, long l1 = 0, long l2 = 0);
+    GUIPP_WIN_EXPORT void post_client_message (const window* win, os::message_type message, long l1 = 0, long l2 = 0);
+
+    GUIPP_WIN_EXPORT void send_client_message (const window* win, os::message_type message, const core::size& sz);
+    GUIPP_WIN_EXPORT void send_client_message (const window* win, os::message_type message, const core::rectangle& wr);
+
 #ifdef WIN32
     // --------------------------------------------------------------------------
     template<int I, typename T>
@@ -191,8 +197,7 @@ namespace gui {
 
     using close_event = core::event_handler<WM_CLOSE, 0, core::params<>::getter<>, 1>;
 
-    using destroy_event = core::event_handler<WM_DESTROY, 0, core::params<window*>::
-                                              getter<get_window_from_id>>;
+    using destroy_event = core::event_handler<WM_DESTROY>;
 
     using any_key_down_event = core::event_handler<WM_KEYDOWN, 0,
                                                    core::params<os::key_state, os::key_symbol, std::string>::
@@ -234,10 +239,8 @@ namespace gui {
                                                getter<get_param<0, bool>, get_param<1, window*>>>;
     using activate_app_event = core::event_handler<WM_ACTIVATEAPP, 0,
                                                    core::params<bool>::getter<get_param<0, bool>>>;
-    using set_focus_event = core::event_handler<WM_SETFOCUS, 0,
-                                                core::params<window*>::getter<get_param<0, window*>>>;
-    using lost_focus_event = core::event_handler<WM_KILLFOCUS, 0,
-                                                 core::params<window*>::getter<get_param<0, window*>>>;
+    using set_focus_event = core::event_handler<WM_SETFOCUS>;
+    using lost_focus_event = core::event_handler<WM_KILLFOCUS>;
 
     using begin_size_or_move_event = core::event_handler<WM_ENTERSIZEMOVE>;
     using end_size_or_move_event = core::event_handler<WM_EXITSIZEMOVE>;
@@ -245,18 +248,10 @@ namespace gui {
     using move_event = core::event_handler<WM_MOVE, 0,
                                            core::params<core::point>::
                                            getter<get_param<1, core::point>>>;
-    using moving_event = core::event_handler<WM_MOVING, 0,
-                                             core::params<core::point>::
-                                             getter<get_param<1, core::point>>,
-                                             TRUE>;
 
     using size_event = core::event_handler<WM_SIZE, 0,
                                            core::params<core::size>::
                                            getter<get_param<1, core::size>>>;
-    using sizing_event = core::event_handler<WM_SIZING, 0,
-                                             core::params<core::size>::
-                                             getter<get_param<1, core::size>>,
-                                             TRUE>;
 
     using left_btn_down_event = core::event_handler<WM_LBUTTONDOWN, 0,
                                                     core::params<os::key_state, core::point>::
@@ -344,27 +339,15 @@ namespace gui {
                                            0,
                                            event::functor<visibility_event_type_matcher<WM_SHOWWINDOW, false>>>;
 
-    using place_event = core::event_handler<WM_WINDOWPOSCHANGED, 0,
-                                            core::params<core::rectangle>::getter<
-                                              get_rect<WINDOWPOS>>>;
-
-    using placing_event = core::event_handler<WM_WINDOWPOSCHANGING, 0, pos_changing_getter>;
-
     using get_minmax_event = core::event_handler<WM_GETMINMAXINFO, 0, minmax_getter>;
 
-    using layout_event = core::event_handler<gui::core::WM_LAYOUT_WINDOW, 0,
+    using layout_event = core::event_handler<core::WM_LAYOUT_WINDOW, 0,
                                              core::params<core::rectangle>::
                                              getter<get_param<1, core::rectangle>>>;
 
     using paint_event = core::event_handler<WM_PAINT, 0, os_paint_getter>;
 
     // --------------------------------------------------------------------------
-    GUIPP_WIN_EXPORT void send_client_message (const window* win, os::event_id message, long l1 = 0, long l2 = 0);
-
-    GUIPP_WIN_EXPORT void send_client_message (const window* win, os::event_id message, const core::size&);
-    GUIPP_WIN_EXPORT void send_client_message (const window* win, os::event_id message, const core::rectangle&);
-
-    GUIPP_WIN_EXPORT void post_client_message (const window* win, os::event_id message, long l1 = 0, long l2 = 0);
 
 #endif //WIN32
 
@@ -381,9 +364,6 @@ namespace gui {
       GUIPP_WIN_EXPORT void unprepare_win (const window* win);
 
     } // namespace x11
-
-    GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, const core::size& sz);
-    GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, const core::rectangle& wr);
 
     // --------------------------------------------------------------------------
     template<os::event_id id, os::event_id btn>
@@ -542,13 +522,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT os::window get_draw_window (const core::event&);
     // --------------------------------------------------------------------------
-    template<Atom& M>
+    template<os::message_type& M>
     inline bool client_message_matcher (const core::event& e) {
       return (e.type == ClientMessage) && (e.xclient.message_type == M);
     }
 
     // --------------------------------------------------------------------------
-    template<Atom& M>
+    template<os::message_type& M>
     inline bool protocol_message_matcher (const core::event& e) {
       return (e.type == ClientMessage) && (e.xclient.message_type == core::x11::WM_PROTOCOLS) && (e.xclient.data.l[0] == M);
     }
@@ -601,9 +581,7 @@ namespace gui {
                                             core::params<>::getter<>, 1,
                                             event::functor<protocol_message_matcher<core::x11::WM_DELETE_WINDOW>>>;
 
-    using destroy_event = core::event_handler<DestroyNotify, StructureNotifyMask,
-                                              core::params<window*>::
-                                              getter<get_window<XDestroyWindowEvent>>>;
+    using destroy_event = core::event_handler<DestroyNotify, StructureNotifyMask>;
 
     using any_key_down_event = core::event_handler<KeyPress, KeyPressMask,
                                                    core::params<os::key_state, os::key_symbol, std::string>::
@@ -730,12 +708,8 @@ namespace gui {
     using show_event = core::event_handler<MapNotify, StructureNotifyMask>;
     using hide_event = core::event_handler<UnmapNotify, StructureNotifyMask>;
 
-    using set_focus_event = core::event_handler<FocusIn, FocusChangeMask,
-                                          core::params<window*>::
-                                          getter<get_current_focus_window>>;
-    using lost_focus_event = core::event_handler<FocusOut, FocusChangeMask,
-                                           core::params<window*>::
-                                           getter<get_current_focus_window>>;
+    using set_focus_event = core::event_handler<FocusIn, FocusChangeMask>;
+    using lost_focus_event = core::event_handler<FocusOut, FocusChangeMask>;
 
     using mouse_enter_event = core::event_handler<EnterNotify, EnterWindowMask,
                                             core::params<>::getter<>,
@@ -760,36 +734,6 @@ namespace gui {
                                      event::functor<move_size_matcher<core::size,
                                                                       ConfigureNotify,
                                                                       XConfigureEvent>>>;
-    using place_event = core::event_handler<ConfigureNotify, StructureNotifyMask,
-                                      core::params<core::rectangle>::
-                                      getter<get<core::rectangle, XConfigureEvent>::param>,
-                                      0,
-                                      event::functor<move_size_matcher<core::rectangle,
-                                                                       ConfigureNotify,
-                                                                       XConfigureEvent>>>;
-
-    using moving_event = core::event_handler<ConfigureRequest, SubstructureRedirectMask,
-                                       core::params<core::point>::
-                                       getter<get<core::point, XConfigureRequestEvent>::param>,
-                                       0,
-                                       event::functor<move_size_matcher<core::point,
-                                                                        ConfigureRequest,
-                                                                        XConfigureRequestEvent>>>;
-
-    using sizing_event = core::event_handler<ConfigureRequest, SubstructureRedirectMask,
-                                       core::params<core::size>::
-                                       getter<get<core::size, XConfigureRequestEvent>::param>,
-                                       0,
-                                       event::functor<move_size_matcher<core::size,
-                                                                        ConfigureRequest,
-                                                                        XConfigureRequestEvent>>>;
-    using placing_event = core::event_handler<ConfigureRequest, SubstructureRedirectMask,
-                                        core::params<core::rectangle>::
-                                        getter<get<core::rectangle, XConfigureRequestEvent>::param>,
-                                        0,
-                                        event::functor<move_size_matcher<core::rectangle,
-                                                                         ConfigureRequest,
-                                                                         XConfigureRequestEvent>>>;
 
     using layout_event = core::event_handler<ClientMessage, 0,
                                        core::params<core::rectangle>::
@@ -803,32 +747,92 @@ namespace gui {
                                          getter<get_draw_window, get_graphics>>;
 
     // --------------------------------------------------------------------------
-    GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, long l1 = 0, long l2 = 0);
-
-    GUIPP_WIN_EXPORT void post_client_message (const window* win, Atom message, long l1 = 0, long l2 = 0);
-
-    // --------------------------------------------------------------------------
 #endif // X11
 
 #ifdef QT_WIDGETS_LIB
-    template<QEvent::Type E, typename T>
-    const T& event_type_cast (const core::event& e);
+    // --------------------------------------------------------------------------
+    class QClientEvent : public QEvent {
+    public:
+      explicit QClientEvent (Type type, const core::rectangle& rect);
+      explicit QClientEvent (Type type, long l1, long l2);
 
-    template<>
-    inline const QEvent& event_type_cast<QEvent::Create, QEvent>(const core::event& e) {
-      return e;
+      ~QClientEvent ();
+
+      const core::rectangle &rect() const;
+      long l1 () const;
+      long l2 () const;
+
+    protected:
+      core::rectangle m_rect;
+      long m_l1;
+      long m_l2;
+    };
+
+    // --------------------------------------------------------------------------
+    template<os::event_id E, os::key_symbol symbol, os::key_state state>
+    inline bool key_symbol_matcher (const core::event& e) {
+      return (e.type() == E) &&
+             (get_key_symbol(e) == symbol) &&
+             core::bit_mask<os::key_state, state>::is_set(get_key_state(e));
+    }
+
+    inline int get_mouse_button (const core::event& e) {
+      return dynamic_cast<const QMouseEvent&>(e).button();
+    }
+
+    inline core::point get_mouse_point (const core::event& e) {
+      const QMouseEvent& m = dynamic_cast<const QMouseEvent&>(e);
+      return core::point(gui::os::point(m.x(), m.y()));
+    }
+
+    inline core::point get_root_mouse_pos (const core::event& e) {
+      const QMouseEvent& m = dynamic_cast<const QMouseEvent&>(e);
+      return core::point(gui::os::point(m.globalX(), m.globalY()));
+    }
+
+    template<os::event_id id, os::key_state btn>
+    inline bool event_button_matcher (const core::event& e) {
+      return (e.type() == id) && (dynamic_cast<const QMouseEvent&>(e).button() == btn);
+    }
+
+    inline core::point::type get_wheel_delta_x (const core::event& e) {
+      return dynamic_cast<const QWheelEvent&>(e).pixelDelta().x();
+    }
+
+    inline core::point::type get_wheel_delta_y (const core::event& e) {
+      return dynamic_cast<const QWheelEvent&>(e).pixelDelta().y();
+    }
+
+    template<typename T>
+    inline core::point get_point (const core::event& e) {
+      return core::point(dynamic_cast<const T&>(e).pos());
+    }
+
+    template<typename T>
+    inline core::size get_size (const core::event& e) {
+      return core::size(dynamic_cast<const T&>(e).size());
+    }
+
+    inline bool wheel_button_matcher_x (const core::event& e) {
+      return (e.type() == QEvent::Wheel) && (get_wheel_delta_x(e) != 0);
+    }
+
+    inline bool wheel_button_matcher_y (const core::event& e) {
+      return (e.type() == QEvent::Wheel) && (get_wheel_delta_y(e) != 0);
     }
 
     // --------------------------------------------------------------------------
-    using create_event = core::event_handler<QEvent::Create, 0, core::params<>::getter<>>;
+    GUIPP_WIN_EXPORT core::rectangle get_client_data_rect (const core::event& e);
+    GUIPP_WIN_EXPORT os::graphics get_graphics (const core::event&);
+    GUIPP_WIN_EXPORT os::window get_draw_window (const core::event&);
+
+    // --------------------------------------------------------------------------
+    using create_event = core::event_handler<QEvent::Create>;
 
     using close_event = core::event_handler<QEvent::Close, 0,
-                                            core::params<>::getter<>, 1,
-                                            event::functor<protocol_message_matcher<core::x11::WM_DELETE_WINDOW>>>;
+                                            core::params<>::getter<>, 1>;
 
-    using destroy_event = core::event_handler<QEvent::Destroy, 0,
-                                              core::params<window*>::
-                                              getter<get_window<XDestroyWindowEvent>>>;
+    using destroy_event = core::event_handler<QEvent::Destroy>;
 
     using any_key_down_event = core::event_handler<QEvent::KeyPress, 0,
                                                    core::params<os::key_state, os::key_symbol, std::string>::
@@ -840,108 +844,94 @@ namespace gui {
 
     template<os::key_symbol symbol, os::key_state state>
     using key_down_event = core::event_handler<QEvent::KeyPress, 0, core::params<>::getter<>, 0,
-                                               event::functor<key_symbol_matcher<KeyPress, symbol, state>>>;
+                                               event::functor<key_symbol_matcher<QEvent::KeyPress, symbol, state>>>;
 
 
     template<os::key_symbol symbol, os::key_state state>
     using key_up_event = core::event_handler<QEvent::KeyRelease, 0, core::params<>::getter<>, 0,
-                                             event::functor<key_symbol_matcher<KeyRelease, symbol, state>>>;
+                                             event::functor<key_symbol_matcher<QEvent::KeyRelease, symbol, state>>>;
 
     using mouse_move_event = core::event_handler<QEvent::MouseMove, 0,
                                                  core::params<os::key_state, core::point>::
-                                                 getter<get_state<XMotionEvent>,
-                                                        get<core::point, XMotionEvent>::param>>;
+                                                 getter<get_mouse_button, get_mouse_point>>;
 
     using mouse_move_abs_event = core::event_handler<QEvent::MouseMove, 0,
                                                      core::params<os::key_state, core::point>::
-                                                     getter<get_state<XMotionEvent>,
+                                                     getter<get_mouse_button,
                                                             get_root_mouse_pos>>;
 
     using left_btn_down_event = core::event_handler<QEvent::MouseButtonPress, 0,
                                                     core::params<os::key_state, core::point>::
-                                                    getter<get_state<XButtonEvent>,
-                                                           get<core::point, XButtonEvent>::param>,
+                                                    getter<get_mouse_button, get_mouse_point>,
                                                     0,
-                                                    event::functor<event_button_matcher<ButtonPress, Button1>>>;
+                                                    event::functor<event_button_matcher<QEvent::MouseButtonPress, Qt::LeftButton>>>;
 
     using left_btn_up_event = core::event_handler<QEvent::MouseButtonRelease, 0,
                                                   core::params<os::key_state, core::point>::
-                                                  getter<get_state<XButtonEvent>,
-                                                         get<core::point, XButtonEvent>::param>,
+                                                  getter<get_mouse_button, get_mouse_point>,
                                                   0,
-                                                  event::functor<event_button_matcher<ButtonRelease, Button1>>>;
+                                                  event::functor<event_button_matcher<QEvent::MouseButtonRelease, Qt::LeftButton>>>;
 
     using right_btn_down_event = core::event_handler<QEvent::MouseButtonPress, 0,
                                                      core::params<os::key_state, core::point>::
-                                                     getter<get_state<XButtonEvent>,
-                                                            get<core::point, XButtonEvent>::param>,
+                                                     getter<get_mouse_button, get_mouse_point>,
                                                      0,
-                                                     event::functor<event_button_matcher<ButtonPress, Button3>>>;
+                                                     event::functor<event_button_matcher<QEvent::MouseButtonPress, Qt::RightButton>>>;
 
     using right_btn_up_event = core::event_handler<QEvent::MouseButtonRelease, 0,
                                                    core::params<os::key_state, core::point>::
-                                                   getter<get_state<XButtonEvent>,
-                                                          get<core::point, XButtonEvent>::param>,
+                                                   getter<get_mouse_button, get_mouse_point>,
                                                    0,
-                                                   event::functor<event_button_matcher<ButtonRelease, Button3>>>;
+                                                   event::functor<event_button_matcher<QEvent::MouseButtonRelease, Qt::RightButton>>>;
 
     using middle_btn_down_event = core::event_handler<QEvent::MouseButtonPress, 0,
                                                       core::params<os::key_state, core::point>::
-                                                      getter<get_state<XButtonEvent>,
-                                                             get<core::point, XButtonEvent>::param>,
+                                                      getter<get_mouse_button, get_mouse_point>,
                                                       0,
-                                                      event::functor<event_button_matcher<ButtonPress, Button2>>>;
+                                                      event::functor<event_button_matcher<QEvent::MouseButtonPress, Qt::MiddleButton>>>;
 
     using middle_btn_up_event = core::event_handler<QEvent::MouseButtonRelease, 0,
                                                     core::params<os::key_state, core::point>::
-                                                    getter<get_state<XButtonEvent>,
-                                                           get<core::point, XButtonEvent>::param>,
+                                                    getter<get_mouse_button, get_mouse_point>,
                                                     0,
-                                                    event::functor<event_button_matcher<ButtonRelease, Button2>>>;
+                                                    event::functor<event_button_matcher<QEvent::MouseButtonRelease, Qt::MiddleButton>>>;
 
     using btn_down_event = core::event_handler<QEvent::MouseButtonPress, 0,
                                                core::params<os::key_state, core::point>::
-                                               getter<get_state<XButtonEvent>,
-                                                      get<core::point, XButtonEvent>::param>>;
+                                               getter<get_mouse_button, get_mouse_point>>;
 
     using btn_up_event = core::event_handler<QEvent::MouseButtonRelease, 0,
                                              core::params<os::key_state, core::point>::
-                                             getter<get_state<XButtonEvent>,
-                                                    get<core::point, XButtonEvent>::param>>;
+                                             getter<get_mouse_button, get_mouse_point>>;
 
     using left_btn_dblclk_event = core::event_handler<QEvent::MouseButtonDblClick, 0,
                                                       core::params<os::key_state, core::point>::
-                                                      getter<get_state<XButtonEvent>,
-                                                             get<core::point, XButtonEvent>::param>,
+                                                      getter<get_mouse_button, get_mouse_point>,
                                                       0,
-                                                      double_click_matcher<Button1>>;
+                                                      event::functor<event_button_matcher<QEvent::MouseButtonDblClick, Qt::LeftButton>>>;
 
     using right_btn_dblclk_event = core::event_handler<QEvent::MouseButtonDblClick, 0,
                                                        core::params<os::key_state, core::point>::
-                                                       getter<get_state<XButtonEvent>,
-                                                              get<core::point, XButtonEvent>::param>,
+                                                       getter<get_mouse_button, get_mouse_point>,
                                                        0,
-                                                       double_click_matcher<Button3>>;
+                                                       event::functor<event_button_matcher<QEvent::MouseButtonDblClick, Qt::RightButton>>>;
     using middle_btn_dblclk_event = core::event_handler<QEvent::MouseButtonDblClick, 0,
                                                         core::params<os::key_state, core::point>::
-                                                        getter<get_state<XButtonEvent>,
-                                                               get<core::point, XButtonEvent>::param>,
+                                                        getter<get_mouse_button, get_mouse_point>,
                                                         0,
-                                                        double_click_matcher<Button2>>;
+                                                        event::functor<event_button_matcher<QEvent::MouseButtonDblClick, Qt::MiddleButton>>>;
 
     using wheel_x_event = core::event_handler<QEvent::Wheel, 0,
                                               core::params<core::point::type, core::point>::
-                                              getter<get_wheel_delta<6, 7>,
-                                              get<core::point, XButtonEvent>::param>,
+                                              getter<get_wheel_delta_x, get_point<QWheelEvent>>,
                                               0,
-                                              event::functor<wheel_button_matcher<6, 7>>>;
+                                              event::functor<wheel_button_matcher_x>>;
 
     using wheel_y_event = core::event_handler<QEvent::Wheel, 0,
                                               core::params<core::point::type, core::point>::
-                                              getter<get_wheel_delta<Button4, Button5>,
-                                                     get<core::point, XButtonEvent>::param>,
+                                              getter<get_wheel_delta_y, get_point<QWheelEvent>>,
                                               0,
-                                              event::functor<wheel_button_matcher<Button4, Button5>>>;
+                                              event::functor<wheel_button_matcher_y>>;
 
     template<orientation_t O>
     struct wheel_event {};
@@ -955,85 +945,31 @@ namespace gui {
     using show_event = core::event_handler<QEvent::Show>;
     using hide_event = core::event_handler<QEvent::Hide>;
 
-    using set_focus_event = core::event_handler<QEvent::FocusIn, 0,
-                                          core::params<window*>::
-                                          getter<get_current_focus_window>>;
-    using lost_focus_event = core::event_handler<QEvent::FocusOut, 0,
-                                           core::params<window*>::
-                                           getter<get_current_focus_window>>;
+    using set_focus_event = core::event_handler<QEvent::FocusIn>;
+    using lost_focus_event = core::event_handler<QEvent::FocusOut>;
 
-    using mouse_enter_event = core::event_handler<QEvent::Enter, 0,
-                                            core::params<>::getter<>,
-                                            0,
-                                            event::functor<mode_matcher<NotifyNormal, EnterNotify, XCrossingEvent>>>;
-    using mouse_leave_event = core::event_handler<QEvent::Leave, 0,
-                                            core::params<>::getter<>,
-                                            0,
-                                            event::functor<mode_matcher<NotifyNormal, LeaveNotify, XCrossingEvent>>>;
+    using mouse_enter_event = core::event_handler<QEvent::Enter>;
+    using mouse_leave_event = core::event_handler<QEvent::Leave>;
 
     using move_event = core::event_handler<QEvent::Move, 0,
-                                     core::params<core::point>::
-                                     getter<get<core::point, XConfigureEvent>::param>,
-                                     0,
-                                     event::functor<move_size_matcher<core::point,
-                                                                      ConfigureNotify,
-                                                                      XConfigureEvent>>>;
+                                           core::params<core::point>::
+                                           getter<get_point<QMoveEvent>>>;
     using size_event = core::event_handler<QEvent::Resize, 0,
-                                     core::params<core::size>::
-                                     getter<get<core::size, XConfigureEvent>::param>,
-                                     0,
-                                     event::functor<move_size_matcher<core::size,
-                                                                      ConfigureNotify,
-                                                                      XConfigureEvent>>>;
-    using place_event = core::event_handler<QEvent::Resize, 0,
-                                      core::params<core::rectangle>::
-                                      getter<get<core::rectangle, XConfigureEvent>::param>,
-                                      0,
-                                      event::functor<move_size_matcher<core::rectangle,
-                                                                       ConfigureNotify,
-                                                                       XConfigureEvent>>>;
+                                           core::params<core::size>::
+                                           getter<get_size<QResizeEvent>>>;
 
-    using moving_event = core::event_handler<QEvent::Move, 0,
-                                       core::params<core::point>::
-                                       getter<get<core::point, XConfigureRequestEvent>::param>,
-                                       0,
-                                       event::functor<move_size_matcher<core::point,
-                                                                        ConfigureRequest,
-                                                                        XConfigureRequestEvent>>>;
-
-    using sizing_event = core::event_handler<QEvent::Resize, 0,
-                                       core::params<core::size>::
-                                       getter<get<core::size, XConfigureRequestEvent>::param>,
-                                       0,
-                                       event::functor<move_size_matcher<core::size,
-                                                                        ConfigureRequest,
-                                                                        XConfigureRequestEvent>>>;
-    using placing_event = core::event_handler<QEvent::Resize, 0,
-                                        core::params<core::rectangle>::
-                                        getter<get<core::rectangle, XConfigureRequestEvent>::param>,
-                                        0,
-                                        event::functor<move_size_matcher<core::rectangle,
-                                                                         ConfigureRequest,
-                                                                         XConfigureRequestEvent>>>;
-
-    using layout_event = core::event_handler<QEvent::User, 0,
-                                       core::params<core::rectangle>::
-                                       getter<get_client_data_rect>,
-                                       0,
-                                       event::functor<client_message_matcher<core::WM_LAYOUT_WINDOW>>>;
+    using layout_event = core::event_handler<core::WM_LAYOUT_WINDOW, 0,
+                                             core::params<core::rectangle>::
+                                             getter<get_client_data_rect>>;
 
     // --------------------------------------------------------------------------
-    using paint_event = core::event_handler<QEvent::Paint, ExposureMask,
-                                         core::params<os::window, os::graphics>::
-                                         getter<get_draw_window, get_graphics>>;
+    using paint_event = core::event_handler<QEvent::Paint, 0,
+                                            core::params<os::window, os::graphics>::
+                                            getter<get_draw_window, get_graphics>>;
 
     // --------------------------------------------------------------------------
-    GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, long l1 = 0, long l2 = 0);
-
-    GUIPP_WIN_EXPORT void post_client_message (const window* win, Atom message, long l1 = 0, long l2 = 0);
-
 #endif // QT_WIDGETS_LIB
 
-  } // namespace gui
+  } // namespace win
 
 } // namespace gui

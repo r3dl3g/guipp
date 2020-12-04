@@ -49,7 +49,7 @@ namespace gui {
       const os::event_id BN_STATE_MESSAGE = WM_USER + 8;
       const os::event_id SCROLLBAR_MESSAGE = WM_USER + 9;
       const os::event_id SELECTION_CANCEL_MESSAGE = WM_USER + 10;
-      const os::event_id CONTENT_CHANGED_MESSAGE = WM_USER + 10;
+      const os::event_id CONTENT_CHANGED_MESSAGE = WM_USER + 11;
 #endif //WIN32
 #ifdef X11
       extern Atom SCROLLBAR_MESSAGE;
@@ -66,6 +66,19 @@ namespace gui {
 
       int init_control_messages ();
 #endif // X11
+#ifdef QT_WIDGETS_LIB
+      const os::event_id SLIDER_MESSAGE = QEvent::User + 1;
+      const os::event_id SELECTION_CHANGE_MESSAGE = QEvent::User + 2;
+      const os::event_id SELECTION_COMMIT_MESSAGE = QEvent::User + 3;
+      const os::event_id HILITE_CHANGE_MESSAGE = QEvent::User + 4;
+      const os::event_id BN_CLICKED_MESSAGE = QEvent::User + 5;
+      const os::event_id BN_PUSHED_MESSAGE = QEvent::User + 6;
+      const os::event_id BN_UNPUSHED_MESSAGE = QEvent::User + 7;
+      const os::event_id BN_STATE_MESSAGE = QEvent::User + 8;
+      const os::event_id SCROLLBAR_MESSAGE = QEvent::User + 9;
+      const os::event_id SELECTION_CANCEL_MESSAGE = QEvent::User + 10;
+      const os::event_id CONTENT_CHANGED_MESSAGE = QEvent::User + 11;
+#endif // QT_WIDGETS_LIB
     } // detail
 
     // --------------------------------------------------------------------------
@@ -149,15 +162,15 @@ namespace gui {
 
 
     using selection_changed_event = core::event_handler<detail::SELECTION_CHANGE_MESSAGE, 0,
-                                                  core::params<event_source>::
-                                                  getter<win::get_param<0, event_source> > >;
+                                                        core::params<event_source>::
+                                                        getter<win::get_param<0, event_source> > >;
 
     using selection_commit_event = core::event_handler<detail::SELECTION_COMMIT_MESSAGE>;
 
     using selection_cancel_event = core::event_handler<detail::SELECTION_CANCEL_MESSAGE>;
 
     using hilite_changed_event = core::event_handler<detail::HILITE_CHANGE_MESSAGE, 0,
-                                               core::params<bool>::getter<win::get_param<0, bool> > >;
+                                                     core::params<bool>::getter<win::get_param<0, bool> > >;
 
     using content_changed_event = core::event_handler<detail::CONTENT_CHANGED_MESSAGE>;
 
@@ -201,15 +214,32 @@ namespace gui {
 
 #endif // X11
        // --------------------------------------------------------------------------
+#ifdef QT_WIDGETS_LIB
+    GUIPP_CTRL_EXPORT event_source get_event_source (const core::event&);
+    GUIPP_CTRL_EXPORT bool get_hilite_changed (const core::event&);
+
+    using selection_commit_event = core::event_handler<detail::SELECTION_COMMIT_MESSAGE>;
+    using selection_cancel_event = core::event_handler<detail::SELECTION_CANCEL_MESSAGE>;
+    using content_changed_event = core::event_handler<detail::CONTENT_CHANGED_MESSAGE>;
+
+    using selection_changed_event = core::event_handler<detail::SELECTION_CHANGE_MESSAGE, 0,
+                                                        core::params<event_source>::
+                                                        getter<get_event_source>>;
+
+    using hilite_changed_event = core::event_handler<detail::HILITE_CHANGE_MESSAGE, 0,
+                                                     core::params<bool>::
+                                                     getter<get_hilite_changed>>;
+
+#endif // QT_WIDGETS_LIB
 
     namespace paint {
 
       GUIPP_CTRL_EXPORT void text_item (const draw::graphics&,
-                      const core::rectangle& place,
-                      const draw::brush& background,
-                      const std::string& text,
-                      item_state state,
-                      text_origin_t origin_t = text_origin_t::vcenter_left);
+                                        const core::rectangle& place,
+                                        const draw::brush& background,
+                                        const std::string& text,
+                                        item_state state,
+                                        text_origin_t origin_t = text_origin_t::vcenter_left);
 
     }
 

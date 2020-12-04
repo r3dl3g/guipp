@@ -248,7 +248,7 @@ namespace gui {
       }
     }
 
-    void send_client_message (const window* win, os::event_id message, long l1, long l2) {
+    void send_client_message (const window* win, os::message_type message, long l1, long l2) {
       if (win && win->is_valid()) {
         gui::os::event_result result;
         core::event e{ detail::get_window_id(*win), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2) };
@@ -256,7 +256,7 @@ namespace gui {
       }
     }
 
-    void send_client_message (const window* win, os::event_id message, const core::size& sz) {
+    void send_client_message (const window* win, os::message_type message, const core::size& sz) {
       if (win && win->is_valid()) {
         gui::os::event_result result;
         os::size s = sz;
@@ -266,7 +266,7 @@ namespace gui {
       }
     }
 
-    void send_client_message (const window* win, os::event_id message, const core::rectangle& wr) {
+    void send_client_message (const window* win, os::message_type message, const core::rectangle& wr) {
       if (win && win->is_valid()) {
         gui::os::event_result result;
         core::native_rect r = core::global::scale(wr);
@@ -277,7 +277,7 @@ namespace gui {
       }
     }
 
-    void post_client_message (const window* win, os::event_id message, long l1, long l2) {
+    void post_client_message (const window* win, os::message_type message, long l1, long l2) {
       send_client_message(win, message, l1, l2);
 //      if (win && win->is_valid()) {
 //        PostMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
@@ -394,17 +394,17 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void send_client_message (const window* win, Atom message, long l1, long l2) {
+    void send_client_message (const window* win, os::message_type message, long l1, long l2) {
       x11::send_client_message(win, message, l1, l2);
     }
 
-    void send_client_message (const window* win, Atom message, const core::size& sz) {
+    void send_client_message (const window* win, os::message_type message, const core::size& sz) {
       os::size s = sz.os();
       long l0 = (long)s.cx << 16 | (long)s.cy;
       x11::send_client_message(win, message, l0);
     }
 
-    void send_client_message (const window* win, Atom message, const core::rectangle& wr) {
+    void send_client_message (const window* win, os::message_type message, const core::rectangle& wr) {
       os::size s = wr.size().os();
       os::point p = wr.position().os();
       long l0 = (long)p.x << 16 | (long)p.y;
@@ -482,6 +482,85 @@ namespace gui {
     }
 
 #endif // X11
+
+#ifdef QT_WIDGETS_LIB
+    // --------------------------------------------------------------------------
+    os::key_state get_key_state (const core::event& e) {
+      return dynamic_cast<const QKeyEvent&>(e).modifiers();
+    }
+
+    os::key_symbol get_key_symbol (const core::event& e) {
+      return dynamic_cast<const QKeyEvent&>(e).key();
+    }
+
+    std::string get_key_chars (const core::event& e) {
+      const QKeyEvent& k = dynamic_cast<const QKeyEvent&>(e);
+      return k.text().toStdString();
+    }
+
+    // --------------------------------------------------------------------------
+    QClientEvent::QClientEvent (Type type, const core::rectangle& rect)
+      : QEvent(type)
+      , m_rect(rect)
+      , m_l1(0)
+      , m_l2(0)
+    {}
+
+    QClientEvent::QClientEvent (Type type, long l1, long l2)
+      : QEvent(type)
+      , m_l1(l1)
+      , m_l2(l2)
+    {}
+
+    QClientEvent::~QClientEvent ()
+    {}
+
+    const core::rectangle &QClientEvent::rect() const {
+      return m_rect;
+    }
+
+    long QClientEvent::l1 () const {
+      return m_l1;
+    }
+
+    long QClientEvent::l2 () const {
+      return m_l2;
+    }
+
+    // --------------------------------------------------------------------------
+    core::rectangle get_client_data_rect (const core::event& e) {
+      return dynamic_cast<const QClientEvent&>(e).rect();
+    }
+
+    os::graphics get_graphics (const core::event&);
+    os::window get_draw_window (const core::event&);
+
+    // --------------------------------------------------------------------------
+    void send_client_message (const window* win, os::message_type message, const core::rectangle& r) {
+      if (win && win->is_valid()) {
+        gui::os::event_result result;
+        QClientEvent e(static_cast<QEvent::Type>(message), r);
+        win->handle_event(e, result);
+      }
+    }
+
+    void send_client_message (const window* win, os::message_type message, const core::size& sz) {
+      send_client_message(win, message, core::rectangle(sz));
+    }
+
+    void send_client_message (const window* win, os::message_type message, long l1, long l2) {
+      if (win && win->is_valid()) {
+        gui::os::event_result result;
+        QClientEvent e(static_cast<QEvent::Type>(message), l1, l2);
+        win->handle_event(e, result);
+      }
+    }
+
+    void post_client_message (const window* win, os::message_type message, long l1, long l2) {
+      send_client_message(win, message, l1, l2);
+    }
+    // --------------------------------------------------------------------------
+#endif // QT_WIDGETS_LIB
 
   } // win
 

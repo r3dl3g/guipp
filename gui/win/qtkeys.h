@@ -58,17 +58,17 @@ namespace gui {
       const os::key_symbol end = Qt::Key_End;
 
       namespace numpad {
-        const os::key_symbol left = Qt::Key_Left;
-        const os::key_symbol right = Qt::Key_Right;
-        const os::key_symbol up = Qt::Key_Up;
-        const os::key_symbol down = Qt::Key_Down;
+        const os::key_symbol left = Qt::Key_Left | Qt::KeypadModifier;
+        const os::key_symbol right = Qt::Key_Right | Qt::KeypadModifier;
+        const os::key_symbol up = Qt::Key_Up | Qt::KeypadModifier;
+        const os::key_symbol down = Qt::Key_Down | Qt::KeypadModifier;
 
-        const os::key_symbol page_up = Qt::Key_PageUp;
-        const os::key_symbol page_down = Qt::Key_PageDown;
-        const os::key_symbol home = Qt::Key_Home;
-        const os::key_symbol end = Qt::Key_End;
+        const os::key_symbol page_up = Qt::Key_PageUp | Qt::KeypadModifier;
+        const os::key_symbol page_down = Qt::Key_PageDown | Qt::KeypadModifier;
+        const os::key_symbol home = Qt::Key_Home | Qt::KeypadModifier;
+        const os::key_symbol end = Qt::Key_End | Qt::KeypadModifier;
 
-        const os::key_symbol del = Qt::Key_Delete;
+        const os::key_symbol del = Qt::Key_Delete | Qt::KeypadModifier;
       }
 
       const os::key_symbol del = Qt::Key_Delete;

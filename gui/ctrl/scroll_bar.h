@@ -39,20 +39,28 @@ namespace gui {
 
   namespace ctrl {
 
-#ifdef WIN32
     // --------------------------------------------------------------------------
+#ifdef WIN32
+    using scroll_event = core::event_handler<detail::SCROLLBAR_MESSAGE, 0,
+                                             core::params<core::point::type>::
+                                             getter<win::get_param<0, core::point::type>>>;
+
+#endif //WIN32
+
+#ifdef X11
+    using scroll_event = core::event_handler<ClientMessage, 0,
+                                             core::params<core::point::type>::
+                                             getter<win::get_client_data<0, core::point::type>>,
+                                             0,
+                                             win::event::functor<win::client_message_matcher<detail::SCROLLBAR_MESSAGE>>>;
+#endif // X11
+#ifdef QT_WIDGETS_LIB
+    GUIPP_CTRL_EXPORT core::point::type get_scroll_value (const core::event&);
 
     using scroll_event = core::event_handler<detail::SCROLLBAR_MESSAGE, 0,
-                                       core::params<core::point::type>::getter<win::get_param<0, core::point::type> > >;
-    // --------------------------------------------------------------------------
-#endif //WIN32
-#ifdef X11
-    // --------------------------------------------------------------------------
-    using scroll_event = core::event_handler<ClientMessage, 0,
-                                       core::params<core::point::type>::getter<win::get_client_data<0, core::point::type> >,
-                                       0, win::event::functor<win::client_message_matcher<detail::SCROLLBAR_MESSAGE>>>;
-    // --------------------------------------------------------------------------
-#endif // X11
+                                             core::params<core::point::type>::
+                                             getter<get_scroll_value>>;
+#endif // QT_WIDGETS_LIB
 
     // --------------------------------------------------------------------------
     enum class scrollbar_state {
@@ -194,14 +202,19 @@ namespace gui {
       static constexpr os::style style = win::window_class_defaults<>::style;
     };
 
+    template<orientation_t H>
+    struct scroll_bar_traits<H, core::os::platform_t::qt> {
+      static constexpr os::style style = win::window_class_defaults<>::style;
+    };
+
     template<>
     struct scroll_bar_traits<orientation_t::horizontal, core::os::platform_t::x11> {
-      static constexpr os::style style = IF_X11_ELSE(SouthWestGravity, 0);
+      static constexpr os::style style = IF_X11_ELSE(SouthWestGravity, static_cast<os::style>(0));
     };
 
     template<>
     struct scroll_bar_traits<orientation_t::vertical, core::os::platform_t::x11> {
-      static constexpr os::style style = IF_X11_ELSE(NorthEastGravity, 0);
+      static constexpr os::style style = IF_X11_ELSE(NorthEastGravity, static_cast<os::style>(0));
     };
 
     // --------------------------------------------------------------------------

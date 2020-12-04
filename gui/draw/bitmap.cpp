@@ -391,10 +391,30 @@ namespace gui {
       }
     }
 
+    bool basic_map::is_valid () const {
+#ifdef QT_WIDGETS_LIB
+      return !id.isNull();
+#else
+      return id != 0;
+#endif
+    }
+
+    basic_map::operator os::drawable() const {
+#ifdef QT_WIDGETS_LIB
+      return &id;
+#else
+      return get_id();
+#endif
+    }
+
     void basic_map::clear () {
       if (is_valid()) {
         free_bitmap(get_id());
+#ifdef QT_WIDGETS_LIB
+        id = os::bitmap();
+#else
         set_id(0);
+#endif
       }
     }
 

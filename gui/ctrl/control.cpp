@@ -98,6 +98,17 @@ namespace gui {
 
 #endif // WIN32
 
+#ifdef QT_WIDGETS_LIB
+    event_source get_event_source (const core::event& e) {
+      return static_cast<event_source>(dynamic_cast<const win::QClientEvent&>(e).l1());
+    }
+
+    bool get_hilite_changed (const core::event& e) {
+      return dynamic_cast<const win::QClientEvent&>(e).l1() != 0;
+    }
+
+#endif // QT_WIDGETS_LIB
+
     namespace paint {
 
       // --------------------------------------------------------------------------

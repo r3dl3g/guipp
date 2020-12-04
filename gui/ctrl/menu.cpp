@@ -507,13 +507,13 @@ namespace gui {
 
       on_mouse_leave(util::bind_method(&data, &menu_data::clear_hilite));
 
-      on_set_focus([&] (window*) {
+      on_set_focus([&] () {
         if (data.get_hilite() == -1) {
           data.set_hilite(0);
         }
       });
 
-      on_lost_focus([&] (window*) {
+      on_lost_focus([&] () {
         if (data.get_hilite() > -1) {
           data.clear_hilite();
         }
@@ -690,11 +690,11 @@ namespace gui {
         }
       });
 
-      on_left_btn_down([&](os::key_state, const core::point & pt) {
+      on_left_btn_down([&] (os::key_state, const core::point & pt) {
         data.handle_mouse(true, client_to_screen(pt));
       });
 
-      on_lost_focus([&](window*) {
+      on_lost_focus([&] () {
         invalidate();
       });
 

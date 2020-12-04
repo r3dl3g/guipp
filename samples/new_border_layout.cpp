@@ -123,11 +123,11 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     center4.create(main);
     center5.create(main);
   });
-  main.on_lost_focus([&] (const window* next) {
-    main.set_title(next ? ostreamfmt("Lost focus to: " << *next) : "Lost focus to: 0");
+  main.on_lost_focus([&] () {
+    main.set_title("Lost focus");
   });
-  main.on_set_focus([&] (const window* prev) {
-    main.set_title(prev ? ostreamfmt("Got focus from: " << *prev) : "Got focus from: 0");
+  main.on_set_focus([&] () {
+    main.set_title("Got focus");
   });
 
   main.create({50, 50, 800, 600});

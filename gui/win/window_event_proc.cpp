@@ -30,6 +30,9 @@
 #ifdef X11
 # include <unistd.h>
 #endif // X11
+#ifdef QT_WIDGETS_LIB
+# include <QtWidgets/QApplication>
+#endif // QT_WIDGETS_LIB
 
 // --------------------------------------------------------------------------
 //
@@ -49,7 +52,7 @@ namespace util {
 #ifdef _LIBCPP_THREAD
     using thread_id = jugger<std::thread::native_handle_type, std::thread::id>;
     template struct robber<thread_id, &std::thread::id::__id_>;
-#elif X11
+#elif linux
     using thread_id = jugger<std::thread::native_handle_type, std::thread::id>;
     template struct robber<thread_id, &std::thread::id::_M_thread>;
 #elif WIN32
@@ -322,7 +325,9 @@ namespace gui {
           x11::prepare_win_for_event(win, KeyPressMask);
         }
 #endif // X11
-
+#ifdef QT_WIDGETS_LIB
+        os::window root = win ? detail::get_window_id(*win) : (os::window)QApplication::desktop();
+#endif // QT_WIDGETS_LIB
         detail::hot_keys.emplace(hk, std::make_pair(root, fn));
       }
 
@@ -488,6 +493,9 @@ namespace gui {
 #ifdef X11
       if (e.type == KeyPress) {
 #endif // X11
+#ifdef QT_WIDGETS_LIB
+      if (e.type() == QEvent::KeyPress) {
+#endif // QT_WIDGETS_LIB
         hot_key hk(get_key_symbol(e), get_key_state(e));
         auto i = detail::hot_keys.find(hk);
         if (i != detail::hot_keys.end()) {
@@ -681,17 +689,9 @@ namespace gui {
       });
     }
 
-    namespace detail {
-
-      void quit_main_loop () {
-        main_loop_is_running = false;
-        core::global::fini();
-      }
-
-    }
-
-    void quit_main_loop (const window*) {
-      detail::quit_main_loop();
+    void quit_main_loop () {
+      main_loop_is_running = false;
+      core::global::fini();
     }
 
     void run_on_main (std::function<void()> action) {

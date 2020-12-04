@@ -217,12 +217,10 @@ namespace gui {
 #endif // X11
 
       set_accept_focus(true);
-      on_set_focus([&](window* w){
-        if (w == this) {
-          forward_focus(shift_key_bit_mask::is_set(core::global::get_key_state()));
-        }
+      on_set_focus([&] () {
+        forward_focus(shift_key_bit_mask::is_set(core::global::get_key_state()));
       });
-      on_show([&]() {
+      on_show([&] () {
         set_children_visible();
       });
     }
@@ -283,7 +281,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     overlapped_window::overlapped_window () {
-      on_set_focus([&] (win::window* prev) {
+      on_set_focus([&] () {
         send_client_message(this, core::WM_LAYOUT_WINDOW, client_area());
       });
 #ifndef BUILD_FOR_ARM
@@ -608,16 +606,21 @@ namespace gui {
       input_eater.set_visible();
 #endif // USE_INPUT_EATER
 
-      run_loop(is_modal, [&](const core::event & e)->bool {
 #endif // X11
 
+      run_loop(is_modal, [&](const core::event & e)->bool {
+
 #ifdef WIN32
-        run_loop(is_modal, [&](const core::event & e)->bool {
-          if (e.type == WM_KEYDOWN) {
+        if (e.type == WM_KEYDOWN) {
 #endif // WIN32
+
 #ifdef X11
         if (e.type == KeyPress) {
-#endif // X11011
+#endif // X11
+
+#ifdef QT_WIDGETS_LIB
+        if (e.type() == QEvent::KeyPress) {
+#endif // QT_WIDGETS_LIB
           hot_key hk(get_key_symbol(e), get_key_state(e));
           for (hot_key_action k : hot_keys) {
             if (hk == k.hk) {

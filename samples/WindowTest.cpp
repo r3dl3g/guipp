@@ -363,9 +363,9 @@ my_main_window::my_main_window ()
   list1.set_item_size(25);
   list3.set_item_size_and_background(20, color::light_gray);
 
-  on_destroy([] (const window* w) {
+  on_destroy([] () {
     clog::debug() << "Destroyed!";
-    win::quit_main_loop(w);
+    win::quit_main_loop();
   });
 
   on_show([&] () {
@@ -393,24 +393,11 @@ my_main_window::my_main_window ()
 
 //#endif
 
-  on_moving([] (const core::point& r) {
-    clog::debug() << "Main moving: " << r;
-  });
-  on_sizing([] (const core::size& r) {
-    clog::debug() << "Main sizing: " << r;
-  });
-  on_placing([] (const core::rectangle& r) {
-    clog::debug() << "Main placing: " << r;
-  });
-
   on_move([] (const core::point& p) {
     clog::debug() << "Main move: " << p;
   });
   on_size([] (const core::size& s) {
     clog::debug() << "Main size: " << s;
-  });
-  on_place([] (const core::rectangle& r) {
-    clog::debug() << "Main place: " << r;
   });
 
 //#ifdef WIN32
@@ -418,10 +405,10 @@ my_main_window::my_main_window ()
 //    clog::debug() << "Button " << (on ? "" : "de") << "activate";
 //  });
 //#endif
-//  ok_button.on_set_focus([] (win::window*) {
+//  ok_button.on_set_focus([] () {
 //    clog::debug() << "Button Set Focus";
 //  });
-//  ok_button.on_lost_focus([&] (win::window*) {
+//  ok_button.on_lost_focus([&] () {
 //    clog::debug() << "Button Lost Focus";
 //  });
 

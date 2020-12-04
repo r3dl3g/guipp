@@ -23,6 +23,9 @@
 // Common includes
 //
 #include <vector>
+#ifdef QT_WIDGETS_LIB
+# include <QtGui/QPainter>
+#endif // QT_WIDGETS_LIB
 
 // --------------------------------------------------------------------------
 //
@@ -52,17 +55,17 @@ namespace gui {
     typedef void (copyable) (const graphics&, const core::point&);
 
     enum class copy_mode : uint32_t {
-      bit_copy = IF_WIN32_ELSE(SRCCOPY, GXcopy),
-      bit_and = IF_WIN32_ELSE(SRCAND, GXand),
-      bit_or = IF_WIN32_ELSE(SRCPAINT, GXor),
-      bit_xor = IF_WIN32_ELSE(SRCINVERT, GXxor),
-      bit_dest_clear = IF_WIN32_ELSE(BLACKNESS, GXclear),
-      bit_dest_set = IF_WIN32_ELSE(WHITENESS, GXset),
-      bit_dest_invert = IF_WIN32_ELSE(DSTINVERT, GXinvert),
-      bit_not_src_or_dst = IF_WIN32_ELSE(MERGEPAINT, GXorInverted),
-      bit_not_src = IF_WIN32_ELSE(NOTSRCCOPY, GXcopyInverted),
-      bit_not_src_and_not_dst = IF_WIN32_ELSE(NOTSRCERASE, GXnor),
-      bit_and_not = IF_WIN32_ELSE(SRCERASE, GXandReverse),
+      bit_copy =                IF_WIN32_ELSE(SRCCOPY,      IF_X11_ELSE(GXcopy,         0)),
+      bit_and =                 IF_WIN32_ELSE(SRCAND,       IF_X11_ELSE(GXand,          QPainter::RasterOp_SourceAndDestination)),
+      bit_or =                  IF_WIN32_ELSE(SRCPAINT,     IF_X11_ELSE(GXor,           QPainter::RasterOp_SourceOrDestination)),
+      bit_xor =                 IF_WIN32_ELSE(SRCINVERT,    IF_X11_ELSE(GXxor,          QPainter::RasterOp_SourceXorDestination)),
+      bit_dest_clear =          IF_WIN32_ELSE(BLACKNESS,    IF_X11_ELSE(GXclear,        QPainter::RasterOp_ClearDestination)),
+      bit_dest_set =            IF_WIN32_ELSE(WHITENESS,    IF_X11_ELSE(GXset,          QPainter::RasterOp_SetDestination)),
+      bit_dest_invert =         IF_WIN32_ELSE(DSTINVERT,    IF_X11_ELSE(GXinvert,       QPainter::RasterOp_NotDestination)),
+      bit_not_src_or_dst =      IF_WIN32_ELSE(MERGEPAINT,   IF_X11_ELSE(GXorInverted,   QPainter::RasterOp_NotSourceOrDestination)),
+      bit_not_src =             IF_WIN32_ELSE(NOTSRCCOPY,   IF_X11_ELSE(GXcopyInverted, QPainter::RasterOp_NotSource)),
+      bit_not_src_and_not_dst = IF_WIN32_ELSE(NOTSRCERASE,  IF_X11_ELSE(GXnor,          QPainter::RasterOp_NotSourceAndNotDestination)),
+      bit_and_not =             IF_WIN32_ELSE(SRCERASE,     IF_X11_ELSE(GXandReverse,   QPainter::RasterOp_SourceAndNotDestination)),
     };
 
     // --------------------------------------------------------------------------

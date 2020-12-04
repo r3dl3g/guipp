@@ -49,7 +49,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     find_package(Qt5Widgets REQUIRED)
 
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES})
-    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} ${Qt5Widgets_DEFINITIONS} -lstdc++fs)
+    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} ${Qt5Widgets_DEFINITIONS} -lstdc++fs -fPIC)
     set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${Qt5Widgets_INCLUDES} /usr/local/src/qt-everywhere-opensource-src-5.9.5/qtbase/include)
 
     message(STATUS "GUIPP: Qt5Widgets_DEFINITIONS: " ${Qt5Widgets_DEFINITIONS})

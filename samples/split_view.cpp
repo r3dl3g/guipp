@@ -37,11 +37,11 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     client.second.first.set_text([&] () { return ostreamfmt(client.second.first << " Top (" << client.second.first.place() << ")"); });
     client.second.second.set_text([&] () { return ostreamfmt(client.second.second << " Bottom (" << client.second.second.place() << ")"); });
   });
-  main.on_lost_focus([&] (window* next) {
-    main.set_title(ostreamfmt("Lost focus to: " << *next));
+  main.on_lost_focus([&] () {
+    main.set_title("Lost focus");
   });
-  main.on_set_focus([&] (window* prev) {
-    main.set_title(ostreamfmt("Got focus from: " << *prev));
+  main.on_set_focus([&] () {
+    main.set_title("Got focus");
   });
 
   main.create({50, 50, 800, 600});

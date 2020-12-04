@@ -71,8 +71,6 @@ namespace gui {
       typedef bool (filter_fn)(const core::event&);
       typedef std::function<filter_fn> filter_call;
 
-      GUIPP_WIN_EXPORT void quit_main_loop ();
-
     } // namespace detail
 
     namespace global {
@@ -99,7 +97,7 @@ namespace gui {
     GUIPP_WIN_EXPORT int run_loop (volatile bool& running, detail::filter_call filter = nullptr);
 
     GUIPP_WIN_EXPORT int run_main_loop ();
-    GUIPP_WIN_EXPORT void quit_main_loop (const window*);
+    GUIPP_WIN_EXPORT void quit_main_loop ();
 
     typedef void (simple_action)();
 

@@ -119,7 +119,7 @@ namespace gui {
       super::get_layout().init(this, &(data.button));
 
       super::on_paint(draw::paint(util::bind_method(this, &drop_down_list::paint)));
-      super::on_lost_focus([&] (window*) {
+      super::on_lost_focus([&] () {
         super::invalidate();
       });
       super::on_left_btn_down([&](os::key_state, const core::point &) {
@@ -138,7 +138,7 @@ namespace gui {
       }));
       data.button.on_clicked(util::bind_method(this, &drop_down_list::toggle_popup));
 
-      data.button.on_lost_focus([&] (window*) {
+      data.button.on_lost_focus([&] () {
         super::invalidate();
       });
       data.button.on_any_key_down(util::bind_method(this, &drop_down_list::handle_key));

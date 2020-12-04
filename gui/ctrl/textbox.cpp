@@ -384,10 +384,10 @@ namespace gui {
         on_key_down<win::keys::c, win::state::control>([&]() {
           win::clipboard::get().set_text(*this, get_selected_text());
         });
-        on_set_focus([&](window*){
+        on_set_focus([&] () {
           invalidate();
         });
-        on_lost_focus([&](window*){
+        on_lost_focus([&] () {
           invalidate();
         });
       }

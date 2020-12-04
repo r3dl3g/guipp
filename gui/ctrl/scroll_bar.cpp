@@ -36,7 +36,15 @@ namespace gui {
     }
 
   } // namespace win
+
 #endif //WIN32
+
+#ifdef QT_WIDGETS_LIB
+  core::point::type get_scroll_value (const core::event& e) {
+    return dynamic_cast<const win::QClientEvent&>(e).l1();
+  }
+
+#endif // QT_WIDGETS_LIB
 
   namespace ctrl {
 
@@ -75,7 +83,7 @@ namespace gui {
       static int initialized = detail::init_control_messages();
       (void)initialized;
 #endif // X11
-      on_lost_focus([&] (window*) {
+      on_lost_focus([&] () {
         invalidate();
       });
       on_mouse_leave([&] () {

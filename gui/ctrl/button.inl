@@ -120,13 +120,13 @@ namespace gui {
       set_accept_focus(true);
 
       using namespace win;
-      super::on_set_focus([&](window*) { invalidate(); });
-      super::on_lost_focus([&](window*) { invalidate(); });
-      super::on_mouse_enter([&]() { set_hilited(true); });
-      super::on_mouse_leave([&]() { set_hilited(false); });
-      super::on_key_down<keys::enter>([&]() { set_pushed(true); });
-      super::on_key_down<keys::space>([&]() { set_pushed(true); });
-      super::on_left_btn_down([&](os::key_state, const core::point&) {
+      super::on_set_focus([&] () { invalidate(); });
+      super::on_lost_focus([&] () { invalidate(); });
+      super::on_mouse_enter([&] () { set_hilited(true); });
+      super::on_mouse_leave([&] () { set_hilited(false); });
+      super::on_key_down<keys::enter>([&] () { set_pushed(true); });
+      super::on_key_down<keys::space>([&] () { set_pushed(true); });
+      super::on_left_btn_down([&] (os::key_state, const core::point&) {
         take_focus();
         set_pushed(true);
       });

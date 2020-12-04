@@ -24,7 +24,7 @@ namespace gui {
   namespace draw {
 
     inline basic_map::basic_map ()
-      : id(0)
+      : id()
     {}
 
     inline basic_map::basic_map (os::bitmap id)
@@ -36,21 +36,17 @@ namespace gui {
     }
 
     inline basic_map::basic_map (const basic_map& rhs)
-      : id(0) {
+      : id() {
       operator= (rhs);
     }
 
     inline basic_map::basic_map (basic_map&& rhs)
-      : id(0) {
+      : id() {
       operator= (std::move(rhs));
     }
 
     inline void basic_map::set_id (os::bitmap rhs) {
       id = rhs;
-    }
-
-    inline bool basic_map::is_valid () const {
-      return id != 0;
     }
 
     inline basic_map::operator bool () const {
@@ -59,10 +55,6 @@ namespace gui {
 
     inline os::bitmap basic_map::get_id () const {
       return id;
-    }
-
-    inline basic_map::operator os::drawable() const {
-      return get_id();
     }
 
     inline core::size basic_map::scaled_size () const {

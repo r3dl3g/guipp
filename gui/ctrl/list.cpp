@@ -70,10 +70,10 @@ namespace gui {
             take_focus();
           }
         });
-        on_set_focus([&] (window*) {
+        on_set_focus([&] () {
           invalidate();
         });
-        on_lost_focus([&] (window*) {
+        on_lost_focus([&] () {
           invalidate();
         });
       }

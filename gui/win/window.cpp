@@ -169,7 +169,7 @@ namespace gui {
 
     window::operator os::drawable() const {
 #ifdef QT_WIDGETS_LIB
-      return nullptr;
+      return id;
 #else
       return get_id();
 #endif
@@ -366,22 +366,6 @@ namespace gui {
 
     void window::on_size (size_event::function&& f) {
       on<size_event>(std::move(f));
-    }
-
-    void window::on_place (place_event::function&& f) {
-      on<place_event>(std::move(f));
-    }
-
-    void window::on_moving (moving_event::function&& f) {
-      on<moving_event>(std::move(f));
-    }
-
-    void window::on_sizing (sizing_event::function&& f) {
-      on<sizing_event>(std::move(f));
-    }
-
-    void window::on_placing (placing_event::function&& f) {
-      on<placing_event>(std::move(f));
     }
 
     void window::on_layout (layout_event::function&& f) {

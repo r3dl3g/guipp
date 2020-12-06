@@ -22,19 +22,6 @@
 //
 // Common includes
 //
-#include <vector>
-#include <string>
-
-
-// --------------------------------------------------------------------------
-//
-// Library includes
-//
-#include <gui/core/bits.h>
-#include <logging/logger.h>
-#include <gui++-core-export.h>
-
-
 #ifdef WIN32
 # include <gui/core/win32defs.h>
 #endif // WIN32
@@ -47,6 +34,18 @@
 #ifdef QT_WIDGETS_LIB
 # include <gui/core/qtdefs.h>
 #endif // QT_WIDGETS_LIB
+
+#include <vector>
+#include <string>
+
+// --------------------------------------------------------------------------
+//
+// Library includes
+//
+#include <gui/core/bits.h>
+#include <logging/logger.h>
+#include <gui++-core-export.h>
+
 
 #if !defined(WIN32) && !defined(X11) && !defined(COCOA)
 # pragma error "Unknown target system"

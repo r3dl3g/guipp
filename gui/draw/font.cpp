@@ -28,6 +28,9 @@
 # include <sstream>
 # include <X11/Xlib.h>
 #endif // X11
+#ifdef QT_WIDGETS_LIB
+# include <QtGui/QFontDatabase>
+#endif // QT_WIDGETS_LIB
 
 
 // --------------------------------------------------------------------------
@@ -666,6 +669,166 @@ namespace gui {
     }
 
 #endif // X11
+
+#ifdef QT_WIDGETS_LIB
+    const font& font::system () {
+      static font f = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
+      return f;
+    }
+
+    const font& font::system_bold () {
+      static font f = font::system().with_thickness(font::bold);
+      return f;
+    }
+
+    const font& font::system_small () {
+      static font f = font::system().with_size(font::system().size() * 4 / 5);
+      return f;
+    }
+
+    const font& font::menu () {
+      static font f = QFontDatabase::systemFont(QFontDatabase::TitleFont);
+      return f;
+    }
+
+    const font& font::monospace () {
+      static font f(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+      return f;
+    }
+
+    const font& font::serif () {
+      static font f = os::font("Serif");
+      return f;
+    }
+
+    const font& font::sans_serif () {
+      static font f = os::font("Sans Serif");
+      return f;
+    };
+
+    font::font (os::font id)
+      : id(id)
+      , info(id)
+    {}
+
+    font::font (os::font_type i)
+      : id(i.family(), i.pointSize(), i.weight(), i.italic())
+      , info(i)
+    {}
+
+    font::font (const std::string& name,
+                font::size_type size,
+                font::Thickness thickness,
+                int rotation,
+                bool italic,
+                bool underline,
+                bool strikeout)
+      : id(QString::fromStdString(name), size, thickness, italic)
+      , info(id)
+    {}
+
+    font::font (const font& rhs)
+      : id(rhs.id)
+      , info(rhs.info)
+    {}
+
+    font::~font ()
+    {}
+
+    font::operator os::font () const {
+      return id;
+    }
+
+    std::string font::name () const {
+      return info.family().toStdString();
+    }
+
+    font::size_type font::size () const {
+      return info.pointSize();
+    }
+
+    font::Thickness font::thickness () const {
+      return static_cast<Thickness>(info.weight());
+    }
+
+    int font::rotation () const {
+      return 0;
+    }
+
+    bool font::italic () const {
+      return info.italic();
+    }
+
+    bool font::underline () const {
+      return info.underline();
+    }
+
+    bool font::strikeout () const {
+      return info.strikeOut();
+    }
+
+    core::size::type font::line_height () const {
+      return core::global::scale<core::size::type>(native_line_height());
+    }
+
+    font::size_type font::native_line_height () const {
+      QFontMetrics(id).lineSpacing();
+    }
+
+    font font::with_size (size_type sz) const {
+      os::font f(id);
+      f.setPointSize(sz);
+      return f;
+    }
+
+    font font::with_thickness (Thickness t) const {
+      os::font f(id);
+      f.setWeight(static_cast<int>(t));
+      return f;
+    }
+
+    font font::with_rotation (int r) const {
+      return id;
+    }
+
+    font font::with_italic (bool i) const {
+      os::font f(id);
+      f.setItalic(i);
+      return f;
+    }
+
+    font font::with_underline (bool u) const {
+      os::font f(id);
+      f.setUnderline(u);
+      return f;
+    }
+
+    font font::with_strikeout (bool s) const {
+      os::font f(id);
+      f.setStrikeOut(s);
+      return f;
+    }
+
+    bool font::operator== (const font& rhs) const {
+      return ((info.family() == rhs.info.family()) &&
+              (info.pointSize() == rhs.info.pointSize()) &&
+              (info.weight() == rhs.info.weight()) &&
+              (info.italic() == rhs.info.italic()) &&
+              (info.underline() == rhs.info.underline()) &&
+              (info.strikeOut() == rhs.info.strikeOut()));
+    }
+
+    std::ostream& operator<< (std::ostream& out, const font& f) {
+      out << f.name() << ", " << f.size() << ", " << f.thickness() << ", " << f.italic();
+      return out;
+    }
+
+    core::size font::get_text_size (const std::string& str) const {
+      QFontMetrics metrics(id);
+      auto sz = metrics.size(0, QString::fromStdString(str));
+      return core::size(sz);
+    }
+#endif // QT_WIDGETS_LIB
 
   }
 

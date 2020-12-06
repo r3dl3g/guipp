@@ -99,6 +99,7 @@ namespace gui {
     }
 
 #ifdef WIN32
+
     bool window_state::set_enable (bool on) {
       if (win.is_valid() && (is_enabled() != on)) {
         gui::os::style ws = get_win().get_window_class().get_style();
@@ -113,6 +114,7 @@ namespace gui {
     }
 
 #endif // WIN32
+
 #ifdef X11
 
     namespace x11 {
@@ -135,6 +137,19 @@ namespace gui {
     }
 
 #endif // X11
+
+#ifdef QT_WIDGETS_LIB
+
+    bool window_state::set_enable (bool on) {
+      if (win.is_valid() && (is_enabled() != on)) {
+        detail::get_window_id(win)->setEnabled(on);
+        get_win().invalidate();
+        return true;
+      }
+      return false;
+    }
+
+#endif // QT_WIDGETS_LIB
 
   } // namespace win
 

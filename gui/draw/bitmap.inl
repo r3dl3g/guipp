@@ -53,7 +53,11 @@ namespace gui {
       return is_valid();
     }
 
-    inline os::bitmap basic_map::get_id () const {
+    inline os::bitmap& basic_map::get_id () {
+      return id;
+    }
+
+    inline const os::bitmap& basic_map::get_id () const {
       return id;
     }
 

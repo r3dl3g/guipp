@@ -30,7 +30,7 @@
 #include <gui/win/x11_container_class.h>
 #endif // X11
 #ifdef QT_WIDGETS_LIB
-#include <gui/win/x11_container_class.h>
+#include <gui/win/qt_container_class.h>
 #endif // QT_WIDGETS_LIB
 
 
@@ -90,7 +90,7 @@ namespace gui {
       void set_top_most (bool toplevel);
 
       void create (const class_info&,
-                   const container&,
+                   container&,
                    const core::rectangle& = core::rectangle::def);
 
       void create (const class_info&,
@@ -147,7 +147,7 @@ namespace gui {
       void create (container& parent, const core::rectangle& r = core::rectangle::def);
 
     protected:
-      void create (const class_info& cls, const container& parent, const core::rectangle& r = core::rectangle::def);
+      void create (const class_info& cls, container& parent, const core::rectangle& r = core::rectangle::def);
 
     };
 
@@ -160,7 +160,7 @@ namespace gui {
       void create (container& parent, const core::rectangle& r = core::rectangle::def);
 
     protected:
-      void create (const class_info& cls, const container& parent, const core::rectangle& r = core::rectangle::def);
+      void create (const class_info& cls, container& parent, const core::rectangle& r = core::rectangle::def);
 
     };
 

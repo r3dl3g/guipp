@@ -235,6 +235,10 @@ void test_pixmap_draw () {
 # define EMPTY "00000000"
 # define BLUE  "ff000000"
 #endif // WIN32
+#ifdef QT_WIDGETS_LIB
+# define EMPTY "000000ff"
+# define BLUE  "ff0000ff"
+#endif // QT_WIDGETS_LIB
 
   const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
 
@@ -263,6 +267,9 @@ void test_pixmap_draw () {
 
 #ifdef X11
   XImage* xim = XGetImage(core::global::get_instance(), img.get_id(), 0, 0, 6, 6, AllPlanes, ZPixmap);
+  const int height = xim->height;
+  const int bytes_per_line = xim->bytes_per_line;
+  const auto data = xim->data;
 #endif // X11
 #ifdef WIN32
   BITMAP bmi;
@@ -270,21 +277,28 @@ void test_pixmap_draw () {
   blob data;
   data.resize(bmi.bmHeight * bmi.bmWidthBytes);
   GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
+  const int height = bmi.bmHeight;
+  const int bytes_per_line = bmi.bmWidthBytes;
 #endif // WIN32
-
+#ifdef QT_WIDGETS_LIB
+  auto pic = img.get_id().toImage();
+  auto data = pic.constBits();
+  const int height = pic.height();
+  const int bytes_per_line = pic.bytesPerLine();
+#endif // QT_WIDGETS_LIB
 
   std::ostringstream buffer;
-  for (int y = 0; y < IF_WIN32_ELSE(bmi.bmHeight, xim->height); ++y) {
+  for (int y = 0; y < height; ++y) {
     if (y > 0) {
       buffer << '\n';
     }
-    for (int x = 0; x < IF_WIN32_ELSE(bmi.bmWidthBytes, xim->bytes_per_line); x+=4) {
+    for (int x = 0; x < bytes_per_line; x+=4) {
       if (x > 0) {
         buffer << ' ';
       }
       for (int j = 0; j < 4; ++j) {
         buffer << std::setw(2) << std::setfill('0') << std::hex 
-               << (unsigned short)(unsigned char)IF_WIN32_ELSE(data, xim->data)[y * IF_WIN32_ELSE(bmi.bmWidthBytes, xim->bytes_per_line) + x + j];
+               << (unsigned short)(unsigned char)data[y * bytes_per_line + x + j];
       }
     }
   }
@@ -384,6 +398,7 @@ void test_pixmap2bitmap () {
 
 #ifdef X11
   XImage* xim = XGetImage(core::global::get_instance(), img.get_id(), 0, 0, 2, 2, AllPlanes, ZPixmap);
+  auto data = xim->data;
 #endif // X11
 #ifdef WIN32
   BITMAP bmi;
@@ -395,10 +410,14 @@ void test_pixmap2bitmap () {
     std::cerr << "GetBitmapBits returned " << result << " expected:" << data.size() << std::endl;
   }
 #endif // WIN32
+#ifdef QT_WIDGETS_LIB
+  auto pic = img.get_id().toImage();
+  auto data = pic.constBits();
+#endif // QT_WIDGETS_LIB
 
   std::ostringstream buffer;
   for (int i = 0; i < IF_WIN32_ELSE(4, 8); ++i) {
-    buffer << std::setw(2) << std::setfill('0') << std::hex << (int)IF_WIN32_ELSE(data, xim->data)[i] << ' ';
+    buffer << std::setw(2) << std::setfill('0') << std::hex << (int)data[i] << ' ';
   }
 #ifdef X11
   XDestroyImage(xim);

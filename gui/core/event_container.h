@@ -20,6 +20,14 @@
 
 // --------------------------------------------------------------------------
 //
+// Library includes
+//
+#include <gui/core/event.h>
+#include <util/bind_method.h>
+
+
+// --------------------------------------------------------------------------
+//
 // Common includes
 //
 #include <cstddef>
@@ -27,14 +35,6 @@
 #include <map>
 #include <functional>
 #include <memory>
-
-
-// --------------------------------------------------------------------------
-//
-// Library includes
-//
-#include <gui/core/event.h>
-#include <util/bind_method.h>
 
 
 #ifndef REGISTER_FUNCTION

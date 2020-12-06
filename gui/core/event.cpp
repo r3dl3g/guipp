@@ -883,9 +883,9 @@ namespace std {
   std::ostream& operator<< (std::ostream& out, const gui::core::event& e) {
     const char* msg = detail::get_message_map()[e.type()];
     if (msg) {
-      out << msg;
+      out << msg << " [" << e.id << "]";
     } else {
-      out << "0x" << std::hex << e.type();
+      out << "0x" << std::hex << e.type() << " [" << e.id << "]";
     }
     return out;
   }

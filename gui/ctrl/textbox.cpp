@@ -323,12 +323,12 @@ namespace gui {
         notify_content_changed();
       }
 
-      void textbox_base::notify_content_changed () const {
+      void textbox_base::notify_content_changed () {
         data.virtual_size.clear();
         super::notify_content_changed();
       }
 
-      void textbox_base::notify_selection_changed () const {
+      void textbox_base::notify_selection_changed () {
         notify_event(detail::SELECTION_CHANGE_MESSAGE);
       }
 

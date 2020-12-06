@@ -78,10 +78,10 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void Use<pen>::set (const pen& p);
+    void Use<pen>::set (const pen&);
 
     template<>
-    void Use<brush>::set (const brush& b);
+    void Use<brush>::set (const brush&);
 
 #ifndef USE_XFT
     template<>
@@ -89,6 +89,37 @@ namespace gui {
 #endif // USE_XFT
 
 #endif // X11
+
+#ifdef QT_WIDGETS_LIB
+    // --------------------------------------------------------------------------
+    template<typename T>
+    struct GUIPP_DRAW_EXPORT Use {
+      Use (os::graphics g, const T& t)
+        : g(g) {
+        set(t);
+      }
+
+      void set (const T& t);
+
+      os::graphics g;
+    };
+
+    // --------------------------------------------------------------------------
+    struct pen;
+    struct brush;
+    struct font;
+
+    // --------------------------------------------------------------------------
+    template<>
+    void Use<pen>::set (const pen&);
+
+    template<>
+    void Use<brush>::set (const brush&);
+
+    template<>
+    void Use<font>::set(const font&);
+
+#endif // QT_WIDGETS_LIB
 
   } // namespace draw
 

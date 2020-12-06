@@ -1220,9 +1220,9 @@ ctrl::paint_function my_main_window::create_paint1 () {
     };
 
     std::string texte[] = {
-      "TLg", "TCg", "TRg",
-      "CLg", "CCg", "CRg",
-      "BRg", "BCg", "BRg"
+      "TL", "TC", "TR",
+      "CL", "CC", "CR",
+      "BL", "BC", "BR"
     };
     text_origin_t origins[] = {
       text_origin_t::top_left, text_origin_t::top_hcenter, text_origin_t::top_right,

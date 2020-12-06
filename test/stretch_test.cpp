@@ -27,8 +27,8 @@ std::ostream& operator<< (std::ostream& out, const stretch& s) {
   return out;
 }
 
-float stretcht_factor(stretch st) {
-  static const float factors[] = {1.0F, 1.6F, 2.0F, 3.0F, 0.8F, 0.6F};
+double stretcht_factor(stretch st) {
+  static const double factors[] = {1.0, 1.6, 2.0, 3.0, 0.8, 0.6};
   return factors[static_cast<int>(st)];
 }
 

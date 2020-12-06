@@ -16,6 +16,10 @@
  * @file
  */
 
+#ifdef QT_WIDGETS_LIB
+#include <QtGui/QPainter>
+#endif // QT_WIDGETS_LIB
+
 
 // --------------------------------------------------------------------------
 //
@@ -77,6 +81,25 @@ namespace gui {
 #endif // USE_XFT
 
 #endif // X11
+
+#ifdef QT_WIDGETS_LIB
+    // --------------------------------------------------------------------------
+    template<>
+    void Use<pen>::set (const pen& p) {
+      g->setPen(QPen(QBrush(p.color()), p.size(), static_cast<Qt::PenStyle>(p.style())));
+    }
+
+    template<>
+    void Use<brush>::set (const brush& b) {
+      g->setBrush(QBrush(b.color(), static_cast<Qt::BrushStyle>(b.style())));
+    }
+
+    template<>
+    void Use<font>::set (const font& f) {
+      g->setFont(QFont(QString::fromStdString(f.name()), f.size(), f.thickness(), f.italic()));
+    }
+
+#endif // QT_WIDGETS_LIB
 
   } // namespace draw
 

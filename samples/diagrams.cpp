@@ -1,12 +1,12 @@
 
 #include <gui/win/container.h>
-#include <logging/core.h>
 #include <gui/draw/diagram.h>
 #include <gui/core/grid.h>
+#include <logging/core.h>
 #ifdef WIN32
 #define _USE_MATH_DEFINES
 #include <math.h>
-#endif // WIN§2
+#endif // WIN32
 
 #define NOTHING
 

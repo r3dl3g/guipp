@@ -22,8 +22,8 @@
 //
 // Common includes
 //
-#include <QtWidgets/qwidget.h>
-#include <QtCore/qcoreevent.h>
+#include <QtGui/QtEvents>
+#include <QtWidgets/QWidget>
 
 // --------------------------------------------------------------------------
 //
@@ -34,15 +34,41 @@
 
 namespace gui {
 
+  namespace win {
+
+    class window;
+
+  } // namespace win
+
   namespace os {
 
+    typedef Qt::WindowType style;
+
+    namespace qt {
+
+      class Widget : public QWidget {
+      public:
+        Widget (Widget* parent, os::style s, win::window* w);
+
+        win::window* get_window () const;
+        Widget* get_parent () const;
+        QPainter *painter() const;
+
+      protected:
+        bool event (QEvent* e) override;
+
+      private:
+        win::window* win;
+      };
+
+    } // namespace qt
+
     typedef QApplication* instance;
-    typedef QWidget* window;
+    typedef qt::Widget* window;
     typedef QPaintDevice* drawable;
-    typedef QPainter& graphics;
+    typedef QPainter* graphics;
 
     typedef QRgb color;
-    typedef Qt::WindowType style;
 
     typedef QPixmap bitmap;
     typedef QIcon icon;
@@ -70,13 +96,3 @@ namespace gui {
   } // os
 
 } //gui
-
-#define FC_WEIGHT_THIN       QFont::Weight::Thin
-#define FC_WEIGHT_ULTRALIGHT QFont::Weight::ExtraLight
-#define FC_WEIGHT_LIGHT      QFont::Weight::Light
-#define FC_WEIGHT_REGULAR    QFont::Weight::Normal
-#define FC_WEIGHT_MEDIUM     QFont::Weight::Medium
-#define FC_WEIGHT_SEMIBOLD   QFont::Weight::DemiBold
-#define FC_WEIGHT_BOLD       QFont::Weight::Bold
-#define FC_WEIGHT_ULTRABOLD  QFont::Weight::ExtraBold
-#define FC_WEIGHT_HEAVY      QFont::Weight::Black

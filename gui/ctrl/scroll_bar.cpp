@@ -39,14 +39,15 @@ namespace gui {
 
 #endif //WIN32
 
+  namespace ctrl {
+
 #ifdef QT_WIDGETS_LIB
-  core::point::type get_scroll_value (const core::event& e) {
-    return dynamic_cast<const win::QClientEvent&>(e).l1();
-  }
+
+    core::point::type get_scroll_value (const core::event& e) {
+      return e.cast<win::QClientEvent>().l1();
+    }
 
 #endif // QT_WIDGETS_LIB
-
-  namespace ctrl {
 
     scroll_bar_data::scroll_bar_data ()
       : state(scrollbar_state::nothing)

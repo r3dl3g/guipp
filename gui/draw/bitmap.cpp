@@ -25,6 +25,8 @@
 #include <map>
 #include <math.h>
 
+#include <QtGui/QPixmap>
+
 // --------------------------------------------------------------------------
 //
 // Library includes
@@ -54,10 +56,10 @@ namespace gui {
   namespace {
 
     os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data = nullptr);
-    void free_bitmap (os::bitmap id);
-    void bitmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi);
-    void bitmap_get_data (os::bitmap id, blob& data, draw::bitmap_info& bmi);
-    draw::bitmap_info bitmap_get_info (os::bitmap id);
+    void free_bitmap (os::bitmap& id);
+    void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi);
+    void bitmap_get_data (const os::bitmap& id, blob& data, draw::bitmap_info& bmi);
+    draw::bitmap_info bitmap_get_info (const os::bitmap& id);
 
 #ifdef X11
 //    void pixmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi);
@@ -90,7 +92,7 @@ namespace gui {
       return id;
     }
 
-    void free_bitmap (os::bitmap id) {
+    void free_bitmap (os::bitmap& id) {
       auto display = core::global::get_instance();
 
       XFreePixmap(display, id);
@@ -103,7 +105,7 @@ namespace gui {
       }
     }
 
-    draw::bitmap_info bitmap_get_info (os::bitmap id) {
+    draw::bitmap_info bitmap_get_info (const os::bitmap& id) {
       if (id) {
         auto i = pixmaps.find(id);
         if (i != pixmaps.end()) {
@@ -113,7 +115,7 @@ namespace gui {
       return {0, 0, 0, pixel_format_t::Undefined};
     }
 
-    void bitmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi) {
+    void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi) {
       auto i = pixmaps.find(id);
       if (i != pixmaps.end()) {
         XShmSegmentInfo& shminfo = i->second.first;
@@ -122,7 +124,7 @@ namespace gui {
       }
     }
 
-    void bitmap_get_data (os::bitmap id, blob& data, draw::bitmap_info& bmi) {
+    void bitmap_get_data (const os::bitmap& id, blob& data, draw::bitmap_info& bmi) {
       auto i = pixmaps.find(id);
       if (i != pixmaps.end()) {
         XShmSegmentInfo& shminfo = i->second.first;
@@ -148,12 +150,12 @@ namespace gui {
       return id;
     }
 
-    void free_bitmap (os::bitmap id) {
+    void free_bitmap (os::bitmap& id) {
       auto display = core::global::get_instance();
       XFreePixmap(display, id);
     }
 
-    draw::bitmap_info bitmap_get_info (os::bitmap id) {
+    draw::bitmap_info bitmap_get_info (const os::bitmap& id) {
       draw::bitmap_info bmi;
       if (id) {
         Window root = 0;
@@ -171,7 +173,7 @@ namespace gui {
       return bmi;
     }
 
-    void bitmap_get_data (os::bitmap id, blob& data, draw::bitmap_info& bmi) {
+    void bitmap_get_data (const os::bitmap& id, blob& data, draw::bitmap_info& bmi) {
       if (id) {
         Window root = 0;
         int x, y;
@@ -197,7 +199,7 @@ namespace gui {
       }
     }
 
-    void bitmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi) {
+    void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi) {
       auto display = core::global::get_instance();
       auto gc = XCreateGC(display, id, 0, nullptr);
 
@@ -336,7 +338,7 @@ namespace gui {
       DeleteObject(id);
     }
 
-    draw::bitmap_info bitmap_get_info (os::bitmap id) {
+    draw::bitmap_info bitmap_get_info (const os::bitmap& id) {
       if (id) {
         BITMAP bmp;
         GetObject(id, sizeof (BITMAP), &bmp);
@@ -350,11 +352,11 @@ namespace gui {
       return {};
     }
 
-    void bitmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi) {
+    void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi) {
       SetBitmapBits(id, (DWORD)bmi.mem_size(), data);
     }
 
-    void bitmap_get_data (os::bitmap id, blob& data, draw::bitmap_info& bmi) {
+    void bitmap_get_data (const os::bitmap& id, blob& data, draw::bitmap_info& bmi) {
       bmi = bitmap_get_info(id);
       data.resize(bmi.height * bmi.bytes_per_line);
       int ret = GetBitmapBits(id, (LONG)data.size(), data.data());
@@ -364,6 +366,38 @@ namespace gui {
     }
 
 #endif // WIN32
+
+#ifdef QT_WIDGETS_LIB
+    os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr) {
+      return os::bitmap(bmi.width, bmi.height);
+    }
+
+    void free_bitmap (os::bitmap& id) {
+      id = os::bitmap();
+    }
+
+    draw::bitmap_info bitmap_get_info (const os::bitmap& id) {
+      pixel_format_t fmt;
+      switch (id.depth()) {
+        case 1: fmt = pixel_format_t::BW;
+        case 8: fmt = pixel_format_t::GRAY;
+        case 24: fmt = pixel_format_t::RGB;
+        default:
+        case 32: fmt = pixel_format_t::RGBA;
+      }
+      return draw::bitmap_info(id.width(), id.height(), fmt);
+    }
+
+    void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi) {
+      id.convertFromImage(QImage(data, bmi.width, bmi.height, draw::bitmap_info::convert(bmi.pixel_format)));
+    }
+
+    void bitmap_get_data (const os::bitmap& id, blob& data, draw::bitmap_info& bmi) {
+      QImage img = id.toImage();
+      data.assign(img.constBits(), img.constBits() + img.byteCount());
+      bmi = draw::bitmap_info(core::native_size(img.size()), draw::bitmap_info::convert(img.format()));
+    }
+#endif // QT_WIDGETS_LIB
 
   }
 
@@ -399,9 +433,9 @@ namespace gui {
 #endif
     }
 
-    basic_map::operator os::drawable() const {
+    basic_map::operator const os::drawable () const {
 #ifdef QT_WIDGETS_LIB
-      return &id;
+      return const_cast<os::drawable>(static_cast<const QPaintDevice*>(&id));
 #else
       return get_id();
 #endif
@@ -410,9 +444,7 @@ namespace gui {
     void basic_map::clear () {
       if (is_valid()) {
         free_bitmap(get_id());
-#ifdef QT_WIDGETS_LIB
-        id = os::bitmap();
-#else
+#ifndef QT_WIDGETS_LIB
         set_id(0);
 #endif
       }
@@ -502,11 +534,12 @@ namespace gui {
       HDC dc = GetDC(NULL);
       set_id(CreateCompatibleBitmap(dc, w, h));
       ReleaseDC(NULL, dc);
-#endif
-#ifdef X11
+#elif X11
       pixel_format_t px_fmt = core::global::get_device_pixel_format();
       super::create({w, h, px_fmt});
-#endif //X11
+#elif QT_WIDGETS_LIB
+      set_id(os::bitmap(w, h));
+#endif //QT_WIDGETS_LIB
       if (!is_valid()) {
         throw std::runtime_error("create pixmap failed");
       }

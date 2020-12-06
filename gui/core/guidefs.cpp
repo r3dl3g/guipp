@@ -30,6 +30,9 @@
 #include <shellscalingapi.h>
 #pragma warning(disable:4996)
 #endif // WIN32
+#ifdef QT_WIDGETS_LIB
+#include <QtGui/QGuiApplication>
+#endif // QT_WIDGETS_LIB
 
 
 // --------------------------------------------------------------------------
@@ -183,16 +186,10 @@ namespace gui {
 
       struct gui_init {
         gui_init ()
-#ifdef WIN32
           : instance(nullptr)
-#endif // WIN32
 #ifdef X11
-          : instance(nullptr)
           , screen(0)
 #endif // X11
-#ifdef COCOA
-          : instance(0)
-#endif // COCOA
         {
 #ifdef X11
           XInitThreads();
@@ -218,15 +215,7 @@ namespace gui {
         }
 
         bool is_initialized () const {
-#ifdef WIN32
           return (instance != nullptr);
-#endif // WIN32
-#ifdef X11
-          return (instance != nullptr);
-#endif // X11
-#ifdef COCOA
-          return (instance != 0);
-#endif // COCOA
         }
 
         ~gui_init () {
@@ -454,6 +443,25 @@ namespace gui {
       }
 
 #endif // X11
+
+#ifdef QT_WIDGETS_LIB
+
+      gui::os::key_state get_key_state () {
+        return QGuiApplication::keyboardModifiers();
+      }
+
+      double calc_scale_factor () {
+        const char* xscale = getenv("XSCALE");
+        if (xscale) {
+          double scale = 1.0;
+          std::stringstream(xscale) >> scale;
+          return scale;
+        } else {
+          return 1.0;
+        }
+      }
+
+#endif // QT_WIDGETS_LIB
 
     } // global
 

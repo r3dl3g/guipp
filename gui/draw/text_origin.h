@@ -33,13 +33,13 @@ namespace gui {
 
   // --------------------------------------------------------------------------
   enum class placement : unsigned short {
-    left            = IF_WIN32_ELSE(DT_LEFT, 0x0000),
-    hcenter         = IF_WIN32_ELSE(DT_CENTER, 0x0001),
-    right           = IF_WIN32_ELSE(DT_RIGHT, 0x0002),
+    left            = IF_WIN32_X11_QT_ELSE(DT_LEFT,     0x0000, Qt::AlignLeft,    0x0000),
+    hcenter         = IF_WIN32_X11_QT_ELSE(DT_CENTER,   0x0001, Qt::AlignHCenter, 0x0001),
+    right           = IF_WIN32_X11_QT_ELSE(DT_RIGHT,    0x0002, Qt::AlignRight,   0x0002),
 
-    top             = IF_WIN32_ELSE(DT_TOP, 0x0000),
-    vcenter         = IF_WIN32_ELSE(DT_VCENTER, 0x0004),
-    bottom          = IF_WIN32_ELSE(DT_BOTTOM, 0x0008)
+    top             = IF_WIN32_X11_QT_ELSE(DT_TOP,      0x0000, Qt::AlignTop,     0x0000),
+    vcenter         = IF_WIN32_X11_QT_ELSE(DT_VCENTER,  0x0004, Qt::AlignVCenter, 0x0004),
+    bottom          = IF_WIN32_X11_QT_ELSE(DT_BOTTOM,   0x0008, Qt::AlignBottom,  0x0008)
   };
 
   // --------------------------------------------------------------------------
@@ -57,8 +57,8 @@ namespace gui {
 
   // --------------------------------------------------------------------------
   enum class line_handling : unsigned short {
-    wordbreak       = IF_WIN32_ELSE(DT_WORDBREAK, 0x0010),
-    singleline      = IF_WIN32_ELSE(DT_SINGLELINE, 0x0020)
+    wordbreak       = IF_WIN32_X11_QT_ELSE(DT_WORDBREAK,  0x0010, 0x0,                0x0100),
+    singleline      = IF_WIN32_X11_QT_ELSE(DT_SINGLELINE, 0x0020, Qt::TextSingleLine, 0x0020)
   };
 
   inline constexpr unsigned short operator| (unsigned short lhs, line_handling rhs) {

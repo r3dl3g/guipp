@@ -62,11 +62,11 @@ namespace gui {
 
     }
 
-    GUIPP_WIN_EXPORT void send_client_message (const window* win, os::message_type message, long l1 = 0, long l2 = 0);
-    GUIPP_WIN_EXPORT void post_client_message (const window* win, os::message_type message, long l1 = 0, long l2 = 0);
+    GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, long l1 = 0, long l2 = 0);
+    GUIPP_WIN_EXPORT void post_client_message (window* win, os::message_type message, long l1 = 0, long l2 = 0);
 
-    GUIPP_WIN_EXPORT void send_client_message (const window* win, os::message_type message, const core::size& sz);
-    GUIPP_WIN_EXPORT void send_client_message (const window* win, os::message_type message, const core::rectangle& wr);
+    GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const core::size& sz);
+    GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const core::rectangle& wr);
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
@@ -355,10 +355,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace x11 {
 
-      GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message,
+      GUIPP_WIN_EXPORT void send_client_message (window* win, Atom message,
                                 long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0);
 
-      GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, const window* w, const core::rectangle& r);
+      GUIPP_WIN_EXPORT void send_client_message (window* win, Atom message, const window* w, const core::rectangle& r);
 
       GUIPP_WIN_EXPORT void prepare_win_for_event (const window* win, os::event_id mask);
       GUIPP_WIN_EXPORT void unprepare_win (const window* win);
@@ -741,7 +741,6 @@ namespace gui {
                                        0,
                                        event::functor<client_message_matcher<core::WM_LAYOUT_WINDOW>>>;
 
-    // --------------------------------------------------------------------------
     using paint_event = core::event_handler<Expose, ExposureMask,
                                          core::params<os::window, os::graphics>::
                                          getter<get_draw_window, get_graphics>>;
@@ -768,6 +767,15 @@ namespace gui {
       long m_l2;
     };
 
+    template<int I>
+    long get_param (const core::event&);
+
+    template<>
+    long get_param<0> (const core::event&);
+
+    template<>
+    long get_param<1> (const core::event&);
+
     // --------------------------------------------------------------------------
     template<os::event_id E, os::key_symbol symbol, os::key_state state>
     inline bool key_symbol_matcher (const core::event& e) {
@@ -777,40 +785,40 @@ namespace gui {
     }
 
     inline int get_mouse_button (const core::event& e) {
-      return dynamic_cast<const QMouseEvent&>(e).button();
+      return e.cast<QMouseEvent>().button();
     }
 
     inline core::point get_mouse_point (const core::event& e) {
-      const QMouseEvent& m = dynamic_cast<const QMouseEvent&>(e);
+      const QMouseEvent& m = e.cast<QMouseEvent>();
       return core::point(gui::os::point(m.x(), m.y()));
     }
 
     inline core::point get_root_mouse_pos (const core::event& e) {
-      const QMouseEvent& m = dynamic_cast<const QMouseEvent&>(e);
+      const QMouseEvent& m = e.cast<QMouseEvent>();
       return core::point(gui::os::point(m.globalX(), m.globalY()));
     }
 
     template<os::event_id id, os::key_state btn>
     inline bool event_button_matcher (const core::event& e) {
-      return (e.type() == id) && (dynamic_cast<const QMouseEvent&>(e).button() == btn);
+      return (e.type() == id) && (e.cast<QMouseEvent>().button() == btn);
     }
 
     inline core::point::type get_wheel_delta_x (const core::event& e) {
-      return dynamic_cast<const QWheelEvent&>(e).pixelDelta().x();
+      return e.cast<QWheelEvent>().pixelDelta().x();
     }
 
     inline core::point::type get_wheel_delta_y (const core::event& e) {
-      return dynamic_cast<const QWheelEvent&>(e).pixelDelta().y();
+      return e.cast<QWheelEvent>().pixelDelta().y();
     }
 
     template<typename T>
     inline core::point get_point (const core::event& e) {
-      return core::point(dynamic_cast<const T&>(e).pos());
+      return core::point(e.cast<T>().pos());
     }
 
     template<typename T>
     inline core::size get_size (const core::event& e) {
-      return core::size(dynamic_cast<const T&>(e).size());
+      return core::size(e.cast<T>().size());
     }
 
     inline bool wheel_button_matcher_x (const core::event& e) {
@@ -827,12 +835,12 @@ namespace gui {
     GUIPP_WIN_EXPORT os::window get_draw_window (const core::event&);
 
     // --------------------------------------------------------------------------
-    using create_event = core::event_handler<QEvent::Create>;
+    using create_event = core::event_handler<core::qt::WM_CREATE_WINDOW>;
 
     using close_event = core::event_handler<QEvent::Close, 0,
                                             core::params<>::getter<>, 1>;
 
-    using destroy_event = core::event_handler<QEvent::Destroy>;
+    using destroy_event = core::event_handler<core::qt::WM_DESTROY_WINDOW>;
 
     using any_key_down_event = core::event_handler<QEvent::KeyPress, 0,
                                                    core::params<os::key_state, os::key_symbol, std::string>::
@@ -962,7 +970,6 @@ namespace gui {
                                              core::params<core::rectangle>::
                                              getter<get_client_data_rect>>;
 
-    // --------------------------------------------------------------------------
     using paint_event = core::event_handler<QEvent::Paint, 0,
                                             core::params<os::window, os::graphics>::
                                             getter<get_draw_window, get_graphics>>;

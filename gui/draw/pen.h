@@ -38,13 +38,14 @@ namespace gui {
 #endif // WIN32 | X11
 
       enum struct Style : int {
-        solid = IF_WIN32_ELSE(PS_SOLID, IF_X11_ELSE(LineSolid, IF_QT_ELSE(Qt::PenStyle::SolidLine, 0))),
-        dash = IF_WIN32_ELSE(PS_DASH, IF_X11_ELSE(LineOnOffDash, IF_QT_ELSE(Qt::PenStyle::DashLine, 0))),
-        dot = IF_WIN32_ELSE(PS_DOT, IF_X11_ELSE(LineOnOffDash | 0x010, IF_QT_ELSE(Qt::PenStyle::DotLine, 0))),
-        dashDot = IF_WIN32_ELSE(PS_DASHDOT, IF_X11_ELSE(LineOnOffDash | 0x020, IF_QT_ELSE(Qt::PenStyle::DashDotLine, 0))),
-        dashDotDot = IF_WIN32_ELSE(PS_DASHDOTDOT, IF_X11_ELSE(LineOnOffDash | 0x030, IF_QT_ELSE(Qt::PenStyle::DashDotDotLine, 0))),
-        hairLine = IF_WIN32_ELSE(PS_NULL, IF_X11_ELSE(LineSolid | 0x040, IF_QT_ELSE(Qt::PenStyle::SolidLine, 0))),
-        insideFrame = IF_WIN32_ELSE(PS_INSIDEFRAME, IF_X11_ELSE(LineSolid | 0x050, IF_QT_ELSE(Qt::PenStyle::SolidLine, 0)))
+        solid =       IF_WIN32_X11_QT_ELSE(PS_SOLID,       LineSolid,              Qt::PenStyle::SolidLine,       1),
+        dash =        IF_WIN32_X11_QT_ELSE(PS_DASH,        LineOnOffDash,          Qt::PenStyle::DashLine,        2),
+        dot =         IF_WIN32_X11_QT_ELSE(PS_DOT,         LineOnOffDash | 0x010,  Qt::PenStyle::DotLine,         3),
+        dashDot =     IF_WIN32_X11_QT_ELSE(PS_DASHDOT,     LineOnOffDash | 0x020,  Qt::PenStyle::DashDotLine,     4),
+        dashDotDot =  IF_WIN32_X11_QT_ELSE(PS_DASHDOTDOT,  LineOnOffDash | 0x030,  Qt::PenStyle::DashDotDotLine,  5),
+        hairLine =    IF_WIN32_X11_QT_ELSE(PS_NULL,        LineSolid | 0x040,      Qt::PenStyle::SolidLine,       6),
+        insideFrame = IF_WIN32_X11_QT_ELSE(PS_INSIDEFRAME, LineSolid | 0x050,      Qt::PenStyle::SolidLine,       7),
+        invisible =   IF_WIN32_X11_QT_ELSE(PS_NULL,        0x0,                    Qt::PenStyle::NoPen,           0)
       };
 
       pen (const os::color& = color::black, size_type = 1, Style = Style::solid);

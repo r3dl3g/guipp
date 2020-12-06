@@ -192,6 +192,31 @@ namespace gui {
 
 #endif // X11
 
+#ifdef QT_WIDGETS_LIB
+
+    bool container::is_parent_of (const window& child) const {
+      return is_valid() && child.is_valid() && (get_id() == detail::get_window_id(child)->get_parent());
+    }
+
+    std::vector<window*> container::get_children () const {
+      std::vector<window*> list;
+      if (is_valid()) {
+        for (auto child :get_id()->children()) {
+          list.push_back(detail::get_window(static_cast<os::window>(child)));
+        }
+      }
+      return list;
+    }
+
+    void container::set_children_visible (bool show) {
+      std::vector<window*> children = get_children();
+      for (window* win : children) {
+        win->set_visible(show);
+      }
+    }
+
+#endif // QT_WIDGETS_LIB
+
     container::container () {
       init();
     }
@@ -297,7 +322,7 @@ namespace gui {
 
 #ifdef WIN32
     void overlapped_window::create (const class_info& type,
-                                    const container& parent,
+                                    container& parent,
                                     const core::rectangle& r) {
       auto rect = r.os();
       AdjustWindowRectEx(&rect, type.get_style(), FALSE, type.get_ex_style());
@@ -459,7 +484,7 @@ namespace gui {
     }
 
     void overlapped_window::create (const class_info& cls,
-                                    const container& parent,
+                                    container& parent,
                                     const core::rectangle& r) {
       gui::os::instance display = core::global::get_instance();
       create_internal(cls, DefaultRootWindow(display), r);
@@ -529,8 +554,72 @@ namespace gui {
       }
     };
 
-
 #endif //X11
+
+#ifdef QT_WIDGETS_LIB
+
+    void overlapped_window::create (const class_info& type,
+                                    container& parent,
+                                    const core::rectangle& r) {
+      super::create(type, parent, r);
+    }
+
+    void overlapped_window::create (const class_info& type,
+                                    const core::rectangle& r) {
+      window::create_internal(type, nullptr, r);
+    }
+
+    void overlapped_window::set_title (const std::string& title) {
+      if (is_valid()) {
+        get_id()->setWindowTitle(QString::fromStdString(title));
+      }
+    }
+
+    std::string overlapped_window::get_title () const {
+      if (is_valid()) {
+        return get_id()->windowTitle().toStdString();
+      }
+      return {};
+    }
+
+    bool overlapped_window::is_top_most () const {
+      return is_valid() && ((get_id()->windowFlags() & Qt::WindowStaysOnTopHint) == Qt::WindowStaysOnTopHint);
+    }
+
+    bool overlapped_window::is_minimized () const {
+      return is_valid() && get_id()->isMinimized();
+    }
+
+    bool overlapped_window::is_maximized () const {
+      return is_valid() && get_id()->isMaximized();
+    }
+
+    void overlapped_window::minimize () {
+      if (is_valid()) {
+        get_id()->showMinimized();
+      }
+    }
+
+    void overlapped_window::maximize () {
+      if (is_valid()) {
+        get_id()->showMaximized();
+      }
+    }
+
+    void overlapped_window::restore () {
+      if (is_valid()) {
+        get_id()->showNormal();
+      }
+    }
+
+    void overlapped_window::set_top_most (bool toplevel) {
+      if (is_valid()) {
+        get_id()->setWindowFlag(Qt::WindowStaysOnTopHint, toplevel);
+      }
+    }
+
+#endif // QT_WIDGETS_LIB
+
     // --------------------------------------------------------------------------
     modal_window::modal_window ()
       : is_modal(false)
@@ -575,13 +664,8 @@ namespace gui {
 
       is_modal = true;
 
-#ifdef X11
       run_loop(is_modal);
-#endif // X11
-
-#ifdef WIN32
       run_loop(is_modal);
-#endif // WIN32
 
       parent.enable();
       parent.take_focus();
@@ -666,7 +750,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void popup_window::create (const class_info& cls, const container& parent, const core::rectangle& r) {
+    void popup_window::create (const class_info& cls, container& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
 #ifdef X11
       gui::os::instance display = core::global::get_instance();
@@ -682,7 +766,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void dialog_window::create (const class_info& cls, const container& parent, const core::rectangle& r) {
+    void dialog_window::create (const class_info& cls, container& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
       gui::os::instance display = core::global::get_instance();
 #ifdef X11

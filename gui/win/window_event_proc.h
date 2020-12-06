@@ -45,6 +45,8 @@ namespace gui {
     namespace win32 {
 
       GUIPP_WIN_EXPORT LRESULT CALLBACK WindowEventProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+      GUIPP_WIN_EXPORT void set_window (os::window id, window* win);
+      GUIPP_WIN_EXPORT void unset_window (os::window id);
 
     } // namespace win32
 #endif // WIN32
@@ -63,8 +65,6 @@ namespace gui {
 
       GUIPP_WIN_EXPORT window* get_window (os::window id);
       GUIPP_WIN_EXPORT os::window get_window_id (const window& win);
-      GUIPP_WIN_EXPORT void set_window (os::window id, window* win);
-      GUIPP_WIN_EXPORT void unset_window (os::window id);
 
       GUIPP_WIN_EXPORT bool check_expose (const core::event& e);
 

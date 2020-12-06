@@ -70,7 +70,6 @@ namespace util {
 
 namespace gui {
 
-
   namespace win {
 
     namespace detail {
@@ -279,6 +278,22 @@ namespace gui {
 
 #endif // X11
 
+#ifdef QT_WIDGETS_LIB
+
+    namespace detail {
+
+      window* get_window (os::window id) {
+        return id ? id->get_window() : nullptr;
+      }
+
+      bool check_expose (const core::event& e) {
+        return (e.type() == QEvent::Type::Paint);
+      }
+
+    } // namespace detail
+
+#endif // QT_WIDGETS_LIB
+
 
     // --------------------------------------------------------------------------
     namespace detail {
@@ -394,6 +409,26 @@ namespace gui {
       void unregister_utf8_window (const window&) {}
 
 #endif // WIN32
+
+#ifdef QT_WIDGETS_LIB
+
+      window* get_current_focus_window () {
+        return detail::get_window(static_cast<os::window>(QApplication::focusWidget()));
+      }
+
+      window* get_application_main_window() {
+        auto list = QApplication::topLevelWidgets();
+        if (list.size() > 0) {
+          return detail::get_window(static_cast<os::window>(list.first()));
+        }
+        return nullptr;
+      }
+
+      void register_utf8_window (const window&) {}
+
+      void unregister_utf8_window (const window&) {}
+
+#endif // QT_WIDGETS_LIB
 
       std::thread::id get_current_thread_id () {
         return std::this_thread::get_id();
@@ -579,6 +614,21 @@ namespace gui {
 
 #endif // X11
 
+#ifdef QT_WIDGETS_LIB
+
+    bool is_button_event_outside (const window& w, const core::event& e) {
+      switch (e.type()) {
+        case QEvent::MouseButtonPress:
+        case QEvent::MouseButtonRelease: {
+          const QMouseEvent& me = e.cast<QMouseEvent>();
+          return !w.absolute_place().is_inside(core::point(me.globalPos()));
+        }
+      }
+      return false;
+    }
+
+#endif // QT_WIDGETS_LIB
+
     // --------------------------------------------------------------------------
     int run_loop (volatile bool& running, detail::filter_call filter) {
 
@@ -675,6 +725,7 @@ namespace gui {
       }
       return resultValue;
 #endif // X11
+      gui::core::global::get_instance()->exec();
     }
 
     namespace {
@@ -690,6 +741,7 @@ namespace gui {
     }
 
     void quit_main_loop () {
+      clog::debug() << "Received quit_main_loop()";
       main_loop_is_running = false;
       core::global::fini();
     }

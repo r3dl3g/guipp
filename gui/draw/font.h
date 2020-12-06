@@ -51,15 +51,15 @@ namespace gui {
       typedef os::font_type type;
 
       enum Thickness {
-        thin = IF_WIN32_ELSE(FW_THIN, FC_WEIGHT_THIN),
-        ultraLight = IF_WIN32_ELSE(FW_ULTRALIGHT, FC_WEIGHT_ULTRALIGHT),
-        light = IF_WIN32_ELSE(FW_LIGHT, FC_WEIGHT_LIGHT),
-        regular = IF_WIN32_ELSE(FW_REGULAR, FC_WEIGHT_REGULAR),
-        medium = IF_WIN32_ELSE(FW_MEDIUM, FC_WEIGHT_MEDIUM),
-        semiBold = IF_WIN32_ELSE(FW_SEMIBOLD, FC_WEIGHT_SEMIBOLD),
-        bold = IF_WIN32_ELSE(FW_BOLD, FC_WEIGHT_BOLD),
-        ultraBold = IF_WIN32_ELSE(FW_ULTRABOLD, FC_WEIGHT_ULTRABOLD),
-        heavy = IF_WIN32_ELSE(FW_HEAVY, FC_WEIGHT_HEAVY)
+        thin =        IF_WIN32_X11_QT_ELSE(FW_THIN,       FC_WEIGHT_THIN,       QFont::Weight::Thin,       1),
+        ultraLight =  IF_WIN32_X11_QT_ELSE(FW_ULTRALIGHT, FC_WEIGHT_ULTRALIGHT, QFont::Weight::ExtraLight, 2),
+        light =       IF_WIN32_X11_QT_ELSE(FW_LIGHT,      FC_WEIGHT_LIGHT,      QFont::Weight::Light,      3),
+        regular =     IF_WIN32_X11_QT_ELSE(FW_REGULAR,    FC_WEIGHT_REGULAR,    QFont::Weight::Normal,     4),
+        medium =      IF_WIN32_X11_QT_ELSE(FW_MEDIUM,     FC_WEIGHT_MEDIUM,     QFont::Weight::Medium,     5),
+        semiBold =    IF_WIN32_X11_QT_ELSE(FW_SEMIBOLD,   FC_WEIGHT_SEMIBOLD,   QFont::Weight::DemiBold,   6),
+        bold =        IF_WIN32_X11_QT_ELSE(FW_BOLD,       FC_WEIGHT_BOLD,       QFont::Weight::Bold,       7),
+        ultraBold =   IF_WIN32_X11_QT_ELSE(FW_ULTRABOLD,  FC_WEIGHT_ULTRABOLD,  QFont::Weight::ExtraBold,  8),
+        heavy =       IF_WIN32_X11_QT_ELSE(FW_HEAVY,      FC_WEIGHT_HEAVY,      QFont::Weight::Black,      9)
       };
 
       font (const std::string& name,
@@ -112,7 +112,7 @@ namespace gui {
 # endif // USE_XFT
 #endif // X11
 
-#ifdef WIN32
+#if defined(WIN32) || defined(QT_WIDGETS_LIB)
       os::font id;
 #endif // WIN32
       os::font_type info;

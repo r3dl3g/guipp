@@ -45,6 +45,45 @@
 
 namespace gui {
 
+#ifdef QT_WIDGETS_LIB
+
+  namespace os {
+
+    namespace qt {
+
+      Widget::Widget (Widget* parent, os::style s, win::window* w)
+        : QWidget(parent, s)
+        , win(w)
+      {}
+
+      win::window* Widget::get_window () const {
+        return win;
+      }
+
+      Widget* Widget::get_parent () const {
+        return static_cast<Widget*>(parentWidget());
+      }
+
+      QPainter *Widget::painter() const {
+        return sharedPainter();
+      }
+
+      bool Widget::event (QEvent* e) {
+        gui::os::event_result result;
+        gui::core::event ev = {this, e};
+        clog::debug() << "Widget received event: " << ev;
+        if (win->handle_event(ev, result)) {
+          return true;
+        }
+        return QWidget::event(e);
+      }
+
+    } // namespace qt
+
+  } // os
+
+#endif // QT_WIDGETS_LIB
+
   namespace win {
 
 #ifdef X11
@@ -131,9 +170,15 @@ namespace gui {
       if (rhs.is_valid()) {
         container* parent = rhs.get_parent();
         create_internal(rhs.get_window_class(),
-                        parent ? detail::get_window_id(*parent)
-                               : IF_WIN32_ELSE(NULL, DefaultRootWindow(core::global::get_instance())),
-                        rhs.place());
+                        parent ? detail::get_window_id(*parent) :
+#ifdef WIN32
+                                 NULL
+#elif X11
+                                 DefaultRootWindow(core::global::get_instance())
+#elif QT_WIDGETS_LIB
+                                 NULL
+#endif
+                        , rhs.place());
       }
     }
 
@@ -162,8 +207,11 @@ namespace gui {
       }
 
       id = create_window(type, r, parent_id, this);
-#ifdef X11
-      x11::send_client_message(this, core::x11::WM_CREATE_WINDOW, this, r);
+#if defined(X11)
+      send_client_message(this, core::x11::WM_CREATE_WINDOW);
+#endif // X11
+#if defined(QT_WIDGETS_LIB)
+      send_client_message(this, core::qt::WM_CREATE_WINDOW);
 #endif // X11
     }
 
@@ -217,7 +265,7 @@ namespace gui {
     }
 
     bool window::handle_event (const core::event& e, gui::os::event_result& result) const {
-      const auto key = std::make_pair(this, e.type);
+      const auto key = std::make_pair(this, IF_QT_ELSE(e.type(), e.type));
       if (active_handler.find(key) != active_handler.end()) {
         clog::warn() << "already in handle_event for window: " << this << " " << e;
         return false;
@@ -598,7 +646,7 @@ namespace gui {
       return core::point(Point);
     }
 
-    void window::set_cursor (os::cursor c) {
+    void window::set_cursor (const os::cursor& c) {
       if (is_valid()) {
         SetClassLongPtr(get_id(), GCLP_HCURSOR, reinterpret_cast<LONG_PTR>(c));
       }
@@ -699,7 +747,7 @@ namespace gui {
       return id;
     }
 
-    void window::notify_event (os::message_type message, long l1, long l2) const {
+    void window::notify_event (os::message_type message, long l1, long l2) {
       send_client_message(this, message, l1, l2);
     }
     
@@ -1053,7 +1101,7 @@ namespace gui {
       return {core::global::scale<core::point::type>(x), core::global::scale<core::point::type>(y)};
     }
 
-    void window::set_cursor (os::cursor c) {
+    void window::set_cursor (const os::cursor& c) {
       XDefineCursor(core::global::get_instance(), get_id(), c);
     }
 
@@ -1156,7 +1204,7 @@ namespace gui {
       return hidden::window_class_map[get_id()];
     }
 
-    void window::notify_event (os::message_type message, long l1, long l2) const {
+    void window::notify_event (os::message_type message, long l1, long l2) {
       XEvent event;
       XClientMessageEvent& client = event.xclient;
 
@@ -1178,6 +1226,254 @@ namespace gui {
     }
 
 #endif // X11
+
+#ifdef QT_WIDGETS_LIB
+    // --------------------------------------------------------------------------
+    namespace hidden {
+      std::map<os::window, std::string> window_class_map;
+    }
+
+    void window::init ()
+    {}
+
+    window::~window () {
+      destroy();
+    }
+
+    void window::destroy () {
+      if (is_valid()) {
+        send_client_message(this, core::qt::WM_DESTROY_WINDOW);
+        hidden::window_class_map.erase(id);
+        delete id;
+        id = nullptr;
+      }
+    }
+
+    void window::close () {
+      if (is_valid()) {
+        send_client_message(this, QEvent::Close);
+        id->close();
+      }
+    }
+
+    bool window::is_valid () const {
+      return (get_id() != 0);
+    }
+
+    bool window::is_visible () const {
+      return is_valid() && get_id()->isVisible();
+    }
+
+    bool window::has_focus () const {
+      return is_valid() && get_id()->hasFocus();
+    }
+
+    bool window::is_child () const {
+      return is_valid() && !get_id()->isTopLevel();
+    }
+
+    bool window::is_popup () const {
+      return is_valid() && (get_id()->isWindow() && (get_id()->windowType() == Qt::Popup));
+    }
+
+    bool window::is_toplevel () const {
+      return is_valid() && get_id()->isTopLevel();
+    }
+
+    bool window::has_border () const {
+      return is_valid() && (get_id()->frameSize() != get_id()->size());
+    }
+
+    void window::set_parent (const container& parent) {
+      if (is_valid() && parent.is_valid()) {
+        get_id()->setParent(detail::get_window_id(parent));
+      }
+    }
+
+    container* window::get_parent () const {
+      return is_valid() ? (container*)detail::get_window(get_id()->get_parent()) : nullptr;
+    }
+
+    bool window::is_child_of (const container& parent) const {
+      return is_valid() && parent.is_valid() && (detail::get_window_id(parent) == get_id()->get_parent());
+    }
+
+    void window::set_visible (bool s) {
+      if (is_valid()) {
+        get_id()->setVisible(s);
+      }
+    }
+
+    void window::take_focus () const {
+      if (is_valid()) {
+        get_id()->activateWindow();
+        invalidate();
+      }
+    }
+
+    void window::to_front () {
+      if (is_valid()) {
+        get_id()->raise();
+      }
+    }
+
+    void window::to_back () {
+      if (is_valid()) {
+        get_id()->lower();
+      }
+    }
+
+    void window::redraw () const {
+      if (is_valid()) {
+        clog::trace() << "redraw: " << get_id();
+        get_id()->repaint();
+      }
+    }
+
+    void window::invalidate () const {
+      if (is_valid()) {
+        clog::trace() << "invalidate: " << get_id();
+        get_id()->update();
+      }
+    }
+
+    core::size window::size () const {
+      return is_valid() ? core::size(get_id()->frameSize())
+                        : core::size::zero;
+    }
+
+    core::point window::position () const {
+      return is_valid() ? core::point(get_id()->pos())
+                        : core::point::zero;
+    }
+
+    core::rectangle window::place () const {
+      return is_valid() ? core::rectangle(get_id()->pos(), get_id()->frameSize())
+                        : core::rectangle::zero;
+    }
+
+    core::rectangle window::absolute_place () const {
+      return is_valid() ? core::rectangle(get_id()->mapToGlobal(get_id()->pos()), get_id()->frameSize())
+                        : core::rectangle::zero;
+    }
+
+    core::point window::absolute_position () const {
+      return is_valid() ? core::point(get_id()->mapToGlobal(get_id()->pos()))
+                        : core::point::zero;
+    }
+
+    core::size window::client_size () const {
+      return is_valid() ? core::size(get_id()->size())
+                        : core::size::zero;
+    }
+
+    core::rectangle window::client_area () const {
+      return is_valid() ? core::rectangle(get_id()->size())
+                        : core::rectangle::zero;
+    }
+
+    void window::move (const core::point& pt, bool repaint) {
+      if (is_valid()) {
+        get_id()->move(pt.os_x(), pt.os_y());
+        if (repaint) {
+          invalidate();
+        }
+      }
+    }
+
+    void window::resize (const core::size& sz, bool repaint) {
+      if (is_valid()) {
+        get_id()->resize(sz.os_width(), sz.os_height());
+        send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(sz));
+        if (repaint) {
+          invalidate();
+        }
+      }
+    }
+
+    void window::place (const core::rectangle& r, bool repaint) {
+      if (is_valid()) {
+        get_id()->setGeometry(r.os());
+        if (repaint) {
+          invalidate();
+        }
+        send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(r.size()));
+      }
+    }
+
+    core::point window::client_to_screen (const core::point& pt) const {
+      return is_valid() ? core::point(get_id()->mapToGlobal(pt.os()))
+                        : core::point::zero;
+    }
+
+    core::point window::screen_to_client (const core::point& pt) const {
+      return is_valid() ? core::point(get_id()->mapFromGlobal(pt.os()))
+                        : core::point::zero;
+    }
+
+    void window::set_cursor (const os::cursor& c) {
+      if (is_valid()) {
+        get_id()->setCursor(c);
+      }
+    }
+
+    void window::capture_pointer () {
+      if (is_valid()) {
+        clog::trace() << "capture_pointer:" << get_id();
+        hidden::capture_stack.push_back(get_id());
+        get_id()->grabMouse();
+      }
+    }
+
+    void window::uncapture_pointer () {
+      if (!hidden::capture_stack.empty()) {
+        if (hidden::capture_stack.back() != get_id()) {
+          clog::fatal() << "uncapture_pointer:" << get_id() << " differs from stack back:(" << hidden::capture_stack.back() << ")";
+        } else {
+          clog::trace() << "uncapture_pointer:" << get_id();
+        }
+        get_id()->releaseMouse();
+        hidden::capture_stack.pop_back();
+        if (!hidden::capture_stack.empty()) {
+          clog::trace() << "re-capture_pointer:" << hidden::capture_stack.back();
+          hidden::capture_stack.back()->grabMouse();
+        }
+      }
+    }
+
+    os::window window::create_window (const class_info& type,
+                                      const core::rectangle& r,
+                                      os::window parent_id,
+                                      window* data) {
+      os::window id = new os::qt::Widget(parent_id, type.get_style(), data);
+      Qt::WindowFlags style = id->windowFlags();
+      clog::debug() << "Expected style: " << std::hex << type.get_style() << ", current style: " << std::hex << style;
+
+      id->setGeometry(r.os());
+      id->setCursor(type.get_cursor());
+
+      QPalette pal = id->palette();
+      pal.setColor(QPalette::Background, QColor(type.get_background()));
+      id->setAutoFillBackground(true);
+      id->setPalette(pal);
+
+      hidden::window_class_map[id] = type.get_class_name();
+
+      //type.get_ex_style(),
+      //type.get_style(),  // window style
+
+      return id;
+    }
+
+    void window::notify_event (os::message_type message, long l1, long l2) {
+      send_client_message(this, message, l1, l2);
+    }
+
+    std::string window::get_class_name () const {
+      return hidden::window_class_map[get_id()];
+    }
+
+#endif // QT_WIDGETS_LIB
 
 #ifdef COCOA
 

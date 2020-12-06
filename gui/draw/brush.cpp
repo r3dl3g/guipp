@@ -113,7 +113,8 @@ namespace gui {
     }
 
 #endif // WIN32
-#ifdef X11
+
+#if defined(X11) || defined(QT_WIDGETS_LIB)
     const brush default_brush;
 
     brush::brush (const os::color& color, Style style)
@@ -148,8 +149,7 @@ namespace gui {
       return ((m_color == rhs.m_color) &&
               (m_style == rhs.m_style));
     }
-
-#endif // X11
+#endif // X11 || QT_WIDGETS_LIB
 
   }
 

@@ -57,6 +57,8 @@ namespace gui {
 
       explicit basic_rectangle (const size_t& sz);
       explicit basic_rectangle (const gui::os::rectangle& r);
+      explicit basic_rectangle (const gui::os::point& p, const gui::os::size& s);
+      explicit basic_rectangle (const gui::os::size& s);
 
       operator gui::os::rectangle () const;
 

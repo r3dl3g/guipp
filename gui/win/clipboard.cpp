@@ -16,6 +16,10 @@
  * @file
  */
 
+#ifdef QT_WIDGETS_LIB
+#include <QtGui/QClipboard>
+#include <QtGui/QGuiApplication>
+#endif // QT_WIDGETS_LIB
 // --------------------------------------------------------------------------
 //
 // Library includes
@@ -34,6 +38,7 @@ namespace gui {
     }
 
 #ifdef WIN32
+
     clipboard::clipboard ()
     {}
 
@@ -177,6 +182,21 @@ namespace gui {
     }
 
 #endif // X11
+
+#ifdef QT_WIDGETS_LIB
+
+    clipboard::clipboard ()
+    {}
+
+    void clipboard::set_text (window& win, const std::string& t) {
+      QGuiApplication::clipboard()->setText(QString::fromStdString(t));
+    }
+
+    void clipboard::get_text (window& win, std::function<clipboard::text_callback>&& cb) {
+      cb(QGuiApplication::clipboard()->text().toStdString());
+    }
+
+#endif // QT_WIDGETS_LIB
 
   } // win
 

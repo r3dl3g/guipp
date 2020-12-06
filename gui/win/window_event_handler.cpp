@@ -248,7 +248,7 @@ namespace gui {
       }
     }
 
-    void send_client_message (const window* win, os::message_type message, long l1, long l2) {
+    void send_client_message (window* win, os::message_type message, long l1, long l2) {
       if (win && win->is_valid()) {
         gui::os::event_result result;
         core::event e{ detail::get_window_id(*win), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2) };
@@ -256,7 +256,7 @@ namespace gui {
       }
     }
 
-    void send_client_message (const window* win, os::message_type message, const core::size& sz) {
+    void send_client_message (window* win, os::message_type message, const core::size& sz) {
       if (win && win->is_valid()) {
         gui::os::event_result result;
         os::size s = sz;
@@ -266,7 +266,7 @@ namespace gui {
       }
     }
 
-    void send_client_message (const window* win, os::message_type message, const core::rectangle& wr) {
+    void send_client_message (window* win, os::message_type message, const core::rectangle& wr) {
       if (win && win->is_valid()) {
         gui::os::event_result result;
         core::native_rect r = core::global::scale(wr);
@@ -277,7 +277,7 @@ namespace gui {
       }
     }
 
-    void post_client_message (const window* win, os::message_type message, long l1, long l2) {
+    void post_client_message (window* win, os::message_type message, long l1, long l2) {
       send_client_message(win, message, l1, l2);
 //      if (win && win->is_valid()) {
 //        PostMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
@@ -288,7 +288,7 @@ namespace gui {
 #ifdef X11
     namespace x11 {
       // --------------------------------------------------------------------------
-      void send_client_message (const window* win, Atom message, long l1, long l2, long l3, long l4, long l5) {
+      void send_client_message (window* win, Atom message, long l1, long l2, long l3, long l4, long l5) {
         if (win && win->is_valid()) {
           XEvent event;
           XClientMessageEvent& client = event.xclient;
@@ -315,14 +315,14 @@ namespace gui {
         }
       }
 
-      void send_client_message (const window* win, Atom message, const window* w, const core::rectangle& rect) {
+      void send_client_message (window* win, Atom message, const window* w, const core::rectangle& rect) {
         XRectangle r = rect;
         long l1 = (long)r.x << 16 | (long)r.y;
         long l2 = (long)r.width << 16 | (long)r.height;
         send_client_message(win, message, detail::get_window_id(*w), l1, l2);
       }
 
-      void post_client_message (const window* win, Atom message, long l1, long l2) {
+      void post_client_message (window* win, Atom message, long l1, long l2) {
         x11::send_client_message(win, message, l1, l2);
       }
 
@@ -394,17 +394,17 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void send_client_message (const window* win, os::message_type message, long l1, long l2) {
+    void send_client_message (window* win, os::message_type message, long l1, long l2) {
       x11::send_client_message(win, message, l1, l2);
     }
 
-    void send_client_message (const window* win, os::message_type message, const core::size& sz) {
+    void send_client_message (window* win, os::message_type message, const core::size& sz) {
       os::size s = sz.os();
       long l0 = (long)s.cx << 16 | (long)s.cy;
       x11::send_client_message(win, message, l0);
     }
 
-    void send_client_message (const window* win, os::message_type message, const core::rectangle& wr) {
+    void send_client_message (window* win, os::message_type message, const core::rectangle& wr) {
       os::size s = wr.size().os();
       os::point p = wr.position().os();
       long l0 = (long)p.x << 16 | (long)p.y;
@@ -412,7 +412,7 @@ namespace gui {
       x11::send_client_message(win, message, l1, l0, l1);
     }
 
-    void post_client_message (const window* win, Atom message, long l1, long l2) {
+    void post_client_message (window* win, Atom message, long l1, long l2) {
       x11::post_client_message(win, message, l1, l2);
     }
 
@@ -486,16 +486,15 @@ namespace gui {
 #ifdef QT_WIDGETS_LIB
     // --------------------------------------------------------------------------
     os::key_state get_key_state (const core::event& e) {
-      return dynamic_cast<const QKeyEvent&>(e).modifiers();
+      return e.cast<QKeyEvent>().modifiers();
     }
 
     os::key_symbol get_key_symbol (const core::event& e) {
-      return dynamic_cast<const QKeyEvent&>(e).key();
+      return e.cast<QKeyEvent>().key();
     }
 
     std::string get_key_chars (const core::event& e) {
-      const QKeyEvent& k = dynamic_cast<const QKeyEvent&>(e);
-      return k.text().toStdString();
+      return e.cast<QKeyEvent>().text().toStdString();
     }
 
     // --------------------------------------------------------------------------
@@ -528,35 +527,51 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    core::rectangle get_client_data_rect (const core::event& e) {
-      return dynamic_cast<const QClientEvent&>(e).rect();
+    template<>
+    long get_param<0> (const core::event& e) {
+      return e.cast<QClientEvent>().l1();
     }
 
-    os::graphics get_graphics (const core::event&);
-    os::window get_draw_window (const core::event&);
+    template<>
+    long get_param<1> (const core::event& e) {
+      return e.cast<QClientEvent>().l2();
+    }
 
     // --------------------------------------------------------------------------
-    void send_client_message (const window* win, os::message_type message, const core::rectangle& r) {
+    core::rectangle get_client_data_rect (const core::event& e) {
+      return e.cast<QClientEvent>().rect();
+    }
+
+    os::graphics get_graphics (const core::event& e) {
+      return get_draw_window(e)->painter();
+    }
+
+    os::window get_draw_window (const core::event& e) {
+      return e.id;
+    }
+
+    // --------------------------------------------------------------------------
+    void send_client_message (window* win, os::message_type message, const core::rectangle& r) {
       if (win && win->is_valid()) {
         gui::os::event_result result;
         QClientEvent e(static_cast<QEvent::Type>(message), r);
-        win->handle_event(e, result);
+        win->handle_event(gui::core::event{detail::get_window_id(*win), &e}, result);
       }
     }
 
-    void send_client_message (const window* win, os::message_type message, const core::size& sz) {
+    void send_client_message (window* win, os::message_type message, const core::size& sz) {
       send_client_message(win, message, core::rectangle(sz));
     }
 
-    void send_client_message (const window* win, os::message_type message, long l1, long l2) {
+    void send_client_message (window* win, os::message_type message, long l1, long l2) {
       if (win && win->is_valid()) {
         gui::os::event_result result;
         QClientEvent e(static_cast<QEvent::Type>(message), l1, l2);
-        win->handle_event(e, result);
+        win->handle_event(gui::core::event{detail::get_window_id(*win), &e}, result);
       }
     }
 
-    void post_client_message (const window* win, os::message_type message, long l1, long l2) {
+    void post_client_message (window* win, os::message_type message, long l1, long l2) {
       send_client_message(win, message, l1, l2);
     }
     // --------------------------------------------------------------------------

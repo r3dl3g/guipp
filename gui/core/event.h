@@ -70,9 +70,29 @@ namespace gui {
 #endif // COCOA
 
 #ifdef QT_WIDGETS_LIB
-    using event = QEvent;
+
+    struct event {
+      gui::os::window id;
+      QEvent* qevent;
+
+      QEvent::Type type () const {
+        return qevent->type();
+      }
+
+      template<typename T>
+      const T& cast () const {
+        return *static_cast<const T*>(qevent);
+      }
+    };
 
     const gui::os::event_id WM_LAYOUT_WINDOW = QEvent::User + 0x100;
+
+    namespace qt {
+
+      const gui::os::event_id WM_CREATE_WINDOW = QEvent::User + 0x101;
+      const gui::os::event_id WM_DESTROY_WINDOW = QEvent::User + 0x102;
+
+    } // namespace qt
 
 #endif // QT_WIDGETS_LIB
 

@@ -102,17 +102,17 @@ namespace gui {
     os::cursor_type cursor::convert (cursor_type t) {
       switch (t) {
         default:
-        case cursor_type::none:       return IF_QT_ELSE(Qt::CursorShape::CustomCursor, 0);
-        case cursor_type::arrow:      return IF_WIN32_ELSE(IDC_ARROW, IF_QT_ELSE(Qt::CursorShape::ArrowCursor, XC_arrow));
-        case cursor_type::size_h:     return IF_WIN32_ELSE(IDC_SIZEWE, IF_QT_ELSE(Qt::CursorShape::SizeHorCursor, XC_sb_h_double_arrow));
-        case cursor_type::size_v:     return IF_WIN32_ELSE(IDC_SIZENS, IF_QT_ELSE(Qt::CursorShape::SizeVerCursor, XC_sb_v_double_arrow));
-        case cursor_type::size_ne_sw: return IF_WIN32_ELSE(IDC_SIZENESW, IF_QT_ELSE(Qt::CursorShape::SizeBDiagCursor, XC_bottom_left_corner));
-        case cursor_type::size_nw_se: return IF_WIN32_ELSE(IDC_SIZENWSE, IF_QT_ELSE(Qt::CursorShape::SizeFDiagCursor, XC_bottom_right_corner));
-        case cursor_type::move:       return IF_WIN32_ELSE(IDC_SIZEALL, IF_QT_ELSE(Qt::CursorShape::DragMoveCursor, XC_fleur));
-        case cursor_type::ibeam:      return IF_WIN32_ELSE(IDC_IBEAM, IF_QT_ELSE(Qt::CursorShape::IBeamCursor, XC_xterm));
-        case cursor_type::cross:      return IF_WIN32_ELSE(IDC_CROSS, IF_QT_ELSE(Qt::CursorShape::CrossCursor, XC_crosshair));
-        case cursor_type::wait:       return IF_WIN32_ELSE(IDC_WAIT, IF_QT_ELSE(Qt::CursorShape::WaitCursor, XC_watch));
-        case cursor_type::no:         return IF_WIN32_ELSE(IDC_NO, IF_QT_ELSE(Qt::CursorShape::ForbiddenCursor, XC_pirate));
+        case cursor_type::none:       return IF_WIN32_X11_QT_ELSE(0,            0,                      Qt::CursorShape::CustomCursor,    0);
+        case cursor_type::arrow:      return IF_WIN32_X11_QT_ELSE(IDC_ARROW,    XC_arrow,               Qt::CursorShape::ArrowCursor,     1);
+        case cursor_type::size_h:     return IF_WIN32_X11_QT_ELSE(IDC_SIZEWE,   XC_sb_h_double_arrow,   Qt::CursorShape::SizeHorCursor,   2);
+        case cursor_type::size_v:     return IF_WIN32_X11_QT_ELSE(IDC_SIZENS,   XC_sb_v_double_arrow,   Qt::CursorShape::SizeVerCursor,   3);
+        case cursor_type::size_ne_sw: return IF_WIN32_X11_QT_ELSE(IDC_SIZENESW, XC_bottom_left_corner,  Qt::CursorShape::SizeBDiagCursor, 4);
+        case cursor_type::size_nw_se: return IF_WIN32_X11_QT_ELSE(IDC_SIZENWSE, XC_bottom_right_corner, Qt::CursorShape::SizeFDiagCursor, 5);
+        case cursor_type::move:       return IF_WIN32_X11_QT_ELSE(IDC_SIZEALL,  XC_fleur,               Qt::CursorShape::DragMoveCursor,  6);
+        case cursor_type::ibeam:      return IF_WIN32_X11_QT_ELSE(IDC_IBEAM,    XC_xterm,               Qt::CursorShape::IBeamCursor,     7);
+        case cursor_type::cross:      return IF_WIN32_X11_QT_ELSE(IDC_CROSS,    XC_crosshair,           Qt::CursorShape::CrossCursor,     8);
+        case cursor_type::wait:       return IF_WIN32_X11_QT_ELSE(IDC_WAIT,     XC_watch,               Qt::CursorShape::WaitCursor,      9);
+        case cursor_type::no:         return IF_WIN32_X11_QT_ELSE(IDC_NO,       XC_pirate,              Qt::CursorShape::ForbiddenCursor, 10);
       }
     }
 

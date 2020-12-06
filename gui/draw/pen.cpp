@@ -110,7 +110,7 @@ namespace gui {
       return pen(c, size(), style());
     }
 
-#ifdef X11
+#if defined(X11) || defined(QT_WIDGETS_LIB)
     const pen default_pen;
 
     pen::pen (const os::color& color, size_type size, Style style)
@@ -149,7 +149,7 @@ namespace gui {
               (m_size == rhs.m_size));
     }
 
-#endif // X11
+#endif // X11 || QT_WIDGETS_LIB
 
   }
 

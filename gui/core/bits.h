@@ -34,23 +34,27 @@
 #ifdef WIN32
 # define IF_WIN32_ELSE(A, B) A
 # define IF_X11_ELSE(A, B) B
-# define IF_COCOA_ELSE(A, B) B
 # define IF_QT_ELSE(A, B) B
+# define IF_COCOA_ELSE(A, B) B
+# define IF_WIN32_X11_QT_ELSE(A, B, C, D) A
 #elif defined(X11)
 # define IF_WIN32_ELSE(A, B) B
 # define IF_X11_ELSE(A, B) A
+# define IF_QT_ELSE(A, B) B
 # define IF_COCOA_ELSE(A, B) B
-# define IF_QT_ELSE(A, B) B
-#elif defined(COCOA)
-# define IF_WIN32_ELSE(A, B) B
-# define IF_X11_ELSE(A, B) B
-# define IF_COCOA_ELSE(A, B) A
-# define IF_QT_ELSE(A, B) B
+# define IF_WIN32_X11_QT_ELSE(A, B, C, D) B
 #elif defined(QT_WIDGETS_LIB)
 # define IF_WIN32_ELSE(A, B) B
 # define IF_X11_ELSE(A, B) B
-# define IF_COCOA_ELSE(A, B) B
 # define IF_QT_ELSE(A, B) A
+# define IF_COCOA_ELSE(A, B) B
+# define IF_WIN32_X11_QT_ELSE(A, B, C, D) C
+#elif defined(COCOA)
+# define IF_WIN32_ELSE(A, B) B
+# define IF_X11_ELSE(A, B) B
+# define IF_QT_ELSE(A, B) B
+# define IF_COCOA_ELSE(A, B) A
+# define IF_WIN32_X11_QT_ELSE(A, B, C, D) D
 #else
 # pragma error "Unknown target system"
 #endif
@@ -103,7 +107,7 @@ namespace gui {
         qt
       };
 
-      const platform_t system_platform = IF_WIN32_ELSE(platform_t::win32, IF_X11_ELSE(platform_t::x11, IF_QT_ELSE(platform_t::qt, platform_t::cocoa)));
+      const platform_t system_platform = IF_WIN32_X11_QT_ELSE(platform_t::win32, platform_t::x11, platform_t::qt, platform_t::cocoa);
       const bit_order_t bitmap_bit_order = IF_WIN32_ELSE(bit_order_t::msb_first, bit_order_t::lsb_first);
       const byte_order_t bitmap_byte_order =
 #if defined(__i386__) || defined(__x86_64__) || defined(__arm__)

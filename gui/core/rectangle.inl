@@ -54,6 +54,33 @@ namespace gui {
     {}
 
     template<typename T, typename S>
+    basic_rectangle<T, S>::basic_rectangle (const gui::os::rectangle& r)
+#ifdef WIN32
+      : pos(global::scale<T>(r.left), global::scale<T>(r.top))
+      , sz(global::scale<S>(r.right - r.left), global::scale<S>(r.bottom - r.top))
+#endif // Win32
+#ifdef X11
+      : pos(global::scale<T>(r.x), global::scale<T>(r.y))
+      , sz(global::scale<S>(r.width), global::scale<S>(r.height))
+#endif // X11
+#ifdef QT_WIDGETS_LIB
+    : pos(r.topLeft())
+    , sz(r.size())
+#endif // QT_WIDGETS_LIB
+    {}
+
+    template<typename T, typename S>
+    basic_rectangle<T, S>::basic_rectangle (const gui::os::point& p, const gui::os::size& s)
+      : pos(p)
+      , sz(s)
+    {}
+
+    template<typename T, typename S>
+    basic_rectangle<T, S>::basic_rectangle (const gui::os::size& s)
+      : sz(s)
+    {}
+
+    template<typename T, typename S>
     inline auto basic_rectangle<T, S>::position () const -> const point_t& {
       return pos;
     }
@@ -257,22 +284,6 @@ namespace gui {
     template<typename T, typename S>
     const basic_rectangle<T, S> basic_rectangle<T, S>::def(0, 0, -1, -1);
 #endif // QT_WIDGETS_LIB
-
-    template<typename T, typename S>
-    basic_rectangle<T, S>::basic_rectangle (const gui::os::rectangle& r)
-#ifdef WIN32
-      : pos(global::scale<T>(r.left), global::scale<T>(r.top))
-      , sz(global::scale<S>(r.right - r.left), global::scale<S>(r.bottom - r.top))
-#endif // Win32
-#ifdef X11
-      : pos(global::scale<T>(r.x), global::scale<T>(r.y))
-      , sz(global::scale<S>(r.width), global::scale<S>(r.height))
-#endif // X11
-#ifdef QT_WIDGETS_LIB
-    : pos(global::scale<T>(r.x()), global::scale<T>(r.y()))
-    , sz(global::scale<S>(r.width()), global::scale<S>(r.height()))
-#endif // QT_WIDGETS_LIB
-    {}
 
     template<typename T, typename S>
     inline bool basic_rectangle<T, S>::empty () const {
@@ -495,6 +506,10 @@ namespace gui {
 #ifdef X11
         os_width(), os_height()
 #endif // X11
+#ifdef QT_WIDGETS_LIB
+        os_width(), os_height()
+#endif // QT_WIDGETS_LIB
+
       };
     }
 

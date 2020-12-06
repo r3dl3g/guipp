@@ -100,11 +100,11 @@ namespace gui {
 
 #ifdef QT_WIDGETS_LIB
     event_source get_event_source (const core::event& e) {
-      return static_cast<event_source>(dynamic_cast<const win::QClientEvent&>(e).l1());
+      return static_cast<event_source>(e.cast<win::QClientEvent>().l1());
     }
 
     bool get_hilite_changed (const core::event& e) {
-      return dynamic_cast<const win::QClientEvent&>(e).l1() != 0;
+      return e.cast<win::QClientEvent>().l1() != 0;
     }
 
 #endif // QT_WIDGETS_LIB
@@ -151,7 +151,7 @@ namespace gui {
       on<content_changed_event>(std::move(f));
     }
 
-    void control::notify_content_changed () const {
+    void control::notify_content_changed () {
       notify_event(detail::CONTENT_CHANGED_MESSAGE);
     }
 

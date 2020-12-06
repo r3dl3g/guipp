@@ -48,12 +48,14 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     message(STATUS "GUIPP: build with Qt5!")
     find_package(Qt5Widgets REQUIRED)
 
-    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES})
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${Qt5Widgets_LIBRARIES})
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} ${Qt5Widgets_DEFINITIONS} -lstdc++fs -fPIC)
-    set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${Qt5Widgets_INCLUDES} /usr/local/src/qt-everywhere-opensource-src-5.9.5/qtbase/include)
+    set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
+    # /usr/local/src/qt-everywhere-opensource-src-5.9.5/qtbase/include
 
     message(STATUS "GUIPP: Qt5Widgets_DEFINITIONS: " ${Qt5Widgets_DEFINITIONS})
-    message(STATUS "GUIPP: Qt5Widgets_INCLUDES: " ${Qt5Widgets_INCLUDES})
+    message(STATUS "GUIPP: Qt5Widgets_INCLUDE_DIRS: " ${Qt5Widgets_INCLUDE_DIRS})
+    message(STATUS "GUIPP: Qt5Widgets_LIBRARIES: " ${Qt5Widgets_LIBRARIES})
 
   elseif (APPLE)
     message(STATUS "GUIPP: build for Apple!")
@@ -172,21 +174,22 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   add_subdirectory(ctrl gui_ctrl)
   add_subdirectory(app gui_app)
 
-  get_directory_property(HAS_PARENT PARENT_DIRECTORY)
-  if(HAS_PARENT)
-    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} PARENT_SCOPE)
-    set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} PARENT_SCOPE)
-    set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES} PARENT_SCOPE)
-    set (GUIPP_APP_LIBRARIES ${GUIPP_APP_LIBRARIES} PARENT_SCOPE)
-    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} PARENT_SCOPE)
-  endif()
-
   message(STATUS "gui GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
   message(STATUS "gui GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
   message(STATUS "gui GUIPP_LIBRARIES: ${GUIPP_LIBRARIES}")
   message(STATUS "gui GUIPP_APP_LIBRARIES: ${GUIPP_APP_LIBRARIES}")
   message(STATUS "gui GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
   message(STATUS "gui GUIPP_BUILD_FOR_MOBILE: ${GUIPP_BUILD_FOR_MOBILE}")
+
+  get_directory_property(HAS_PARENT PARENT_DIRECTORY)
+  if(HAS_PARENT)
+    message(STATUS "Set GUIPP_xyz to parent scope")
+    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} PARENT_SCOPE)
+    set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} PARENT_SCOPE)
+    set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES} PARENT_SCOPE)
+    set (GUIPP_APP_LIBRARIES ${GUIPP_APP_LIBRARIES} PARENT_SCOPE)
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} PARENT_SCOPE)
+  endif()
 
   # header file to pass version settings to the source code
   configure_file (

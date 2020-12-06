@@ -37,8 +37,8 @@ namespace gui {
 
   namespace ctrl {
 
-#ifdef WIN32
     // --------------------------------------------------------------------------
+#ifdef WIN32
     using button_clicked_event = core::event_handler<detail::BN_CLICKED_MESSAGE, 0,
                                                      core::params<>::getter<> >;
     using button_pushed_event = core::event_handler<detail::BN_PUSHED_MESSAGE, 0,
@@ -48,11 +48,9 @@ namespace gui {
     using button_state_event = core::event_handler<detail::BN_STATE_MESSAGE, 0,
                                                    core::params<bool>::
                                                    getter<win::get_param<0, bool> > >;
-// --------------------------------------------------------------------------
 #endif //WIN32
 
 #ifdef X11
-    // --------------------------------------------------------------------------
     using button_clicked_event = core::event_handler<ClientMessage, 0,
                                                      core::params<>::getter<>, 0,
                                                      win::event::functor<win::client_message_matcher<detail::BN_CLICKED_MESSAGE>>>;
@@ -66,6 +64,18 @@ namespace gui {
                                                    core::params<bool>::getter<win::get_client_data<0, bool> >, 0,
                                                    win::event::functor<win::client_message_matcher<detail::BN_STATE_MESSAGE>>>;
 #endif // X11
+
+#ifdef QT_WIDGETS_LIB
+    GUIPP_CTRL_EXPORT bool get_button_state (const core::event&);
+
+    using button_clicked_event = core::event_handler<detail::BN_CLICKED_MESSAGE>;
+    using button_pushed_event = core::event_handler<detail::BN_PUSHED_MESSAGE>;
+    using button_released_event = core::event_handler<detail::BN_UNPUSHED_MESSAGE>;
+    using button_state_event = core::event_handler<detail::BN_STATE_MESSAGE, 0,
+                                                   core::params<bool>::
+                                                   getter<get_button_state>>;
+#endif // QT_WIDGETS_LIB
+
     // --------------------------------------------------------------------------
     namespace paint {
       GUIPP_CTRL_EXPORT void button_frame (const draw::graphics& graph,

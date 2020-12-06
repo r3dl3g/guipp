@@ -45,6 +45,12 @@ namespace gui {
 
   namespace ctrl {
 
+#ifdef QT_WIDGETS_LIB
+    bool get_button_state (const core::event& e) {
+      return e.cast<win::QClientEvent>().l1() != 0;
+    }
+#endif // QT_WIDGETS_LIB
+
     namespace detail {
 
       template<typename T, size_t N>

@@ -1140,6 +1140,280 @@ namespace gui {
 
 #endif // X11
 
+#ifdef QT_WIDGETS_LIB
+
+#define SIMPLE_MODE
+    brush null_brush(color::black, brush::invisible);
+    pen null_pen(color::black, 1, pen::Style::invisible);
+
+    void line::operator() (const graphics& g, const pen& p) const {
+#ifdef SIMPLE_MODE
+      Use<pen> pn(g, p);
+      g.os()->drawLine(from.os(), to.os());
+#else
+      const auto pw = p.os_size();
+      const auto off = p.os_size() / 2;
+      const auto x = from.os_x() + off;
+      const auto y = from.os_y() + off;
+      const auto x2 = to.os_x() + off;
+      const auto y2 = to.os_y() + off;
+      if ((x == x2) && (y == y2)) {
+        if (pw < 2) {
+          Use<pen> pn(g, p);
+          g.os()->drawPoint(x, y);
+        } else {
+          pen p1 = p.with_os_size(1);
+          brush b1(p.color());
+          Use<pen> upn(g, p1);
+          Use<brush> ubr(g, b1);
+          g.os()->drawRect(x - off, y - off, x + pw - 1, y + pw - 1);
+        }
+      } else {
+        Use<pen> pn(g, p);
+        g.os()->drawLine(x, y, x2, y2);
+      }
+#endif // SIMPLE_MODE
+    }
+
+    // --------------------------------------------------------------------------
+    constexpr int pen_offsets_tl (int i) {
+      return i/2;
+    }
+
+    constexpr int pen_offsets_br (int i) {
+      return -pen_offsets_tl(i - 1);
+    }
+
+    // --------------------------------------------------------------------------
+    void rectangle::operator() (const graphics& g,
+                                const brush& b,
+                                const pen& p) const {
+#ifdef SIMPLE_MODE
+      Use<brush> ubr(g, b);
+      Use<pen> upn(g, p);
+      g.os()->drawRect(rect.os());
+#else
+      const os::rectangle r = rect.os();
+      const auto pw = p.os_size();
+      if ((r.left() + pw == r.right()) && (r.top() + pw == r.bottom())) {
+        if (pw < 2) {
+          g.os()->setPen(p.color());
+          g.os()->drawPoint(r.x(), r.y());
+        } else {
+          pen p1 = p.with_os_size(1);
+          brush b1(p.color());
+          Use<pen> upn(g, p1);
+          Use<brush> ubr(g, b1);
+          g.os()->drawRect(r);
+        }
+      } else if ((r.right() > r.left()) && (r.bottom() > r.top())) {
+        Use<brush> ubr(g, b);
+        Use<pen> upn(g, p);
+        const auto tl = pen_offsets_tl(pw);
+        const auto br = pen_offsets_br(pw);
+
+        g.os()->drawRect(r.left() + tl, r.top() + tl, r.right() + br, r.bottom() + br);
+      }
+#endif // SIMPLE_MODE
+    }
+
+    void rectangle::operator() (const graphics& g,
+                                const pen& p) const {
+      operator()(g, null_brush, p);
+    }
+
+    void rectangle::operator() (const graphics& g,
+                                const brush& b) const {
+      operator()(g, b, b.color());
+    }
+
+    // --------------------------------------------------------------------------
+    void ellipse::operator() (const graphics& g,
+                              const brush& b,
+                              const pen& p) const {
+#ifdef SIMPLE_MODE
+      Use<pen> upn(g, p);
+      Use<brush> ubr(g, b);
+      g.os()->drawEllipse(rect.os());
+#else
+      const os::rectangle r = rect.os();
+      const auto pw = p.os_size();
+      if ((r.left() == r.right()) && (r.top() == r.bottom())) {
+        if (pw < 2) {
+          g.draw_pixel({r.left(), r.top()}, p.color());
+        } else {
+          pen p1 = p.with_os_size(1);
+          brush b1(p.color());
+          Use<pen> upn(g, p1);
+          Use<brush> ubr(g, b1);
+          g.os()->drawRect(r.left(), r.top(), r.right() + pw, r.bottom() + pw);
+        }
+      } else if ((r.right() > r.left()) && (r.bottom() > r.top())) {
+        const auto tl = pen_offsets_tl(pw);
+        if ((r.right() - r.left() < 3) || (r.bottom() - r.top() < 3)) {
+          Use<brush> ubr(g, b);
+          Use<pen> upn(g, p);
+          g.os()->drawRect(r.left() + tl, r.top() + tl, r.right() + pw, r.bottom() + pw);
+        } else {
+          const auto br = pen_offsets_tl(pw + 1);
+          Use<brush> ubr(g, b);
+          Use<pen> upn(g, p);
+          g.os()->drawEllipse(r.left() + tl, r.top() + tl, r.right() + br, r.bottom() + br);
+        }
+      }
+#endif // SIMPLE_MODE
+    }
+
+    void ellipse::operator() (const graphics& g,
+                              const pen& p) const {
+      operator()(g, null_brush, p);
+    }
+
+    void ellipse::operator() (const graphics& g,
+                              const brush& b) const {
+      operator()(g, b, b.color());
+    }
+
+    // --------------------------------------------------------------------------
+    void round_rectangle::operator() (const graphics& g,
+                                      const pen& p) const {
+      operator()(g, null_brush, p);
+    }
+
+    void round_rectangle::operator() (const graphics& g,
+                                      const brush& b) const {
+      operator()(g, b, b.color());
+    }
+
+    void round_rectangle::operator() (const graphics& g,
+                                      const brush& b,
+                                      const pen& p) const {
+      Use<brush> br(g, b);
+      Use<pen> pn(g, p);
+      g.os()->drawRoundedRect(rect.os(), size.os_width(), size.os_height());
+    }
+
+    // --------------------------------------------------------------------------
+    arc::arc (const core::point& pos,
+              float radius,
+              float start_angle,
+              float end_angle)
+      : pos(pos)
+      , radius(radius)
+      , start_angle(start_angle)
+      , end_angle(end_angle)
+    {}
+
+    void arc::operator() (const graphics& g,
+                          const brush& b,
+                          const pen& p) const {
+      Use<brush> br(g, b);
+      Use<pen> pn(g, p);
+      core::size offset(radius, radius);
+      auto p1 = pos - offset;
+      auto wh = offset * 2.0;
+      auto end_a = end_angle;
+      while (end_a < start_angle) {
+        end_a += 360;
+      }
+      g.os()->drawArc(p1.os_x(), p1.os_y(), wh.os_width(), wh.os_height(),
+                      static_cast<int>(start_angle*16.0F), static_cast<int>((end_a - start_angle)*16.0F));    }
+
+    void arc::operator() (const graphics& g,
+                          const pen& p) const {
+      operator()(g, null_brush, p);
+    }
+
+    void arc::operator() (const graphics& g,
+                          const brush& b) const {
+      operator()(g, b, b.color());
+    }
+
+    // --------------------------------------------------------------------------
+    void polyline::operator() (const graphics& g,
+                              const brush& b,
+                              const pen& p) const {
+      Use<brush> br(g, b);
+      Use<pen> pn(g, p);
+      g.os()->drawPolyline(points.data(), (int)points.size());
+    }
+
+    void polyline::operator() (const graphics& g,
+                              const pen& p) const {
+      operator()(g, null_brush, p);
+    }
+
+    void polyline::operator() (const graphics& g,
+                              const brush& b) const {
+      operator()(g, b, b.color());
+    }
+
+    // --------------------------------------------------------------------------
+    void polygon::operator() (const graphics& g,
+                               const brush& b,
+                               const pen& p) const {
+      Use<brush> br(g, b);
+      Use<pen> pn(g, p);
+      g.os()->drawPolygon(points.data(), (int)points.size());
+    }
+
+    void polygon::operator() (const graphics& g,
+                               const pen& p) const {
+      operator()(g, null_brush, p);
+    }
+
+    void polygon::operator() (const graphics& g,
+                               const brush& b) const {
+      operator()(g, b, b.color());
+    }
+
+    // --------------------------------------------------------------------------
+    void text_box::operator() (const graphics& g,
+                               const font& f,
+                               os::color c) const {
+      Use<font> fn(g, f);
+      Use<pen> pn(g, c);
+
+      g.os()->drawText(rect.os(), static_cast<int>(origin), QString::fromStdString(str));
+    }
+
+    // --------------------------------------------------------------------------
+    void bounding_box::operator() (const graphics& g,
+                                   const font& f,
+                                   os::color) const {
+      auto r = QFontMetrics(f).boundingRect(QString::fromStdString(str));
+      rect = core::rectangle(r);
+    }
+
+    // --------------------------------------------------------------------------
+    void text::operator() (const graphics& g,
+                           const font& f,
+                           os::color c) const {
+      Use<font> fn(g, f);
+      Use<pen> pn(g, c);
+
+      int px = pos.os_x();
+      int py = pos.os_y();
+      if (!origin_is_left(origin) || !origin_is_bottom(origin)) {
+        auto r = QFontMetrics(f).tightBoundingRect(QString::fromStdString(str));
+
+        if (origin_is_h_center(origin)) {
+          px -= r.width() / 2;
+        } else if (origin_is_right(origin)) {
+          px -= r.width();
+        }
+
+        if (origin_is_v_center(origin)) {
+          py += r.height() / 2;
+        } else if (origin_is_top(origin)) {
+          py += r.height();
+        }
+      }
+
+      g.os()->drawText(px, py, QString::fromStdString(str));
+    }
+#endif // QT_WIDGETS_LIB
+
     // --------------------------------------------------------------------------
     polyline::polyline (const std::vector<core::point>& pts) {
       points.reserve(pts.size());

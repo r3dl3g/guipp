@@ -36,14 +36,16 @@ namespace gui {
 
       ~basic_map ();
 
-      operator os::drawable() const;
+      operator const os::drawable() const;
 
       void clear ();
 
       bool is_valid () const;
       operator bool () const;
 
-      os::bitmap get_id () const;
+      os::bitmap& get_id ();
+      const os::bitmap& get_id () const;
+
       bitmap_info get_info () const;
 
       core::native_size native_size () const;

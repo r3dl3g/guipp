@@ -17,6 +17,11 @@ add_subdirectory(./../gui gui)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
+if (GUIPP_USE_QT)
+  message(STATUS "GUIPP test: build with Qt5!")
+  find_package(Qt5Widgets REQUIRED)
+endif()
+
 add_definitions(${GUIPP_CXX_FLAGS})
 message(STATUS "app GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
 message(STATUS "app GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")

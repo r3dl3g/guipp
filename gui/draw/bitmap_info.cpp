@@ -47,51 +47,82 @@ namespace gui {
 
 #ifdef X11
 
-      uint32_t bitmap_calc_bytes_per_line (uint32_t w, pixel_format_t px_fmt) {
-        switch (px_fmt) {
-        case pixel_format_t::BW:
-          return up_modulo<8, 4>(w);
-        case pixel_format_t::GRAY:
-          return up_modulo<1, 4>(w);
-        case pixel_format_t::RGB:
-        case pixel_format_t::BGR:
-          return up_modulo<1, 4>(w * 3);
-        case pixel_format_t::RGBA:
-        case pixel_format_t::ARGB:
-        case pixel_format_t::BGRA:
-        case pixel_format_t::ABGR:
-          return up_modulo<1, 4>(w * 4);
-        default:
-          break;
-        }
-        return -1;
+    uint32_t bitmap_calc_bytes_per_line (uint32_t w, pixel_format_t px_fmt) {
+      switch (px_fmt) {
+      case pixel_format_t::BW:
+        return up_modulo<8, 4>(w);
+      case pixel_format_t::GRAY:
+        return up_modulo<1, 4>(w);
+      case pixel_format_t::RGB:
+      case pixel_format_t::BGR:
+        return up_modulo<1, 4>(w * 3);
+      case pixel_format_t::RGBA:
+      case pixel_format_t::ARGB:
+      case pixel_format_t::BGRA:
+      case pixel_format_t::ABGR:
+        return up_modulo<1, 4>(w * 4);
+      default:
+        break;
       }
+      return -1;
+    }
 
 #endif // !X11
 
 #if WIN32
 
-      uint32_t bitmap_calc_bytes_per_line (uint32_t w, pixel_format_t px_fmt) {
-        switch (px_fmt) {
-        case pixel_format_t::BW:
-          return up_modulo<8, 2>(w);
-        case pixel_format_t::GRAY:
-          return up_modulo<1, 2>(w);
-        case pixel_format_t::RGB:
-        case pixel_format_t::BGR:
-          return up_modulo<1, 2>(w * 3);
-        case pixel_format_t::RGBA:
-        case pixel_format_t::ARGB:
-        case pixel_format_t::BGRA:
-        case pixel_format_t::ABGR:
-          return up_modulo<1, 2>(w * 4);
-        default:
-          break;
-        }
-        return ((((w * color_depths[static_cast<byte>(px_fmt)]) + 31) & ~31) >> 3);
+    uint32_t bitmap_calc_bytes_per_line (uint32_t w, pixel_format_t px_fmt) {
+      switch (px_fmt) {
+      case pixel_format_t::BW:
+        return up_modulo<8, 2>(w);
+      case pixel_format_t::GRAY:
+        return up_modulo<1, 2>(w);
+      case pixel_format_t::RGB:
+      case pixel_format_t::BGR:
+        return up_modulo<1, 2>(w * 3);
+      case pixel_format_t::RGBA:
+      case pixel_format_t::ARGB:
+      case pixel_format_t::BGRA:
+      case pixel_format_t::ABGR:
+        return up_modulo<1, 2>(w * 4);
+      default:
+        break;
       }
+      return ((((w * color_depths[static_cast<byte>(px_fmt)]) + 31) & ~31) >> 3);
+    }
 
 #endif // WIN32
+
+#ifdef QT_WIDGETS_LIB
+
+    uint32_t bitmap_calc_bytes_per_line (uint32_t w, pixel_format_t fmt) {
+      return QImage(w, 1, bitmap_info::convert(fmt)).bytesPerLine();
+    }
+
+    pixel_format_t bitmap_info::convert (QImage::Format f) {
+      switch (f) {
+        case QImage::Format_Mono: return pixel_format_t::BW;
+        case QImage::Format_Grayscale8: return pixel_format_t::GRAY;
+        case QImage::Format_RGB888: return pixel_format_t::RGB;
+        case QImage::Format_RGBA8888: return pixel_format_t::RGBA;
+        case QImage::Format_ARGB32: return pixel_format_t::ARGB;
+        default:
+        case QImage::Format_RGB32: return pixel_format_t::RGBA;
+      }
+    }
+
+     QImage::Format bitmap_info::convert (pixel_format_t f) {
+      switch (f) {
+        case pixel_format_t::BW: return QImage::Format_Mono;
+        case pixel_format_t::GRAY: return QImage::Format_Grayscale8;
+        case pixel_format_t::RGB: return QImage::Format_RGB888;
+        case pixel_format_t::ARGB: return QImage::Format_ARGB32;
+        default:
+        case pixel_format_t::RGBA: return QImage::Format_RGB32;
+      }
+    }
+
+#endif // QT_WIDGETS_LIB
 
     // --------------------------------------------------------------------------
     bitmap_info::bitmap_info ()

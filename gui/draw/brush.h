@@ -34,7 +34,8 @@ namespace gui {
     struct GUIPP_DRAW_EXPORT /*immutable*/ brush {
 
       enum Style {
-        solid = IF_WIN32_ELSE(BS_SOLID, IF_X11_ELSE(FillSolid, IF_QT_ELSE(Qt::BrushStyle::SolidPattern, 0)))
+        solid = IF_WIN32_X11_QT_ELSE(BS_SOLID, FillSolid, Qt::BrushStyle::SolidPattern, 0),
+        invisible = IF_WIN32_X11_QT_ELSE(BS_NULL, 0, Qt::BrushStyle::NoBrush, 0)
       };
 
       brush (const os::color& = color::black, Style = solid);
@@ -62,10 +63,10 @@ namespace gui {
       mutable os::brush id;
       os::win32::brush_type info;
 #endif // WIN32
-#ifdef X11
+#if defined(X11) || defined(QT_WIDGETS_LIB)
       const os::color m_color;
       const Style m_style;
-#endif // X11
+#endif // X11 || QT_WIDGETS_LIB
 
     };
 

@@ -493,7 +493,7 @@ namespace gui {
     core::point default_scroll_maximum (const core::size& size,
                                         const core::point& current_pos,
                                         const core::point&) {
-      return current_pos + size * 2;
+      return current_pos + size * 2.0;
     }
 
     // --------------------------------------------------------------------------

@@ -20,14 +20,6 @@
 
 // --------------------------------------------------------------------------
 //
-// Common includes
-//
-#include <cstddef>
-#include <memory>
-#include <bitset>
-
-// --------------------------------------------------------------------------
-//
 // Library includes
 //
 #include <gui/core/event_container.h>
@@ -35,6 +27,14 @@
 #include <gui/win/window_state.h>
 #include <gui/win/window_class.h>
 #include <gui/win/window_event_handler.h>
+
+// --------------------------------------------------------------------------
+//
+// Common includes
+//
+#include <cstddef>
+#include <memory>
+#include <bitset>
 
 
 namespace gui {
@@ -49,7 +49,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace detail {
+
       void set_id (window* w, os::window id);
+
     }
 
     // --------------------------------------------------------------------------
@@ -123,7 +125,7 @@ namespace gui {
       std::string get_class_name () const;
       const class_info& get_window_class () const;
 
-      void set_cursor (os::cursor);
+      void set_cursor (const os::cursor&);
 
       void capture_pointer ();
       void uncapture_pointer ();
@@ -199,7 +201,7 @@ namespace gui {
 
       bool handle_event (const core::event&, gui::os::event_result&) const;
 
-      void notify_event (os::message_type message, long l1 = 0, long l2 = 0) const;
+      void notify_event (os::message_type message, long l1 = 0, long l2 = 0);
 
       operator os::drawable() const;
 
@@ -259,15 +261,22 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<class T>
-    typename std::enable_if<std::is_base_of<window, T>::value, std::ostream&>::type
-    operator<< (std::ostream& out, const T& t) {
-      out << "[" << detail::get_window_id(t) << "] (" << typeid(T).name() << ')';
-      return out;
-    }
-
   } // namespace win
 
 } // namespace gui
+
+namespace std {
+
+  inline ostream& operator<< (ostream& out, const gui::win::window& t) {
+    out << "[" << gui::win::detail::get_window_id(t) << "] (" << typeid(t).name() << ')';
+    return out;
+  }
+
+  inline ostream& operator<< (ostream& out, const gui::win::window* t) {
+    out << "[" << gui::win::detail::get_window_id(*t) << "] (" << typeid(*t).name() << ')';
+    return out;
+  }
+
+} // namespace std
 
 #include <gui/win/window.inl>

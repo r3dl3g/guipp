@@ -26,6 +26,9 @@
 # include <cmath>
 # include <algorithm>
 #endif // X11
+#ifdef QT_WIDGETS_LIB
+# include <QtGui/QBitmap>
+#endif // QT_WIDGETS_LIB
 
 // --------------------------------------------------------------------------
 //
@@ -584,6 +587,167 @@ namespace gui {
 #endif // USE_XFT
 
 #endif // X11
+
+#ifdef QT_WIDGETS_LIB
+    // --------------------------------------------------------------------------
+    graphics::graphics (os::drawable t, os::graphics g)
+      : target(t)
+      , gc(g)
+      , own_gc(false)
+      , ref_gc(false)
+    {
+      if (!gc) {
+        gc = new QPainter(target);
+        own_gc = true;
+      }
+    }
+
+    graphics::graphics (draw::basic_map& t)
+      : target(t)
+      , gc(nullptr)
+      , own_gc(false)
+      , ref_gc(false)
+    {
+      gc = new QPainter(target);
+      own_gc = true;
+    }
+
+    graphics::graphics (const graphics& rhs)
+      : gc(rhs.gc)
+      , target(rhs.target)
+      , own_gc(false)
+      , ref_gc(false)
+    {}
+
+    graphics::~graphics () {
+      destroy();
+    }
+
+    void graphics::destroy () {
+      if (own_gc) {
+        delete gc;
+        gc = nullptr;
+      }
+      own_gc = false;
+      ref_gc = false;
+    }
+
+    void graphics::operator= (const graphics& rhs) {
+      if (&rhs != this) {
+        destroy();
+        target = rhs.target;
+        own_gc = rhs.own_gc;
+        ref_gc = rhs.ref_gc;
+        if (own_gc) {
+          gc = new QPainter(target);
+        } else {
+          gc = rhs.gc;
+        }
+      }
+    }
+
+    const graphics& graphics::draw_pixel (const core::native_point& pt,
+                                          os::color c) const {
+      gc->setPen(c);
+      gc->drawPoint(pt.x(), pt.y());
+      return *this;
+    }
+
+    os::color graphics::get_pixel (const core::native_point& pt) const {
+      return color::black;
+    }
+
+    const graphics& graphics::draw_lines (std::vector<core::point> points,
+                                          const pen& p) const {
+      Use<pen> pn(gc, p);
+      QVector<QPoint> pointPairs;
+      const auto off = p.os_size() / 2;
+      bool first = true;
+      QPoint last;
+      for (const core::point& pt : points) {
+        if (first) {
+          first = false;
+          last = pt.os();
+        } else {
+          pointPairs.push_back(last);
+          last = pt.os();
+          pointPairs.push_back(last);
+        }
+      }
+      gc->drawLines(pointPairs);
+      return *this;
+    }
+
+    const graphics& graphics::copy_from (const graphics& src, const core::native_rect& r, const core::native_point& pt) const {
+      return copy_from(src.target, r, pt);
+    }
+
+    const graphics& graphics::copy_from (os::drawable d,
+                                         const core::native_rect& r,
+                                         const core::native_point& pt,
+                                         const copy_mode mode) const {
+      QWidget* w = dynamic_cast<QWidget*>(d);
+      if (w) {
+        QPixmap pix = w->grab(r.os());
+        const QPainter::CompositionMode oldMode = gc->compositionMode();
+        gc->setCompositionMode(static_cast<QPainter::CompositionMode>(mode));
+        gc->drawPixmap(pt.x(), pt.y(), pix);
+        gc->setCompositionMode(oldMode);
+
+      }
+      return *this;
+    }
+
+    const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) const {
+      if (bmp.mask) {
+        gc->setClipRegion(QRegion(QBitmap(bmp.mask.get_id())));
+        gc->drawPixmap(pt.x(), pt.y(), bmp.image.get_id());
+      } else {
+        gc->drawPixmap(pt.x(), pt.y(), bmp.image.get_id());
+      }
+      return *this;
+    }
+
+    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) const {
+      if (bmp) {
+        gc->drawPixmap(pt.os(), bmp.get_id(), src.os());
+      }
+      return *this;
+    }
+
+    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_rect& src, const core::native_point& pt) const {
+      if (bmp) {
+        gc->drawPixmap(pt.x(), pt.y(), bmp.get_id(), src.x(), src.y(), src.width(), src.height());
+      }
+      return *this;
+    }
+
+    void graphics::invert (const core::rectangle& r) const {
+      const QPainter::CompositionMode oldMode = gc->compositionMode();
+      gc->setCompositionMode(QPainter::RasterOp_NotDestination);
+      gc->fillRect(r.os(), Qt::white);
+      gc->setCompositionMode(oldMode);
+    }
+
+    void graphics::flush () const {
+    }
+
+    int graphics::depth () const {
+      gc->device()->depth();
+    }
+
+    core::native_rect graphics::native_area () const {
+      return core::native_rect(gc->viewport());
+    }
+
+    void graphics::set_clip_rect (const core::rectangle& rect) const {
+      gc->setClipRect(rect.os());
+    }
+
+    void graphics::clear_clip_rect () const {
+      gc->setClipping(false);
+    }
+#endif // QT_WIDGETS_LIB
     // --------------------------------------------------------------------------
 
     void graphics::push_clipping (const core::rectangle& rect) const {
@@ -634,6 +798,15 @@ namespace gui {
       return copy_from(bmp, core::global::scale(pt));
     }
 
+    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_point& pt) const {
+      return copy_from(bmp, core::native_rect(bmp.native_size()), pt);
+    }
+
+    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::point& pt) const {
+      return copy_from(bmp, core::rectangle(bmp.scaled_size()), pt);
+    }
+
+#ifndef QT_WIDGETS_LIB
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) const {
       if (bmp) {
         if (bmp.depth() == depth()) {
@@ -673,14 +846,7 @@ namespace gui {
       }
       return *this;
     }
-
-    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_point& pt) const {
-      return copy_from(bmp, core::native_rect(bmp.native_size()), pt);
-    }
-
-    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::point& pt) const {
-      return copy_from(bmp, core::rectangle(bmp.scaled_size()), pt);
-    }
+#endif // QT_WIDGETS_LIB
 
     // --------------------------------------------------------------------------
     paint::paint (const painter& f)

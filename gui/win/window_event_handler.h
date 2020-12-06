@@ -803,13 +803,8 @@ namespace gui {
       return (e.type() == id) && (e.cast<QMouseEvent>().button() == btn);
     }
 
-    inline core::point::type get_wheel_delta_x (const core::event& e) {
-      return e.cast<QWheelEvent>().pixelDelta().x();
-    }
-
-    inline core::point::type get_wheel_delta_y (const core::event& e) {
-      return e.cast<QWheelEvent>().pixelDelta().y();
-    }
+    core::point::type get_wheel_delta_x (const core::event& e);
+    core::point::type get_wheel_delta_y (const core::event& e);
 
     template<typename T>
     inline core::point get_point (const core::event& e) {

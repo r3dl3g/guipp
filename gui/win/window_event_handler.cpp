@@ -537,6 +537,24 @@ namespace gui {
       return e.cast<QClientEvent>().l2();
     }
 
+    core::point::type get_wheel_delta_x (const core::event& e) {
+      auto we = e.cast<QWheelEvent>();
+      QPoint numPixels = we.pixelDelta();
+      if (numPixels.isNull()) {
+        return we.angleDelta().x() / 15;
+      }
+      return numPixels.x();
+    }
+
+    core::point::type get_wheel_delta_y (const core::event& e) {
+      auto we = e.cast<QWheelEvent>();
+      QPoint numPixels = we.pixelDelta();
+      if (numPixels.isNull()) {
+        return we.angleDelta().y() / 15;
+      }
+      return numPixels.y();
+    }
+
     // --------------------------------------------------------------------------
     core::rectangle get_client_data_rect (const core::event& e) {
       clog::debug() << "LayoutEvent";

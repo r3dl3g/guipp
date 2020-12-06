@@ -377,7 +377,7 @@ namespace gui {
     }
 
     void free_bitmap (os::bitmap& id) {
-      id = os::bitmap();
+      id.detach();
     }
 
     draw::bitmap_info bitmap_get_info (const os::bitmap& id) {

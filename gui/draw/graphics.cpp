@@ -878,7 +878,7 @@ namespace gui {
     void buffered_paint::operator() (os::window id, os::graphics g) {
       if (p) {
         draw::graphics graph(id, g);
-#if !defined(BUILD_FOR_ARM) && !defined(NOT_IMAGE_CACHE)
+#if !defined(BUILD_FOR_ARM) && !defined(NOT_IMAGE_CACHE) && !defined(QT_WIDGETS_LIB)
         const auto area = graph.area();
         draw::pixmap buffer(area.size());
         draw::graphics buffer_graph(buffer);

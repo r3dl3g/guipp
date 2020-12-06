@@ -201,8 +201,8 @@ namespace gui {
       return is_valid() && child.is_valid() && (get_id() == detail::get_window_id(child)->get_parent());
     }
 
-    std::vector<window*> container::get_children () const {
-      std::vector<window*> list;
+    container::window_list_t container::get_children () const {
+      container::window_list_t list;
       if (is_valid()) {
         for (auto child :get_id()->children()) {
           list.push_back(detail::get_window(static_cast<os::window>(child)));
@@ -211,10 +211,21 @@ namespace gui {
       return list;
     }
 
+    void get_deep_children (os::window win, std::vector<os::window>& list) {
+      for (auto child : win->children()) {
+        os::window w = dynamic_cast<os::window>(child);
+        if (w) {
+          list.push_back(w);
+          get_deep_children(w, list);
+        }
+      }
+    }
+
     void container::set_children_visible (bool show) {
-      std::vector<window*> children = get_children();
-      for (window* win : children) {
-        win->set_visible(show);
+      std::vector<os::window> children;
+      get_deep_children(get_id(), children);
+      for (os::window child : children) {
+        child->setVisible(show);
       }
     }
 

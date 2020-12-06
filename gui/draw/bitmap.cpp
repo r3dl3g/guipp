@@ -25,8 +25,6 @@
 #include <map>
 #include <math.h>
 
-#include <QtGui/QPixmap>
-
 // --------------------------------------------------------------------------
 //
 // Library includes
@@ -49,6 +47,12 @@
 # endif // USE_XSHM
 
 #endif // X11
+
+#ifdef QT_WIDGETS_LIB
+
+#include <QtGui/QPixmap>
+
+#endif // QT_WIDGETS_LIB
 
 
 namespace gui {

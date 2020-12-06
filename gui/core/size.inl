@@ -110,14 +110,14 @@ namespace gui {
 #ifdef WIN32
       : w(global::scale<T>(r.right - r.left))
       , h(global::scale<T>(r.bottom - r.top))
-#endif // WIN32
-#ifdef X11
+#elif X11
       : w(global::scale<T>(r.width))
       , h(global::scale<T>(r.height))
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#elif QT_WIDGETS_LIB
       : w(global::scale<T>(r.width()))
       , h(global::scale<T>(r.height()))
+#else
+# error Unknown target system: basic_size<T>::basic_size (const gui::os::rectangle& r)
 #endif // QT_WIDGETS_LIB
     {}
 

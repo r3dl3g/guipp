@@ -20,6 +20,9 @@
 //
 // Common includes
 //
+#ifdef QT_WIDGETS_LIB
+# include <QtCore/QDir>
+#endif // QT_WIDGETS_LIB
 #include <iterator>
 
 // --------------------------------------------------------------------------
@@ -112,12 +115,11 @@ namespace gui {
     {}
 
     std::vector<sys_fs::path> get_all_root_paths () {
-#ifdef X11
-      return {sys_fs::path("/")};
-#endif // X11
-#ifdef WIN32
-      DWORD available = GetLogicalDrives();
       std::vector<sys_fs::path> roots;
+#ifdef X11
+      roots.emplace_back(sys_fs::path("/"));
+#elif WIN32
+      DWORD available = GetLogicalDrives();
       char drive[] = " :\\";
       for (int bit = 0; bit < 26; ++bit) {
         const DWORD mask = 0x0001U << bit;
@@ -126,8 +128,15 @@ namespace gui {
           roots.emplace_back(sys_fs::path(drive));
         }
       }
+#elif QT_WIDGETS_LIB
+      QFileInfoList drvs = QDir::drives();
+      for (auto drv : drvs) {
+        roots.emplace_back(drv.absolutePath().toStdString());
+      }
+#else
+#error Undefined system: std::vector<sys_fs::path> get_all_root_paths()
+#endif // QT_WIDGETS_LIB
       return roots;
-#endif // WIN32
     }
 
     std::vector<file_info> get_all_root_file_infos () {
@@ -135,7 +144,7 @@ namespace gui {
       auto paths = get_all_root_paths();
       for (const auto& p : paths) {
         try {
-          infos.emplace_back(p);
+          infos.push_back(p);
         } catch (std::exception& ex) {
           clog::warn() << ex;
         }

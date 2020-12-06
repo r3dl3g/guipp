@@ -74,10 +74,13 @@ namespace gui {
       inline sys_fs::directory_iterator path_iterator (fs::file_info const& n) {
 #ifdef WIN32
         return sys_fs::directory_iterator(n.path);
-#endif // WIN32
-#ifdef X11
+#elif X11
         return sys_fs::directory_iterator(n.path, sys_fs::directory_options::skip_permission_denied);
-#endif // X11
+#elif QT_WIDGETS_LIB
+        return sys_fs::directory_iterator(n.path, sys_fs::directory_options::skip_permission_denied);
+#else
+# error Undefined system: sys_fs::directory_iterator path_iterator (fs::file_info const& n)
+#endif // QT_WIDGETS_LIB
       }
 
       inline bool path_info::has_sub_nodes (type const& n) {

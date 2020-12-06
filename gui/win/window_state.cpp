@@ -52,9 +52,12 @@ namespace gui {
     bool window_state::is_enabled () const {
 #ifdef WIN32
       return win.is_valid() && IsWindowEnabled(win.get_id());
-#endif // WIN32
-#ifdef X11
+#elif X11
       return !get_flag(flags::window_disabled);
+#elif QT_WIDGETS_LIB
+      return win.is_valid() && win.get_id()->isEnabled();
+#else
+# error Undefined system: window_state::is_enabled ()
 #endif // X11
     }
 

@@ -49,10 +49,12 @@ namespace gui {
       class Widget : public QWidget {
       public:
         Widget (Widget* parent, os::style s, win::window* w);
+        ~Widget ();
 
         win::window* get_window () const;
         Widget* get_parent () const;
         QPainter *painter() const;
+
 
       protected:
         bool event (QEvent* e) override;

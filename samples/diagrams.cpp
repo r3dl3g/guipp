@@ -66,6 +66,16 @@ typedef linear_data_t<double, double> linear_data;
 
 constexpr os::color wall_back = color::rgb_gray<0xF8>::value;
 
+font& font_serif () {
+  static font f = [] () {
+    os::font fn;
+    fn.setStyleHint(QFont::StyleHint::Serif);
+    fn.setPointSize(font::system().size() * 4 / 5);
+    return fn;
+  }();
+  return f;
+}
+
 void draw_graph_1 (const graphics& graph, const core::rectangle& area) {
   graph.frame(draw::rectangle(area), color::black);
 
@@ -82,13 +92,13 @@ void draw_graph_1 (const graphics& graph, const core::rectangle& area) {
 
   graph.text(scale<double, orientation_t::horizontal>(p0, xscale, 1, 0.2,
                                                       yscale.get_target().size(), yscale.get_target().size()),
-             font::serif(), color::black);
+             font_serif(), color::black);
 
   graph.text(scale<double, orientation_t::vertical>(p0, yscale, 0.2, 0.05,
                                                     xscale.get_target().size(), xscale.get_target().size(),
                                                     color::very_light_gray, color::very_very_light_gray,
                                                     fmt),
-             font::serif(), color::black);
+             font_serif(), color::black);
 
   std::vector<point2d<double, double>> data1;
   std::array<point2d<double, double>, 100> data2;
@@ -122,10 +132,10 @@ void draw_graph_2 (const graphics& graph, const core::rectangle& area) {
   graph.draw(wall<double, double, scaling::linear, scaling::log>(xscale, yscale), wall_back, wall_back);
 
   graph.text(scale<double, orientation_t::horizontal>(p0, xscale, 1, 0.2, yscale.get_target().size(), yscale.get_target().size()),
-             font::serif(), color::black);
+             font_serif(), color::black);
 
   graph.text(scale<double, orientation_t::vertical, scaling::log>(p0, yscale, 1, 1, xscale.get_target().size(), xscale.get_target().size()),
-             font::serif(), color::black);
+             font_serif(), color::black);
 
   graph.frame(line_graph<double, double, linear_data, scaling::linear, scaling::log>(xscale, yscale, linear_data()), color::blue);
   graph.fill(points_graph<double, double, sinus_data, scaling::linear, scaling::log>(xscale, yscale, sinus_data(), diagram::diamond(2)), color::green);
@@ -144,10 +154,10 @@ void draw_graph_3 (const graphics& graph, const core::rectangle& area) {
   graph.draw(wall<double, double, scaling::log>(xscale, yscale), wall_back, wall_back);
 
   graph.text(scale<double, orientation_t::horizontal, scaling::log>(p0, xscale, 1, 1, yscale.get_target().size(), yscale.get_target().size()),
-             font::serif(), color::black);
+             font_serif(), color::black);
 
   graph.text(scale<double, orientation_t::vertical>(p0, yscale, 1000, 100, xscale.get_target().size()),
-             font::serif(), color::black);
+             font_serif(), color::black);
 
   graph.frame(line_graph<double, double, linear_data, scaling::log, scaling::linear>(xscale, yscale, linear_data()), color::green);
 
@@ -165,10 +175,10 @@ void draw_graph_4 (const graphics& graph, const core::rectangle& area) {
   graph.draw(wall<double, double, scaling::log, scaling::log>(xscale, yscale), wall_back, wall_back);
 
   graph.text(scale<double, orientation_t::horizontal, scaling::log>(p0, xscale, 1, 1, yscale.get_target().size(), yscale.get_target().size()),
-             font::serif(), color::black);
+             font_serif(), color::black);
 
   graph.text(scale<double, orientation_t::vertical, scaling::log>(p0, yscale, 1, 1, xscale.get_target().size(), xscale.get_target().size()),
-             font::serif(), color::black);
+             font_serif(), color::black);
 
   graph.frame(line_graph<double, double, linear_data, scaling::log, scaling::log>(xscale, yscale, linear_data()), color::light_red);
 
@@ -188,7 +198,7 @@ void draw_graph_5 (const graphics& graph, const core::rectangle& area) {
   graph.text(scale<float, orientation_t::horizontal>(p0, xscale, 1.0F, 0.2F,
                                                      yscale.get_target().size(),
                                                      yscale.get_target().size()),
-             font::serif(), color::black);
+             font_serif(), color::black);
 
   auto fmt = [] (float i) {
     return ostreamfmt(std::fixed << std::setprecision(1) << i);
@@ -198,7 +208,7 @@ void draw_graph_5 (const graphics& graph, const core::rectangle& area) {
                                                    xscale.get_target().size(),
                                                    xscale.get_target().size(),
                                                    color::very_light_gray, color::very_very_light_gray, fmt),
-             font::serif(), color::black);
+             font_serif(), color::black);
 
   std::vector<point2d<float, float>> data1;
   std::array<point2d<float, float>, 100> data2;
@@ -230,10 +240,11 @@ void draw_graph_6 (const graphics& graph, const core::rectangle& area) {
 
   graph.draw(wall<int, double, scaling::linear, scaling::log>(xscale, yscale), wall_back, wall_back);
 
-  graph.text(scale<int, orientation_t::horizontal>(p0, xscale, 20, 5, static_cast<int>(yscale.get_target().size()), static_cast<int>(yscale.get_target().size())),
-             font::serif(), color::black);
+  graph.text(scale<int, orientation_t::horizontal>(p0, xscale, 20, 5,
+                                                   static_cast<int>(yscale.get_target().size()), static_cast<int>(yscale.get_target().size())),
+             font_serif(), color::black);
   graph.text(scale<double, orientation_t::vertical, scaling::log>(p0, yscale, 1, 1, xscale.get_target().size(), xscale.get_target().size()),
-             font::serif(), color::black);
+             font_serif(), color::black);
 
   typedef linear_data_t<int, double> data_type;
   graph.fill(line_graph<int, double, data_type, scaling::linear, scaling::log>(

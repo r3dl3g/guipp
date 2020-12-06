@@ -67,7 +67,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename L = layout::standard_layout, os::color background = color::white, typename ... Args>
-    class   group_window : public layout_container<L, Args ...> {
+    class group_window : public layout_container<L, Args ...> {
     public:
       typedef layout_container<L, Args ...> super;
       typedef window_class<group_window, background> clazz;

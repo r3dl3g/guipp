@@ -58,14 +58,14 @@ namespace gui {
 #ifdef WIN32
       : pos(global::scale<T>(r.left), global::scale<T>(r.top))
       , sz(global::scale<S>(r.right - r.left), global::scale<S>(r.bottom - r.top))
-#endif // Win32
-#ifdef X11
+#elif X11
       : pos(global::scale<T>(r.x), global::scale<T>(r.y))
       , sz(global::scale<S>(r.width), global::scale<S>(r.height))
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#elif QT_WIDGETS_LIB
     : pos(r.topLeft())
     , sz(r.size())
+#else
+#error Unknown target system: basic_rectangle<T, S>::basic_rectangle (const gui::os::rectangle& r)
 #endif // QT_WIDGETS_LIB
     {}
 
@@ -275,14 +275,14 @@ namespace gui {
 #ifdef WIN32
     template<typename T, typename S>
     const basic_rectangle<T, S> basic_rectangle<T, S>::def(point_t(-1, -1), point_t(-2, -2));
-#endif // WIN32
-#ifdef X11
+#elif X11
     template<typename T, typename S>
     const basic_rectangle<T, S> basic_rectangle<T, S>::def(0, 0, 1, 1);
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#elif QT_WIDGETS_LIB
     template<typename T, typename S>
     const basic_rectangle<T, S> basic_rectangle<T, S>::def(0, 0, -1, -1);
+#else
+#error Unknown target system: const basic_rectangle<T, S> basic_rectangle<T, S>::def
 #endif // QT_WIDGETS_LIB
 
     template<typename T, typename S>
@@ -502,12 +502,12 @@ namespace gui {
         os_x(), os_y(),
 #ifdef WIN32
         os_x2(), os_y2()
-#endif // Win32
-#ifdef X11
+#elif X11
         os_width(), os_height()
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#elif QT_WIDGETS_LIB
         os_width(), os_height()
+#else
+# error Unknown target system: gui::os::rectangle basic_rectangle<T, S>::os () const
 #endif // QT_WIDGETS_LIB
 
       };

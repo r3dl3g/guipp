@@ -785,7 +785,7 @@ namespace gui {
     }
 
     inline int get_mouse_button (const core::event& e) {
-      return e.cast<QMouseEvent>().button();
+      return e.cast<QMouseEvent>().buttons();
     }
 
     inline core::point get_mouse_point (const core::event& e) {

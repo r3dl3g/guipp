@@ -697,12 +697,20 @@ namespace gui {
     }
 
     const font& font::serif () {
-      static font f = os::font("Serif");
+      static font f = [] () {
+        os::font fn;
+        fn.setStyleHint(QFont::StyleHint::Serif);
+        return fn;
+      }();
       return f;
     }
 
     const font& font::sans_serif () {
-      static font f = os::font("Sans Serif");
+      static font f = [] () {
+        os::font fn;
+        fn.setStyleHint(QFont::StyleHint::SansSerif);
+        return fn;
+      }();
       return f;
     };
 

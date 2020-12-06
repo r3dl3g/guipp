@@ -90,14 +90,14 @@ namespace gui {
 #ifdef WIN32
       : x_(global::scale<T>(r.left))
       , y_(global::scale<T>(r.top))
-#endif // WIN32
-#ifdef X11
+#elif X11
       : x_(global::scale<T>(r.x))
       , y_(global::scale<T>(r.y))
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#elif QT_WIDGETS_LIB
       : x_(global::scale<T>(r.x()))
       , y_(global::scale<T>(r.y()))
+#else
+#error Unknown target system: basic_point<T>::basic_point (const gui::os::rectangle& r)
 #endif // QT_WIDGETS_LIB
     {}
 

@@ -56,6 +56,12 @@ namespace gui {
         , win(w)
       {}
 
+      Widget::~Widget () {
+        if (win) {
+          win::detail::set_id(win, nullptr);
+        }
+      }
+
       win::window* Widget::get_window () const {
         return win;
       }

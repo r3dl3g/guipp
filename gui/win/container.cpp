@@ -28,6 +28,9 @@
 #ifdef X11
 # include <X11/cursorfont.h>
 #endif // X11
+#ifdef QT_WIDGETS_LIB
+# include <QtCore/QEventLoop>
+#endif // QT_WIDGETS_LIB
 
 
 // --------------------------------------------------------------------------
@@ -557,11 +560,14 @@ namespace gui {
 #endif //X11
 
 #ifdef QT_WIDGETS_LIB
-
     void overlapped_window::create (const class_info& type,
                                     container& parent,
                                     const core::rectangle& r) {
-      super::create(type, parent, r);
+      if (parent.is_valid()) {
+        super::create(type, parent, r);
+      } else {
+        create(type, r);
+      }
     }
 
     void overlapped_window::create (const class_info& type,
@@ -617,7 +623,6 @@ namespace gui {
         get_id()->setWindowFlag(Qt::WindowStaysOnTopHint, toplevel);
       }
     }
-
 #endif // QT_WIDGETS_LIB
 
     // --------------------------------------------------------------------------
@@ -652,10 +657,13 @@ namespace gui {
 #ifdef X11
       invalidate();
 #endif // X11
+#ifdef QT_WIDGETS_LIB
+      event_loop.exit();
+#endif // QT_WIDGETS_LIB
     }
 
     void modal_window::run_modal (window& parent) {
-      clog::trace() << *this << " Enter modal loop";
+      clog::debug() << *this << " Enter modal loop";
 
       set_visible();
       to_front();
@@ -664,8 +672,12 @@ namespace gui {
 
       is_modal = true;
 
+#ifdef QT_WIDGETS_LIB
+//      event_loop.setParent(detail::get_window_id(parent));
+      event_loop.exec(QEventLoop::DialogExec);
+#else
       run_loop(is_modal);
-      run_loop(is_modal);
+#endif // QT_WIDGETS_LIB
 
       parent.enable();
       parent.take_focus();
@@ -674,7 +686,7 @@ namespace gui {
     }
 
     void modal_window::run_modal (window& parent, const std::vector<hot_key_action>& hot_keys) {
-      clog::trace() << *this << " Enter modal loop";
+      clog::debug() << *this << " Enter modal loop with hot keys";
 
       set_visible();
       to_front();
@@ -692,6 +704,10 @@ namespace gui {
 
 #endif // X11
 
+#ifdef QT_WIDGETS_LIB
+//      event_loop.setParent(detail::get_window_id(parent));
+      event_loop.exec(QEventLoop::DialogExec);
+#else
       run_loop(is_modal, [&](const core::event & e)->bool {
 
 #ifdef WIN32
@@ -715,6 +731,7 @@ namespace gui {
         }
         return detail::check_expose(e);
       });
+#endif // QT_WIDGETS_LIB
 
 #ifdef X11
 #if defined(USE_INPUT_EATER)

@@ -75,7 +75,7 @@ namespace gui {
     namespace detail {
 
       void set_id (window* w, os::window id) {
-        w->id = id;
+        w->set_id(id);
       }
 
       os::window get_window_id (const window& win) {
@@ -725,7 +725,9 @@ namespace gui {
       }
       return resultValue;
 #endif // X11
+#ifdef QT_WIDGETS_LIB
       gui::core::global::get_instance()->exec();
+#endif // QT_WIDGETS_LIB
     }
 
     namespace {

@@ -24,13 +24,14 @@
 //
 #include <gui/win/window.h>
 #ifdef WIN32
-#include <gui/win/win32_container_class.h>
+# include <gui/win/win32_container_class.h>
 #endif // WIN32
 #ifdef X11
-#include <gui/win/x11_container_class.h>
+# include <gui/win/x11_container_class.h>
 #endif // X11
 #ifdef QT_WIDGETS_LIB
-#include <gui/win/qt_container_class.h>
+# include <gui/win/qt_container_class.h>
+# include <QtCore/QEventLoop>
 #endif // QT_WIDGETS_LIB
 
 
@@ -123,6 +124,9 @@ namespace gui {
       void init ();
 
       volatile bool is_modal;
+#ifdef QT_WIDGETS_LIB
+      QEventLoop event_loop;
+#endif // QT_WIDGETS_LIB
     };
 
     // --------------------------------------------------------------------------

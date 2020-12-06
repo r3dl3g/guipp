@@ -235,6 +235,7 @@ namespace gui {
       friend os::window detail::get_window_id (const window&);
 
       os::window get_id () const;
+      void set_id (os::window);
 
     private:
       static os::window create_window (const class_info&,

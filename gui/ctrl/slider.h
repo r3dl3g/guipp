@@ -33,15 +33,15 @@ namespace gui {
 #ifdef WIN32
     using slider_event = core::event_handler<detail::SLIDER_MESSAGE, 0,
                                        core::params<int>::getter<win::get_param<0, int> > >;
-#endif //WIN32
-#ifdef X11
+#elif X11
     using slider_event = core::event_handler<ClientMessage, 0,
                                        core::params<int>::getter<win::get_client_data<0, int> >,
                                        0, win::event::functor<win::client_message_matcher<detail::SLIDER_MESSAGE>>>;
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#elif QT_WIDGETS_LIB
     using slider_event = core::event_handler<detail::SLIDER_MESSAGE, 0,
                                        core::params<long>::getter<win::get_param<0>>>;
+#else
+# error Undefined system: slider_event
 #endif // QT_WIDGETS_LIB
        // --------------------------------------------------------------------------
 

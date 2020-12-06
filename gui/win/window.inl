@@ -29,6 +29,10 @@ namespace gui {
       return id;
     }
 
+    inline void window::set_id (os::window w) {
+      id = w;
+    }
+
     inline bool window::get_flag (byte bit) const {
       return flags.test(bit);
     }

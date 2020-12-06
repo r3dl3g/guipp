@@ -67,12 +67,16 @@ typedef linear_data_t<double, double> linear_data;
 constexpr os::color wall_back = color::rgb_gray<0xF8>::value;
 
 font& font_serif () {
+#ifdef QT_WIDGETS_LIB
   static font f = [] () {
     os::font fn;
     fn.setStyleHint(QFont::StyleHint::Serif);
     fn.setPointSize(font::system().size() * 4 / 5);
     return fn;
   }();
+#else
+  static font f = font::serif();
+#endif
   return f;
 }
 

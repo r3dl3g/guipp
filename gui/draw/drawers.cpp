@@ -994,7 +994,6 @@ namespace gui {
 
 #ifdef USE_XFT
       int height = 0, width = 0;
-      int dx = 0, dy = 0;
       if (f.font_type()) {
         XGlyphInfo extents;
         XftTextExtentsUtf8(display,
@@ -1003,10 +1002,8 @@ namespace gui {
                            int(str.size()),
                            &extents);
         auto fi = f.font_type();
-        height = fi->ascent;
+        height = fi->height;
         width = extents.xOff;
-        dx = 0;
-        dy = fi->ascent - fi->descent;
       } else {
         clog::error() << "font_type is zero!";
       }
@@ -1022,7 +1019,7 @@ namespace gui {
         py += rect.os_height() - height;
       }
 
-      rect.top_left({core::global::scale<core::point::type>(px + dx), core::global::scale<core::point::type>(py)});
+      rect.top_left({core::global::scale<core::point::type>(px), core::global::scale<core::point::type>(py)});
       rect.set_size({core::global::scale<core::size::type>(width), core::global::scale<core::size::type>(height)});
 #else
       Use<font> fn(g, f);
@@ -1098,7 +1095,7 @@ namespace gui {
       if (origin_is_v_center(origin)) {
         py -= dy / 2;
       } else if (origin_is_bottom(origin)) {
-        py -= height;
+        py -= dy;
       }
 
       xft_color xftcolor(c, g);
@@ -1381,8 +1378,8 @@ namespace gui {
     void bounding_box::operator() (const graphics& g,
                                    const font& f,
                                    os::color) const {
-      auto r = QFontMetrics(f).boundingRect(QString::fromStdString(str));
-      rect = core::rectangle(r);
+      auto s = QFontMetrics(f).size(Qt::TextSingleLine, QString::fromStdString(str));
+      rect.set_size(core::size(s));
     }
 
     // --------------------------------------------------------------------------

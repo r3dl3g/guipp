@@ -176,7 +176,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       inline core::rectangle place (const win::window* w) {
-        return w->place();
+        return {w->position(), w->client_size()};
       }
 
       inline void place (win::window* w, const core::rectangle& r) {

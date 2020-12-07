@@ -67,35 +67,26 @@ namespace gui {
         core::point::type y2 = area.y2();
 
         if (has_focus && (selection.begin() < selection.end())) {
-          gui::core::rectangle a1 = area;
           auto begin = scroll_pos;
           core::point::type left = area.x();
           if (selection.begin() > scroll_pos) {
-            std::string t1 = text.substr(scroll_pos, selection.begin() - scroll_pos);
             begin = selection.begin();
+            std::string t1 = text.substr(scroll_pos, begin - scroll_pos);
+            gui::core::rectangle a1 = area;
             graph.text(bounding_box(t1, a1, origin), fnt, foreground);
             left = a1.x2();
-            graph.text(text_box(t1, core::rectangle(core::point(area.x(), y1), core::point(left, y2)), origin),
-                       fnt, foreground);
-          } else {
-            a1.x2(a1.x());
           }
 
           gui::core::rectangle a2 = area.with_x(left);
           if (selection.end() > scroll_pos) {
             std::string t2 = text.substr(begin, selection.end() - begin);
             graph.text(bounding_box(t2, a2, origin), fnt, foreground);
-            left = a2.x2();
-            a2 = core::rectangle(core::point(a2.x(), y1), core::point(left, y2));
-            graph.fill(rectangle(a2), color::highLightColor());
-            graph.text(text_box(t2, core::rectangle(a2), origin), fnt, color::highLightTextColor());
-            begin = selection.end();
+            graph.fill(rectangle(a2), color::invert(color::highLightColor()));
           }
+          graph.text(text_box(text.substr(scroll_pos), area, origin), fnt, foreground);
 
-          if (begin < text.length()) {
-            std::string t3 = text.substr(begin);
-            graph.text(text_box(t3, core::rectangle(core::point(left, y1), core::point(area.x2(), y2)), origin),
-                       fnt, foreground);
+          if (selection.end() > scroll_pos) {
+            graph.invert(a2);
           }
 
         } else {

@@ -557,7 +557,6 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     core::rectangle get_client_data_rect (const core::event& e) {
-      clog::debug() << "LayoutEvent";
       return e.cast<QClientEvent>().rect();
     }
 

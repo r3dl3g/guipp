@@ -190,6 +190,13 @@ namespace gui {
       }
     }
 
+    core::rectangle drop_down_list::get_popup_place () const {
+      core::rectangle place = super::absolute_place();
+      place.move_y(place.height());
+      place.height(core::size::type(data.visible_items * data.items.get_item_dimension()));
+      return place;
+    }
+
     void drop_down_list::show_popup () {
       if (!data.popup.is_valid()) {
         create_popup(get_popup_place());

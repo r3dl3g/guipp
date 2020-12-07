@@ -780,7 +780,7 @@ namespace gui {
     }
 
     font::size_type font::native_line_height () const {
-      QFontMetrics(id).lineSpacing();
+      return QFontMetrics(id).lineSpacing();
     }
 
     font font::with_size (size_type sz) const {

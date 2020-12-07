@@ -535,18 +535,13 @@ namespace gui {
 
     void graphics::invert (const core::rectangle& r) const {
       auto display = core::global::get_instance();
-      XGCValues values = { GXinvert };  // .function =
-      values.graphics_exposures = False;
-      XChangeGC(display, gc, GCFunction|GCGraphicsExposures, &values);
-      /*int res =*/ XCopyArea(get_instance(), 0, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), r.os_x(), r.os_y());
-      values = { GXcopy }; // .function =
-      XChangeGC(display, gc, GCFunction, &values);
 
-//      pixmap img(r.size());
-//      graphics rhs(img);
-//      rhs.copy_from(*this, r);
-//      img.invert();
-//      copy_from(img, core::rectangle(r.size()), r.position());
+      XGCValues values = { GXinvert, 0 };  // .function =
+      values.graphics_exposures = False;
+      XChangeGC(display, gc, GCFunction, &values);
+      XFillRectangle(display, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height());
+      values = { GXcopy, 0 }; // .function =
+      XChangeGC(display, gc, GCFunction, &values);
     }
 
     void graphics::flush () const {

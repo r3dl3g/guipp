@@ -77,7 +77,7 @@ namespace gui {
       bool Widget::event (QEvent* e) {
         gui::os::event_result result;
         gui::core::event ev = {this, e};
-        clog::debug() << "Widget received event: " << ev;
+        clog::trace() << "Widget received event: " << ev;
         if (win->handle_event(ev, result)) {
           return true;
         }
@@ -1359,13 +1359,15 @@ namespace gui {
     }
 
     core::rectangle window::absolute_place () const {
-      return is_valid() ? core::rectangle(get_id()->mapToGlobal(get_id()->pos()), get_id()->frameSize())
-                        : core::rectangle::zero;
+      return core::rectangle(absolute_position(), size());
     }
 
     core::point window::absolute_position () const {
-      return is_valid() ? core::point(get_id()->mapToGlobal(get_id()->pos()))
-                        : core::point::zero;
+      if (is_valid()) {
+        auto w = get_id();
+        return core::point(w->mapToGlobal(w->mapFromParent(w->pos())));
+      }
+      return core::point::zero;
     }
 
     core::size window::client_size () const {
@@ -1374,8 +1376,7 @@ namespace gui {
     }
 
     core::rectangle window::client_area () const {
-      return is_valid() ? core::rectangle(get_id()->size())
-                        : core::rectangle::zero;
+      return core::rectangle(client_size());
     }
 
     void window::move (const core::point& pt, bool repaint) {
@@ -1453,7 +1454,7 @@ namespace gui {
                                       window* data) {
       os::window id = new os::qt::Widget(parent_id, type.get_style(), data);
       Qt::WindowFlags style = id->windowFlags();
-      clog::debug() << "Expected style: " << std::hex << type.get_style() << ", current style: " << std::hex << style;
+      //clog::debug() << "Expected style: " << std::hex << type.get_style() << ", current style: " << std::hex << style;
 
       id->setGeometry(r.os());
       id->setCursor(type.get_cursor());

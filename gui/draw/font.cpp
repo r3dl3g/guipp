@@ -687,7 +687,7 @@ namespace gui {
     }
 
     const font& font::menu () {
-      static font f = QFontDatabase::systemFont(QFontDatabase::TitleFont);
+      static font f = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
       return f;
     }
 

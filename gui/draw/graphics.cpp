@@ -688,7 +688,14 @@ namespace gui {
         gc->setCompositionMode(static_cast<QPainter::CompositionMode>(mode));
         gc->drawPixmap(pt.x(), pt.y(), pix);
         gc->setCompositionMode(oldMode);
-
+      } else {
+        QPixmap* p = dynamic_cast<QPixmap*>(d);
+        if (p) {
+          const QPainter::CompositionMode oldMode = gc->compositionMode();
+          gc->setCompositionMode(static_cast<QPainter::CompositionMode>(mode));
+          gc->drawPixmap(pt.x(), pt.y(), *p);
+          gc->setCompositionMode(oldMode);
+        }
       }
       return *this;
     }
@@ -697,6 +704,11 @@ namespace gui {
       if (bmp.mask) {
         gc->setClipRegion(QRegion(QBitmap(bmp.mask.get_id())));
         gc->drawPixmap(pt.x(), pt.y(), bmp.image.get_id());
+        if (clipping_stack.empty()) {
+          clear_clip_rect();
+        } else {
+          set_clip_rect(clipping_stack.back());
+        }
       } else {
         gc->drawPixmap(pt.x(), pt.y(), bmp.image.get_id());
       }

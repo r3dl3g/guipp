@@ -73,7 +73,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     client.first.update_node_list();
     client.first.select_node(current);
     client.second.set_path(current);
-    client.init([] (const sys_fs::path& path) {
+    client.init([] (container&, const sys_fs::path& path) {
       if (sys_fs::is_regular_file(path)) {
 #ifdef WIN32
         std::string path_str = util::string::utf16_to_utf8(path.c_str());

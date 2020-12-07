@@ -51,10 +51,10 @@ namespace gui {
         Widget (Widget* parent, os::style s, win::window* w);
         ~Widget ();
 
+        void set_window (win::window*);
         win::window* get_window () const;
-        Widget* get_parent () const;
-        QPainter *painter() const;
 
+        Widget* get_parent () const;
 
       protected:
         bool event (QEvent* e) override;

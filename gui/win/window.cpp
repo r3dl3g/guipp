@@ -45,51 +45,6 @@
 
 namespace gui {
 
-#ifdef QT_WIDGETS_LIB
-
-  namespace os {
-
-    namespace qt {
-
-      Widget::Widget (Widget* parent, os::style s, win::window* w)
-        : QWidget(parent, s)
-        , win(w)
-      {}
-
-      Widget::~Widget () {
-        if (win) {
-          win::detail::set_id(win, nullptr);
-        }
-      }
-
-      win::window* Widget::get_window () const {
-        return win;
-      }
-
-      Widget* Widget::get_parent () const {
-        return static_cast<Widget*>(parentWidget());
-      }
-
-      QPainter *Widget::painter() const {
-        return sharedPainter();
-      }
-
-      bool Widget::event (QEvent* e) {
-        gui::os::event_result result;
-        gui::core::event ev = {this, e};
-        clog::trace() << "Widget received event: " << ev;
-        if (win->handle_event(ev, result)) {
-          return true;
-        }
-        return QWidget::event(e);
-      }
-
-    } // namespace qt
-
-  } // os
-
-#endif // QT_WIDGETS_LIB
-
   namespace win {
 
 #ifdef X11
@@ -1248,9 +1203,10 @@ namespace gui {
 
     void window::destroy () {
       if (is_valid()) {
-        send_client_message(this, core::qt::WM_DESTROY_WINDOW);
+//        send_client_message(this, core::qt::WM_DESTROY_WINDOW);
         hidden::window_class_map.erase(id);
-        delete id;
+        id->set_window(nullptr);
+        id->deleteLater();
         id = nullptr;
       }
     }
@@ -1574,5 +1530,50 @@ namespace gui {
     // --------------------------------------------------------------------------
 
   } // win
+
+#ifdef QT_WIDGETS_LIB
+
+  namespace os {
+
+    namespace qt {
+
+      Widget::Widget (Widget* parent, os::style s, win::window* w)
+        : QWidget(parent, s)
+        , win(w)
+      {}
+
+      Widget::~Widget () {
+        if (win) {
+          win::detail::set_id(win, nullptr);
+        }
+      }
+
+      win::window* Widget::get_window () const {
+        return win;
+      }
+
+      void Widget::set_window (win::window* w) {
+        win = w;
+      }
+
+      Widget* Widget::get_parent () const {
+        return static_cast<Widget*>(parentWidget());
+      }
+
+      bool Widget::event (QEvent* e) {
+        gui::os::event_result result;
+        gui::core::event ev = {this, e};
+        clog::trace() << "Widget received event: " << ev;
+        if (win && win->handle_event(ev, result)) {
+          return true;
+        }
+        return QWidget::event(e);
+      }
+
+    } // namespace qt
+
+  } // os
+
+#endif // QT_WIDGETS_LIB
 
 } // gui

@@ -259,7 +259,6 @@ namespace gui {
 #ifdef X11
         at_shutdown = true;
 #endif // X11
-
       }
 
       gui::os::instance get_instance () {

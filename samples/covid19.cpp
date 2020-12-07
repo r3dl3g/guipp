@@ -774,7 +774,7 @@ covid19main::covid19main ()
   });
 
   load_button.on_clicked([&] () {
-    file_open_dialog::show(*this, "Open CSV", "Ok", "Cancel", [&] (const sys_fs::path& p) {
+    file_open_dialog::show(*this, "Open CSV", "Ok", "Cancel", [&] (win::container&, const sys_fs::path& p) {
       load_data({p.string()});
     });
   });

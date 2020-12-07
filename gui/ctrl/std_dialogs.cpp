@@ -38,8 +38,8 @@ namespace gui {
                                 const std::string& no_label,
                                 const core::rectangle& rect,
                                 std::function<yes_no_action> action) {
-      super::create(parent, title, rect, [action] (int i) {
-        action(i == 1);
+      super::create(parent, title, rect, [action] (win::container& dlg, int i) {
+        action(dlg, i == 1);
       }, {no_label, yes_label});
       message_view.create(content_view, message, rect);
     }
@@ -62,7 +62,7 @@ namespace gui {
       run_modal(parent, {
         win::hot_key_action{
           win::hot_key(win::keys::escape, win::state::none),
-          [&] () { action(false); }
+          [&] () { action(*this, false); }
         },
         win::hot_key_action{
           win::hot_key(win::keys::right, win::state::none),
@@ -85,7 +85,7 @@ namespace gui {
                                 const std::string& message,
                                 const std::string& ok_label,
                                 const core::rectangle& rect) {
-      super::create(parent, title, rect, [&] (int) {
+      super::create(parent, title, rect, [&] (win::container&, int) {
         end_modal();
       }, {ok_label});
       message_view.create(content_view, message, rect);
@@ -115,9 +115,9 @@ namespace gui {
                                const std::string& cancel_label,
                                const core::rectangle& rect,
                                std::function<input_action> action) {
-      super::create(parent, title, rect, [&, action] (int i) {
+      super::create(parent, title, rect, [&, action] (win::container& dlg, int i) {
         if (i == 1) {
-          action(edit.get_text());
+          action(dlg, edit.get_text());
         }
       }, {cancel_label, ok_label});
       label.create(super::content_view, message);
@@ -154,10 +154,10 @@ namespace gui {
       auto& dir_tree = content_view.first;
       auto& files = content_view.second;
 
-      content_view.init([&, action] (const sys_fs::path& path) {
+      content_view.init([&, action] (win::container& dlg, const sys_fs::path& path) {
         set_visible(false);
         end_modal();
-        action(path);
+        action(dlg, path);
       });
 
       files.list.on_selection_changed([&] (event_source) {
@@ -168,13 +168,13 @@ namespace gui {
       top_view.get_layout().set_left(layout::lay(input_label));
       get_layout().set_top(layout::lay(top_view));
 
-      super::create(parent, title, rect, [&, action] (int btn) {
+      super::create(parent, title, rect, [&, action] (win::container& dlg, int btn) {
         if (1 == btn) {
           int idx = dir_tree.get_selection();
           if (idx > -1) {
             sys_fs::path path = dir_tree.get_item(idx).path;
             path /= input_line.get_text();
-            action(path);
+            action(dlg, path);
           }
         }
       }, {cancel_label, ok_label});

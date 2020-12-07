@@ -107,7 +107,7 @@ namespace gui {
         btn.on_clicked([&, action, i] () {
           super::end_modal();
           if (action) {
-            action(i);
+            action(*this, i);
           }
         });
         btn.create(*this, l);
@@ -221,7 +221,7 @@ namespace gui {
           super::first.select_node(path);
           super::second.set_path(path, filter);
         } else {
-          action(path);
+          action(*this, path);
         }
       });
     }
@@ -252,20 +252,20 @@ namespace gui {
       auto& dir_tree = super::content_view.first;
       auto& file_list = super::content_view.second;
 
-      super::content_view.init([&, action] (const sys_fs::path& path) {
+      super::content_view.init([&, action] (win::container& dlg, const sys_fs::path& path) {
         super::set_visible(false);
         super::end_modal();
-        action(path);
+        action(dlg, path);
       }, filter);
 
-      super::create(parent, title, rect, [&, action] (int btn) {
+      super::create(parent, title, rect, [&, action] (win::container& dlg, int btn) {
         if (1 == btn) {
           if (super::content_view.second.list.get_selection() > -1) {
-            action(super::content_view.second.get_selected_path());
+            action(dlg, super::content_view.second.get_selected_path());
           } else {
             int idx = super::content_view.first.get_selection();
             if (idx > -1) {
-              action(super::content_view.first.get_item(idx).path);
+              action(dlg, super::content_view.first.get_item(idx).path);
             }
           }
         }

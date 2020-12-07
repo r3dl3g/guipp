@@ -92,8 +92,7 @@ namespace gui {
         }
       }
       return str;
-#endif // WIN32
-#ifdef X11
+#elif X11
       switch (key) {
       case XK_Control_L:
       case XK_Control_R:
@@ -116,6 +115,10 @@ namespace gui {
         return XKeysymToString(key);
         break;
       }
+#elif QT_WIDGETS_LIB
+      return QKeySequence(key).toString().toStdString();
+#else
+# error Undefined system: std::string key_symbol_to_string (os::key_symbol key)
 #endif // X11
     }
 

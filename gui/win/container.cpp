@@ -674,35 +674,21 @@ namespace gui {
     }
 
     void modal_window::run_modal (window& parent) {
-      clog::debug() << *this << " Enter modal loop";
-
-      set_visible();
-      to_front();
-      parent.disable();
-      invalidate();
-
-      is_modal = true;
-
-#ifdef QT_WIDGETS_LIB
-//      event_loop.setParent(detail::get_window_id(parent));
-      event_loop.exec(QEventLoop::DialogExec);
-#else
-      run_loop(is_modal);
-#endif // QT_WIDGETS_LIB
-
-      parent.enable();
-      parent.take_focus();
-
-      clog::trace() << *this << " Exit modal loop";
+      run_modal(parent, {});
     }
 
     void modal_window::run_modal (window& parent, const std::vector<hot_key_action>& hot_keys) {
       clog::debug() << *this << " Enter modal loop with hot keys";
 
+#ifdef QT_WIDGETS_LIB
+# ifndef GUIPP_BUILD_FOR_MOBILE
+      detail::get_window_id(*this)->setWindowModality(Qt::WindowModality::ApplicationModal);
+# endif
+#else
+      parent.disable();
+#endif
       set_visible();
       to_front();
-      parent.disable();
-
       invalidate();
 
       is_modal = true;
@@ -716,32 +702,31 @@ namespace gui {
 #endif // X11
 
 #ifdef QT_WIDGETS_LIB
-//      event_loop.setParent(detail::get_window_id(parent));
       event_loop.exec(QEventLoop::DialogExec);
 #else
-      run_loop(is_modal, [&](const core::event & e)->bool {
+      if (hot_keys.empty()) {
+        run_loop(is_modal);
+      } else {
+        run_loop(is_modal, [&](const core::event & e)->bool {
 
 #ifdef WIN32
-        if (e.type == WM_KEYDOWN) {
-#endif // WIN32
-
-#ifdef X11
-        if (e.type == KeyPress) {
-#endif // X11
-
-#ifdef QT_WIDGETS_LIB
-        if (e.type() == QEvent::KeyPress) {
+          if (e.type == WM_KEYDOWN) {
+#elif X11
+          if (e.type == KeyPress) {
+#elif QT_WIDGETS_LIB
+          if (e.type() == QEvent::KeyPress) {
 #endif // QT_WIDGETS_LIB
-          hot_key hk(get_key_symbol(e), get_key_state(e));
-          for (hot_key_action k : hot_keys) {
-            if (hk == k.hk) {
-              k.fn();
-              return true;
+            hot_key hk(get_key_symbol(e), get_key_state(e));
+            for (hot_key_action k : hot_keys) {
+              if (hk == k.hk) {
+                k.fn();
+                return true;
+              }
             }
           }
-        }
-        return detail::check_expose(e);
-      });
+          return detail::check_expose(e);
+        });
+      }
 #endif // QT_WIDGETS_LIB
 
 #ifdef X11

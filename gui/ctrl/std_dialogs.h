@@ -41,7 +41,16 @@ namespace gui {
   namespace ctrl {
 
     //-----------------------------------------------------------------------------
-    typedef void (dialog_action) (int); // Button no. pressed
+    typedef void (dialog_action) (win::container&, int); // Button no. pressed
+
+    //-----------------------------------------------------------------------------
+    typedef void (yes_no_action) (win::container&, bool);
+
+    //-----------------------------------------------------------------------------
+    typedef void (input_action) (win::container&, const std::string&);
+
+    //-----------------------------------------------------------------------------
+    typedef void (file_selected) (win::container&, const sys_fs::path&);
 
     //-----------------------------------------------------------------------------
     template<int TO = 0, int LE = 0, int RI = 0>
@@ -114,9 +123,6 @@ namespace gui {
     };
 
     //-----------------------------------------------------------------------------
-    typedef void (yes_no_action) (bool);
-
-    //-----------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT yes_no_dialog :
         public standard_dialog<win::group_window<layout::border::layouter<20, 15, 15, 15>,
                                                  color::very_light_gray>> {
@@ -152,9 +158,6 @@ namespace gui {
       message_view_type message_view;
 
     };
-
-    //-----------------------------------------------------------------------------
-    typedef void (input_action) (const std::string&);
 
     //-----------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT input_dialog :
@@ -227,9 +230,6 @@ namespace gui {
       label_t labels[N];
       edit_left edits[N];
     };
-
-    //-----------------------------------------------------------------------------
-    typedef void (file_selected) (const sys_fs::path&);
 
     //-----------------------------------------------------------------------------
     template<typename T = path_tree::sorted_path_info>

@@ -32,6 +32,7 @@
 #endif // X11
 #ifdef QT_WIDGETS_LIB
 # include <QtWidgets/QApplication>
+# include <QtCore/QEventLoop>
 #endif // QT_WIDGETS_LIB
 
 // --------------------------------------------------------------------------
@@ -75,7 +76,9 @@ namespace gui {
     namespace detail {
 
       void set_id (window* w, os::window id) {
-        w->set_id(id);
+        if (w) {
+          w->set_id(id);
+        }
       }
 
       os::window get_window_id (const window& win) {
@@ -726,7 +729,8 @@ namespace gui {
       return resultValue;
 #endif // X11
 #ifdef QT_WIDGETS_LIB
-      gui::core::global::get_instance()->exec();
+      QEventLoop event_loop;
+      event_loop.exec(QEventLoop::AllEvents);
 #endif // QT_WIDGETS_LIB
     }
 
@@ -737,15 +741,22 @@ namespace gui {
     int run_main_loop () {
       main_loop_is_running = true;
       detail::main_thread_id = global::get_current_thread_id();
+#ifdef QT_WIDGETS_LIB
+      gui::core::global::get_instance()->exec();
+#else
       return run_loop(main_loop_is_running, [] (const core::event & e) {
         return detail::check_expose(e) || check_message_filter(e) || check_hot_key(e);
       });
+#endif // QT_WIDGETS_LIB
     }
 
     void quit_main_loop () {
       clog::debug() << "Received quit_main_loop()";
       main_loop_is_running = false;
       core::global::fini();
+#ifdef QT_WIDGETS_LIB
+      gui::core::global::get_instance()->exit();
+#endif // QT_WIDGETS_LIB
     }
 
     void run_on_main (std::function<void()> action) {

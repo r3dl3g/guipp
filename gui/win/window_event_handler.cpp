@@ -561,7 +561,7 @@ namespace gui {
     }
 
     os::graphics get_graphics (const core::event& e) {
-      return get_draw_window(e)->painter();
+      return nullptr;//get_draw_window(e)->painter();
     }
 
     os::window get_draw_window (const core::event& e) {

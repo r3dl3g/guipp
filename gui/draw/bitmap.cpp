@@ -338,7 +338,7 @@ namespace gui {
       return CreateBitmap(bmi.width, bmi.height, 1, bmi.bits_per_pixel(), data);
     }
 
-    void free_bitmap (os::bitmap id) {
+    void free_bitmap (os::bitmap& id) {
       DeleteObject(id);
     }
 

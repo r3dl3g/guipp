@@ -8,5 +8,8 @@ if(NOT TARGET testlib)
   file(GLOB SOURCE_FILES "*.cpp")
   file(GLOB INCLUDE_FILES "*.h")
   add_library(testlib ${SOURCE_FILES} ${INCLUDE_FILES})
-  set_target_properties(testlib PROPERTIES FOLDER libraries)
+  set_target_properties(testlib PROPERTIES
+                        POSITION_INDEPENDENT_CODE ON
+                        FOLDER libraries
+                        CXX_STANDARD 11)
 endif()

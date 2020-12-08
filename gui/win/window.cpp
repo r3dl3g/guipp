@@ -1275,7 +1275,7 @@ namespace gui {
 
     void window::to_front () {
       if (is_valid()) {
-        get_id()->raise();
+        get_id()->stackUnder(get_id()->parentWidget());
       }
     }
 

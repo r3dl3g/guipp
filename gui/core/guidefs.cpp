@@ -244,18 +244,17 @@ namespace gui {
 
       gui_init gui_static;
 
-
       void init (gui::os::instance instance) {
         gui_static.init(instance);
-        clog::debug() << "os::bitmap_bit_order_t: " << core::os::bitmap_bit_order;
-        clog::debug() << "os::bitmap_byte_order_t: " << core::os::bitmap_byte_order;
-        clog::debug() << "os::platform_t: " << core::os::system_platform;
-        clog::debug() << "os::ui_t: " << core::os::system_ui;
-        clog::debug() << "global::scale_factor: " << scale_factor;
-        clog::debug() << "color::part: RGBA=" << static_cast<unsigned int>(color::part::red)
-                      << ":" << static_cast<unsigned int>(color::part::green)
-                      << ":" << static_cast<unsigned int>(color::part::blue)
-                      << ":" << static_cast<unsigned int>(color::part::alpha);
+        clog::info() << "os::bitmap_bit_order_t: " << core::os::bitmap_bit_order;
+        clog::info() << "os::bitmap_byte_order_t: " << core::os::bitmap_byte_order;
+        clog::info() << "os::platform_t: " << core::os::system_platform;
+        clog::info() << "os::ui_t: " << core::os::system_ui;
+        clog::info() << "global::scale_factor: " << scale_factor;
+        clog::info() << "color::part: RGBA=" << static_cast<unsigned int>(color::part::red)
+                     << ":" << static_cast<unsigned int>(color::part::green)
+                     << ":" << static_cast<unsigned int>(color::part::blue)
+                     << ":" << static_cast<unsigned int>(color::part::alpha);
       }
 
       void fini () {
@@ -373,7 +372,7 @@ namespace gui {
           if (i < 0) {
             clog::error() << "Could not fetch value of Xft.dpi from Xresources falling back to highest dpi found";
           } else {
-            clog::debug() << "XCB.dpi = " << dpi;
+            clog::info() << "XCB.dpi = " << dpi;
             return dpi;
           }
         } else {
@@ -386,7 +385,7 @@ namespace gui {
           }
         }
 
-         clog::debug() << "XCB.dpi = " << dpi;
+         clog::info() << "XCB.dpi = " << dpi;
 
         return dpi;
       }
@@ -407,10 +406,10 @@ namespace gui {
           auto screen = XScreenOfDisplay(get_instance(), i);
           dpi = std::max(dpi, get_xlib_dpi_of_screen(screen));
         }
-        clog::debug() << "X11.dpi = " << dpi;
+        clog::info() << "X11.dpi = " << dpi;
         return dpi;
 # else
-        clog::debug() << "X11.dpi = 220";
+        clog::info() << "X11.dpi = 220";
         return 220;
 # endif
       }
@@ -452,13 +451,9 @@ namespace gui {
           std::stringstream(xscale) >> scale;
           return scale;
         } else {
-//          auto f = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
-//          auto ps = f.pointSizeF();
-//          auto px = QFontMetrics(f).height();
-//          qreal s = px / ps;
           QDesktopWidget* d = QApplication::desktop();
-          auto r = d->devicePixelRatioF();
-          clog::debug() << "Display "
+          auto r = (double)d->logicalDpiX() / 96.0;
+          clog::info()  << "Display "
                            "W:" << d->width() << ", H:" << d->height()
                         << ", MM-W:" << d->widthMM() << ", MM-H:" << d->heightMM()
                         << ", LogDPI-X:" << d->logicalDpiX() << ", LogDPI-Y:" << d->logicalDpiY()

@@ -382,7 +382,7 @@ namespace gui {
                         const core::rectangle& r,
                         const std::string& text,
                         const button_state& state) {
-#ifdef BUILD_FOR_ARM
+#if defined(BUILD_FOR_ARM) || defined(GUIPP_BUILD_FOR_MOBILE)
         button_frame_w95(graph, r, state);
 #else
         button_frame(graph, r, state);

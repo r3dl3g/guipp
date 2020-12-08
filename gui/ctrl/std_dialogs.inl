@@ -30,35 +30,6 @@ namespace gui {
       struct std_dialog_defaults {};
 
       template<>
-      struct std_dialog_defaults<core::os::ui_t::mobile> {
-
-        static core::rectangle multi_input_dialog_size (const core::rectangle& area, std::size_t n) {
-          return area.shrinked({ 20, 20 }).with_height(static_cast<core::size::type>(85 + n * 40));
-        }
-
-        static core::rectangle path_open_dialog_size (const core::rectangle& area) {
-          return area;
-        }
-
-        static core::rectangle yes_no_dialog_size (const core::rectangle& area) {
-          return area.shrinked({ 30, 100 });
-        }
-
-        static core::rectangle message_dialog_size (const core::rectangle& area) {
-          return area.shrinked({ 30, 100 });
-        }
-
-        static core::rectangle input_dialog_size (const core::rectangle& area) {
-          return area.shrinked({ 30, 100 });
-        }
-
-        static core::rectangle file_save_dialog_size (const core::rectangle& area) {
-          return area;
-        }
-
-      };
-
-      template<>
       struct std_dialog_defaults<core::os::ui_t::desktop> {
 
         static core::rectangle multi_input_dialog_size (const core::rectangle&, std::size_t n) {
@@ -69,12 +40,12 @@ namespace gui {
           return core::rectangle(200, 100, 800, 600);
         }
 
-        static core::rectangle yes_no_dialog_size (const core::rectangle& area) {
+        static core::rectangle message_dialog_size (const core::rectangle& area) {
           return core::rectangle(300, 200, 400, 170);
         }
 
-        static core::rectangle message_dialog_size (const core::rectangle& area) {
-          return core::rectangle(300, 200, 400, 170);
+        static core::rectangle yes_no_dialog_size (const core::rectangle& area) {
+          return message_dialog_size(area);
         }
 
         static core::rectangle input_dialog_size (const core::rectangle& area) {
@@ -82,7 +53,36 @@ namespace gui {
         }
 
         static core::rectangle file_save_dialog_size (const core::rectangle& area) {
-          return core::rectangle(200, 100, 800, 600);
+          return path_open_dialog_size(area);
+        }
+
+      };
+
+      template<>
+      struct std_dialog_defaults<core::os::ui_t::mobile> {
+
+        static core::rectangle multi_input_dialog_size (const core::rectangle& area, std::size_t n) {
+          return area.shrinked({ 20, 20 }).with_height(static_cast<core::size::type>(85 + n * 40));
+        }
+
+        static core::rectangle path_open_dialog_size (const core::rectangle& area) {
+          return area.size() < core::size(800, 600) ? std_dialog_defaults<core::os::ui_t::desktop>::path_open_dialog_size(area) : area;
+        }
+
+        static core::rectangle message_dialog_size (const core::rectangle& area) {
+          return area.size() < core::size(430, 270) ? std_dialog_defaults<core::os::ui_t::desktop>::message_dialog_size(area) : area.shrinked({ 30, 100 });
+        }
+
+        static core::rectangle yes_no_dialog_size (const core::rectangle& area) {
+          return message_dialog_size(area);
+        }
+
+        static core::rectangle input_dialog_size (const core::rectangle& area) {
+          return area.size() < core::size(430, 225) ? std_dialog_defaults<core::os::ui_t::desktop>::input_dialog_size(area) : area.shrinked({ 30, 100 });
+        }
+
+        static core::rectangle file_save_dialog_size (const core::rectangle& area) {
+          return path_open_dialog_size(area);
         }
 
       };

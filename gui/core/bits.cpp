@@ -20,7 +20,7 @@
 //
 // Common includes
 //
-#ifdef X11
+#ifdef GUIPP_X11
 # include <X11/XKBlib.h>
 #endif
 

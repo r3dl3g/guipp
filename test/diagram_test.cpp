@@ -5,7 +5,7 @@
 #ifdef WIN32
 #define _USE_MATH_DEFINES
 #include <math.h>
-#endif // WIN§2
+#endif // WIN32
 
 
 using namespace gui;

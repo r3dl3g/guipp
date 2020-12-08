@@ -28,39 +28,39 @@
 
 namespace gui {
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
   namespace win {
 
     template<>
     GUIPP_CTRL_EXPORT float get_param<0, float>(const core::event& e);
 
   } // namespace win
-#endif //WIN32
+#endif //GUIPP_WIN
 
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-#ifdef WIN32
+#ifdef GUIPP_WIN
     using scroll_event = core::event_handler<detail::SCROLLBAR_MESSAGE, 0,
                                              core::params<core::point::type>::
                                              getter<win::get_param<0, core::point::type>>>;
 
-#endif //WIN32
+#endif //GUIPP_WIN
 
-#ifdef X11
+#ifdef GUIPP_X11
     using scroll_event = core::event_handler<ClientMessage, 0,
                                              core::params<core::point::type>::
                                              getter<win::get_client_data<0, core::point::type>>,
                                              0,
                                              win::event::functor<win::client_message_matcher<detail::SCROLLBAR_MESSAGE>>>;
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#endif // GUIPP_X11
+#ifdef GUIPP_QT
     GUIPP_CTRL_EXPORT core::point::type get_scroll_value (const core::event&);
 
     using scroll_event = core::event_handler<detail::SCROLLBAR_MESSAGE, 0,
                                              core::params<core::point::type>::
                                              getter<get_scroll_value>>;
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
     // --------------------------------------------------------------------------
     enum class scrollbar_state {

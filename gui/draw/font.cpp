@@ -23,14 +23,14 @@
 #include <ostream>
 #include <locale>
 
-#ifdef X11
+#ifdef GUIPP_X11
 # include <vector>
 # include <sstream>
 # include <X11/Xlib.h>
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#endif // GUIPP_X11
+#ifdef GUIPP_QT
 # include <QtGui/QFontDatabase>
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
 
 // --------------------------------------------------------------------------
@@ -60,7 +60,7 @@ namespace gui {
 
   namespace draw {
 
-#if defined(BUILD_FOR_ARM) || defined(WIN32) || defined(NO_FONT_SCALE)
+#if defined(BUILD_FOR_ARM) || defined(GUIPP_WIN) || defined(NO_FONT_SCALE)
     template<typename T>
     inline T font_scale (T v) {
       return static_cast<T>((double)v * core::global::get_scale_factor());
@@ -109,7 +109,7 @@ namespace gui {
     }
 #endif
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
     os::font_type get_menu_font () {
       NONCLIENTMETRICS metrics;
       memset(&metrics, 0, sizeof(metrics));
@@ -293,8 +293,8 @@ namespace gui {
       return core::size(core::global::scale<core::size::type>(sz.cx), core::global::scale<core::size::type>(sz.cy));
     }
 
-#endif // WIN32
-#ifdef X11
+#endif // GUIPP_WIN
+#ifdef GUIPP_X11
 # define STD_FONT_SIZE 10
 
     const font& font::system () {
@@ -668,9 +668,9 @@ namespace gui {
       return out;
     }
 
-#endif // X11
+#endif // GUIPP_X11
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
     const font& font::system () {
       static font f = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
       return f;
@@ -836,7 +836,7 @@ namespace gui {
       auto sz = metrics.size(0, QString::fromStdString(str));
       return core::size(sz);
     }
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
   }
 

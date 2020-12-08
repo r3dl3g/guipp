@@ -118,7 +118,7 @@ namespace gui {
 
     cursor::cursor ()
       : type(cursor_type::none)
-#ifndef QT_WIDGETS_LIB
+#ifndef GUIPP_QT
       , id(0)
 #endif
     {}
@@ -129,17 +129,15 @@ namespace gui {
     {}
 
     cursor::operator const os::cursor& () const {
-#ifdef WIN32
+#ifdef GUIPP_WIN
       if ((type != cursor_type::none) && !id) {
         id = LoadCursor(nullptr, convert(type));
       }
-#endif // Win32
-#ifdef X11
+#elif GUIPP_X11
       if ((type != cursor_type::none) && !id) {
         id = XCreateFontCursor(core::global::get_instance(), convert(type));
       }
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#elif GUIPP_QT
       const auto t = convert(type);
       if ((type != cursor_type::none) && (id.shape() != t)) {
         id = QCursor(t);

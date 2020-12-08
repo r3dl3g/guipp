@@ -41,12 +41,12 @@ namespace gui {
       : key(k)
       , modifiers(modifiers)
     {
-#ifdef WIN32
+#ifdef GUIPP_WIN
       //if (islower(key)) {
       //  key = toupper(key);
       //}
-#endif // WIN32
-#ifdef X11
+#endif // GUIPP_WIN
+#ifdef GUIPP_X11
       try {
         if (((int)key < 0xFF) && isupper(key)) {
           key = tolower(key);
@@ -56,11 +56,11 @@ namespace gui {
       } catch (...) {
         clog::fatal() << "Unknown exception in isupper(0x" << std::hex << (int)key << "):";
       }
-#endif // X11
+#endif // GUIPP_X11
     }
 
     std::string key_symbol_to_string (os::key_symbol key) {
-#ifdef WIN32
+#ifdef GUIPP_WIN
       UINT nScanCode = MapVirtualKey(key, MAPVK_VK_TO_VSC);
       switch (key) {
       // Keys which are "extended" (except for Return which is Numeric Enter as extended)
@@ -92,7 +92,7 @@ namespace gui {
         }
       }
       return str;
-#elif X11
+#elif GUIPP_X11
       switch (key) {
       case XK_Control_L:
       case XK_Control_R:
@@ -115,11 +115,11 @@ namespace gui {
         return XKeysymToString(key);
         break;
       }
-#elif QT_WIDGETS_LIB
+#elif GUIPP_QT
       return QKeySequence(key).toString().toStdString();
 #else
 # error Undefined system: std::string key_symbol_to_string (os::key_symbol key)
-#endif // X11
+#endif // GUIPP_X11
     }
 
     std::string key_state_to_string (os::key_state m) {

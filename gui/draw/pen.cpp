@@ -33,7 +33,7 @@ namespace gui {
 
   namespace draw {
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
     const pen default_pen((os::pen)GetStockObject(BLACK_PEN));
 
     pen::pen (os::pen id)
@@ -93,7 +93,7 @@ namespace gui {
               (info.elpWidth == rhs.info.elpWidth));
     }
 
-#endif // WIN32
+#endif // GUIPP_WIN
     pen pen::with_size (size_type sz) const {
       return pen(color(), sz, style());
     }
@@ -110,7 +110,7 @@ namespace gui {
       return pen(c, size(), style());
     }
 
-#if defined(X11) || defined(QT_WIDGETS_LIB)
+#if defined(GUIPP_X11) || defined(GUIPP_QT)
     const pen default_pen;
 
     pen::pen (const os::color& color, size_type size, Style style)
@@ -149,7 +149,7 @@ namespace gui {
               (m_size == rhs.m_size));
     }
 
-#endif // X11 || QT_WIDGETS_LIB
+#endif // GUIPP_X11 || GUIPP_QT
 
   }
 

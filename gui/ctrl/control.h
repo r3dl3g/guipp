@@ -38,7 +38,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace detail {
-#ifdef WIN32
+#ifdef GUIPP_WIN
       const os::event_id SLIDER_MESSAGE = WM_USER + 1;
       const os::event_id SELECTION_CHANGE_MESSAGE = WM_USER + 2;
       const os::event_id SELECTION_COMMIT_MESSAGE = WM_USER + 3;
@@ -50,8 +50,8 @@ namespace gui {
       const os::event_id SCROLLBAR_MESSAGE = WM_USER + 9;
       const os::event_id SELECTION_CANCEL_MESSAGE = WM_USER + 10;
       const os::event_id CONTENT_CHANGED_MESSAGE = WM_USER + 11;
-#endif //WIN32
-#ifdef X11
+#endif //GUIPP_WIN
+#ifdef GUIPP_X11
       extern Atom SCROLLBAR_MESSAGE;
       extern Atom SELECTION_CHANGE_MESSAGE;
       extern Atom SELECTION_COMMIT_MESSAGE;
@@ -65,8 +65,8 @@ namespace gui {
       extern Atom CONTENT_CHANGED_MESSAGE;
 
       int init_control_messages ();
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#endif // GUIPP_X11
+#ifdef GUIPP_QT
       const os::event_id SLIDER_MESSAGE = QEvent::User + 1;
       const os::event_id SELECTION_CHANGE_MESSAGE = QEvent::User + 2;
       const os::event_id SELECTION_COMMIT_MESSAGE = QEvent::User + 3;
@@ -78,7 +78,7 @@ namespace gui {
       const os::event_id SCROLLBAR_MESSAGE = QEvent::User + 9;
       const os::event_id SELECTION_CANCEL_MESSAGE = QEvent::User + 10;
       const os::event_id CONTENT_CHANGED_MESSAGE = QEvent::User + 11;
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
     } // detail
 
     // --------------------------------------------------------------------------
@@ -125,7 +125,7 @@ namespace gui {
       selected
     };
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
   } // namespace ctrl
 
   namespace win {
@@ -174,12 +174,12 @@ namespace gui {
 
     using content_changed_event = core::event_handler<detail::CONTENT_CHANGED_MESSAGE>;
 
-#endif //WIN32
+#endif //GUIPP_WIN
 
     // --------------------------------------------------------------------------
     using paint_function = std::function<void(draw::graphics)>;
 
-#ifdef X11
+#ifdef GUIPP_X11
     // --------------------------------------------------------------------------
 
     using selection_changed_event = core::event_handler<ClientMessage, 0,
@@ -212,9 +212,9 @@ namespace gui {
                                                       0,
                                                       win::event::functor<win::client_message_matcher<detail::CONTENT_CHANGED_MESSAGE>>>;
 
-#endif // X11
+#endif // GUIPP_X11
        // --------------------------------------------------------------------------
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
     GUIPP_CTRL_EXPORT event_source get_event_source (const core::event&);
     GUIPP_CTRL_EXPORT bool get_hilite_changed (const core::event&);
 
@@ -230,7 +230,7 @@ namespace gui {
                                                      core::params<bool>::
                                                      getter<get_hilite_changed>>;
 
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
     namespace paint {
 

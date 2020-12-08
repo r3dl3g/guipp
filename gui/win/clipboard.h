@@ -42,9 +42,9 @@ namespace gui {
       clipboard ();
 
       std::string text;
-#ifdef X11
+#ifdef GUIPP_X11
       int filter_id;
-#endif // X11
+#endif // GUIPP_X11
     };
 
   } // win

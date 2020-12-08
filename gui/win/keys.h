@@ -32,17 +32,13 @@
 #include <gui++-win-export.h>
 
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
 # include <gui/win/win32keys.h>
-#endif // WIN32
-
-#ifdef X11
+#elif GUIPP_X11
 # include <gui/win/x11keys.h>
-#endif // X11
-
-#ifdef QT_WIDGETS_LIB
+#elif GUIPP_QT
 # include <gui/win/qtkeys.h>
-#endif // X11
+#endif
 
 namespace gui {
 

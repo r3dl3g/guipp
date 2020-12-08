@@ -21,9 +21,9 @@
 //
 // Common includes
 //
-#ifdef X11
+#ifdef GUIPP_X11
 # include <X11/cursorfont.h>
-#endif // X11
+#endif // GUIPP_X11
 
 // --------------------------------------------------------------------------
 //
@@ -195,10 +195,10 @@ namespace gui {
       }
 
       void slider_base::init () {
-#ifdef X11
+#ifdef GUIPP_X11
         static int initialized = detail::init_control_messages();
         (void)initialized;
-#endif // X11
+#endif // GUIPP_X11
 
         set_accept_focus(true);
 

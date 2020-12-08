@@ -29,7 +29,7 @@ namespace gui {
 
   namespace draw {
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
     template<typename T>
     struct GUIPP_DRAW_EXPORT Use {
       Use (os::graphics g, const T& t)
@@ -55,9 +55,9 @@ namespace gui {
       HGDIOBJ old;
     };
 
-#endif // WIN32
+#endif // GUIPP_WIN
 
-#ifdef X11
+#ifdef GUIPP_X11
     // --------------------------------------------------------------------------
     template<typename T>
     struct GUIPP_DRAW_EXPORT Use {
@@ -88,9 +88,9 @@ namespace gui {
     void Use<font>::set(const font&);
 #endif // USE_XFT
 
-#endif // X11
+#endif // GUIPP_X11
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
     // --------------------------------------------------------------------------
     template<typename T>
     struct GUIPP_DRAW_EXPORT Use {
@@ -119,7 +119,7 @@ namespace gui {
     template<>
     void Use<font>::set(const font&);
 
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
   } // namespace draw
 

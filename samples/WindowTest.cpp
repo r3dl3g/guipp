@@ -326,16 +326,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
           << ", text_button:" << tbtn_size
           << ", paint_event:" << pnt_size;
 
-//#ifdef WIN32
-//  main.on_get_minmax([](const core::size& sz,
-//    const core::point& pos,
-//    core::size& mi, core::size& ma) {
-//    mi = { 300, 200 };
-//    ma = { 880, 660 };
-//    clog::debug() << "Min/Max: " << mi << " < " << ma << " < " << sz;
-//  }));
-//#endif
-
   const core::rectangle r = core::rectangle(50, 50, 1500, 800);
   clog::debug() << "Create Main: " << r;
   main.create(r);
@@ -374,7 +364,7 @@ my_main_window::my_main_window ()
     group_group.layout();
   });
 
-//#ifdef WIN32
+//#ifdef GUIPP_WIN
 //  on_close([&]() {
 //    clog::debug() << "Close!";
 //    destroy();
@@ -400,7 +390,7 @@ my_main_window::my_main_window ()
     clog::debug() << "Main size: " << s;
   });
 
-//#ifdef WIN32
+//#ifdef GUIPP_WIN
 //  ok_button.on_activate([](bool on, win::window* win) {
 //    clog::debug() << "Button " << (on ? "" : "de") << "activate";
 //  });
@@ -532,11 +522,11 @@ my_main_window::my_main_window ()
     clog::debug() << "Window2 hide:";
   });
 
-//#ifdef WIN32
+//#ifdef GUIPP_WIN
 //  ok_button.on_state_changed([](bool state) {
 //    clog::debug() << "Button " << (state ? "hilited" : "unhilited");
 //  });
-//#endif // WIN32
+//#endif // GUIPP_WIN
 
   ok_button.on_pushed([&] () {
     clog::debug() << "Button pushed";

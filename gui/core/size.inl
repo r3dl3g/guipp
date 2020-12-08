@@ -22,14 +22,14 @@
 //
 // Common includes
 //
-#ifdef WIN32
+#ifdef GUIPP_WIN
 # include <windowsx.h>
 #endif
-#ifdef X11
+#ifdef GUIPP_X11
 //# ifdef XLIB
 # include <X11/Xlib.h>
 //# endif
-#endif // X11
+#endif // GUIPP_X11
 
 namespace gui {
 
@@ -107,18 +107,18 @@ namespace gui {
 
     template<typename T>
     inline basic_size<T>::basic_size (const gui::os::rectangle& r)
-#ifdef WIN32
+#ifdef GUIPP_WIN
       : w(global::scale<T>(r.right - r.left))
       , h(global::scale<T>(r.bottom - r.top))
-#elif X11
+#elif GUIPP_X11
       : w(global::scale<T>(r.width))
       , h(global::scale<T>(r.height))
-#elif QT_WIDGETS_LIB
+#elif GUIPP_QT
       : w(global::scale<T>(r.width()))
       , h(global::scale<T>(r.height()))
 #else
 # error Unknown target system: basic_size<T>::basic_size (const gui::os::rectangle& r)
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
     {}
 
     template<typename T>

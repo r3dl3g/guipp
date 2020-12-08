@@ -22,9 +22,9 @@
 //
 // Common includes
 //
-#ifdef X11
+#ifdef GUIPP_X11
 # include <map>
-#endif // X11
+#endif // GUIPP_X11
 #include <thread>
 
 // --------------------------------------------------------------------------
@@ -41,15 +41,15 @@ namespace gui {
 
     class window;
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
     namespace win32 {
 
       GUIPP_WIN_EXPORT LRESULT CALLBACK WindowEventProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
     } // namespace win32
-#endif // WIN32
+#endif // GUIPP_WIN
 
-#ifdef X11
+#ifdef GUIPP_X11
     namespace x11 {
 
       GUIPP_WIN_EXPORT XIC get_window_ic (os::window);
@@ -57,7 +57,7 @@ namespace gui {
       GUIPP_WIN_EXPORT void validate_window (os::window id);
 
     } // namespace x11
-#endif // X11
+#endif // GUIPP_X11
 
     namespace detail {
 

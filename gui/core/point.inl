@@ -87,18 +87,18 @@ namespace gui {
 
     template<typename T>
     inline basic_point<T>::basic_point (const gui::os::rectangle& r)
-#ifdef WIN32
+#ifdef GUIPP_WIN
       : x_(global::scale<T>(r.left))
       , y_(global::scale<T>(r.top))
-#elif X11
+#elif GUIPP_X11
       : x_(global::scale<T>(r.x))
       , y_(global::scale<T>(r.y))
-#elif QT_WIDGETS_LIB
+#elif GUIPP_QT
       : x_(global::scale<T>(r.x()))
       , y_(global::scale<T>(r.y()))
 #else
 #error Unknown target system: basic_point<T>::basic_point (const gui::os::rectangle& r)
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
     {}
 
     template<typename T>

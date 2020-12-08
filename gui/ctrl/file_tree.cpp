@@ -20,9 +20,9 @@
 //
 // Common includes
 //
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 # include <QtCore/QDir>
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 #include <iterator>
 
 // --------------------------------------------------------------------------
@@ -116,9 +116,9 @@ namespace gui {
 
     std::vector<sys_fs::path> get_all_root_paths () {
       std::vector<sys_fs::path> roots;
-#ifdef X11
+#ifdef GUIPP_X11
       roots.emplace_back(sys_fs::path("/"));
-#elif WIN32
+#elif GUIPP_WIN
       DWORD available = GetLogicalDrives();
       char drive[] = " :\\";
       for (int bit = 0; bit < 26; ++bit) {
@@ -128,14 +128,14 @@ namespace gui {
           roots.emplace_back(sys_fs::path(drive));
         }
       }
-#elif QT_WIDGETS_LIB
+#elif GUIPP_QT
       QFileInfoList drvs = QDir::drives();
       for (auto drv : drvs) {
         roots.emplace_back(drv.absolutePath().toStdString());
       }
 #else
 #error Undefined system: std::vector<sys_fs::path> get_all_root_paths()
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
       return roots;
     }
 

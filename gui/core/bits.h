@@ -31,19 +31,19 @@
 // Library includes
 //
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
 # define IF_WIN32_ELSE(A, B) A
 # define IF_X11_ELSE(A, B) B
 # define IF_QT_ELSE(A, B) B
 # define IF_COCOA_ELSE(A, B) B
 # define IF_WIN32_X11_QT_ELSE(A, B, C, D) A
-#elif defined(X11)
+#elif defined(GUIPP_X11)
 # define IF_WIN32_ELSE(A, B) B
 # define IF_X11_ELSE(A, B) A
 # define IF_QT_ELSE(A, B) B
 # define IF_COCOA_ELSE(A, B) B
 # define IF_WIN32_X11_QT_ELSE(A, B, C, D) B
-#elif defined(QT_WIDGETS_LIB)
+#elif defined(GUIPP_QT)
 # define IF_WIN32_ELSE(A, B) B
 # define IF_X11_ELSE(A, B) B
 # define IF_QT_ELSE(A, B) A
@@ -232,7 +232,7 @@ namespace gui {
       }
 
       inline T operator= (T b) {
-#ifdef WIN32
+#ifdef GUIPP_WIN
         set_bit(value, bit, static_cast<byte>(b) != 0);
 #else
         set_bit(value, bit, static_cast<bool>(b));

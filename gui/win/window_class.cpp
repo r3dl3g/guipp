@@ -31,18 +31,18 @@ namespace gui {
     class window;
 
     std::string getLastErrorText () {
-#ifdef WIN32
+#ifdef GUIPP_WIN
       LPTSTR lpMsgBuf;
       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                     nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, nullptr);
       return lpMsgBuf;
-#elif X11
+#elif GUIPP_X11
       return std::string();
-#elif QT_WIDGETS_LIB
+#elif GUIPP_QT
       return qt_error_string().toStdString();
 #else
 # error Undefined system: std::string getLastErrorText ()
-#endif // X11
+#endif
     }
 
     class_info::class_info ()

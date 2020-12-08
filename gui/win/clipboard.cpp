@@ -16,10 +16,10 @@
  * @file
  */
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 #include <QtGui/QClipboard>
 #include <QtGui/QGuiApplication>
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 // --------------------------------------------------------------------------
 //
 // Library includes
@@ -37,7 +37,7 @@ namespace gui {
       return c;
     }
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
 
     clipboard::clipboard ()
     {}
@@ -79,9 +79,9 @@ namespace gui {
       }
     }
 
-#endif // WIN32
+#endif // GUIPP_WIN
 
-#ifdef X11
+#ifdef GUIPP_X11
 
     namespace detail {
 
@@ -181,9 +181,9 @@ namespace gui {
                         detail::get_window_id(win), CurrentTime);
     }
 
-#endif // X11
+#endif // GUIPP_X11
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 
     clipboard::clipboard ()
     {}
@@ -196,7 +196,7 @@ namespace gui {
       cb(QGuiApplication::clipboard()->text().toStdString());
     }
 
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
   } // win
 

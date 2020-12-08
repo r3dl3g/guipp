@@ -16,9 +16,9 @@
  * @file
  */
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 #include <QtGui/QPainter>
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
 
 // --------------------------------------------------------------------------
@@ -34,7 +34,7 @@ namespace gui {
 
   namespace draw {
 
-#ifdef X11
+#ifdef GUIPP_X11
     using namespace core::global;
 
     // --------------------------------------------------------------------------
@@ -80,9 +80,9 @@ namespace gui {
     }
 #endif // USE_XFT
 
-#endif // X11
+#endif // GUIPP_X11
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
     // --------------------------------------------------------------------------
     template<>
     void Use<pen>::set (const pen& p) {
@@ -99,7 +99,7 @@ namespace gui {
       g->setFont(QFont(QString::fromStdString(f.name()), f.size(), f.thickness(), f.italic()));
     }
 
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
   } // namespace draw
 

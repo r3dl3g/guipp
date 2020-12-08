@@ -18,9 +18,9 @@
 #include <fstream>
 #include <string.h>
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 #include <QtWidgets/qapplication.h>
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
  // --------------------------------------------------------------------------
 //
@@ -37,7 +37,7 @@
 #include <gui++-export.h>
 
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
 int APIENTRY WinMain (_In_ HINSTANCE hInstance,
                       _In_opt_ HINSTANCE hPrevInstance,
                       _In_ LPTSTR lpCmdLine,
@@ -54,14 +54,14 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
 
   std::vector<std::string> args = util::string::split<' '>(lpCmdLine);
   gui::core::global::init(hInstance);
-#endif // WIN32
+#endif // GUIPP_WIN
 
-#if defined(X11) || defined(QT_WIDGETS_LIB)
+#if defined(GUIPP_X11) || defined(GUIPP_QT)
 int main (int argc, char* argv[]) {
   std::vector<std::string> args(argv, argv + argc);
-#endif // X11 || QT_WIDGETS_LIB
+#endif // GUIPP_X11 || GUIPP_QT
 
-#ifdef X11
+#ifdef GUIPP_X11
   const char* display = NULL;
 
   for (int i = 0; i < argc; ++i) {
@@ -77,11 +77,11 @@ int main (int argc, char* argv[]) {
   }
 
   gui::core::global::init(XOpenDisplay(display));
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#endif // GUIPP_X11
+#ifdef GUIPP_QT
   QApplication qapplication(argc, argv);
   gui::core::global::init(&qapplication);
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
   int ret = 0;
   try {

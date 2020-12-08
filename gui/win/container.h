@@ -23,16 +23,14 @@
 // Library includes
 //
 #include <gui/win/window.h>
-#ifdef WIN32
+#ifdef GUIPP_WIN
 # include <gui/win/win32_container_class.h>
-#endif // WIN32
-#ifdef X11
+#elif GUIPP_X11
 # include <gui/win/x11_container_class.h>
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#elif GUIPP_QT
 # include <gui/win/qt_container_class.h>
 # include <QtCore/QEventLoop>
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
 
 namespace gui {
@@ -124,9 +122,9 @@ namespace gui {
       void init ();
 
       volatile bool is_modal;
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
       QEventLoop event_loop;
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
     };
 
     // --------------------------------------------------------------------------

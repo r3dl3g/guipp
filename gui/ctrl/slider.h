@@ -30,19 +30,19 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-#ifdef WIN32
+#ifdef GUIPP_WIN
     using slider_event = core::event_handler<detail::SLIDER_MESSAGE, 0,
                                        core::params<int>::getter<win::get_param<0, int> > >;
-#elif X11
+#elif GUIPP_X11
     using slider_event = core::event_handler<ClientMessage, 0,
                                        core::params<int>::getter<win::get_client_data<0, int> >,
                                        0, win::event::functor<win::client_message_matcher<detail::SLIDER_MESSAGE>>>;
-#elif QT_WIDGETS_LIB
+#elif GUIPP_QT
     using slider_event = core::event_handler<detail::SLIDER_MESSAGE, 0,
                                        core::params<long>::getter<win::get_param<0>>>;
 #else
 # error Undefined system: slider_event
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
        // --------------------------------------------------------------------------
 
     namespace detail {

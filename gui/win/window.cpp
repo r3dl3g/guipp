@@ -25,9 +25,9 @@
 #include <map>
 #include <set>
 
-#ifdef X11
+#ifdef GUIPP_X11
 # include <X11/cursorfont.h>
-#endif // X11
+#endif // GUIPP_X11
 
 // --------------------------------------------------------------------------
 //
@@ -47,7 +47,7 @@ namespace gui {
 
   namespace win {
 
-#ifdef X11
+#ifdef GUIPP_X11
 
     namespace x11 {
 
@@ -91,7 +91,7 @@ namespace gui {
 
     } // namespace x11
 
-#endif // X11
+#endif // GUIPP_X11
 
     struct log_hierarchy {
       log_hierarchy (window* win)
@@ -132,11 +132,11 @@ namespace gui {
         container* parent = rhs.get_parent();
         create_internal(rhs.get_window_class(),
                         parent ? detail::get_window_id(*parent) :
-#ifdef WIN32
+#ifdef GUIPP_WIN
                                  NULL
-#elif X11
+#elif GUIPP_X11
                                  DefaultRootWindow(core::global::get_instance())
-#elif QT_WIDGETS_LIB
+#elif GUIPP_QT
                                  NULL
 #endif
                         , rhs.place());
@@ -168,16 +168,16 @@ namespace gui {
       }
 
       id = create_window(type, r, parent_id, this);
-#if defined(X11)
+#if defined(GUIPP_X11)
       send_client_message(this, core::x11::WM_CREATE_WINDOW);
-#endif // X11
-#if defined(QT_WIDGETS_LIB)
+#endif // GUIPP_X11
+#if defined(GUIPP_QT)
       send_client_message(this, core::qt::WM_CREATE_WINDOW);
-#endif // X11
+#endif // GUIPP_X11
     }
 
     window::operator os::drawable() const {
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
       return id;
 #else
       return get_id();
@@ -196,9 +196,9 @@ namespace gui {
 
     void window::register_event_handler (event_handler_function&& f, os::event_id mask) {
       events.register_event_handler(std::move(f));
-#ifdef X11
+#ifdef GUIPP_X11
       x11::prepare_win_for_event(this, mask);
-#endif // X11
+#endif // GUIPP_X11
     }
 
     container* window::get_root_window () const {
@@ -387,7 +387,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
 
     struct disable_wheel_hook {
       disable_wheel_hook ()
@@ -720,9 +720,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 
-#endif // WIN32    
+#endif // GUIPP_WIN    
 
-#ifdef X11
+#ifdef GUIPP_X11
     namespace hidden {
       std::map<os::window, std::string> window_class_map;
     }
@@ -1186,9 +1186,9 @@ namespace gui {
       handle_event(event, result);
     }
 
-#endif // X11
+#endif // GUIPP_X11
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
     // --------------------------------------------------------------------------
     namespace hidden {
       std::map<os::window, std::string> window_class_map;
@@ -1436,7 +1436,7 @@ namespace gui {
       return hidden::window_class_map[get_id()];
     }
 
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
 #ifdef COCOA
 
@@ -1531,7 +1531,7 @@ namespace gui {
 
   } // win
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 
   namespace os {
 
@@ -1574,6 +1574,6 @@ namespace gui {
 
   } // os
 
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
 } // gui

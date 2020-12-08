@@ -24,16 +24,14 @@
 #include <algorithm>
 #include <set>
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
 # include <windowsx.h>
-#endif // WIN32
-#ifdef X11
+#elif GUIPP_X11
 # include <unistd.h>
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#elif GUIPP_QT
 # include <QtWidgets/QApplication>
 # include <QtCore/QEventLoop>
-#endif // QT_WIDGETS_LIB
+#endif
 
 // --------------------------------------------------------------------------
 //
@@ -59,7 +57,7 @@ namespace util {
 #elif WIN32
     using thread_id = jugger<_Thrd_id_t, std::thread::id>;
     template struct robber<thread_id, &std::thread::id::_Id>;
-#endif // WIN32
+#endif // GUIPP_WIN
 
     thread_id::type get_native_thread_id (std::thread::id& t) {
       return t.*rob(thread_id());
@@ -87,7 +85,7 @@ namespace gui {
 
     } // namespace detail
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
     namespace detail {
 
       const os::event_id ACTION_MESSAGE = WM_USER + 0x101;
@@ -163,8 +161,7 @@ namespace gui {
 
     } // namespace win32
 
-#endif // WIN32
-#ifdef X11
+#elif GUIPP_X11
 
     namespace x11 {
 
@@ -279,9 +276,7 @@ namespace gui {
 
     } // namespace detail
 
-#endif // X11
-
-#ifdef QT_WIDGETS_LIB
+#elif GUIPP_QT
 
     namespace detail {
 
@@ -295,7 +290,7 @@ namespace gui {
 
     } // namespace detail
 
-#endif // QT_WIDGETS_LIB
+#endif
 
 
     // --------------------------------------------------------------------------
@@ -318,7 +313,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void register_hot_key (const hot_key& hk, const hot_key::call& fn, window* win) {
-#ifdef WIN32
+#ifdef GUIPP_WIN
         UINT modifiers = MOD_NOREPEAT;
         if (control_key_bit_mask::is_set(hk.get_modifiers())) {
           modifiers |= MOD_CONTROL;
@@ -334,18 +329,16 @@ namespace gui {
         }
         os::window root = win ? detail::get_window_id(*win) : NULL;
         RegisterHotKey(root, hk.get_key(), modifiers, hk.get_key());
-#endif // WIN32
-#ifdef X11
+#elif GUIPP_X11
         auto dpy = core::global::get_instance();
         os::window root = win ? detail::get_window_id(*win) : DefaultRootWindow(dpy);
         XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root, False, GrabModeAsync, GrabModeAsync);
         if (win && win->is_valid()) {
           x11::prepare_win_for_event(win, KeyPressMask);
         }
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#elif GUIPP_QT
         os::window root = win ? detail::get_window_id(*win) : (os::window)QApplication::desktop();
-#endif // QT_WIDGETS_LIB
+#endif
         detail::hot_keys.emplace(hk, std::make_pair(root, fn));
       }
 
@@ -357,13 +350,13 @@ namespace gui {
 
         os::window root = i->second.first;
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
         UnregisterHotKey(root, hk.get_key());
-#endif // WIN32
-#ifdef X11
+#endif // GUIPP_WIN
+#ifdef GUIPP_X11
         auto dpy = core::global::get_instance();
         XUngrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root);
-#endif // X11
+#endif // GUIPP_X11
 
         detail::hot_keys.erase(i);
       }
@@ -384,7 +377,7 @@ namespace gui {
         }
       }
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
       window* get_current_focus_window () {
         return detail::get_window(GetFocus());
       }
@@ -411,9 +404,9 @@ namespace gui {
 
       void unregister_utf8_window (const window&) {}
 
-#endif // WIN32
+#endif // GUIPP_WIN
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 
       window* get_current_focus_window () {
         return detail::get_window(static_cast<os::window>(QApplication::focusWidget()));
@@ -431,13 +424,13 @@ namespace gui {
 
       void unregister_utf8_window (const window&) {}
 
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
       std::thread::id get_current_thread_id () {
         return std::this_thread::get_id();
       }
 
-#ifdef X11
+#ifdef GUIPP_X11
       window* get_current_focus_window () {
         Window focus = 0;
         int revert_to = 0;
@@ -508,7 +501,7 @@ namespace gui {
         }
       }
 
-#endif // X11
+#endif // GUIPP_X11
 
     } // global
 
@@ -525,15 +518,13 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     bool check_hot_key (const core::event& e) {
-#ifdef WIN32
+#ifdef GUIPP_WIN
       if (e.type == WM_HOTKEY) {
-#endif // WIN32
-#ifdef X11
+#elif GUIPP_X11
       if (e.type == KeyPress) {
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#elif GUIPP_QT
       if (e.type() == QEvent::KeyPress) {
-#endif // QT_WIDGETS_LIB
+#endif
         hot_key hk(get_key_symbol(e), get_key_state(e));
         auto i = detail::hot_keys.find(hk);
         if (i != detail::hot_keys.end()) {
@@ -545,7 +536,7 @@ namespace gui {
       return false;
     }
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
     bool is_button_event_outside (const window& w, const core::event& e) {
       switch (e.type) {
       case WM_LBUTTONDOWN:
@@ -567,8 +558,7 @@ namespace gui {
       return false;
     }
 
-#endif // WIN32
-#ifdef X11
+#elif GUIPP_X11
     bool is_button_event_outside (const window& w, const core::event& e) {
       switch (e.type) {
       case ButtonPress:
@@ -615,9 +605,7 @@ namespace gui {
       return (e.type == Expose);// || (e.type == GraphicsExpose);// || (e.type == NoExpose);
     }
 
-#endif // X11
-
-#ifdef QT_WIDGETS_LIB
+#elif GUIPP_QT
 
     bool is_button_event_outside (const window& w, const core::event& e) {
       switch (e.type()) {
@@ -630,14 +618,14 @@ namespace gui {
       return false;
     }
 
-#endif // QT_WIDGETS_LIB
+#endif
 
     // --------------------------------------------------------------------------
     int run_loop (volatile bool& running, detail::filter_call filter) {
 
       running = true;
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
       MSG msg;
       while (running && GetMessage(&msg, nullptr, 0, 0)) {
 
@@ -659,9 +647,7 @@ namespace gui {
         DispatchMessage(&msg);
       }
       return (int)msg.wParam;
-#endif // WIN32
-
-#ifdef X11
+#elif GUIPP_X11
       gui::os::instance display = core::global::get_instance();
       gui::os::event_result resultValue = 0;
 
@@ -727,11 +713,10 @@ namespace gui {
 
       }
       return resultValue;
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#elif GUIPP_QT
       QEventLoop event_loop;
-      event_loop.exec(QEventLoop::AllEvents);
-#endif // QT_WIDGETS_LIB
+      return event_loop.exec(QEventLoop::AllEvents);
+#endif // GUIPP_QT
     }
 
     namespace {
@@ -741,26 +726,26 @@ namespace gui {
     int run_main_loop () {
       main_loop_is_running = true;
       detail::main_thread_id = global::get_current_thread_id();
-#ifdef QT_WIDGETS_LIB
-      gui::core::global::get_instance()->exec();
+#ifdef GUIPP_QT
+      return gui::core::global::get_instance()->exec();
 #else
       return run_loop(main_loop_is_running, [] (const core::event & e) {
         return detail::check_expose(e) || check_message_filter(e) || check_hot_key(e);
       });
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
     }
 
     void quit_main_loop () {
       clog::debug() << "Received quit_main_loop()";
       main_loop_is_running = false;
       core::global::fini();
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
       gui::core::global::get_instance()->exit();
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
     }
 
     void run_on_main (std::function<void()> action) {
-#ifdef X11
+#ifdef GUIPP_X11
       x11::queued_actions.enqueue(action);
 //      auto* win = global::get_application_main_window();
 //      XEvent event;
@@ -773,13 +758,13 @@ namespace gui {
 //      client.message_type = 0;
 //      client.format = 0;
 //      XSendEvent(client.display, client.window, True, 0, &event);
-#endif // X11
-#ifdef WIN32
+#endif // GUIPP_X11
+#ifdef GUIPP_WIN
       PostThreadMessage(util::robbery::get_native_thread_id(detail::main_thread_id),
                         detail::ACTION_MESSAGE,
                         0,
                         (ULONG_PTR)new std::function<void()>(action));
-#endif // WIN32
+#endif // GUIPP_WIN
     }
   }   // win
 } // gui

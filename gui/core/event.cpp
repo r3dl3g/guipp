@@ -36,7 +36,7 @@ namespace gui {
 
   namespace core {
 
-#ifdef X11
+#ifdef GUIPP_X11
     Atom WM_LAYOUT_WINDOW = 0;
 
     namespace x11 {
@@ -64,7 +64,7 @@ namespace gui {
       }
     } // namespace x11
 
-#endif // X11
+#endif // GUIPP_X11
 
   } // namespace core
 
@@ -87,7 +87,7 @@ namespace std {
 
     message_map_t& get_message_map () {
       static message_map_t message_map = {
-#ifdef WIN32
+#ifdef GUIPP_WIN
 
         DEFINE_MESSAGE(WM_CREATE),
         DEFINE_MESSAGE(WM_DESTROY),
@@ -491,9 +491,9 @@ namespace std {
 # if defined(_WIN32_WCE) && (_WIN32_WCE >= 0x0400)
         , DEFINE_MESSAGE(LB_MULTIPLEADDSTRING)
 # endif
-#endif // WIN32
+#endif // GUIPP_WIN
 
-#ifdef X11
+#ifdef GUIPP_X11
         DEFINE_MESSAGE(KeyPress),
         DEFINE_MESSAGE(KeyRelease),
         DEFINE_MESSAGE(ButtonPress),
@@ -528,9 +528,9 @@ namespace std {
         DEFINE_MESSAGE(ClientMessage),
         DEFINE_MESSAGE(MappingNotify),
         DEFINE_MESSAGE(GenericEvent)
-#endif // X11
+#endif // GUIPP_X11
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
         DEFINE_MESSAGE(QEvent::None),
         DEFINE_MESSAGE(QEvent::Timer),
         DEFINE_MESSAGE(QEvent::MouseButtonPress),
@@ -709,7 +709,7 @@ namespace std {
         DEFINE_MESSAGE(QEvent::PlatformSurface),
         DEFINE_MESSAGE(QEvent::Pointer),
         DEFINE_MESSAGE(QEvent::TabletTrackingChange)
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
       };
       return message_map;
@@ -718,7 +718,7 @@ namespace std {
     } // detail
 
 
-#ifdef X11
+#ifdef GUIPP_X11
 
   template<typename T>
   inline streamfkt position (const T& t) {
@@ -860,9 +860,9 @@ namespace std {
     }
     return out;
   }
-#endif // X11
+#endif // GUIPP_X11
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
   std::ostream& operator<< (std::ostream& out, const gui::core::event& e) {
     const char* msg = detail::get_message_map()[e.type];
     if (msg) {
@@ -877,9 +877,9 @@ namespace std {
     out << " window: " << e.id;
     return out;
   }
-#endif // WIN32
+#endif // GUIPP_WIN
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
   std::ostream& operator<< (std::ostream& out, const gui::core::event& e) {
     const char* msg = detail::get_message_map()[e.type()];
     if (msg) {
@@ -889,6 +889,6 @@ namespace std {
     }
     return out;
   }
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
 }

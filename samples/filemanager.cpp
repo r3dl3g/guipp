@@ -77,10 +77,9 @@ int gui_main(const std::vector<std::string>& /*args*/) {
       if (sys_fs::is_regular_file(path)) {
 #ifdef WIN32
         std::string path_str = util::string::utf16_to_utf8(path.c_str());
-#endif // WIN32
-#if defined(X11) || defined(QT_WIDGETS_LIB)
+#elif X11
         std::string path_str = path.c_str();
-#endif // X11
+#endif // GUIPP_X11
 
         clog::debug() << "exec return:" << std::system(path_str.c_str());
       }

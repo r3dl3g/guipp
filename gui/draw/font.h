@@ -106,15 +106,15 @@ namespace gui {
     private:
       void destroy ();
 
-#ifdef X11
+#ifdef GUIPP_X11
 # ifndef USE_XFT
       std::string get_full_name() const;
 # endif // USE_XFT
-#endif // X11
+#endif // GUIPP_X11
 
-#if defined(WIN32) || defined(QT_WIDGETS_LIB)
+#if defined(GUIPP_WIN) || defined(GUIPP_QT)
       os::font id;
-#endif // WIN32
+#endif // GUIPP_WIN
       os::font_type info;
     };
 

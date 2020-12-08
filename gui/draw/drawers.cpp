@@ -23,10 +23,10 @@
 #include <memory.h>
 #include <array>
 #include <functional>
-#ifdef X11
+#ifdef GUIPP_X11
 # include <cmath>
 # include <algorithm>
-#endif // X11
+#endif // GUIPP_X11
 
 // --------------------------------------------------------------------------
 //
@@ -34,9 +34,9 @@
 //
 #include <logging/logger.h>
 #include <util/ostreamfmt.h>
-#ifdef WIN32
+#ifdef GUIPP_WIN
 # include <util/string_util.h>
-#endif // WIN32
+#endif // GUIPP_WIN
 
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
@@ -48,7 +48,7 @@ namespace gui {
 
   namespace draw {
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
     brush null_brush((os::brush)GetStockObject(NULL_BRUSH));
     pen null_pen((os::pen)GetStockObject(NULL_PEN));
 
@@ -474,9 +474,9 @@ namespace gui {
       SetTextColor(g, old_color);
     }
 
-#endif // WIN32
+#endif // GUIPP_WIN
 
-#ifdef X11
+#ifdef GUIPP_X11
     using namespace core::global;
 
 #ifdef USE_XFT
@@ -1135,9 +1135,9 @@ namespace gui {
 #endif // USE_XFT
     }
 
-#endif // X11
+#endif // GUIPP_X11
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 
 #define SIMPLE_MODE
     brush null_brush(color::black, brush::invisible);
@@ -1409,7 +1409,7 @@ namespace gui {
 
       g.os()->drawText(px, py, QString::fromStdString(str));
     }
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
     // --------------------------------------------------------------------------
     polyline::polyline (const std::vector<core::point>& pts) {

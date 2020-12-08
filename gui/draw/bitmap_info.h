@@ -51,12 +51,12 @@ namespace gui {
 
       bool operator== (const bitmap_info&) const;
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 
       static pixel_format_t convert (QImage::Format f);
       static QImage::Format convert (pixel_format_t f);
 
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
     };
 

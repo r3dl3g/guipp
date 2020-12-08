@@ -60,7 +60,7 @@ namespace gui {
 
       void write_pixel (std::ostream& out, const pixel::mono pixel) {
         static const char values[] = {'0', '1'};
-#ifdef WIN32
+#ifdef GUIPP_WIN
         out << (values[static_cast<byte>(pixel)]);
 #else
         out << (values[static_cast<bool>(pixel)]);

@@ -45,11 +45,11 @@ namespace gui {
 
   namespace ctrl {
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
     bool get_button_state (const core::event& e) {
       return e.cast<win::QClientEvent>().l1() != 0;
     }
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
     namespace detail {
 

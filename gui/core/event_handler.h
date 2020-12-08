@@ -152,15 +152,15 @@ namespace gui {
 
       bool operator() (const event& e, gui::os::event_result& result) {
         if (matcher(e) && caller) {
-#ifdef WIN32
+#ifdef GUIPP_WIN
         if (e.type != WM_MOUSEMOVE) {
-#endif // WIN32
-#ifdef X11
+#endif // GUIPP_WIN
+#ifdef GUIPP_X11
         if (e.type != MotionNotify) {
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#endif // GUIPP_X11
+#ifdef GUIPP_QT
         if (e.type() != QEvent::Type::MouseMove) {
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
             clog::trace() << "Call " << e;
           }
           caller(e);

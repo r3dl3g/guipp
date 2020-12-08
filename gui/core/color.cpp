@@ -54,15 +54,15 @@ namespace gui {
       }
     }
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
 
     os::color get_sys_color (int c) {
       return GetSysColor(c);
     }
 
-#endif // WIN32
+#endif // GUIPP_WIN
 
-#if defined(X11) || defined(COCOA) || defined(QT_WIDGETS_LIB)
+#if defined(GUIPP_X11) || defined(COCOA) || defined(GUIPP_QT) && !defined(GUIPP_WIN)
 
     enum SystemColor {
       COLOR_SCROLLBAR,
@@ -111,7 +111,7 @@ namespace gui {
       return black;
     }
 
-#endif // X11
+#endif // GUIPP_X11
 
     DEFINE_SYS_COLOR(scrollBarColor, COLOR_SCROLLBAR)
     DEFINE_SYS_COLOR(menuColor, COLOR_MENU)

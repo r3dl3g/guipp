@@ -34,7 +34,7 @@ namespace gui {
   namespace win {
 
     bool is_frequent_event (const core::event& e) {
-#ifdef WIN32
+#ifdef GUIPP_WIN
       switch (e.type) {
         case WM_MOUSEMOVE:
         case WM_NCMOUSEMOVE:
@@ -50,7 +50,7 @@ namespace gui {
         case WM_ENTERIDLE:
         case WM_CANCELMODE:
         case 0x0118:      // WM_SYSTIMER (caret blink)
-#elif X11
+#elif GUIPP_X11
       switch (e.type) {
         case ConfigureNotify:
         case MotionNotify:
@@ -58,7 +58,7 @@ namespace gui {
         case LeaveNotify:
         case Expose:
         case NoExpose:
-#elif QT_WIDGETS_LIB
+#elif GUIPP_QT
       switch (e.type()) {
         case QEvent::Type::MouseMove:
 #endif
@@ -69,7 +69,7 @@ namespace gui {
     }
 
     bool is_none_client_event (const core::event& e) {
-#ifdef WIN32
+#ifdef GUIPP_WIN
       os::event_id id = e.type;
       return ((id >= WM_NCCREATE) && (id <= WM_NCACTIVATE)) ||
              ((id >= WM_NCMOUSEMOVE) && (id <= WM_NCMBUTTONDBLCLK)) ||

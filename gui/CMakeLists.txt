@@ -49,7 +49,10 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     find_package(Qt5Widgets REQUIRED)
 
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${Qt5Widgets_LIBRARIES})
-    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} ${Qt5Widgets_DEFINITIONS} -lstdc++fs -fPIC)
+    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_QT ${Qt5Widgets_DEFINITIONS})
+	if (UNIX)
+      set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -lstdc++fs -fPIC)
+	endif()
     set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
     # /usr/local/src/qt-everywhere-opensource-src-5.9.5/qtbase/include
 
@@ -72,7 +75,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
         message(SEND_ERROR "Xdmcp library is required!")
       endif()
       set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${X11_LIBRARIES} ${X11_Xdmcp_LIB})
-      set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DX11 -lstdc++fs)
+      set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_X11 -lstdc++fs)
       set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS})
 
       if (X11_Xrender_FOUND)
@@ -111,6 +114,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
   elseif (WIN32)
     message(STATUS "GUIPP: build for Win32!")
+        set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_WIN)
     set (GUIPP_SYS_LIBRARIES Shcore)
   endif ()
 

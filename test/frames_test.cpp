@@ -161,7 +161,7 @@ void test_white_frame_x3 () {
 // --------------------------------------------------------------------------
 void test_dots_frame () {
   tester<frame::dots>(1.0F, 7, {1, 1}, {5, 5}, CM({
-#ifdef WIN32
+#ifdef GUIPP_WIN
     {W,W,W,W,W,W,W},
     {W,_,W,_,W,_,W},
     {W,W,W,W,W,W,W},
@@ -177,7 +177,7 @@ void test_dots_frame () {
     {W,_,W,W,W,W,W},
     {W,W,_,W,_,W,W},
     {W,W,W,W,W,W,W}
-#endif // WIN32
+#endif // GUIPP_WIN
   }));
 }
 
@@ -185,7 +185,7 @@ void test_dots_frame () {
 // --------------------------------------------------------------------------
 void test_dots_frame_x2 () {
   tester<frame::dots>(2.0F, 14, {1, 1}, {5, 5}, CM({
-#ifdef WIN32
+#ifdef GUIPP_WIN
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,_,_,W,W,_,_,W,W,_,_,W,W},
@@ -215,7 +215,7 @@ void test_dots_frame_x2 () {
     {W,W,W,W,_,W,_,W,_,W,_,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W}
-#endif // WIN32
+#endif // GUIPP_WIN
   }));
 }
 
@@ -223,7 +223,7 @@ void test_dots_frame_x2 () {
 // --------------------------------------------------------------------------
 void test_dots_frame_x3 () {
   tester<frame::dots>(3.0F, 21, {1, 1}, {5, 5}, CM({
-#ifdef WIN32
+#ifdef GUIPP_WIN
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
@@ -267,7 +267,7 @@ void test_dots_frame_x3 () {
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-#endif // WIN32
+#endif // GUIPP_WIN
   }));
 }
 

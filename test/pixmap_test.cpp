@@ -227,18 +227,16 @@ void test_pixmap () {
 
 // --------------------------------------------------------------------------
 void test_pixmap_draw () {
-#ifdef X11
+#ifdef GUIPP_X11
 # define EMPTY "000000ff"
 # define BLUE  "ff0000ff"
-#endif // X11
-#ifdef WIN32
+#elif GUIPP_WIN
 # define EMPTY "00000000"
 # define BLUE  "ff000000"
-#endif // WIN32
-#ifdef QT_WIDGETS_LIB
+#elif GUIPP_QT
 # define EMPTY "000000ff"
 # define BLUE  "ff0000ff"
-#endif // QT_WIDGETS_LIB
+#endif
 
   const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
 
@@ -265,13 +263,12 @@ void test_pixmap_draw () {
   EXPECT_EQUAL(img.pixel_format(), expected_pixelformat);
   EXPECT_EQUAL(img.get_info(), bitmap_info(6, 6, expected_pixelformat));
 
-#ifdef X11
+#ifdef GUIPP_X11
   XImage* xim = XGetImage(core::global::get_instance(), img.get_id(), 0, 0, 6, 6, AllPlanes, ZPixmap);
   const int height = xim->height;
   const int bytes_per_line = xim->bytes_per_line;
   const auto data = xim->data;
-#endif // X11
-#ifdef WIN32
+#elif GUIPP_WIN
   BITMAP bmi;
   GetObject(img.get_id(), sizeof (BITMAP), &bmi);
   blob data;
@@ -279,13 +276,12 @@ void test_pixmap_draw () {
   GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
   const int height = bmi.bmHeight;
   const int bytes_per_line = bmi.bmWidthBytes;
-#endif // WIN32
-#ifdef QT_WIDGETS_LIB
+#elif GUIPP_QT
   auto pic = img.get_id().toImage();
   auto data = pic.constBits();
   const int height = pic.height();
   const int bytes_per_line = pic.bytesPerLine();
-#endif // QT_WIDGETS_LIB
+#endif
 
   std::ostringstream buffer;
   for (int y = 0; y < height; ++y) {
@@ -302,9 +298,9 @@ void test_pixmap_draw () {
       }
     }
   }
-#ifdef X11
+#ifdef GUIPP_X11
   XDestroyImage(xim);
-#endif // X11
+#endif // GUIPP_X11
 
   EXPECT_EQUAL(buffer.str(), EMPTY " " EMPTY " " EMPTY " " EMPTY " " EMPTY " " EMPTY "\n"
                              EMPTY " " EMPTY " " EMPTY " " EMPTY " " EMPTY " " EMPTY "\n"
@@ -396,11 +392,10 @@ void test_pixmap2bitmap () {
     EXPECT_EQUAL(g.get_pixel({1, 1}), color::black);
   }
 
-#ifdef X11
+#ifdef GUIPP_X11
   XImage* xim = XGetImage(core::global::get_instance(), img.get_id(), 0, 0, 2, 2, AllPlanes, ZPixmap);
   auto data = xim->data;
-#endif // X11
-#ifdef WIN32
+#elif GUIPP_WIN
   BITMAP bmi;
   GetObject(img.get_id(), sizeof (BITMAP), &bmi);
   blob data;
@@ -409,19 +404,18 @@ void test_pixmap2bitmap () {
   if (result != data.size()) {
     std::cerr << "GetBitmapBits returned " << result << " expected:" << data.size() << std::endl;
   }
-#endif // WIN32
-#ifdef QT_WIDGETS_LIB
+#elif GUIPP_QT
   auto pic = img.get_id().toImage();
   auto data = pic.constBits();
-#endif // QT_WIDGETS_LIB
+#endif
 
   std::ostringstream buffer;
   for (int i = 0; i < IF_WIN32_ELSE(4, 8); ++i) {
     buffer << std::setw(2) << std::setfill('0') << std::hex << (int)data[i] << ' ';
   }
-#ifdef X11
+#ifdef GUIPP_X11
   XDestroyImage(xim);
-#endif // X11
+#endif // GUIPP_X11
 
   EXPECT_EQUAL(buffer.str(), IF_WIN32_ELSE("40 00 80 00 ", "02 00 00 00 01 00 00 00 "));
 

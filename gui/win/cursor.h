@@ -22,9 +22,9 @@
 //
 // Common includes
 //
-#ifdef X11
+#ifdef GUIPP_X11
 # include <X11/cursorfont.h>
-#endif // X11
+#endif // GUIPP_X11
 
 // --------------------------------------------------------------------------
 //

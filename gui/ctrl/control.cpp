@@ -32,7 +32,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace detail {
-#ifdef X11
+#ifdef GUIPP_X11
       Atom SCROLLBAR_MESSAGE = 0;
       Atom SELECTION_CHANGE_MESSAGE = 0;
       Atom SELECTION_COMMIT_MESSAGE = 0;
@@ -44,10 +44,10 @@ namespace gui {
       Atom BN_STATE_MESSAGE = 0;
       Atom SELECTION_CANCEL_MESSAGE = 0;
       Atom CONTENT_CHANGED_MESSAGE = 0;
-#endif // X11
+#endif // GUIPP_X11
 
       int init_control_messages () {
-#ifdef X11
+#ifdef GUIPP_X11
         core::x11::init_atom(SCROLLBAR_MESSAGE, "SCROLLBAR_MESSAGE");
         core::x11::init_atom(SELECTION_CHANGE_MESSAGE, "SELECTION_CHANGE_MESSAGE");
         core::x11::init_atom(SELECTION_COMMIT_MESSAGE, "SELECTION_COMMIT_MESSAGE");
@@ -59,13 +59,13 @@ namespace gui {
         core::x11::init_atom(BN_STATE_MESSAGE, "BN_STATE_MESSAGE");
         core::x11::init_atom(SELECTION_CANCEL_MESSAGE, "SELECTION_CANCEL_MESSAGE");
         core::x11::init_atom(CONTENT_CHANGED_MESSAGE, "CONTENT_CHANGED_MESSAGE");
-#endif // X11
+#endif // GUIPP_X11
         return 1;
       }
 
     } // detail
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
   } // namespace ctrl
 
   namespace win {
@@ -96,9 +96,9 @@ namespace gui {
       }
     }
 
-#endif // WIN32
+#endif // GUIPP_WIN
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
     event_source get_event_source (const core::event& e) {
       return static_cast<event_source>(e.cast<win::QClientEvent>().l1());
     }
@@ -107,7 +107,7 @@ namespace gui {
       return e.cast<win::QClientEvent>().l1() != 0;
     }
 
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
     namespace paint {
 

@@ -24,9 +24,9 @@
 //
 #include <cstddef>
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 #include <QtGui/qevent.h>
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
 // --------------------------------------------------------------------------
 //
@@ -68,7 +68,7 @@ namespace gui {
     GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const core::size& sz);
     GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const core::rectangle& wr);
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
     // --------------------------------------------------------------------------
     template<int I, typename T>
     T get_param (const core::event& e);
@@ -349,9 +349,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 
-#endif //WIN32
+#endif //GUIPP_WIN
 
-#ifdef X11
+#ifdef GUIPP_X11
     // --------------------------------------------------------------------------
     namespace x11 {
 
@@ -746,9 +746,9 @@ namespace gui {
                                          getter<get_draw_window, get_graphics>>;
 
     // --------------------------------------------------------------------------
-#endif // X11
+#endif // GUIPP_X11
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
     // --------------------------------------------------------------------------
     class QClientEvent : public QEvent {
     public:
@@ -970,7 +970,7 @@ namespace gui {
                                             getter<get_draw_window, get_graphics>>;
 
     // --------------------------------------------------------------------------
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
   } // namespace win
 

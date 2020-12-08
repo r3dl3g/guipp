@@ -37,7 +37,7 @@ namespace gui {
 
   namespace draw {
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
     const brush default_brush((os::brush)GetStockObject(WHITE_BRUSH));
 
     brush::brush (os::brush os_id)
@@ -112,9 +112,9 @@ namespace gui {
               (info.lbStyle == rhs.info.lbStyle));
     }
 
-#endif // WIN32
+#endif // GUIPP_WIN
 
-#if defined(X11) || defined(QT_WIDGETS_LIB)
+#if defined(GUIPP_X11) || defined(GUIPP_QT)
     const brush default_brush;
 
     brush::brush (const os::color& color, Style style)
@@ -149,7 +149,7 @@ namespace gui {
       return ((m_color == rhs.m_color) &&
               (m_style == rhs.m_style));
     }
-#endif // X11 || QT_WIDGETS_LIB
+#endif // GUIPP_X11 || GUIPP_QT
 
   }
 

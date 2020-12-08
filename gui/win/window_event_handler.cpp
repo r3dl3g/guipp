@@ -20,9 +20,9 @@
 //
 // Common includes
 //
-#ifdef WIN32
+#ifdef GUIPP_WIN
 # include <windowsx.h>
-#endif // WIN32
+#endif // GUIPP_WIN
 
 // --------------------------------------------------------------------------
 //
@@ -31,16 +31,16 @@
 #include <gui/win/window_event_handler.h>
 #include <gui/win/window.h>
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
 # include <util/string_util.h>
-#endif // WIN32
+#endif // GUIPP_WIN
 
 
 namespace gui {
 
   namespace win {
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
     // --------------------------------------------------------------------------
     template<>
     bool get_param<0, bool>(const core::event& e) {
@@ -285,7 +285,7 @@ namespace gui {
     }
 
 #endif // Win32
-#ifdef X11
+#ifdef GUIPP_X11
     namespace x11 {
       // --------------------------------------------------------------------------
       void send_client_message (window* win, Atom message, long l1, long l2, long l3, long l4, long l5) {
@@ -481,9 +481,9 @@ namespace gui {
       s_last_place.erase(w);
     }
 
-#endif // X11
+#endif // GUIPP_X11
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
     // --------------------------------------------------------------------------
     os::key_state get_key_state (const core::event& e) {
       return e.cast<QKeyEvent>().modifiers();
@@ -593,7 +593,7 @@ namespace gui {
       send_client_message(win, message, l1, l2);
     }
     // --------------------------------------------------------------------------
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
   } // win
 

@@ -6,7 +6,7 @@
 #ifdef WIN32
 #define _USE_MATH_DEFINES
 #include <math.h>
-#endif // WIN32
+#endif // GUIPP_WIN
 
 #define NOTHING
 
@@ -67,7 +67,7 @@ typedef linear_data_t<double, double> linear_data;
 constexpr os::color wall_back = color::rgb_gray<0xF8>::value;
 
 font& font_serif () {
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
   static font f = [] () {
     os::font fn;
     fn.setStyleHint(QFont::StyleHint::Serif);

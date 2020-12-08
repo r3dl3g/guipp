@@ -33,24 +33,22 @@ namespace testing {
   }
 
   pixmap_str pixmap2string (const gui::draw::pixmap& img) {
-#ifdef X11
+#ifdef GUIPP_X11
     gui::core::native_size sz = img.native_size();
     XImage* xim = XGetImage(gui::core::global::get_instance(), img.get_id(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
     auto str = data2string(xim->data, xim->bits_per_pixel / 8, xim->bytes_per_line, xim->height);
     XDestroyImage(xim);
-#endif // X11
-#ifdef WIN32
+#elif GUIPP_WIN
     BITMAP bmi;
     GetObject(img.get_id(), sizeof (BITMAP), &bmi);
     gui::blob data;
     data.resize(bmi.bmHeight * bmi.bmWidthBytes);
     GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
     auto str = data2string((const char*)data.data(), bmi.bmBitsPixel / 8, bmi.bmWidthBytes, bmi.bmHeight);
-#endif // WIN32
-#ifdef QT_WIDGETS_LIB
+#elif GUIPP_QT
     auto pic = img.get_id().toImage();
     auto str = data2string((const char*)pic.constBits(), pic.depth() / 8, pic.bytesPerLine(), pic.height());
-#endif // QT_WIDGETS_LIB
+#endif
     return str;
   }
 
@@ -80,13 +78,12 @@ namespace testing {
   }
 
   colormap pixmap2colormap (const gui::draw::pixmap& img) {
-#ifdef X11
+#ifdef GUIPP_X11
     gui::core::native_size sz = img.native_size();
     XImage* xim = XGetImage(gui::core::global::get_instance(), img.get_id(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
     auto result = data2colormap(xim->data, xim->bits_per_pixel / 8, xim->bytes_per_line, xim->height);
     XDestroyImage(xim);
-#endif // X11
-#ifdef WIN32
+#elif GUIPP_WIN
     BITMAP bmp;
     GetObject(img.get_id(), sizeof (BITMAP), &bmp);
     gui::blob data;
@@ -96,11 +93,10 @@ namespace testing {
       std::cerr << "GetBitmapBits returned " << res << " expected:" << data.size() << std::endl;
     }
     auto result = data2colormap((const char*)data.data(), bmp.bmBitsPixel / 8, bmp.bmWidthBytes, bmp.bmHeight);
-#endif // WIN32
-#ifdef QT_WIDGETS_LIB
+#elif GUIPP_QT
     auto pic = img.get_id().toImage();
     auto result = data2colormap((const char*)pic.constBits(), pic.depth() / 8, pic.bytesPerLine(), pic.height());
-#endif // QT_WIDGETS_LIB
+#endif
     return result;
   }
 

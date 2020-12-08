@@ -23,9 +23,9 @@
 // Common includes
 //
 #include <vector>
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 # include <QtGui/QPainter>
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
 // --------------------------------------------------------------------------
 //

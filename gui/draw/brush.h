@@ -42,11 +42,11 @@ namespace gui {
       brush (const brush&);
       ~brush ();
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
       brush (os::brush);
 
       operator os::brush () const;
-#endif // WIN32
+#endif // GUIPP_WIN
 
       os::color color () const;
       Style style () const;
@@ -57,16 +57,16 @@ namespace gui {
       bool operator== (const brush&) const;
 
     private:
-#ifdef WIN32
+#ifdef GUIPP_WIN
       void destroy ();
 
       mutable os::brush id;
       os::win32::brush_type info;
-#endif // WIN32
-#if defined(X11) || defined(QT_WIDGETS_LIB)
+#endif // GUIPP_WIN
+#if defined(GUIPP_X11) || defined(GUIPP_QT)
       const os::color m_color;
       const Style m_style;
-#endif // X11 || QT_WIDGETS_LIB
+#endif // GUIPP_X11 || GUIPP_QT
 
     };
 

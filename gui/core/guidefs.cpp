@@ -20,19 +20,18 @@
 //
 // Common includes
 //
-#ifdef X11
+#ifdef GUIPP_X11
 # include <X11/XKBlib.h>
 # ifdef XCB
 #  include <xcb/xcb_xrm.h>
 # endif // XCB
-#endif
-#ifdef WIN32
+#elif GUIPP_WIN
 #include <shellscalingapi.h>
 #pragma warning(disable:4996)
-#endif // WIN32
-#ifdef QT_WIDGETS_LIB
+#elif GUIPP_QT
 #include <QtGui/QGuiApplication>
-#endif // QT_WIDGETS_LIB
+#include <QtGui/QScreen>
+#endif // GUIPP_QT
 
 
 // --------------------------------------------------------------------------
@@ -150,7 +149,7 @@ namespace gui {
         double scale_factor = 1.0;
       }
 
-#ifdef X11
+#ifdef GUIPP_X11
 
       namespace {
         bool at_shutdown = false;
@@ -182,23 +181,23 @@ namespace gui {
         return 0;
       }
 
-#endif // X11
+#endif // GUIPP_X11
 
       struct gui_init {
         gui_init ()
           : instance(nullptr)
-#ifdef X11
+#ifdef GUIPP_X11
           , screen(0)
-#endif // X11
+#endif // GUIPP_X11
         {
-#ifdef X11
+#ifdef GUIPP_X11
           XInitThreads();
-#endif // X11
+#endif // GUIPP_X11
         }
 
         void init (gui::os::instance i) {
           instance = i;
-#ifdef X11
+#ifdef GUIPP_X11
           if (instance != nullptr) {
             screen = DefaultScreen(instance);
             XSetErrorHandler(ErrorHandler);
@@ -210,7 +209,7 @@ namespace gui {
           xcb_connection = XGetXCBConnection(instance);
 # endif // XCB
 
-#endif // X11
+#endif // GUIPP_X11
           set_scale_factor(calc_scale_factor());
         }
 
@@ -219,23 +218,23 @@ namespace gui {
         }
 
         ~gui_init () {
-#ifdef X11
+#ifdef GUIPP_X11
           at_shutdown = true;
 //          XSync(instance, False);
           if (instance != nullptr) {
             XCloseDisplay(instance);
           }
           screen = 0;
-#endif // X11
+#endif // GUIPP_X11
         }
 
         gui::os::instance instance;
-#ifdef X11
+#ifdef GUIPP_X11
         gui::os::x11::screen screen;
 # ifdef XCB
         xcb_connection_t *xcb_connection;
 # endif // XCB
-#endif // X11
+#endif // GUIPP_X11
 
       };
 
@@ -256,9 +255,9 @@ namespace gui {
       }
 
       void fini () {
-#ifdef X11
+#ifdef GUIPP_X11
         at_shutdown = true;
-#endif // X11
+#endif // GUIPP_X11
       }
 
       gui::os::instance get_instance () {
@@ -269,45 +268,38 @@ namespace gui {
       }
 
       void sync () {
-#ifdef X11
+#ifdef GUIPP_X11
         if (gui_static.is_initialized()) {
           XFlush(gui_static.instance);
         }
-#endif // X11
+#endif // GUIPP_X11
       }
 
       int get_device_depth () {
-#ifdef WIN32
+#ifdef GUIPP_WIN
         HDC gdc = GetDC(NULL);
         int dbpp = GetDeviceCaps(gdc, BITSPIXEL);
         ReleaseDC(NULL, gdc);
         return dbpp;
-#endif // WIN32
-#ifdef X11
+#elif GUIPP_X11
         return DefaultDepth(get_instance(), x11::get_screen());
-#endif // X11
-#ifdef COCOA
-        return 24;
-#endif // COCOA
+#elif GUIPP_QT
+        return QGuiApplication::primaryScreen()->depth();
+#else
+#error  Undefined System: int get_device_depth ()
+#endif
       }
 
       pixel_format_t get_device_pixel_format () {
-#ifdef WIN32
-        HDC gdc = GetDC(NULL);
-        int dbpp = GetDeviceCaps(gdc, BITSPIXEL);
-        ReleaseDC(NULL, gdc);
-        return get_pixel_format(static_cast<int>(pixel_format_t(dbpp)), os::bitmap_byte_order);
-#endif // WIN32
-#ifdef X11
+#ifdef GUIPP_X11
         auto inst = get_instance();
         return get_pixel_format(DefaultDepth(inst, x11::get_screen()), byte_order_t(ImageByteOrder(inst)));
-#endif // X11
-#ifdef COCOA
-        return pixel_format_t::RGB;
-#endif // COCOA
+#else
+        return get_pixel_format(get_device_depth(), os::bitmap_byte_order);
+#endif
       }
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
       gui::os::key_state get_key_state () {
         return static_cast<gui::os::key_state>((GetKeyState(VK_SHIFT) & 0x8000 ? MK_SHIFT : 0) |
                                                (GetKeyState(VK_CONTROL) & 0x8000 ? MK_CONTROL : 0) |
@@ -327,7 +319,7 @@ namespace gui {
         }
       }
 
-#endif // WIN32
+#endif // GUIPP_WIN
 
       void set_scale_factor (double s) {
         scale_factor = s;
@@ -338,7 +330,7 @@ namespace gui {
       }
 
 
-#ifdef X11
+#ifdef GUIPP_X11
       gui::os::key_state get_key_state () {
         XkbStateRec state;
         XkbGetState(get_instance(), XkbUseCoreKbd, &state);
@@ -441,9 +433,9 @@ namespace gui {
         return scale_factor;
       }
 
-#endif // X11
+#endif // GUIPP_X11
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 
       gui::os::key_state get_key_state () {
         return QGuiApplication::keyboardModifiers();
@@ -460,7 +452,7 @@ namespace gui {
         }
       }
 
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
     } // global
 

@@ -21,13 +21,13 @@
 //
 // Common includes
 //
-#ifdef WIN32
+#ifdef GUIPP_WIN
 # include <windowsx.h>
-# include <locale>
-#endif // WIN32
-#ifdef X11
+#endif // GUIPP_WIN
+#ifdef GUIPP_X11
 # include <X11/cursorfont.h>
-#endif // X11
+#endif // GUIPP_X11
+# include <locale>
 
 // --------------------------------------------------------------------------
 //

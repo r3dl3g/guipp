@@ -55,18 +55,18 @@ namespace gui {
 
     template<typename T, typename S>
     basic_rectangle<T, S>::basic_rectangle (const gui::os::rectangle& r)
-#ifdef WIN32
+#ifdef GUIPP_WIN
       : pos(global::scale<T>(r.left), global::scale<T>(r.top))
       , sz(global::scale<S>(r.right - r.left), global::scale<S>(r.bottom - r.top))
-#elif X11
+#elif GUIPP_X11
       : pos(global::scale<T>(r.x), global::scale<T>(r.y))
       , sz(global::scale<S>(r.width), global::scale<S>(r.height))
-#elif QT_WIDGETS_LIB
+#elif GUIPP_QT
     : pos(r.topLeft())
     , sz(r.size())
 #else
 #error Unknown target system: basic_rectangle<T, S>::basic_rectangle (const gui::os::rectangle& r)
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
     {}
 
     template<typename T, typename S>
@@ -272,18 +272,18 @@ namespace gui {
       return global::scale<gui::os::point_type>(bottom());
     }
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
     template<typename T, typename S>
     const basic_rectangle<T, S> basic_rectangle<T, S>::def(point_t(-1, -1), point_t(-2, -2));
-#elif X11
+#elif GUIPP_X11
     template<typename T, typename S>
     const basic_rectangle<T, S> basic_rectangle<T, S>::def(0, 0, 1, 1);
-#elif QT_WIDGETS_LIB
+#elif GUIPP_QT
     template<typename T, typename S>
     const basic_rectangle<T, S> basic_rectangle<T, S>::def(0, 0, -1, -1);
 #else
 #error Unknown target system: const basic_rectangle<T, S> basic_rectangle<T, S>::def
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
     template<typename T, typename S>
     inline bool basic_rectangle<T, S>::empty () const {
@@ -500,15 +500,15 @@ namespace gui {
     gui::os::rectangle basic_rectangle<T, S>::os () const {
       return {
         os_x(), os_y(),
-#ifdef WIN32
+#ifdef GUIPP_WIN
         os_x2(), os_y2()
-#elif X11
+#elif GUIPP_X11
         os_width(), os_height()
-#elif QT_WIDGETS_LIB
+#elif GUIPP_QT
         os_width(), os_height()
 #else
 # error Unknown target system: gui::os::rectangle basic_rectangle<T, S>::os () const
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
       };
     }

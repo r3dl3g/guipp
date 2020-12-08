@@ -76,11 +76,9 @@ namespace gui {
         return sys_fs::directory_iterator(n.path);
 #elif X11
         return sys_fs::directory_iterator(n.path, sys_fs::directory_options::skip_permission_denied);
-#elif QT_WIDGETS_LIB
-        return sys_fs::directory_iterator(n.path, sys_fs::directory_options::skip_permission_denied);
 #else
 # error Undefined system: sys_fs::directory_iterator path_iterator (fs::file_info const& n)
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
       }
 
       inline bool path_info::has_sub_nodes (type const& n) {

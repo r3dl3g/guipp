@@ -50,15 +50,15 @@ namespace gui {
     }
 
     bool window_state::is_enabled () const {
-#ifdef WIN32
+#ifdef GUIPP_WIN
       return win.is_valid() && IsWindowEnabled(win.get_id());
-#elif X11
+#elif GUIPP_X11
       return !get_flag(flags::window_disabled);
-#elif QT_WIDGETS_LIB
+#elif GUIPP_QT
       return win.is_valid() && win.get_id()->isEnabled();
 #else
 # error Undefined system: window_state::is_enabled ()
-#endif // X11
+#endif // GUIPP_X11
     }
 
     bool window_state::is_overlapped () const {
@@ -101,7 +101,7 @@ namespace gui {
       return get_flag(flags::needs_redraw);
     }
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
 
     bool window_state::set_enable (bool on) {
       if (win.is_valid() && (is_enabled() != on)) {
@@ -116,9 +116,7 @@ namespace gui {
       return false;
     }
 
-#endif // WIN32
-
-#ifdef X11
+#elif GUIPP_X11
 
     namespace x11 {
       bool check_return (int r);
@@ -139,9 +137,7 @@ namespace gui {
       return false;
     }
 
-#endif // X11
-
-#ifdef QT_WIDGETS_LIB
+#elif GUIPP_QT
 
     bool window_state::set_enable (bool on) {
       if (win.is_valid() && (is_enabled() != on)) {
@@ -152,7 +148,7 @@ namespace gui {
       return false;
     }
 
-#endif // QT_WIDGETS_LIB
+#endif
 
   } // namespace win
 

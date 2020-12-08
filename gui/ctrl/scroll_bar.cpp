@@ -27,7 +27,7 @@
 
 namespace gui {
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
   namespace win {
 
     template<>
@@ -37,17 +37,17 @@ namespace gui {
 
   } // namespace win
 
-#endif //WIN32
+#endif //GUIPP_WIN
 
   namespace ctrl {
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 
     core::point::type get_scroll_value (const core::event& e) {
       return e.cast<win::QClientEvent>().l1();
     }
 
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
     scroll_bar_data::scroll_bar_data ()
       : state(scrollbar_state::nothing)
@@ -80,10 +80,10 @@ namespace gui {
     }
 
     void scroll_bar::init () {
-#ifdef X11
+#ifdef GUIPP_X11
       static int initialized = detail::init_control_messages();
       (void)initialized;
-#endif // X11
+#endif // GUIPP_X11
       on_lost_focus([&] () {
         invalidate();
       });

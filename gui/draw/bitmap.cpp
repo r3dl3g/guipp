@@ -35,7 +35,7 @@
 #include <logging/logger.h>
 
 
-#ifdef X11
+#ifdef GUIPP_X11
 
 //# define USE_XSHM
 
@@ -46,13 +46,13 @@
 #  include <X11/extensions/XShm.h>
 # endif // USE_XSHM
 
-#endif // X11
+#endif // GUIPP_X11
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 
 #include <QtGui/QPixmap>
 
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
 
 namespace gui {
@@ -65,7 +65,7 @@ namespace gui {
     void bitmap_get_data (const os::bitmap& id, blob& data, draw::bitmap_info& bmi);
     draw::bitmap_info bitmap_get_info (const os::bitmap& id);
 
-#ifdef X11
+#ifdef GUIPP_X11
 //    void pixmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi);
 //    void pixmap_get_data (os::bitmap id, blob& data, draw::bitmap_info& bmi);
 
@@ -330,9 +330,9 @@ namespace gui {
 
 # endif // !USE_XSHM
 
-#endif // !X11
+#endif // !GUIPP_X11
 
-#if WIN32
+#if GUIPP_WIN
 
     os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data) {
       return CreateBitmap(bmi.width, bmi.height, 1, bmi.bits_per_pixel(), data);
@@ -369,9 +369,9 @@ namespace gui {
       }
     }
 
-#endif // WIN32
+#endif // GUIPP_WIN
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
     os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr) {
       return os::bitmap(bmi.width, bmi.height);
     }
@@ -401,7 +401,7 @@ namespace gui {
       data.assign(img.constBits(), img.constBits() + img.byteCount());
       bmi = draw::bitmap_info(core::native_size(img.size()), draw::bitmap_info::convert(img.format()));
     }
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
   }
 
@@ -430,7 +430,7 @@ namespace gui {
     }
 
     bool basic_map::is_valid () const {
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
       return !id.isNull();
 #else
       return id != 0;
@@ -438,7 +438,7 @@ namespace gui {
     }
 
     basic_map::operator const os::drawable () const {
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
       return const_cast<os::drawable>(static_cast<const QPaintDevice*>(&id));
 #else
       return get_id();
@@ -448,7 +448,7 @@ namespace gui {
     void basic_map::clear () {
       if (is_valid()) {
         free_bitmap(get_id());
-#ifndef QT_WIDGETS_LIB
+#ifndef GUIPP_QT
         set_id(0);
 #endif
       }
@@ -533,17 +533,17 @@ namespace gui {
     // --------------------------------------------------------------------------
 
     void pixmap::create (uint32_t w, uint32_t h) {
-#if WIN32
+#if GUIPP_WIN
       clear();
       HDC dc = GetDC(NULL);
       set_id(CreateCompatibleBitmap(dc, w, h));
       ReleaseDC(NULL, dc);
-#elif X11
+#elif GUIPP_X11
       pixel_format_t px_fmt = core::global::get_device_pixel_format();
       super::create({w, h, px_fmt});
-#elif QT_WIDGETS_LIB
+#elif GUIPP_QT
       set_id(os::bitmap(w, h));
-#endif //QT_WIDGETS_LIB
+#endif //GUIPP_QT
       if (!is_valid()) {
         throw std::runtime_error("create pixmap failed");
       }

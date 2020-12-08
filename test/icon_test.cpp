@@ -66,7 +66,7 @@ bool expected_bit_at_inv (int x, int y) {
 
 // --------------------------------------------------------------------------
 void test_native_impl () {
-#ifdef X11
+#ifdef GUIPP_X11
   gui::os::instance display = core::global::get_instance();
   os::x11::screen screen = core::global::x11::get_screen();
   os::drawable drawable = DefaultRootWindow(display);
@@ -141,7 +141,7 @@ void test_native_impl () {
   }
 
   XDestroyImage(im);
-#endif // X11
+#endif // GUIPP_X11
 }
 
 // --------------------------------------------------------------------------
@@ -229,7 +229,7 @@ void test_bitmap_get_image_mask () {
     draw::graphics gc(mem);
     gc.clear(color::gray);
 
-#ifdef X11
+#ifdef GUIPP_X11
     gui::os::instance display = core::global::get_instance();
     pix.invert();
 
@@ -239,8 +239,8 @@ void test_bitmap_get_image_mask () {
     XCopyArea(display, pix, mem, gc, 0, 0, 20, 20, 0, 0);
 
     XSetClipMask(display, gc, None);
-#endif // X11
-#ifdef WIN32
+#endif // GUIPP_X11
+#ifdef GUIPP_WIN
     mask.invert();
     HDC mask_dc = CreateCompatibleDC(gc);
     SelectObject(mask_dc, mask.get_id());
@@ -251,7 +251,7 @@ void test_bitmap_get_image_mask () {
     //BitBlt(gc, 0, 0, 20, 20, img_dc, 0, 0, SRCPAINT);
     //DeleteDC(img_dc);
     DeleteDC(mask_dc);
-#endif // WIN32
+#endif // GUIPP_WIN
 
   }
 
@@ -436,11 +436,11 @@ void test_file_icon () {
     auto raw = data.raw_data();
 
     for (int i = 0; i < size_of_array(expected_file_icon_bits); ++i) {
-#ifdef WIN32
+#ifdef GUIPP_WIN
       EXPECT_EQUAL((uint8_t)raw[i], (uint8_t)expected_file_icon_bits[i], " at i = ", i);
 #else
       EXPECT_EQUAL((uint8_t)raw[i], (uint8_t)core::reverse_bit_order(expected_file_icon_bits[i]), " at i = ", i);
-#endif // WIN32
+#endif // GUIPP_WIN
     }
 
     for (int32_t y = 0; y < 20; ++y) {

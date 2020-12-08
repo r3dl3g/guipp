@@ -45,7 +45,7 @@ namespace gui {
       }
     }
 
-#ifdef X11
+#ifdef GUIPP_X11
 
     uint32_t bitmap_calc_bytes_per_line (uint32_t w, pixel_format_t px_fmt) {
       switch (px_fmt) {
@@ -67,9 +67,9 @@ namespace gui {
       return -1;
     }
 
-#endif // !X11
+#endif // !GUIPP_X11
 
-#if WIN32
+#if GUIPP_WIN
 
     uint32_t bitmap_calc_bytes_per_line (uint32_t w, pixel_format_t px_fmt) {
       switch (px_fmt) {
@@ -91,9 +91,9 @@ namespace gui {
       return ((((w * color_depths[static_cast<byte>(px_fmt)]) + 31) & ~31) >> 3);
     }
 
-#endif // WIN32
+#endif // GUIPP_WIN
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 
     uint32_t bitmap_calc_bytes_per_line (uint32_t w, pixel_format_t fmt) {
       return QImage(w, 1, bitmap_info::convert(fmt)).bytesPerLine();
@@ -122,7 +122,7 @@ namespace gui {
       }
     }
 
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
     // --------------------------------------------------------------------------
     bitmap_info::bitmap_info ()

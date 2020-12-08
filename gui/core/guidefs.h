@@ -22,17 +22,17 @@
 //
 // Common includes
 //
-#ifdef WIN32
+#ifdef GUIPP_WIN
 # include <gui/core/win32defs.h>
-#elif X11
+#elif GUIPP_X11
 # include <gui/core/x11defs.h>
 #elif COCOA
 # include <gui/core/cocoadefs.h>
-#elif QT_WIDGETS_LIB
+#elif GUIPP_QT
 # include <gui/core/qtdefs.h>
 #else
 #error Unknown target system
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
 #include <vector>
 #include <string>
@@ -46,7 +46,7 @@
 #include <gui++-core-export.h>
 
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
 #pragma warning (disable: 4251)
 #endif
 

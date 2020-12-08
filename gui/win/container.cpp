@@ -25,12 +25,12 @@
 #include <map>
 #include <string.h>
 
-#ifdef X11
+#ifdef GUIPP_X11
 # include <X11/cursorfont.h>
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#endif // GUIPP_X11
+#ifdef GUIPP_QT
 # include <QtCore/QEventLoop>
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
 
 // --------------------------------------------------------------------------
@@ -52,7 +52,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
 
     // --------------------------------------------------------------------------
     bool container::is_parent_of (const window& child) const {
@@ -76,9 +76,9 @@ namespace gui {
       }
     }
 
-#endif // WIN32
+#endif // GUIPP_WIN
 
-#ifdef X11
+#ifdef GUIPP_X11
 
 # ifndef _NET_WM_STATE_REMOVE
 #  define _NET_WM_STATE_REMOVE        0   /* remove/unset property */
@@ -193,9 +193,9 @@ namespace gui {
       return list;
     }
 
-#endif // X11
+#endif // GUIPP_X11
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 
     bool container::is_parent_of (const window& child) const {
       return is_valid() && child.is_valid() && (get_id() == detail::get_window_id(child)->get_parent());
@@ -229,7 +229,7 @@ namespace gui {
       }
     }
 
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
     container::container () {
       init();
@@ -250,10 +250,10 @@ namespace gui {
     }
 
     void container::init () {
-#ifdef X11
+#ifdef GUIPP_X11
       static int initialized = x11::init_for_net_wm_state();
       (void)initialized;
-#endif // X11
+#endif // GUIPP_X11
 
       set_accept_focus(true);
       on_set_focus([&] () {
@@ -334,7 +334,7 @@ namespace gui {
       return detail::get_window_id(*this);
     }
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
     void overlapped_window::create (const class_info& type,
                                     container& parent,
                                     const core::rectangle& r) {
@@ -389,9 +389,9 @@ namespace gui {
                    0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
     }
 
-#endif // WIN32
+#endif // GUIPP_WIN
 
-#ifdef X11
+#ifdef GUIPP_X11
     // --------------------------------------------------------------------------
     template<typename T>
     void change_property (gui::os::instance display, os::window id, const char* type, T value);
@@ -568,9 +568,9 @@ namespace gui {
       }
     };
 
-#endif //X11
+#endif // GUIPP_X11
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
     void overlapped_window::create (const class_info& type,
                                     container& parent,
                                     const core::rectangle& r) {
@@ -634,7 +634,7 @@ namespace gui {
         get_id()->setWindowFlag(Qt::WindowStaysOnTopHint, toplevel);
       }
     }
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
     // --------------------------------------------------------------------------
     modal_window::modal_window ()
@@ -656,21 +656,21 @@ namespace gui {
     }
 
     void modal_window::init () {
-#ifdef WIN32
+#ifdef GUIPP_WIN
       on_close([&]() {
         is_modal = false;
       });
-#endif // WIN32
+#endif // GUIPP_WIN
     }
 
     void modal_window::end_modal () {
       is_modal = false;
-#ifdef X11
+#ifdef GUIPP_X11
       invalidate();
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#endif // GUIPP_X11
+#ifdef GUIPP_QT
       event_loop.exit();
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
     }
 
     void modal_window::run_modal (window& parent) {
@@ -680,7 +680,7 @@ namespace gui {
     void modal_window::run_modal (window& parent, const std::vector<hot_key_action>& hot_keys) {
       clog::debug() << *this << " Enter modal loop with hot keys";
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 # ifndef GUIPP_BUILD_FOR_MOBILE
       detail::get_window_id(*this)->setWindowModality(Qt::WindowModality::ApplicationModal);
 # endif
@@ -693,15 +693,15 @@ namespace gui {
 
       is_modal = true;
 
-#ifdef X11
+#ifdef GUIPP_X11
 #if defined(USE_INPUT_EATER)
       input_only_window input_eater(*parent.get_overlapped_window());
       input_eater.set_visible();
 #endif // USE_INPUT_EATER
 
-#endif // X11
+#endif // GUIPP_X11
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
       event_loop.exec(QEventLoop::DialogExec);
 #else
       if (hot_keys.empty()) {
@@ -709,13 +709,13 @@ namespace gui {
       } else {
         run_loop(is_modal, [&](const core::event & e)->bool {
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
           if (e.type == WM_KEYDOWN) {
-#elif X11
+#elif GUIPP_X11
           if (e.type == KeyPress) {
-#elif QT_WIDGETS_LIB
+#elif GUIPP_QT
           if (e.type() == QEvent::KeyPress) {
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
             hot_key hk(get_key_symbol(e), get_key_state(e));
             for (hot_key_action k : hot_keys) {
               if (hk == k.hk) {
@@ -727,13 +727,13 @@ namespace gui {
           return detail::check_expose(e);
         });
       }
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
-#ifdef X11
+#ifdef GUIPP_X11
 #if defined(USE_INPUT_EATER)
       input_eater.set_visible(false);
 #endif // USE_INPUT_EATER
-#endif // X11
+#endif // GUIPP_X11
 
       parent.enable();
       parent.take_focus();
@@ -744,7 +744,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     void main_window::create (const class_info& cls, const core::rectangle& r) {
       super::create(cls, r);
-#ifdef X11
+#ifdef GUIPP_X11
       gui::os::instance display = core::global::get_instance();
 
       os::window id = detail::get_window_id(*this);
@@ -759,13 +759,13 @@ namespace gui {
       hints->flags |= InputHint;
       hints->input = True;
       XSetWMHints(display, id, hints);
-#endif // X11
+#endif // GUIPP_X11
     }
 
     // --------------------------------------------------------------------------
     void popup_window::create (const class_info& cls, container& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
-#ifdef X11
+#ifdef GUIPP_X11
       gui::os::instance display = core::global::get_instance();
 
       os::window id = detail::get_window_id(*this);
@@ -775,20 +775,20 @@ namespace gui {
       XSetWindowAttributes wa;
       wa.override_redirect = 1;
       XChangeWindowAttributes(display, id, CWOverrideRedirect, &wa);
-#endif // X11
+#endif // GUIPP_X11
     }
 
     // --------------------------------------------------------------------------
     void dialog_window::create (const class_info& cls, container& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
       gui::os::instance display = core::global::get_instance();
-#ifdef X11
+#ifdef GUIPP_X11
       auto id = detail::get_window_id(*this);
       change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DIALOG");
       change_property(display, id, "_NET_WM_STATE", "_NET_WM_STATE_MODAL");
       change_property(display, id, "WM_CLIENT_LEADER", detail::get_window_id(parent));
       set_wm_protocols(display, id);
-#endif // X11
+#endif // GUIPP_X11
     }
 
     // --------------------------------------------------------------------------

@@ -57,10 +57,10 @@ namespace gui {
         state.set_moved(false);
         state.set_scroll_bar_enabled(true);
         bool grab_focus = state.is_grab_focus();
-#ifdef X11
+#ifdef GUIPP_X11
         static int initialized = detail::init_control_messages();
         (void)initialized;
-#endif // X11
+#endif // GUIPP_X11
 
         set_accept_focus(true);
         on_left_btn_down([&, grab_focus] (os::key_state, const core::point & pt) {

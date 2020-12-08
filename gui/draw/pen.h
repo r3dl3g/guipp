@@ -33,9 +33,9 @@ namespace gui {
 
     struct GUIPP_DRAW_EXPORT /*immutable*/ pen {
 
-#if defined(WIN32) || defined(X11) || defined(X11) || defined(QT_WIDGETS_LIB)
+#if defined(GUIPP_WIN) || defined(GUIPP_X11) || defined(GUIPP_X11) || defined(GUIPP_QT)
       typedef float size_type;
-#endif // WIN32 | X11
+#endif // GUIPP_WIN | GUIPP_X11
 
       enum struct Style : int {
         solid =       IF_WIN32_X11_QT_ELSE(PS_SOLID,       LineSolid,              Qt::PenStyle::SolidLine,       1),
@@ -52,14 +52,14 @@ namespace gui {
       pen (const pen&);
       ~pen ();
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
       pen (os::pen);
 
       inline operator os::pen () const {
         return id;
       }
 
-#endif // WIN32
+#endif // GUIPP_WIN
 
       os::color color () const;
       size_type size () const;
@@ -74,15 +74,15 @@ namespace gui {
       bool operator== (const pen&) const;
 
     private:
-#ifdef WIN32
+#ifdef GUIPP_WIN
       os::pen id;
       os::win32::pen_type info;
-#endif // WIN32
-#if defined(X11) || defined(QT_WIDGETS_LIB)
+#endif // GUIPP_WIN
+#if defined(GUIPP_X11) || defined(GUIPP_QT)
       const os::color m_color;
       const size_type m_size;
       const Style m_style;
-#endif // X11 || QT_WIDGETS_LIB
+#endif // GUIPP_X11 || GUIPP_QT
 
     };
 

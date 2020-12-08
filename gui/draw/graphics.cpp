@@ -22,13 +22,13 @@
 //
 #include <memory.h>
 #include <array>
-#ifdef X11
+#ifdef GUIPP_X11
 # include <cmath>
 # include <algorithm>
-#endif // X11
-#ifdef QT_WIDGETS_LIB
+#endif // GUIPP_X11
+#ifdef GUIPP_QT
 # include <QtGui/QBitmap>
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
 // --------------------------------------------------------------------------
 //
@@ -36,16 +36,16 @@
 //
 #include <logging/logger.h>
 #include <util/ostreamfmt.h>
-#ifdef WIN32
+#ifdef GUIPP_WIN
 # include <util/string_util.h>
-#endif // WIN32
+#endif // GUIPP_WIN
 
 #include <gui/draw/graphics.h>
 #include <gui/draw/bitmap.h>
 #include <gui/draw/drawers.h>
 #include <gui/draw/use.h>
 
-#ifdef X11
+#ifdef GUIPP_X11
 // For debugging
 std::ostream& operator<< (std::ostream& out, const XGCValues& v) {
   out << "{function="    << std::hex << v.function
@@ -73,14 +73,14 @@ std::ostream& operator<< (std::ostream& out, const XGCValues& v) {
       << "}";
   return out;
 }
-#endif // X11
+#endif // GUIPP_X11
 
 
 namespace gui {
 
   namespace draw {
 
-#ifdef WIN32
+#ifdef GUIPP_WIN
     // --------------------------------------------------------------------------
     graphics::graphics (os::drawable target, os::graphics gc)
       : gc(gc)
@@ -296,9 +296,9 @@ namespace gui {
       SelectClipRgn(gc, NULL);
     }
 
-#endif // WIN32
+#endif // GUIPP_WIN
 
-#ifdef X11
+#ifdef GUIPP_X11
     // --------------------------------------------------------------------------
     using namespace core::global;
 
@@ -581,9 +581,9 @@ namespace gui {
     }
 #endif // USE_XFT
 
-#endif // X11
+#endif // GUIPP_X11
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
     // --------------------------------------------------------------------------
     graphics::graphics (os::drawable t, os::graphics g)
       : target(t)
@@ -740,7 +740,7 @@ namespace gui {
     }
 
     int graphics::depth () const {
-      gc->device()->depth();
+      return gc->device()->depth();
     }
 
     core::native_rect graphics::native_area () const {
@@ -754,7 +754,7 @@ namespace gui {
     void graphics::clear_clip_rect () const {
       gc->setClipping(false);
     }
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
     // --------------------------------------------------------------------------
 
     void graphics::push_clipping (const core::rectangle& rect) const {
@@ -813,7 +813,7 @@ namespace gui {
       return copy_from(bmp, core::rectangle(bmp.scaled_size()), pt);
     }
 
-#ifndef QT_WIDGETS_LIB
+#ifndef GUIPP_QT
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) const {
       if (bmp) {
         if (bmp.depth() == depth()) {
@@ -853,7 +853,7 @@ namespace gui {
       }
       return *this;
     }
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
     // --------------------------------------------------------------------------
     paint::paint (const painter& f)
@@ -885,7 +885,7 @@ namespace gui {
     void buffered_paint::operator() (os::window id, os::graphics g) {
       if (p) {
         draw::graphics graph(id, g);
-#if !defined(BUILD_FOR_ARM) && !defined(NOT_IMAGE_CACHE) && !defined(QT_WIDGETS_LIB)
+#if !defined(BUILD_FOR_ARM) && !defined(NOT_IMAGE_CACHE) && !defined(GUIPP_QT)
         const auto area = graph.area();
         draw::pixmap buffer(area.size());
         draw::graphics buffer_graph(buffer);

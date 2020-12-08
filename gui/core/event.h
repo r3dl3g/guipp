@@ -28,7 +28,7 @@
 // Library includes
 //
 #include <gui/core/guidefs.h>
-#ifdef WIN32
+#ifdef GUIPP_WIN
 #include <gui/core/win32_event.h>
 #endif // Win32
 
@@ -38,13 +38,13 @@ namespace gui {
   namespace core {
 
     // --------------------------------------------------------------------------
-#ifdef WIN32
+#ifdef GUIPP_WIN
     using event = win32::event;
 
     const gui::os::event_id WM_LAYOUT_WINDOW = WM_USER + 0x100;
-#endif //WIN32
+#endif //GUIPP_WIN
 
-#ifdef X11
+#ifdef GUIPP_X11
     // --------------------------------------------------------------------------
     using event = XEvent;
 
@@ -63,13 +63,13 @@ namespace gui {
       GUIPP_CORE_EXPORT void init_atom (Atom& message, const char* name);
 
     } // namespace x11
-#endif // X11
+#endif // GUIPP_X11
 
 #ifdef COCOA
     using event = CGEventRef;
 #endif // COCOA
 
-#ifdef QT_WIDGETS_LIB
+#ifdef GUIPP_QT
 
     struct event {
       gui::os::window id;
@@ -94,7 +94,7 @@ namespace gui {
 
     } // namespace qt
 
-#endif // QT_WIDGETS_LIB
+#endif // GUIPP_QT
 
     typedef bool (event_handler_callback)(const event&, gui::os::event_result&);
 

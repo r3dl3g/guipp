@@ -29,8 +29,10 @@
 #include <shellscalingapi.h>
 #pragma warning(disable:4996)
 #elif GUIPP_QT
-#include <QtGui/QGuiApplication>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QDesktopWidget>
 #include <QtGui/QScreen>
+#include <QtGui/QPainter>
 #endif // GUIPP_QT
 
 
@@ -448,7 +450,9 @@ namespace gui {
           std::stringstream(xscale) >> scale;
           return scale;
         } else {
-          return 1.0;
+          qreal x = 1, y = 1;
+          QPainter(QApplication::desktop()).transform().map(1.0, 1.0, &x, &y);
+          return (x + y) / 2.0;
         }
       }
 

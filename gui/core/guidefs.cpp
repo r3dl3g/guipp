@@ -30,9 +30,11 @@
 #pragma warning(disable:4996)
 #elif GUIPP_QT
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QDesktopWidget>
 #include <QtGui/QScreen>
-#include <QtGui/QPainter>
+//#include <QtGui/QFont>
+//#include <QtGui/QFontDatabase>
+#include <QtWidgets/QDesktopWidget>
+//#include <QtGui/QPainter>
 #endif // GUIPP_QT
 
 
@@ -450,9 +452,20 @@ namespace gui {
           std::stringstream(xscale) >> scale;
           return scale;
         } else {
-          qreal x = 1, y = 1;
-          QPainter(QApplication::desktop()).transform().map(1.0, 1.0, &x, &y);
-          return (x + y) / 2.0;
+//          auto f = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
+//          auto ps = f.pointSizeF();
+//          auto px = QFontMetrics(f).height();
+//          qreal s = px / ps;
+          QDesktopWidget* d = QApplication::desktop();
+          auto r = d->devicePixelRatioF();
+          clog::debug() << "Display "
+                           "W:" << d->width() << ", H:" << d->height()
+                        << ", MM-W:" << d->widthMM() << ", MM-H:" << d->heightMM()
+                        << ", LogDPI-X:" << d->logicalDpiX() << ", LogDPI-Y:" << d->logicalDpiY()
+                        << ", PhysDPI-X:" << d->physicalDpiX() << ", PhysDPI-Y:" << d->physicalDpiY()
+                        << ", Pixel Ratio:" << d->devicePixelRatioF()
+                        << ", Pixel Ratio Scale:" << d->devicePixelRatioFScale();
+          return r;
         }
       }
 

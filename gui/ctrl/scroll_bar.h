@@ -281,7 +281,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation_t H,
-#ifdef BUILD_FOR_ARM
+#if defined(BUILD_FOR_ARM) || defined(GUIPP_BUILD_FOR_MOBILE)
              scrollbar_drawer D = paint::scrollbar_w95>
 #else
              scrollbar_drawer D = paint::scrollbar>

@@ -724,7 +724,10 @@ namespace gui {
 
     core::size window::screen_size () {
       return gui::os::size{ GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
+    }
 
+    core::rectangle window::screen_area () {
+      return core::rectangle(screen_size());
     }
 
 #endif // GUIPP_WIN    
@@ -1203,6 +1206,10 @@ namespace gui {
       return gui::os::size{ width, height };
     }
 
+    core::rectangle window::screen_area () {
+      return core::rectangle(screen_size());
+    }
+
 #endif // GUIPP_X11
 
 #ifdef GUIPP_QT
@@ -1454,14 +1461,14 @@ namespace gui {
     }
 
     core::size window::screen_size () {
-      return core::size(core::global::get_instance()->primaryScreen()->size());
+      return core::size(core::global::get_instance()->primaryScreen()->availableSize());
+    }
+
+    core::rectangle window::screen_area () {
+      return core::rectangle(core::global::get_instance()->primaryScreen()->availableGeometry());
     }
 
 #endif // GUIPP_QT
-
-    core::rectangle window::screen_area () {
-      return core::rectangle(screen_size());
-    }
 
 #ifdef COCOA
 

@@ -83,10 +83,10 @@ namespace gui {
     template<>
     void Use<brush>::set (const brush&);
 
-#ifndef USE_XFT
+#ifndef GUIPP_USE_XFT
     template<>
     void Use<font>::set(const font&);
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
 
 #endif // GUIPP_X11
 

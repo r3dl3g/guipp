@@ -136,14 +136,14 @@ namespace gui {
       operator os::graphics () const;
       operator os::drawable() const;
 
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
       operator XftDraw* () const;
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
 
     protected:
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
       XftDraw* get_xft () const;
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
 
 
       friend struct clip;

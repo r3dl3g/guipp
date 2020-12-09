@@ -22,15 +22,15 @@
 //
 // Common includes
 //
-#ifdef XCB
+#ifdef GUIPP_USE_XCB
 # include <X11/Xlib-xcb.h>
-#endif // XCB
+#endif // GUIPP_USE_XCB
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
 #include <X11/Xft/Xft.h>
 #include <X11/extensions/Xrender.h>
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
 
 // --------------------------------------------------------------------------
 //
@@ -55,20 +55,20 @@ namespace gui {
     typedef Pixmap icon;
     typedef Cursor cursor;
     typedef color brush;
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
     typedef XftPattern* font;
 #else
     typedef Font font;
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
     typedef int menu;
 
     typedef short point_type;
     typedef unsigned short size_type;
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
     typedef XftFont* font_type;
 #else
     typedef XFontStruct* font_type;
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
     typedef unsigned int cursor_type;
 
     typedef unsigned int key_state;
@@ -108,7 +108,7 @@ namespace gui {
 
 } //gui
 
-#ifndef USE_XFT
+#ifndef GUIPP_USE_XFT
 
 #define FC_WEIGHT_THIN       1
 #define FC_WEIGHT_ULTRALIGHT 2
@@ -120,4 +120,4 @@ namespace gui {
 #define FC_WEIGHT_ULTRABOLD  8
 #define FC_WEIGHT_HEAVY      9
 
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT

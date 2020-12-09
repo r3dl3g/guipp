@@ -78,7 +78,7 @@ namespace gui {
 
       void init_font_scale () {
         if (s_font_scale == 0.0) {
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
           os::font_type info = XftFontOpen(core::global::get_instance(),
                                            core::global::x11::get_screen(),
                                            XFT_FAMILY, XftTypeString, "Courier",
@@ -92,7 +92,7 @@ namespace gui {
           XftFontClose(core::global::get_instance(), info);
 #else
           s_font_scale = core::global::get_scale_factor();
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
           clog::debug() << "Font scale = " << s_font_scale;
         }
       }
@@ -333,11 +333,11 @@ namespace gui {
     }
 
     font::font (os::font id) {
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
       info = XftFontOpenPattern(core::global::get_instance(), id);
 #else
       info = XQueryFont(core::global::get_instance(), id);
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
     }
 
     std::string buildFontName(const std::string& name,
@@ -430,7 +430,7 @@ namespace gui {
       : info(nullptr)
     {
       init_font_scale();
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
       info = XftFontOpen(core::global::get_instance(),
                          core::global::x11::get_screen(),
                          XFT_FAMILY, XftTypeString, name.c_str(),
@@ -451,16 +451,16 @@ namespace gui {
       }
       info = f;
       clog::debug() << "Load font:" << get_full_name();
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
     }
 
     font::font (const font& rhs)
       : info(nullptr) {
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
       info = XftFontCopy(core::global::get_instance(), rhs.info);
 #else
       info = XLoadQueryFont(core::global::get_instance(), rhs.get_full_name().c_str());
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
     }
 
     font& font::operator= (const font& rhs) {
@@ -469,11 +469,11 @@ namespace gui {
       }
       destroy();
       if (rhs.info) {
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
         info = XftFontCopy(core::global::get_instance(), rhs.info);
 #else
         info = XLoadQueryFont(core::global::get_instance(), rhs.get_full_name().c_str());
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
       }
       return *this;
     }
@@ -485,29 +485,29 @@ namespace gui {
     void font::destroy () {
       if (info) {
         if (core::global::get_instance()) {
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
           XftFontClose(core::global::get_instance(), info);
 #else
           XFreeFont(core::global::get_instance(), info);
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
         }
         info = nullptr;
       }
     }
 
     font::operator os::font() const {
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
       return (info ? info->pattern : nullptr);
 #else
       return info ? info->fid : 0;
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
     }
 
     os::font_type font::font_type () const {
       return info;
     }
 
-#ifndef USE_XFT
+#ifndef GUIPP_USE_XFT
     std::string font::get_full_name() const {
       if (info) {
         unsigned long pid;
@@ -523,11 +523,11 @@ namespace gui {
       }
       return std::string();
     }
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
 
     std::string font::name () const {
       if (info) {
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
         char* name = nullptr;
         if (XftResultMatch == XftPatternGetString(info->pattern, XFT_FAMILY, 0, &name)) {
           return name;
@@ -536,7 +536,7 @@ namespace gui {
         std::string name;
         parseFontName(get_full_name(), &name);
         return name;
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
       }
       return std::string();
     }
@@ -544,7 +544,7 @@ namespace gui {
     font::size_type font::size () const {
       if (info) {
         double sz;
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
         if (XftResultMatch == XftPatternGetDouble(info->pattern, XFT_SIZE, 0, &sz)) {
           return static_cast<font::size_type>(sz);
         }
@@ -552,7 +552,7 @@ namespace gui {
       font::size_type size = -1;
       parseFontName(get_full_name(), nullptr, &size);
       return size;
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
       }
       return STD_FONT_SIZE;
     }
@@ -560,7 +560,7 @@ namespace gui {
     font::Thickness font::thickness () const {
       if (info) {
         int sz;
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
         if (XftResultMatch == XftPatternGetInteger(info->pattern, XFT_WEIGHT, 0, &sz)) {
           return font::Thickness(sz);
         }
@@ -568,7 +568,7 @@ namespace gui {
       font::Thickness thickness = Thickness::regular;
       parseFontName(get_full_name(), nullptr, nullptr, &thickness);
       return thickness;
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
       }
       return font::Thickness::regular;
     }
@@ -580,7 +580,7 @@ namespace gui {
     bool font::italic () const {
       if (info) {
         int sz;
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
         if (XftResultMatch == XftPatternGetInteger(info->pattern, XFT_SLANT, 0, &sz)) {
           return sz != 0;
         }
@@ -588,7 +588,7 @@ namespace gui {
       bool italic = false;
       parseFontName(get_full_name(), nullptr, nullptr, nullptr, &italic);
       return italic;
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
       }
       return false;
     }
@@ -607,11 +607,11 @@ namespace gui {
 
     font::size_type font::native_line_height () const {
       if (info) {
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
         return info->height;
 #else
         return info->ascent + info->descent;
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
       }
       return STD_FONT_SIZE;
     }
@@ -647,7 +647,7 @@ namespace gui {
 
     core::size font::get_text_size (const std::string& str) const {
       if (font_type()) {
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
         XGlyphInfo extents;
         XftTextExtentsUtf8(core::global::get_instance(),
                            font_type(),
@@ -657,7 +657,7 @@ namespace gui {
         return core::size(core::global::scale<core::size::type>(extents.width), core::global::scale<core::size::type>(extents.height));
 #else
         return core::size(XTextWidth(font_type(), str.c_str(), str.size()));
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
       }
       return core::size::zero;
     }

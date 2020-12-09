@@ -1201,9 +1201,9 @@ namespace gui {
     core::size window::screen_size () {
       auto dpy = core::global::get_instance();
       auto scr = core::global::x11::get_screen();
-      auto width = DisplayWidth(dpy, scr);
-      auto height = DisplayHeight(dpy, scr);
-      return gui::os::size{ width, height };
+      gui::os::size_type width = static_cast<gui::os::size_type>(DisplayWidth(dpy, scr));
+      gui::os::size_type height = static_cast<gui::os::size_type>(DisplayHeight(dpy, scr));
+      return core::size(gui::os::size{ width, height });
     }
 
     core::rectangle window::screen_area () {

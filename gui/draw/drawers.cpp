@@ -479,7 +479,7 @@ namespace gui {
 #ifdef GUIPP_X11
     using namespace core::global;
 
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
     // --------------------------------------------------------------------------
     struct render_color : XRenderColor {
       render_color (os::color c)
@@ -506,7 +506,7 @@ namespace gui {
 
       XftDraw* xft;
     };
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
 
     // --------------------------------------------------------------------------
     void line::operator() (const graphics& g, const pen& p) const {
@@ -907,7 +907,7 @@ namespace gui {
 
       int px = rect.os_x();
       int py = rect.os_y();
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
       int height = 0, width = 0;
       int dx = 0, dy = 0;
       if (f.font_type()) {
@@ -980,7 +980,7 @@ namespace gui {
       }
 
       XDrawString(core::global::get_instance(), g, g, px, py, str.c_str(), int(str.size()));
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
     }
 
     // --------------------------------------------------------------------------
@@ -992,7 +992,7 @@ namespace gui {
       int px = rect.os_x();
       int py = rect.os_y();
 
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
       int height = 0, width = 0;
       if (f.font_type()) {
         XGlyphInfo extents;
@@ -1054,7 +1054,7 @@ namespace gui {
 
       rect.top_left({core::point::type(px), core::point::type(py - overall.ascent)});
       rect.set_size({core::size::type(width), core::size::type(overall.ascent + overall.descent)});
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
     }
 
     // --------------------------------------------------------------------------
@@ -1065,7 +1065,7 @@ namespace gui {
 
       int px = pos.os_x();
       int py = pos.os_y();
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
       int height = 0, width = 0;
       int dx = 0, dy = 0;
 
@@ -1132,7 +1132,7 @@ namespace gui {
       }
 
       XDrawString(display, g, g, px, py, str.c_str(), int(str.size()));
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
     }
 
 #endif // GUIPP_X11

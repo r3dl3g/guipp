@@ -324,7 +324,7 @@ namespace gui {
       };
     }
 
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
     XftDraw* get_xft_draw (os::drawable target) {
       static XftDraw* s_xft = nullptr;
 
@@ -346,7 +346,7 @@ namespace gui {
       }
       return s_xft;
     }
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
 
     // --------------------------------------------------------------------------
     graphics::graphics (os::drawable target, os::graphics gc)
@@ -355,9 +355,9 @@ namespace gui {
       , own_gc(false)
       , ref_gc(false)
     {
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
       get_xft();
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
       clear_clip_rect();
     }
 
@@ -369,9 +369,9 @@ namespace gui {
     {
       gc = XCreateGC(get_instance(), target, 0, 0);
       own_gc = true;
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
       get_xft();
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
       clear_clip_rect();
     }
 
@@ -381,9 +381,9 @@ namespace gui {
       , own_gc(false)
       , ref_gc(false)
     {
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
       get_xft();
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
       operator= (rhs);
       clear_clip_rect();
     }
@@ -559,19 +559,19 @@ namespace gui {
     void graphics::set_clip_rect (const core::rectangle& rect) const {
       os::rectangle r = rect.os();
       XSetClipRectangles(get_instance(), gc, 0, 0, &r, 1, Unsorted);
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
       XftDrawSetClipRectangles(get_xft(), 0, 0, &r, 1);
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
     }
 
     void graphics::clear_clip_rect () const {
       XSetClipMask(get_instance(), gc, None);
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
       XftDrawSetClip(get_xft(), None);
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
     }
 
-#ifdef USE_XFT
+#ifdef GUIPP_USE_XFT
     XftDraw* graphics::get_xft () const {
       return get_xft_draw(target);
     }
@@ -579,7 +579,7 @@ namespace gui {
     graphics::operator XftDraw* () const {
       return get_xft();
     }
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
 
 #endif // GUIPP_X11
 

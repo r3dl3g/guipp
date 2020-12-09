@@ -107,9 +107,9 @@ namespace gui {
       void destroy ();
 
 #ifdef GUIPP_X11
-# ifndef USE_XFT
+# ifndef GUIPP_USE_XFT
       std::string get_full_name() const;
-# endif // USE_XFT
+# endif // GUIPP_USE_XFT
 #endif // GUIPP_X11
 
 #if defined(GUIPP_WIN) || defined(GUIPP_QT)

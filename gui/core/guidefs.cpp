@@ -22,9 +22,12 @@
 //
 #ifdef GUIPP_X11
 # include <X11/XKBlib.h>
-# ifdef XCB
+# ifdef GUIPP_USE_XCB
 #  include <xcb/xcb_xrm.h>
-# endif // XCB
+# endif // GUIPP_USE_XCB
+# ifdef GUIPP_USE_XRANDR
+#  include <X11/extensions/Xrandr.h>
+# endif // GUIPP_USE_XRANDR
 #elif GUIPP_WIN
 #include <shellscalingapi.h>
 #pragma warning(disable:4996)
@@ -205,9 +208,9 @@ namespace gui {
           } else {
             clog::fatal() << "X server instance is 0!";
           }
-# ifdef XCB
+# ifdef GUIPP_USE_XCB
           xcb_connection = XGetXCBConnection(instance);
-# endif // XCB
+# endif // GUIPP_USE_XCB
 
 #endif // GUIPP_X11
           set_scale_factor(calc_scale_factor());
@@ -231,9 +234,9 @@ namespace gui {
         gui::os::instance instance;
 #ifdef GUIPP_X11
         gui::os::x11::screen screen;
-# ifdef XCB
+# ifdef GUIPP_USE_XCB
         xcb_connection_t *xcb_connection;
-# endif // XCB
+# endif // GUIPP_USE_XCB
 #endif // GUIPP_X11
 
       };
@@ -350,64 +353,90 @@ namespace gui {
         }
       }
 
-# ifdef XCB
-      long get_cxb_dpi_of_screen (xcb_screen_t *data) {
-        const int dpi_w = static_cast<int>(static_cast<double>(data->width_in_pixels) * 25.4 / static_cast<double>(data->width_in_millimeters));
-        const int dpi_h = static_cast<int>(static_cast<double>(data->height_in_pixels) * 25.4 / static_cast<double>(data->height_in_millimeters));
-
-        return std::max(dpi_w, dpi_h);
-      }
-
-      int get_cxb_dpi () {
+# ifdef GUIPP_USE_XCB
+      int get_xcb_dpi () {
         long dpi = 0;
         xcb_xrm_database_t* xrm_db = xcb_xrm_database_from_default(gui_static.xcb_connection);
         if (xrm_db != NULL) {
           int i = xcb_xrm_resource_get_long(xrm_db, "Xft.dpi", NULL, &dpi);
           xcb_xrm_database_free(xrm_db);
-
-          if (i < 0) {
-            clog::error() << "Could not fetch value of Xft.dpi from Xresources falling back to highest dpi found";
-          } else {
-            clog::info() << "XCB.dpi = " << dpi;
-            return dpi;
-          }
+          clog::info() << "Xcb xrm_resource Xft.dpi: " << dpi;
         } else {
-          clog::error() << "Could not open Xresources database falling back to highest dpi found";
-        }
+          clog::warn() << "Could not open Xresources database falling back to highest dpi found";
 
-        for (xcb_screen_iterator_t i = xcb_setup_roots_iterator(xcb_get_setup(gui_static.xcb_connection)); i.rem; xcb_screen_next(&i)) {
-          if (i.data != NULL) {
-            dpi = std::max(dpi, get_cxb_dpi_of_screen(i.data));
+          for (xcb_screen_iterator_t i = xcb_setup_roots_iterator(xcb_get_setup(gui_static.xcb_connection)); i.rem; xcb_screen_next(&i)) {
+            if (i.data != NULL) {
+              const long xdpi = static_cast<int>((i.data->width_in_pixels * 254) / (i.data->width_in_millimeters * 10));
+              const long ydpi = static_cast<int>((i.data->height_in_pixels * 254) / (i.data->height_in_millimeters * 10));
+
+              clog::info() << "Xcb Screen " << i.index << ": "
+                           << " pix WxH: " << i.data->width_in_pixels << " x " << i.data->height_in_pixels
+                           << " mm WxH: " << i.data->width_in_millimeters << " x " << i.data->height_in_millimeters
+                           << " X-DPI: " << xdpi << " Y-DPI: " << ydpi;
+
+              dpi = std::max(dpi, std::max(xdpi, ydpi));
+            }
           }
         }
 
-         clog::info() << "XCB.dpi = " << dpi;
+       clog::info() << "XCB.dpi = " << dpi;
 
+        return static_cast<int>(dpi);
+      }
+# endif // GUIPP_USE_XCB
+
+# ifdef GUIPP_USE_XRANDR
+      int get_xrandr_dpi () {
+        int dpi = 0;
+        auto dpy = get_instance();
+        Window root = DefaultRootWindow(dpy);
+        XRRScreenResources* res = XRRGetScreenResourcesCurrent(dpy, root);
+
+        for (int i = 0; i < (res ? res->noutput : 0); i++) {
+          XRROutputInfo* rroi = XRRGetOutputInfo(dpy, res, res->outputs[i]);
+
+          if (!rroi || rroi->connection) {
+            continue; // No connection no crtcs
+          }
+          clog::info() << "Xrandr Screen " << i << " (" << rroi->name
+                       << "): connection: " << rroi->connection
+                       << ", WxH: " << rroi->mm_width << " x " << rroi->mm_height;
+
+          for( int j = 0; j < rroi->ncrtc; j++ ) {
+            XRRCrtcInfo* rrci = XRRGetCrtcInfo(dpy, res, res->crtcs[ j ] );
+            if (!rrci || !rrci->noutput) {
+              continue;
+            }
+            const int xdpi = ((int)rrci->width * 254) / ((int)rroi->mm_width * 10);
+            const int ydpi = ((int)rrci->height * 254) / ((int)rroi->mm_height * 10);
+            clog::info() << "Xrandr Crtc " << j << " XxY-WxH:" << rrci->x << " y " << rrci->y
+                         << " - " << rrci->width << " x " << rrci->height
+                         << " X-DPI: " << xdpi << " Y-DPI: " << ydpi;
+            dpi = std::max(dpi, std::max(xdpi, ydpi));
+          }
+        }
+        clog::info() << "Xrandr.dpi = " << dpi;
         return dpi;
       }
-# endif // XCB
-
-      int get_xlib_dpi_of_screen (Screen* screen) {
-        const int dpi_w = static_cast<int>(static_cast<double>(screen->width) * 25.4 / static_cast<double>(screen->mwidth));
-        const int dpi_h = static_cast<int>(static_cast<double>(screen->height) * 25.4 / static_cast<double>(screen->mheight));
-
-        return std::max(dpi_w, dpi_h);
-      }
+# endif // GUIPP_USE_XRANDR
 
       int get_xlib_dpi () {
-# ifdef USE_XFT
-        int dpi = 0;
+        int dpi = 96;
         const int screen_count = ScreenCount(get_instance());
         for (int i = 0; i < screen_count; ++i) {
-          auto screen = XScreenOfDisplay(get_instance(), i);
-          dpi = std::max(dpi, get_xlib_dpi_of_screen(screen));
+          Screen* screen = XScreenOfDisplay(get_instance(), i);
+          const int xdpi = (screen->width * 254) / (screen->mwidth * 10);
+          const int ydpi = (screen->height * 254) / (screen->mheight * 10);
+
+          clog::info() << "Xlib Screen " << i << ": "
+                       << " pix WxH: " << screen->width << " x " << screen->height
+                       << " mm WxH: " << screen->mwidth << " x " << screen->mheight
+                       << " X-DPI: " << xdpi << " Y-DPI: " << ydpi;
+
+          dpi = std::max(dpi, std::max(xdpi, ydpi));
         }
-        clog::info() << "X11.dpi = " << dpi;
+        clog::info() << "Xlib.dpi = " << dpi;
         return dpi;
-# else
-        clog::info() << "X11.dpi = 220";
-        return 220;
-# endif
       }
 
       double calc_scale_factor () {
@@ -417,17 +446,19 @@ namespace gui {
           std::stringstream(xscale) >> scale;
           return scale;
         } else {
-# ifdef XCB
-          int dpi = std::max(get_xlib_dpi(), get_cxb_dpi());
-# else
           int dpi = get_xlib_dpi();
-# endif // XCB
+# ifdef GUIPP_USE_XCB
+          dpi = std::max(dpi, get_xcb_dpi());
+# endif // GUIPP_USE_XCB
+# ifdef GUIPP_USE_XRANDR
+          dpi = std::max(dpi, get_xrandr_dpi());
+# endif // GUIPP_USE_XRANDR
           if (dpi == 0) {
             clog::error() <<  "Could get highest dpi, using 96 as default";
             dpi = 96;
           }
 
-          return round((double)dpi / 96.0);
+          return floor((double)dpi / 95.9);
         }
         return scale_factor;
       }

@@ -73,12 +73,12 @@ namespace gui {
       XSetFillStyle(display, g, b.style());
     }
 
-#ifndef USE_XFT
+#ifndef GUIPP_USE_XFT
     template<>
     void Use<font>::set(const font& f) {
       XSetFont(core::global::get_instance(), g, f);
     }
-#endif // USE_XFT
+#endif // GUIPP_USE_XFT
 
 #endif // GUIPP_X11
 

@@ -1378,8 +1378,7 @@ namespace gui {
     void bounding_box::operator() (const graphics& g,
                                    const font& f,
                                    os::color) const {
-      auto s = QFontMetrics(f).size(Qt::TextSingleLine, QString::fromStdString(str));
-      rect.set_size(core::size(s));
+      rect = core::rectangle(QFontMetrics(f).boundingRect(rect.os(), static_cast<int>(origin), QString::fromStdString(str)));
     }
 
     // --------------------------------------------------------------------------
@@ -1392,7 +1391,7 @@ namespace gui {
       int px = pos.os_x();
       int py = pos.os_y();
       if (!origin_is_left(origin) || !origin_is_bottom(origin)) {
-        auto r = QFontMetrics(f).tightBoundingRect(QString::fromStdString(str));
+        core::rectangle r(QFontMetrics(f).tightBoundingRect(QString::fromStdString(str)));
 
         if (origin_is_h_center(origin)) {
           px -= r.width() / 2;

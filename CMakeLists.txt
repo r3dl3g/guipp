@@ -53,13 +53,15 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif ()
 
 get_directory_property(HAS_PARENT PARENT_DIRECTORY)
-if(NOT HAS_PARENT)
+if (NOT HAS_PARENT)
   set (GUIPP_STANDALONE_BUILD ON)
 endif ()
 
 add_subdirectory(gui)
-add_subdirectory(test)
-add_subdirectory(samples)
+if (GUIPP_STANDALONE_BUILD)
+  add_subdirectory(test)
+  add_subdirectory(samples)
+endif ()
 
 if(HAS_PARENT)
   set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} PARENT_SCOPE)

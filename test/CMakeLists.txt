@@ -14,9 +14,6 @@ endif()
 
 add_subdirectory(./../gui gui)
 
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-
 if (GUIPP_USE_QT)
   message(STATUS "GUIPP test: build with Qt5!")
   find_package(Qt5Widgets REQUIRED)
@@ -31,8 +28,7 @@ message(STATUS "app GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
 
 # add the binary tree to the search path for include files
 # so that we will find Version.h
-# "${PROJECT_BINARY_DIR}/../IT3DCameraLib"
-include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS} ../boost)
+include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS})
 
 enable_testing()
 

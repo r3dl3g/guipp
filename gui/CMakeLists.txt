@@ -50,9 +50,9 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${Qt5Widgets_LIBRARIES})
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_QT ${Qt5Widgets_DEFINITIONS})
-	if (UNIX)
+    if (UNIX)
       set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -lstdc++fs -fPIC)
-	endif()
+    endif()
     set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
     # /usr/local/src/qt-everywhere-opensource-src-5.9.5/qtbase/include
 

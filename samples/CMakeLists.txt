@@ -17,9 +17,6 @@ if (GUIPP_USE_QT)
   find_package(Qt5Widgets REQUIRED)
 endif()
 
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-
 add_definitions(${GUIPP_CXX_FLAGS})
 message(STATUS "samples GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
 message(STATUS "samples GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
@@ -29,8 +26,7 @@ message(STATUS "samples GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
 
 # add the binary tree to the search path for include files
 # so that we will find Version.h
-# "${PROJECT_BINARY_DIR}/../IT3DCameraLib"
-include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS} ../boost)
+include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS})
 
 set(apps
     hello_world

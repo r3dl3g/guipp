@@ -31,10 +31,7 @@
 #elif GUIPP_QT
 #include <QtWidgets/QApplication>
 #include <QtGui/QScreen>
-//#include <QtGui/QFont>
-//#include <QtGui/QFontDatabase>
 #include <QtWidgets/QDesktopWidget>
-//#include <QtGui/QPainter>
 #endif // GUIPP_QT
 
 
@@ -74,7 +71,6 @@ namespace std {
     switch (p) {
       case gui::core::os::ui_t::desktop: out << "desktop"; break;
       case gui::core::os::ui_t::mobile:  out << "mobile"; break;
-      case gui::core::os::ui_t::tablet:  out << "tablet"; break;
       default: out << "unknown:" << static_cast<gui::byte>(p); break;
     }
     return out;

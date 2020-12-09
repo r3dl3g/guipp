@@ -120,8 +120,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       enum class ui_t : byte {
         desktop,
-        mobile,
-        tablet
+        mobile
       };
 
       const ui_t system_ui = IF_MOBILE_ELSE(ui_t::mobile, ui_t::desktop);

@@ -205,6 +205,9 @@ namespace gui {
 
       operator os::drawable() const;
 
+      static core::size screen_size ();
+      static core::rectangle screen_area ();
+
     protected:
       window (const window&);
       window (window&&);

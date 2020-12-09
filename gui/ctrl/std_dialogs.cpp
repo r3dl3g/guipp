@@ -26,6 +26,73 @@ namespace gui {
 
   namespace ctrl {
 
+    namespace detail {
+
+      // --------------------------------------------------------------------------
+      template<>
+      core::rectangle std_multi_input_dialog_size<core::os::ui_t::desktop> (const core::rectangle&, std::size_t n) {
+        return core::rectangle(300, 200, 400, static_cast<core::size::type>(85 + n * 40));
+      }
+
+      template<>
+      core::rectangle std_path_open_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area) {
+        return core::rectangle(200, 100, 800, 600);
+      }
+
+      template<>
+      core::rectangle std_message_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area) {
+        return core::rectangle(300, 200, 400, 170);
+      }
+
+      template<>
+      core::rectangle std_yes_no_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area) {
+        return std_message_dialog_size<core::os::ui_t::desktop>(area);
+      }
+
+      template<>
+      core::rectangle std_input_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area) {
+        return core::rectangle(300, 200, 400, 125);
+      }
+
+      template<>
+      core::rectangle std_file_save_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area) {
+        return std_path_open_dialog_size<core::os::ui_t::desktop>(area);
+      }
+
+      //-----------------------------------------------------------------------------
+      template<>
+      core::rectangle std_multi_input_dialog_size<core::os::ui_t::mobile> (const core::rectangle& area, std::size_t n) {
+        return win::window::screen_area().shrinked({ 20, 20 }).with_height(static_cast<core::size::type>(85 + n * 40));
+      }
+
+      template<>
+      core::rectangle std_path_open_dialog_size<core::os::ui_t::mobile> (const core::rectangle&) {
+        return win::window::screen_area();
+      }
+
+      template<>
+      core::rectangle std_message_dialog_size<core::os::ui_t::mobile> (const core::rectangle& area) {
+        return win::window::screen_area().shrinked({ 30, 100 });
+      }
+
+      template<>
+      core::rectangle std_yes_no_dialog_size<core::os::ui_t::mobile> (const core::rectangle& area) {
+        return std_message_dialog_size<core::os::ui_t::mobile>(area);
+      }
+
+      template<>
+      core::rectangle std_input_dialog_size<core::os::ui_t::mobile> (const core::rectangle&) {
+        return win::window::screen_area().shrinked({ 30, 100 });
+      }
+
+      template<>
+      core::rectangle std_file_save_dialog_size<core::os::ui_t::mobile> (const core::rectangle& area) {
+        return std_path_open_dialog_size<core::os::ui_t::mobile>(area);
+      }
+
+      //-----------------------------------------------------------------------------
+    } // namespace detail
+
     //-----------------------------------------------------------------------------
     yes_no_dialog::yes_no_dialog () {
       content_view.get_layout().set_center(layout::lay(message_view));
@@ -52,7 +119,7 @@ namespace gui {
                              std::function<yes_no_action> action) {
       yes_no_dialog dialog;
       dialog.create(parent, title, message, yes_label, no_label,
-                    detail::std_dialog_defaults<>::yes_no_dialog_size(parent.place()),
+                    detail::std_yes_no_dialog_size<>(parent.place()),
                     action);
       dialog.show(parent, action);
     }
@@ -97,7 +164,7 @@ namespace gui {
                                const std::string& ok_label) {
       message_dialog dialog;
       dialog.create(parent, title, message, ok_label,
-                    detail::std_dialog_defaults<>::message_dialog_size(parent.place()));
+                    detail::std_message_dialog_size<>(parent.place()));
       dialog.super::show(parent);
     }
 
@@ -133,7 +200,7 @@ namespace gui {
                             std::function<input_action> action) {
       input_dialog dialog;
       dialog.create(parent, title, message, initial, ok_label, cancel_label,
-                    detail::std_dialog_defaults<>::input_dialog_size(parent.place()),
+                    detail::std_input_dialog_size<>(parent.place()),
                     action);
       dialog.show(parent);
     }
@@ -206,7 +273,7 @@ namespace gui {
                                  std::function<file_selected> action) {
       file_save_dialog dialog;
       dialog.create(parent, title, default_name, name_label, ok_label, cancel_label,
-                    detail::std_dialog_defaults<>::file_save_dialog_size(parent.place()),
+                    detail::std_file_save_dialog_size<>(parent.place()),
                     action);
       dialog.super::show(parent);
     }

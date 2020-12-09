@@ -52,6 +52,32 @@ namespace gui {
     //-----------------------------------------------------------------------------
     typedef void (file_selected) (win::container&, const sys_fs::path&);
 
+    namespace detail {
+
+      // --------------------------------------------------------------------------
+      template<core::os::ui_t T = core::os::system_ui>
+      struct std_dialog_defaults {};
+
+      template<core::os::ui_t T = core::os::system_ui>
+      core::rectangle std_multi_input_dialog_size (const core::rectangle&, std::size_t n);
+
+      template<core::os::ui_t T = core::os::system_ui>
+      core::rectangle std_path_open_dialog_size (const core::rectangle& area);
+
+      template<core::os::ui_t T = core::os::system_ui>
+      core::rectangle std_message_dialog_size (const core::rectangle& area);
+
+      template<core::os::ui_t T = core::os::system_ui>
+      core::rectangle std_yes_no_dialog_size (const core::rectangle& area);
+
+      template<core::os::ui_t T = core::os::system_ui>
+      core::rectangle std_input_dialog_size (const core::rectangle& area);
+
+      template<core::os::ui_t T = core::os::system_ui>
+      core::rectangle std_file_save_dialog_size (const core::rectangle& area);
+
+    } // namespace detail
+
     //-----------------------------------------------------------------------------
     template<int TO = 0, int LE = 0, int RI = 0>
     class standard_dialog_base :

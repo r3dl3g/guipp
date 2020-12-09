@@ -28,6 +28,10 @@
 #ifdef GUIPP_X11
 # include <X11/cursorfont.h>
 #endif // GUIPP_X11
+#ifdef GUIPP_QT
+#include <QtWidgets/QApplication>
+#include <QtGui/QScreen>
+#endif // GUIPP_QT
 
 // --------------------------------------------------------------------------
 //
@@ -718,9 +722,14 @@ namespace gui {
       return std::string(class_name);
     }
 
-    // --------------------------------------------------------------------------
+    core::size window::screen_size () {
+      return gui::os::size{ GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
+
+    }
 
 #endif // GUIPP_WIN    
+
+    // --------------------------------------------------------------------------
 
 #ifdef GUIPP_X11
     namespace hidden {
@@ -1186,6 +1195,14 @@ namespace gui {
       handle_event(event, result);
     }
 
+    core::size window::screen_size () {
+      auto dpy = core::global::get_instance();
+      auto scr = core::global::x11::get_screen();
+      auto width = DisplayWidth(dpy, scr);
+      auto height = DisplayHeight(dpy, scr);
+      return gui::os::size{ width, height };
+    }
+
 #endif // GUIPP_X11
 
 #ifdef GUIPP_QT
@@ -1436,7 +1453,15 @@ namespace gui {
       return hidden::window_class_map[get_id()];
     }
 
+    core::size window::screen_size () {
+      return core::size(core::global::get_instance()->primaryScreen()->size());
+    }
+
 #endif // GUIPP_QT
+
+    core::rectangle window::screen_area () {
+      return core::rectangle(screen_size());
+    }
 
 #ifdef COCOA
 

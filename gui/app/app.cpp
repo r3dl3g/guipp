@@ -94,8 +94,15 @@ int main (int argc, char* argv[]) {
   int ret = 0;
   try {
     ret = gui_main(args);
-  } catch (std::exception& e) {
-    clog::fatal() << e;
+    clog::debug() << main << " gui_main finished width: " << ret;
+  } catch (const std::exception& ex) {
+    clog::fatal() << "Excception: " << ex.what();
+    ret = 1;
+  } catch (const std::string& s) {
+    clog::fatal() << "Excception: " << s;
+    ret = 1;
+  } catch (...) {
+    clog::fatal() << "Unknown Excception";
     ret = 1;
   }
 

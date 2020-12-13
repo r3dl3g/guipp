@@ -901,7 +901,5 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   main.set_visible();
 
-  int ret = win::run_main_loop();
-  clog::debug() << main << " run_main_loop finished!";
-  return ret;
+  return win::run_main_loop();
 }

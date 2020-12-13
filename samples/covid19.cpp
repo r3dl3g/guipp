@@ -955,7 +955,16 @@ std::size_t covid19main::chart_count () const {
     case chart_t::lethality_chart:
     case chart_t::per_100k_chart:
     case chart_t::tests_chart:
-      return selection.size();
+      if (selection.has_selection()) {
+        const auto& node = selection.get_item(selection.get_selection());
+        if (tree_view::tree_info::has_sub_nodes(node)) {
+          const auto range = tree_view::tree_info::sub_nodes(node);
+          return std::distance(range.begin(), range.end());
+        } else {
+          return 1;
+        }
+      }
+      // fall throught
     default:
       return 0;
   }
@@ -1003,137 +1012,131 @@ void covid19main::draw_uncached (std::size_t idx_,
   //  auto inner = draw::frame::sunken_relief(graph, area);
   const int idx = static_cast<int>(idx_);
   graph.fill(draw::rectangle(area), background);
-  switch (chart_type) {
-    case chart_t::country_chart:
-      switch (idx) {
-        case 0:
-          drawChart<diagram::scaling::linear>(graph, area, "Increase positives/deads", fmty,
-          {option_data[absolute_increase], option_data[increase_median_7]},
-          {"positive", "dead", "positive/7-day", "dead/7-day"});
-          break;
-        case 1:
-          drawChart<diagram::scaling::log>(graph, area, "Logarithmic Increase pos./deads", fmty,
-          {option_data[absolute_increase], option_data[increase_median_7]},
-          {"positive", "dead", "positive/7-day", "dead/7-day"});
-          break;
-        case 2:
-          drawChart<diagram::scaling::log>(graph, area, "Cumulated positives/deads", fmty,
-          {option_data[absolute_cumulated]},
-          {"positive", "dead"});
-          break;
-        case 3:
-          drawChart<diagram::scaling::log>(graph, area, "Logarithmic relative Inncrease", fmt_p100,
-          {option_data[relative_increase], option_data[relative_median_7_increase]},
-          {"positive", "dead", "positive/7-day", "dead/7-day"});
-          break;
-        case 4:
-          drawChart<diagram::scaling::log>(graph, area, "R-Value", fmty,
-          {option_data[r_value]},
-          {"R-Value", "R-Value/7-day"});
-          break;
-        case 5:
-          drawChart<diagram::scaling::log>(graph, area, "Lethality", fmt_p100,
-          {option_data[lethality]},
-          {"Deads/positives", "Deads/positives/14-day"});
-          break;
-        case 6:
-          drawChart<diagram::scaling::log>(graph, area, "Per 100.000", fmty,
-          {option_data[per_100k], option_data[deads_per_100k]},
-          {"per 100k cumulated", "per 100k last 7 days", "deads per 100k cumulated", "deads per 100k last 7 days"},
-          [] (gui::core::range<double>) {
-            return gui::core::range<double>(0.001, 10000.0);
-          });
-          break;
-        case 7:
-          drawTestsChart(graph, area, "Tests",
-          {option_data[absolute_increase]},
-          {"Cases per week", "Tests per week", "Positive ratio [%]"});
-          break;
+  if (chart_t::country_chart == chart_type) {
+    switch (idx) {
+      case 0:
+        drawChart<diagram::scaling::linear>(graph, area, "Increase positives/deads", fmty,
+        {option_data[absolute_increase], option_data[increase_median_7]},
+        {"positive", "dead", "positive/7-day", "dead/7-day"});
+        break;
+      case 1:
+        drawChart<diagram::scaling::log>(graph, area, "Logarithmic Increase pos./deads", fmty,
+        {option_data[absolute_increase], option_data[increase_median_7]},
+        {"positive", "dead", "positive/7-day", "dead/7-day"});
+        break;
+      case 2:
+        drawChart<diagram::scaling::log>(graph, area, "Cumulated positives/deads", fmty,
+        {option_data[absolute_cumulated]},
+        {"positive", "dead"});
+        break;
+      case 3:
+        drawChart<diagram::scaling::log>(graph, area, "Logarithmic relative Inncrease", fmt_p100,
+        {option_data[relative_increase], option_data[relative_median_7_increase]},
+        {"positive", "dead", "positive/7-day", "dead/7-day"});
+        break;
+      case 4:
+        drawChart<diagram::scaling::log>(graph, area, "R-Value", fmty,
+        {option_data[r_value]},
+        {"R-Value", "R-Value/7-day"});
+        break;
+      case 5:
+        drawChart<diagram::scaling::log>(graph, area, "Lethality", fmt_p100,
+        {option_data[lethality]},
+        {"Deads/positives", "Deads/positives/14-day"});
+        break;
+      case 6:
+        drawChart<diagram::scaling::log>(graph, area, "Per 100.000", fmty,
+        {option_data[per_100k], option_data[deads_per_100k]},
+        {"per 100k cumulated", "per 100k last 7 days", "deads per 100k cumulated", "deads per 100k last 7 days"},
+        [] (gui::core::range<double>) {
+          return gui::core::range<double>(0.001, 10000.0);
+        });
+        break;
+      case 7:
+        drawTestsChart(graph, area, "Tests",
+        {option_data[absolute_increase]},
+        {"Cases per week", "Tests per week", "Positive ratio [%]"});
+        break;
+    }
+  } else {
+    const auto& node = selection.get_item(selection.get_selection());
+    region_tree_info::reference ref = region_tree_info::make_reference(node);
+    if (tree_view::tree_info::has_sub_nodes(node)) {
+      const auto range = tree_view::tree_info::sub_nodes(node);
+      const auto ref_iter = std::next(range.begin(), idx);
+      ref = ref_iter->get();
+    }
+    const population_data& c = tree_view::tree_info::dereference(ref);
+    switch (chart_type) {
+      case chart_t::cases_chart: {
+        country ctry;
+        ctry.positives = calc::rolling_mean(c.positives, 7);
+        ctry.deaths = calc::rolling_mean(c.deaths, 7);
+        drawChart<diagram::scaling::log>(graph, area, c.name, fmty, {ctry}, {"positive", "dead"});
+        break;
       }
-      break;
-    case chart_t::cases_chart: {
-      const auto& c = tree_view::tree_info::dereference(selection.get_item(idx));
+      case chart_t::cumulated_chart: {
+        country ctry;
+        ctry.positives = calc::accumulated(c.positives);
+        ctry.deaths = calc::accumulated(c.deaths);
 
-      country ctry;
-      ctry.positives = calc::rolling_mean(c.positives, 7);
-      ctry.deaths = calc::rolling_mean(c.deaths, 7);
+        drawChart<diagram::scaling::log>(graph, area, c.name, fmty, {ctry}, {"positive", "dead"});
+        break;
+      }
+      case chart_t::relative_increase_chart: {
+        country ctry;
+        ctry.positives = calc::rolling_mean(calc::increase(calc::accumulated(c.positives)), 7);
+        ctry.deaths = calc::rolling_mean(calc::increase(calc::accumulated(c.deaths)), 7);
 
-      drawChart<diagram::scaling::log>(graph, area, c.name, fmty, {ctry}, {"positive", "dead"});
-      break;
-    }
-    case chart_t::cumulated_chart: {
-      const auto& c = tree_view::tree_info::dereference(selection.get_item(idx));
+        drawChart<diagram::scaling::log>(graph, area, c.name, fmt_p100, {ctry}, {"positive", "dead"});
+        break;
+      }
+      case chart_t::r_value_chart: {
+        auto med_pos = calc::rolling_mean(c.positives, 4);
+        country ctry;
+        ctry.positives = calc::ratio(med_pos, med_pos, 4);
+        ctry.deaths = calc::rolling_mean(ctry.positives, 7);
 
-      country ctry;
-      ctry.positives = calc::accumulated(c.positives);
-      ctry.deaths = calc::accumulated(c.deaths);
+        drawChart<diagram::scaling::log>(graph, area, c.name, fmty, {ctry}, {"R-Value", "R-Value/7-day"});
+        break;
+      }
+      case chart_t::lethality_chart: {
+        auto acc_pos = calc::accumulated(c.positives);
+        auto acc_dea = calc::accumulated(c.deaths);
+        auto med_pos = calc::rolling_mean(c.positives, 7);
+        auto med_dea = calc::rolling_mean(c.deaths, 7);
 
-      drawChart<diagram::scaling::log>(graph, area, c.name, fmty, {ctry}, {"positive", "dead"});
-      break;
-    }
-    case chart_t::relative_increase_chart: {
-      const auto& c = tree_view::tree_info::dereference(selection.get_item(idx));
+        country ctry;
+        ctry.positives = calc::ratio(acc_dea, acc_pos, 0);
+        ctry.deaths = calc::ratio(med_dea, med_pos, 14);
 
-      country ctry;
-      ctry.positives = calc::rolling_mean(calc::increase(calc::accumulated(c.positives)), 7);
-      ctry.deaths = calc::rolling_mean(calc::increase(calc::accumulated(c.deaths)), 7);
+        drawChart<diagram::scaling::log>(graph, area, c.name, fmt_p100,
+        {ctry}, {"Deads/positives", "Deads/positives/14-day"});
+        break;
+      }
+      case chart_t::per_100k_chart: {
+        auto acc_pos = calc::accumulated(c.positives);
+        auto med_pos = calc::rolling_mean(c.positives, 7);
+        auto acc_dea = calc::accumulated(c.deaths);
+        auto med_dea = calc::rolling_mean(c.deaths, 7);
 
-      drawChart<diagram::scaling::log>(graph, area, c.name, fmt_p100, {ctry}, {"positive", "dead"});
-      break;
-    }
-    case chart_t::r_value_chart: {
-      const auto& c = tree_view::tree_info::dereference(selection.get_item(idx));
+        country pos, deads;
+        pos.positives = calc::divide(acc_pos, c.population / 100000.0);
+        pos.deaths = calc::divide(med_pos, c.population / 700000.0);
+        deads.positives = calc::divide(acc_dea, c.population / 100000.0);
+        deads.deaths = calc::divide(med_dea, c.population / 700000.0);
 
-      auto med_pos = calc::rolling_mean(c.positives, 4);
-
-      country ctry;
-      ctry.positives = calc::ratio(med_pos, med_pos, 4);
-      ctry.deaths = calc::rolling_mean(ctry.positives, 7);
-
-      drawChart<diagram::scaling::log>(graph, area, c.name, fmty, {ctry}, {"R-Value", "R-Value/7-day"});
-      break;
-    }
-    case chart_t::lethality_chart: {
-      const auto& c = tree_view::tree_info::dereference(selection.get_item(idx));
-
-      auto acc_pos = calc::accumulated(c.positives);
-      auto acc_dea = calc::accumulated(c.deaths);
-      auto med_pos = calc::rolling_mean(c.positives, 7);
-      auto med_dea = calc::rolling_mean(c.deaths, 7);
-
-      country ctry;
-      ctry.positives = calc::ratio(acc_dea, acc_pos, 0);
-      ctry.deaths = calc::ratio(med_dea, med_pos, 14);
-
-      drawChart<diagram::scaling::log>(graph, area, c.name, fmt_p100,
-      {ctry}, {"Deads/positives", "Deads/positives/14-day"});
-      break;
-    }
-    case chart_t::per_100k_chart: {
-      const auto& c = tree_view::tree_info::dereference(selection.get_item(idx));
-
-      auto acc_pos = calc::accumulated(c.positives);
-      auto med_pos = calc::rolling_mean(c.positives, 7);
-      auto acc_dea = calc::accumulated(c.deaths);
-      auto med_dea = calc::rolling_mean(c.deaths, 7);
-
-      country pos, deads;
-      pos.positives = calc::divide(acc_pos, c.population / 100000.0);
-      pos.deaths = calc::divide(med_pos, c.population / 700000.0);
-      deads.positives = calc::divide(acc_dea, c.population / 100000.0);
-      deads.deaths = calc::divide(med_dea, c.population / 700000.0);
-
-      drawChart<diagram::scaling::log>(graph, area, ostreamfmt(c.name << " [" << std::separat_k << c.population << "]"), fmty,
-      {pos, deads}, {"per 100k cumulated", "per 100k last 7 days", "deads per 100k cumulated", "deads per 100k last 7 days"},
-      [] (gui::core::range<double>) {
-       return gui::core::range<double>(0.001, 10000.0);
-      });
-      break;
-    }
-    case chart_t::tests_chart: {
-      const auto& ctry = tree_view::tree_info::dereference(selection.get_item(idx));
-      drawTestsChart(graph, area, ctry.name, {ctry}, {"Tests per week", "Cases per week", "Positive ratio [%]"});
-      break;
+        drawChart<diagram::scaling::log>(graph, area, ostreamfmt(c.name << " [" << std::separat_k << c.population << "]"), fmty,
+        {pos, deads}, {"per 100k cumulated", "per 100k last 7 days", "deads per 100k cumulated", "deads per 100k last 7 days"},
+                                         [] (gui::core::range<double>) {
+          return gui::core::range<double>(0.001, 10000.0);
+        });
+        break;
+      }
+      case chart_t::tests_chart: {
+        drawTestsChart(graph, area, c.name, {c}, {"Tests per week", "Cases per week", "Positive ratio [%]"});
+        break;
+      }
     }
   }
 }

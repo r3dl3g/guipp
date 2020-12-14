@@ -47,7 +47,7 @@ namespace gui {
                          p.style() == pen::Style::solid ? ((sz % 2) == 0 ? CapProjecting : CapRound) : CapButt,
                          p.style() == pen::Style::solid ? JoinMiter : JoinBevel);
       if (static_cast<int>(p.style()) & 0x0F0) {
-        const char s = core::global::scale<int, float>(1);
+        const char s = core::global::scale_to_native<int, float>(1);
         const char l = s * 4;
         switch (p.style()) {
         case pen::Style::dot:
@@ -86,7 +86,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void Use<pen>::set (const pen& p) {
-      g->setPen(QPen(QBrush(p.color()), p.size(), static_cast<Qt::PenStyle>(p.style())));
+      g->setPen(QPen(QBrush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style())));
     }
 
     template<>

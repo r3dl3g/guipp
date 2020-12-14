@@ -12,15 +12,11 @@ using namespace gui::draw;
 
 
 inline pixel::rgb color2rgb (os::color c) {
-  pixel::rgb p;
-  p = c;
-  return p;
+  return pixel::rgb::build(c);
 }
 
 inline pixel::bgr color2bgr (os::color c) {
-  pixel::bgr p;
-  p = c;
-  return p;
+  return pixel::bgr::build(c);
 }
 
 const pixel::rgb black = color2rgb(color::black);

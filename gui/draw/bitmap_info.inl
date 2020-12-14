@@ -28,7 +28,7 @@ namespace gui {
     }
 
     inline core::size bitmap_info::scaled_size () const {
-        return core::global::scale(size());
+        return core::global::scale_from_native(size());
       }
 
     inline byte bitmap_info::depth () const {

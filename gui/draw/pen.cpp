@@ -47,7 +47,7 @@ namespace gui {
     {
       info.elpColor = color;
       info.elpPenStyle = static_cast<DWORD>(style);
-      auto w = core::global::scale<os::size_type, size_type>(width);
+      auto w = core::global::scale_to_native<os::size_type, size_type>(width);
       info.elpWidth = w;
       info.elpBrushStyle = BS_SOLID;
       info.elpHatch = 0;
@@ -76,7 +76,7 @@ namespace gui {
     }
 
     pen::size_type pen::size () const {
-      return core::global::scale<size_type, os::size_type>(info.elpWidth);
+      return core::global::scale_from_native<size_type, os::size_type>(info.elpWidth);
     }
 
     os::size_type pen::os_size () const {
@@ -99,7 +99,7 @@ namespace gui {
     }
 
     pen pen::with_os_size(os::size_type sz) const {
-      return pen(color(), core::global::scale<size_type, os::size_type>(sz), style());
+      return pen(color(), core::global::scale_from_native<size_type, os::size_type>(sz), style());
     }
 
     pen pen::with_style (Style s) const {
@@ -136,7 +136,7 @@ namespace gui {
     }
 
     os::size_type pen::os_size () const {
-      return core::global::scale<os::size_type, size_type>(m_size);
+      return core::global::scale_to_native<os::size_type, size_type>(m_size);
     }
 
     pen::Style pen::style () const {

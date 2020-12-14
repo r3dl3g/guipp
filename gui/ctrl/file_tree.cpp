@@ -389,11 +389,8 @@ namespace gui {
         bool selected = (idx == list.get_selection());
         const fs::file_info& f = data[idx];
 
-        const draw::pixmap* img = (f.is_directory()
-                                   ? &(tree::closed_folder_icon(selected))
-                                   : &(tree::file_icon(selected)));
-
-        return std::make_tuple(img, f, f, f.last_write_time);
+        const draw::pixmap& img = tree::standard_icon(f.is_directory(), false, selected);
+        return std::make_tuple(&img, f, f, f.last_write_time);
       }
 
     } // detail

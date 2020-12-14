@@ -937,7 +937,7 @@ namespace gui {
       if (wid && x11::check_status(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height,
                                                 &border_width, &depth))) {
-        return core::global::scale(core::native_size{width, height});
+        return core::global::scale_from_native(core::native_size{width, height});
       }
       return core::size::zero;
     }
@@ -952,7 +952,7 @@ namespace gui {
       if (wid && x11::check_return(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height,
                                                 &border_width, &depth))) {
-        return core::global::scale(core::native_point{x, y});
+        return core::global::scale_from_native(core::native_point{x, y});
       }
       return core::point::undefined;
     }
@@ -967,7 +967,7 @@ namespace gui {
       if (wid && x11::check_return(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height,
                                                 &border_width, &depth))) {
-        return core::global::scale(core::native_rect{x, y, width, height});
+        return core::global::scale_from_native(core::native_rect{x, y, width, height});
       }
       return core::rectangle::def;
     }
@@ -1051,12 +1051,12 @@ namespace gui {
       x11::check_return(XTranslateCoordinates(display,
                                               get_id(),
                                               DefaultRootWindow(display),
-                                              core::global::scale<int>(pt.x()),
-                                              core::global::scale<int>(pt.y()),
+                                              core::global::scale_to_native<int>(pt.x()),
+                                              core::global::scale_to_native<int>(pt.y()),
                                               &x,
                                               &y,
                                               &child_return));
-      return {core::global::scale<core::point::type>(x), core::global::scale<core::point::type>(y)};
+      return {core::global::scale_from_native<core::point::type>(x), core::global::scale_from_native<core::point::type>(y)};
     }
 
     core::point window::screen_to_client (const core::point& pt) const {
@@ -1066,12 +1066,12 @@ namespace gui {
       x11::check_return(XTranslateCoordinates(display,
                                               DefaultRootWindow(display),
                                               get_id(),
-                                              core::global::scale<int>(pt.x()),
-                                              core::global::scale<int>(pt.y()),
+                                              core::global::scale_to_native<int>(pt.x()),
+                                              core::global::scale_to_native<int>(pt.y()),
                                               &x,
                                               &y,
                                               &child_return));
-      return {core::global::scale<core::point::type>(x), core::global::scale<core::point::type>(y)};
+      return {core::global::scale_from_native<core::point::type>(x), core::global::scale_from_native<core::point::type>(y)};
     }
 
     void window::set_cursor (const os::cursor& c) {

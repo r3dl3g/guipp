@@ -93,7 +93,7 @@ namespace gui {
           auto sz = icon.native_size();
           core::native_point::type y = r.os_y() + (r.os_height() - sz.height()) / 2;
           graph.copy_from(icon, core::native_point(r.os_x(), y));
-          r += core::point(core::global::scale<core::size::type>(sz.width()) + 5, 0);
+          r += core::point(core::global::scale_from_native<core::size::type>(sz.width()) + 5, 0);
         }
 
         r.x2(area.x2());
@@ -134,6 +134,7 @@ namespace gui {
 
         if (core::global::get_scale_factor() != 1.0) {
           bwmap rhs = mask;
+          // Upscale the image. Douplicate the pixels by scale factor.
           mask.create(rhs.native_size() * core::global::get_scale_factor());
           mask.stretch_from(rhs);
         }

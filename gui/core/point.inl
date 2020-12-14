@@ -71,31 +71,31 @@ namespace gui {
 
     template<typename T>
     inline gui::os::point_type basic_point<T>::os_x () const {
-      return global::scale<gui::os::point_type>(x_);
+      return global::scale_to_native<gui::os::point_type>(x_);
     }
 
     template<typename T>
     inline gui::os::point_type basic_point<T>::os_y () const {
-      return global::scale<gui::os::point_type>(y_);
+      return global::scale_to_native<gui::os::point_type>(y_);
     }
 
     template<typename T>
     inline basic_point<T>::basic_point (const gui::os::point& rhs)
-      : x_(global::scale<T>(IF_QT_ELSE(rhs.x(), rhs.x)))
-      , y_(global::scale<T>(IF_QT_ELSE(rhs.y(), rhs.y)))
+      : x_(global::scale_from_native<T>(IF_QT_ELSE(rhs.x(), rhs.x)))
+      , y_(global::scale_from_native<T>(IF_QT_ELSE(rhs.y(), rhs.y)))
     {}
 
     template<typename T>
     inline basic_point<T>::basic_point (const gui::os::rectangle& r)
 #ifdef GUIPP_WIN
-      : x_(global::scale<T>(r.left))
-      , y_(global::scale<T>(r.top))
+      : x_(global::scale_from_native<T>(r.left))
+      , y_(global::scale_from_native<T>(r.top))
 #elif GUIPP_X11
-      : x_(global::scale<T>(r.x))
-      , y_(global::scale<T>(r.y))
+      : x_(global::scale_from_native<T>(r.x))
+      , y_(global::scale_from_native<T>(r.y))
 #elif GUIPP_QT
-      : x_(global::scale<T>(r.x()))
-      , y_(global::scale<T>(r.y()))
+      : x_(global::scale_from_native<T>(r.x()))
+      , y_(global::scale_from_native<T>(r.y()))
 #else
 #error Unknown target system: basic_point<T>::basic_point (const gui::os::rectangle& r)
 #endif // GUIPP_QT
@@ -273,12 +273,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace global {
 
-      inline point scale (const native_point& v) {
-        return point(scale<point::type>(v.x()), scale<point::type>(v.y()));
+      inline point scale_from_native (const native_point& v) {
+        return point(scale_from_native<point::type>(v.x()), scale_from_native<point::type>(v.y()));
       }
 
-      inline native_point scale (const point& v) {
-        return native_point(scale<native_point::type>(v.x()), scale<native_point::type>(v.y()));
+      inline native_point scale_to_native (const point& v) {
+        return native_point(scale_to_native<native_point::type>(v.x()), scale_to_native<native_point::type>(v.y()));
       }
 
     } // namespace global

@@ -88,7 +88,7 @@ namespace gui {
     template<typename T>
     core::rectangle get_rect (const core::event& e) {
       T& p = *reinterpret_cast<T*>(e.lParam);
-      return core::global::scale(core::native_rect(p.x, p.y, p.cx, p.cy));
+      return core::global::scale_from_native(core::native_rect(p.x, p.y, p.cx, p.cy));
     }
 
     // --------------------------------------------------------------------------
@@ -429,8 +429,8 @@ namespace gui {
     template<typename C>
     struct get<core::size, C> {
       static core::size param (const core::event& e) {
-        return core::size(core::global::scale<core::size::type>(event_type_cast<C>(e).width),
-                          core::global::scale<core::size::type>(event_type_cast<C>(e).height));
+        return core::size(core::global::scale_from_native<core::size::type>(event_type_cast<C>(e).width),
+                          core::global::scale_from_native<core::size::type>(event_type_cast<C>(e).height));
       }
 
     };
@@ -438,8 +438,8 @@ namespace gui {
     template<typename C>
     struct get<core::point, C> {
       static core::point param (const core::event& e) {
-        return core::point(core::global::scale<core::point::type>(event_type_cast<C>(e).x),
-                           core::global::scale<core::point::type>(event_type_cast<C>(e).y));
+        return core::point(core::global::scale_from_native<core::point::type>(event_type_cast<C>(e).x),
+                           core::global::scale_from_native<core::point::type>(event_type_cast<C>(e).y));
       }
 
     };

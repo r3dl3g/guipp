@@ -56,11 +56,11 @@ namespace gui {
     template<typename T, typename S>
     basic_rectangle<T, S>::basic_rectangle (const gui::os::rectangle& r)
 #ifdef GUIPP_WIN
-      : pos(global::scale<T>(r.left), global::scale<T>(r.top))
-      , sz(global::scale<S>(r.right - r.left), global::scale<S>(r.bottom - r.top))
+      : pos(global::scale_from_native<T>(r.left), global::scale_from_native<T>(r.top))
+      , sz(global::scale_from_native<S>(r.right - r.left), global::scale_from_native<S>(r.bottom - r.top))
 #elif GUIPP_X11
-      : pos(global::scale<T>(r.x), global::scale<T>(r.y))
-      , sz(global::scale<S>(r.width), global::scale<S>(r.height))
+      : pos(global::scale_from_native<T>(r.x), global::scale_from_native<T>(r.y))
+      , sz(global::scale_from_native<S>(r.width), global::scale_from_native<S>(r.height))
 #elif GUIPP_QT
     : pos(r.topLeft())
     , sz(r.size())
@@ -244,12 +244,12 @@ namespace gui {
 
     template<typename T, typename S>
     inline gui::os::point_type basic_rectangle<T, S>::os_x2 () const {
-      return global::scale<gui::os::point_type>(x2());
+      return global::scale_to_native<gui::os::point_type>(x2());
     }
 
     template<typename T, typename S>
     inline gui::os::point_type basic_rectangle<T, S>::os_y2 () const {
-      return global::scale<gui::os::point_type>(y2());
+      return global::scale_to_native<gui::os::point_type>(y2());
     }
 
     template<typename T, typename S>
@@ -264,12 +264,12 @@ namespace gui {
 
     template<typename T, typename S>
     inline gui::os::point_type basic_rectangle<T, S>::os_right () const {
-      return global::scale<gui::os::point_type>(right());
+      return global::scale_to_native<gui::os::point_type>(right());
     }
 
     template<typename T, typename S>
     inline gui::os::point_type basic_rectangle<T, S>::os_bottom () const {
-      return global::scale<gui::os::point_type>(bottom());
+      return global::scale_to_native<gui::os::point_type>(bottom());
     }
 
 #ifdef GUIPP_WIN
@@ -597,12 +597,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace global {
 
-      inline rectangle scale (const native_rect& v) {
-        return rectangle(scale(v.position()), scale(v.size()));
+      inline rectangle scale_from_native (const native_rect& v) {
+        return rectangle(scale_from_native(v.position()), scale_from_native(v.size()));
       }
 
-      inline native_rect scale (const rectangle& v) {
-        return native_rect(scale(v.position()), scale(v.size()));
+      inline native_rect scale_to_native (const rectangle& v) {
+        return native_rect(scale_to_native(v.position()), scale_to_native(v.size()));
       }
 
     } // namespace global

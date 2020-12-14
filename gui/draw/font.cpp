@@ -222,7 +222,7 @@ namespace gui {
     }
 
     core::size::type font::line_height () const {
-      return core::global::scale<core::size::type>(native_line_height());
+      return core::global::scale_to_native<core::size::type>(native_line_height());
     }
 
     font::size_type font::native_line_height () const {
@@ -290,7 +290,7 @@ namespace gui {
       GetTextExtentPoint32W(hdc, wstr.c_str(), static_cast<int>(str.length()), &sz);
       SelectObject(hdc, old);
       ReleaseDC(NULL, hdc);
-      return core::size(core::global::scale<core::size::type>(sz.cx), core::global::scale<core::size::type>(sz.cy));
+      return core::size(core::global::scale_from_native<core::size::type>(sz.cx), core::global::scale_from_native<core::size::type>(sz.cy));
     }
 
 #endif // GUIPP_WIN
@@ -602,7 +602,7 @@ namespace gui {
     }
 
     core::size::type font::line_height () const {
-      return core::global::scale<core::size::type>(native_line_height());
+      return core::global::scale_from_native<core::size::type>(native_line_height());
     }
 
     font::size_type font::native_line_height () const {
@@ -654,7 +654,7 @@ namespace gui {
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
-        return core::size(core::global::scale<core::size::type>(extents.width), core::global::scale<core::size::type>(extents.height));
+        return core::size(core::global::scale_from_native<core::size::type>(extents.width), core::global::scale_from_native<core::size::type>(extents.height));
 #else
         return core::size(XTextWidth(font_type(), str.c_str(), str.size()));
 #endif // GUIPP_USE_XFT
@@ -776,7 +776,7 @@ namespace gui {
     }
 
     core::size::type font::line_height () const {
-      return core::global::scale<core::size::type>(native_line_height());
+      return core::global::scale_from_native<core::size::type>(native_line_height());
     }
 
     font::size_type font::native_line_height () const {

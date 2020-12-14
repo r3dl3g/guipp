@@ -86,13 +86,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     core::point get_param<1, core::point>(const core::event& e) {
-      return core::global::scale(core::native_point(GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)));
+      return core::global::scale_from_native(core::native_point(GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)));
     }
 
     // --------------------------------------------------------------------------
     template<>
     core::size get_param<1, core::size>(const core::event& e) {
-      return core::global::scale(core::native_size(GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)));
+      return core::global::scale_from_native(core::native_size(GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)));
     }
 
     // --------------------------------------------------------------------------
@@ -105,7 +105,7 @@ namespace gui {
     core::point get_root_mouse_pos (const core::event& e) {
       POINT pt = {GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)};
       ClientToScreen(e.id, &pt);
-      return core::global::scale(core::native_point(pt));
+      return core::global::scale_from_native(core::native_point(pt));
     }
 
     // --------------------------------------------------------------------------
@@ -269,7 +269,7 @@ namespace gui {
     void send_client_message (window* win, os::message_type message, const core::rectangle& wr) {
       if (win && win->is_valid()) {
         gui::os::event_result result;
-        core::native_rect r = core::global::scale(wr);
+        core::native_rect r = core::global::scale_to_native(wr);
         auto id = detail::get_window_id(*win);
         WINDOWPOS wp{id, NULL, r.x(), r.y(), static_cast<int>(r.width()), static_cast<int>(r.height()), 0};
         core::event e { id, message, 0, reinterpret_cast<LPARAM>(&wp)};
@@ -452,7 +452,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     core::point get_root_mouse_pos (const core::event& e) {
       auto me = (event_type_cast<XMotionEvent>(e));
-      return core::global::scale(core::native_point{me.x_root, me.y_root});
+      return core::global::scale_from_native(core::native_point{me.x_root, me.y_root});
     }
 
     // --------------------------------------------------------------------------

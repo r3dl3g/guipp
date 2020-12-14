@@ -44,7 +44,7 @@ namespace gui {
                                  typename draw::image_data<pixel_format_t::BW>::row_type out,
                                  uint32_t w, pixel::gray limit) {
           for (uint_fast32_t x = 0; x < w; ++x) {
-            out[x] = (limit.value < pixel::get_gray(in[x].value)) ? pixel::mono::white : pixel::mono::black;
+            out[x] = (limit.value < pixel::get_gray(in[x])) ? pixel::mono::white : pixel::mono::black;
           }
         }
 

@@ -317,9 +317,9 @@ namespace gui {
             const auto mi = std::floor(std::log10(std::abs(min)));
             const auto m = std::max(mi, ma);
             const auto l = std::copysign(std::pow(10.0, ma < m - 1 ? m - 1 : ma), max);
-//            const auto li = std::copysign(std::pow(10.0, mi < m - 1 ? m - 1 : mi), min);
+            const auto lmi = std::copysign(std::pow(10.0, mi < m - 1 ? m - 1 : mi), min);
             lmax = static_cast<T>(l * std::ceil(max / l));
-            lmin = static_cast<T>(l * (min < 0 ? std::ceil(min / l) : std::floor(min / l)));
+            lmin = static_cast<T>(lmi * (min < 0 ? std::ceil(min / lmi) : std::floor(min / lmi)));
           }
           return { lmin, lmax };
         }

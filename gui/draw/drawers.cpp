@@ -258,7 +258,7 @@ namespace gui {
     void arc::operator() (const graphics& g,
                           const brush& b,
                           const pen& p) const {
-      const uint32_t sz = static_cast<unsigned int>(core::global::scale<uint32_t>(radius * 2));
+      const uint32_t sz = static_cast<unsigned int>(core::global::scale_to_native<uint32_t>(radius * 2));
 
       auto end_a = end_angle;
       while (end_a < start_angle) {
@@ -279,7 +279,7 @@ namespace gui {
       } else {
         const auto x = pos.os_x();
         const auto y = pos.os_y();
-        const auto r = core::global::scale<DWORD>(radius);
+        const auto r = core::global::scale_to_native<DWORD>(radius);
         BeginPath(g);
         MoveToEx(g, x, x, nullptr);
         AngleArc(g, x, x, r, start_angle, end_a - start_angle);
@@ -291,7 +291,7 @@ namespace gui {
 
     void arc::operator() (const graphics& g,
                           const pen& p) const {
-      const uint32_t sz = core::global::scale<uint32_t>(radius * 2);
+      const uint32_t sz = core::global::scale_to_native<uint32_t>(radius * 2);
 
       auto end_a = end_angle;
       while (end_a < start_angle) {
@@ -311,7 +311,7 @@ namespace gui {
       } else {
         const auto x = pos.os_x();
         const auto y = pos.os_y();
-        const auto r = core::global::scale<DWORD>(radius);
+        const auto r = core::global::scale_to_native<DWORD>(radius);
         BeginPath(g);
         MoveToEx(g, x, y, nullptr);
         AngleArc(g, x, y, r, start_angle, end_a - start_angle);
@@ -755,7 +755,7 @@ namespace gui {
       gui::os::instance display = get_instance();
 
       const auto tl = pos - core::size(radius, radius);
-      const unsigned int sz = scale<unsigned int>(radius * 2);
+      const unsigned int sz = scale_to_native<unsigned int>(radius * 2);
 
       while (end_angle < start_angle) {
         end_angle += 360;
@@ -770,12 +770,12 @@ namespace gui {
         double start = M_PI * start_angle / 180.0;
         double end = M_PI * end_angle / 180.0;
         os::point pt[3];
-        pt[0].x = short(scale<os::point_type>(pos.x() + radius * cos(start)));
-        pt[0].y = short(scale<os::point_type>(pos.y() - radius * sin(start)));
-        pt[1].x = short(scale<os::point_type>(pos.x()));
-        pt[1].y = short(scale<os::point_type>(pos.y()));
-        pt[2].x = short(scale<os::point_type>(pos.x() + radius * cos(end)));
-        pt[2].y = short(scale<os::point_type>(pos.y() - radius * sin(end)));
+        pt[0].x = short(scale_to_native<os::point_type>(pos.x() + radius * cos(start)));
+        pt[0].y = short(scale_to_native<os::point_type>(pos.y() - radius * sin(start)));
+        pt[1].x = short(scale_to_native<os::point_type>(pos.x()));
+        pt[1].y = short(scale_to_native<os::point_type>(pos.y()));
+        pt[2].x = short(scale_to_native<os::point_type>(pos.x() + radius * cos(end)));
+        pt[2].y = short(scale_to_native<os::point_type>(pos.y() - radius * sin(end)));
         XDrawLines(display, g, g, pt, 3, CoordModeOrigin);
         XDrawPoint(display, g, g, pt[0].x, pt[0].y);
         XDrawPoint(display, g, g, pt[2].x, pt[2].y);
@@ -791,7 +791,7 @@ namespace gui {
       Use<brush> br(g, b);
 
       const auto tl = pos - core::size(radius, radius);
-      const unsigned int sz = scale<unsigned int>(radius * 2);
+      const unsigned int sz = scale_to_native<unsigned int>(radius * 2);
 
       int x = tl.os_x();
       int y = tl.os_y();
@@ -1019,8 +1019,8 @@ namespace gui {
         py += rect.os_height() - height;
       }
 
-      rect.top_left({core::global::scale<core::point::type>(px), core::global::scale<core::point::type>(py)});
-      rect.set_size({core::global::scale<core::size::type>(width), core::global::scale<core::size::type>(height)});
+      rect.top_left({core::global::scale_from_native<core::point::type>(px), core::global::scale_from_native<core::point::type>(py)});
+      rect.set_size({core::global::scale_from_native<core::size::type>(width), core::global::scale_from_native<core::size::type>(height)});
 #else
       Use<font> fn(g, f);
       Use<pen> pn(g, c);
@@ -1139,17 +1139,12 @@ namespace gui {
 
 #ifdef GUIPP_QT
 
-#define SIMPLE_MODE
     brush null_brush(color::black, brush::invisible);
     pen null_pen(color::black, 1, pen::Style::invisible);
 
     void line::operator() (const graphics& g, const pen& p) const {
-#ifdef SIMPLE_MODE
-      Use<pen> pn(g, p);
-      g.os()->drawLine(from.os(), to.os());
-#else
       const auto pw = p.os_size();
-      const auto off = p.os_size() / 2;
+      const auto off = pw / 2;
       const auto x = from.os_x() + off;
       const auto y = from.os_y() + off;
       const auto x2 = to.os_x() + off;
@@ -1163,13 +1158,12 @@ namespace gui {
           brush b1(p.color());
           Use<pen> upn(g, p1);
           Use<brush> ubr(g, b1);
-          g.os()->drawRect(x - off, y - off, x + pw - 1, y + pw - 1);
+          g.os()->drawRect(x - off, y - off, x + pw, y + pw);
         }
       } else {
         Use<pen> pn(g, p);
         g.os()->drawLine(x, y, x2, y2);
       }
-#endif // SIMPLE_MODE
     }
 
     // --------------------------------------------------------------------------
@@ -1185,33 +1179,9 @@ namespace gui {
     void rectangle::operator() (const graphics& g,
                                 const brush& b,
                                 const pen& p) const {
-#ifdef SIMPLE_MODE
       Use<brush> ubr(g, b);
       Use<pen> upn(g, p);
       g.os()->drawRect(rect.os());
-#else
-      const os::rectangle r = rect.os();
-      const auto pw = p.os_size();
-      if ((r.left() + pw == r.right()) && (r.top() + pw == r.bottom())) {
-        if (pw < 2) {
-          g.os()->setPen(p.color());
-          g.os()->drawPoint(r.x(), r.y());
-        } else {
-          pen p1 = p.with_os_size(1);
-          brush b1(p.color());
-          Use<pen> upn(g, p1);
-          Use<brush> ubr(g, b1);
-          g.os()->drawRect(r);
-        }
-      } else if ((r.right() > r.left()) && (r.bottom() > r.top())) {
-        Use<brush> ubr(g, b);
-        Use<pen> upn(g, p);
-        const auto tl = pen_offsets_tl(pw);
-        const auto br = pen_offsets_br(pw);
-
-        g.os()->drawRect(r.left() + tl, r.top() + tl, r.right() + br, r.bottom() + br);
-      }
-#endif // SIMPLE_MODE
     }
 
     void rectangle::operator() (const graphics& g,
@@ -1228,37 +1198,9 @@ namespace gui {
     void ellipse::operator() (const graphics& g,
                               const brush& b,
                               const pen& p) const {
-#ifdef SIMPLE_MODE
       Use<pen> upn(g, p);
       Use<brush> ubr(g, b);
       g.os()->drawEllipse(rect.os());
-#else
-      const os::rectangle r = rect.os();
-      const auto pw = p.os_size();
-      if ((r.left() == r.right()) && (r.top() == r.bottom())) {
-        if (pw < 2) {
-          g.draw_pixel({r.left(), r.top()}, p.color());
-        } else {
-          pen p1 = p.with_os_size(1);
-          brush b1(p.color());
-          Use<pen> upn(g, p1);
-          Use<brush> ubr(g, b1);
-          g.os()->drawRect(r.left(), r.top(), r.right() + pw, r.bottom() + pw);
-        }
-      } else if ((r.right() > r.left()) && (r.bottom() > r.top())) {
-        const auto tl = pen_offsets_tl(pw);
-        if ((r.right() - r.left() < 3) || (r.bottom() - r.top() < 3)) {
-          Use<brush> ubr(g, b);
-          Use<pen> upn(g, p);
-          g.os()->drawRect(r.left() + tl, r.top() + tl, r.right() + pw, r.bottom() + pw);
-        } else {
-          const auto br = pen_offsets_tl(pw + 1);
-          Use<brush> ubr(g, b);
-          Use<pen> upn(g, p);
-          g.os()->drawEllipse(r.left() + tl, r.top() + tl, r.right() + br, r.bottom() + br);
-        }
-      }
-#endif // SIMPLE_MODE
     }
 
     void ellipse::operator() (const graphics& g,

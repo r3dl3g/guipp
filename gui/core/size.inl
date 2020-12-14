@@ -75,12 +75,12 @@ namespace gui {
 
     template<typename T>
     inline gui::os::size_type basic_size<T>::os_width () const {
-      return global::scale<gui::os::size_type, T>(w);
+      return global::scale_to_native<gui::os::size_type, T>(w);
     }
 
     template<typename T>
     inline gui::os::size_type basic_size<T>::os_height () const {
-      return global::scale<gui::os::size_type, T>(h);
+      return global::scale_to_native<gui::os::size_type, T>(h);
     }
 
     template<typename T>
@@ -95,27 +95,27 @@ namespace gui {
 
     template<typename T>
     inline basic_size<T>::basic_size (const gui::os::size& s)
-      : w(global::scale<T>(IF_QT_ELSE(s.width(), s.cx)))
-      , h(global::scale<T>(IF_QT_ELSE(s.height(), s.cy)))
+      : w(global::scale_from_native<T>(IF_QT_ELSE(s.width(), s.cx)))
+      , h(global::scale_from_native<T>(IF_QT_ELSE(s.height(), s.cy)))
     {}
 
     template<typename T>
     inline basic_size<T>::basic_size (const gui::os::point& pt)
-      : w(global::scale<T>(IF_QT_ELSE(pt.x(), pt.x)))
-      , h(global::scale<T>(IF_QT_ELSE(pt.y(), pt.y)))
+      : w(global::scale_from_native<T>(IF_QT_ELSE(pt.x(), pt.x)))
+      , h(global::scale_from_native<T>(IF_QT_ELSE(pt.y(), pt.y)))
     {}
 
     template<typename T>
     inline basic_size<T>::basic_size (const gui::os::rectangle& r)
 #ifdef GUIPP_WIN
-      : w(global::scale<T>(r.right - r.left))
-      , h(global::scale<T>(r.bottom - r.top))
+      : w(global::scale_from_native<T>(r.right - r.left))
+      , h(global::scale_from_native<T>(r.bottom - r.top))
 #elif GUIPP_X11
-      : w(global::scale<T>(r.width))
-      , h(global::scale<T>(r.height))
+      : w(global::scale_from_native<T>(r.width))
+      , h(global::scale_from_native<T>(r.height))
 #elif GUIPP_QT
-      : w(global::scale<T>(r.width()))
-      , h(global::scale<T>(r.height()))
+      : w(global::scale_from_native<T>(r.width()))
+      , h(global::scale_from_native<T>(r.height()))
 #else
 # error Unknown target system: basic_size<T>::basic_size (const gui::os::rectangle& r)
 #endif // GUIPP_QT
@@ -245,12 +245,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace global {
 
-      inline size scale (const native_size& v) {
-        return size(scale<size::type>(v.width()), scale<size::type>(v.height()));
+      inline size scale_from_native (const native_size& v) {
+        return size(scale_from_native<size::type>(v.width()), scale_from_native<size::type>(v.height()));
       }
 
-      inline native_size scale (const size& v) {
-        return native_size(scale<native_size::type, size::type>(v.width()), scale<native_size::type, size::type>(v.height()));
+      inline native_size scale_to_native (const size& v) {
+        return native_size(scale_to_native<native_size::type, size::type>(v.width()), scale_to_native<native_size::type, size::type>(v.height()));
       }
 
     } // namespace global

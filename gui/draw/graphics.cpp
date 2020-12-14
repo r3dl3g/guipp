@@ -500,36 +500,18 @@ namespace gui {
     const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) const {
       auto display = core::global::get_instance();
       int res = 0;
-      XGCValues org_values = {0};
-      res = XGetGCValues(display, gc, GCFunction|GCForeground|GCBackground|GCGraphicsExposures, &org_values);
-//      clog::debug() << "XGCValues:" << org_values;
       if (bmp.mask) {
-        auto screen = core::global::x11::get_screen();
-        XGCValues values = {
-          //function
-            static_cast<int>(copy_mode::bit_and)
-          //plane_mask
-          , 0
-          //foreground
-          , bmp.image ? XBlackPixel(display, screen)
-                      : XWhitePixel(display, screen)
-          //background
-          , bmp.image ? XWhitePixel(display, screen)
-                      : XBlackPixel(display, screen)
-        };
-        values.graphics_exposures = False;
-        res = XChangeGC(display, gc, GCFunction|GCForeground|GCBackground|GCGraphicsExposures, &values);
-        auto sz = bmp.mask.native_size();
-        res = XCopyPlane(get_instance(), bmp.mask, target, gc, 0, 0, sz.width(), sz.height(), pt.x(), pt.y(), 1);
-
-        values.function = static_cast<int>(copy_mode::bit_or);
-        res = XChangeGC(display, gc, GCFunction, &values);
+        XSetClipMask(display, gc, bmp.mask.get_id());
+        XSetClipOrigin(display, gc, pt.x(), pt.y());
       }
       if (bmp.image) {
         auto sz = bmp.image.native_size();
         res = XCopyArea(get_instance(), bmp.image, target, gc, 0, 0, sz.width(), sz.height(), pt.x(), pt.y());
       }
-      res = XChangeGC(display, gc, GCFunction|GCForeground|GCBackground|GCGraphicsExposures, &org_values);
+
+      if (bmp.mask) {
+        restore_clipping();
+      }
       return *this;
     }
 
@@ -704,11 +686,7 @@ namespace gui {
       if (bmp.mask) {
         gc->setClipRegion(QRegion(QBitmap(bmp.mask.get_id())));
         gc->drawPixmap(pt.x(), pt.y(), bmp.image.get_id());
-        if (clipping_stack.empty()) {
-          clear_clip_rect();
-        } else {
-          set_clip_rect(clipping_stack.back());
-        }
+        restore_clipping();
       } else {
         gc->drawPixmap(pt.x(), pt.y(), bmp.image.get_id());
       }
@@ -744,7 +722,11 @@ namespace gui {
     }
 
     core::native_rect graphics::native_area () const {
-      return core::native_rect(gc->viewport());
+      auto vp = gc->viewport();
+      return core::native_rect(vp.x(),
+                               vp.y(),
+                               static_cast<core::native_rect::size_type>(vp.width()),
+                               static_cast<core::native_rect::size_type>(vp.height()));
     }
 
     void graphics::set_clip_rect (const core::rectangle& rect) const {
@@ -770,7 +752,10 @@ namespace gui {
       if (!clipping_stack.empty()) {
         clipping_stack.pop_back();
       }
+      restore_clipping();
+    }
 
+    void graphics::restore_clipping () const {
       if (clipping_stack.empty()) {
         clear_clip_rect();
       } else {
@@ -783,11 +768,11 @@ namespace gui {
     }
 
     core::rectangle graphics::area () const {
-      return core::global::scale(native_area());
+      return core::global::scale_from_native(native_area());
     }
 
     const graphics& graphics::copy_from (const graphics& src, const core::point& pt) const {
-      return copy_from(src, src.native_area(), core::global::scale(pt));
+      return copy_from(src, src.native_area(), core::global::scale_to_native(pt));
     }
 
     const graphics& graphics::copy_from (const graphics& src, const core::native_point& pt) const {
@@ -798,11 +783,11 @@ namespace gui {
                                          const core::rectangle& r,
                                          const core::point& pt,
                                          const copy_mode mode) const {
-      return copy_from(w, core::global::scale(r), core::global::scale(pt), mode);
+      return copy_from(w, core::global::scale_to_native(r), core::global::scale_to_native(pt), mode);
     }
 
     const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::point& pt) const {
-      return copy_from(bmp, core::global::scale(pt));
+      return copy_from(bmp, core::global::scale_to_native(pt));
     }
 
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_point& pt) const {
@@ -810,7 +795,7 @@ namespace gui {
     }
 
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::point& pt) const {
-      return copy_from(bmp, core::rectangle(bmp.scaled_size()), pt);
+      return copy_from(bmp, core::global::scale_to_native(pt));
     }
 
 #ifndef GUIPP_QT

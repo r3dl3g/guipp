@@ -507,6 +507,10 @@ namespace gui {
       if (bmp.image) {
         auto sz = bmp.image.native_size();
         res = XCopyArea(get_instance(), bmp.image, target, gc, 0, 0, sz.width(), sz.height(), pt.x(), pt.y());
+      } else {
+        auto sz = bmp.mask.native_size();
+        Use<brush> br(gc, color::black);
+        XFillRectangle(display, target, gc, pt.x(), pt.y(), sz.width(), sz.height());
       }
 
       if (bmp.mask) {
@@ -684,9 +688,12 @@ namespace gui {
 
     const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) const {
       if (bmp.mask) {
-        gc->setClipRegion(QRegion(QBitmap(bmp.mask.get_id())));
+        QPainter::CompositionMode old_mode = gc->compositionMode();
+        gc->setCompositionMode(QPainter::RasterOp_NotSourceAndDestination);
+        gc->drawPixmap(pt.x(), pt.y(), bmp.mask.get_id());
+        gc->setCompositionMode(QPainter::RasterOp_SourceOrDestination);
         gc->drawPixmap(pt.x(), pt.y(), bmp.image.get_id());
-        restore_clipping();
+        gc->setCompositionMode(old_mode);
       } else {
         gc->drawPixmap(pt.x(), pt.y(), bmp.image.get_id());
       }

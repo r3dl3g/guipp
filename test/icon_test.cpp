@@ -491,16 +491,16 @@ void test_file_icon_selected () {
   core::global::set_scale_factor(1.0);
 
   draw::masked_bitmap icon = gui::ctrl::tree::file_icon(false);
-
-  draw::pixmap mem(20, 20);
+  auto sz = icon.native_size();
+  draw::pixmap mem(sz);
   {
     draw::graphics g(mem);
     g.clear(color::gray);
     g.copy_from(icon);
 
-    for (int32_t y = 0; y < 20; ++y) {
-      for (int32_t x = 0; x < 20; ++x) {
-        os::color expected = expected_bit_at_inv(x, y) ? color::black : color::gray;
+    for (int32_t y = 0; y < sz.height(); ++y) {
+      for (int32_t x = 0; x < sz.width(); ++x) {
+        os::color expected = expected_bit_at(x, y) ? color::black : color::gray;
         os::color test = g.get_pixel({x, y});
         EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
       }

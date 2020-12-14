@@ -283,7 +283,7 @@ struct region_tree_info {
     return n.name;
   }
 
-  static const draw::pixmap& icon (population_data const&, bool has_children, bool is_open, bool selected) {
+  static const tree::tree_icon& icon (population_data const&, bool has_children, bool is_open, bool selected) {
     return tree::standard_icon(has_children, is_open, selected);
   }
 };

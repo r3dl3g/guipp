@@ -352,9 +352,9 @@ namespace gui {
       file_list_row_data::file_list_row_data (const std::vector<fs::file_info>& dir,
                                               const vertical_list& list)
         : super(
-          [] (const draw::pixmap* const& img, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t) {
+          [] (const tree::tree_icon* const& img, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t) {
             if (img) {
-              g.fill(draw::image<draw::pixmap>(*img, r), item_state::selected == s ? color::highLightColor() : b);
+              g.fill(draw::image<tree::tree_icon>(*img, r), item_state::selected == s ? color::highLightColor() : b);
             } else {
               g.fill(draw::rectangle(r), item_state::selected == s ? color::highLightColor() : b);
             }
@@ -389,7 +389,7 @@ namespace gui {
         bool selected = (idx == list.get_selection());
         const fs::file_info& f = data[idx];
 
-        const draw::pixmap& img = tree::standard_icon(f.is_directory(), false, selected);
+        const tree::tree_icon& img = tree::standard_icon(f.is_directory(), false, selected);
         return std::make_tuple(&img, f, f, f.last_write_time);
       }
 

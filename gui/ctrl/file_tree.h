@@ -114,7 +114,7 @@ namespace gui {
         static reference make_reference (type const& n);
         static type const& dereference (reference const& r);
         static std::string label (type const& n);
-        static const draw::pixmap& icon (type const&, bool has_children, bool is_open, bool selected);
+        static const tree::tree_icon& icon (type const&, bool has_children, bool is_open, bool selected);
 
       };
 
@@ -167,12 +167,12 @@ namespace gui {
     namespace detail {
 
       struct GUIPP_CTRL_EXPORT file_list_row_data :
-          public column_list_data_t<const draw::pixmap*,
+          public column_list_data_t<const tree::tree_icon*,
                                     fs::file_info,
                                     fs::file_info,
                                     sys_fs::file_time_type> {
 
-        typedef column_list_data_t<const draw::pixmap*,
+        typedef column_list_data_t<const tree::tree_icon*,
                                    fs::file_info,
                                    fs::file_info,
                                    sys_fs::file_time_type> super;
@@ -233,10 +233,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T = path_tree::sorted_file_info>
     class file_column_list : public column_list_t<layout::weight_column_list_layout,
-                                                  const draw::pixmap*, fs::file_info, fs::file_info, sys_fs::file_time_type> {
+                                                  const tree::tree_icon*, fs::file_info, fs::file_info, sys_fs::file_time_type> {
     public:
       typedef column_list_t<layout::weight_column_list_layout,
-                            const draw::pixmap*, fs::file_info, fs::file_info, sys_fs::file_time_type> super;
+                            const tree::tree_icon*, fs::file_info, fs::file_info, sys_fs::file_time_type> super;
 
       file_column_list (core::size::type item_size = list_defaults<>::item_size,
                         os::color background = color::white,

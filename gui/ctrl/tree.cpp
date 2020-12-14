@@ -64,7 +64,7 @@ namespace gui {
                       const draw::brush& background,
                       std::size_t depth,
                       const std::string& label,
-                      const draw::pixmap& icon,
+                      const tree::tree_icon& icon,
                       bool has_children,
                       bool is_open,
                       item_state state) {
@@ -106,7 +106,7 @@ namespace gui {
 
     namespace detail {
 
-      enum class tree_icon {
+      enum class icon_type {
         file,
         closed_folder,
         open_folder
@@ -117,16 +117,16 @@ namespace gui {
         return std::string((const char*)t, N);
       }
 
-      std::string get_icon_chars (tree_icon type) {
+      std::string get_icon_chars (icon_type type) {
         switch (type) {
-        case tree_icon::file:           return make_string(image_data::file_icon_bits);
-        case tree_icon::closed_folder:  return make_string(image_data::close_folder_icon_bits);
-        case tree_icon::open_folder:    return make_string(image_data::open_folder_icon_bits);
+        case icon_type::file:           return make_string(image_data::file_icon_bits);
+        case icon_type::closed_folder:  return make_string(image_data::close_folder_icon_bits);
+        case icon_type::open_folder:    return make_string(image_data::open_folder_icon_bits);
         }
         return std::string();
       }
 
-      draw::pixmap build_tree_icon (tree_icon type, bool selected) {
+      tree::tree_icon build_tree_icon (icon_type type, bool selected) {
         using namespace gui::draw;
         bwmap mask;
         std::istringstream in(get_icon_chars(type));
@@ -139,21 +139,23 @@ namespace gui {
           mask.stretch_from(rhs);
         }
 
-        pixmap image(mask.native_size());
-        graphics g(image);
-        if (selected) {
-//          mask.invert();
-          bitmap bmp(mask);
-          g.clear(color::highLightColor());
-          g.copy_from(bmp, core::native_rect(mask.native_size()), core::native_point::zero, copy_mode::bit_xor);
-        } else {
-          mask.invert();
-          bitmap bmp(mask);
-          g.clear(color::white);
-          g.copy_from(bmp, core::native_rect(mask.native_size()), core::native_point::zero, copy_mode::bit_and);
-        }
+        return tree::tree_icon(bitmap(mask));
 
-        return image;
+//        tree::tree_icon image(mask.native_size());
+//        graphics g(image);
+//        if (selected) {
+////          mask.invert();
+//          bitmap bmp(mask);
+//          g.clear(color::highLightColor());
+//          g.copy_from(bmp, core::native_rect(mask.native_size()), core::native_point::zero, copy_mode::bit_xor);
+//        } else {
+//          mask.invert();
+//          bitmap bmp(mask);
+//          g.clear(color::white);
+//          g.copy_from(bmp, core::native_rect(mask.native_size()), core::native_point::zero, copy_mode::bit_and);
+//        }
+
+//        return image;
       }
 
     } // detail
@@ -161,25 +163,25 @@ namespace gui {
 
     namespace tree {
 
-      const draw::pixmap& open_folder_icon (bool selected) {
-        static draw::pixmap icon(detail::build_tree_icon(detail::tree_icon::open_folder, false));
-        static draw::pixmap icon_selected(detail::build_tree_icon(detail::tree_icon::open_folder, true));
+      const tree_icon& open_folder_icon (bool selected) {
+        static tree_icon icon(detail::build_tree_icon(detail::icon_type::open_folder, false));
+        static tree_icon icon_selected(detail::build_tree_icon(detail::icon_type::open_folder, true));
         return selected ? icon_selected : icon;
       }
 
-      const draw::pixmap& closed_folder_icon (bool selected) {
-        static draw::pixmap icon(detail::build_tree_icon(detail::tree_icon::closed_folder, false));
-        static draw::pixmap icon_selected(detail::build_tree_icon(detail::tree_icon::closed_folder, true));
+      const tree_icon& closed_folder_icon (bool selected) {
+        static tree_icon icon(detail::build_tree_icon(detail::icon_type::closed_folder, false));
+        static tree_icon icon_selected(detail::build_tree_icon(detail::icon_type::closed_folder, true));
         return selected ? icon_selected : icon;
       }
 
-      const draw::pixmap& file_icon (bool selected) {
-        static draw::pixmap icon(detail::build_tree_icon(detail::tree_icon::file, false));
-        static draw::pixmap icon_selected(detail::build_tree_icon(detail::tree_icon::file, true));
+      const tree_icon& file_icon (bool selected) {
+        static tree_icon icon(detail::build_tree_icon(detail::icon_type::file, false));
+        static tree_icon icon_selected(detail::build_tree_icon(detail::icon_type::file, true));
         return selected ? icon_selected : icon;
       }
 
-      const draw::pixmap& standard_icon (bool has_children, bool is_open, bool selected) {
+      const tree_icon& standard_icon (bool has_children, bool is_open, bool selected) {
         if (has_children) {
           return is_open ? open_folder_icon(selected) : closed_folder_icon(selected);
         }

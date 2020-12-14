@@ -43,8 +43,7 @@
 #include <gui/win/window_event_proc.h>
 #include <gui/win/window_event_handler.h>
 
-
-//#define NO_CAPTURE
+#define NO_CAPTURExx
 
 
 namespace gui {
@@ -1405,14 +1404,17 @@ namespace gui {
     }
 
     void window::capture_pointer () {
+#ifndef NO_CAPTURE
       if (is_valid()) {
         clog::trace() << "capture_pointer:" << get_id();
         hidden::capture_stack.push_back(get_id());
         get_id()->grabMouse();
       }
+#endif // NO_CAPTURE
     }
 
     void window::uncapture_pointer () {
+#ifndef NO_CAPTURE
       if (!hidden::capture_stack.empty()) {
         if (hidden::capture_stack.back() != get_id()) {
           clog::fatal() << "uncapture_pointer:" << get_id() << " differs from stack back:(" << hidden::capture_stack.back() << ")";
@@ -1426,6 +1428,7 @@ namespace gui {
           hidden::capture_stack.back()->grabMouse();
         }
       }
+#endif // NO_CAPTURE
     }
 
     os::window window::create_window (const class_info& type,

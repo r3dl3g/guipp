@@ -35,6 +35,10 @@ namespace gui {
 
   namespace ctrl {
 
+    namespace tree {
+      using tree_icon = draw::masked_bitmap;
+    } // namespace tree
+
     namespace paint {
 
       // --------------------------------------------------------------------------
@@ -47,7 +51,7 @@ namespace gui {
                                         const draw::brush& background,
                                         std::size_t depth,
                                         const std::string& label,
-                                        const draw::pixmap& icon,
+                                        const tree::tree_icon& icon,
                                         bool has_children,
                                         bool is_open,
                                         item_state state);
@@ -57,11 +61,11 @@ namespace gui {
     namespace tree {
 
       // --------------------------------------------------------------------------
-      GUIPP_CTRL_EXPORT const draw::pixmap& open_folder_icon (bool selected);
-      GUIPP_CTRL_EXPORT const draw::pixmap& closed_folder_icon (bool selected);
-      GUIPP_CTRL_EXPORT const draw::pixmap& file_icon (bool selected);
+      GUIPP_CTRL_EXPORT const tree_icon& open_folder_icon (bool selected);
+      GUIPP_CTRL_EXPORT const tree_icon& closed_folder_icon (bool selected);
+      GUIPP_CTRL_EXPORT const tree_icon& file_icon (bool selected);
 
-      GUIPP_CTRL_EXPORT const draw::pixmap& standard_icon (bool has_children, bool is_open, bool selected);
+      GUIPP_CTRL_EXPORT const tree_icon& standard_icon (bool has_children, bool is_open, bool selected);
 
       // --------------------------------------------------------------------------
       template<typename I>
@@ -208,7 +212,7 @@ namespace gui {
         static reference make_reference (node const& n);
         static type const& dereference (reference const& r);
         static std::string label (node const& n);
-        static const draw::pixmap& icon (type const&, bool has_children, bool is_open, bool selected);
+        static const tree_icon& icon (type const&, bool has_children, bool is_open, bool selected);
 
       };
 

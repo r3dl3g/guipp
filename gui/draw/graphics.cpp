@@ -581,6 +581,7 @@ namespace gui {
         gc = new QPainter(target);
         own_gc = true;
       }
+      clear_clip_rect();
     }
 
     graphics::graphics (draw::basic_map& t)
@@ -591,6 +592,7 @@ namespace gui {
     {
       gc = new QPainter(target);
       own_gc = true;
+      clear_clip_rect();
     }
 
     graphics::graphics (const graphics& rhs)
@@ -598,9 +600,14 @@ namespace gui {
       , target(rhs.target)
       , own_gc(false)
       , ref_gc(false)
-    {}
+    {
+      clear_clip_rect();
+    }
 
     graphics::~graphics () {
+      if (gc) {
+        gc->end();
+      }
       destroy();
     }
 
@@ -771,7 +778,12 @@ namespace gui {
     }
 
     const graphics& graphics::clear (os::color color) const {
+#ifdef GUIPP_QT
+      gc->fillRect(native_area(), QBrush(color));
+      return *this;
+#else
       return draw(rectangle(area()), color, color);
+#endif // GUIPP_QT
     }
 
     core::rectangle graphics::area () const {

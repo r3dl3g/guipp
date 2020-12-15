@@ -44,8 +44,8 @@ namespace gui {
       XSetForeground(display, g, p.color());
       const auto sz = p.os_size();
       XSetLineAttributes(display, g, sz, static_cast<int>(p.style()) & 0x0F,
-                         p.style() == pen::Style::solid ? ((sz % 2) == 0 ? CapProjecting : CapRound) : CapButt,
-                         p.style() == pen::Style::solid ? JoinMiter : JoinBevel);
+                         p.style() == pen::Style::solid ? (/*(sz % 2) == 0 ? CapProjecting : */CapRound) : CapButt,
+                         p.style() == pen::Style::solid ? JoinRound : JoinBevel);
       if (static_cast<int>(p.style()) & 0x0F0) {
         const char s = core::global::scale_to_native<int, float>(1);
         const char l = s * 4;
@@ -86,7 +86,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void Use<pen>::set (const pen& p) {
-      g->setPen(QPen(QBrush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style())));
+      g->setPen(QPen(QBrush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()),
+                     Qt::RoundCap, Qt::RoundJoin));
     }
 
     template<>

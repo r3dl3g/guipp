@@ -180,9 +180,9 @@ void test_bitmap_get_image () {
     auto row = data.row(y);
     for (int x = 0; x < 20; ++x) {
       const pixel::rgb expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb>::white
-                                                                  : pixel::color<pixel::rgb>::black;
+                                                            : pixel::color<pixel::rgb>::black;
       const pixel::rgb test = row[x];
-      EXPECT_EQUAL(test, expected, " at x:", x, ", y:", y);
+      EXPECT_EQUAL(test, expected, " in test_bitmap_get_image at x:", x, ", y:", y);
     }
   }
 
@@ -205,9 +205,9 @@ void test_bitmap_get_image_inv () {
     auto row = data.row(y);
     for (int x = 0; x < 20; ++x) {
       const pixel::rgb expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb>::black
-                                                                  : pixel::color<pixel::rgb>::white;
+                                                            : pixel::color<pixel::rgb>::white;
       const pixel::rgb test = row[x];
-      EXPECT_EQUAL(test, expected, " at x:", x, ", y:", y);
+      EXPECT_EQUAL(test, expected, " in test_bitmap_get_image_inv at x:", x, ", y:", y);
     }
   }
 
@@ -239,8 +239,7 @@ void test_bitmap_get_image_mask () {
     XCopyArea(display, pix, mem, gc, 0, 0, 20, 20, 0, 0);
 
     XSetClipMask(display, gc, None);
-#endif // GUIPP_X11
-#ifdef GUIPP_WIN
+#elif GUIPP_WIN
     mask.invert();
     HDC mask_dc = CreateCompatibleDC(gc);
     SelectObject(mask_dc, mask.get_id());
@@ -251,8 +250,10 @@ void test_bitmap_get_image_mask () {
     //BitBlt(gc, 0, 0, 20, 20, img_dc, 0, 0, SRCPAINT);
     //DeleteDC(img_dc);
     DeleteDC(mask_dc);
+#elif GUIPP_QT
+    gc.copy_from(mask, core::native_rect(0, 0, 20, 20), core::native_point::zero, draw::copy_mode::bit_not_src_and_dst);
+//    gc.copy_from(pix, core::native_rect(0, 0, 20, 20), core::native_point::zero, draw::copy_mode::bit_and);
 #endif // GUIPP_WIN
-
   }
 
   draw::rgbmap img = mem.get<pixel_format_t::RGB>();
@@ -264,9 +265,9 @@ void test_bitmap_get_image_mask () {
     auto row = data.row(y);
     for (uint32_t x = 0; x < 20; ++x) {
       const pixel::rgb expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb>::black
-                                                                  : gray;
+                                                            : gray;
       const pixel::rgb test = row[x];
-      EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+      EXPECT_EQUAL(test, expected, " in test_bitmap_get_image_mask at x = ", x, ", y = ", y);
     }
   }
 
@@ -295,7 +296,7 @@ void test_copy_bitmap () {
     for (uint32_t x = 0; x < 20; ++x) {
       const auto pix0 = row0[x];
       const auto pix1 = row1[x];
-      EXPECT_EQUAL(pix1, pix0, " at x = ", x, ", y = ", y);
+      EXPECT_EQUAL(pix1, pix0, " in test_copy_bitmap at x = ", x, ", y = ", y);
     }
   }
 
@@ -324,7 +325,7 @@ void test_copy_pixmap () {
     for (uint32_t x = 0; x < 20; ++x) {
       const auto pix0 = row0[x];
       const auto pix1 = row1[x];
-      EXPECT_EQUAL(pix1, pix0, " at x = ", x, ", y = ", y);
+      TEST_EQUAL(pix1, pix0, " in test_copy_pixmap at x = ", x, ", y = ", y);
     }
   }
 
@@ -353,7 +354,7 @@ void test_masked_from_pixmap () {
       for (uint32_t x = 0; x < 5; ++x) {
         const pixel::rgb expected = pixel::rgb::build(expected_color[x][y]);
         const pixel::rgb test = row[x];
-        EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+        TEST_EQUAL(test, expected, " in test_masked_from_pixmap at x = ", x, ", y = ", y);
       }
     }
   }
@@ -376,7 +377,7 @@ void test_masked_from_pixmap () {
       for (uint32_t x = 0; x < 5; ++x) {
         const pixel::mono expected = expected_bw[x][y];// == pixel::mono::black ? pixel::mono::white : pixel::mono::black;
         const pixel::mono test = row[x];
-        EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+        TEST_EQUAL(test, expected, " in test_masked_from_pixmap at x = ", x, ", y = ", y);
       }
     }
   }
@@ -408,7 +409,7 @@ void test_masked_bitmap () {
     for (int32_t x = 0; x < 5; ++x) {
       const os::color expected = expected_color[x][y];
       const os::color test = g.get_pixel({x, y});
-      EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+      TEST_EQUAL(test, expected, " in test_masked_bitmap at x = ", x, ", y = ", y);
     }
   }
 
@@ -437,9 +438,9 @@ void test_file_icon () {
 
     for (int i = 0; i < size_of_array(expected_file_icon_bits); ++i) {
 #ifdef GUIPP_WIN
-      EXPECT_EQUAL((uint8_t)raw[i], (uint8_t)expected_file_icon_bits[i], " at i = ", i);
+      TEST_EQUAL((uint8_t)raw[i], (uint8_t)expected_file_icon_bits[i], " at i = ", i);
 #else
-      EXPECT_EQUAL((uint8_t)raw[i], (uint8_t)core::reverse_bit_order(expected_file_icon_bits[i]), " at i = ", i);
+      TEST_EQUAL((uint8_t)raw[i], (uint8_t)core::reverse_bit_order(expected_file_icon_bits[i]), " at i = ", i);
 #endif // GUIPP_WIN
     }
 
@@ -448,7 +449,7 @@ void test_file_icon () {
       for (int32_t x = 0; x < 20; ++x) {
         const bool expected = expected_bit_at_inv(x, y);
         const pixel::mono test = row[x];
-        EXPECT_EQUAL((bool)test, expected, " at x = ", x, ", y = ", y);
+        TEST_EQUAL((bool)test, expected, " at x = ", x, ", y = ", y);
       }
     }
   }
@@ -462,7 +463,7 @@ void test_file_icon () {
       for (int32_t x = 0; x < 20; ++x) {
         const os::color  expected = expected_bit_at_inv(x, y) ? color::white : color::black;
         const os::color test = g.get_pixel({x, y});
-        EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+        TEST_EQUAL(test, expected, " in test_file_icon at x = ", x, ", y = ", y);
       }
     }
   }
@@ -479,43 +480,33 @@ void test_file_icon () {
       for (int32_t x = 0; x < 20; ++x) {
         os::color expected = expected_bit_at_inv(x, y) ? color::white : color::gray;
         os::color test = g.get_pixel({x, y});
-        EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+        TEST_EQUAL(test, expected, " at x = ", x, ", y = ", y);
       }
     }
   }
 }
-
 
 // --------------------------------------------------------------------------
 void test_file_icon_selected () {
   core::global::set_scale_factor(1.0);
 
-  draw::masked_bitmap icon = gui::ctrl::tree::file_icon(false);
+  const draw::masked_bitmap& icon = gui::ctrl::tree::file_icon(true);
   auto sz = icon.native_size();
-  draw::pixmap mem(sz);
-  {
-    draw::graphics g(mem);
-    g.clear(color::gray);
-    g.copy_from(icon);
+  draw::pixmap mem(20, 20);
+  os::color highLight = color::highLightColor();
 
-    for (int32_t y = 0; y < sz.height(); ++y) {
-      for (int32_t x = 0; x < sz.width(); ++x) {
-        os::color expected = expected_bit_at(x, y) ? color::black : color::gray;
-        os::color test = g.get_pixel({x, y});
-        EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
-      }
+  draw::graphics g(mem);
+  g.clear(highLight);
+  g.copy_from(icon);
+
+  for (int32_t y = 0; y < 20; ++y) {
+    for (int32_t x = 0; x < 20; ++x) {
+      os::color expected = expected_bit_at_inv(x, y) ? color::black : highLight;
+      os::color test = g.get_pixel({x, y});
+      TEST_EQUAL(test, expected, " in test_file_icon_selected at x = ", x, ", y = ", y);
     }
   }
-
 }
-// --------------------------------------------------------------------------
-void test_close_folder_icon () {}
-// --------------------------------------------------------------------------
-void test_close_folder_icon_selected () {}
-// --------------------------------------------------------------------------
-void test_open_folder_icon () {}
-// --------------------------------------------------------------------------
-void test_open_folder_icon_selected () {}
 
 // --------------------------------------------------------------------------
 void test_main (const testing::start_params& params) {
@@ -534,10 +525,6 @@ void test_main (const testing::start_params& params) {
   run_test(test_masked_bitmap);
   run_test(test_file_icon);
   run_test(test_file_icon_selected);
-//  run_test(test_close_folder_icon);
-//  run_test(test_close_folder_icon_selected);
-//  run_test(test_open_folder_icon);
-//  run_test(test_open_folder_icon_selected);
 }
 
 // --------------------------------------------------------------------------

@@ -381,25 +381,27 @@ namespace gui {
     }
 
     draw::bitmap_info bitmap_get_info (const os::bitmap& id) {
-      pixel_format_t fmt;
-      switch (id.depth()) {
+      pixel_format_t fmt = pixel_format_t::RGBA;
+      const auto depth = id.depth();
+      switch (depth) {
         case 1: fmt = pixel_format_t::BW;
         case 8: fmt = pixel_format_t::GRAY;
         case 24: fmt = pixel_format_t::RGB;
-        default:
-        case 32: fmt = pixel_format_t::RGBA;
       }
       return draw::bitmap_info(id.width(), id.height(), fmt);
     }
 
     void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi) {
-      id.convertFromImage(QImage(data, bmi.width, bmi.height, draw::bitmap_info::convert(bmi.pixel_format)));
+      id.convertFromImage(QImage(data, bmi.width, bmi.height, bmi.bytes_per_line, draw::bitmap_info::convert(bmi.pixel_format)));
     }
 
     void bitmap_get_data (const os::bitmap& id, blob& data, draw::bitmap_info& bmi) {
       QImage img = id.toImage();
-      data.assign(img.constBits(), img.constBits() + img.byteCount());
-      bmi = draw::bitmap_info(core::native_size(img.size()), draw::bitmap_info::convert(img.format()));
+      const int bpl = img.bytesPerLine();
+      const auto sz = img.size();
+      const uchar* bits = img.bits();
+      data.assign(bits, bits + img.byteCount());
+      bmi = draw::bitmap_info(sz.width(), sz.height(), bpl, draw::bitmap_info::convert(img.format()));
     }
 #endif // GUIPP_QT
 
@@ -422,7 +424,11 @@ namespace gui {
         if (rhs) {
           bitmap_info bmi = rhs.get_info();
           create(bmi);
-          graphics(*this).copy_from((os::drawable)rhs, core::rectangle(0, 0, static_cast<float>(bmi.width), static_cast<float>(bmi.height)));
+#ifdef GUIPP_QT
+          get_id() = rhs.get_id();
+#else
+          graphics(*this).copy_from((os::drawable)rhs, core::native_rect(bmi.size()));
+#endif
         } else {
           clear();
         }
@@ -557,6 +563,11 @@ namespace gui {
     }
 
     void pixmap::invert () {
+#ifdef GUIPP_QT
+      QImage tmp = get_id().toImage();
+      tmp.invertPixels();
+      get_id() = QPixmap::fromImage(std::move(tmp));
+#else
       switch (pixel_format()) {
         case pixel_format_t::BW:   invert<pixel_format_t::BW>();   break;
         case pixel_format_t::GRAY: invert<pixel_format_t::GRAY>(); break;
@@ -568,6 +579,7 @@ namespace gui {
         case pixel_format_t::ABGR: invert<pixel_format_t::ABGR>();  break;
         default:  break;
       }
+#endif //GUIPP_QT
     }
 
     void pixmap::put (cbyteptr data, const draw::bitmap_info& bmi) {

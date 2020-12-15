@@ -55,7 +55,7 @@ namespace gui {
     typedef void (copyable) (const graphics&, const core::point&);
 
     enum class copy_mode : uint32_t {
-      bit_copy =                IF_WIN32_X11_QT_ELSE(SRCCOPY,      GXcopy,         0,                                             0),
+      bit_copy =                IF_WIN32_X11_QT_ELSE(SRCCOPY,      GXcopy,         QPainter::CompositionMode_Source,              0),
       bit_and =                 IF_WIN32_X11_QT_ELSE(SRCAND,       GXand,          QPainter::RasterOp_SourceAndDestination,       1),
       bit_or =                  IF_WIN32_X11_QT_ELSE(SRCPAINT,     GXor,           QPainter::RasterOp_SourceOrDestination,        2),
       bit_xor =                 IF_WIN32_X11_QT_ELSE(SRCINVERT,    GXxor,          QPainter::RasterOp_SourceXorDestination,       3),
@@ -65,7 +65,8 @@ namespace gui {
       bit_not_src_or_dst =      IF_WIN32_X11_QT_ELSE(MERGEPAINT,   GXorInverted,   QPainter::RasterOp_NotSourceOrDestination,     7),
       bit_not_src =             IF_WIN32_X11_QT_ELSE(NOTSRCCOPY,   GXcopyInverted, QPainter::RasterOp_NotSource,                  8),
       bit_not_src_and_not_dst = IF_WIN32_X11_QT_ELSE(NOTSRCERASE,  GXnor,          QPainter::RasterOp_NotSourceAndNotDestination, 9),
-      bit_and_not =             IF_WIN32_X11_QT_ELSE(SRCERASE,     GXandReverse,   QPainter::RasterOp_SourceAndNotDestination,    10),
+      bit_not_src_and_dst =     IF_WIN32_X11_QT_ELSE(NOTSRCAND,    GXandInverted,  QPainter::RasterOp_NotSourceAndDestination,    10),
+      bit_and_not =             IF_WIN32_X11_QT_ELSE(SRCERASE,     GXandReverse,   QPainter::RasterOp_SourceAndNotDestination,    11),
     };
 
     // --------------------------------------------------------------------------

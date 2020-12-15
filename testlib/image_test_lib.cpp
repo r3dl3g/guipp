@@ -161,7 +161,7 @@ namespace testing {
           case M & 0xffffff: out << "M"; break;
           case D & 0xffffff: out << "D"; break;
           default:
-            out << std::setw(8) << std::setfill('0') << std::hex << v;
+            out << "0x" << std::setw(6) << std::setfill('0') << std::hex << (v & 0xffffff);
             break;
         }
       }

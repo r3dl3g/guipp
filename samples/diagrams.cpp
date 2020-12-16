@@ -148,13 +148,13 @@ void draw_graph_2 (const graphics& graph, const core::rectangle& area) {
 }
 
 void draw_graph_3 (const graphics& graph, const core::rectangle& area) {
-  graph.frame(draw::rectangle(area), color::black);
 
   core::point p0(area.x() + 50, area.y2() - 25);
 
   scaler<double, scaling::log> xscale({0.01, 10.0}, {p0.x(), area.x2() - 20});
   scaler<double> yscale({0, 10000}, {p0.y(), area.y() + 20});
 
+  graph.frame(draw::rectangle(area), color::black);
   graph.draw(wall<double, double, scaling::log>(xscale, yscale), wall_back, wall_back);
 
   graph.text(scale<double, orientation_t::horizontal, scaling::log>(p0, xscale, 1, 1, yscale.get_target().size(), yscale.get_target().size()),

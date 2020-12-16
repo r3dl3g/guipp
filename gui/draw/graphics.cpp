@@ -779,7 +779,7 @@ namespace gui {
 
     const graphics& graphics::clear (os::color color) const {
 #ifdef GUIPP_QT
-      gc->fillRect(native_area(), QBrush(color));
+      gc->fillRect(native_area(), color);
       return *this;
 #else
       return draw(rectangle(area()), color, color);

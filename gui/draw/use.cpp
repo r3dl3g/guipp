@@ -42,10 +42,13 @@ namespace gui {
     void Use<pen>::set (const pen& p) {
       gui::os::instance display = get_instance();
       XSetForeground(display, g, p.color());
-      const auto sz = p.os_size();
-      XSetLineAttributes(display, g, sz, static_cast<int>(p.style()) & 0x0F,
-                         p.style() == pen::Style::solid ? (/*(sz % 2) == 0 ? CapProjecting : */CapRound) : CapButt,
-                         p.style() == pen::Style::solid ? JoinRound : JoinBevel);
+      const auto line_width = p.os_size();
+      const int	line_style = static_cast<int>(p.style()) & 0x0F;
+      const int	cap_style = p.style() == pen::Style::solid ? (/*(line_width % 2) == 0 ? CapProjecting :*/ CapRound) : CapButt;
+      const int	join_style = p.style() == pen::Style::solid ? JoinMiter : JoinBevel;
+
+      XSetLineAttributes(display, g, line_width, line_style, cap_style, join_style);
+
       if (static_cast<int>(p.style()) & 0x0F0) {
         const char s = core::global::scale_to_native<int, float>(1);
         const char l = s * 4;

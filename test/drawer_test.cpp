@@ -8,12 +8,13 @@
 #include <testlib/image_test_lib.h>
 #include <testlib/testlib.h>
 
+#define TEST_CLEAR
 #define TEST_RAWx
-#define TEST_RECT
 #define TEST_LINE
+#define TEST_RECT
 #define TEST_ELLIPSE
-#define TEST_ROUND_RECT
 #define TEST_ARC
+#define TEST_ROUND_RECT
 #define TEST_POLYGON
 
 using namespace gui;
@@ -1391,7 +1392,7 @@ void test_draw_line_0x0 () {
 void test_draw_line_4x4_x2 () {
   test_line(2.0, 10, {1, 1}, {4, 4}, CM({{_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,_,_,_,_,_,_,_},
-                                         {_,_,_,R,_,_,_,_,_,_},
+                                         {_,_,R,R,_,_,_,_,_,_},
                                          {_,_,R,R,R,_,_,_,_,_},
                                          {_,_,_,R,R,R,_,_,_,_},
                                          {_,_,_,_,R,R,R,_,_,_},
@@ -1407,13 +1408,13 @@ void test_draw_line_4x4_x2 () {
 void test_draw_line_3x3_x2 () {
   test_line(2.0, 10, {1, 1}, {3, 3}, CM({{_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,_,_,_,_,_,_,_},
-                                         {_,_,_,R,_,_,_,_,_,_},
+                                         {_,_,R,R,_,_,_,_,_,_},
                                          {_,_,R,R,R,_,_,_,_,_},
                                          {_,_,_,R,R,R,_,_,_,_},
                                          {_,_,_,_,R,R,R,_,_,_},
                                          {_,_,_,_,_,R,R,R,_,_},
-                                         {_,_,_,_,_,_,R,R,R,_},
-                                         {_,_,_,_,_,_,_,R,_,_},
+                                         {_,_,_,_,_,_,R,R,_,_},
+                                         {_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,_,_,_,_,_,_,_},
                                         }));
 }
@@ -1423,11 +1424,11 @@ void test_draw_line_3x3_x2 () {
 void test_draw_line_2x2_x2 () {
   test_line(2.0, 10, {1, 1}, {2, 2}, CM({{_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,_,_,_,_,_,_,_},
-                                         {_,_,_,R,_,_,_,_,_,_},
+                                         {_,_,R,R,_,_,_,_,_,_},
                                          {_,_,R,R,R,_,_,_,_,_},
                                          {_,_,_,R,R,R,_,_,_,_},
-                                         {_,_,_,_,R,R,R,_,_,_},
-                                         {_,_,_,_,_,R,_,_,_,_},
+                                         {_,_,_,_,R,R,_,_,_,_},
+                                         {_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,_,_,_,_,_,_,_},
@@ -1453,11 +1454,11 @@ void test_draw_line_1x1_x2 () {
 
 // --------------------------------------------------------------------------
 void test_draw_line_0x0_x2 () {
-  test_line(2.0, 10, {1, 1}, {0, 0}, CM({{_,R,_,_,_,_,_,_,_,_},
+  test_line(2.0, 10, {1, 1}, {0, 0}, CM({{R,R,_,_,_,_,_,_,_,_},
                                          {R,R,R,_,_,_,_,_,_,_},
                                          {_,R,R,R,_,_,_,_,_,_},
-                                         {_,_,R,R,R,_,_,_,_,_},
-                                         {_,_,_,R,_,_,_,_,_,_},
+                                         {_,_,R,R,_,_,_,_,_,_},
+                                         {_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,_,_,_,_,_,_,_},
                                          {_,_,_,_,_,_,_,_,_,_},
@@ -2404,17 +2405,19 @@ void test_frame_round_rectangle () {
 
   core::global::set_scale_factor(1.0);
 
-  pixmap img(5, 5);
+  pixmap img(7, 7);
 
-  graphics(img).clear(color::black).frame(draw::round_rectangle(core::rectangle(0, 0, 5, 5), core::size(2, 2)), color::red);
+  graphics(img).clear(color::black).frame(draw::round_rectangle(core::rectangle(1, 1, 5, 5), core::size(2, 2)), color::red);
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, CM({{_,R,R,R,_},
-                           {R,_,_,_,R},
-                           {R,_,_,_,R},
-                           {R,_,_,_,R},
-                           {_,R,R,R,_}}));
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_},
+                           {_,_,R,R,R,_,_},
+                           {_,R,_,_,_,R,_},
+                           {_,R,_,_,_,R,_},
+                           {_,R,_,_,_,R,_},
+                           {_,_,R,R,R,_,_},
+                           {_,_,_,_,_,_,_}}));
 
 }
 
@@ -2424,17 +2427,19 @@ void test_fill_round_rectangle () {
 
   core::global::set_scale_factor(1.0);
 
-  pixmap img(5, 5);
+  pixmap img(7, 7);
 
-  graphics(img).clear(color::black).fill(draw::round_rectangle(core::rectangle(0, 0, 5, 5), core::size(2, 2)), color::red);
+  graphics(img).clear(color::black).fill(draw::round_rectangle(core::rectangle(1, 1, 5, 5), core::size(2, 2)), color::red);
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, CM({{_,R,R,R,_},
-                           {R,R,R,R,R},
-                           {R,R,R,R,R},
-                           {R,R,R,R,R},
-                           {_,R,R,R,_}}));
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_},
+                           {_,_,R,R,R,_,_},
+                           {_,R,R,R,R,R,_},
+                           {_,R,R,R,R,R,_},
+                           {_,R,R,R,R,R,_},
+                           {_,_,R,R,R,_,_},
+                           {_,_,_,_,_,_,_}}));
 
 }
 
@@ -2444,17 +2449,19 @@ void test_draw_round_rectangle () {
 
   core::global::set_scale_factor(1.0);
 
-  pixmap img(5, 5);
+  pixmap img(7, 7);
 
-  graphics(img).clear(color::black).draw(draw::round_rectangle(core::rectangle(0, 0, 5, 5), core::size(2, 2)), color::blue, color::red);
+  graphics(img).clear(color::black).draw(draw::round_rectangle(core::rectangle(1, 1, 5, 5), core::size(2, 2)), color::blue, color::red);
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, CM({{_,R,R,R,_},
-                           {R,B,B,B,R},
-                           {R,B,B,B,R},
-                           {R,B,B,B,R},
-                           {_,R,R,R,_}}));
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_},
+                           {_,_,R,R,R,_,_},
+                           {_,R,B,B,B,R,_},
+                           {_,R,B,B,B,R,_},
+                           {_,R,B,B,B,R,_},
+                           {_,_,R,R,R,_,_},
+                           {_,_,_,_,_,_,_}}));
 
 }
 
@@ -2464,19 +2471,21 @@ void test_frame_round_rectangle_2 () {
 
   core::global::set_scale_factor(1.0);
 
-  pixmap img(7, 7);
+  pixmap img(9, 9);
 
-  graphics(img).clear(color::black).frame(draw::round_rectangle(core::rectangle(0, 0, 7, 7), core::size(3, 3)), color::red);
+  graphics(img).clear(color::black).frame(draw::round_rectangle(core::rectangle(1, 1, 7, 7), core::size(3, 3)), color::red);
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, CM({{_,_,R,R,R,_,_},
-                           {_,R,_,_,_,R,_},
-                           {R,_,_,_,_,_,R},
-                           {R,_,_,_,_,_,R},
-                           {R,_,_,_,_,_,R},
-                           {_,R,_,_,_,R,_},
-                           {_,_,R,R,R,_,_}}));
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_},
+                           {_,_,_,R,R,R,_,_,_},
+                           {_,_,R,_,_,_,R,_,_},
+                           {_,R,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,R,_},
+                           {_,_,R,_,_,_,R,_,_},
+                           {_,_,_,R,R,R,_,_,_},
+                           {_,_,_,_,_,_,_,_,_}}));
 
 }
 
@@ -2486,19 +2495,21 @@ void test_fill_round_rectangle_2 () {
 
   core::global::set_scale_factor(1.0);
 
-  pixmap img(7, 7);
+  pixmap img(9, 9);
 
-  graphics(img).clear(color::black).fill(draw::round_rectangle(core::rectangle(0, 0, 7, 7), core::size(3, 3)), color::red);
+  graphics(img).clear(color::black).fill(draw::round_rectangle(core::rectangle(1, 1, 7, 7), core::size(3, 3)), color::red);
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, CM({{_,_,R,R,R,_,_},
-                           {_,R,R,R,R,R,_},
-                           {R,R,R,R,R,R,R},
-                           {R,R,R,R,R,R,R},
-                           {R,R,R,R,R,R,R},
-                           {_,R,R,R,R,R,_},
-                           {_,_,R,R,R,_,_}}));
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_},
+                           {_,_,_,R,R,R,_,_,_},
+                           {_,_,R,R,R,R,R,_,_},
+                           {_,R,R,R,R,R,R,R,_},
+                           {_,R,R,R,R,R,R,R,_},
+                           {_,R,R,R,R,R,R,R,_},
+                           {_,_,R,R,R,R,R,_,_},
+                           {_,_,_,R,R,R,_,_,_},
+                           {_,_,_,_,_,_,_,_,_}}));
 
 }
 
@@ -2508,39 +2519,158 @@ void test_draw_round_rectangle_2 () {
 
   core::global::set_scale_factor(1.0);
 
-  pixmap img(7, 7);
+  pixmap img(9, 9);
 
-  graphics(img).clear(color::black).draw(draw::round_rectangle(core::rectangle(0, 0, 7, 7), core::size(3, 3)), color::blue, color::red);
+  graphics(img).clear(color::black).draw(draw::round_rectangle(core::rectangle(1, 1, 7, 7), core::size(3, 3)), color::blue, color::red);
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, CM({{_,_,R,R,R,_,_},
-                           {_,R,B,B,B,R,_},
-                           {R,B,B,B,B,B,R},
-                           {R,B,B,B,B,B,R},
-                           {R,B,B,B,B,B,R},
-                           {_,R,B,B,B,R,_},
-                           {_,_,R,R,R,_,_}}));
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_},
+                           {_,_,_,R,R,R,_,_,_},
+                           {_,_,R,B,B,B,R,_,_},
+                           {_,R,B,B,B,B,B,R,_},
+                           {_,R,B,B,B,B,B,R,_},
+                           {_,R,B,B,B,B,B,R,_},
+                           {_,_,R,B,B,B,R,_,_},
+                           {_,_,_,R,R,R,_,_,_},
+                           {_,_,_,_,_,_,_,_,_}}));
 
 }
 
 
 // --------------------------------------------------------------------------
-void test_frame_arc_4x4 () {
+void test_frame_arc_20x20 () {
   core::global::set_scale_factor(1.0);
 
-  pixmap img(5, 5);
+  pixmap img(23, 23);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 2, 0, 360), color::red);
+  graphics(img).clear(color::black).frame(draw::arc(core::point(11, 11), 10, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, CM({{_,R,R,R,_},
-                           {R,_,_,_,R},
-                           {R,_,_,_,R},
-                           {R,_,_,_,R},
-                           {_,R,R,R,_}}));
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+                           {_,_,_,_,_,_,_,_,R,R,R,R,R,R,R,_,_,_,_,_,_,_,_},
+                           {_,_,_,_,_,_,R,R,_,_,_,_,_,_,_,R,R,_,_,_,_,_,_},
+                           {_,_,_,_,_,R,_,_,_,_,_,_,_,_,_,_,_,R,_,_,_,_,_},
+                           {_,_,_,_,R,_,_,_,_,_,_,_,_,_,_,_,_,_,R,_,_,_,_},
+                           {_,_,_,R,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,R,_,_,_},
+                           {_,_,R,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,R,_,_},
+                           {_,_,R,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,R,_,_},
+                           {_,R,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,R,_},
+                           {_,_,R,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,R,_,_},
+                           {_,_,R,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,R,_,_},
+                           {_,_,_,R,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,R,_,_,_},
+                           {_,_,_,_,R,_,_,_,_,_,_,_,_,_,_,_,_,_,R,_,_,_,_},
+                           {_,_,_,_,_,R,_,_,_,_,_,_,_,_,_,_,_,R,_,_,_,_,_},
+                           {_,_,_,_,_,_,R,R,_,_,_,_,_,_,_,R,R,_,_,_,_,_,_},
+                           {_,_,_,_,_,_,_,_,R,R,R,R,R,R,R,_,_,_,_,_,_,_,_},
+                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}}));
+}
+// --------------------------------------------------------------------------
+void test_frame_arc_10x10 () {
+  core::global::set_scale_factor(1.0);
 
+  pixmap img(13, 13);
+
+  graphics(img).clear(color::black).frame(draw::arc(core::point(6, 6), 5, 0, 360), color::red);
+
+  auto buffer = pixmap2colormap(img);
+
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_,_,_,_,_},
+                           {_,_,_,_,R,R,R,R,R,_,_,_,_},
+                           {_,_,_,R,_,_,_,_,_,R,_,_,_},
+                           {_,_,R,_,_,_,_,_,_,_,R,_,_},
+                           {_,R,_,_,_,_,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,_,_,_,_,R,_},
+                           {_,_,R,_,_,_,_,_,_,_,R,_,_},
+                           {_,_,_,R,_,_,_,_,_,R,_,_,_},
+                           {_,_,_,_,R,R,R,R,R,_,_,_,_},
+                           {_,_,_,_,_,_,_,_,_,_,_,_,_}}));
+}
+// --------------------------------------------------------------------------
+void test_frame_arc_8x8 () {
+  core::global::set_scale_factor(1.0);
+
+  pixmap img(11, 11);
+
+  graphics(img).clear(color::black).frame(draw::arc(core::point(5, 5), 4, 0, 360), color::red);
+
+  auto buffer = pixmap2colormap(img);
+
+  EXPECT_EQUAL(buffer, CM({
+#ifdef GUIPP_X11
+                            {_,_,_,_,_,_,_,_,_,_,_},
+                            {_,_,_,R,R,R,R,R,_,_,_},
+                            {_,_,R,R,_,_,_,R,R,_,_},
+                            {_,R,R,_,_,_,_,_,R,R,_},
+                            {_,R,_,_,_,_,_,_,_,R,_},
+                            {_,R,_,_,_,_,_,_,_,R,_},
+                            {_,R,_,_,_,_,_,_,_,R,_},
+                            {_,R,R,_,_,_,_,_,R,R,_},
+                            {_,_,R,R,_,_,_,R,R,_,_},
+                            {_,_,_,R,R,R,R,R,_,_,_},
+                            {_,_,_,_,_,_,_,_,_,_,_}
+#else
+                           {_,_,_,_,_,_,_,_,_,_,_},
+                           {_,_,_,_,R,R,R,_,_,_,_},
+                           {_,_,_,R,_,_,_,R,_,_,_},
+                           {_,_,R,_,_,_,_,_,R,_,_},
+                           {_,R,_,_,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,_,_,R,_},
+                           {_,_,R,_,_,_,_,_,R,_,_},
+                           {_,_,_,R,_,_,_,R,_,_,_},
+                           {_,_,_,_,R,R,R,_,_,_,_},
+                           {_,_,_,_,_,_,_,_,_,_,_}
+#endif //GUIPP_X11
+                          }));
+}
+// --------------------------------------------------------------------------
+void test_frame_arc_6x6 () {
+  core::global::set_scale_factor(1.0);
+
+  pixmap img(9, 9);
+
+  graphics(img).clear(color::black).frame(draw::arc(core::point(4, 4), 3, 0, 360), color::red);
+
+  auto buffer = pixmap2colormap(img);
+
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_},
+                           {_,_,_,R,R,R,_,_,_},
+                           {_,_,R,_,_,_,R,_,_},
+                           {_,R,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,R,_},
+                           {_,_,R,_,_,_,R,_,_},
+                           {_,_,_,R,R,R,_,_,_},
+                           {_,_,_,_,_,_,_,_,_}}));
+}
+// --------------------------------------------------------------------------
+void test_frame_arc_4x4 () {
+  core::global::set_scale_factor(1.0);
+
+  pixmap img(7, 7);
+
+  graphics(img).clear(color::black).frame(draw::arc(core::point(3, 3), 2, 0, 360), color::red);
+
+  auto buffer = pixmap2colormap(img);
+
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_},
+                           {_,_,R,R,R,_,_},
+                           {_,R,_,_,_,R,_},
+                           {_,R,_,_,_,R,_},
+                           {_,R,_,_,_,R,_},
+                           {_,_,R,R,R,_,_},
+                           {_,_,_,_,_,_,_}}));
 }
 // --------------------------------------------------------------------------
 void test_frame_arc_3x3 () {
@@ -3041,10 +3171,50 @@ void test_draw_polygon () {
 
 }
 
+void test_clear_color (os::color c) {
+  core::global::set_scale_factor(1.0);
+  pixmap img(5, 5);
+  graphics(img).clear(c);
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, CM({{c,c,c,c,c},
+                           {c,c,c,c,c},
+                           {c,c,c,c,c},
+                           {c,c,c,c,c},
+                           {c,c,c,c,c}}));
+}
+
+void test_clear_black () {
+  test_clear_color(_);
+}
+
+void test_clear_red () {
+  test_clear_color(R);
+}
+
+void test_clear_green () {
+  test_clear_color(G);
+}
+
+void test_clear_blue () {
+  test_clear_color(B);
+}
+
+void test_clear_white () {
+  test_clear_color(W);
+}
+
 // --------------------------------------------------------------------------
 void test_main (const testing::start_params& params) {
   testing::init_gui(params);
   std::cout << "Runningn drawer_test" << std::endl;
+
+#ifdef TEST_CLEAR
+  run_test(test_clear_black);
+  run_test(test_clear_red);
+  run_test(test_clear_green);
+  run_test(test_clear_blue);
+  run_test(test_clear_white);
+#endif //TEST_CLEAR
 
 #ifdef TEST_RAW
   run_test(test_data2colormap);
@@ -3194,6 +3364,10 @@ void test_main (const testing::start_params& params) {
 #endif //TEST_ROUND_RECT
 
 #ifdef TEST_ARC
+  run_test(test_frame_arc_20x20);
+  run_test(test_frame_arc_10x10);
+  run_test(test_frame_arc_8x8);
+  run_test(test_frame_arc_6x6);
   run_test(test_frame_arc_4x4);
   run_test(test_frame_arc_3x3);
   run_test(test_frame_arc_2x2);

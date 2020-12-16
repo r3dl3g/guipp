@@ -27,6 +27,9 @@
 # include <cmath>
 # include <algorithm>
 #endif // GUIPP_X11
+#ifdef GUIPP_QT
+#include <qpainterpath.h>
+#endif //GUIPP_QT
 
 // --------------------------------------------------------------------------
 //
@@ -476,6 +479,131 @@ namespace gui {
 
 #endif // GUIPP_WIN
 
+#if defined(GUIPP_X11) || defined(GUIPP_QT)
+
+#ifdef GUIPP_X11
+    inline os::point_type get_x (const os::rectangle& r) {
+      return r.x;
+    }
+
+    inline os::point_type get_y (const os::rectangle& r) {
+      return r.y;
+    }
+
+    inline os::size_type get_width (const os::rectangle& r) {
+      return r.width;
+    }
+
+    inline os::size_type get_height (const os::rectangle& r) {
+      return r.height;
+    }
+
+    inline os::point_type get_x (const os::point& p) {
+      return p.x;
+    }
+
+    inline os::point_type get_y (const os::point& p) {
+      return p.y;
+    }
+
+    inline os::size_type get_width (const os::size& s) {
+      return s.cx;
+    }
+
+    inline os::size_type get_height (const os::size& s) {
+      return s.cy;
+    }
+#endif // GUIPP_X11
+
+#ifdef GUIPP_QT
+    inline os::point_type get_x (const os::rectangle& r) {
+      return r.x();
+    }
+
+    inline os::point_type get_y (const os::rectangle& r) {
+      return r.y();
+    }
+
+    inline os::size_type get_width (const os::rectangle& r) {
+      return r.width();
+    }
+
+    inline os::size_type get_height (const os::rectangle& r) {
+      return r.height();
+    }
+
+    inline os::point_type get_x (const os::point& p) {
+      return p.x();
+    }
+
+    inline os::point_type get_y (const os::point& p) {
+      return p.y();
+    }
+
+    inline os::size_type get_width (const os::size& s) {
+      return s.width();
+    }
+
+    inline os::size_type get_height (const os::size& s) {
+      return s.height();
+    }
+#endif // GUIPP_QT
+
+
+    // --------------------------------------------------------------------------
+    template<typename Arc, typename Line, typename Rectangle, typename Angle>
+    void calc_arcs (const core::rectangle& rect,
+                    const core::size& size,
+                    std::array<Arc, 4>* arcs,
+                    std::array<Line, 4>* segments,
+                    std::array<Rectangle, 3>* rects,
+                    Angle angle90) {
+
+      using namespace os;
+
+      constexpr size_type two = size_type(2);
+
+      const os::rectangle r = rect.os();
+      const os::size s = size.os();
+
+      const size_type w = std::min(get_width(s), static_cast<size_type>(get_width(r) / 2));
+      const size_type h = std::min(get_height(s), static_cast<size_type>(get_height(r) / 2));
+
+      const point_type x0 = get_x(r);
+      const point_type x3 = get_x(r) + get_width(r);
+      const point_type x1 = x0 + w;
+      const point_type x2 = x3 - w;
+
+      const point_type y0 = get_y(r);
+      const point_type y3 = get_y(r) + get_height(r);
+      const point_type y1 = y0 + h;
+      const point_type y2 = y3 - h;
+
+      const size_type w2 = w * two;
+      const size_type h2 = h * two;
+
+      if (arcs) {
+        (*arcs)[0] = {x0, y0, w2, h2, angle90, angle90};
+        (*arcs)[1] = {point_type(x3 - w2), y0, w2, h2, 0, angle90};
+        (*arcs)[2] = {x0, point_type(y3 - h2), w2, h2, static_cast<Angle>(angle90 * 2), angle90};
+        (*arcs)[3] = {point_type(x3 - w2), point_type(y3 - h2), w2, h2, static_cast<Angle>(angle90 * 3), angle90};
+      }
+
+      if (segments) {
+        (*segments)[0] = {x1, y0, x2, y0};
+        (*segments)[1] = {x3, y1, x3, y2};
+        (*segments)[2] = {x1, y3, x2, y3};
+        (*segments)[3] = {x0, y1, x0, y2};
+      }
+
+      if (rects) {
+        (*rects)[0] = {x0, y1, w, size_type(y2 - y1)};
+        (*rects)[1] = {x2, y1, size_type(w + 1), size_type(y2 - y1)};
+        (*rects)[2] = {x1, y0, size_type(x2 - x1), size_type(y3 - y0 + 1)};
+      }
+    }
+#endif // GUIPP_X11 || GUIPP_QT
+
 #ifdef GUIPP_X11
     using namespace core::global;
 
@@ -511,15 +639,22 @@ namespace gui {
     // --------------------------------------------------------------------------
     void line::operator() (const graphics& g, const pen& p) const {
       gui::os::instance display = get_instance();
-      const short off = p.os_size() / 2;
+      const short pw = p.os_size();
+      const short off = pw / 2;
       Use<pen> pn(g, p);
 
-      const auto x0 = from.os_x() + off;
-      const auto y0 = from.os_y() + off;
-      const auto x1 = to.os_x() + off;
-      const auto y1 = to.os_y() + off;
+      const auto x0 = from.os_x();
+      const auto y0 = from.os_y();
+      const auto x1 = to.os_x();
+      const auto y1 = to.os_y();
 
-      XDrawLine(display, g, g, x0, y0, x1, y1);
+      XDrawLine(display, g, g, x0 + off, y0 + off, x1 + off, y1 + off);
+      if ((pw > 1) && (pw % 2 == 0)) {
+        XDrawPoint(display, g, g, x0, y0);
+        if ((x1 < x0) || (y1 < y0)) {
+          XDrawPoint(display, g, g, x1, y1);
+        }
+      }
     }
 
     // --------------------------------------------------------------------------
@@ -569,11 +704,11 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    static const int degree_0 = 0;
-    static const int degree_90 = 90 * 64;
-    static const int degree_180 = 180 * 64;
-    static const int degree_270 = 270 * 64;
-    static const int degree_360 = 360 * 64;
+    static const short int degree_0 = 0;
+    static const short int degree_90 = 90 * 64;
+    static const short int degree_180 = 180 * 64;
+    static const short int degree_270 = 270 * 64;
+    static const short int degree_360 = 360 * 64;
 
     // --------------------------------------------------------------------------
     void ellipse::operator() (const graphics& g,
@@ -631,57 +766,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void calc_arcs (const core::rectangle& rect,
-                    const core::size& size,
-                    std::array<XArc, 4>* arcs,
-                    std::array<XSegment, 4>* segments,
-                    std::array<XRectangle, 3>* rects) {
-
-      using namespace os;
-
-      constexpr size_type two = size_type(2);
-
-      const os::rectangle r = rect.os();
-      const os::size s = size.os();
-
-      const size_type w = std::min(s.cx, static_cast<size_type>(r.width / 2));
-      const size_type h = std::min(s.cy, static_cast<size_type>(r.height / 2));
-
-      const point_type x0 = r.x;
-      const point_type x3 = r.x + r.width;
-      const point_type x1 = x0 + w;
-      const point_type x2 = x3 - w;
-
-      const point_type y0 = r.y;
-      const point_type y3 = r.y + r.height;
-      const point_type y1 = y0 + h;
-      const point_type y2 = y3 - h;
-
-      const size_type w2 = w * two;
-      const size_type h2 = h * two;
-
-      if (arcs) {
-        (*arcs)[0] = {x0, y0, w2, h2, degree_90, degree_90};
-        (*arcs)[1] = {point_type(x3 - w2), y0, w2, h2, degree_0, degree_90};
-        (*arcs)[2] = {x0, point_type(y3 - h2), w2, h2, degree_180, degree_90};
-        (*arcs)[3] = {point_type(x3 - w2), point_type(y3 - h2), w2, h2, degree_270, degree_90};
-      }
-
-      if (segments) {
-        (*segments)[0] = {x1, y0, x2, y0};
-        (*segments)[1] = {x3, y1, x3, y2};
-        (*segments)[2] = {x1, y3, x2, y3};
-        (*segments)[3] = {x0, y1, x0, y2};
-      }
-
-      if (rects) {
-        (*rects)[0] = {x0, y1, w, size_type(y2 - y1)};
-        (*rects)[1] = {x2, y1, size_type(w + 1), size_type(y2 - y1)};
-        (*rects)[2] = {x1, y0, size_type(x2 - x1), size_type(y3 - y0 + 1)};
-      }
-    }
-
-    // --------------------------------------------------------------------------
     void round_rectangle::operator() (const graphics& g,
                                       const pen& p) const {
       Use<pen> pn(g, p);
@@ -691,7 +775,7 @@ namespace gui {
       std::array<XArc, 4> arcs;
       std::array<XSegment, 4> segments;
 
-      calc_arcs(rect - core::size::one, size, &arcs, &segments, nullptr);
+      calc_arcs<XArc, XSegment, XRectangle>(rect - core::size::one, size, &arcs, &segments, nullptr, degree_90);
 
       XDrawArcs(display, g, g, arcs.data(), (int)arcs.size());
       XDrawSegments(display, g, g, segments.data(), (int)segments.size());
@@ -705,7 +789,7 @@ namespace gui {
 
       std::array<XArc, 4> arcs;
       std::array<XRectangle, 3> rects;
-      calc_arcs(rect - core::size::one, size, &arcs, nullptr, &rects);
+      calc_arcs<XArc, XSegment, XRectangle>(rect - core::size::one, size, &arcs, nullptr, &rects, degree_90);
 
       XFillArcs(display, g, g, arcs.data(), (int)arcs.size());
       pen p(b.color());
@@ -726,7 +810,7 @@ namespace gui {
       std::array<XArc, 4> arcs;
       std::array<XSegment, 4> segments;
       std::array<XRectangle, 3> rects;
-      calc_arcs(rect - core::size::one, size, &arcs, &segments, &rects);
+      calc_arcs<XArc, XSegment, XRectangle>(rect - core::size::one, size, &arcs, &segments, &rects, degree_90);
 
       XFillArcs(display, g, g, arcs.data(), (int)arcs.size());
       XFillRectangles(display, g, g, rects.data(), (int)rects.size());
@@ -1143,26 +1227,42 @@ namespace gui {
     pen null_pen(color::black, 1, pen::Style::invisible);
 
     void line::operator() (const graphics& g, const pen& p) const {
+
       const auto pw = p.os_size();
-      const auto off = pw / 2;
-      const auto x = from.os_x() + off;
-      const auto y = from.os_y() + off;
-      const auto x2 = to.os_x() + off;
-      const auto y2 = to.os_y() + off;
-      if ((x == x2) && (y == y2)) {
+
+      if (from == to) {
         if (pw < 2) {
           Use<pen> pn(g, p);
-          g.os()->drawPoint(x, y);
+          g.os()->drawPoint(from.os());
         } else {
           pen p1 = p.with_os_size(1);
           brush b1(p.color());
           Use<pen> upn(g, p1);
           Use<brush> ubr(g, b1);
-          g.os()->drawRect(x - off, y - off, x + pw, y + pw);
+
+          const auto off = pw / 2;
+          const auto x = from.os_x() + off;
+          const auto y = from.os_y() + off;
+          g.os()->drawRect(x - off, y - off, pw - off, pw - off);
         }
       } else {
         Use<pen> pn(g, p);
-        g.os()->drawLine(x, y, x2, y2);
+
+        //                  0, 1, 2, 3, 4, 5, 6, 7, 8
+        // const offs[] =  {0, 0, 1, 1, 2, 2, 3, 3, 4};
+        // const offs2[] = {0, 0, 1, 2, 2, 3, 3, 4, 4};
+
+        const auto x0 = from.os_x();
+        const auto y0 = from.os_y();
+        const auto x1 = to.os_x();
+        const auto y1 = to.os_y();
+
+        const auto x0off = (x1 < x0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
+        const auto y0off = (y1 < y0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
+        const auto x1off = (x1 > x0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
+        const auto y1off = (y1 > y0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
+
+        g.os()->drawLine(x0 + x0off, y0 + y0off, x1 + x1off, y1 + y1off);
       }
     }
 
@@ -1179,14 +1279,38 @@ namespace gui {
     void rectangle::operator() (const graphics& g,
                                 const brush& b,
                                 const pen& p) const {
-      Use<brush> ubr(g, b);
-      Use<pen> upn(g, p);
-      g.os()->drawRect(rect.os());
+      const auto pw = p.os_size();
+      const auto off = pw / 2;
+      const os::rectangle r = rect.os();
+      if ((r.width() > pw) && (r.height() > pw)) {
+        g.os()->fillRect(r.x() + off, r.y() + off, r.width() - pw, r.height() - pw, b.color());
+        g.os()->setPen(QPen(QBrush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()),
+                       Qt::SquareCap, Qt::MiterJoin));
+        g.os()->drawRect(r.x() + off, r.y() + off, r.width() - pw, r.height() - pw);
+      } else if ((r.width() > 1) && (r.height() > 1)) {
+        g.os()->fillRect(r.x(), r.y(), pw, pw, p.color());
+      } else if ((1 == r.width()) && (1 == r.height())) {
+        Use<pen> pn(g, p);
+        g.os()->drawPoint(r.x() + off, r.y() + off);
+      }
     }
 
     void rectangle::operator() (const graphics& g,
                                 const pen& p) const {
-      operator()(g, null_brush, p);
+      const auto pw = p.os_size();
+      const auto off = pw / 2;
+      const os::rectangle r = rect.os();
+      Use<brush> ubr(g, null_brush);
+      if ((r.width() > pw) && (r.height() > pw)) {
+        g.os()->setPen(QPen(QBrush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()),
+                       Qt::SquareCap, Qt::MiterJoin));
+        g.os()->drawRect(r.x() + off, r.y() + off, r.width() - pw, r.height() - pw);
+      } else if ((r.width() > 1) && (r.height() > 1)) {
+        g.os()->fillRect(r.x(), r.y(), pw, pw, p.color());
+      } else if ((1 == r.width()) && (1 == r.height())) {
+        Use<pen> pn(g, p);
+        g.os()->drawPoint(r.x() + off, r.y() + off);
+      }
     }
 
     void rectangle::operator() (const graphics& g,
@@ -1200,7 +1324,11 @@ namespace gui {
                               const pen& p) const {
       Use<pen> upn(g, p);
       Use<brush> ubr(g, b);
-      g.os()->drawEllipse(rect.os());
+      const auto pw = p.os_size();
+      const auto off = pw / 2;
+      const auto off2 = pw > 2 ? off : 0;
+      const os::rectangle r = rect.os();
+      g.os()->drawEllipse(r.x() + off, r.y() + off, r.width() + off2, r.height() + off2);
     }
 
     void ellipse::operator() (const graphics& g,
@@ -1216,6 +1344,21 @@ namespace gui {
     // --------------------------------------------------------------------------
     void round_rectangle::operator() (const graphics& g,
                                       const pen& p) const {
+//      Use<pen> pn(g, p);
+
+//      struct Arc {
+//        int x, y, w, h, a, l;
+//      };
+
+//      std::array<Arc, 4> arcs;
+//      std::array<QLine, 4> segments;
+//      calc_arcs<Arc, QLine, QRect>(rect - core::size::one, size, &arcs, &segments, nullptr, 90*16);
+
+//      for (const Arc& arc : arcs) {
+//        const Arc& arc = arcs[0];
+//        g.os()->drawArc(arc.x, arc.y, arc.w, arc.h, arc.a, arc.l);
+//      }
+//      g.os()->drawLines(segments.data(), segments.size());
       operator()(g, null_brush, p);
     }
 
@@ -1229,34 +1372,102 @@ namespace gui {
                                       const pen& p) const {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
-      g.os()->drawRoundedRect(rect.os(), size.os_width(), size.os_height());
+
+//      struct Arc {
+//        int x, y, w, h, a, l;
+//      };
+
+//      std::array<Arc, 4> arcs;
+//      std::array<QLine, 4> segments;
+//      std::array<QRect, 3> rects;
+//      calc_arcs<Arc, QLine, QRect>(rect - core::size::one, size, &arcs, &segments, &rects, 90*16);
+
+//      /*for (const Arc& arc : arcs)*/ {
+//        const Arc& arc = arcs[0];
+//        g.os()->drawArc(arc.x, arc.y, arc.w, arc.h, arc.a, arc.l);
+//      }
+////      for (const QRect& a : rects) {
+////        g.os()->drawRect(a);
+////      }
+////      g.os()->drawLines(segments.data(), segments.size());
+
+      const auto pw = p.os_size();
+      const auto off = pw / 2;
+      const os::rectangle r = rect.os();
+      if ((r.width() > pw) && (r.height() > pw)) {
+        g.os()->drawRoundedRect(r.x() + off, r.y() + off, r.width() - pw, r.height() - pw, size.os_width(), size.os_height());
+      } else if ((r.width() > 1) && (r.height() > 1)) {
+        g.os()->drawRoundedRect(r.x(), r.y(), pw, pw, size.os_width(), size.os_height());
+      } else if ((1 == r.width()) && (1 == r.height())) {
+        g.os()->drawPoint(r.x() + off, r.y() + off);
+      }
     }
 
     // --------------------------------------------------------------------------
     arc::arc (const core::point& pos,
               float radius,
-              float start_angle,
-              float end_angle)
+              float start,
+              float end)
       : pos(pos)
       , radius(radius)
-      , start_angle(start_angle)
-      , end_angle(end_angle)
-    {}
+      , start_angle(start)
+      , end_angle(end)
+    {
+      if (end_angle < start_angle) {
+        std::swap(end_angle, start_angle);
+      }
+    }
+
+    QPointF find_ellipse_coords (const core::point &pt, float angle, float radius) {
+      const double F = M_PI / 180.0;
+      const double y = std::sin(angle * F) * radius;
+      const double x = std::cos(angle * F) * radius;
+      return QPointF(pt.os_x() + x, pt.os_y() + y);
+    }
 
     void arc::operator() (const graphics& g,
                           const brush& b,
                           const pen& p) const {
-      Use<brush> br(g, b);
-      Use<pen> pn(g, p);
-      core::size offset(radius, radius);
-      auto p1 = pos - offset;
-      auto wh = offset * 2.0;
-      auto end_a = end_angle;
-      while (end_a < start_angle) {
-        end_a += 360;
-      }
-      g.os()->drawArc(p1.os_x(), p1.os_y(), wh.os_width(), wh.os_height(),
-                      static_cast<int>(start_angle*16.0F), static_cast<int>((end_a - start_angle)*16.0F));    }
+//      if (radius < 10) {
+//        QPen pen(QBrush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()), Qt::FlatCap, Qt::RoundJoin);
+//        QPainterPath path;
+//        const float step_angle = 180.0F / radius;
+//        path.moveTo(find_ellipse_coords(pos, start_angle, radius));
+//        for (float angle = start_angle + step_angle; angle < end_a; angle += step_angle) {
+//          path.lineTo(find_ellipse_coords(pos, std::min(angle, end_a), radius));
+//        }
+//        path.closeSubpath();
+//        g.os()->strokePath(path, pen);
+//      } else {
+        Use<brush> br(g, b);
+        Use<pen> pn(g, p);
+
+        if ((end_angle - start_angle) == 360.0) {
+          QRectF rect(pos.os_x() - radius, pos.os_y() - radius, radius * 2, radius * 2);
+          g.os()->drawEllipse(rect);
+//          g.os()->drawArc(rect, static_cast<int>(start_angle*16.0F), static_cast<int>((end_angle - start_angle)*16.0F));
+        } else {
+          QRectF rect(pos.os_x() - radius, pos.os_y() - radius, radius * 2, radius * 2);
+          g.os()->drawPie(rect, static_cast<int>(start_angle*16.0F), static_cast<int>((end_angle - start_angle)*16.0F));
+        }
+//      }
+
+//      g.os()->setRenderHint(QPainter::Antialiasing, true);
+//      Use<brush> br(g, b);
+//      QPen pen(QBrush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()),
+//                           Qt::FlatCap, Qt::RoundJoin);
+//      QPainterPath path;
+//      QRectF outer_rect(pos.os_x() - radius, pos.os_y() - radius, radius * 2 + 1, radius * 2 + 1);
+////      QRectF inner_rect(pen.width(), pen.width(), width() - pen.width() * 2, height() - pen.width() * 2);
+//      path.arcMoveTo(outer_rect, start_angle);
+//      path.arcTo(outer_rect, start_angle, end_a - start_angle);
+////      path.lineTo(my_find_ellipse_coords(inner_rect, angle));
+////      path.arcTo(inner_rect, angle, -angle);
+////      path.lineTo(my_find_ellipse_coords(outer_rect, 0));
+//      path.closeSubpath();
+//      g.os()->strokePath(path, pen);
+
+    }
 
     void arc::operator() (const graphics& g,
                           const pen& p) const {

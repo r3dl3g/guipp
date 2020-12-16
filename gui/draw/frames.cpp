@@ -48,7 +48,7 @@ namespace gui {
       }
 
       core::rectangle dots (const draw::graphics& g, const core::rectangle& place) {
-        g.frame(draw::rectangle(place), pen(color::black, 1, pen::Style::dot));
+        g.frame(draw::rectangle(place), pen(color::black, 1, pen::Style::dot, pen::Cap::flat, pen::Join::bevel));
         return place.shrinked(core::size::one);
       }
 

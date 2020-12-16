@@ -42,13 +42,12 @@ namespace gui {
       GetObject(id, sizeof (os::win32::pen_type), &info);
     }
 
-    pen::pen (const os::color& color, size_type width, Style style)
+    pen::pen (const os::color& color, size_type width, Style style, Cap cap, Join join)
       : id(nullptr)
     {
       info.elpColor = color;
-      info.elpPenStyle = static_cast<DWORD>(style);
-      auto w = core::global::scale_to_native<os::size_type, size_type>(width);
-      info.elpWidth = w;
+      info.elpPenStyle = static_cast<DWORD>(style) | static_cast<DWORD>(cap) | static_cast<DWORD>(join) | PS_GEOMETRIC;
+      info.elpWidth = core::global::scale_to_native<os::size_type, size_type>(width);
       info.elpBrushStyle = BS_SOLID;
       info.elpHatch = 0;
       info.elpNumEntries = 0;
@@ -57,12 +56,8 @@ namespace gui {
       LogBrush.lbColor = color;
       LogBrush.lbStyle = BS_SOLID;
       LogBrush.lbHatch = 0;
-      id = ExtCreatePen(info.elpPenStyle | PS_GEOMETRIC | PS_ENDCAP_SQUARE | PS_JOIN_MITER, w, &LogBrush, 0, NULL);
+      id = ExtCreatePen(info.elpPenStyle, info.elpWidth, &LogBrush, 0, NULL);
     }
-
-    pen::pen (const pen& rhs)
-      : pen(rhs.info.elpColor, (size_type)rhs.info.elpWidth, (Style)rhs.info.elpPenStyle)
-    {}
 
     pen::~pen () {
       if (id) {
@@ -84,7 +79,15 @@ namespace gui {
     }
 
     pen::Style pen::style () const {
-      return (pen::Style)info.elpPenStyle;
+      return (pen::Style)(info.elpPenStyle & PS_STYLE_MASK);
+    }
+
+    pen::Cap pen::cap () const {
+      return (pen::Cap)(info.elpPenStyle & PS_ENDCAP_MASK);
+    }
+
+    pen::Join pen::join () const {
+      return (pen::Join)(info.elpPenStyle & PS_JOIN_MASK);
     }
 
     bool pen::operator== (const pen& rhs) const {
@@ -94,35 +97,44 @@ namespace gui {
     }
 
 #endif // GUIPP_WIN
+
+    pen::pen (const pen& rhs)
+      : pen(rhs.color(), rhs.size(), rhs.style(), rhs.cap(), rhs.join())
+    {}
+
     pen pen::with_size (size_type sz) const {
-      return pen(color(), sz, style());
+      return pen(color(), sz, style(), cap(), join());
     }
 
     pen pen::with_os_size(os::size_type sz) const {
-      return pen(color(), core::global::scale_from_native<size_type, os::size_type>(sz), style());
+      return pen(color(), core::global::scale_from_native<size_type, os::size_type>(sz), style(), cap(), join());
     }
 
     pen pen::with_style (Style s) const {
-      return pen(color(), size(), s);
+      return pen(color(), size(), s, cap(), join());
     }
 
     pen pen::with_color (const os::color& c) const {
-      return pen(c, size(), style());
+      return pen(c, size(), style(), cap(), join());
+    }
+
+    pen pen::with_cap (Cap c) const {
+      return pen(color(), size(), style(), c, join());
+    }
+
+    pen pen::with_join (Join j) const {
+      return pen(color(), size(), style(), cap(), j);
     }
 
 #if defined(GUIPP_X11) || defined(GUIPP_QT)
     const pen default_pen;
 
-    pen::pen (const os::color& color, size_type size, Style style)
+    pen::pen (const os::color& color, size_type size, Style style, Cap cap, Join join)
       : m_color(color)
       , m_size(size)
       , m_style(style)
-    {}
-
-    pen::pen (const pen& rhs)
-      : m_color(rhs.m_color)
-      , m_size(rhs.m_size)
-      , m_style(rhs.m_style)
+      , m_cap(cap)
+      , m_join(join)
     {}
 
     pen::~pen () {}
@@ -143,10 +155,20 @@ namespace gui {
       return m_style;
     }
 
+    pen::Cap pen::cap () const {
+      return m_cap;
+    }
+
+    pen::Join pen::join () const {
+      return m_join;
+    }
+
     bool pen::operator== (const pen& rhs) const {
       return ((m_color == rhs.m_color) &&
               (m_style == rhs.m_style) &&
-              (m_size == rhs.m_size));
+              (m_size == rhs.m_size) &&
+              (m_cap == rhs.m_cap) &&
+              (m_join == rhs.m_join));
     }
 
 #endif // GUIPP_X11 || GUIPP_QT

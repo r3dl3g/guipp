@@ -44,8 +44,8 @@ namespace gui {
       XSetForeground(display, g, p.color());
       const auto line_width = p.os_size();
       const int	line_style = static_cast<int>(p.style()) & 0x0F;
-      const int	cap_style = p.style() == pen::Style::solid ? (/*(line_width % 2) == 0 ? CapProjecting :*/ CapRound) : CapButt;
-      const int	join_style = p.style() == pen::Style::solid ? JoinMiter : JoinBevel;
+      const int	cap_style = static_cast<int>(p.cap());
+      const int	join_style = static_cast<int>(p.join());
 
       XSetLineAttributes(display, g, line_width, line_style, cap_style, join_style);
 
@@ -89,8 +89,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void Use<pen>::set (const pen& p) {
-      g->setPen(QPen(QBrush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()),
-                     Qt::RoundCap, Qt::RoundJoin));
+      g->setPen(QPen(QBrush(p.color()), p.os_size(),
+                     static_cast<Qt::PenStyle>(p.style()),
+                     static_cast<Qt::PenCapStyle>(p.cap()),
+                     static_cast<Qt::PenJoinStyle>(p.join()));
     }
 
     template<>

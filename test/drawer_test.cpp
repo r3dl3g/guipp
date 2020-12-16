@@ -1335,7 +1335,15 @@ void test_draw_rect_0x0_x3 () {
 
 // --------------------------------------------------------------------------
 void test_line (float scale, int sz, const core::point& p1, const core::point& p2, colormap&& expected) {
-  tester<draw::line>(scale, sz, p1, p2, std::move(expected));
+  core::global::set_scale_factor(scale);
+  pixmap img(sz, sz);
+  graphics g(img);
+  g.clear(color::black);
+  draw::line(p1, p2)(g, draw::pen(color::red, 1, pen::Style::solid, pen::Cap::round, pen::Join::round));
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, expected);
+
+//  tester<draw::line>(scale, sz, p1, p2, std::move(expected));
 }
 
 // --------------------------------------------------------------------------

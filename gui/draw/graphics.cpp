@@ -593,6 +593,9 @@ namespace gui {
       gc = new QPainter(target);
       own_gc = true;
       clear_clip_rect();
+      if (depth() == 1) {
+        gc->setCompositionMode(QPainter::RasterOp_NotSource);
+      }
     }
 
     graphics::graphics (const graphics& rhs)
@@ -648,9 +651,16 @@ namespace gui {
         px.grabWidget(w, pt.x(), pt.y(), 1, 1);
         return px.toImage().pixel(0, 0);
       } else {
-        QPixmap* p = dynamic_cast<QPixmap*>(target);
-        if (p) {
-          return p->toImage().pixel(pt.x(), pt.y());
+        QBitmap* b = dynamic_cast<QBitmap*>(target);
+        if (b) {
+          QImage img = b->toImage();
+          auto idx = img.pixelIndex(pt.x(), pt.y());
+          return idx ? color::white : color::black;
+        } else {
+          QPixmap* p = dynamic_cast<QPixmap*>(target);
+          if (p) {
+            return p->toImage().pixel(pt.x(), pt.y());
+          }
         }
       }
       return color::black;

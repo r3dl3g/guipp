@@ -28,6 +28,84 @@ const pixel::rgb green = color2rgb(color::green);
 const pixel::rgb blue = color2rgb(color::blue);
 
 // --------------------------------------------------------------------------
+std::string data2hex (const unsigned char* data, std::size_t len) {
+  std::ostringstream buffer;
+  for (int i = 0; i < len; ++i) {
+    if (i) {
+      buffer << ' ';
+    }
+    buffer << std::setw(2) << std::setfill('0') << std::hex << (int)data[i];
+  }
+  return buffer.str();
+}
+
+#ifdef GUIPP_QT
+// --------------------------------------------------------------------------
+colormap qimage2colormap (const QImage& img) {
+  return data2colormap((const char*)img.constBits(), img.depth()/8, img.bytesPerLine(), img.height());
+}
+
+// --------------------------------------------------------------------------
+void test_qpixmap2qimage () {
+  QPixmap pix(4, 4);
+  QPainter(&pix).fillRect(0, 0, 4, 4, Qt::white);
+
+  EXPECT_EQUAL(qimage2colormap(pix.toImage()),
+               CM({{W,W,W,W},
+                   {W,W,W,W},
+                   {W,W,W,W},
+                   {W,W,W,W}}));
+
+  QPainter(&pix).fillRect(1, 1, 2, 2, Qt::black);
+
+  EXPECT_EQUAL(qimage2colormap(pix.toImage()),
+               CM({{W,W,W,W},
+                   {W,_,_,W},
+                   {W,_,_,W},
+                   {W,W,W,W}}));
+}
+
+// --------------------------------------------------------------------------
+void test_qimage2qpixmap () {
+  QPixmap pix(4, 4);
+  {
+    QPainter p(&pix);
+    p.fillRect(p.viewport(), Qt::white);
+    p.fillRect(1, 1, 2, 2, Qt::black);
+  }
+
+  QImage img = pix.toImage();
+  EXPECT_EQUAL(qimage2colormap(img),
+               CM({{W,W,W,W},
+                   {W,_,_,W},
+                   {W,_,_,W},
+                   {W,W,W,W}}));
+
+  QPainter(&pix).fillRect(0, 0, 4, 4, Qt::white);
+  EXPECT_EQUAL(qimage2colormap(pix.toImage()),
+               CM({{W,W,W,W},
+                   {W,W,W,W},
+                   {W,W,W,W},
+                   {W,W,W,W}}));
+
+  pix.convertFromImage(img);
+  EXPECT_EQUAL(qimage2colormap(pix.toImage()),
+               CM({{W,W,W,W},
+                   {W,_,_,W},
+                   {W,_,_,W},
+                   {W,W,W,W}}));
+
+  QPainter(&pix).fillRect(0, 0, 4, 4, Qt::white);
+  EXPECT_EQUAL(qimage2colormap(pix.toImage()),
+               CM({{W,W,W,W},
+                   {W,W,W,W},
+                   {W,W,W,W},
+                   {W,W,W,W}}));
+}
+#endif //GUIPP_QT
+
+
+// --------------------------------------------------------------------------
 void test_bitmap_black () {
 
   bitmap img(4, 4);
@@ -38,13 +116,19 @@ void test_bitmap_black () {
   EXPECT_EQUAL(img.pixel_format(), pixel_format_t::BW);
   EXPECT_EQUAL(img.get_info(), bitmap_info(4, 4, IF_WIN32_ELSE(2, 4), pixel_format_t::BW));
 
+#ifdef GUIPP_QTxx
+  auto pic = img.get_id()->toImage();
+  auto data = data2hex(pic.constBits(), pic.byteCount());
+  TEST_EQUAL(data, "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00");
+#endif
+
   auto buffer = datamap2colormap(img.get());
   EXPECT_EQUAL(buffer, CM({{_,_,_,_},
                            {_,_,_,_},
                            {_,_,_,_},
                            {_,_,_,_}}));
 
-  graphics(img).fill(rectangle(core::point(1, 1), core::size(2, 2)), color::white);
+  graphics(img).fill(rectangle(core::point(1, 1), core::size(3, 3)), color::white);
 
   buffer = datamap2colormap(img.get());
   EXPECT_EQUAL(buffer, CM({{_,_,_,_},
@@ -413,15 +497,13 @@ void test_pixmap2bitmap () {
   auto data = pic.constBits();
 #endif
 
-  std::ostringstream buffer;
-  for (int i = 0; i < IF_WIN32_ELSE(4, 8); ++i) {
-    buffer << std::setw(2) << std::setfill('0') << std::hex << (int)data[i] << ' ';
-  }
+  auto buffer = data2hex(data, IF_WIN32_ELSE(4, 8));
+
 #ifdef GUIPP_X11
   XDestroyImage(xim);
 #endif // GUIPP_X11
 
-  EXPECT_EQUAL(buffer.str(), IF_WIN32_ELSE("40 00 80 00 ", "02 00 00 00 01 00 00 00 "));
+  EXPECT_EQUAL(buffer, IF_WIN32_ELSE("40 00 80 00", "02 00 00 00 01 00 00 00"));
 
   bwmap bw2 = img.get();
 
@@ -446,13 +528,18 @@ void test_bitmap2pixmap () {
   bw_raw.pixel(1, 0) = pixel::mono::white;
   bw_raw.pixel(1, 1) = pixel::mono::black;
 
+  EXPECT_EQUAL(bw_raw.pixel(0, 0), pixel::mono::black);
+  EXPECT_EQUAL(bw_raw.pixel(0, 1), pixel::mono::white);
+  EXPECT_EQUAL(bw_raw.pixel(1, 0), pixel::mono::white);
+  EXPECT_EQUAL(bw_raw.pixel(1, 1), pixel::mono::black);
+
   pixmap pix = bw;
   rgbmap rgb = pix.get<pixel_format_t::RGB>();
   auto rgb_raw = rgb.get_data();
-  EXPECT_EQUAL(rgb_raw.pixel(0, 0), pixel::color<pixel::rgb>::black);
-  EXPECT_EQUAL(rgb_raw.pixel(0, 1), pixel::color<pixel::rgb>::white);
-  EXPECT_EQUAL(rgb_raw.pixel(1, 0), pixel::color<pixel::rgb>::white);
-  EXPECT_EQUAL(rgb_raw.pixel(1, 1), pixel::color<pixel::rgb>::black);
+  TEST_EQUAL(rgb_raw.pixel(0, 0), pixel::color<pixel::rgb>::black);
+  TEST_EQUAL(rgb_raw.pixel(0, 1), pixel::color<pixel::rgb>::white);
+  TEST_EQUAL(rgb_raw.pixel(1, 0), pixel::color<pixel::rgb>::white);
+  TEST_EQUAL(rgb_raw.pixel(1, 1), pixel::color<pixel::rgb>::black);
 
 }
 
@@ -517,6 +604,11 @@ void test_main (const testing::start_params& params) {
   testing::init_gui(params);
 
   std::cout << "Running pixmap_test" << std::endl;
+
+#ifdef GUIPP_QT
+  run_test(test_qpixmap2qimage);
+  run_test(test_qimage2qpixmap);
+#endif //GUIPP_QT
 
   run_test(test_bitmap_black);
   run_test(test_bitmap_white);

@@ -404,7 +404,9 @@ namespace gui {
 
     void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi) {
       if (id) {
-        id->convertFromImage(QImage(data, bmi.width, bmi.height, bmi.bytes_per_line, draw::bitmap_info::convert(bmi.pixel_format)));
+        auto fmt = draw::bitmap_info::convert(bmi.pixel_format);
+        QImage img(data, bmi.width, bmi.height, bmi.bytes_per_line, fmt);
+        id->convertFromImage(img);
       }
     }
 
@@ -545,9 +547,9 @@ namespace gui {
       bitmap_info bmi;
       bitmap_get_data(get_id(), data, bmi);
       bwmap bmp(std::move(data), std::move(bmi));
-#ifdef GUIPP_QT
-      bmp.invert();
-#endif
+//#ifdef GUIPP_QT
+//      bmp.invert();
+//#endif
       return std::move(bmp);
     }
 

@@ -140,6 +140,9 @@ namespace gui {
 
       bwmap get_mask (pixel::gray limit = {0x7F}) const;
 
+      static byte default_depth ();
+      static pixel_format_t default_pixel_format ();
+
     private:
       template<pixel_format_t T>
       void invert ();

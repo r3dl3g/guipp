@@ -1282,15 +1282,14 @@ namespace gui {
       const auto pw = p.os_size();
       const auto off = pw / 2;
       const os::rectangle r = rect.os();
+      Use<brush> ubr(g, b);
+      Use<pen> pn(g, p);
       if ((r.width() > pw) && (r.height() > pw)) {
         g.os()->fillRect(r.x() + off, r.y() + off, r.width() - pw, r.height() - pw, b.color());
-        g.os()->setPen(QPen(QBrush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()),
-                       Qt::SquareCap, Qt::MiterJoin));
         g.os()->drawRect(r.x() + off, r.y() + off, r.width() - pw, r.height() - pw);
       } else if ((r.width() > 1) && (r.height() > 1)) {
         g.os()->fillRect(r.x(), r.y(), pw, pw, p.color());
       } else if ((1 == r.width()) && (1 == r.height())) {
-        Use<pen> pn(g, p);
         g.os()->drawPoint(r.x() + off, r.y() + off);
       }
     }
@@ -1301,14 +1300,12 @@ namespace gui {
       const auto off = pw / 2;
       const os::rectangle r = rect.os();
       Use<brush> ubr(g, null_brush);
+      Use<pen> pn(g, p);
       if ((r.width() > pw) && (r.height() > pw)) {
-        g.os()->setPen(QPen(QBrush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()),
-                       Qt::SquareCap, Qt::MiterJoin));
         g.os()->drawRect(r.x() + off, r.y() + off, r.width() - pw, r.height() - pw);
       } else if ((r.width() > 1) && (r.height() > 1)) {
         g.os()->fillRect(r.x(), r.y(), pw, pw, p.color());
       } else if ((1 == r.width()) && (1 == r.height())) {
-        Use<pen> pn(g, p);
         g.os()->drawPoint(r.x() + off, r.y() + off);
       }
     }

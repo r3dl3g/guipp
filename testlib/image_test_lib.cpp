@@ -46,7 +46,7 @@ namespace testing {
     GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
     auto str = data2string((const char*)data.data(), bmi.bmBitsPixel / 8, bmi.bmWidthBytes, bmi.bmHeight);
 #elif GUIPP_QT
-    auto pic = img.get_id().toImage();
+    auto pic = img.get_id()->toImage();
     auto str = data2string((const char*)pic.constBits(), pic.depth() / 8, pic.bytesPerLine(), pic.height());
 #endif
     return str;
@@ -94,8 +94,8 @@ namespace testing {
     }
     auto result = data2colormap((const char*)data.data(), bmp.bmBitsPixel / 8, bmp.bmWidthBytes, bmp.bmHeight);
 #elif GUIPP_QT
-    auto pic = img.get_id().toImage();
-    auto result = data2colormap((const char*)pic.constBits(), pic.depth() / 8, pic.bytesPerLine(), pic.height());
+    auto pic = img.get_id()->toImage();
+    auto result = data2colormap((const char*)pic.bits(), pic.depth() / 8, pic.bytesPerLine(), pic.height());
 #endif
     return result;
   }

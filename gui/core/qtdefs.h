@@ -72,7 +72,7 @@ namespace gui {
 
     typedef QRgb color;
 
-    typedef QPixmap bitmap;
+    typedef QPixmap* bitmap;
     typedef QIcon icon;
     typedef QCursor cursor;
     typedef QBrush brush;

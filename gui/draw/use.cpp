@@ -92,7 +92,7 @@ namespace gui {
       g->setPen(QPen(QBrush(p.color()), p.os_size(),
                      static_cast<Qt::PenStyle>(p.style()),
                      static_cast<Qt::PenCapStyle>(p.cap()),
-                     static_cast<Qt::PenJoinStyle>(p.join()));
+                     static_cast<Qt::PenJoinStyle>(p.join())));
     }
 
     template<>

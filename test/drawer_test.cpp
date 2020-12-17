@@ -3123,20 +3123,65 @@ void test_frame_polygon () {
 
   pixmap img(7, 7);
 
-  graphics(img).clear(color::black).frame(draw::polygon({{1,1}, {1, 5}, {3,3}, {5,5}, {5,1}}), color::red);
+  graphics(img).clear(color::black).frame(draw::polygon({{1,1}, {3,3}, {5,1}, {5,5}, {1,5}}), pen(color::red, 1, pen::Style::solid, pen::Cap::flat, pen::Join::miter));
 
   auto buffer = pixmap2colormap(img);
 
   EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_},
-                           {_,R,R,R,R,R,_},
                            {_,R,_,_,_,R,_},
-                           {_,R,_,R,_,R,_},
                            {_,R,R,_,R,R,_},
+                           {_,R,_,R,_,R,_},
                            {_,R,_,_,_,R,_},
+                           {_,R,R,R,R,R,_},
                            {_,_,_,_,_,_,_}}));
 
 }
 
+// --------------------------------------------------------------------------
+void test_frame_polygon2 () {
+  core::global::set_scale_factor(1.0);
+
+  pixmap img(9, 9);
+
+  graphics(img).clear(color::black).frame(draw::polygon({{1,1}, {4,4}, {7,1}, {7,7}, {1,7}}), pen(color::red, 1, pen::Style::solid, pen::Cap::flat, pen::Join::miter));
+
+  auto buffer = pixmap2colormap(img);
+
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_},
+                           {_,R,_,_,_,_,_,R,_},
+                           {_,R,R,_,_,_,R,R,_},
+                           {_,R,_,R,_,R,_,R,_},
+                           {_,R,_,_,R,_,_,R,_},
+                           {_,R,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,R,_},
+                           {_,R,R,R,R,R,R,R,_},
+                           {_,_,_,_,_,_,_,_,_}}));
+
+}
+
+// --------------------------------------------------------------------------
+void test_frame_polygon3 () {
+  core::global::set_scale_factor(1.0);
+
+  pixmap img(11, 11);
+
+  graphics(img).clear(color::black).frame(draw::polygon({{1,1}, {5,5}, {9,1}, {9,9}, {1,9}}), pen(color::red, 1, pen::Style::solid, pen::Cap::round, pen::Join::round));
+
+  auto buffer = pixmap2colormap(img);
+
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_,_,_},
+                           {_,R,_,_,_,_,_,_,_,R,_},
+                           {_,R,R,_,_,_,_,_,R,R,_},
+                           {_,R,_,R,_,_,_,R,_,R,_},
+                           {_,R,_,_,R,_,R,_,_,R,_},
+                           {_,R,_,_,_,R,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,_,_,R,_},
+                           {_,R,_,_,_,_,_,_,_,R,_},
+                           {_,R,R,R,R,R,R,R,R,R,_},
+                           {_,_,_,_,_,_,_,_,_,_,_}}));
+
+}
 
 // --------------------------------------------------------------------------
 void test_fill_polygon () {
@@ -3144,16 +3189,16 @@ void test_fill_polygon () {
 
   pixmap img(7, 7);
 
-  graphics(img).clear(color::black).fill(draw::polygon({{1,1}, {1, 5}, {3,3}, {5,5}, {5,1}}), color::red);
+  graphics(img).clear(color::black).fill(draw::polygon({{1,1}, {3,3}, {5,1}, {5,5}, {1,5}}), color::red);
 
   auto buffer = pixmap2colormap(img);
 
   EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_},
-                           {_,R,R,R,R,R,_},
-                           {_,R,R,R,R,R,_},
-                           {_,R,R,R,R,R,_},
-                           {_,R,R,_,R,R,_},
                            {_,R,_,_,_,R,_},
+                           {_,R,R,_,R,R,_},
+                           {_,R,R,R,R,R,_},
+                           {_,R,R,R,R,R,_},
+                           {_,R,R,R,R,R,_},
                            {_,_,_,_,_,_,_}}));
 
 }
@@ -3165,16 +3210,16 @@ void test_draw_polygon () {
 
   pixmap img(7, 7);
 
-  graphics(img).clear(color::black).draw(draw::polygon({{1,1}, {1, 5}, {3,3}, {5,5}, {5,1}}), color::blue, color::red);
+  graphics(img).clear(color::black).draw(draw::polygon({{1,1}, {3,3}, {5,1}, {5,5}, {1,5}}), color::blue, color::red);
 
   auto buffer = pixmap2colormap(img);
 
   EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_},
-                           {_,R,R,R,R,R,_},
-                           {_,R,B,B,B,R,_},
-                           {_,R,B,R,B,R,_},
-                           {_,R,R,_,R,R,_},
                            {_,R,_,_,_,R,_},
+                           {_,R,R,_,R,R,_},
+                           {_,R,B,R,B,R,_},
+                           {_,R,B,B,B,R,_},
+                           {_,R,R,R,R,R,_},
                            {_,_,_,_,_,_,_}}));
 
 }
@@ -3410,6 +3455,8 @@ void test_main (const testing::start_params& params) {
 
 #ifdef TEST_POLYGON
   run_test(test_frame_polygon);
+  run_test(test_frame_polygon2);
+  run_test(test_frame_polygon3);
   run_test(test_fill_polygon);
   run_test(test_draw_polygon);
 #endif //TEST_POLYGON

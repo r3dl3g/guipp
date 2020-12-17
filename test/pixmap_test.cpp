@@ -5,10 +5,12 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
 #include <testlib/testlib.h>
+#include <testlib/image_test_lib.h>
 
 
 using namespace gui;
 using namespace gui::draw;
+using namespace testing;
 
 
 inline pixel::rgb color2rgb (os::color c) {
@@ -28,21 +30,27 @@ const pixel::rgb blue = color2rgb(color::blue);
 // --------------------------------------------------------------------------
 void test_bitmap_black () {
 
-  bitmap img(2, 2);
+  bitmap img(4, 4);
   graphics(img).clear(color::black);
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(4, 4));
   EXPECT_EQUAL(img.depth(), 1);
   EXPECT_EQUAL(img.pixel_format(), pixel_format_t::BW);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), pixel_format_t::BW));
+  EXPECT_EQUAL(img.get_info(), bitmap_info(4, 4, IF_WIN32_ELSE(2, 4), pixel_format_t::BW));
 
-  bwmap bw = img.get();
+  auto buffer = datamap2colormap(img.get());
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_},
+                           {_,_,_,_},
+                           {_,_,_,_},
+                           {_,_,_,_}}));
 
-  const_image_data<pixel_format_t::BW> bw_raw = static_cast<const bwmap&>(bw).get_data();
-  EXPECT_EQUAL(bw_raw.pixel(0, 0), pixel::mono::black);
-  EXPECT_EQUAL(bw_raw.pixel(0, 1), pixel::mono::black);
-  EXPECT_EQUAL(bw_raw.pixel(1, 0), pixel::mono::black);
-  EXPECT_EQUAL(bw_raw.pixel(1, 1), pixel::mono::black);
+  graphics(img).fill(rectangle(core::point(1, 1), core::size(2, 2)), color::white);
+
+  buffer = datamap2colormap(img.get());
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_},
+                           {_,W,W,_},
+                           {_,W,W,_},
+                           {_,_,_,_}}));
 }
 
 
@@ -59,10 +67,10 @@ void test_bitmap_white () {
   bwmap bw = img.get();
 
   const_image_data<pixel_format_t::BW> bw_raw = static_cast<const bwmap&>(bw).get_data();
-  EXPECT_EQUAL(bw_raw.pixel(0, 0), pixel::mono::white);
-  EXPECT_EQUAL(bw_raw.pixel(0, 1), pixel::mono::white);
-  EXPECT_EQUAL(bw_raw.pixel(1, 0), pixel::mono::white);
-  EXPECT_EQUAL(bw_raw.pixel(1, 1), pixel::mono::white);
+  TEST_EQUAL(bw_raw.pixel(0, 0), pixel::mono::white);
+  TEST_EQUAL(bw_raw.pixel(0, 1), pixel::mono::white);
+  TEST_EQUAL(bw_raw.pixel(1, 0), pixel::mono::white);
+  TEST_EQUAL(bw_raw.pixel(1, 1), pixel::mono::white);
 }
 
 
@@ -79,16 +87,16 @@ void test_bitmap_checked () {
   bwmap bw = img.get();
 
   const_image_data<pixel_format_t::BW> bw_raw = static_cast<const bwmap&>(bw).get_data();
-  EXPECT_EQUAL(bw_raw.pixel(0, 0), pixel::mono::white);
-  EXPECT_EQUAL(bw_raw.pixel(0, 1), pixel::mono::black);
-  EXPECT_EQUAL(bw_raw.pixel(1, 0), pixel::mono::black);
-  EXPECT_EQUAL(bw_raw.pixel(1, 1), pixel::mono::white);
+  TEST_EQUAL(bw_raw.pixel(0, 0), pixel::mono::white);
+  TEST_EQUAL(bw_raw.pixel(0, 1), pixel::mono::black);
+  TEST_EQUAL(bw_raw.pixel(1, 0), pixel::mono::black);
+  TEST_EQUAL(bw_raw.pixel(1, 1), pixel::mono::white);
 }
 
 
 // --------------------------------------------------------------------------
 void test_pixmap_black () {
-  const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
+  const pixel_format_t expected_pixelformat = pixmap::default_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::black);
   EXPECT_TRUE(img.is_valid());
@@ -109,7 +117,7 @@ void test_pixmap_black () {
 
 // --------------------------------------------------------------------------
 void test_pixmap_red () {
-  const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
+  const pixel_format_t expected_pixelformat = pixmap::default_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::red);
   EXPECT_TRUE(img.is_valid());
@@ -130,7 +138,7 @@ void test_pixmap_red () {
 
 // --------------------------------------------------------------------------
 void test_pixmap_green () {
-  const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
+  const pixel_format_t expected_pixelformat = pixmap::default_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::green);
   EXPECT_TRUE(img.is_valid());
@@ -151,7 +159,7 @@ void test_pixmap_green () {
 
 // --------------------------------------------------------------------------
 void test_pixmap_blue () {
-  const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
+  const pixel_format_t expected_pixelformat = pixmap::default_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::blue);
   EXPECT_TRUE(img.is_valid());
@@ -172,7 +180,7 @@ void test_pixmap_blue () {
 
 // --------------------------------------------------------------------------
 void test_pixmap_white () {
-  const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
+  const pixel_format_t expected_pixelformat = pixmap::default_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::white);
   EXPECT_TRUE(img.is_valid());
@@ -194,15 +202,15 @@ void test_pixmap_white () {
 
 // --------------------------------------------------------------------------
 void test_pixmap () {
-  const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
+  const pixel_format_t expected_pixelformat = pixmap::default_pixel_format();
   pixmap img(2, 2);
   {
     graphics g(img);
     g.clear(color::white);
-    auto p1 = g.get_pixel({0, 0});
+    auto p1 = color::remove_transparency(g.get_pixel({0, 0}));
     EXPECT_EQUAL(p1, color::white);
     g.clear(color::black);
-    auto p2 = g.get_pixel({0, 0});
+    auto p2 = color::remove_transparency(g.get_pixel({0, 0}));
     EXPECT_EQUAL(p2, color::black);
   }
   EXPECT_TRUE(img.is_valid());
@@ -234,7 +242,7 @@ void test_pixmap_draw () {
 # define BLUE  "ff0000ff"
 #endif
 
-  const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
+  const pixel_format_t expected_pixelformat = pixmap::default_pixel_format();
 
   core::global::set_scale_factor(1.0);
 
@@ -243,14 +251,14 @@ void test_pixmap_draw () {
     graphics g(img);
     g.clear(color::black);
     g.draw(draw::rectangle(core::point(2, 2), core::size(2, 2)), color::blue, color::blue);
-    EXPECT_EQUAL(g.get_pixel({0, 0}), color::black);
-    EXPECT_EQUAL(g.get_pixel({0, 1}), color::black);
-    EXPECT_EQUAL(g.get_pixel({1, 0}), color::black);
-    EXPECT_EQUAL(g.get_pixel({1, 1}), color::black);
-    EXPECT_EQUAL(g.get_pixel({2, 2}), color::blue);
-    EXPECT_EQUAL(g.get_pixel({3, 3}), color::blue);
-    EXPECT_EQUAL(g.get_pixel({4, 4}), color::black);
-    EXPECT_EQUAL(g.get_pixel({5, 5}), color::black);
+    EXPECT_EQUAL(color::remove_transparency(g.get_pixel({0, 0})), color::black);
+    EXPECT_EQUAL(color::remove_transparency(g.get_pixel({0, 1})), color::black);
+    EXPECT_EQUAL(color::remove_transparency(g.get_pixel({1, 0})), color::black);
+    EXPECT_EQUAL(color::remove_transparency(g.get_pixel({1, 1})), color::black);
+    EXPECT_EQUAL(color::remove_transparency(g.get_pixel({2, 2})), color::blue);
+    EXPECT_EQUAL(color::remove_transparency(g.get_pixel({3, 3})), color::blue);
+    EXPECT_EQUAL(color::remove_transparency(g.get_pixel({4, 4})), color::black);
+    EXPECT_EQUAL(color::remove_transparency(g.get_pixel({5, 5})), color::black);
   }
 
   EXPECT_TRUE(img.is_valid());
@@ -273,7 +281,7 @@ void test_pixmap_draw () {
   const int height = bmi.bmHeight;
   const int bytes_per_line = bmi.bmWidthBytes;
 #elif GUIPP_QT
-  auto pic = img.get_id().toImage();
+  auto pic = img.get_id()->toImage();
   auto data = pic.constBits();
   const int height = pic.height();
   const int bytes_per_line = pic.bytesPerLine();
@@ -344,10 +352,10 @@ void test_pixmap2bitmap () {
     g.draw_pixel({1, 1}, color::black);
     g.flush();
 
-    EXPECT_EQUAL(g.get_pixel({0, 0}), color::black);
-    EXPECT_EQUAL(g.get_pixel({0, 1}), color::white);
-    EXPECT_EQUAL(g.get_pixel({1, 0}), color::white);
-    EXPECT_EQUAL(g.get_pixel({1, 1}), color::black);
+    EXPECT_EQUAL(color::remove_transparency(g.get_pixel({0, 0})), color::black);
+    EXPECT_EQUAL(color::remove_transparency(g.get_pixel({0, 1})), color::white);
+    EXPECT_EQUAL(color::remove_transparency(g.get_pixel({1, 0})), color::white);
+    EXPECT_EQUAL(color::remove_transparency(g.get_pixel({1, 1})), color::black);
   }
 
   bgrmap bgr = pix.get<pixel_format_t::BGR>();
@@ -382,10 +390,10 @@ void test_pixmap2bitmap () {
 
   {
     graphics g(img);
-    EXPECT_EQUAL(g.get_pixel({0, 0}), color::black);
-    EXPECT_EQUAL(g.get_pixel({0, 1}), color::white);
-    EXPECT_EQUAL(g.get_pixel({1, 0}), color::white);
-    EXPECT_EQUAL(g.get_pixel({1, 1}), color::black);
+    EXPECT_EQUAL(color::remove_transparency(g.get_pixel({0, 0})), color::black);
+    EXPECT_EQUAL(color::remove_transparency(g.get_pixel({0, 1})), color::white);
+    EXPECT_EQUAL(color::remove_transparency(g.get_pixel({1, 0})), color::white);
+    EXPECT_EQUAL(color::remove_transparency(g.get_pixel({1, 1})), color::black);
   }
 
 #ifdef GUIPP_X11
@@ -401,7 +409,7 @@ void test_pixmap2bitmap () {
     std::cerr << "GetBitmapBits returned " << result << " expected:" << data.size() << std::endl;
   }
 #elif GUIPP_QT
-  auto pic = img.get_id().toImage();
+  auto pic = img.get_id()->toImage();
   auto data = pic.constBits();
 #endif
 

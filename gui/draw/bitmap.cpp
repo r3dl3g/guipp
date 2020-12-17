@@ -50,7 +50,7 @@
 
 #ifdef GUIPP_QT
 
-#include <QtGui/QPixmap>
+#include <QtGui/QBitmap>
 
 #endif // GUIPP_QT
 
@@ -373,35 +373,52 @@ namespace gui {
 
 #ifdef GUIPP_QT
     os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr) {
-      return os::bitmap(bmi.width, bmi.height);
+      if (bmi.bits_per_pixel() == 1) {
+        return new QBitmap(bmi.width, bmi.height);
+      } else {
+        return new QPixmap(bmi.width, bmi.height);
+      }
     }
 
     void free_bitmap (os::bitmap& id) {
-      id.detach();
+      if (id) {
+        delete id;
+        id = nullptr;
+      }
     }
 
     draw::bitmap_info bitmap_get_info (const os::bitmap& id) {
-      pixel_format_t fmt = pixel_format_t::RGBA;
-      const auto depth = id.depth();
-      switch (depth) {
-        case 1: fmt = pixel_format_t::BW;
-        case 8: fmt = pixel_format_t::GRAY;
-        case 24: fmt = pixel_format_t::RGB;
+      if (id) {
+        pixel_format_t fmt = pixel_format_t::RGBA;
+        const auto depth = id->depth();
+        switch (depth) {
+          case 1: fmt = pixel_format_t::BW;   break;
+          case 8: fmt = pixel_format_t::GRAY; break;
+          case 24: fmt = pixel_format_t::RGB; break;
+//          case 32: fmt = pixel_format_t::RGBA;
+        }
+        return draw::bitmap_info(id->width(), id->height(), fmt);
       }
-      return draw::bitmap_info(id.width(), id.height(), fmt);
+      return {};
     }
 
     void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi) {
-      id.convertFromImage(QImage(data, bmi.width, bmi.height, bmi.bytes_per_line, draw::bitmap_info::convert(bmi.pixel_format)));
+      if (id) {
+        id->convertFromImage(QImage(data, bmi.width, bmi.height, bmi.bytes_per_line, draw::bitmap_info::convert(bmi.pixel_format)));
+      }
     }
 
     void bitmap_get_data (const os::bitmap& id, blob& data, draw::bitmap_info& bmi) {
-      QImage img = id.toImage();
-      const int bpl = img.bytesPerLine();
-      const auto sz = img.size();
-      const uchar* bits = img.bits();
-      data.assign(bits, bits + img.byteCount());
-      bmi = draw::bitmap_info(sz.width(), sz.height(), bpl, draw::bitmap_info::convert(img.format()));
+      if (id) {
+        QImage img = id->toImage();
+        const int bpl = img.bytesPerLine();
+        const auto sz = img.size();
+        const uchar* bits = img.bits();
+        data.assign(bits, bits + img.byteCount());
+        bmi = draw::bitmap_info(sz.width(), sz.height(), bpl, draw::bitmap_info::convert(img.format()));
+      } else {
+        bmi = {};
+      }
     }
 #endif // GUIPP_QT
 
@@ -437,7 +454,7 @@ namespace gui {
 
     bool basic_map::is_valid () const {
 #ifdef GUIPP_QT
-      return !id.isNull();
+      return id && !id->isNull();
 #else
       return id != 0;
 #endif
@@ -445,7 +462,7 @@ namespace gui {
 
     basic_map::operator const os::drawable () const {
 #ifdef GUIPP_QT
-      return const_cast<os::drawable>(static_cast<const QPaintDevice*>(&id));
+      return const_cast<os::drawable>(static_cast<const QPaintDevice*>(id));
 #else
       return get_id();
 #endif
@@ -454,9 +471,7 @@ namespace gui {
     void basic_map::clear () {
       if (is_valid()) {
         free_bitmap(get_id());
-#ifndef GUIPP_QT
         set_id(0);
-#endif
       }
     }
 
@@ -529,7 +544,11 @@ namespace gui {
       blob data;
       bitmap_info bmi;
       bitmap_get_data(get_id(), data, bmi);
-      return bwmap(std::move(data), std::move(bmi));
+      bwmap bmp(std::move(data), std::move(bmi));
+#ifdef GUIPP_QT
+      bmp.invert();
+#endif
+      return std::move(bmp);
     }
 
     bitmap::operator bwmap () const {
@@ -548,7 +567,7 @@ namespace gui {
       pixel_format_t px_fmt = core::global::get_device_pixel_format();
       super::create({w, h, px_fmt});
 #elif GUIPP_QT
-      set_id(os::bitmap(w, h));
+      set_id(new  QPixmap(w, h));
 #endif //GUIPP_QT
       if (!is_valid()) {
         throw std::runtime_error("create pixmap failed");
@@ -564,9 +583,9 @@ namespace gui {
 
     void pixmap::invert () {
 #ifdef GUIPP_QT
-      QImage tmp = get_id().toImage();
+      QImage tmp = get_id()->toImage();
       tmp.invertPixels();
-      get_id() = QPixmap::fromImage(std::move(tmp));
+      *(get_id()) = QPixmap::fromImage(std::move(tmp));
 #else
       switch (pixel_format()) {
         case pixel_format_t::BW:   invert<pixel_format_t::BW>();   break;
@@ -596,6 +615,22 @@ namespace gui {
 
     bwmap pixmap::get_mask (pixel::gray limit) const {
       return get<pixel_format_t::GRAY>().get_mask(limit);
+    }
+
+    byte pixmap::default_depth () {
+      static byte depth =
+#ifdef GUIPP_X11
+          core::global::get_device_depth();
+#elif GUIPP_QT
+          static_cast<byte>(QPixmap(1, 1).depth());
+#else
+          core::global::get_device_depth();
+#endif
+      return depth;
+    }
+
+    pixel_format_t pixmap::default_pixel_format () {
+      return core::global::get_device_pixel_format();
     }
 
     // --------------------------------------------------------------------------

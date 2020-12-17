@@ -101,7 +101,9 @@ namespace gui {
 
     pixel_format_t bitmap_info::convert (QImage::Format f) {
       switch (f) {
-        case QImage::Format_Mono: return pixel_format_t::BW;
+        case QImage::Format_Mono:
+        case QImage::Format_MonoLSB:
+          return pixel_format_t::BW;
         case QImage::Format_Grayscale8: return pixel_format_t::GRAY;
         case QImage::Format_RGB888: return pixel_format_t::RGB;
         case QImage::Format_RGBA8888: return pixel_format_t::RGBA;
@@ -113,7 +115,9 @@ namespace gui {
 
      QImage::Format bitmap_info::convert (pixel_format_t f) {
       switch (f) {
-        case pixel_format_t::BW: return QImage::Format_Mono;
+        case pixel_format_t::BW:
+          return (core::os::bitmap_bit_order == core::bit_order_t::msb_first ? QImage::Format_Mono
+                                                                             : QImage::Format_MonoLSB);
         case pixel_format_t::GRAY: return QImage::Format_Grayscale8;
         case pixel_format_t::RGB: return QImage::Format_RGB888;
         case pixel_format_t::ARGB: return QImage::Format_ARGB32;

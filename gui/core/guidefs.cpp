@@ -277,28 +277,41 @@ namespace gui {
 #endif // GUIPP_X11
       }
 
-      int get_device_depth () {
 #ifdef GUIPP_WIN
-        HDC gdc = GetDC(NULL);
-        int dbpp = GetDeviceCaps(gdc, BITSPIXEL);
-        ReleaseDC(NULL, gdc);
-        return dbpp;
+      namespace win32 {
+        int get_device_depth () {
+          HDC gdc = GetDC(NULL);
+          int dbpp = GetDeviceCaps(gdc, BITSPIXEL);
+          ReleaseDC(NULL, gdc);
+          return dbpp;
+        }
+      }
+#endif // GUIPP_WIN
+
+      int get_device_depth () {
+        static int depth =
+#ifdef GUIPP_WIN
+          win32::get_device_depth();
 #elif GUIPP_X11
-        return DefaultDepth(get_instance(), x11::get_screen());
+          DefaultDepth(get_instance(), x11::get_screen());
 #elif GUIPP_QT
-        return QGuiApplication::primaryScreen()->depth();
+          QGuiApplication::primaryScreen()->depth();
 #else
 #error  Undefined System: int get_device_depth ()
 #endif
+        return depth;
       }
 
       pixel_format_t get_device_pixel_format () {
+        static pixel_format_t format =
 #ifdef GUIPP_X11
-        auto inst = get_instance();
-        return get_pixel_format(DefaultDepth(inst, x11::get_screen()), byte_order_t(ImageByteOrder(inst)));
+          get_pixel_format(get_device_depth(), byte_order_t(ImageByteOrder(get_instance())));
+#elif GUIPP_QT
+          get_pixel_format(QPixmap(1, 1).depth(), os::bitmap_byte_order);
 #else
-        return get_pixel_format(get_device_depth(), os::bitmap_byte_order);
+          get_pixel_format(get_device_depth(), os::bitmap_byte_order);
 #endif
+        return format;
       }
 
 #ifdef GUIPP_WIN

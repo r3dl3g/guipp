@@ -642,7 +642,22 @@ namespace gui {
     }
 
     os::color graphics::get_pixel (const core::native_point& pt) const {
+      QWidget* w = dynamic_cast<QWidget*>(target);
+      if (w) {
+        QPixmap px;
+        px.grabWidget(w, pt.x(), pt.y(), 1, 1);
+        return px.toImage().pixel(0, 0);
+      } else {
+        QPixmap* p = dynamic_cast<QPixmap*>(target);
+        if (p) {
+          return p->toImage().pixel(pt.x(), pt.y());
+        }
+      }
       return color::black;
+    }
+
+    os::point operator+ (const os::point& pt, int i) {
+      return { (pt.x() + i), (pt.y() + i) };
     }
 
     const graphics& graphics::draw_lines (std::vector<core::point> points,
@@ -655,10 +670,10 @@ namespace gui {
       for (const core::point& pt : points) {
         if (first) {
           first = false;
-          last = pt.os();
+          last = pt.os() + off;
         } else {
           pointPairs.push_back(last);
-          last = pt.os();
+          last = pt.os() + off;
           pointPairs.push_back(last);
         }
       }
@@ -697,26 +712,26 @@ namespace gui {
       if (bmp.mask) {
         QPainter::CompositionMode old_mode = gc->compositionMode();
         gc->setCompositionMode(QPainter::RasterOp_NotSourceAndDestination);
-        gc->drawPixmap(pt.x(), pt.y(), bmp.mask.get_id());
+        gc->drawPixmap(pt.x(), pt.y(), *bmp.mask.get_id());
         gc->setCompositionMode(QPainter::RasterOp_SourceOrDestination);
-        gc->drawPixmap(pt.x(), pt.y(), bmp.image.get_id());
+        gc->drawPixmap(pt.x(), pt.y(), *bmp.image.get_id());
         gc->setCompositionMode(old_mode);
       } else {
-        gc->drawPixmap(pt.x(), pt.y(), bmp.image.get_id());
+        gc->drawPixmap(pt.x(), pt.y(), *bmp.image.get_id());
       }
       return *this;
     }
 
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) const {
       if (bmp) {
-        gc->drawPixmap(pt.os(), bmp.get_id(), src.os());
+        gc->drawPixmap(pt.os(), *bmp.get_id(), src.os());
       }
       return *this;
     }
 
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_rect& src, const core::native_point& pt) const {
       if (bmp) {
-        gc->drawPixmap(pt.x(), pt.y(), bmp.get_id(), src.x(), src.y(), src.width(), src.height());
+        gc->drawPixmap(pt.x(), pt.y(), *bmp.get_id(), src.x(), src.y(), src.width(), src.height());
       }
       return *this;
     }

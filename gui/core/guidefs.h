@@ -265,7 +265,7 @@ namespace gui {
       }
 
       template<typename R, typename T>
-      inline typename std::enable_if<std::is_signed<R>::value, R>::type
+      inline typename std::enable_if<std::is_signed<R>::value && !std::is_floating_point<R>::value, R>::type
       scale_to_native (const T& v) {
         return static_cast<R>(round(static_cast<T>(v * get_scale_factor())));
       }

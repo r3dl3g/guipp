@@ -94,7 +94,7 @@ int main (int argc, char* argv[]) {
   int ret = 0;
   try {
     ret = gui_main(args);
-    clog::debug() << main << " gui_main finished width: " << ret;
+    clog::debug() << "gui_main finished width: " << ret;
   } catch (const std::exception& ex) {
     clog::fatal() << "Excception: " << ex.what();
     ret = 1;

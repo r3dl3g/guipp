@@ -722,7 +722,7 @@ namespace gui {
     }
 
     core::size window::screen_size () {
-      return gui::os::size{ GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
+      return core::size(gui::os::size{ GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) });
     }
 
     core::rectangle window::screen_area () {

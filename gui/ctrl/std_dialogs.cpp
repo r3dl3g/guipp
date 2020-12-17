@@ -30,63 +30,63 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      core::rectangle std_multi_input_dialog_size<core::os::ui_t::desktop> (const core::rectangle&, std::size_t n) {
+      GUIPP_CTRL_EXPORT core::rectangle std_multi_input_dialog_size<core::os::ui_t::desktop> (const core::rectangle&, std::size_t n) {
         return core::rectangle(300, 200, 400, static_cast<core::size::type>(85 + n * 40));
       }
 
       template<>
-      core::rectangle std_path_open_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area) {
+      GUIPP_CTRL_EXPORT core::rectangle std_path_open_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area) {
         return core::rectangle(200, 100, 800, 600);
       }
 
       template<>
-      core::rectangle std_message_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area) {
+      GUIPP_CTRL_EXPORT core::rectangle std_message_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area) {
         return core::rectangle(300, 200, 400, 170);
       }
 
       template<>
-      core::rectangle std_yes_no_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area) {
+      GUIPP_CTRL_EXPORT core::rectangle std_yes_no_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area) {
         return std_message_dialog_size<core::os::ui_t::desktop>(area);
       }
 
       template<>
-      core::rectangle std_input_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area) {
+      GUIPP_CTRL_EXPORT core::rectangle std_input_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area) {
         return core::rectangle(300, 200, 400, 125);
       }
 
       template<>
-      core::rectangle std_file_save_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area) {
+      GUIPP_CTRL_EXPORT core::rectangle std_file_save_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area) {
         return std_path_open_dialog_size<core::os::ui_t::desktop>(area);
       }
 
       //-----------------------------------------------------------------------------
       template<>
-      core::rectangle std_multi_input_dialog_size<core::os::ui_t::mobile> (const core::rectangle& area, std::size_t n) {
+      GUIPP_CTRL_EXPORT core::rectangle std_multi_input_dialog_size<core::os::ui_t::mobile> (const core::rectangle& area, std::size_t n) {
         return win::window::screen_area().shrinked({ 20, 20 }).with_height(static_cast<core::size::type>(85 + n * 40));
       }
 
       template<>
-      core::rectangle std_path_open_dialog_size<core::os::ui_t::mobile> (const core::rectangle&) {
+      GUIPP_CTRL_EXPORT core::rectangle std_path_open_dialog_size<core::os::ui_t::mobile> (const core::rectangle&) {
         return win::window::screen_area();
       }
 
       template<>
-      core::rectangle std_message_dialog_size<core::os::ui_t::mobile> (const core::rectangle& area) {
+      GUIPP_CTRL_EXPORT core::rectangle std_message_dialog_size<core::os::ui_t::mobile> (const core::rectangle& area) {
         return win::window::screen_area().shrinked({ 30, 100 });
       }
 
       template<>
-      core::rectangle std_yes_no_dialog_size<core::os::ui_t::mobile> (const core::rectangle& area) {
+      GUIPP_CTRL_EXPORT core::rectangle std_yes_no_dialog_size<core::os::ui_t::mobile> (const core::rectangle& area) {
         return std_message_dialog_size<core::os::ui_t::mobile>(area);
       }
 
       template<>
-      core::rectangle std_input_dialog_size<core::os::ui_t::mobile> (const core::rectangle&) {
+      GUIPP_CTRL_EXPORT core::rectangle std_input_dialog_size<core::os::ui_t::mobile> (const core::rectangle&) {
         return win::window::screen_area().shrinked({ 30, 100 });
       }
 
       template<>
-      core::rectangle std_file_save_dialog_size<core::os::ui_t::mobile> (const core::rectangle& area) {
+      GUIPP_CTRL_EXPORT core::rectangle std_file_save_dialog_size<core::os::ui_t::mobile> (const core::rectangle& area) {
         return std_path_open_dialog_size<core::os::ui_t::mobile>(area);
       }
 

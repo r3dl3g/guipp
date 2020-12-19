@@ -182,7 +182,7 @@ namespace gui {
 
     template<typename T>
     inline typename std::enable_if<!is_alpha_type<T>::value, byte>::type get_alpha (T) {
-      return 0;//IF_WIN32_ELSE(0, 255);
+      return IF_WIN32_ELSE(0, 255);
     }
 
     inline byte get_alpha (os::color c) {
@@ -190,7 +190,7 @@ namespace gui {
     }
 
     inline byte get_alpha (core::bit_wrapper<const mono> p) {
-      return 0;//IF_WIN32_ELSE(0, 255);
+      return IF_WIN32_ELSE(0, 255);
     }
 
     // --------------------------------------------------------------------------
@@ -212,6 +212,48 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template<typename T, typename S>
+    typename std::enable_if<is_rgb_type<S>::value, byte>::type put_rgb (T& lhs, const S rhs) {
+      lhs.red = get_red(rhs);
+      lhs.green = get_green(rhs);
+      lhs.blue = get_blue(rhs);
+    }
+
+    template<typename T, typename S>
+    typename std::enable_if<!is_rgb_type<S>::value, byte>::type put_rgb (T& lhs, const S rhs) {
+      lhs.red = lhs.green = lhs.blue = get_gray(rhs);
+    }
+
+    template<typename T>
+    void put_rgb (T& lhs, const os::color rhs) {
+      lhs.red = get_red(rhs);
+      lhs.green = get_green(rhs);
+      lhs.blue = get_blue(rhs);
+    }
+
+    template<typename T, typename S>
+    typename std::enable_if<is_rgb_type<S>::value, byte>::type put_rgba (T& lhs, const S rhs) {
+      lhs.red = get_red(rhs);
+      lhs.green = get_green(rhs);
+      lhs.blue = get_blue(rhs);
+      lhs.alpha = get_alpha(rhs);
+    }
+
+    template<typename T, typename S>
+    typename std::enable_if<!is_rgb_type<S>::value, byte>::type put_rgba (T& lhs, const S rhs) {
+      lhs.red = lhs.green = lhs.blue = get_gray(rhs);
+      lhs.alpha = get_alpha(rhs);
+    }
+
+    template<typename T>
+    void put_rgba (T& lhs, const os::color rhs) {
+      lhs.red = get_red(rhs);
+      lhs.green = get_green(rhs);
+      lhs.blue = get_blue(rhs);
+      lhs.alpha = get_alpha(rhs);
+    }
+
+    // --------------------------------------------------------------------------
     template<typename T>
     rgb rgb::build(T t) {
       rgb p;
@@ -221,9 +263,7 @@ namespace gui {
 
     template<typename T>
     inline void rgb::operator= (T rhs) {
-      red = get_red(rhs);
-      green = get_green(rhs);
-      blue = get_blue(rhs);
+      put_rgb(*this, rhs);
     }
 
     // --------------------------------------------------------------------------
@@ -236,10 +276,7 @@ namespace gui {
 
     template<typename T>
     inline void rgba::operator= (T rhs) {
-      red = get_red(rhs);
-      green = get_green(rhs);
-      blue = get_blue(rhs);
-      alpha = get_alpha(rhs);
+      put_rgba(*this, rhs);
     }
 
     // --------------------------------------------------------------------------
@@ -252,9 +289,7 @@ namespace gui {
 
     template<typename T>
     inline void bgr::operator= (T rhs) {
-      red = get_red(rhs);
-      green = get_green(rhs);
-      blue = get_blue(rhs);
+      put_rgb(*this, rhs);
     }
 
     // --------------------------------------------------------------------------
@@ -267,10 +302,7 @@ namespace gui {
 
     template<typename T>
     inline void bgra::operator= (T rhs) {
-      red = get_red(rhs);
-      green = get_green(rhs);
-      blue = get_blue(rhs);
-      alpha = get_alpha(rhs);
+      put_rgba(*this, rhs);
     }
 
     // --------------------------------------------------------------------------
@@ -283,10 +315,7 @@ namespace gui {
 
     template<typename T>
     inline void argb::operator= (T rhs) {
-      red = get_red(rhs);
-      green = get_green(rhs);
-      blue = get_blue(rhs);
-      alpha = get_alpha(rhs);
+      put_rgb(*this, rhs);
     }
 
     // --------------------------------------------------------------------------
@@ -299,10 +328,7 @@ namespace gui {
 
     template<typename T>
     inline void abgr::operator= (T rhs) {
-      red = get_red(rhs);
-      green = get_green(rhs);
-      blue = get_blue(rhs);
-      alpha = get_alpha(rhs);
+      put_rgba(*this, rhs);
     }
 
     // --------------------------------------------------------------------------

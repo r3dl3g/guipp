@@ -651,14 +651,11 @@ namespace gui {
         px.grabWidget(w, pt.x(), pt.y(), 1, 1);
         return px.toImage().pixel(0, 0);
       } else {
-        QBitmap* b = dynamic_cast<QBitmap*>(target);
-        if (b) {
-          QImage img = b->toImage();
-          auto idx = img.pixelIndex(pt.x(), pt.y());
-          return idx ? color::white : color::black;
-        } else {
-          QPixmap* p = dynamic_cast<QPixmap*>(target);
-          if (p) {
+        QPixmap* p = dynamic_cast<QPixmap*>(target);
+        if (p) {
+          if (p->depth() == 1) {
+            return p->toImage().pixelIndex(pt.x(), pt.y()) ? color::white : color::black;
+          } else {
             return p->toImage().pixel(pt.x(), pt.y());
           }
         }
@@ -719,15 +716,25 @@ namespace gui {
     }
 
     const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) const {
-      if (bmp.mask) {
-        QPainter::CompositionMode old_mode = gc->compositionMode();
-        gc->setCompositionMode(QPainter::RasterOp_NotSourceAndDestination);
+      if (bmp.mask && bmp.image) {
+//        QImage img = bmp.mask.get_id()->toImage();
+//        img.invertPixels();
+//        QBitmap mask = QBitmap::fromImage(img);
+//        gc->setClipRegion(QRegion(mask));
+        gc->setClipRegion(QRegion(*bmp.mask.get_id()));
+        gc->drawPixmap(pt.x(), pt.y(), *bmp.image.get_id());
+//        restore_clipping();
+
+//        QPainter::CompositionMode old_mode = gc->compositionMode();
+//        gc->setCompositionMode(QPainter::RasterOp_NotSourceAndDestination);
+//        gc->drawPixmap(pt.x(), pt.y(), *bmp.mask.get_id());
+//        gc->setCompositionMode(QPainter::RasterOp_SourceOrDestination);
+//        gc->drawPixmap(pt.x(), pt.y(), *bmp.image.get_id());
+//        gc->setCompositionMode(old_mode);
+      } else if (bmp.image) {
+        gc->drawPixmap(pt.x(), pt.y(), *bmp.image.get_id());
+      } else if (bmp.mask) {
         gc->drawPixmap(pt.x(), pt.y(), *bmp.mask.get_id());
-        gc->setCompositionMode(QPainter::RasterOp_SourceOrDestination);
-        gc->drawPixmap(pt.x(), pt.y(), *bmp.image.get_id());
-        gc->setCompositionMode(old_mode);
-      } else {
-        gc->drawPixmap(pt.x(), pt.y(), *bmp.image.get_id());
       }
       return *this;
     }

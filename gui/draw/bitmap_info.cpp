@@ -109,7 +109,7 @@ namespace gui {
         case QImage::Format_RGBA8888: return pixel_format_t::RGBA;
         case QImage::Format_ARGB32: return pixel_format_t::ARGB;
         default:
-        case QImage::Format_RGB32: return pixel_format_t::RGBA;
+          return pixel_format_t::RGBA;
       }
     }
 
@@ -122,7 +122,7 @@ namespace gui {
         case pixel_format_t::RGB: return QImage::Format_RGB888;
         case pixel_format_t::ARGB: return QImage::Format_ARGB32;
         default:
-        case pixel_format_t::RGBA: return QImage::Format_RGB32;
+        case pixel_format_t::RGBA: return QImage::Format_RGBA8888;
       }
     }
 

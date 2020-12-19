@@ -134,9 +134,7 @@ namespace gui {
         XShmSegmentInfo& shminfo = i->second.first;
         bmi = i->second.second;
         byteptr d = reinterpret_cast<byteptr>(shminfo.shmaddr);
-        auto sz = bmi.mem_size();
-        data.resize(sz);
-        memcpy(data.data(), d, sz);
+        data.assing(d, d + bmi.mem_size());
       }
     }
 
@@ -193,9 +191,7 @@ namespace gui {
             static_cast<uint32_t>(im->bytes_per_line),
             get_pixel_format(im->bits_per_pixel, core::byte_order_t(im->byte_order))
           };
-          const size_t n = bmi.mem_size();
-          data.resize(n);
-          memcpy(data.data(), im->data, n);
+          data.assign(im->data, im->data + bmi.mem_size());
           XDestroyImage(im);
         } else {
           throw std::runtime_error("get image failed");
@@ -404,22 +400,37 @@ namespace gui {
 
     void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi) {
       if (id) {
-        auto fmt = draw::bitmap_info::convert(bmi.pixel_format);
-        QImage img(data, bmi.width, bmi.height, bmi.bytes_per_line, fmt);
-        id->convertFromImage(img);
+        const auto fmt = draw::bitmap_info::convert(bmi.pixel_format);
+        blob tmp;
+        tmp.assign(data, data + bmi.mem_size());
+        if (bmi.pixel_format == pixel_format_t::BW) {
+          QImage img((const uchar *)tmp.data(), bmi.width, bmi.height, bmi.bytes_per_line, fmt);
+          img.setColorTable({ QColor(Qt::white).rgb(), QColor(Qt::black).rgb() });
+//          img.setColorTable({ QColor(Qt::black).rgb(), QColor(Qt::white).rgb() });
+          *id = QBitmap::fromImage(img);
+        } else {
+          *id = QPixmap::fromImage(QImage((const uchar *)tmp.data(), bmi.width, bmi.height, bmi.bytes_per_line, fmt));
+        }
       }
     }
 
     void bitmap_get_data (const os::bitmap& id, blob& data, draw::bitmap_info& bmi) {
       if (id) {
         QImage img = id->toImage();
-        const int bpl = img.bytesPerLine();
         const auto sz = img.size();
-        const uchar* bits = img.bits();
+        auto fmt = draw::bitmap_info::convert(img.format());
+        bmi = draw::bitmap_info(sz.width(), sz.height(), img.bytesPerLine(), fmt);
+
+        const uchar* bits = img.constBits();
         data.assign(bits, bits + img.byteCount());
-        bmi = draw::bitmap_info(sz.width(), sz.height(), bpl, draw::bitmap_info::convert(img.format()));
+//        if (fmt == pixel_format_t::BW) {
+//          for (byte& b : data) {
+//            b = ~b;
+//          }
+//        }
       } else {
         bmi = {};
+        data.clear();
       }
     }
 #endif // GUIPP_QT
@@ -444,7 +455,7 @@ namespace gui {
           bitmap_info bmi = rhs.get_info();
           create(bmi);
 #ifdef GUIPP_QT
-          get_id() = rhs.get_id();
+          *get_id() = *rhs.get_id();
 #else
           graphics(*this).copy_from((os::drawable)rhs, core::native_rect(bmi.size()));
 #endif
@@ -464,7 +475,7 @@ namespace gui {
 
     basic_map::operator const os::drawable () const {
 #ifdef GUIPP_QT
-      return const_cast<os::drawable>(static_cast<const QPaintDevice*>(id));
+      return id;
 #else
       return get_id();
 #endif
@@ -547,9 +558,6 @@ namespace gui {
       bitmap_info bmi;
       bitmap_get_data(get_id(), data, bmi);
       bwmap bmp(std::move(data), std::move(bmi));
-//#ifdef GUIPP_QT
-//      bmp.invert();
-//#endif
       return std::move(bmp);
     }
 
@@ -603,13 +611,13 @@ namespace gui {
 #endif //GUIPP_QT
     }
 
-    void pixmap::put (cbyteptr data, const draw::bitmap_info& bmi) {
+    void pixmap::put_raw (cbyteptr data, const draw::bitmap_info& bmi) {
       if (is_valid()) {
         bitmap_put_data(get_id(), data, bmi);
       }
     }
 
-    void pixmap::get (blob& data, draw::bitmap_info& bmi) const {
+    void pixmap::get_raw (blob& data, draw::bitmap_info& bmi) const {
       if (is_valid()) {
         bitmap_get_data(get_id(), data, bmi);
       }

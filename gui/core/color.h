@@ -386,6 +386,22 @@ namespace gui {
     GUIPP_CORE_EXPORT os::color buttonTextColor ();
     GUIPP_CORE_EXPORT os::color buttonHighLightColor ();
 
+    // --------------------------------------------------------------------------
+    template<bool W>
+    struct bw_colors {};
+
+    template<>
+    struct bw_colors<false> {
+      static constexpr os::color value[2] = {white, black};
+    };
+
+    template<>
+    struct bw_colors<true> {
+      static constexpr os::color value[2] = {black, white};
+    };
+
+    using system_bw_colors = bw_colors<core::os::bitmap_bit_white>;
+
   } // color
 
 } //gui

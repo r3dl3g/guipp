@@ -14,9 +14,9 @@ namespace testing {
   bool operator== (const colorline&, const colorline&);
   bool operator== (const colormap&, const colormap&);
 
-  colormap data2colormap (const char* data, const int bytes_per_pixel, const int bytes_per_line, const int height);
+  colormap data2colormap (const char* data, const int bits_per_pixel, const int bytes_per_line, const int width, const int height);
 
-  colormap pixmap2colormap (const gui::draw::pixmap&);
+  colormap pixmap2colormap (const gui::draw::basic_map&);
 
   template<gui::pixel_format_t T>
   colormap datamap2colormap (const gui::draw::datamap<T>& img) {
@@ -84,6 +84,7 @@ namespace testing {
   constexpr gui::os::color V = gui::color::very_light_gray;
   constexpr gui::os::color M = gui::color::very_very_light_gray;
   constexpr gui::os::color D = gui::color::light_gray;
+  constexpr gui::os::color L = gui::color::gray;
 
   // --------------------------------------------------------------------------
 }

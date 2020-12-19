@@ -143,15 +143,15 @@ namespace gui {
       static byte default_depth ();
       static pixel_format_t default_pixel_format ();
 
+      template<pixel_format_t T>
+      void put (const datamap<T>& rhs);
+
     private:
       template<pixel_format_t T>
       void invert ();
 
-      void put (cbyteptr data, const draw::bitmap_info& bmi);
-      void get (blob& data, draw::bitmap_info& bmi) const;
-
-      template<pixel_format_t T>
-      void put (const datamap<T>& rhs);
+      void put_raw (cbyteptr data, const draw::bitmap_info& bmi);
+      void get_raw (blob& data, draw::bitmap_info& bmi) const;
 
     };
 

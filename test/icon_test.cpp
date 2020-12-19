@@ -7,6 +7,7 @@
 #include <gui/io/pnm.h>
 #include <gui/ctrl/tree.h>
 #include <testlib/testlib.h>
+#include <testlib/image_test_lib.h>
 
 namespace image_data {
 #include <gui/ctrl/res/file_icon.h>
@@ -16,6 +17,7 @@ namespace image_data {
 
 
 using namespace gui;
+using namespace testing;
 
 template<typename T, size_t N>
 inline std::string make_string (T(&t)[N]) {
@@ -50,18 +52,39 @@ static const unsigned char expected_file_icon_bits[] = {
   0b00000000, 0b00000000, 0b00000000, 0x0
 };
 
+static const colormap expected_file_icon_map = CM({{L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,_,_,_,_,_,L,L,L,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,L,L,L,L,_,_,L,L,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,L,L,L,L,_,L,_,L,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,L,L,L,L,_,_,_,_,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,L,L,L,L,L,L,L,_,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,L,L,L,L,L,L,L,_,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,L,L,L,L,L,L,L,_,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,L,L,L,L,L,L,L,_,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,L,L,L,L,L,L,L,_,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,L,L,L,L,L,L,L,_,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,L,L,L,L,L,L,L,_,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,L,L,L,L,L,L,L,_,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,_,_,_,_,_,_,_,_,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L}});
+
 bool expected_bit_at (int x, int y) {
   const unsigned char by = expected_file_icon_bits[y * 4 + x / 8];
-  const unsigned char msk = 0x01 << (x % 8);
+  const unsigned char msk = 0x01 << (x & 0x07);
   const bool bi = by & msk;
-  return bi;
+  return bi == core::system_bw_bits::white;
 }
 
 bool expected_bit_at_inv (int x, int y) {
   const unsigned char by = expected_file_icon_bits[y * 4 + x / 8];
-  const unsigned char msk = 0x01 << (7 - x % 8);
+  const unsigned char msk = 0x01 << (7 - x & 0x07);
   const bool bi = by & msk;
-  return bi;
+  return bi;// == core::system_bw_bits::white;
 }
 
 // --------------------------------------------------------------------------
@@ -182,7 +205,7 @@ void test_bitmap_get_image () {
       const pixel::rgb expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb>::white
                                                             : pixel::color<pixel::rgb>::black;
       const pixel::rgb test = row[x];
-      EXPECT_EQUAL(test, expected, " in test_bitmap_get_image at x:", x, ", y:", y);
+      EXPECT_EQUAL(test, expected, " at x:", x, ", y:", y);
     }
   }
 
@@ -207,7 +230,7 @@ void test_bitmap_get_image_inv () {
       const pixel::rgb expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb>::black
                                                             : pixel::color<pixel::rgb>::white;
       const pixel::rgb test = row[x];
-      EXPECT_EQUAL(test, expected, " in test_bitmap_get_image_inv at x:", x, ", y:", y);
+      EXPECT_EQUAL(test, expected, " at x:", x, ", y:", y);
     }
   }
 
@@ -222,6 +245,7 @@ void test_bitmap_get_image_mask () {
   io::load_pnm(in, bw);
 
   draw::bitmap mask(bw);
+  bw.invert();
   draw::pixmap pix(bw);
 
   draw::pixmap mem(20, 20);
@@ -231,7 +255,6 @@ void test_bitmap_get_image_mask () {
 
 #ifdef GUIPP_X11
     gui::os::instance display = core::global::get_instance();
-    pix.invert();
 
     XSetClipMask(display, gc, mask);
     XSetClipOrigin(display, gc, 0, 0);
@@ -251,23 +274,26 @@ void test_bitmap_get_image_mask () {
     //DeleteDC(img_dc);
     DeleteDC(mask_dc);
 #elif GUIPP_QT
-    gc.copy_from(mask, core::native_rect(0, 0, 20, 20), core::native_point::zero, draw::copy_mode::bit_not_src_and_dst);
-//    gc.copy_from(pix, core::native_rect(0, 0, 20, 20), core::native_point::zero, draw::copy_mode::bit_and);
+    gc.os()->setClipRegion(QRegion((QBitmap&)*mask.get_id()));
+    gc.os()->drawPixmap(0, 0, *pix.get_id());
 #endif // GUIPP_WIN
   }
 
   draw::rgbmap img = mem.get<pixel_format_t::RGB>();
-  auto data = img.get_data();
+
+  auto buffer = datamap2colormap(img);
+  EXPECT_EQUAL(buffer, expected_file_icon_map);
 
   auto gray = pixel::rgb::build(color::gray);
 
+  auto data = img.get_data();
   for (uint32_t y = 0; y < 20; ++y) {
     auto row = data.row(y);
     for (uint32_t x = 0; x < 20; ++x) {
-      const pixel::rgb expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb>::black
-                                                            : gray;
+      const bool is_white = expected_bit_at_inv(x, y);
+      const pixel::rgb expected = is_white ? pixel::color<pixel::rgb>::black : gray;
       const pixel::rgb test = row[x];
-      EXPECT_EQUAL(test, expected, " in test_bitmap_get_image_mask at x = ", x, ", y = ", y);
+      EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
     }
   }
 
@@ -296,7 +322,7 @@ void test_copy_bitmap () {
     for (uint32_t x = 0; x < 20; ++x) {
       const auto pix0 = row0[x];
       const auto pix1 = row1[x];
-      EXPECT_EQUAL(pix1, pix0, " in test_copy_bitmap at x = ", x, ", y = ", y);
+      EXPECT_EQUAL(pix1, pix0, " at x = ", x, ", y = ", y);
     }
   }
 
@@ -325,7 +351,7 @@ void test_copy_pixmap () {
     for (uint32_t x = 0; x < 20; ++x) {
       const auto pix0 = row0[x];
       const auto pix1 = row1[x];
-      TEST_EQUAL(pix1, pix0, " in test_copy_pixmap at x = ", x, ", y = ", y);
+      EXPECT_EQUAL(pix1, pix0, " at x = ", x, ", y = ", y);
     }
   }
 
@@ -354,7 +380,7 @@ void test_masked_from_pixmap () {
       for (uint32_t x = 0; x < 5; ++x) {
         const pixel::rgb expected = pixel::rgb::build(expected_color[x][y]);
         const pixel::rgb test = row[x];
-        TEST_EQUAL(test, expected, " in test_masked_from_pixmap at x = ", x, ", y = ", y);
+        EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
       }
     }
   }
@@ -367,17 +393,50 @@ void test_masked_from_pixmap () {
     {pixel::mono::black, pixel::mono::black, pixel::mono::black, pixel::mono::black, pixel::mono::black}
   };
 
+  colormap expected_bw_color = {
+    {color::black, color::black, color::black, color::black, color::black},
+    {color::black, color::white, color::white, color::white, color::black},
+    {color::black, color::white, color::white, color::white, color::black},
+    {color::black, color::white, color::white, color::white, color::black},
+    {color::black, color::black, color::black, color::black, color::black}
+  };
+
   draw::masked_bitmap icon(pix);
 
   {
-    auto img = icon.mask.get();
+    draw::graphics g(icon.image);
+    for (uint32_t y = 0; y < 5; ++y) {
+      for (uint32_t x = 0; x < 5; ++x) {
+        const auto expected = expected_color[x][y];
+        const os::color test = color::remove_transparency(g.get_pixel({static_cast<int>(x), static_cast<int>(y)}));
+        EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+      }
+    }
+  }
+
+  auto buffer = pixmap2colormap(icon.mask);
+  EXPECT_EQUAL(buffer, expected_bw_color);
+
+  {
+    draw::graphics g(icon.mask);
+    for (uint32_t y = 0; y < 5; ++y) {
+      for (uint32_t x = 0; x < 5; ++x) {
+        const auto expected = expected_bw_color[x][y];
+        const os::color test = color::remove_transparency(g.get_pixel({static_cast<int>(x), static_cast<int>(y)}));
+        TEST_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+      }
+    }
+  }
+
+  {
+    draw::bwmap img = icon.mask.get();
     auto data = img.get_data();
     for (uint32_t y = 0; y < 5; ++y) {
       auto row = data.row(y);
       for (uint32_t x = 0; x < 5; ++x) {
-        const pixel::mono expected = expected_bw[x][y];// == pixel::mono::black ? pixel::mono::white : pixel::mono::black;
+        const pixel::mono expected = expected_bw[x][y];
         const pixel::mono test = row[x];
-        TEST_EQUAL(test, expected, " in test_masked_from_pixmap at x = ", x, ", y = ", y);
+        EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
       }
     }
   }
@@ -408,8 +467,8 @@ void test_masked_bitmap () {
   for (int32_t y = 0; y < 5; ++y) {
     for (int32_t x = 0; x < 5; ++x) {
       const os::color expected = expected_color[x][y];
-      const os::color test = g.get_pixel({x, y});
-      TEST_EQUAL(test, expected, " in test_masked_bitmap at x = ", x, ", y = ", y);
+      const os::color test = color::remove_transparency(g.get_pixel({x, y}));
+      TEST_EQUAL(test, expected, " at x = ", x, ", y = ", y);
     }
   }
 
@@ -438,9 +497,9 @@ void test_file_icon () {
 
     for (int i = 0; i < size_of_array(expected_file_icon_bits); ++i) {
 #ifdef GUIPP_WIN
-      TEST_EQUAL((uint8_t)raw[i], (uint8_t)expected_file_icon_bits[i], " at i = ", i);
+      EXPECT_EQUAL((uint8_t)raw[i], (uint8_t)expected_file_icon_bits[i], " at i = ", i);
 #else
-      TEST_EQUAL((uint8_t)raw[i], (uint8_t)core::reverse_bit_order(expected_file_icon_bits[i]), " at i = ", i);
+      EXPECT_EQUAL((uint8_t)raw[i], (uint8_t)core::reverse_bit_order(expected_file_icon_bits[i]), " at i = ", i);
 #endif // GUIPP_WIN
     }
 
@@ -449,7 +508,7 @@ void test_file_icon () {
       for (int32_t x = 0; x < 20; ++x) {
         const bool expected = expected_bit_at_inv(x, y);
         const pixel::mono test = row[x];
-        TEST_EQUAL((bool)test, expected, " at x = ", x, ", y = ", y);
+        EXPECT_EQUAL((bool)test, expected, " at x = ", x, ", y = ", y);
       }
     }
   }
@@ -462,8 +521,8 @@ void test_file_icon () {
     for (int32_t y = 0; y < 20; ++y) {
       for (int32_t x = 0; x < 20; ++x) {
         const os::color  expected = expected_bit_at_inv(x, y) ? color::white : color::black;
-        const os::color test = g.get_pixel({x, y});
-        TEST_EQUAL(test, expected, " in test_file_icon at x = ", x, ", y = ", y);
+        const os::color test = color::remove_transparency(g.get_pixel({x, y}));
+        EXPECT_EQUAL(test, expected, " in test_file_icon at x = ", x, ", y = ", y);
       }
     }
   }
@@ -479,8 +538,8 @@ void test_file_icon () {
     for (int32_t y = 0; y < 20; ++y) {
       for (int32_t x = 0; x < 20; ++x) {
         os::color expected = expected_bit_at_inv(x, y) ? color::white : color::gray;
-        os::color test = g.get_pixel({x, y});
-        TEST_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+        os::color test = color::remove_transparency(g.get_pixel({x, y}));
+        EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
       }
     }
   }
@@ -502,8 +561,8 @@ void test_file_icon_selected () {
   for (int32_t y = 0; y < 20; ++y) {
     for (int32_t x = 0; x < 20; ++x) {
       os::color expected = expected_bit_at_inv(x, y) ? color::black : highLight;
-      os::color test = g.get_pixel({x, y});
-      TEST_EQUAL(test, expected, " in test_file_icon_selected at x = ", x, ", y = ", y);
+      os::color test = color::remove_transparency(g.get_pixel({x, y}));
+      EXPECT_EQUAL(test, expected, " in test_file_icon_selected at x = ", x, ", y = ", y);
     }
   }
 }

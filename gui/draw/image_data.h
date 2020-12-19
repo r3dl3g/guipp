@@ -40,8 +40,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     enum class mono : bool {
-      black = false,
-      white = true
+      black = core::system_bw_bits::black,
+      white = core::system_bw_bits::white
     };
 
 #pragma pack(push, 1)
@@ -350,7 +350,12 @@ namespace gui {
 
     template<>
     inline os::color get_color<mono> (mono px) {
-      return static_cast<bool>(px) ? gui::color::white : gui::color::black;
+      return gui::color::system_bw_colors::value[static_cast<int>(px)];
+    }
+
+    template<>
+    inline os::color get_color<core::bit_wrapper<const mono>> (core::bit_wrapper<const mono> w) {
+      return get_color<mono>(static_cast<mono>(w));
     }
 
     template<>

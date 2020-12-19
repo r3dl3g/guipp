@@ -9,7 +9,7 @@
 #include <testlib/testlib.h>
 
 #define TEST_CLEAR
-#define TEST_RAWx
+#define TEST_RAW
 #define TEST_LINE
 #define TEST_RECT
 #define TEST_ELLIPSE
@@ -23,19 +23,61 @@ using namespace testing;
 
 
 // --------------------------------------------------------------------------
-void test_data2colormap () {
+void test_data2colormap32 () {
 
   std::vector<uint32_t> testdata = { 0x00000000, 0x00000001, 0x00000002, 0x00000003,
                                      0x40000000, 0x30000000, 0x20000000, 0x10000000,
                                      0x01010101, 0x10101010, 0xF0F0F0F0, 0x0F0F0F0F};
-  colormap result = data2colormap ((const char*)testdata.data(), 4, 16, 3);
+  colormap result = data2colormap ((const char*)testdata.data(), 32, 16, 4, 3);
 
   EXPECT_EQUAL(result, CM({ {0x00000000, 0x00000001, 0x00000002, 0x00000003},
                             {0x40000000, 0x30000000, 0x20000000, 0x10000000},
                             {0x01010101, 0x10101010, 0xF0F0F0F0, 0x0F0F0F0F}}));
-
 }
 
+// --------------------------------------------------------------------------
+void test_data2colormap24 () {
+
+  std::vector<byte> testdata = { 0x00, 0x00, 0x00,    0x00, 0x00, 0x01,    0x00, 0x00, 0x02,    0x00, 0x00, 0x03,    0x00, 0x00, 0x04,    0x00,
+                                 0x40, 0x00, 0x00,    0x30, 0x00, 0x00,    0x20, 0x00, 0x00,    0x10, 0x00, 0x00,    0x00, 0x00, 0x00,    0x00,
+                                 0x01, 0x01, 0x01,    0x10, 0x10, 0x10,    0xF0, 0xF0, 0xF0,    0x0F, 0x0F, 0x0F,    0xFF, 0xFF, 0xFF,    0x00};
+
+  colormap result = data2colormap ((const char*)testdata.data(), 24, 16, 5, 3);
+
+  EXPECT_EQUAL(result, CM({ {0x00000000, 0x00010000, 0x00020000, 0x00030000, 0x00040000},
+                            {0x00000040, 0x00000030, 0x00000020, 0x00000010, 0x00000000},
+                            {0x00010101, 0x00101010, 0x00F0F0F0, 0x000F0F0F, 0x00FFFFFF}}));
+}
+
+// --------------------------------------------------------------------------
+void test_data2colormap8 () {
+
+  std::vector<byte> testdata = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x00,
+                                 0x40, 0x30, 0x20, 0x10, 0x00, 0x00,
+                                 0x11, 0x22, 0x33, 0x44, 0x55, 0x00};
+
+  colormap result = data2colormap ((const char*)testdata.data(), 8, 6, 5, 3);
+
+  EXPECT_EQUAL(result, CM({ {0x00000000, 0x00010101, 0x00020202, 0x00030303, 0x00040404},
+                            {0x00404040, 0x00303030, 0x00202020, 0x00101010, 0x00000000},
+                            {0x00111111, 0x00222222, 0x00333333, 0x00444444, 0x00555555}}));
+}
+
+// --------------------------------------------------------------------------
+void test_data2colormap1 () {
+
+  std::vector<byte> testdata = { 0x00, 0x00,
+                                 0x1F, 0x00,
+                                 0x15, 0x00,
+                                 0x0A, 0x00};
+
+  colormap result = data2colormap ((const char*)testdata.data(), 1, 2, 5, 4);
+
+  EXPECT_EQUAL(result, CM({ {0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+                            {0x00FFFFFF, 0x00FFFFFF, 0x00FFFFFF, 0x00FFFFFF, 0x00FFFFFF},
+                            {0x00FFFFFF, 0x00000000, 0x00FFFFFF, 0x00000000, 0x00FFFFFF},
+                            {0x00000000, 0x00FFFFFF, 0x00000000, 0x00FFFFFF, 0x00000000}}));
+}
 
 // --------------------------------------------------------------------------
 template<typename T, typename D = draw::pen>
@@ -80,6 +122,9 @@ void test_raw_rect () {
   SelectObject(g, GetStockObject(NULL_BRUSH));
   Rectangle(g, r.os_x(), r.os_y(), r.os_x2(), r.os_y2());
 #endif
+#ifdef GUIPP_QT
+  g.os()->drawRect(r.os());
+#endif
 
   auto buffer = pixmap2colormap(img);
   EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
@@ -110,12 +155,15 @@ void test_raw_ellipse () {
     SelectObject(g, GetStockObject(NULL_BRUSH));
     Ellipse(g, r.os_x(), r.os_y(), r.os_x2(), r.os_y2());
 #endif
+#ifdef GUIPP_QT
+  g.os()->drawEllipse(r.os());
+#endif
 
     auto buffer = pixmap2colormap(img);
-    TEST_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,_,R,_,_},
+    EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
+                           {_,R,R,R,_},
                            {_,R,_,R,_},
-                           {_,_,R,_,_},
+                           {_,R,R,R,_},
                            {_,_,_,_,_}}));
   } ();
   [] () {
@@ -135,9 +183,12 @@ void test_raw_ellipse () {
     SelectObject(g, GetStockObject(NULL_BRUSH));
     Ellipse(g, r.os_x(), r.os_y(), r.os_x2(), r.os_y2());
 #endif
+#ifdef GUIPP_QT
+  g.os()->drawEllipse(r.os());
+#endif
 
     auto buffer = pixmap2colormap(img);
-    TEST_EQUAL(buffer, CM({{_,_,_,_,_,_,_},
+    EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_},
                            {_,_,R,R,R,_,_},
                            {_,R,_,_,_,R,_},
                            {_,R,_,_,_,R,_},
@@ -156,29 +207,38 @@ void test_raw_ellipse () {
 
 #ifdef GUIPP_X11
     XSetArcMode(core::global::get_instance(), g, ArcChord);
+    XDrawArc(core::global::get_instance(), img, g, 3, 3, 8, 8, 0, degree_360);
     XDrawArc(core::global::get_instance(), img, g, 4, 4, 6, 6, 0, degree_360);
+    XDrawArc(core::global::get_instance(), img, g, 5, 5, 4, 4, 0, degree_360);
+
+    constexpr gui::os::color r = R;
 #endif
 #ifdef GUIPP_WIN
     SelectObject(g, GetStockObject(NULL_BRUSH));
     Ellipse(g, 3, 3, 12, 12);
     Ellipse(g, 4, 4, 11, 11);
     Ellipse(g, 5, 5, 10, 10);
+
+    constexpr gui::os::color r = _;
+#endif
+#ifdef GUIPP_QT
+    constexpr gui::os::color r = R;
 #endif
 
     auto buffer = pixmap2colormap(img);
-    TEST_EQUAL(buffer, CM({
+    EXPECT_EQUAL(buffer, CM({
       {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
       {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
       {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-      {_,_,_,_,_,_,R,R,R,_,_,_,_,_,_},
+      {_,_,_,_,_,r,R,R,R,r,_,_,_,_,_},
       {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
-      {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
+      {_,_,_,r,R,R,R,R,R,R,R,r,_,_,_},
       {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
       {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
       {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
+      {_,_,_,r,R,R,R,R,R,R,R,r,_,_,_},
       {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
-      {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
-      {_,_,_,_,_,_,R,R,R,_,_,_,_,_,_},
+      {_,_,_,_,_,r,R,R,R,r,_,_,_,_,_},
       {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
       {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
       {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -193,8 +253,10 @@ void test_raw_ellipse () {
 #ifdef GUIPP_X11
     pen p(color::red);
     draw::Use<pen> up(g, p);
-    core::rectangle r(core::point(1, 1), core::size(5, 5));
-    XDrawRectangle(core::global::get_instance(), img, g, r.os_x(), r.os_y(), r.os_width() - 1, r.os_height() - 1);
+    XDrawArc(core::global::get_instance(), img, g, 4, 4, 6, 6, 0, degree_360);
+
+    constexpr gui::os::color r = R;
+    constexpr gui::os::color x = _;
 #endif
 #ifdef GUIPP_WIN
     auto hPen = CreatePen(PS_SOLID, 3, color::red);
@@ -210,22 +272,29 @@ void test_raw_ellipse () {
     //DeleteObject(hBrush);
     SelectObject(g, hOldPen);
     DeleteObject(hPen);
+
+    constexpr gui::os::color r = _;
+    constexpr gui::os::color x = R;
+#endif
+#ifdef GUIPP_QT
+    constexpr gui::os::color r = R;
+    constexpr gui::os::color x = _;
 #endif
 
     auto buffer = pixmap2colormap(img);
-    TEST_EQUAL(buffer, CM({
+    EXPECT_EQUAL(buffer, CM({
       {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
       {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
       {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-      {_,_,_,_,_,_,R,R,R,_,_,_,_,_,_},
+      {_,_,_,_,_,r,R,R,R,r,_,_,_,_,_},
       {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
-      {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
-      {_,_,_,R,R,R,R,_,R,R,R,R,_,_,_},
+      {_,_,_,r,R,R,R,R,R,R,R,r,_,_,_},
+      {_,_,_,R,R,R,x,_,x,R,R,R,_,_,_},
       {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
-      {_,_,_,R,R,R,R,_,R,R,R,R,_,_,_},
+      {_,_,_,R,R,R,x,_,x,R,R,R,_,_,_},
+      {_,_,_,r,R,R,R,R,R,R,R,r,_,_,_},
       {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
-      {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
-      {_,_,_,_,_,_,R,R,R,_,_,_,_,_,_},
+      {_,_,_,_,_,r,R,R,R,r,_,_,_,_,_},
       {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
       {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
       {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -3270,7 +3339,10 @@ void test_main (const testing::start_params& params) {
 #endif //TEST_CLEAR
 
 #ifdef TEST_RAW
-  run_test(test_data2colormap);
+  run_test(test_data2colormap32);
+  run_test(test_data2colormap24);
+  run_test(test_data2colormap8);
+  run_test(test_data2colormap1);
   run_test(test_raw_rect);
   run_test(test_raw_ellipse);
 #endif // TEST_RAW

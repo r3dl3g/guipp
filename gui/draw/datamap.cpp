@@ -59,6 +59,10 @@ namespace gui {
       return info;
     }
 
+    const blob& basic_datamap::get_raw () const {
+      return data;
+    }
+
     core::native_size basic_datamap::native_size () const {
       return info.size();
     }

@@ -109,16 +109,7 @@ namespace gui {
       if (pixel_format() == bmi.pixel_format) {
         put(rhs.raw_data().data(0, bmi.mem_size()), bmi);
       } else {
-        switch (pixel_format()) {
-          case pixel_format_t::BW:   put(bwmap(rhs)); break;
-          case pixel_format_t::GRAY: put(graymap(rhs)); break;
-          case pixel_format_t::RGB:  put(rgbmap(rhs));  break;
-          case pixel_format_t::RGBA: put(rgbamap(rhs)); break;
-          case pixel_format_t::BGR:  put(bgrmap(rhs));  break;
-          case pixel_format_t::BGRA: put(bgramap(rhs));  break;
-          case pixel_format_t::ARGB: put(argbmap(rhs));  break;
-          case pixel_format_t::ABGR: put(abgrmap(rhs));  break;
-        }
+        put(datamap<T>(rhs));
       }
     }
 
@@ -149,30 +140,29 @@ namespace gui {
       operator=(data);
     }
 
-    template<pixel_format_t T>
-    void pixmap::put (const datamap<T>& rhs) {
-      const auto& bmi = rhs.get_info();
-      const auto raw = rhs.get_data();
-      put(raw.raw_data().data(0, bmi.mem_size()), bmi);
+    template<pixel_format_t T, pixel_format_t S>
+    inline void put_helper (pixmap* pix, const datamap<T>& rhs) {
+      datamap<S> cnv = static_cast<const basic_datamap&>(rhs).convert<S>();
+      pix->put<S>(cnv);
     }
 
     template<pixel_format_t T>
-    void pixmap::operator= (const datamap<T>& rhs) {
+    void pixmap::put (const datamap<T>& rhs) {
       if (rhs) {
         const auto& bmi = rhs.get_info();
         create(bmi.size());
-        if (pixel_format() == bmi.pixel_format) {
-          put(rhs);
+        if (pixel_format() == T) {
+          put_raw(rhs.get_raw().data(), bmi);
         } else {
           switch (pixel_format()) {
-            case pixel_format_t::BW:   put(bwmap(rhs)); break;
-            case pixel_format_t::GRAY: put(graymap(rhs)); break;
-            case pixel_format_t::RGB:  put(rgbmap(rhs));  break;
-            case pixel_format_t::RGBA: put(rgbamap(rhs)); break;
-            case pixel_format_t::BGR:  put(bgrmap(rhs));  break;
-            case pixel_format_t::BGRA: put(bgramap(rhs));  break;
-            case pixel_format_t::ARGB: put(argbmap(rhs));  break;
-            case pixel_format_t::ABGR: put(abgrmap(rhs));  break;
+            case pixel_format_t::BW:   put_helper<T, pixel_format_t::BW  >(this, rhs); break;
+            case pixel_format_t::GRAY: put_helper<T, pixel_format_t::GRAY>(this, rhs); break;
+            case pixel_format_t::RGB:  put_helper<T, pixel_format_t::RGB >(this, rhs); break;
+            case pixel_format_t::RGBA: put_helper<T, pixel_format_t::RGBA>(this, rhs); break;
+            case pixel_format_t::BGR:  put_helper<T, pixel_format_t::BGR >(this, rhs); break;
+            case pixel_format_t::BGRA: put_helper<T, pixel_format_t::BGRA>(this, rhs); break;
+            case pixel_format_t::ARGB: put_helper<T, pixel_format_t::ARGB>(this, rhs); break;
+            case pixel_format_t::ABGR: put_helper<T, pixel_format_t::ABGR>(this, rhs); break;
           }
         }
       } else {
@@ -181,10 +171,15 @@ namespace gui {
     }
 
     template<pixel_format_t T>
+    void pixmap::operator= (const datamap<T>& rhs) {
+      put<T>(rhs);
+    }
+
+    template<pixel_format_t T>
     datamap<T> pixmap::get () const {
       blob data;
       bitmap_info bmi;
-      get(data, bmi);
+      get_raw(data, bmi);
 
       if (bmi.pixel_format == T) {
         return datamap<T>(std::move(data), std::move(bmi));

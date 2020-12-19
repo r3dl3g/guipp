@@ -44,8 +44,10 @@ namespace gui {
       const bitmap_info& get_info () const;
       bitmap_info& get_info ();
 
-      template<pixel_format_t T>
-      const datamap<T> convert () const;
+      const blob& get_raw () const;
+
+      template<pixel_format_t S>
+      datamap<S> convert () const;
 
       core::native_size native_size () const;
 
@@ -60,9 +62,9 @@ namespace gui {
       basic_datamap (const blob&, const bitmap_info&);
       basic_datamap (blob&&, bitmap_info&&);
 
-      template<pixel_format_t T>
-      const const_image_data<T> get_data () const {
-        return const_image_data<T>(core::array_wrapper<const byte>(data), info);
+      template<pixel_format_t S>
+      const const_image_data<S> get_data () const {
+        return const_image_data<S>(core::array_wrapper<const byte>(data), info);
       }
 
       bitmap_info info;

@@ -19,6 +19,10 @@ void test_bw () {
   image_data<pixel_format_t::BW> raw = img.get_data();
   auto row = raw.row(0);
   pixel::mono px = row[0];
+  EXPECT_EQUAL(static_cast<int>(px), 0);
+
+  row[0] = pixel::mono::black;
+  px = row[0];
   EXPECT_EQUAL(px, pixel::mono::black);
 
   row[0] = pixel::mono::white;

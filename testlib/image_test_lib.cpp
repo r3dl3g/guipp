@@ -63,41 +63,73 @@ namespace testing {
     return o;
   }
   // --------------------------------------------------------------------------
-  colormap data2colormap (const char* data, const int bytes_per_pixel, const int bytes_per_line, const int height) {
+  colormap data2colormap (char const* raw_data, const int bits_per_pixel, const int bytes_per_line, const int width, const int height) {
     colormap result;
+    result.reserve(height);
     for (int y = 0; y < height; ++y) {
       colorline line;
-      line.reserve(bytes_per_line / bytes_per_pixel);
+      line.reserve(width);
       int y_offset = y * bytes_per_line;
-      for (int x = 0; x < bytes_per_line; x += bytes_per_pixel) {
-        line.emplace_back(*reinterpret_cast<const uint32_t*>(data + y_offset + x));
+      switch (bits_per_pixel) {
+        case 32:
+          for (int x = 0; x < width * 4; x += 4) {
+            line.push_back(*reinterpret_cast<const uint32_t*>(raw_data + y_offset + x));
+          }
+          break;
+        case 24:
+          for (int x = 0; x < width * 3; x += 3) {
+            line.push_back(*reinterpret_cast<const uint32_t*>(raw_data + y_offset + x) & 0x00ffffff);
+          }
+          break;
+        case 8:
+          for (int x = 0; x < width; ++x) {
+            uint32_t gray = *reinterpret_cast<const unsigned char*>(raw_data + y_offset + x);
+            line.push_back(gray | gray << 8 | gray << 16);
+          }
+          break;
+        case 1: {
+          const char* scanline = raw_data + y_offset;
+          for (int x = 0; x < width; ++x) {
+            const char bits = scanline[x >> 3];
+            const char bit = (bits  >> (x & 7)) & 1;
+            line.push_back(bit ? 0x00FFFFFF : 0x0);
+          }
+          break;
+        }
       }
-      result.emplace_back(line);
+      result.push_back(line);
     }
     return result;
   }
 
-  colormap pixmap2colormap (const gui::draw::pixmap& img) {
+  colormap pixmap2colormap (const gui::draw::basic_map& map) {
 #ifdef GUIPP_X11
-    gui::core::native_size sz = img.native_size();
-    XImage* xim = XGetImage(gui::core::global::get_instance(), img.get_id(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
-    auto result = data2colormap(xim->data, xim->bits_per_pixel / 8, xim->bytes_per_line, xim->height);
+    gui::core::native_size sz = map.native_size();
+    XImage* xim = XGetImage(gui::core::global::get_instance(), map.get_id(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
+    auto result = data2colormap(xim->data, xim->bits_per_pixel, xim->bytes_per_line, xim->width, xim->height);
     XDestroyImage(xim);
+    return result;
 #elif GUIPP_WIN
     BITMAP bmp;
-    GetObject(img.get_id(), sizeof (BITMAP), &bmp);
+    GetObject(map.get_id(), sizeof (BITMAP), &bmp);
     gui::blob data;
     data.resize(bmp.bmWidthBytes * bmp.bmHeight);
-    int res = GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
+    int res = GetBitmapBits(map.get_id(), (LONG)data.size(), data.data());
     if (res != data.size()) {
       std::cerr << "GetBitmapBits returned " << res << " expected:" << data.size() << std::endl;
     }
-    auto result = data2colormap((const char*)data.data(), bmp.bmBitsPixel / 8, bmp.bmWidthBytes, bmp.bmHeight);
+    return data2colormap((const char*)data.data(), bmp.bmBitsPixel, bmp.bmWidthBytes, bmp.bmHeight);
 #elif GUIPP_QT
-    auto pic = img.get_id()->toImage();
-    auto result = data2colormap((const char*)pic.bits(), pic.depth() / 8, pic.bytesPerLine(), pic.height());
+    QImage img = map.get_id()->toImage();
+//    if (img.depth() == 1) {
+//      img.invertPixels();
+//    }
+//      QImage gray = img.convertToFormat(QImage::Format_Grayscale8);
+//      return data2colormap((const char*)gray.constBits(), gray.depth(), gray.bytesPerLine(), gray.width(), gray.height());
+//    } else {
+      return data2colormap((const char*)img.constBits(), img.depth(), img.bytesPerLine(), img.width(), img.height());
+//    }
 #endif
-    return result;
   }
 
   // --------------------------------------------------------------------------
@@ -160,6 +192,7 @@ namespace testing {
           case V & 0xffffff: out << "V"; break;
           case M & 0xffffff: out << "M"; break;
           case D & 0xffffff: out << "D"; break;
+          case L & 0xffffff: out << "L"; break;
           default:
             out << "0x" << std::setw(6) << std::setfill('0') << std::hex << (v & 0xffffff);
             break;

@@ -136,6 +136,9 @@ namespace gui {
     DEFINE_SYS_COLOR(buttonTextColor, COLOR_BTNTEXT)
     DEFINE_SYS_COLOR(buttonHighLightColor, COLOR_BTNHIGHLIGHT)
 
+    constexpr os::color bw_colors<false>::value[];
+    constexpr os::color bw_colors<true>::value[];
+
   } // color
 
 } // gui

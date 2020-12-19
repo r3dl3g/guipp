@@ -29,6 +29,31 @@ namespace gui {
   namespace draw {
 
     // --------------------------------------------------------------------------
+    template<pixel_format_t S>
+    datamap<S> basic_datamap::convert () const {
+      const bitmap_info& bmi = get_info();
+
+      if (S == bmi.pixel_format) {
+        return datamap<S>(get_data<S>());
+      } else {
+        const auto w = bmi.width;
+        const auto h = bmi.height;
+
+        datamap<S> dest(w, h);
+        switch (bmi.pixel_format) {
+          case pixel_format_t::BW:   convert::format::convert<pixel_format_t::BW,   S>(get_data<pixel_format_t::BW>(),   dest.get_data(), w, h); break;
+          case pixel_format_t::GRAY: convert::format::convert<pixel_format_t::GRAY, S>(get_data<pixel_format_t::GRAY>(), dest.get_data(), w, h); break;
+          case pixel_format_t::RGB:  convert::format::convert<pixel_format_t::RGB,  S>(get_data<pixel_format_t::RGB>(),  dest.get_data(), w, h); break;
+          case pixel_format_t::RGBA: convert::format::convert<pixel_format_t::RGBA, S>(get_data<pixel_format_t::RGBA>(), dest.get_data(), w, h); break;
+          case pixel_format_t::BGR:  convert::format::convert<pixel_format_t::BGR,  S>(get_data<pixel_format_t::BGR>(),  dest.get_data(), w, h); break;
+          case pixel_format_t::BGRA: convert::format::convert<pixel_format_t::BGRA, S>(get_data<pixel_format_t::BGRA>(), dest.get_data(), w, h); break;
+          case pixel_format_t::ARGB: convert::format::convert<pixel_format_t::ARGB, S>(get_data<pixel_format_t::ARGB>(), dest.get_data(), w, h); break;
+          case pixel_format_t::ABGR: convert::format::convert<pixel_format_t::ABGR, S>(get_data<pixel_format_t::ABGR>(), dest.get_data(), w, h); break;
+        }
+        return dest;
+      }
+    }
+
     template<pixel_format_t T>
     inline datamap<T>::datamap (uint32_t w, uint32_t h) {
       create(w, h);
@@ -78,31 +103,6 @@ namespace gui {
     inline datamap<T>::datamap (blob&& data, bitmap_info&& bmi)
       : super(std::move(data), std::move(bmi))
     {}
-
-    template<pixel_format_t T>
-    const datamap<T> basic_datamap::convert () const {
-      const bitmap_info& bmi = get_info();
-
-      if (T == bmi.pixel_format) {
-        return datamap<T>(get_data<T>());
-      } else {
-        const auto w = bmi.width;
-        const auto h = bmi.height;
-
-        datamap<T> dest(w, h);
-        switch (bmi.pixel_format) {
-          case pixel_format_t::BW:   convert::format::convert<pixel_format_t::BW,   T>(get_data<pixel_format_t::BW>(),   dest.get_data(), w, h); break;
-          case pixel_format_t::GRAY: convert::format::convert<pixel_format_t::GRAY, T>(get_data<pixel_format_t::GRAY>(), dest.get_data(), w, h); break;
-          case pixel_format_t::RGB:  convert::format::convert<pixel_format_t::RGB,  T>(get_data<pixel_format_t::RGB>(),  dest.get_data(), w, h); break;
-          case pixel_format_t::RGBA: convert::format::convert<pixel_format_t::RGBA, T>(get_data<pixel_format_t::RGBA>(), dest.get_data(), w, h); break;
-          case pixel_format_t::BGR:  convert::format::convert<pixel_format_t::BGR,  T>(get_data<pixel_format_t::BGR>(),  dest.get_data(), w, h); break;
-          case pixel_format_t::BGRA: convert::format::convert<pixel_format_t::BGRA, T>(get_data<pixel_format_t::BGRA>(), dest.get_data(), w, h); break;
-          case pixel_format_t::ARGB: convert::format::convert<pixel_format_t::ARGB, T>(get_data<pixel_format_t::ARGB>(), dest.get_data(), w, h); break;
-          case pixel_format_t::ABGR: convert::format::convert<pixel_format_t::ABGR, T>(get_data<pixel_format_t::ABGR>(), dest.get_data(), w, h); break;
-        }
-        return dest;
-      }
-    }
 
     template<pixel_format_t T>
     inline void datamap<T>::create (uint32_t w, uint32_t h) {

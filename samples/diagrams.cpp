@@ -81,6 +81,8 @@ font& font_serif () {
 }
 
 void draw_graph_1 (const graphics& graph, const core::rectangle& area) {
+  clog::info() << "Draw graph 1 in area:" << area;
+
   graph.frame(draw::rectangle(area), color::black);
 
   core::point p0(area.x() + 50, area.y2() - 25);
@@ -126,6 +128,8 @@ void draw_graph_1 (const graphics& graph, const core::rectangle& area) {
 }
 
 void draw_graph_2 (const graphics& graph, const core::rectangle& area) {
+  clog::info() << "Draw graph 2 in area:" << area;
+
   graph.frame(draw::rectangle(area), color::black);
 
   core::point p0(area.x() + 50, area.y2() - 25);
@@ -148,6 +152,7 @@ void draw_graph_2 (const graphics& graph, const core::rectangle& area) {
 }
 
 void draw_graph_3 (const graphics& graph, const core::rectangle& area) {
+  clog::info() << "Draw graph 3 in area:" << area;
 
   core::point p0(area.x() + 50, area.y2() - 25);
 
@@ -323,13 +328,19 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   main_window main;
 
-  main.on_size([&] (const core::size&) {
+  main.on_size([&] (const core::size& sz) {
+    clog::info() << "Resized to " << sz;
     main.invalidate();
   });
   main.on_paint(draw::paint([&](const graphics& graph) {
+    clog::info() << "Received on_paint, clear white";
     graph.clear(color::white);
 
-    core::grid<4, 3> g(main.client_area());
+    auto area = main.client_area();
+    graph.fill(draw::rectangle(area), color::very_very_light_gray);
+    clog::info() << "Draw graphs in area:" << area;
+
+    core::grid<4, 3> g(area);
     draw_graph_1(graph, g(0, 0));
     draw_graph_2(graph, g(1, 0));
     draw_graph_3(graph, g(2, 0));
@@ -342,7 +353,13 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     draw_graph_10(graph, g(3, 0));
     draw_graph_11(graph, g(3, 1));
     draw_graph_12(graph, g(3, 2));
+    clog::info() << "on_paint finished";
   }));
+  main.on_btn_down([&] (os::key_state, const core::point& pt) {
+    clog::info() << "Button down at " << pt << " initiate redraw";
+    main.invalidate();
+    main.redraw();
+  });
 
   main.create({50, 50, 800, 600});
   main.on_destroy(&quit_main_loop);

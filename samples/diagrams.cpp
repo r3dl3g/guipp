@@ -329,8 +329,14 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main_window main;
 
   main.on_size([&] (const core::size& sz) {
-    clog::info() << "Resized to " << sz;
+    clog::info() << "Resized to " << sz << " -> initiate redraw";
     main.invalidate();
+    main.redraw();
+  });
+  main.on_layout([&] (const core::rectangle& r) {
+    clog::info() << "Received on_layout to " << r << " -> initiate redraw";
+    main.invalidate();
+    main.redraw();
   });
   main.on_paint(draw::paint([&](const graphics& graph) {
     clog::info() << "Received on_paint, clear white";
@@ -355,8 +361,13 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     draw_graph_12(graph, g(3, 2));
     clog::info() << "on_paint finished";
   }));
-  main.on_btn_down([&] (os::key_state, const core::point& pt) {
-    clog::info() << "Button down at " << pt << " initiate redraw";
+  main.on_left_btn_down([&] (os::key_state, const core::point& pt) {
+    clog::info() << "Left button down at " << pt << " -> initiate redraw";
+    main.invalidate();
+    main.redraw();
+  });
+  main.on_mouse_move([&] (os::key_state, const core::point& pt) {
+    clog::info() << "Mouse move to " << pt << " -> initiate redraw";
     main.invalidate();
     main.redraw();
   });

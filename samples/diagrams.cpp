@@ -1,6 +1,5 @@
 
-#include <gui/layout/layout_container.h>
-#include <gui/layout/border_layout.h>
+#include <gui/win/container.h>
 #include <gui/draw/diagram.h>
 #include <gui/core/grid.h>
 #include <logging/core.h>
@@ -81,6 +80,7 @@ font& font_serif () {
   return f;
 }
 
+// --------------------------------------------------------------------------
 void draw_graph_1 (const graphics& graph, const core::rectangle& area) {
   clog::info() << "Draw graph 1 in area:" << area;
 
@@ -127,7 +127,7 @@ void draw_graph_1 (const graphics& graph, const core::rectangle& area) {
 
   graph.frame(xy_axis<double, double>(xscale, yscale), color::black);
 }
-
+// --------------------------------------------------------------------------
 void draw_graph_2 (const graphics& graph, const core::rectangle& area) {
   clog::info() << "Draw graph 2 in area:" << area;
 
@@ -151,7 +151,7 @@ void draw_graph_2 (const graphics& graph, const core::rectangle& area) {
 
   graph.frame(xy_axis<double, double, scaling::linear, scaling::log>(xscale, yscale), color::black);
 }
-
+// --------------------------------------------------------------------------
 void draw_graph_3 (const graphics& graph, const core::rectangle& area) {
   clog::info() << "Draw graph 3 in area:" << area;
 
@@ -173,8 +173,10 @@ void draw_graph_3 (const graphics& graph, const core::rectangle& area) {
 
   graph.frame(xy_axis<double, double, scaling::log>(xscale, yscale), color::black);
 }
-
+// --------------------------------------------------------------------------
 void draw_graph_4 (const graphics& graph, const core::rectangle& area) {
+  clog::info() << "Draw graph 4 in area:" << area;
+
   graph.frame(draw::rectangle(area), color::black);
 
   core::point p0(area.x() + 50, area.y2() - 25);
@@ -194,8 +196,10 @@ void draw_graph_4 (const graphics& graph, const core::rectangle& area) {
 
   graph.frame(xy_axis<double, double, scaling::log, scaling::log>(xscale, yscale), color::black);
 }
-
+// --------------------------------------------------------------------------
 void draw_graph_5 (const graphics& graph, const core::rectangle& area) {
+  clog::info() << "Draw graph 5 in area:" << area;
+
   graph.frame(draw::rectangle(area), color::black);
 
   core::point p0(area.x() + 50, area.y2() - 25);
@@ -239,8 +243,10 @@ void draw_graph_5 (const graphics& graph, const core::rectangle& area) {
 
   graph.frame(xy_axis<float, float>(xscale, yscale), color::black);
 }
-
+// --------------------------------------------------------------------------
 void draw_graph_6 (const graphics& graph, const core::rectangle& area) {
+  clog::info() << "Draw graph 6 in area:" << area;
+
   graph.frame(draw::rectangle(area), color::black);
 
   core::point p0(area.x() + 80, area.y2() - 25);
@@ -262,18 +268,20 @@ void draw_graph_6 (const graphics& graph, const core::rectangle& area) {
 
   graph.frame(axis<double, orientation_t::vertical, scaling::log>(p0, yscale), color::black);
 }
-
 // --------------------------------------------------------------------------
 void draw_graph_7 (const graphics& graph, const core::rectangle& area) {
+  clog::info() << "Draw graph 7 in area:" << area;
+
   chart<double, double> d(area, {0, 6.5}, {-1.2, 1.2});
   d.draw_background(graph, 1, 0.2, 0.2, 0.05);
   d.draw_line_graph(graph, sinus_data(0.5), color::very_light_red);
   d.draw_bar_graph(graph, sinus_data(-0.5), color::blue, 2);
   d.draw_cross_graph(graph, sinus_data(-1), color::green, 2);
 }
-
 // --------------------------------------------------------------------------
 void draw_graph_8 (const graphics& graph, const core::rectangle& area) {
+  clog::info() << "Draw graph 8 in area:" << area;
+
   chart<double, double> d(area, {0, 6.5}, {-1.2, 1.2});
   d.draw_xscale(graph, 1, 0.2);
   d.draw_yscale(graph, 0.2, 0.05);
@@ -284,6 +292,8 @@ void draw_graph_8 (const graphics& graph, const core::rectangle& area) {
 }
 // --------------------------------------------------------------------------
 void draw_graph_9 (const graphics& graph, const core::rectangle& area) {
+  clog::info() << "Draw graph 9 in area:" << area;
+
   chart<int, double, scaling::linear, scaling::log> d(area, {0, 100}, {0.01, 10000.0});
   d.draw_xscale(graph, 20, 5);
   d.draw_yscale(graph, 1, 1);
@@ -292,6 +302,8 @@ void draw_graph_9 (const graphics& graph, const core::rectangle& area) {
 }
 // --------------------------------------------------------------------------
 void draw_graph_10 (const graphics& graph, const core::rectangle& area) {
+  clog::info() << "Draw graph 10 in area:" << area;
+
   chart<int, double, scaling::linear, scaling::symlog> d(area, {-100, 100}, {0.01, 10000.0});
   d.draw_xscale(graph, 50, 10);
   auto fmt = [] (float i) {
@@ -303,6 +315,8 @@ void draw_graph_10 (const graphics& graph, const core::rectangle& area) {
 }
 // --------------------------------------------------------------------------
 void draw_graph_11 (const graphics& graph, const core::rectangle& area) {
+  clog::info() << "Draw graph 11 in area:" << area;
+
   chart<double, double, scaling::symlog, scaling::symlog> d(area, {0.01, 100}, {0.01, 1000.0});
   auto fmt = [] (float i) {
     return ostreamfmt(i);
@@ -314,6 +328,8 @@ void draw_graph_11 (const graphics& graph, const core::rectangle& area) {
 }
 // --------------------------------------------------------------------------
 void draw_graph_12 (const graphics& graph, const core::rectangle& area) {
+  clog::info() << "Draw graph 12 in area:" << area;
+
   chart<double, double, scaling::symlog, scaling::linear> d(area, {0.01, 100}, {-1000.0, 1000.0});
   auto fmt = [] (float i) {
     return ostreamfmt(i);
@@ -327,26 +343,19 @@ void draw_graph_12 (const graphics& graph, const core::rectangle& area) {
 int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::win;
 
-  layout_main_window<gui::layout::border::layouter<>> main;
-  client_window<> graphs;
+  main_window main;
 
-  main.on_create([&] () {
-    graphs.create(main, main.client_area());
-    main.get_layout().set_center(layout::lay(graphs));
-    main.set_children_visible();
-  });
-
-  graphs.on_size([&] (const core::size& sz) {
+  main.on_size([&] (const core::size& sz) {
     clog::info() << "Resized to " << sz << " -> initiate redraw";
     main.invalidate();
     main.redraw();
   });
-  graphs.on_layout([&] (const core::rectangle& r) {
+  main.on_layout([&] (const core::rectangle& r) {
     clog::info() << "Received on_layout to " << r << " -> initiate redraw";
     main.invalidate();
     main.redraw();
   });
-  graphs.on_paint(draw::paint([&](const graphics& graph) {
+  main.on_paint(draw::paint([&](const graphics& graph) {
     clog::info() << "Received on_paint, clear white";
     graph.clear(color::white);
 
@@ -367,14 +376,15 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     draw_graph_10(graph, g(3, 0));
     draw_graph_11(graph, g(3, 1));
     draw_graph_12(graph, g(3, 2));
+
     clog::info() << "on_paint finished";
   }));
-  graphs.on_left_btn_down([&] (os::key_state, const core::point& pt) {
+  main.on_left_btn_down([&] (os::key_state, const core::point& pt) {
     clog::info() << "Left button down at " << pt << " -> initiate redraw";
     main.invalidate();
     main.redraw();
   });
-  graphs.on_mouse_move([&] (os::key_state, const core::point& pt) {
+  main.on_mouse_move([&] (os::key_state, const core::point& pt) {
     clog::info() << "Mouse move to " << pt << " -> initiate redraw";
     main.invalidate();
     main.redraw();

@@ -82,19 +82,12 @@ namespace gui {
             // armhf build return always 0 for abs(min). std::abs() solves the problem
 //            clog::info() << "scale_fn<scaling::symlog>::inc(i:" << i << ", step:" << step << ", min:" << min << "), abs(min):" << abs_min;
 //            if (i < -abs_min) {
-//              const T r = i / step;
-//              clog::info() << "(i < -abs(min)) -> i / step = " << r;
-//              return r;
+//              return i / step;
 //            } else if (i >= abs_min) {
-//              const T r = i * step;
-//              clog::info() << "(i >= abs(min)) -> i * step = " << r;
-//              return r;
+//              return i * step;
 //            } else {
-//              const T r = i + min;
-//              clog::info() << "(i >= -abs(min) && (i < abs(min))) -> i + min = " << r;
-//              return r;
+//              return i + min;
 //            }
-              // return abs(i) <= abs(min) ? i + (min / step)
           }
           static T step (T t)           { return std::pow(10.0, std::abs(t)); }
           static T sub (T i, T t, T min) {
@@ -521,7 +514,6 @@ namespace gui {
 
           traits::set_1(p2, static_cast<float>(d1));
           const auto text_origin = scale_text_origin<V, O>();
-          clog::info() << "scale<" << V << ">: origin_t: " << O << ", text_origin: " << text_origin;
           g.text(draw::text(fmt(i), p2, text_origin), font, color);
 
           const T sub_step = detail::scale_fn<T, S>::sub(i, sub, min);

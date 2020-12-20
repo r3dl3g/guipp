@@ -77,7 +77,24 @@ namespace gui {
         template<typename T>
         struct scale_fn<T, scaling::symlog> {
           static T inc (T i, T step, T min) {
-            return /*abs(i) <= abs(min) ? i + (min / step) :*/ (i < -abs(min) ? i / step : i >= abs(min) ? i * step : i + min);
+            const T abs_min = std::abs(min);
+            return (i < -abs_min ? i / step : i >= abs_min ? i * step : i + min);
+            // armhf build return always 0 for abs(min). std::abs() solves the problem
+//            clog::info() << "scale_fn<scaling::symlog>::inc(i:" << i << ", step:" << step << ", min:" << min << "), abs(min):" << abs_min;
+//            if (i < -abs_min) {
+//              const T r = i / step;
+//              clog::info() << "(i < -abs(min)) -> i / step = " << r;
+//              return r;
+//            } else if (i >= abs_min) {
+//              const T r = i * step;
+//              clog::info() << "(i >= abs(min)) -> i * step = " << r;
+//              return r;
+//            } else {
+//              const T r = i + min;
+//              clog::info() << "(i >= -abs(min) && (i < abs(min))) -> i + min = " << r;
+//              return r;
+//            }
+              // return abs(i) <= abs(min) ? i + (min / step)
           }
           static T step (T t)           { return std::pow(10.0, std::abs(t)); }
           static T sub (T i, T t, T min) {
@@ -88,7 +105,7 @@ namespace gui {
           }
 
           static T calc (T t, T min) {
-            if (abs(t) < abs(min)) {
+            if (std::abs(t) < std::abs(min)) {
               return t / std::abs(min);
             }
             return std::copysign(std::log10(std::abs(t)) - std::log10(std::abs(min)) + 1, t);
@@ -493,23 +510,26 @@ namespace gui {
 
         const auto min = sc.get_source().begin();
         const auto max = sc.get_source().end();
-        for (T i = detail::scale_fn<T, S>::min(sc.get_source()); i <= max; i = detail::scale_fn<T, S>::inc(i, main_step, min)) {
+        T i = detail::scale_fn<T, S>::min(sc.get_source());
+        while (i <= max) {
           const auto d1 = sc(i);
+          const auto next = detail::scale_fn<T, S>::inc(i, main_step, min);
 
           traits::set_1(p0, static_cast<float>(d1));
           traits::set_1(p1, static_cast<float>(d1));
           g.frame(line(p0, p1), main_color);
 
           traits::set_1(p2, static_cast<float>(d1));
-          g.text(draw::text(fmt(i), p2, scale_text_origin<V, O>()), font, color);
+          const auto text_origin = scale_text_origin<V, O>();
+          clog::info() << "scale<" << V << ">: origin_t: " << O << ", text_origin: " << text_origin;
+          g.text(draw::text(fmt(i), p2, text_origin), font, color);
 
           const T sub_step = detail::scale_fn<T, S>::sub(i, sub, min);
           paint::draw_sub_ticks<T, V, S>(g, sub_color, sc,
-                                         i, sub_step, std::min(detail::scale_fn<T, S>::inc(i, main_step, min), max),
+                                         i, sub_step, std::min(next, max),
                                          d2 + tick_dimension::sub_tick_length, d2 + sub_ticks_length);
-
+          i = next;
         }
-        //        paint::draw_axis<T, V, S>(g, pos, color, sc);
       }
 
       // --------------------------------------------------------------------------

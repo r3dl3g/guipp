@@ -305,12 +305,16 @@ void draw_graph_10 (const graphics& graph, const core::rectangle& area) {
   clog::info() << "Draw graph 10 in area:" << area;
 
   chart<int, double, scaling::linear, scaling::symlog> d(area, {-100, 100}, {0.01, 10000.0});
+  clog::info() << "Draw xscale in graph 10";
   d.draw_xscale(graph, 50, 10);
   auto fmt = [] (float i) {
     return ostreamfmt(i);
   };
+  clog::info() << "Draw yscale in graph 10";
   d.draw_yscale(graph, 1, 1, fmt);
+  clog::info() << "Draw line_graph in graph 10";
   d.draw_line_graph(graph, linear_data_t<int, double>(100, -100), color::very_light_red);
+  clog::info() << "Draw axis in graph 10";
   d.draw_axis(graph);
 }
 // --------------------------------------------------------------------------
@@ -348,12 +352,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.on_size([&] (const core::size& sz) {
     clog::info() << "Resized to " << sz << " -> initiate redraw";
     main.invalidate();
-    main.redraw();
-  });
-  main.on_layout([&] (const core::rectangle& r) {
-    clog::info() << "Received on_layout to " << r << " -> initiate redraw";
-    main.invalidate();
-    main.redraw();
   });
   main.on_paint(draw::paint([&](const graphics& graph) {
     clog::info() << "Received on_paint, clear white";
@@ -382,12 +380,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.on_left_btn_down([&] (os::key_state, const core::point& pt) {
     clog::info() << "Left button down at " << pt << " -> initiate redraw";
     main.invalidate();
-    main.redraw();
-  });
-  main.on_mouse_move([&] (os::key_state, const core::point& pt) {
-    clog::info() << "Mouse move to " << pt << " -> initiate redraw";
-    main.invalidate();
-    main.redraw();
   });
 
   main.create({50, 50, 800, 600});

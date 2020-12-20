@@ -415,7 +415,7 @@ namespace gui {
             os::color f2 = color::invert(foreground);
             int i1 = color::compare(b, b2);
             int i2 = color::compare(b, f2);
-            if (abs(i1) > abs(i2)) {
+            if (std::abs(i1) > std::abs(i2)) {
               f = b2;
             } else {
               f = f2;

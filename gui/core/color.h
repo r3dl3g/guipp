@@ -405,3 +405,9 @@ namespace gui {
   } // color
 
 } //gui
+
+namespace std {
+
+  GUIPP_CORE_EXPORT ostream& operator<< (ostream& out, gui::color::color_parts);
+
+} // namespace std

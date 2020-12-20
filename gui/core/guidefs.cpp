@@ -47,66 +47,7 @@
 #include <gui/core/color.h>
 
 
-namespace std {
-
-  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::bit_order_t bo) {
-    out << (static_cast<bool>(bo) == static_cast<bool>(gui::core::bit_order_t::lsb_first) ? "lsb_first" : "msb_first");
-    return out;
-  }
-
-  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::byte_order_t bo) {
-    out << (static_cast<bool>(bo) == static_cast<bool>(gui::core::byte_order_t::little_endian) ? "little_endian" : "big_endian");
-    return out;
-  }
-
-  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::os::platform_t p) {
-    switch (p) {
-      case gui::core::os::platform_t::win32: out << "win32"; break;
-      case gui::core::os::platform_t::x11:   out << "x11"; break;
-      case gui::core::os::platform_t::cocoa: out << "cocoa"; break;
-      case gui::core::os::platform_t::qt:    out << "qt"; break;
-      default: out << "unknown:" << static_cast<gui::byte>(p); break;
-    }
-    return out;
-  }
-
-  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::os::ui_t p) {
-    switch (p) {
-      case gui::core::os::ui_t::desktop: out << "desktop"; break;
-      case gui::core::os::ui_t::mobile:  out << "mobile"; break;
-      default: out << "unknown:" << static_cast<gui::byte>(p); break;
-    }
-    return out;
-  }
-
-  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::color::color_parts cp) {
-    out << "color_parts: RGBA=" << std::hex << cp.red
-                         << ":" << std::hex << cp.green
-                         << ":" << std::hex << cp.blue
-                         << ":" << std::hex << cp.alpha;
-    return out;
-  }
-
-} // namespace std
-
 namespace gui {
-
-  const char* PixelFormatNames[] = {
-    "Undefined",
-    "BW",
-    "GRAY",
-    "RGB",
-    "BGR",
-    "RGBA",
-    "BGRA",
-    "ARGB",
-    "ABGR"
-  };
-
-  std::ostream& operator<< (std::ostream& out, pixel_format_t pf) {
-    out << PixelFormatNames[static_cast<int>(pf)];
-    return out;
-  }
 
   pixel_format_t get_pixel_format (int pixel_format, core::byte_order_t byte_order_t) {
     switch (pixel_format) {
@@ -511,3 +452,59 @@ namespace gui {
   } // core
 
 } // gui
+
+namespace std {
+
+  namespace {
+
+    const char* pixel_format_t_names[] = {
+      "Undefined",
+      "BW",
+      "GRAY",
+      "RGB",
+      "BGR",
+      "RGBA",
+      "BGRA",
+      "ARGB",
+      "ABGR"
+    };
+
+    const char* orientation_t_names[] = {
+      "vertical",
+      "horizontal"
+    };
+
+    const char* origin_t_names[] = {
+      "start",
+      "center",
+      "end"
+    };
+
+    const char* alignment_t_names[] = {
+      "left",
+      "hcenter",
+      "right",
+      "top",
+      "vcenter",
+      "bottom"
+    };
+
+  }
+
+  GUIPP_CORE_EXPORT ostream& operator<< (ostream& out, gui::pixel_format_t pf) {
+    return print_enum(out, pf, pixel_format_t_names);
+  }
+
+  GUIPP_CORE_EXPORT ostream& operator<< (ostream& out,gui::orientation_t o) {
+    return print_enum(out, o, orientation_t_names);
+  }
+
+  GUIPP_CORE_EXPORT ostream& operator<< (ostream& out,gui::origin_t o) {
+    return print_enum(out, o, origin_t_names);
+  }
+
+  GUIPP_CORE_EXPORT ostream& operator<< (ostream& out,gui::alignment_t a) {
+    return print_enum(out, a, alignment_t_names);
+  }
+
+} // namespace std

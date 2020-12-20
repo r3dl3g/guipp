@@ -143,3 +143,14 @@ namespace gui {
 
 } // gui
 
+namespace std {
+
+  GUIPP_CORE_EXPORT ostream& operator<< (ostream& out, const gui::color::color_parts cp) {
+    out << "color_parts: RGBA=" << std::hex << cp.red
+                         << ":" << std::hex << cp.green
+                         << ":" << std::hex << cp.blue
+                         << ":" << std::hex << cp.alpha;
+    return out;
+  }
+
+} // namespace std

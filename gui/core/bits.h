@@ -25,11 +25,14 @@
 #include <cmath>
 #include <type_traits>
 #include <cstdint>
+#include <ostream>
+#include <array>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
+#include <gui++-core-export.h>
 
 #ifdef GUIPP_WIN
 # define IF_WIN32_ELSE(A, B) A
@@ -326,3 +329,22 @@ namespace gui {
   } // namespace core
 
 } // namespace gui
+
+namespace std {
+
+  GUIPP_CORE_EXPORT ostream& print_enum (ostream& out, int t, const char* names[], std::size_t n);
+
+  template<typename T, std::size_t N>
+  inline ostream& print_enum (ostream& out, T t, const char* (&names)[N]) {
+    return print_enum(out, static_cast<int>(t), names, N);
+  }
+
+  GUIPP_CORE_EXPORT ostream& operator<< (ostream& out, gui::core::bit_order_t);
+
+  GUIPP_CORE_EXPORT ostream& operator<< (ostream& out, gui::core::byte_order_t);
+
+  GUIPP_CORE_EXPORT ostream& operator<< (ostream& out, gui::core::os::platform_t);
+
+  GUIPP_CORE_EXPORT ostream& operator<< (ostream& out, gui::core::os::ui_t);
+
+} // namespace std

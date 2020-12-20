@@ -43,7 +43,6 @@
 //
 #include <gui/core/bits.h>
 #include <logging/logger.h>
-#include <gui++-core-export.h>
 
 
 #ifdef GUIPP_WIN
@@ -76,8 +75,6 @@ namespace gui {
     ARGB,
     ABGR
   };
-
-  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream&, pixel_format_t);
 
   constexpr byte color_depths[] = {0, 1, 8, 24, 24, 24, 24, 24, 24};
 
@@ -138,7 +135,6 @@ namespace gui {
     vcenter,
     bottom
   };
-
 
   // --------------------------------------------------------------------------
   template<alignment_t>
@@ -287,6 +283,18 @@ namespace gui {
   } // namespace core
 
 } //namespace gui
+
+namespace std {
+
+  GUIPP_CORE_EXPORT ostream& operator<< (ostream&, gui::pixel_format_t);
+
+  GUIPP_CORE_EXPORT ostream& operator<< (ostream&, gui::orientation_t);
+
+  GUIPP_CORE_EXPORT ostream& operator<< (ostream&, gui::origin_t);
+
+  GUIPP_CORE_EXPORT ostream& operator<< (ostream&, gui::alignment_t);
+
+} // namespace std
 
 // --------------------------------------------------------------------------
 

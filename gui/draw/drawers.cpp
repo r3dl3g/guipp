@@ -1540,27 +1540,29 @@ namespace gui {
 
       const QString t = QString::fromStdString(str);
 
-      QFontMetrics fm(f);
-      int x = pos.os_x();
-      int y = pos.os_y();
-      int width = fm.width(t);
-      int height = fm.height();
+      QRect area = g.os()->viewport();
+      QRect r(pos.os(), area.bottomRight());
 
       if (!origin_is_left(origin) || !origin_is_top(origin)) {
+
         if (origin_is_h_center(origin)) {
-          x -= width / 2;
+          r.setLeft(pos.os_x() - area.width());
+          r.setRight(pos.os_x() + area.width());
         } else if (origin_is_right(origin)) {
-          x -= width;
+          r.setLeft(area.left());
+          r.setRight(pos.os_x());
         }
 
         if (origin_is_v_center(origin)) {
-          y -= height / 2;
+          r.setTop(pos.os_y() - area.height());
+          r.setBottom(pos.os_y() + area.height());
         } else if (origin_is_bottom(origin)) {
-          y -= height;
+          r.setTop(pos.os_y());
+          r.setBottom(area.bottom());
         }
       }
 
-      g.os()->drawText(QRect(x, y, width, height), static_cast<int>(origin), t);
+      g.os()->drawText(r, static_cast<int>(origin), t);
     }
 #endif // GUIPP_QT
 

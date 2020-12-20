@@ -1540,33 +1540,27 @@ namespace gui {
 
       const QString t = QString::fromStdString(str);
 
-      int px = pos.os_x();
-      int py = pos.os_y();
-      QRect r(px, py, 1, 1);
-      r = QFontMetrics(f).boundingRect(r, static_cast<int>(origin), t);
-      g.os()->drawText(r, static_cast<int>(origin), t);
+      QFontMetrics fm(f);
+      int x = pos.os_x();
+      int y = pos.os_y();
+      int width = fm.width(t);
+      int height = fm.height();
 
-      // does not work as expected.
-      //g.os()->drawText(QPointF(pos.os_x(), pos.os_y()), t, static_cast<int>(origin), 0);
+      if (!origin_is_left(origin) || !origin_is_top(origin)) {
+        if (origin_is_h_center(origin)) {
+          x -= width / 2;
+        } else if (origin_is_right(origin)) {
+          x -= width;
+        }
 
-      // does not work on ubtouch
-      //if (!origin_is_left(origin) || !origin_is_bottom(origin)) {
-      //  os::size sz = QFontMetrics(f).boundingRect(t).size();
+        if (origin_is_v_center(origin)) {
+          y -= height / 2;
+        } else if (origin_is_bottom(origin)) {
+          y -= height;
+        }
+      }
 
-      //  if (origin_is_h_center(origin)) {
-      //    px -= sz.width() / 2;
-      //  } else if (origin_is_right(origin)) {
-      //    px -= sz.width();
-      //  }
-
-      //  if (origin_is_v_center(origin)) {
-      //    py += sz.height() / 2;
-      //  } else if (origin_is_top(origin)) {
-      //    py += sz.height();
-      //  }
-      //}
-
-      //g.os()->drawText(Qpx, py, t);
+      g.os()->drawText(QRect(x, y, width, height), static_cast<int>(origin), t);
     }
 #endif // GUIPP_QT
 

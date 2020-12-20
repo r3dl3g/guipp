@@ -1541,7 +1541,7 @@ namespace gui {
       int px = pos.os_x();
       int py = pos.os_y();
       if (!origin_is_left(origin) || !origin_is_bottom(origin)) {
-        core::rectangle r(QFontMetrics(f).tightBoundingRect(QString::fromStdString(str)));
+        os::rectangle r = QFontMetrics(f).tightBoundingRect(QString::fromStdString(str));
 
         if (origin_is_h_center(origin)) {
           px -= r.width() / 2;

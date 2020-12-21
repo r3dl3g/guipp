@@ -18,11 +18,9 @@
 
 #pragma once
 
-// --------------------------------------------------------------------------
-//
-// Library includes
-//
-#include <gui/core/guidefs.h>
+#ifndef GUIPP_QT
+# error Include keys.h instead keys_qt.h!
+#endif // GUIPP_QT
 
 
 namespace gui {

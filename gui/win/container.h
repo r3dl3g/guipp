@@ -24,11 +24,11 @@
 //
 #include <gui/win/window.h>
 #ifdef GUIPP_WIN
-# include <gui/win/win32_container_class.h>
+# include <gui/win/container_class_win32.h>
 #elif GUIPP_X11
-# include <gui/win/x11_container_class.h>
+# include <gui/win/container_class_x11.h>
 #elif GUIPP_QT
-# include <gui/win/qt_container_class.h>
+# include <gui/win/container_class_qt.h>
 # include <QtCore/QEventLoop>
 #endif // GUIPP_QT
 

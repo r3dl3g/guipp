@@ -33,11 +33,13 @@
 
 
 #ifdef GUIPP_WIN
-# include <gui/win/win32keys.h>
+# include <gui/win/keys_win32.h>
 #elif GUIPP_X11
-# include <gui/win/x11keys.h>
+# include <gui/win/keys_x11.h>
 #elif GUIPP_QT
-# include <gui/win/qtkeys.h>
+# include <gui/win/keys_qt.h>
+#else
+# error Unknown target system
 #endif
 
 namespace gui {

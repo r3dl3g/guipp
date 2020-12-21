@@ -280,7 +280,7 @@ namespace gui {
       auto i = start;
       if (i != end) {
         ++i;
-        int count = std::distance(begin, end);
+        auto count = std::distance(begin, end);
         while (count) {
           if (i == end) {
             i = begin;

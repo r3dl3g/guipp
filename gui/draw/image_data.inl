@@ -213,14 +213,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T, typename S>
-    typename std::enable_if<is_rgb_type<S>::value, byte>::type put_rgb (T& lhs, const S rhs) {
+    typename std::enable_if<is_rgb_type<S>::value, void>::type put_rgb (T& lhs, const S rhs) {
       lhs.red = get_red(rhs);
       lhs.green = get_green(rhs);
       lhs.blue = get_blue(rhs);
     }
 
     template<typename T, typename S>
-    typename std::enable_if<!is_rgb_type<S>::value, byte>::type put_rgb (T& lhs, const S rhs) {
+    typename std::enable_if<!is_rgb_type<S>::value, void>::type put_rgb (T& lhs, const S rhs) {
       lhs.red = lhs.green = lhs.blue = get_gray(rhs);
     }
 
@@ -232,7 +232,7 @@ namespace gui {
     }
 
     template<typename T, typename S>
-    typename std::enable_if<is_rgb_type<S>::value, byte>::type put_rgba (T& lhs, const S rhs) {
+    typename std::enable_if<is_rgb_type<S>::value, void>::type put_rgba (T& lhs, const S rhs) {
       lhs.red = get_red(rhs);
       lhs.green = get_green(rhs);
       lhs.blue = get_blue(rhs);
@@ -240,7 +240,7 @@ namespace gui {
     }
 
     template<typename T, typename S>
-    typename std::enable_if<!is_rgb_type<S>::value, byte>::type put_rgba (T& lhs, const S rhs) {
+    typename std::enable_if<!is_rgb_type<S>::value, void>::type put_rgba (T& lhs, const S rhs) {
       lhs.red = lhs.green = lhs.blue = get_gray(rhs);
       lhs.alpha = get_alpha(rhs);
     }

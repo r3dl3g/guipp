@@ -33,7 +33,7 @@ const pixel::rgb blue = color2rgb(color::blue);
 
 // --------------------------------------------------------------------------
 template<typename T>
-std::string data2hex (const T* data, std::size_t len) {
+std::string data2hex (const T data, std::size_t len) {
   std::ostringstream buffer;
   for (int i = 0; i < len; ++i) {
     if (i) {

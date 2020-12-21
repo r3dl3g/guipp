@@ -24,6 +24,8 @@
 
 namespace gui {
 
+  namespace win {
+
     // --------------------------------------------------------------------------
     template<int I, typename T>
     T get_param (const core::event& e);

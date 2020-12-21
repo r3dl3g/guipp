@@ -118,7 +118,7 @@ namespace testing {
     if (res != data.size()) {
       std::cerr << "GetBitmapBits returned " << res << " expected:" << data.size() << std::endl;
     }
-    return data2colormap((const char*)data.data(), bmp.bmBitsPixel, bmp.bmWidthBytes, bmp.bmHeight);
+    return data2colormap((const char*)data.data(), bmp.bmBitsPixel, bmp.bmWidthBytes, bmp.bmWidth, bmp.bmHeight);
 #elif GUIPP_QT
     QImage img = map.get_id()->toImage();
 //    if (img.depth() == 1) {

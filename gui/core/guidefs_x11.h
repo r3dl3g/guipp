@@ -18,6 +18,10 @@
 
 #pragma once
 
+#ifndef GUIPP_X11
+# error Include guidefs.h instead guidefs_x11.h!
+#endif // GUIPP_X11
+
 // --------------------------------------------------------------------------
 //
 // Common includes

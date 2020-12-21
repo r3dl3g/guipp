@@ -52,7 +52,7 @@
 # define IF_QT_ELSE(A, B) A
 # define IF_COCOA_ELSE(A, B) B
 # define IF_WIN32_X11_QT_ELSE(A, B, C, D) C
-#elif defined(COCOA)
+#elif defined(GUIPP_COCOA)
 # define IF_WIN32_ELSE(A, B) B
 # define IF_X11_ELSE(A, B) B
 # define IF_QT_ELSE(A, B) B

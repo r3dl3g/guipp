@@ -1473,7 +1473,7 @@ namespace gui {
 
 #endif // GUIPP_QT
 
-#ifdef COCOA
+#ifdef GUIPP_COCOA
 
 #ifdef __OBJC__
     - (void)editColor:(NSColor *)color locatedAtScreenRect:(NSRect)rect {
@@ -1560,7 +1560,7 @@ namespace gui {
 
 #endif // __OBJC__
     
-#endif // COCOA
+#endif // GUIPP_COCOA
     
     // --------------------------------------------------------------------------
 

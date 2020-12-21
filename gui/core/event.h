@@ -65,9 +65,9 @@ namespace gui {
     } // namespace x11
 #endif // GUIPP_X11
 
-#ifdef COCOA
+#ifdef GUIPP_COCOA
     using event = CGEventRef;
-#endif // COCOA
+#endif // GUIPP_COCOA
 
 #ifdef GUIPP_QT
 

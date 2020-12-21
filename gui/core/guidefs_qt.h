@@ -18,6 +18,10 @@
 
 #pragma once
 
+#ifndef GUIPP_QT
+# error Include guidefs.h instead guidefs_qt.h!
+#endif // GUIPP_QT
+
 // --------------------------------------------------------------------------
 //
 // Common includes

@@ -18,6 +18,10 @@
 
 #pragma once
 
+#ifndef GUIPP_WIN
+# error Include guidefs.h instead guidefs_win32.h!
+#endif //GUIPP_WIN
+
 // --------------------------------------------------------------------------
 //
 // Common includes

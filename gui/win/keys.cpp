@@ -131,16 +131,16 @@ namespace gui {
       if (key && key_string.empty()) {
         std::ostringstream s;
         if (control_key_bit_mask::is_set(modifiers)) {
-          s << key_state_to_string(keys::control) << "+";
+          s << key_state_to_string(state::control) IF_QT_ELSE(, << "+");
         }
         if (alt_key_bit_mask::is_set(modifiers)) {
-          s << key_state_to_string(keys::alt) << "+";
+          s << key_state_to_string(state::alt) IF_QT_ELSE(, << "+");
         }
         if (system_key_bit_mask::is_set(modifiers)) {
-          s << key_state_to_string(keys::system) << "+";
+          s << key_state_to_string(state::system) IF_QT_ELSE(, << "+");
         }
         if (shift_key_bit_mask::is_set(modifiers)) {
-          s << key_state_to_string(keys::shift) << "+";
+          s << key_state_to_string(state::shift) IF_QT_ELSE(, << "+");
         }
         std::string str = key_symbol_to_string(key);
         if (str.length() == 1) {

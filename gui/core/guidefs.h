@@ -256,7 +256,20 @@ namespace gui {
       GUIPP_CORE_EXPORT void set_scale_factor (double);
 
       template<typename R, typename T>
-      inline R scale_from_native (const T& v) {
+      inline typename std::enable_if<std::is_signed<R>::value && !std::is_floating_point<R>::value, R>::type
+      scale_from_native (const T& v) {
+        return static_cast<R>(round(static_cast<T>(v / get_scale_factor())));
+      }
+
+      template<typename R, typename T>
+      inline typename std::enable_if<std::is_unsigned<R>::value, R>::type
+      scale_from_native (const T& v) {
+        return static_cast<R>(std::max<T>(T(0), round(static_cast<T>(v / get_scale_factor()))));
+      }
+
+      template<typename R, typename T>
+      inline typename std::enable_if<std::is_floating_point<R>::value, R>::type
+      scale_from_native (const T& v) {
         return static_cast<R>(v / get_scale_factor());
       }
 

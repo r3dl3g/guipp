@@ -65,8 +65,6 @@ namespace gui {
     typedef HCURSOR cursor;
     typedef HBRUSH brush;
     typedef HFONT font;
-    typedef HPEN pen;
-    typedef HMENU menu;
 
     typedef LONG point_type;
     typedef LONG size_type;
@@ -90,6 +88,7 @@ namespace gui {
 
       typedef LOGBRUSH brush_type;
       typedef EXTLOGPEN pen_type;
+      typedef HPEN pen;
     }
 
   } // os

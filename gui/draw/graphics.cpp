@@ -670,10 +670,10 @@ namespace gui {
     const graphics& graphics::draw_lines (std::vector<core::point> points,
                                           const pen& p) const {
       Use<pen> pn(gc, p);
-      QVector<QPoint> pointPairs;
+      QVector<os::point> pointPairs;
       const auto off = p.os_size() / 2;
       bool first = true;
-      QPoint last;
+      os::point last;
       for (const core::point& pt : points) {
         if (first) {
           first = false;

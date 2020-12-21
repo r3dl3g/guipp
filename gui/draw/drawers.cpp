@@ -53,7 +53,7 @@ namespace gui {
 
 #ifdef GUIPP_WIN
     brush null_brush((os::brush)GetStockObject(NULL_BRUSH));
-    pen null_pen((os::pen)GetStockObject(NULL_PEN));
+    pen null_pen((os::win32::pen)GetStockObject(NULL_PEN));
 
     // --------------------------------------------------------------------------
     void line::operator() (const graphics& g, const pen& p) const {
@@ -1349,7 +1349,7 @@ namespace gui {
 
 //      std::array<Arc, 4> arcs;
 //      std::array<QLine, 4> segments;
-//      calc_arcs<Arc, QLine, QRect>(rect - core::size::one, size, &arcs, &segments, nullptr, 90*16);
+//      calc_arcs<Arc, QLine, os::rectangle>(rect - core::size::one, size, &arcs, &segments, nullptr, 90*16);
 
 //      for (const Arc& arc : arcs) {
 //        const Arc& arc = arcs[0];
@@ -1376,14 +1376,14 @@ namespace gui {
 
 //      std::array<Arc, 4> arcs;
 //      std::array<QLine, 4> segments;
-//      std::array<QRect, 3> rects;
-//      calc_arcs<Arc, QLine, QRect>(rect - core::size::one, size, &arcs, &segments, &rects, 90*16);
+//      std::array<os::rectangle, 3> rects;
+//      calc_arcs<Arc, QLine, os::rectangle>(rect - core::size::one, size, &arcs, &segments, &rects, 90*16);
 
 //      /*for (const Arc& arc : arcs)*/ {
 //        const Arc& arc = arcs[0];
 //        g.os()->drawArc(arc.x, arc.y, arc.w, arc.h, arc.a, arc.l);
 //      }
-////      for (const QRect& a : rects) {
+////      for (const os::rectangle& a : rects) {
 ////        g.os()->drawRect(a);
 ////      }
 ////      g.os()->drawLines(segments.data(), segments.size());
@@ -1426,7 +1426,7 @@ namespace gui {
                           const brush& b,
                           const pen& p) const {
 //      if (radius < 10) {
-//        QPen pen(QBrush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()), Qt::FlatCap, Qt::RoundJoin);
+//        QPen pen(os::brush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()), Qt::FlatCap, Qt::RoundJoin);
 //        QPainterPath path;
 //        const float step_angle = 180.0F / radius;
 //        path.moveTo(find_ellipse_coords(pos, start_angle, radius));
@@ -1451,7 +1451,7 @@ namespace gui {
 
 //      g.os()->setRenderHint(QPainter::Antialiasing, true);
 //      Use<brush> br(g, b);
-//      QPen pen(QBrush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()),
+//      QPen pen(os::brush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()),
 //                           Qt::FlatCap, Qt::RoundJoin);
 //      QPainterPath path;
 //      QRectF outer_rect(pos.os_x() - radius, pos.os_y() - radius, radius * 2 + 1, radius * 2 + 1);
@@ -1540,8 +1540,8 @@ namespace gui {
 
       const QString t = QString::fromStdString(str);
 
-      QRect area = g.os()->viewport();
-      QRect r(pos.os(), area.bottomRight());
+      os::rectangle area = g.os()->viewport();
+      os::rectangle r(pos.os(), area.bottomRight());
 
       if (!origin_is_left(origin) || !origin_is_top(origin)) {
 

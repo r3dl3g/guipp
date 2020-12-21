@@ -60,7 +60,6 @@ namespace gui {
 #else
     typedef Font font;
 #endif // GUIPP_USE_XFT
-    typedef int menu;
 
     typedef short point_type;
     typedef unsigned short size_type;

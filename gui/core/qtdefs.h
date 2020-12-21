@@ -77,7 +77,6 @@ namespace gui {
     typedef QCursor cursor;
     typedef QBrush brush;
     typedef QFont font;
-    typedef int menu;
 
     typedef int point_type;
     typedef int size_type;

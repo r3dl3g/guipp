@@ -65,9 +65,9 @@ namespace gui {
       ~pen ();
 
 #ifdef GUIPP_WIN
-      pen (os::pen);
+      pen (os::win32::pen);
 
-      inline operator os::pen () const {
+      inline operator os::win32::pen () const {
         return id;
       }
 
@@ -91,7 +91,7 @@ namespace gui {
 
     private:
 #ifdef GUIPP_WIN
-      os::pen id;
+      os::win32::pen id;
       os::win32::pen_type info;
 #endif // GUIPP_WIN
 #if defined(GUIPP_X11) || defined(GUIPP_QT)

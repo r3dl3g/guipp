@@ -49,14 +49,6 @@ namespace gui {
       return window_state(*this);
     }
 
-    inline void window::set_accept_focus (bool a) {
-      get_state().set_accept_focus(a);
-    }
-
-    inline bool window::is_focus_accepting () const {
-      return get_state().is_focus_accepting();
-    }
-
     inline void window::disable_redraw (bool on) {
       get_state().disable_redraw(on);
     }

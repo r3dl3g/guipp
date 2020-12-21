@@ -276,10 +276,12 @@ namespace gui {
 
     template<typename iterator>
     bool iterate_focus (iterator begin, iterator end, const window* focus) {
-      auto i = std::find(begin, end, focus);
+      const auto start = std::find(begin, end, focus);
+      auto i = start;
       if (i != end) {
         ++i;
-        while (*i != focus) {
+        int count = std::distance(begin, end);
+        while (count) {
           if (i == end) {
             i = begin;
           }
@@ -288,6 +290,7 @@ namespace gui {
             return true;
           }
           ++i;
+          --count;
         }
       }
       return false;

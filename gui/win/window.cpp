@@ -264,6 +264,20 @@ namespace gui {
       return is_focus_accepting() && is_enabled() && is_visible();
     }
 
+    void window::set_accept_focus (bool a) {
+      if (is_valid()) {
+#ifdef GUIPP_QT
+        get_id()->setFocusPolicy(a ? Qt::WheelFocus : Qt::NoFocus);
+#endif //GUIPP_QT
+      }
+      get_state().set_accept_focus(a);
+    }
+
+    bool window::is_focus_accepting () const {
+      return get_state().is_focus_accepting();
+    }
+
+
     const class_info& window::get_window_class () const {
       return hidden::window_class_info_map[get_class_name()];
     }
@@ -1291,7 +1305,8 @@ namespace gui {
 
     void window::take_focus () const {
       if (is_valid()) {
-        get_id()->activateWindow();
+        auto win = get_id();
+        win->setFocus();
         invalidate();
       }
     }
@@ -1446,6 +1461,7 @@ namespace gui {
       pal.setColor(QPalette::Background, QColor(type.get_background()));
       id->setAutoFillBackground(true);
       id->setPalette(pal);
+      id->setFocusPolicy(data->can_accept_focus() ? Qt::WheelFocus : Qt::NoFocus);
 
       hidden::window_class_map[id] = type.get_class_name();
 

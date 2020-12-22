@@ -33,6 +33,10 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace pixel {
 
+    constexpr mono mono_colors<false>::value[];
+
+    constexpr mono mono_colors<true>::value[];
+
     // --------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& out, const mono& px) {
       out << static_cast<bool>(px);

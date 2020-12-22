@@ -110,6 +110,10 @@ namespace gui {
         return str;
       }
       break;
+      case ControlMask: return key_symbol_to_string(XK_Control_L);
+      case ShiftMask:   return key_symbol_to_string(XK_Shift_L);
+      case Mod1Mask:    return key_symbol_to_string(XK_Alt_L);
+      case Mod4Mask:    return key_symbol_to_string(XK_Super_L);
 
       default:
         return XKeysymToString(key);

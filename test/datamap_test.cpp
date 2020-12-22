@@ -198,7 +198,8 @@ void test_rgb2bgr () {
 
 // --------------------------------------------------------------------------
 void test_main (const testing::start_params& params) {
-  std::cout << "Running datamap_test" << std::endl;
+  testing::init_gui(params);
+  testing::log_info("Running datamap_test");
   run_test(test_bw);
   run_test(test_gray);
   run_test(test_rgb);

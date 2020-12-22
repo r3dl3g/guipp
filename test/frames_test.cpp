@@ -1010,7 +1010,7 @@ void test_hseparator_raised () {
 // --------------------------------------------------------------------------
 void test_main (const testing::start_params& params) {
   testing::init_gui(params);
-  std::cout << "Running frames_test" << std::endl;
+  testing::log_info("Running frames_test");
 
   run_test(test_no_frame);
 

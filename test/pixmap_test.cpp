@@ -670,8 +670,7 @@ void test_bitmap_scale2pixmap () {
 // --------------------------------------------------------------------------
 void test_main (const testing::start_params& params) {
   testing::init_gui(params);
-
-  std::cout << "Running pixmap_test" << std::endl;
+  testing::log_info("Running pixmap_test");
 
 #ifdef GUIPP_QT
   run_test(test_qpixmap2qimage);

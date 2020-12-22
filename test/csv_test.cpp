@@ -237,8 +237,9 @@ void test_parse_csv_tuple_skip_2 () {
 }
 
 // --------------------------------------------------------------------------
-void test_main (const testing::start_params&) {
-  std::cout << "Running csv_test" << std::endl;
+void test_main (const testing::start_params& params) {
+  testing::init_gui(params);
+  testing::log_info("Running csv_test");
   run_test(test_parse_text);
   run_test(test_parse_text2);
   run_test(test_parse_text3);

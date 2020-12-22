@@ -78,7 +78,7 @@ namespace gui {
                                  uint32_t w, pixel::gray limit) {
         using type = typename draw::image_data<To>::pixel_type;
         for (uint_fast32_t x = 0; x < w; ++x) {
-          out[x] = check_limit(in[x], limit) ? pixel::color<type>::white : pixel::color<type>::black;
+          out[x] = gui::color::system_bw_colors::value[check_limit(in[x], limit)];
         }
       }
 

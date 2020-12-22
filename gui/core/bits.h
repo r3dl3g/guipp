@@ -120,7 +120,7 @@ namespace gui {
                                                                 bit_order_t::lsb_first,
                                                                 bit_order_t::msb_first);
 
-      const bool bitmap_bit_white = IF_WIN32_X11_QT_ELSE(true, true, true, false);
+      const bool bitmap_bit_white = IF_WIN32_X11_QT_ELSE(false, true, true, false);
 
       const byte_order_t bitmap_byte_order =
 #if defined(__i386__) || defined(__x86_64__) || defined(__arm__)

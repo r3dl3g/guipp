@@ -3,7 +3,9 @@
 
 #include "testlib.h"
 #include <gui/core/guidefs.h>
+#include <logging/dbgstream.h>
 #include <logging/logger.h>
+#include <logging/core.h>
 
 #ifdef GUIPP_QT
 #include <QtWidgets/qapplication.h>
@@ -25,12 +27,34 @@ namespace testing {
     static QApplication qapplication(argc, argv);
     gui::core::global::init(&qapplication);
 #endif // GUIPP_QT
+  }
+
+}
+
+struct test_initializer {
+  logging::odebugstream* dbgStrm;
+
+  test_initializer ()
+    : dbgStrm(nullptr)
+  {
     testing::set_error_log([] (const std::string& s) {
       clog::error().raw() << s;
     });
     testing::set_info_log([] (const std::string& s) {
       clog::info().raw() << s;
     });
+    testing::set_test_init([&] () {
+      dbgStrm = new logging::odebugstream(logging::level::debug, logging::core::get_console_formatter());
+    });
+    testing::set_test_fini([&] () {
+      delete dbgStrm;
+      dbgStrm = nullptr;
+      logging::core::instance().finish();
+    });
   }
 
+};
+
+namespace {
+  static test_initializer init;
 }

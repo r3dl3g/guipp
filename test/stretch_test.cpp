@@ -584,8 +584,7 @@ void test_rgba_bicubic () {
 // --------------------------------------------------------------------------
 void test_main (const testing::start_params& params) {
   testing::init_gui(params);
-
-  std::cout << "Running stretch_test" << std::endl;
+  testing::log_info("Running stretch_test");
 
   for (stretch_f = stretch_1; stretch_f <= stretch_0_6; stretch_f = (stretch)(stretch_f + 1)) {
     run_test(test_bw);

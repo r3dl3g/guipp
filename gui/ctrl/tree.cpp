@@ -131,6 +131,10 @@ namespace gui {
         bwmap mask;
         std::istringstream in(get_icon_chars(type));
         io::load_pnm(in, mask);
+#ifdef GUIPP_WIN
+        mask.invert();
+#endif // GUIPP_WIN
+
 
         if (core::global::get_scale_factor() != 1.0) {
           bwmap rhs = mask;
@@ -140,22 +144,6 @@ namespace gui {
         }
 
         return tree::tree_icon(bitmap(mask));
-
-//        tree::tree_icon image(mask.native_size());
-//        graphics g(image);
-//        if (selected) {
-////          mask.invert();
-//          bitmap bmp(mask);
-//          g.clear(color::highLightColor());
-//          g.copy_from(bmp, core::native_rect(mask.native_size()), core::native_point::zero, copy_mode::bit_xor);
-//        } else {
-//          mask.invert();
-//          bitmap bmp(mask);
-//          g.clear(color::white);
-//          g.copy_from(bmp, core::native_rect(mask.native_size()), core::native_point::zero, copy_mode::bit_and);
-//        }
-
-//        return image;
       }
 
     } // detail

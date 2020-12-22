@@ -44,6 +44,22 @@ namespace gui {
       white = core::system_bw_bits::white
     };
 
+    // --------------------------------------------------------------------------
+    template<bool W>
+    struct mono_colors {};
+
+    template<>
+    struct mono_colors<false> {
+      static constexpr mono value[2] = {mono::white, mono::black};
+    };
+
+    template<>
+    struct mono_colors<true> {
+      static constexpr mono value[2] = {mono::black, mono::white};
+    };
+
+    using system_mono_colors = mono_colors<core::os::bitmap_bit_white>;
+
 #pragma pack(push, 1)
 
     // --------------------------------------------------------------------------

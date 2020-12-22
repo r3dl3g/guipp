@@ -179,7 +179,7 @@ void test_bitmap_get_data () {
   for (int y = 0; y < 20; ++y) {
     auto row = data.row(y);
     for (int x = 0; x < 20; ++x) {
-      const pixel::mono expected = expected_bit_at_inv(x, y) ? pixel::mono::white : pixel::mono::black;
+      const pixel::mono expected = gui::pixel::system_mono_colors::value[expected_bit_at_inv(x, y)];
       const pixel::mono test = row[x];
       EXPECT_EQUAL(test, expected, " at x:", x, ", y:", y);
     }
@@ -202,8 +202,9 @@ void test_bitmap_get_image () {
   for (int y = 0; y < 20; ++y) {
     auto row = data.row(y);
     for (int x = 0; x < 20; ++x) {
-      const pixel::rgb expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb>::white
-                                                            : pixel::color<pixel::rgb>::black;
+      const pixel::rgb expected = (expected_bit_at_inv(x, y) == gui::core::system_bw_bits::white)
+                                   ? pixel::color<pixel::rgb>::white
+                                   : pixel::color<pixel::rgb>::black;
       const pixel::rgb test = row[x];
       EXPECT_EQUAL(test, expected, " at x:", x, ", y:", y);
     }
@@ -227,8 +228,9 @@ void test_bitmap_get_image_inv () {
   for (int y = 0; y < 20; ++y) {
     auto row = data.row(y);
     for (int x = 0; x < 20; ++x) {
-      const pixel::rgb expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb>::black
-                                                            : pixel::color<pixel::rgb>::white;
+      const pixel::rgb expected = (expected_bit_at_inv(x, y) == gui::core::system_bw_bits::white)
+        ? pixel::color<pixel::rgb>::black
+        : pixel::color<pixel::rgb>::white;
       const pixel::rgb test = row[x];
       EXPECT_EQUAL(test, expected, " at x:", x, ", y:", y);
     }
@@ -421,9 +423,9 @@ void test_masked_from_pixmap () {
     draw::graphics g(icon.mask);
     for (uint32_t y = 0; y < 5; ++y) {
       for (uint32_t x = 0; x < 5; ++x) {
-        const auto expected = expected_bw_color[x][y];
+        const auto expected = gui::color::system_bw_colors::value[expected_bw_color[x][y] == color::white];
         const os::color test = color::remove_transparency(g.get_pixel({static_cast<int>(x), static_cast<int>(y)}));
-        TEST_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+        EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
       }
     }
   }
@@ -468,7 +470,7 @@ void test_masked_bitmap () {
     for (int32_t x = 0; x < 5; ++x) {
       const os::color expected = expected_color[x][y];
       const os::color test = color::remove_transparency(g.get_pixel({x, y}));
-      TEST_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+      EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
     }
   }
 
@@ -520,7 +522,7 @@ void test_file_icon () {
     draw::graphics g(img);
     for (int32_t y = 0; y < 20; ++y) {
       for (int32_t x = 0; x < 20; ++x) {
-        const os::color  expected = expected_bit_at_inv(x, y) ? color::white : color::black;
+        const os::color  expected = gui::color::system_bw_colors::value[expected_bit_at_inv(x, y)];
         const os::color test = color::remove_transparency(g.get_pixel({x, y}));
         EXPECT_EQUAL(test, expected, " in test_file_icon at x = ", x, ", y = ", y);
       }
@@ -537,7 +539,7 @@ void test_file_icon () {
 
     for (int32_t y = 0; y < 20; ++y) {
       for (int32_t x = 0; x < 20; ++x) {
-        os::color expected = expected_bit_at_inv(x, y) ? color::white : color::gray;
+        os::color expected = expected_bit_at_inv(x, y) ? color::gray : color::black;
         os::color test = color::remove_transparency(g.get_pixel({x, y}));
         EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
       }
@@ -570,8 +572,7 @@ void test_file_icon_selected () {
 // --------------------------------------------------------------------------
 void test_main (const testing::start_params& params) {
   testing::init_gui(params);
-
-  std::cout << "Running icon_test" << std::endl;
+  testing::log_info("Running icon_test");
 
   run_test(test_native_impl);
   run_test(test_bitmap_get_data);

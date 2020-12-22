@@ -91,8 +91,13 @@ namespace testing {
           const char* scanline = raw_data + y_offset;
           for (int x = 0; x < width; ++x) {
             const char bits = scanline[x >> 3];
-            const char bit = (bits  >> (x & 7)) & 1;
-            line.push_back(bit ? 0x00FFFFFF : 0x0);
+#ifdef WIN32
+            const char test_bit = (bits >> (~x & 7)) & 1;
+#else
+            const char test_bit = (bits >> (x & 7)) & 1;
+#endif // WIN32
+            const char bit = gui::core::get_bit(bits, x & 7);
+            line.push_back(gui::color::system_bw_colors::value[bit]);
           }
           break;
         }

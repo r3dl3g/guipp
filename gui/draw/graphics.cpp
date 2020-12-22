@@ -233,13 +233,13 @@ namespace gui {
         core::native_size sz = bmp.mask.native_size();
         HDC mask_dc = CreateCompatibleDC(gc);
         SelectObject(mask_dc, bmp.mask.get_id());
-        BitBlt(gc, pt.x(), pt.y(), sz.width(), sz.height(), mask_dc, 0, 0, bmp.image ? (DWORD)(0x00220326) : SRCAND); //DSna, https://docs.microsoft.com/en-us/windows/win32/gdi/ternary-raster-operations
+        BitBlt(gc, pt.x(), pt.y(), sz.width(), sz.height(), mask_dc, 0, 0, static_cast<int>(copy_mode::bit_and)); //DSna, https://docs.microsoft.com/en-us/windows/win32/gdi/ternary-raster-operations
         DeleteDC(mask_dc);
         if (bmp.image) {
           core::native_size sz = bmp.image.native_size();
           HDC img_dc = CreateCompatibleDC(gc);
           SelectObject(img_dc, bmp.image.get_id());
-          BitBlt(gc, pt.x(), pt.y(), sz.width(), sz.height(), img_dc, 0, 0, SRCPAINT);  // DSo
+          BitBlt(gc, pt.x(), pt.y(), sz.width(), sz.height(), img_dc, 0, 0, static_cast<int>(copy_mode::bit_or));  // DSo
           DeleteDC(img_dc);
         }
 

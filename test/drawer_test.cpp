@@ -3327,7 +3327,7 @@ void test_clear_white () {
 // --------------------------------------------------------------------------
 void test_main (const testing::start_params& params) {
   testing::init_gui(params);
-  std::cout << "Runningn drawer_test" << std::endl;
+  testing::log_info("Runningn drawer_test");
 
 #ifdef TEST_CLEAR
   run_test(test_clear_black);

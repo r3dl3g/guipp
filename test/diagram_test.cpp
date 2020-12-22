@@ -3,8 +3,7 @@
 #include <gui/draw/graphics.h>
 #include <testlib/testlib.h>
 #ifdef WIN32
-#define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 #endif // WIN32
 
 
@@ -325,7 +324,8 @@ void test_symlog_scaler_3 () {
 
 // --------------------------------------------------------------------------
 void test_main (const testing::start_params& params) {
-  std::cout << "Running diagram_test" << std::endl;
+  testing::init_gui(params);
+  testing::log_info("Running diagram_test");
   run_test(test_limits);
   run_test(test_linear_scaler_0);
   run_test(test_linear_scaler_0a);

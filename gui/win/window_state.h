@@ -37,7 +37,7 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace win {
 
-    typedef std::bitset<sizeof(ulong) * 8> state_type;
+    typedef std::bitset<sizeof(unsigned long) * 8> state_type;
 
     // --------------------------------------------------------------------------
     struct GUIPP_WIN_EXPORT window_state {
@@ -67,7 +67,7 @@ namespace gui {
         bool overlapped () const;
 
       protected:
-        bool test (ulong) const;
+        bool test (unsigned long) const;
 
       private:
         const state_type& state;
@@ -85,7 +85,7 @@ namespace gui {
         bool overlapped (bool on);
 
       protected:
-        bool set_flag (ulong, bool a);
+        bool set_flag (unsigned long, bool a);
 
       private:
         state_type& state;

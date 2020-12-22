@@ -32,7 +32,7 @@ namespace gui {
       :state(state)
     {}
 
-    bool window_state::is::test (ulong f) const {
+    bool window_state::is::test (unsigned long f) const {
       return state.test(f);
     }
 
@@ -73,7 +73,7 @@ namespace gui {
       :state(state)
     {}
 
-    bool window_state::set::set_flag (ulong bit, bool ona) {
+    bool window_state::set::set_flag (unsigned long bit, bool ona) {
       if (state.test(bit) != ona) {
         state.set(bit, ona);
         return true;

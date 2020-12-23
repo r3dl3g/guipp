@@ -364,8 +364,8 @@ struct covid19main : public main_type {
   ~covid19main ();
 
   void load_data (const std::vector<std::string>&);
-  void load_tests_data (std::istream& in, const double file_size);
-  void load_cases_data (std::istream& in, const double file_size);
+  void load_tests_data (std::istream& in, const double file_size, bool new_struct = false);
+  void load_cases_data (std::istream& in, const double file_size, bool new_struct = false);
 
   void draw_uncached (std::size_t idx,
                       const draw::graphics&,
@@ -1147,6 +1147,12 @@ std::vector<std::string> covid19_cases_header = {
 };
 typedef csv::tuple_reader<csv::skip, int, int, int, int, int, std::string, csv::skip, csv::skip, std::size_t, std::string, csv::skip> covid19_cases_reader;
 // --------------------------------------------------------------------------
+std::vector<std::string> covid19_cases_header_new = {
+ "dateRep","year_week","cases_weekly","deaths_weekly","countriesAndTerritories","geoId","countryterritoryCode",
+  "popData2019","continentExp","notification_rate_per_100000_population_14-days"
+};
+typedef csv::tuple_reader<csv::skip, std::string, int, int, std::string, csv::skip, csv::skip, std::size_t, std::string, csv::skip> covid19_cases_reader_new;
+// --------------------------------------------------------------------------
 std::vector<std::string> covid19_tests_header = {
   "country","country_code","year_week","new_cases","tests_done","population","testing_rate","positivity_rate","testing_data_source"
 };
@@ -1183,7 +1189,7 @@ struct timed_progress {
   const std::chrono::milliseconds step;
 };
 // --------------------------------------------------------------------------
-void covid19main::load_tests_data (std::istream& in, const double file_size) {
+void covid19main::load_tests_data (std::istream& in, const double file_size, bool new_struct) {
   timed_progress prgrs(progress, client_size(), file_size);
   util::time::chronometer stopwatch;
   country_data::country_map_t& country_map = full_data.country_map;
@@ -1232,45 +1238,84 @@ void covid19main::load_tests_data (std::istream& in, const double file_size) {
   select_country(0);
 }
 // --------------------------------------------------------------------------
-void covid19main::load_cases_data (std::istream& in, const double file_size) {
+void covid19main::load_cases_data (std::istream& in, const double file_size, bool new_struct) {
   timed_progress prgrs(progress, client_size(), file_size);
   util::time::chronometer stopwatch;
 
   country_data data;
 
-  covid19_cases_reader::read_csv(in, ',', false, [&] (const covid19_cases_reader::tuple& t) {
-    //    clog::info() << "Read tuple:" << t;
+  if (new_struct) {
 
-    prgrs(static_cast<double>(in.tellg()));
+    covid19_cases_reader_new::read_csv(in, ',', false, [&] (const covid19_cases_reader_new::tuple& t) {
 
-    auto year = std::get<3>(t);
-    auto month = std::get<2>(t);
-    auto day = std::get<1>(t);
-    if ((year != 2020) && (year != 2019)) {
-      clog::info() << "Unexpected year:" << year;
-    }
-    const auto x = time::tm2time_t(time::mktm(year, month, day));
+      prgrs(static_cast<double>(in.tellg()));
 
-    static time_range null_range(0);
-    if (data.x_range == null_range) {
-      data.x_range = { x, x };
-    } else {
-      data.x_range = core::min_max( data.x_range, { x, x });
-    }
+      const std::string year_week = std::get<1>(t);
+      auto idx = year_week.find("-");
+      if (idx == std::string::npos) {
+        return;
+      }
+      auto year = util::string::convert::to<int>(year_week.substr(0, idx));
+      auto week = util::string::convert::to<int>(year_week.substr(idx + 1));
+      const auto x = time::first_day_of_week(year, week);
 
-    auto &n = std::get<6>(t);
-    auto i = data.country_map.find(n);
-    if (i == data.country_map.end()) {
-      auto p = data.country_map.insert(std::make_pair(n, country()));
-      i = p.first;
-      i->second.name = n;
-      i->second.region = std::get<10>(t);
-      i->second.population = std::get<9>(t);
-    }
-    auto& country = i->second;
-    country.positives.push_back({x, static_cast<double>(std::get<4>(t))});
-    country.deaths.push_back({x, static_cast<double>(std::get<5>(t))});
-  });
+      static time_range null_range(0);
+      if (data.x_range == null_range) {
+        data.x_range = { x, x };
+      } else {
+        data.x_range = core::min_max( data.x_range, { x, x });
+      }
+
+      auto &n = std::get<4>(t);
+      auto i = data.country_map.find(n);
+      if (i == data.country_map.end()) {
+        auto p = data.country_map.insert(std::make_pair(n, country()));
+        i = p.first;
+        i->second.name = n;
+        i->second.region = std::get<8>(t);
+        i->second.population = std::get<7>(t);
+      }
+      auto& country = i->second;
+      country.positives.push_back({x, static_cast<double>(std::get<2>(t))});
+      country.deaths.push_back({x, static_cast<double>(std::get<3>(t))});
+    });
+
+  } else {
+
+    covid19_cases_reader::read_csv(in, ',', false, [&] (const covid19_cases_reader::tuple& t) {
+
+      prgrs(static_cast<double>(in.tellg()));
+
+      auto year = std::get<3>(t);
+      auto month = std::get<2>(t);
+      auto day = std::get<1>(t);
+      if ((year != 2020) && (year != 2019)) {
+        clog::info() << "Unexpected year:" << year;
+      }
+      const auto x = time::tm2time_t(time::mktm(year, month, day));
+
+      static time_range null_range(0);
+      if (data.x_range == null_range) {
+        data.x_range = { x, x };
+      } else {
+        data.x_range = core::min_max( data.x_range, { x, x });
+      }
+
+      auto &n = std::get<6>(t);
+      auto i = data.country_map.find(n);
+      if (i == data.country_map.end()) {
+        auto p = data.country_map.insert(std::make_pair(n, country()));
+        i = p.first;
+        i->second.name = n;
+        i->second.region = std::get<10>(t);
+        i->second.population = std::get<9>(t);
+      }
+      auto& country = i->second;
+      country.positives.push_back({x, static_cast<double>(std::get<4>(t))});
+      country.deaths.push_back({x, static_cast<double>(std::get<5>(t))});
+    });
+
+  }
 
   clog::info() << "Duration for parsing: " << stopwatch;
 
@@ -1361,6 +1406,8 @@ void covid19main::load_data (const std::vector<std::string>& args) {
 
       if (header == covid19_cases_header) {
         load_cases_data(in, file_size);
+      } else if (header == covid19_cases_header_new) {
+        load_cases_data(in, file_size, true);
       } else if (header == covid19_tests_header) {
         if (full_data.country_map.empty()) {
           win::run_on_main([&] () {

@@ -43,6 +43,8 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/bitmap.h>
 #include <gui/draw/drawers.h>
+#include <gui/draw/pen.h>
+#include <gui/draw/brush.h>
 #include <gui/draw/use.h>
 
 #ifdef GUIPP_X11

@@ -31,6 +31,7 @@
 //
 #include <gui/draw/bitmap.h>
 #include <gui/draw/graphics.h>
+#include <gui/draw/pen.h>
 #include <gui/draw/use.h>
 #include <logging/logger.h>
 

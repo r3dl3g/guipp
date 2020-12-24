@@ -22,7 +22,6 @@
 //
 // Library includes
 //
-#include <gui/draw/image_data.h>
 #include <gui/draw/converter.h>
 
 

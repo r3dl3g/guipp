@@ -22,29 +22,14 @@
 //
 // Library includes
 //
+#include <gui/look/textbox.h>
+#include <gui/draw/font.h>
 #include <gui/ctrl/control.h>
 
 
 namespace gui {
 
   namespace ctrl {
-
-    // --------------------------------------------------------------------------
-    namespace paint {
-
-      GUIPP_CTRL_EXPORT void text_box (const draw::graphics& graph,
-                     const core::rectangle& area,
-                     const std::vector<std::string>& lines,
-                     const draw::font& fnt,
-                     os::color foreground,
-                     os::color background,
-                     const text_origin_t origin_t,
-                     const core::range<core::basic_point<int> >& selection,
-                     const core::basic_point<int>& cursor_pos,
-                     const core::point& offset,
-                     const bool has_focus);
-
-    } // paint
 
     // --------------------------------------------------------------------------
     namespace detail {

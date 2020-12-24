@@ -28,6 +28,7 @@
 #include <gui/win/window_class.h>
 #include <gui/win/window_event_handler.h>
 
+
 // --------------------------------------------------------------------------
 //
 // Common includes
@@ -77,8 +78,8 @@ namespace gui {
       bool is_toplevel () const;
       bool has_border () const;
 
-      const window_state get_state () const;
-      window_state get_state ();
+      const window_state::is get_state () const;
+      window_state::set set_state ();
 
       bool is_visible () const;
       void set_visible (bool s = true);
@@ -89,10 +90,10 @@ namespace gui {
 
       bool is_focus_accepting () const;
       bool can_accept_focus () const;
-      bool has_focus () const;
+      bool is_focused () const;
 
       bool is_redraw_disabled () const;
-      void disable_redraw (bool on = true);
+      void set_disable_redraw (bool on = true);
 
       void shift_focus (bool backward = false) const;
 
@@ -228,12 +229,6 @@ namespace gui {
       void register_event_handler (event_handler_function&& f, os::event_id mask);
 
     private:
-      friend struct window_state;
-      bool get_flag (byte bit) const;
-      void set_flag (byte bit, bool a);
-
-
-    private:
       friend void detail::set_id (window*, os::window);
       friend os::window detail::get_window_id (const window&);
 
@@ -250,7 +245,9 @@ namespace gui {
 
       os::window id;
       core::event_container events;
-      std::bitset<sizeof(long) * 8> flags;
+
+    protected:
+      state_type flags;
     };
 
     // --------------------------------------------------------------------------

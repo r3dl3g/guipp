@@ -33,39 +33,6 @@ namespace gui {
 
   namespace ctrl {
 
-    namespace paint {
-
-      os::color get_back_color (item_state state, const os::color& background) {
-        switch (state) {
-          case item_state::selected:  return color::highLightColor();
-          case item_state::hilited:   return color::darker(background, 0.05F);
-          default: return background;
-        }
-      }
-
-      os::color get_fore_color (item_state state, const os::color& foreground) {
-        switch (state) {
-          case item_state::selected:  return color::highLightTextColor();
-          case item_state::hilited:   return color::darker(foreground, 0.25F);
-          default: return foreground;
-        }
-      }
-
-      template<>
-      void text_cell<std::string, draw::frame::no_frame>(const std::string& t,
-                                                         const draw::graphics& graph,
-                                                         const core::rectangle& place,
-                                                         const text_origin_t align,
-                                                         const os::color& foreground,
-                                                         const os::color& background,
-                                                         item_state state) {
-        using namespace draw;
-        graph.fill(rectangle(place), get_back_color(state, background));
-        graph.text(text_box(t, place, align), font::system(), get_fore_color(state, foreground));
-      }
-
-    } // namespace paint
-
     namespace table {
 
       namespace data {
@@ -357,9 +324,9 @@ namespace gui {
                       const os::color & foreground,
                       const os::color & background,
                       item_state state) {
-                 ctrl::paint::text_cell<std::string, draw::frame::lines>(src(cell), graph, place,
-                                                                        align, foreground, background,
-                                                                        state);
+          gui::paint::text_cell<std::string, draw::frame::lines>(src(cell), graph, place,
+                                                                 align, foreground, background,
+                                                                 state);
         };
       }
 
@@ -372,9 +339,9 @@ namespace gui {
                       const os::color & foreground,
                       const os::color & background,
                       item_state state) {
-                 ctrl::paint::text_cell<std::string, draw::frame::raised_relief>(src(cell), graph, place,
-                                                                                align, foreground, background,
-                                                                                state);
+          gui::paint::text_cell<std::string, draw::frame::raised_relief>(src(cell), graph, place,
+                                                                         align, foreground, background,
+                                                                         state);
         };
       }
 
@@ -580,7 +547,7 @@ namespace gui {
 
     void table_view::handle_scroll (const core::point& pos) {
       geometrie.set_offset(pos);
-      if ((hscroll.get_state() == scrollbar_state::nothing) && (vscroll.get_state() == scrollbar_state::nothing)) {
+      if ((hscroll.get_selection() == scrollbar_item::nothing) && (vscroll.get_selection() == scrollbar_item::nothing)) {
         set_scroll_maximum(scroll_maximum(data.client_size(), pos, core::point(hscroll.get_max(), vscroll.get_max())));
       }
       redraw_all();

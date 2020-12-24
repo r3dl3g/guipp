@@ -143,19 +143,19 @@ namespace gui {
         auto geo = get_geometry();
 
         if (up_button_place(geo).is_inside(pt)) {
-          set_state(scrollbar_state::up_button);
+          set_selection(scrollbar_item::up_button);
         } else if (down_button_place(geo).is_inside(pt)) {
-          set_state(scrollbar_state::down_button);
+          set_selection(scrollbar_item::down_button);
         } else if (thumb_button_place(geo).is_inside(pt)) {
-          set_state(scrollbar_state::thumb_button);
+          set_selection(scrollbar_item::thumb_button);
         } else if (page_up_place(geo).is_inside(pt)) {
-          set_state(scrollbar_state::page_up);
+          set_selection(scrollbar_item::page_up);
         } else if (page_down_place(geo).is_inside(pt)) {
-          set_state(scrollbar_state::page_down);
+          set_selection(scrollbar_item::page_down);
         } else {
-          set_state(scrollbar_state::nothing);
+          set_selection(scrollbar_item::nothing);
         }
-        if (get_state() != scrollbar_state::nothing) {
+        if (get_selection() != scrollbar_item::nothing) {
           capture_pointer();
         }
       }
@@ -165,33 +165,33 @@ namespace gui {
     void basic_scroll_bar<H>::handle_left_btn_up (os::key_state, const core::point& pt) {
       if (is_enabled()) {
         auto geo = get_geometry();
-        switch (get_state()) {
-        case scrollbar_state::up_button:
+        switch (get_selection()) {
+        case scrollbar_item::up_button:
           if (up_button_place(geo).is_inside(pt)) {
             set_value(get_value() - get_step(), true);
           }
           break;
-        case scrollbar_state::down_button:
+        case scrollbar_item::down_button:
           if (down_button_place(geo).is_inside(pt)) {
             set_value(get_value() + get_step(), true);
           }
           break;
-        case scrollbar_state::page_up:
+        case scrollbar_item::page_up:
           if (page_up_place(geo).is_inside(pt)) {
             set_value(get_value() - get_page(), true);
           }
           break;
-        case scrollbar_state::page_down:
+        case scrollbar_item::page_down:
           if (page_down_place(geo).is_inside(pt)) {
             set_value(get_value() + get_page(), true);
           }
           break;
-        case scrollbar_state::thumb_button:
-        case scrollbar_state::nothing:
+        case scrollbar_item::thumb_button:
+        case scrollbar_item::nothing:
           break;
         }
-        if (get_state() != scrollbar_state::nothing) {
-          set_state(scrollbar_state::nothing);
+        if (get_selection() != scrollbar_item::nothing) {
+          set_selection(scrollbar_item::nothing);
           uncapture_pointer();
           send_notify();
           invalidate();
@@ -288,7 +288,7 @@ namespace gui {
     template<orientation_t H, scrollbar_drawer D>
     void scroll_bar_base<H, D>::handle_paint (const draw::graphics& g) {
       auto geo = super::get_geometry();
-      D(g, super::get_state(), super::get_hilite(), super::is_enabled(), H == orientation_t::horizontal, super::has_focus(),
+      D(g, super::get_selection(), super::get_hilite(), super::is_enabled(), H == orientation_t::horizontal, super::is_focused(),
         super::up_button_place(geo), super::down_button_place(geo),
         super::thumb_button_place(geo), super::page_up_place(geo), super::page_down_place(geo));
     }

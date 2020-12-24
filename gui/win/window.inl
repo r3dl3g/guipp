@@ -33,36 +33,24 @@ namespace gui {
       id = w;
     }
 
-    inline bool window::get_flag (byte bit) const {
-      return flags.test(bit);
+    inline const window_state::is window::get_state () const {
+      return window_state::is(flags);
     }
 
-    inline void window::set_flag (byte bit, bool a) {
-      flags.set(bit, a);
+    inline window_state::set window::set_state () {
+      return window_state::set(flags);
     }
 
-    inline const window_state window::get_state () const {
-      return window_state(*this);
-    }
-
-    inline window_state window::get_state () {
-      return window_state(*this);
-    }
-
-    inline void window::disable_redraw (bool on) {
-      get_state().disable_redraw(on);
+    inline void window::set_disable_redraw (bool on) {
+      set_state().disable_redraw(on);
     }
 
     inline bool window::is_redraw_disabled () const {
-      return get_state().is_redraw_disabled();
+      return get_state().redraw_disabled();
     }
 
     inline bool window::is_enabled () const {
-      return get_state().is_enabled();
-    }
-
-    inline void window::enable (bool on) {
-      get_state().set_enable(on);
+      return get_state().enabled();
     }
 
     inline void window::disable () {

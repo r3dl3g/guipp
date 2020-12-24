@@ -50,8 +50,8 @@ namespace gui {
 #endif // GUIPP_QT
 
     scroll_bar_data::scroll_bar_data ()
-      : state(scrollbar_state::nothing)
-      , hilite(scrollbar_state::nothing)
+      : selection(scrollbar_item::nothing)
+      , hilite(scrollbar_item::nothing)
       , min(0)
       , max(100)
       , step(1)
@@ -88,7 +88,7 @@ namespace gui {
         invalidate();
       });
       on_mouse_leave([&] () {
-        set_hilite(scrollbar_state::nothing);
+        set_hilite(scrollbar_item::nothing);
         invalidate();
       });
 
@@ -121,11 +121,11 @@ namespace gui {
       return data.value;
     }
 
-    scrollbar_state scroll_bar::get_state () const {
-      return data.state;
+    scrollbar_item scroll_bar::get_selection () const {
+      return data.selection;
     }
 
-    scrollbar_state scroll_bar::get_hilite () const {
+    scrollbar_item scroll_bar::get_hilite () const {
       return data.hilite;
     }
 
@@ -189,11 +189,11 @@ namespace gui {
       }
     }
 
-    void scroll_bar::set_state (scrollbar_state s) {
-      data.state = s;
+    void scroll_bar::set_selection (scrollbar_item s) {
+      data.selection = s;
     }
 
-    void scroll_bar::set_hilite (scrollbar_state s) {
+    void scroll_bar::set_hilite (scrollbar_item s) {
       data.hilite = s;
     }
 
@@ -227,120 +227,6 @@ namespace gui {
     void scroll_bar::on_scroll (scroll_event::function&& f) {
       on<scroll_event>(std::move(f));
     }
-
-    namespace paint {
-
-      namespace {
-        std::string up_left_arrows[] = {
-          "\xe2\x96\xb4", // up
-          "\xe2\x97\x82", // left
-          };
-        std::string down_right_arrows[] = {
-          "\xe2\x96\xbe",  // down
-          "\xe2\x96\xb8", // right
-        };
-      }
-
-      // --------------------------------------------------------------------------
-      void scrollbar (const draw::graphics &g,
-                      scrollbar_state state,
-                      scrollbar_state hilite,
-                      bool is_enabled,
-                      bool horizontal,
-                      bool has_focus,
-                      const core::rectangle& up,
-                      const core::rectangle& down,
-                      const core::rectangle& thumb,
-                      const core::rectangle& page_up,
-                      const core::rectangle& page_down) {
-        if (!page_up.empty()) {
-          g.fill(draw::rectangle(page_up),
-                 state == scrollbar_state::page_up ? color::light_gray
-                 : color::very_light_gray);
-        }
-        if (!page_down.empty()) {
-          g.fill(draw::rectangle(page_down + core::size::one),
-                 state == scrollbar_state::page_down ? color::light_gray
-                 : color::very_light_gray);
-        }
-        os::color col = is_enabled ? color::black : color::gray;
-        if (!up.empty()) {
-          paint::simple_frame(g, up, scrollbar_state::up_button == hilite);
-          if (scrollbar_state::up_button == state) {
-            draw::frame::sunken_relief(g, up.shrinked(core::size::two));
-          }
-          auto s = up_left_arrows[horizontal];
-          g.text(draw::text_box(s, up, text_origin_t::center), draw::font::system(), col);
-        }
-        if (!down.empty()) {
-          paint::simple_frame(g, down, scrollbar_state::down_button == hilite);
-          if (scrollbar_state::down_button == state) {
-            draw::frame::sunken_relief(g, down.shrinked(core::size::two));
-          }
-          auto s = down_right_arrows[horizontal];
-          g.text(draw::text_box(s, down, text_origin_t::center), draw::font::system(), col);
-        }
-        if (!thumb.empty()) {
-          paint::simple_frame(g, thumb, scrollbar_state::thumb_button == hilite, 3, horizontal ? 3 : 13);
-          if (scrollbar_state::thumb_button == state) {
-            draw::frame::sunken_relief(g, thumb.shrinked(core::size::two));
-          }
-          if (has_focus) {
-            core::rectangle area = thumb;
-            area.shrink({2, 2});
-            g.frame(draw::rectangle(area), draw::pen(color::very_light_blue, 1, draw::pen::Style::solid));
-
-          }
-        }
-      }
-
-      void scrollbar_w95 (const draw::graphics &g,
-                          scrollbar_state state,
-                          scrollbar_state hilite,
-                          bool is_enabled,
-                          bool horizontal,
-                          bool has_focus,
-                          const core::rectangle& up,
-                          const core::rectangle& down,
-                          const core::rectangle& thumb,
-                          const core::rectangle& page_up,
-                          const core::rectangle& page_down) {
-        if (!page_up.empty()) {
-          g.fill(draw::rectangle(page_up),
-                 state == scrollbar_state::page_up ? color::light_gray
-                 : color::very_light_gray);
-        }
-        if (!page_down.empty()) {
-          g.fill(draw::rectangle(page_down + core::size::one),
-                 state == scrollbar_state::page_down ? color::light_gray
-                 : color::very_light_gray);
-        }
-        os::color col = is_enabled ? color::black : color::gray;
-        if (!up.empty()) {
-          paint::button_frame_w95(g, up, true, false, scrollbar_state::up_button == hilite, false);
-          if (scrollbar_state::up_button == state) {
-            draw::frame::sunken_relief(g, up.shrinked(core::size::two));
-          }
-          auto s = up_left_arrows[horizontal];
-          g.text(draw::text_box(s, up, text_origin_t::center), draw::font::system(), col);
-        }
-        if (!down.empty()) {
-          paint::button_frame_w95(g, down, true, false, scrollbar_state::down_button == hilite, false);
-          if (scrollbar_state::down_button == state) {
-            draw::frame::sunken_relief(g, down.shrinked(core::size::two));
-          }
-          auto s = down_right_arrows[horizontal];
-          g.text(draw::text_box(s, down, text_origin_t::center), draw::font::system(), col);
-        }
-        if (!thumb.empty()) {
-          paint::button_frame_w95(g, thumb, true, false, scrollbar_state::thumb_button == hilite, false);
-          if (scrollbar_state::thumb_button == state) {
-            draw::frame::sunken_relief(g, thumb.shrinked(core::size::two));
-          }
-        }
-      }
-
-    } // paint
 
     // --------------------------------------------------------------------------
     template<>
@@ -385,24 +271,24 @@ namespace gui {
       if (is_enabled()) {
         if (win::left_button_bit_mask::is_set(keys)) {
           // check if on thumb
-          if (get_state() == scrollbar_state::thumb_button) {
+          if (get_selection() == scrollbar_item::thumb_button) {
             type delta = (pt.x() - get_last_mouse_point().x()) / get_scale();
             set_value(get_last_value() + delta, true);
           }
         } else {
           auto geo = get_geometry();
           if (up_button_place(geo).is_inside(pt)) {
-            set_hilite(scrollbar_state::up_button);
+            set_hilite(scrollbar_item::up_button);
           } else if (down_button_place(geo).is_inside(pt)) {
-            set_hilite(scrollbar_state::down_button);
+            set_hilite(scrollbar_item::down_button);
           } else if (thumb_button_place(geo).is_inside(pt)) {
-            set_hilite(scrollbar_state::thumb_button);
+            set_hilite(scrollbar_item::thumb_button);
           } else if (page_up_place(geo).is_inside(pt)) {
-            set_hilite(scrollbar_state::page_up);
+            set_hilite(scrollbar_item::page_up);
           } else if (page_down_place(geo).is_inside(pt)) {
-            set_hilite(scrollbar_state::page_down);
+            set_hilite(scrollbar_item::page_down);
           } else {
-            set_hilite(scrollbar_state::nothing);
+            set_hilite(scrollbar_item::nothing);
           }
         }
       }
@@ -413,24 +299,24 @@ namespace gui {
       if (is_enabled()) {
         if (win::left_button_bit_mask::is_set(keys)) {
           // check if on thumb
-          if (get_state() == scrollbar_state::thumb_button) {
+          if (get_selection() == scrollbar_item::thumb_button) {
             type delta = (pt.y() - get_last_mouse_point().y()) / get_scale();
             set_value(get_last_value() + delta, true);
           }
         } else {
           auto geo = get_geometry();
           if (up_button_place(geo).is_inside(pt)) {
-            set_hilite(scrollbar_state::up_button);
+            set_hilite(scrollbar_item::up_button);
           } else if (down_button_place(geo).is_inside(pt)) {
-            set_hilite(scrollbar_state::down_button);
+            set_hilite(scrollbar_item::down_button);
           } else if (thumb_button_place(geo).is_inside(pt)) {
-            set_hilite(scrollbar_state::thumb_button);
+            set_hilite(scrollbar_item::thumb_button);
           } else if (page_up_place(geo).is_inside(pt)) {
-            set_hilite(scrollbar_state::page_up);
+            set_hilite(scrollbar_item::page_up);
           } else if (page_down_place(geo).is_inside(pt)) {
-            set_hilite(scrollbar_state::page_down);
+            set_hilite(scrollbar_item::page_down);
           } else {
-            set_hilite(scrollbar_state::nothing);
+            set_hilite(scrollbar_item::nothing);
           }
         }
       }

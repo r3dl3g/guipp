@@ -23,30 +23,41 @@
 // Library includes
 //
 #include <gui/win/window_state.h>
-#include <gui++-ctrl-export.h>
+#include <gui++-look-export.h>
 
 
 namespace gui {
 
   namespace ctrl {
 
-    class button_base;
-
      // --------------------------------------------------------------------------
-    struct GUIPP_CTRL_EXPORT button_state : public win::window_state {
+    struct GUIPP_LOOK_EXPORT button_state : public win::window_state {
       typedef window_state super;
 
-      button_state (const button_base& win);
+      struct is : public super::is {
 
-      bool is_pushed () const;
-      bool is_hilited () const;
-      bool is_checked () const;
+        is (const win::state_type& state);
 
-      bool set_hilited (bool b);
-      bool set_pushed (bool b);
-      bool set_checked (bool b);
+        bool pushed () const;
+        bool hilited () const;
+        bool checked () const;
+
+      };
+
+      struct set : public super::set  {
+
+        set (win::state_type& state);
+
+        bool hilited (bool b);
+        bool pushed (bool b);
+        bool checked (bool b);
+
+      };
 
     protected:
+      friend struct is;
+      friend struct set;
+
       struct flags : public window_state::flags {
         enum {
           button_hilited = last_window_state_enum,

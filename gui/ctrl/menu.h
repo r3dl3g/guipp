@@ -140,40 +140,6 @@ namespace gui {
                        menu_state state = menu_state::enabled);
     };
 
-    namespace paint {
-
-      // --------------------------------------------------------------------------
-      GUIPP_CTRL_EXPORT void draw_menu_label (const draw::graphics& g,
-                            const core::rectangle& r,
-                            const std::string& label,
-                            char menu_key,
-                            os::color color);
-
-      // --------------------------------------------------------------------------
-      GUIPP_CTRL_EXPORT void menu_item (const draw::graphics& g,
-                      const core::rectangle& r,
-                      const draw::brush& background,
-                      core::point::type text_pos,
-                      core::point::type hotkey_pos,
-                      const std::string& label,
-                      char menu_key,
-                      const draw::masked_bitmap& icon,
-                      const win::hot_key& hotkey,
-                      bool is_sub_menu,
-                      bool separator,
-                      item_state state);
-
-      // --------------------------------------------------------------------------
-      GUIPP_CTRL_EXPORT void main_menu_item (const draw::graphics& g,
-                           const core::rectangle& r,
-                           const draw::brush& background,
-                           const std::string& label,
-                           char menu_key,
-                           item_state state);
-
-      // --------------------------------------------------------------------------
-    } // namespace paint
-
     // --------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT menu_data {
     public:

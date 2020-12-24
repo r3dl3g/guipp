@@ -30,14 +30,13 @@
 // Library includes
 //
 #include <gui/core/gui_types.h>
+#include <gui/draw/graphics.h>
 #include <gui/draw/text_origin.h>
-
+#include <gui++-draw-export.h>
 
 namespace gui {
 
   namespace draw {
-
-    class graphics;
 
     // --------------------------------------------------------------------------
     struct GUIPP_DRAW_EXPORT line {

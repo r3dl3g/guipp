@@ -41,7 +41,7 @@ namespace gui {
       list_base::list_base (os::color background, bool grab_focus)
         : data(background)
       {
-        get_state().set_grab_focus(grab_focus);
+        set_state().grab_focus(grab_focus);
         init();
       }
 
@@ -53,10 +53,10 @@ namespace gui {
       }
 
       void list_base::init () {
-        list_state state = get_state();
-        state.set_moved(false);
-        state.set_scroll_bar_enabled(true);
-        bool grab_focus = state.is_grab_focus();
+        list_state::set state = set_state();
+        state.moved(false);
+        state.scroll_bar_enabled(true);
+        bool grab_focus = get_state().grab_focus();
 #ifdef GUIPP_X11
         static int initialized = detail::init_control_messages();
         (void)initialized;
@@ -65,7 +65,7 @@ namespace gui {
         set_accept_focus(true);
         on_left_btn_down([&, grab_focus] (os::key_state, const core::point & pt) {
           data.last_mouse_point = pt;
-          get_state().set_moved(false);
+          set_state().moved(false);
           if (grab_focus) {
             take_focus();
           }

@@ -3,6 +3,7 @@
 #include <gui/layout/layout_container.h>
 #include <gui/layout/border_layout.h>
 #include <gui/ctrl/label.h>
+#include <gui/draw/pen.h>
 #include <logging/core.h>
 
 #define NOTHING

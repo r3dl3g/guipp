@@ -19,7 +19,7 @@ endif()
 
 add_definitions(${GUIPP_CXX_FLAGS})
 message(STATUS "samples GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
-message(STATUS "samples GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
+#message(STATUS "samples GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
 message(STATUS "samples GUIPP_LIBRARIES: ${GUIPP_LIBRARIES}")
 message(STATUS "samples GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
 

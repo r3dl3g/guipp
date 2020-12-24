@@ -157,12 +157,12 @@ namespace gui {
       if (show) {
         x11::check_return(XMapSubwindows(core::global::get_instance(), get_id()));
         for(window* win : get_deep_children(*this)) {
-          win->get_state().set_visible(true);
+          win->set_state().visible(true);
         }
       } else {
         x11::check_return(XUnmapSubwindows(core::global::get_instance(), get_id()));
         for(window* win : get_deep_children(*this)) {
-          win->get_state().set_visible(false);
+          win->set_state().visible(false);
         }
       }
     }
@@ -497,7 +497,7 @@ namespace gui {
     void overlapped_window::create (const class_info& cls,
                                     const core::rectangle& r) {
       create_internal(cls, DefaultRootWindow(core::global::get_instance()), r);
-      get_state().set_overlapped(true);
+      set_state().overlapped(true);
     }
 
     void overlapped_window::create (const class_info& cls,
@@ -505,7 +505,7 @@ namespace gui {
                                     const core::rectangle& r) {
       gui::os::instance display = core::global::get_instance();
       create_internal(cls, DefaultRootWindow(display), r);
-      get_state().set_overlapped(true);
+      set_state().overlapped(true);
       XSetTransientForHint(display, get_id(), detail::get_window_id(parent));
     }
 

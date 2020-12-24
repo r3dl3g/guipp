@@ -29,8 +29,8 @@
 // Library includes
 //
 #include <gui/win/window_event_handler.h>
+#include <gui/look/button.h>
 #include <gui/ctrl/control.h>
-#include <gui/ctrl/button_state.h>
 
 
 namespace gui {
@@ -77,105 +77,24 @@ namespace gui {
 #endif // GUIPP_QT
 
     // --------------------------------------------------------------------------
-    namespace paint {
-      GUIPP_CTRL_EXPORT void button_frame (const draw::graphics& graph,
-                         const core::rectangle& r,
-                         const button_state& state);
-
-      GUIPP_CTRL_EXPORT void button_frame_w95 (const draw::graphics& graph,
-                             const core::rectangle& r,
-                             const button_state& state);
-
-      GUIPP_CTRL_EXPORT void button_frame_w95 (const draw::graphics& graph,
-                                               const core::rectangle& r,
-                                               bool enabled, bool pushed,
-                                               bool hilited, bool focused);
-
-      GUIPP_CTRL_EXPORT void simple_frame (const draw::graphics& graph,
-                                           const core::rectangle& r,
-                                           bool hilite = false,
-                                           uint32_t horizontal = 3,
-                                           uint32_t vertical = 3);
-
-      GUIPP_CTRL_EXPORT void flat_button (const draw::graphics& g,
-                        const core::rectangle& r,
-                        const std::string& text,
-                        const button_state& state,
-                        os::color foreground = color::white,
-                        os::color background = color::dark_gray);
-
-      template<os::color foreground,
-               os::color background>
-      void color_flat_button (const draw::graphics& g,
-                              const core::rectangle& r,
-                              const std::string& text,
-                              const button_state& state) {
-        flat_button(g, r, text, state, foreground, background);
-      }
-
-      GUIPP_CTRL_EXPORT void push_button (const draw::graphics& graph,
-                        const core::rectangle& r,
-                        const std::string& text,
-                        const button_state& state);
-
-      GUIPP_CTRL_EXPORT void radio_button (const draw::graphics& graph,
-                         const core::rectangle& area,
-                         const std::string& text,
-                         const button_state& state);
-
-      GUIPP_CTRL_EXPORT void check_box (const draw::graphics& graph,
-                      const core::rectangle& area,
-                      const std::string& text,
-                      const button_state& state);
-
-      GUIPP_CTRL_EXPORT void switch_button (const draw::graphics& graph,
-                          const core::rectangle& rect,
-                          const std::string& text,
-                          const button_state& state);
-
-      GUIPP_CTRL_EXPORT void animated_switch_button (const draw::graphics& graph,
-                                   const core::rectangle& rect,
-                                   const std::string& text,
-                                   const button_state& state,
-                                   float animation_step = 1.0F);
-
-      GUIPP_CTRL_EXPORT void tab_button (const draw::graphics& g,
-                       const core::rectangle& r,
-                       const std::string& text,
-                       const button_state& state,
-                       os::color foreground,
-                       alignment_t a);
-
-      template<os::color foreground,
-               alignment_t align>
-      void aligned_tab_button (const draw::graphics& g,
-                               const core::rectangle& r,
-                               const std::string& text,
-                               const button_state& state) {
-        tab_button(g, r, text, state, foreground, align);
-      }
-
-    }
-
-    // --------------------------------------------------------------------------
     typedef void (button_drawer) (const draw::graphics&,
                                   const core::rectangle&,
-                                  const button_state&);
+                                  const button_state::is&);
     // --------------------------------------------------------------------------
     typedef void (text_button_drawer) (const draw::graphics&,
                                        const core::rectangle&,
                                        const std::string&,
-                                       const button_state&);
+                                       const button_state::is&);
     // --------------------------------------------------------------------------
     typedef void (animated_button_drawer) (const draw::graphics&,
                                            const core::rectangle&,
-                                           const button_state&,
+                                           const button_state::is&,
                                            float); // animation_step
     // --------------------------------------------------------------------------
     typedef void (animated_text_button_drawer) (const draw::graphics&,
                                                 const core::rectangle&,
                                                 const std::string&,
-                                                const button_state&,
+                                                const button_state::is&,
                                                 float); // animation_step
 
     // --------------------------------------------------------------------------
@@ -191,12 +110,16 @@ namespace gui {
       void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
-      const button_state get_state () const;
-      button_state get_state ();
+      const button_state::is get_state () const;
+      button_state::set set_state ();
 
       bool is_hilited () const;
       bool is_pushed () const;
       bool is_checked () const;
+
+      void set_hilited (bool b);
+      void set_pushed (bool b);
+      void set_checked (bool b);
 
       void on_clicked (std::function<void()>&& f);
       void on_pushed (std::function<void()>&& f);
@@ -205,55 +128,48 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct GUIPP_CTRL_EXPORT basic_button_traits {
-      void set_hilited (button_base&, bool b);
-      void set_pushed (button_base&, bool b);
-      void set_checked (button_base&, bool b);
-    };
-
-    // --------------------------------------------------------------------------
-    struct GUIPP_CTRL_EXPORT push_button_traits : public basic_button_traits {
+    struct GUIPP_CTRL_EXPORT push_button_traits {
       void init (button_base&);
 
       template<text_button_drawer& D>
       void draw (const draw::graphics& g,
                  const core::rectangle& r,
                  const std::string& t,
-                 const button_state& s) {
+                 const button_state::is& s) {
         D(g, r, t, s);
       }
 
       template<button_drawer& D>
       void draw (const draw::graphics& g,
                  const core::rectangle& r,
-                 const button_state& s) {
+                 const button_state::is& s) {
         D(g, r, s);
       }
     };
 
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
-    struct toggle_button_traits : public basic_button_traits {
+    struct toggle_button_traits {
       void init (button_base&);
 
       template<text_button_drawer& D>
       void draw (const draw::graphics& g,
                  const core::rectangle& r,
                  const std::string& t,
-                 const button_state& s) {
+                 const button_state::is& s) {
         D(g, r, t, s);
       }
 
       template<button_drawer& D>
       void draw (const draw::graphics& g,
                  const core::rectangle& r,
-                 const button_state& s) {
+                 const button_state::is& s) {
         D(g, r, s);
       }
     };
 
     // --------------------------------------------------------------------------
-    struct GUIPP_CTRL_EXPORT basic_animated_button_traits : public basic_button_traits {
+    struct GUIPP_CTRL_EXPORT basic_animated_button_traits {
 
       basic_animated_button_traits ();
       ~basic_animated_button_traits ();
@@ -262,14 +178,14 @@ namespace gui {
       void draw (const draw::graphics& g,
                  const core::rectangle& r,
                  const std::string& t,
-                 const button_state& s) {
+                 const button_state::is& s) {
         D(g, r, t, s, animation_step);
       }
 
       template<animated_button_drawer& D>
       void draw (const draw::graphics& g,
                  const core::rectangle& r,
-                 const button_state& s) {
+                 const button_state::is& s) {
         D(g, r, s, animation_step);
       }
 
@@ -300,10 +216,6 @@ namespace gui {
       basic_button ();
       basic_button (const basic_button& rhs);
       basic_button (basic_button&& rhs);
-
-      void set_hilited (bool b);
-      void set_pushed (bool b);
-      void set_checked (bool b);
 
     protected:
       traits_type traits;

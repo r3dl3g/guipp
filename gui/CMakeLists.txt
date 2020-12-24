@@ -132,6 +132,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   if (GUIPP_BUILD_STATIC_MODULE_LIBS)
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_BUILT_AS_STATIC)
     set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES}
+      gui++-look-static
       gui++-ctrl-static
       gui++-io-static
       gui++-draw-static
@@ -145,6 +146,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${LOGGING_SYS_LIBRARIES} ${UTIL_SYS_LIBRARIES})
   elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
     set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES}
+      gui++-look
       gui++-ctrl
       gui++-io
       gui++-draw
@@ -173,7 +175,8 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       -Dgui___layout_obj_EXPORTS
       -Dgui___draw_obj_EXPORTS
       -Dgui___io_obj_EXPORTS
-      -Dgui___ctrl_obj_EXPORTS)
+      -Dgui___ctrl_obj_EXPORTS
+      -Dgui___look_obj_EXPORTS)
   endif()
 
   add_subdirectory(core gui_core)
@@ -182,10 +185,11 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   add_subdirectory(draw gui_draw)
   add_subdirectory(io gui_io)
   add_subdirectory(ctrl gui_ctrl)
+  add_subdirectory(look gui_look)
   add_subdirectory(app gui_app)
 
   message(STATUS "gui GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
-  message(STATUS "gui GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
+#  message(STATUS "gui GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
   message(STATUS "gui GUIPP_LIBRARIES: ${GUIPP_LIBRARIES}")
   message(STATUS "gui GUIPP_APP_LIBRARIES: ${GUIPP_APP_LIBRARIES}")
   message(STATUS "gui GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
@@ -221,6 +225,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       $<TARGET_OBJECTS:gui++-draw-obj>
       $<TARGET_OBJECTS:gui++-io-obj>
       $<TARGET_OBJECTS:gui++-ctrl-obj>
+      $<TARGET_OBJECTS:gui++-look-obj>
       gui.cpp
       )
 

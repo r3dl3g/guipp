@@ -23,7 +23,7 @@
 // Library includes
 //
 #include <gui/ctrl/control.h>
-
+#include <gui/look/label.h>
 #include <util/string_util.h>
 
 
@@ -75,18 +75,6 @@ namespace gui {
       };
 
     } // namespace detail
-
-    // --------------------------------------------------------------------------
-    namespace paint {
-
-      GUIPP_CTRL_EXPORT void label (const draw::graphics& graph,
-                                    const core::rectangle& area,
-                                    const std::string& text,
-                                    os::color foreground,
-                                    os::color background,
-                                    text_origin_t origin_t);
-
-    }
 
     // --------------------------------------------------------------------------
     template<text_origin_t origin,

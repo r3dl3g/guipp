@@ -283,8 +283,8 @@ struct region_tree_info {
     return n.name;
   }
 
-  static const tree::tree_icon& icon (population_data const&, bool has_children, bool is_open, bool selected) {
-    return tree::standard_icon(has_children, is_open, selected);
+  static const gui::tree::tree_icon& icon (population_data const&, bool has_children, bool is_open, bool selected) {
+    return gui::tree::standard_icon(has_children, is_open, selected);
   }
 };
 // --------------------------------------------------------------------------
@@ -358,7 +358,7 @@ struct covid19main : public main_type {
   typedef main_type super;
 
   typedef std::map<std::size_t, pixmap> pixmap_map_t;
-  typedef tree::basic_tree<region_tree_info> tree_view;
+  typedef ctrl::tree::basic_tree<region_tree_info> tree_view;
 
   covid19main ();
   ~covid19main ();

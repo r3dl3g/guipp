@@ -22,8 +22,10 @@
 //
 // Library includes
 //
-#include <gui/ctrl/control.h>
 #include <gui/core/orientation_traits.h>
+#include <gui/ctrl/control.h>
+#include <gui/ctrl/scrollbar_item.h>
+#include <gui/look/scroll_bar.h>
 
 
 namespace gui {
@@ -63,23 +65,13 @@ namespace gui {
 #endif // GUIPP_QT
 
     // --------------------------------------------------------------------------
-    enum class scrollbar_state {
-      nothing,
-      up_button,
-      page_up,
-      thumb_button,
-      page_down,
-      down_button
-    };
-
-    // --------------------------------------------------------------------------
     struct GUIPP_CTRL_EXPORT scroll_bar_data {
       typedef core::point::type type;
 
       scroll_bar_data ();
 
-      scrollbar_state state;
-      scrollbar_state hilite;
+      scrollbar_item selection;
+      scrollbar_item hilite;
 
       type min;
       type max;
@@ -123,8 +115,8 @@ namespace gui {
         return scroll_bar_width;
       }
 
-      scrollbar_state get_state () const;
-      scrollbar_state get_hilite () const;
+      scrollbar_item get_selection () const;
+      scrollbar_item get_hilite () const;
 
       void send_notify ();
 
@@ -139,8 +131,8 @@ namespace gui {
                    win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
-      void set_state (scrollbar_state);
-      void set_hilite (scrollbar_state);
+      void set_selection (scrollbar_item);
+      void set_hilite (scrollbar_item);
 
       type get_last_value () const;
       void set_last_value (type last_value);
@@ -156,35 +148,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    namespace paint {
-      GUIPP_CTRL_EXPORT void scrollbar (const draw::graphics &g,
-                                        scrollbar_state state,
-                                        scrollbar_state hilite,
-                                        bool is_enabled,
-                                        bool horizontal,
-                                        bool has_focus,
-                                        const core::rectangle& up,
-                                        const core::rectangle& down,
-                                        const core::rectangle& thumb,
-                                        const core::rectangle& page_up,
-                                        const core::rectangle& page_down);
-
-      GUIPP_CTRL_EXPORT void scrollbar_w95 (const draw::graphics &g,
-                                            scrollbar_state state,
-                                            scrollbar_state hilite,
-                                            bool is_enabled,
-                                            bool horizontal,
-                                            bool has_focus,
-                                            const core::rectangle& up,
-                                            const core::rectangle& down,
-                                            const core::rectangle& thumb,
-                                            const core::rectangle& page_up,
-                                            const core::rectangle& page_down);
-    }
-
     using scrollbar_drawer = void (*)(const draw::graphics &,
-                                      scrollbar_state,
-                                      scrollbar_state,
+                                      scrollbar_item,
+                                      scrollbar_item,
                                       bool,
                                       bool,
                                       bool,

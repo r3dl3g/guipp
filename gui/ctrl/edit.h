@@ -22,7 +22,9 @@
 //
 // Library includes
 //
+#include <gui/draw/font.h>
 #include <gui/ctrl/control.h>
+#include <gui/look/edit.h>
 
 
 namespace gui {
@@ -30,22 +32,6 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-    namespace paint {
-
-      GUIPP_CTRL_EXPORT void edit_line (const draw::graphics& graph,
-                      const core::rectangle& area,
-                      const std::string& text,
-                      const draw::font& fnt,
-                      os::color foreground,
-                      os::color background,
-                      const text_origin_t origin_t,
-                      const core::range<size_t>& selection,
-                      const size_t cursor_pos,
-                      const size_t scroll_pos,
-                      const bool has_focus);
-
-    } // paint
-
     namespace filter {
 
       typedef std::string (text_filter_f) (std::string);

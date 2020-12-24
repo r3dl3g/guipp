@@ -30,31 +30,36 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      list_state::list_state (const list_base& win)
-        : super(win)
+      list_state::is::is (const win::state_type& state)
+        : super::is(state)
       {}
 
-      bool list_state::is_moved () const {
-        return get_flag(flags::mouse_moved);
+      bool list_state::is::moved () const {
+        return test(flags::mouse_moved);
       }
 
-      bool list_state::is_scroll_bar_enabled () const {
-        return get_flag(flags::scroll_bar_enabled);
+      bool list_state::is::scroll_bar_enabled () const {
+        return test(flags::scroll_bar_enabled);
       }
 
-      bool list_state::is_grab_focus () const {
-        return get_flag(flags::grab_focus);
+      bool list_state::is::grab_focus () const {
+        return test(flags::grab_focus);
       }
 
-      bool list_state::set_moved (bool h) {
+      // --------------------------------------------------------------------------
+      list_state::set::set (win::state_type& state)
+        : super::set(state)
+      {}
+
+      bool list_state::set::moved (bool h) {
         return set_flag(flags::mouse_moved, h);
       }
 
-      bool list_state::set_scroll_bar_enabled (bool h) {
+      bool list_state::set::scroll_bar_enabled (bool h) {
         return set_flag(flags::scroll_bar_enabled, h);
       }
 
-      bool list_state::set_grab_focus (bool f) {
+      bool list_state::set::grab_focus (bool f) {
         return set_flag(flags::grab_focus, f);
       }
 

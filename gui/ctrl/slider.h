@@ -23,6 +23,7 @@
 // Library includes
 //
 #include <gui/ctrl/control.h>
+#include <gui/look/slider.h>
 
 
 namespace gui {

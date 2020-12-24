@@ -1,18 +1,21 @@
 
 #include <iomanip>
 
-#include <gui/draw/bitmap.h>
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
+#include <gui/draw/brush.h>
+#include <gui/draw/pen.h>
+#include <gui/draw/font.h>
+#include <gui/draw/bitmap.h>
 #include <gui/io/pnm.h>
 #include <gui/ctrl/tree.h>
 #include <testlib/testlib.h>
 #include <testlib/image_test_lib.h>
 
 namespace image_data {
-#include <gui/ctrl/res/file_icon.h>
-#include <gui/ctrl/res/close_folder_icon.h>
-#include <gui/ctrl/res/open_folder_icon.h>
+#include <gui/look/res/file_icon.h>
+#include <gui/look/res/close_folder_icon.h>
+#include <gui/look/res/open_folder_icon.h>
 } // namespace image_data
 
 
@@ -551,7 +554,7 @@ void test_file_icon () {
 void test_file_icon_selected () {
   core::global::set_scale_factor(1.0);
 
-  const draw::masked_bitmap& icon = gui::ctrl::tree::file_icon(true);
+  const draw::masked_bitmap& icon = gui::tree::file_icon(true);
   auto sz = icon.native_size();
   draw::pixmap mem(20, 20);
   os::color highLight = color::highLightColor();

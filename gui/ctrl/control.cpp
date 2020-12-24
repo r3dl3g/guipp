@@ -22,6 +22,7 @@
 //
 #include <gui/draw/bitmap.h>
 #include <gui/ctrl/control.h>
+#include <gui/look/control.h>
 
 
 namespace gui {
@@ -108,27 +109,6 @@ namespace gui {
     }
 
 #endif // GUIPP_QT
-
-    namespace paint {
-
-      // --------------------------------------------------------------------------
-      void text_item (const draw::graphics& g,
-                      const core::rectangle& place,
-                      const draw::brush& background,
-                      const std::string& text,
-                      item_state state,
-                      text_origin_t origin) {
-        using namespace draw;
-        g.fill(rectangle(place), item_state::selected == state ? color::highLightColor() : background);
-        os::color col = color::windowTextColor();
-        switch (state) {
-          case item_state::selected: col = color::highLightTextColor(); break;
-          case item_state::disabled: col = color::disabledTextColor(); break;
-        }
-        g.text(text_box(text, place, origin), font::system(), col);
-      }
-
-    } // namespace paint
 
     // --------------------------------------------------------------------------
     void control::on_selection_changed (selection_changed_event::function&& f) {

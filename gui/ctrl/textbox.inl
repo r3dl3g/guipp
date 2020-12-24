@@ -70,9 +70,9 @@ namespace gui {
     template<text_origin_t align, draw::frame::drawer frame, os::color fg, os::color bg>
     inline void basic_textbox<align, frame, fg, bg>::handle_paint (const draw::graphics& graph) {
       const auto area = client_area();
-      paint::text_box(graph, area, data.lines, data.font,
-                      fg, bg, align,
-                      data.selection, data.cursor_pos, data.offset, has_focus());
+      gui::paint::text_box(graph, area, data.lines, data.font,
+                           fg, bg, align,
+                           data.selection, data.cursor_pos, data.offset, is_focused());
       frame(graph, area);
     }
 

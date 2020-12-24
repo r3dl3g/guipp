@@ -23,6 +23,7 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
 #include <gui/draw/frames.h>
+#include <gui/draw/pen.h>
 
 
 namespace gui {

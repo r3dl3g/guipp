@@ -28,6 +28,7 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
 #include <gui/draw/frames.h>
+#include <gui/ctrl/item_state.h>
 #include <gui++-ctrl-export.h>
 
 
@@ -115,14 +116,6 @@ namespace gui {
       keyboard,
       mouse,
       logic
-    };
-
-    // --------------------------------------------------------------------------
-    enum class item_state {
-      normal,
-      disabled,
-      hilited,
-      selected
     };
 
 #ifdef GUIPP_WIN
@@ -231,17 +224,6 @@ namespace gui {
                                                      getter<get_hilite_changed>>;
 
 #endif // GUIPP_QT
-
-    namespace paint {
-
-      GUIPP_CTRL_EXPORT void text_item (const draw::graphics&,
-                                        const core::rectangle& place,
-                                        const draw::brush& background,
-                                        const std::string& text,
-                                        item_state state,
-                                        text_origin_t origin_t = text_origin_t::vcenter_left);
-
-    }
 
     // --------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT control : public win::window {

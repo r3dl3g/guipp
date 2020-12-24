@@ -5,6 +5,9 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
 #include <gui/draw/frames.h>
+#include <gui/draw/brush.h>
+#include <gui/draw/pen.h>
+#include <gui/draw/font.h>
 #include <gui/ctrl/separator.h>
 #include <testlib/image_test_lib.h>
 #include <testlib/testlib.h>

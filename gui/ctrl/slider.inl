@@ -112,12 +112,7 @@ namespace gui {
     template<orientation_t O,
              draw::frame::drawer F>
     void basic_framed_slider<O, F>::paint (const draw::graphics& g) {
-      core::rectangle place = super::client_area();
-      g.fill(draw::rectangle(place), color::buttonColor());
-      F(g, place);
-      if (super::has_focus()) {
-        draw::frame::dots(g, place);
-      }
+      paint::slider(g, super::client_area(), super::is_focused(), F);
     }
 
   } // ctrl

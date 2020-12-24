@@ -34,19 +34,13 @@
 #include <util/bind_method.h>
 #include <gui/core/gui_types.h>
 #include <gui/core/color.h>
-#include <gui/draw/pen.h>
-#include <gui/draw/brush.h>
-#include <gui/draw/font.h>
+#include <gui/draw/draw_fwd.h>
+#include <gui++-draw-export.h>
 
 
 namespace gui {
 
   namespace draw {
-
-    class graphics;
-    class pixmap;
-    class basic_map;
-    class masked_bitmap;
 
     typedef void (drawable) (const graphics&, const brush&, const pen&);
     typedef void (frameable) (const graphics&, const pen&);

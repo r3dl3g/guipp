@@ -213,7 +213,7 @@ namespace gui {
     }
 
     overlapped_window* window::get_overlapped_window () const {
-      if (get_state().is_overlapped()) {
+      if (get_state().overlapped()) {
         return (overlapped_window*)this;
       }
       container* parent = get_parent();
@@ -270,13 +270,12 @@ namespace gui {
         get_id()->setFocusPolicy(a ? Qt::WheelFocus : Qt::NoFocus);
 #endif //GUIPP_QT
       }
-      get_state().set_accept_focus(a);
+      set_state().accept_focus(a);
     }
 
     bool window::is_focus_accepting () const {
-      return get_state().is_focus_accepting();
+      return get_state().focus_accepting();
     }
-
 
     const class_info& window::get_window_class () const {
       return hidden::window_class_info_map[get_class_name()];
@@ -464,6 +463,19 @@ namespace gui {
       }
     }
 
+    void window::enable (bool on) {
+      if (set_state().enable(on)) {
+        if (is_valid()) {
+          gui::os::style ws = get_window_class().get_style();
+          if ((ws & WS_POPUP) != WS_POPUP) {
+            // For WS_POPUP EnableWindow(, false) causes an empty window.
+            EnableWindow(get_id(), on);
+          }
+          invalidate();
+        }
+      }
+    }
+
     bool window::is_valid () const {
       return (get_id() != 0) && (IsWindow(get_id()) != FALSE);
     }
@@ -472,7 +484,7 @@ namespace gui {
       return is_valid() && IsWindowVisible(get_id());
     }
 
-    bool window::has_focus () const {
+    bool window::is_focused () const {
       return is_valid() && (GetFocus() == get_id());
     }
 
@@ -777,11 +789,26 @@ namespace gui {
       send_client_message(this, core::x11::WM_PROTOCOLS, core::x11::WM_DELETE_WINDOW);
     }
 
+    void window::enable (bool on) {
+      if (set_state().enable(on)) {
+        if (is_valid()) {
+          if (get_window_class().get_cursor()) {
+            unsigned long mask = CWCursor;
+            XSetWindowAttributes wa = {0};
+            wa.cursor = on ? get_window_class().get_cursor()
+                           : (os::cursor)win::cursor::arrow();
+            x11::check_return(XChangeWindowAttributes(core::global::get_instance(), get_id(), mask, &wa));
+          }
+          invalidate();
+        }
+      }
+    }
+
     bool window::is_valid () const {
       return (get_id() != 0) && (detail::get_window(get_id()) == this);
     }
 
-    bool window::has_focus () const {
+    bool window::is_focused () const {
       Window focus = 0;
       int revert_to = 0;
       if (is_valid()) {
@@ -865,7 +892,7 @@ namespace gui {
 
     bool window::is_visible () const {
       if (is_valid()) {
-//        return get_state().is_visible();
+//        return get_state().visible();
         return is_window_visible(get_id());
       }
       return false;
@@ -873,7 +900,6 @@ namespace gui {
 
     void window::set_visible (bool s) {
       if (is_valid()) {
-        auto state = get_state();
         bool current = is_visible();
         if (current != s) {
           if (s) {
@@ -883,7 +909,7 @@ namespace gui {
             clog::trace() << "Hide window:" << *this;
             x11::check_return(XUnmapWindow(core::global::get_instance(), get_id()));
           }
-          state.set_visible(is_window_visible(get_id()));
+          set_state().visible(is_window_visible(get_id()));
         }
       }
     }
@@ -904,9 +930,7 @@ namespace gui {
 
     void window::redraw () const {
 
-      auto state = get_state();
-
-      if (state.is_redraw_disabled() || !is_visible()) {
+      if (get_state().redraw_disabled() || !is_visible()) {
         return;
       }
 
@@ -928,8 +952,6 @@ namespace gui {
 
       clog::trace() << "redraw: " << event;
       events.handle_event(event, result);
-
-//      state.set_needs_redraw(false);
 
       core::global::sync();
     }
@@ -1255,6 +1277,15 @@ namespace gui {
       }
     }
 
+    void window::enable (bool on) {
+      if (set_state().enable(on)) {
+        if (is_valid()) {
+          get_id()->setEnabled(on);
+          invalidate();
+        }
+      }
+    }
+
     bool window::is_valid () const {
       return (get_id() != 0);
     }
@@ -1263,7 +1294,7 @@ namespace gui {
       return is_valid() && get_id()->isVisible();
     }
 
-    bool window::has_focus () const {
+    bool window::is_focused () const {
       return is_valid() && get_id()->hasFocus();
     }
 

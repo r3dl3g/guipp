@@ -33,23 +33,33 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class list_base;
-
-      // --------------------------------------------------------------------------
       struct GUIPP_CTRL_EXPORT list_state : public win::window_state {
         typedef win::window_state super;
 
-        list_state (const list_base& win);
+        struct is : public super::is {
 
-        bool is_moved () const;
-        bool is_scroll_bar_enabled () const;
-        bool is_grab_focus () const;
+          is (const win::state_type& state);
 
-        bool set_moved (bool b);
-        bool set_scroll_bar_enabled (bool b);
-        bool set_grab_focus (bool b);
+          bool moved () const;
+          bool scroll_bar_enabled () const;
+          bool grab_focus () const;
+
+        };
+
+        struct set : public super::set  {
+
+          set (win::state_type& state);
+
+          bool moved (bool b);
+          bool scroll_bar_enabled (bool b);
+          bool grab_focus (bool b);
+
+        };
 
       protected:
+        friend struct is;
+        friend struct set;
+
         struct flags : public win::window_state::flags {
           enum {
             mouse_moved = last_window_state_enum,

@@ -29,7 +29,9 @@ namespace gui {
                                           const core::rectangle& place,
                                           const draw::brush& background,
                                           item_state state) {
-      paint::text_item(g, place, background, util::string::convert::from<T>(t), state, text_origin_t::center);
+      gui::paint::text_item(g, place, background,
+                            util::string::convert::from<T>(t),
+                            state, text_origin_t::center);
     }
 
     // --------------------------------------------------------------------------
@@ -276,7 +278,7 @@ namespace gui {
         }
       }
 
-      if (super::has_focus()) {
+      if (super::is_focused()) {
         draw::frame::dots(graph, area);
       }
 

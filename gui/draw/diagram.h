@@ -34,6 +34,9 @@
 #include <gui/core/orientation_traits.h>
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
+#include <gui/draw/pen.h>
+#include <gui/draw/brush.h>
+#include <gui/draw/font.h>
 #include <util/ostreamfmt.h>
 
 

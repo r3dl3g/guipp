@@ -7,6 +7,8 @@
 #include <gui/layout/grid_layout.h>
 #include <gui/ctrl/split_view.h>
 #include <gui/ctrl/label.h>
+#include <gui/draw/brush.h>
+#include <gui/draw/font.h>
 #include <logging/core.h>
 
 #define NOTHING

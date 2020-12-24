@@ -22,6 +22,7 @@
 //
 // Library includes
 //
+#include <gui/look/progress_bar.h>
 #include <gui/ctrl/label.h>
 
 
@@ -70,19 +71,6 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    namespace paint {
-
-      GUIPP_CTRL_EXPORT void progress_bar (const draw::graphics& graph,
-                                      const core::rectangle& area,
-                                      const std::string& text,
-                                      os::color foreground,
-                                      os::color background,
-                                      text_origin_t origin_t,
-                                      os::color bar_color,
-                                      core::size::type bar_pos);
-
-    }
-
     template<text_origin_t origin,
              draw::frame::drawer frame = draw::frame::no_frame,
              os::color foreground = color::black,

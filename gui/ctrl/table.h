@@ -27,37 +27,12 @@
 #include <gui/ctrl/scroll_bar.h>
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/edit.h>
-
-#include <util/string_util.h>
+#include <gui/look/table.h>
 
 
 namespace gui {
 
   namespace ctrl {
-
-    // --------------------------------------------------------------------------
-    namespace paint {
-
-      template<typename T,
-               draw::frame::drawer F = draw::frame::sunken_relief>
-      void text_cell (const T& t,
-                      const draw::graphics& graph,
-                      const core::rectangle& place,
-                      const text_origin_t align,
-                      const os::color& foreground,
-                      const os::color& background,
-                      item_state state);
-
-      template<>
-      GUIPP_CTRL_EXPORT void text_cell<std::string, draw::frame::no_frame>(const std::string& t,
-                                                         const draw::graphics& graph,
-                                                         const core::rectangle& place,
-                                                         const text_origin_t align,
-                                                         const os::color& foreground,
-                                                         const os::color& background,
-                                                         item_state state);
-
-    } // namespace paint
 
     // --------------------------------------------------------------------------
     namespace table {
@@ -233,34 +208,34 @@ namespace gui {
       namespace paint {
 
         GUIPP_CTRL_EXPORT void draw_table_data (const draw::graphics& graph,
-                              const core::rectangle& place,
-                              const metric& geometrie,
-                              const data::matrix<text_origin_t>& aligns,
-                              const data::matrix<os::color>& foregrounds,
-                              const data::matrix<os::color>& backgrounds,
-                              const std::function<cell_drawer>& drawer,
-                              const std::function<filter::selection_and_hilite>& selection_filter,
-                              const std::function<filter::selection_and_hilite>& hilite_filter);
+                                                const core::rectangle& place,
+                                                const metric& geometrie,
+                                                const data::matrix<text_origin_t>& aligns,
+                                                const data::matrix<os::color>& foregrounds,
+                                                const data::matrix<os::color>& backgrounds,
+                                                const std::function<cell_drawer>& drawer,
+                                                const std::function<filter::selection_and_hilite>& selection_filter,
+                                                const std::function<filter::selection_and_hilite>& hilite_filter);
 
         GUIPP_CTRL_EXPORT void draw_table_column (const draw::graphics& graph,
-                                const core::rectangle& place,
-                                const metric& geometrie,
-                                const data::vector<text_origin_t>& aligns,
-                                const data::vector<os::color>& foregrounds,
-                                const data::vector<os::color>& backgrounds,
-                                const std::function<cell_drawer>& drawer,
-                                const std::function<filter::selection_and_hilite>& selection_filter,
-                                const std::function<filter::selection_and_hilite>& hilite_filter);
+                                                  const core::rectangle& place,
+                                                  const metric& geometrie,
+                                                  const data::vector<text_origin_t>& aligns,
+                                                  const data::vector<os::color>& foregrounds,
+                                                  const data::vector<os::color>& backgrounds,
+                                                  const std::function<cell_drawer>& drawer,
+                                                  const std::function<filter::selection_and_hilite>& selection_filter,
+                                                  const std::function<filter::selection_and_hilite>& hilite_filter);
 
         GUIPP_CTRL_EXPORT void draw_table_row (const draw::graphics& graph,
-                             const core::rectangle& place,
-                             const metric& geometrie,
-                             const data::vector<text_origin_t>& aligns,
-                             const data::vector<os::color>& foregrounds,
-                             const data::vector<os::color>& backgrounds,
-                             const std::function<cell_drawer>& drawer,
-                             const std::function<filter::selection_and_hilite>& selection_filter,
-                             const std::function<filter::selection_and_hilite>& hilite_filter);
+                                               const core::rectangle& place,
+                                               const metric& geometrie,
+                                               const data::vector<text_origin_t>& aligns,
+                                               const data::vector<os::color>& foregrounds,
+                                               const data::vector<os::color>& backgrounds,
+                                               const std::function<cell_drawer>& drawer,
+                                               const std::function<filter::selection_and_hilite>& selection_filter,
+                                               const std::function<filter::selection_and_hilite>& hilite_filter);
       } // namespace paint
 
       // --------------------------------------------------------------------------
@@ -389,20 +364,20 @@ namespace gui {
     typedef core::point (scroll_maximum_calcer)(const core::size&, const core::point&, const core::point&);
 
     GUIPP_CTRL_EXPORT core::point default_scroll_maximum (const core::size& sz,
-                                        const core::point& current_pos,
-                                        const core::point& current_max);
+                                                          const core::point& current_pos,
+                                                          const core::point& current_max);
 
     // --------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT table_view : public win::group_window<gui::layout::dynamic_border_layout<layout::dynamic_border_layout_type::bottom_right_maximize>,
-                                           color::very_very_light_gray, float, float, float, float> {
+        color::very_very_light_gray, float, float, float, float> {
     public:
       typedef group_window<gui::layout::dynamic_border_layout<layout::dynamic_border_layout_type::bottom_right_maximize>,
-                           color::very_very_light_gray, float, float, float, float> super;
+      color::very_very_light_gray, float, float, float, float> super;
 
       typedef basic_label<text_origin_t::center,
-                          draw::frame::raised_relief,
-                          color::black,
-                          color::very_very_light_gray> edge_view;
+      draw::frame::raised_relief,
+      color::black,
+      color::very_very_light_gray> edge_view;
 
       table_view (core::size::type default_width = 80,
                   core::size::type default_height = 20,

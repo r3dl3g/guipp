@@ -20,60 +20,81 @@
 
 // --------------------------------------------------------------------------
 //
+// Common includes
+//
+#include <bitset>
+
+
+// --------------------------------------------------------------------------
+//
 // Library includes
 //
-#include <gui/core/guidefs.h>
 #include <gui++-win-export.h>
+
 
 namespace gui {
 
   // --------------------------------------------------------------------------
   namespace win {
 
-    // --------------------------------------------------------------------------
-    class window;
+    typedef std::bitset<sizeof(ulong) * 8> state_type;
 
     // --------------------------------------------------------------------------
     struct GUIPP_WIN_EXPORT window_state {
-      window_state (const window& win)
-        : win(win)
-      {}
-
-      bool is_visible () const;
-      bool has_focus () const;
-      bool is_enabled () const;
-      bool is_focus_accepting () const;
-      bool is_redraw_disabled () const;
-      bool is_overlapped () const;
-
-      bool set_enable (bool on);
-      bool set_visible (bool on);
-      bool set_accept_focus (bool a);
-      bool disable_redraw (bool on = true);
-      bool set_overlapped (bool on);
-
-      bool set_needs_redraw (bool on) const;
-      bool needs_redraw () const;
-
     protected:
       struct flags {
         enum {
           focus_accepting = 0,
           redraw_disabled,
           window_disabled,
-          needs_redraw,
           is_visible,
+          is_focused,
           is_overlapped,
           last_window_state_enum
         };
       };
 
-      bool get_flag (byte bit) const;
-      bool set_flag (byte bit, bool a) const;
+    public:
+      struct is {
 
-      window& get_win () const;
+        is (const state_type& state);
 
-      const window& win;
+        bool enabled () const;
+        bool visible () const;
+        bool focused () const;
+        bool focus_accepting () const;
+        bool redraw_disabled () const;
+        bool overlapped () const;
+
+      protected:
+        bool test (ulong) const;
+
+      private:
+        const state_type& state;
+      };
+
+      struct set {
+
+        set (state_type& state);
+
+        bool enable (bool on);
+        bool visible (bool on);
+        bool focused (bool on);
+        bool accept_focus (bool a);
+        bool disable_redraw (bool on = true);
+        bool overlapped (bool on);
+
+      protected:
+        bool set_flag (ulong, bool a);
+
+      private:
+        state_type& state;
+      };
+
+    protected:
+      friend struct is;
+      friend struct set;
+
     };
 
     // --------------------------------------------------------------------------

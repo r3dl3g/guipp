@@ -21,6 +21,7 @@
 // Library includes
 //
 #include <gui/ctrl/drop_down.h>
+#include <gui/look/drop_down.h>
 
 
 namespace gui {
@@ -52,51 +53,6 @@ namespace gui {
   } // layout
 
   namespace ctrl {
-
-    namespace paint {
-
-      void drop_down_item (const draw::graphics& g,
-                           const core::rectangle& r,
-                           const draw::brush& background,
-                           const std::string& label,
-                           item_state state) {
-        if (item_state::selected == state) {
-          g.fill(draw::rectangle(r), color::highLightColor());
-        } else if (item_state::hilited == state) {
-          g.fill(draw::rectangle(r), color::menuColorHighlight());
-        } else {
-          g.fill(draw::rectangle(r), background);
-        }
-
-        os::color col = item_state::selected == state ? color::highLightTextColor()
-                        : color::black;
-
-        g.text(draw::text_box(label, r, text_origin_t::vcenter_left), draw::font::system(), col);
-
-      }
-
-      void drop_down_button (const draw::graphics& graph,
-                             const core::rectangle& area,
-                             const button_state& state,
-                             bool is_open) {
-#ifdef BUILD_FOR_ARM
-        paint::button_frame_w95(graph, area, state);
-#else
-        paint::button_frame(graph, area, state);
-#endif
-        core::rectangle r = area.shrinked(core::size(4, 5));
-        if (!r.empty()) {
-          std::vector<core::point> p;
-          if (is_open) {
-            p = {r.bottom_right(), {r.center_x(), r.y()}, r.bottom_left()};
-          } else {
-            p = {r.top_left(), {r.center_x(), r.y2()}, r.top_right()};
-          }
-          graph.fill(draw::polygon(p), color::black);
-        }
-      }
-
-    } // paint
 
     // --------------------------------------------------------------------------
     drop_down_list::drop_down_list (core::size::type item_size,
@@ -149,7 +105,7 @@ namespace gui {
     void drop_down_list::paint (const draw::graphics& graph) {
       core::rectangle area = super::client_area();
       draw::frame::sunken_deep_relief(graph, area);
-      bool has_f = data.button.has_focus();
+      bool has_f = data.button.is_focused();
       if (data.selection > -1) {
         data.items.draw_item(data.selection,
                              graph,

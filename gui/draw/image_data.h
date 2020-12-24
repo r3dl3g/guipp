@@ -29,8 +29,8 @@
 // Library includes
 //
 #include <gui/core/array_wrapper.h>
-#include <gui/draw/bitmap_info.h>
 #include <gui/core/color.h>
+#include <gui/draw/bitmap_info.h>
 
 
 namespace gui {

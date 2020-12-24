@@ -28,6 +28,7 @@
 //
 // Library includes
 //
+#include <gui/look/tree.h>
 #include <gui/ctrl/list.h>
 
 
@@ -36,36 +37,6 @@ namespace gui {
   namespace ctrl {
 
     namespace tree {
-      using tree_icon = draw::masked_bitmap;
-    } // namespace tree
-
-    namespace paint {
-
-      // --------------------------------------------------------------------------
-      GUIPP_CTRL_EXPORT void tree_button (const draw::graphics& graph,
-                                          const core::rectangle& area,
-                                          bool is_open);
-
-      GUIPP_CTRL_EXPORT void tree_node (const draw::graphics& graph,
-                                        const core::rectangle& area,
-                                        const draw::brush& background,
-                                        std::size_t depth,
-                                        const std::string& label,
-                                        const tree::tree_icon& icon,
-                                        bool has_children,
-                                        bool is_open,
-                                        item_state state);
-
-    } // paint
-
-    namespace tree {
-
-      // --------------------------------------------------------------------------
-      GUIPP_CTRL_EXPORT const tree_icon& open_folder_icon (bool selected);
-      GUIPP_CTRL_EXPORT const tree_icon& closed_folder_icon (bool selected);
-      GUIPP_CTRL_EXPORT const tree_icon& file_icon (bool selected);
-
-      GUIPP_CTRL_EXPORT const tree_icon& standard_icon (bool has_children, bool is_open, bool selected);
 
       // --------------------------------------------------------------------------
       template<typename I>
@@ -212,7 +183,7 @@ namespace gui {
         static reference make_reference (node const& n);
         static type const& dereference (reference const& r);
         static std::string label (node const& n);
-        static const tree_icon& icon (type const&, bool has_children, bool is_open, bool selected);
+        static const gui::tree::tree_icon& icon (type const&, bool has_children, bool is_open, bool selected);
 
       };
 

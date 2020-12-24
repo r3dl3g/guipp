@@ -161,7 +161,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T>
-    inline unsigned int get_state (const core::event& e) {
+    inline unsigned int get_event_state (const core::event& e) {
       return event_type_cast<T>(e).state & ~0x10;
     }
 
@@ -276,82 +276,82 @@ namespace gui {
 
     using mouse_move_event = core::event_handler<MotionNotify, PointerMotionMask,
                                                  core::params<os::key_state, core::point>::
-                                                 getter<get_state<XMotionEvent>,
+                                                 getter<get_event_state<XMotionEvent>,
                                                         get<core::point, XMotionEvent>::param>>;
 
     using mouse_move_abs_event = core::event_handler<MotionNotify, PointerMotionMask,
                                                      core::params<os::key_state, core::point>::
-                                                     getter<get_state<XMotionEvent>,
+                                                     getter<get_event_state<XMotionEvent>,
                                                             get_root_mouse_pos>>;
 
     using left_btn_down_event = core::event_handler<ButtonPress, ButtonPressMask,
                                                     core::params<os::key_state, core::point>::
-                                                    getter<get_state<XButtonEvent>,
+                                                    getter<get_event_state<XButtonEvent>,
                                                            get<core::point, XButtonEvent>::param>,
                                                     0,
                                                     event::functor<event_button_matcher<ButtonPress, Button1>>>;
 
     using left_btn_up_event = core::event_handler<ButtonRelease, ButtonReleaseMask | ButtonPressMask,
                                                   core::params<os::key_state, core::point>::
-                                                  getter<get_state<XButtonEvent>,
+                                                  getter<get_event_state<XButtonEvent>,
                                                          get<core::point, XButtonEvent>::param>,
                                                   0,
                                                   event::functor<event_button_matcher<ButtonRelease, Button1>>>;
 
     using right_btn_down_event = core::event_handler<ButtonPress, ButtonPressMask,
                                                      core::params<os::key_state, core::point>::
-                                                     getter<get_state<XButtonEvent>,
+                                                     getter<get_event_state<XButtonEvent>,
                                                             get<core::point, XButtonEvent>::param>,
                                                      0,
                                                      event::functor<event_button_matcher<ButtonPress, Button3>>>;
 
     using right_btn_up_event = core::event_handler<ButtonRelease, ButtonReleaseMask | ButtonPressMask,
                                                    core::params<os::key_state, core::point>::
-                                                   getter<get_state<XButtonEvent>,
+                                                   getter<get_event_state<XButtonEvent>,
                                                           get<core::point, XButtonEvent>::param>,
                                                    0,
                                                    event::functor<event_button_matcher<ButtonRelease, Button3>>>;
 
     using middle_btn_down_event = core::event_handler<ButtonPress, ButtonPressMask,
                                                       core::params<os::key_state, core::point>::
-                                                      getter<get_state<XButtonEvent>,
+                                                      getter<get_event_state<XButtonEvent>,
                                                              get<core::point, XButtonEvent>::param>,
                                                       0,
                                                       event::functor<event_button_matcher<ButtonPress, Button2>>>;
 
     using middle_btn_up_event = core::event_handler<ButtonRelease, ButtonReleaseMask | ButtonPressMask,
                                                     core::params<os::key_state, core::point>::
-                                                    getter<get_state<XButtonEvent>,
+                                                    getter<get_event_state<XButtonEvent>,
                                                            get<core::point, XButtonEvent>::param>,
                                                     0,
                                                     event::functor<event_button_matcher<ButtonRelease, Button2>>>;
 
     using btn_down_event = core::event_handler<ButtonPress, ButtonPressMask,
                                                core::params<os::key_state, core::point>::
-                                               getter<get_state<XButtonEvent>,
+                                               getter<get_event_state<XButtonEvent>,
                                                       get<core::point, XButtonEvent>::param>>;
 
     using btn_up_event = core::event_handler<ButtonRelease, ButtonReleaseMask | ButtonPressMask,
                                              core::params<os::key_state, core::point>::
-                                             getter<get_state<XButtonEvent>,
+                                             getter<get_event_state<XButtonEvent>,
                                                     get<core::point, XButtonEvent>::param>>;
 
     using left_btn_dblclk_event = core::event_handler<ButtonRelease, ButtonPressMask | ButtonReleaseMask,
                                                       core::params<os::key_state, core::point>::
-                                                      getter<get_state<XButtonEvent>,
+                                                      getter<get_event_state<XButtonEvent>,
                                                              get<core::point, XButtonEvent>::param>,
                                                       0,
                                                       double_click_matcher<Button1>>;
 
     using right_btn_dblclk_event = core::event_handler<ButtonRelease, ButtonPressMask | ButtonReleaseMask,
                                                        core::params<os::key_state, core::point>::
-                                                       getter<get_state<XButtonEvent>,
+                                                       getter<get_event_state<XButtonEvent>,
                                                               get<core::point, XButtonEvent>::param>,
                                                        0,
                                                        double_click_matcher<Button3>>;
     using middle_btn_dblclk_event = core::event_handler<ButtonRelease, ButtonPressMask | ButtonReleaseMask,
                                                         core::params<os::key_state, core::point>::
-                                                        getter<get_state<XButtonEvent>,
+                                                        getter<get_event_state<XButtonEvent>,
                                                                get<core::point, XButtonEvent>::param>,
                                                         0,
                                                         double_click_matcher<Button2>>;

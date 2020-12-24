@@ -26,12 +26,12 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      inline const list_state list_base::get_state () const {
-        return list_state(*this);
+      inline const list_state::is list_base::get_state () const {
+        return list_state::is(flags);
       }
 
-      inline list_state list_base::get_state () {
-        return list_state(*this);
+      inline list_state::set list_base::set_state () {
+        return list_state::set(flags);
       }
 
       inline std::size_t list_base::get_count () const {
@@ -69,11 +69,11 @@ namespace gui {
       }
 
       inline bool list_base::is_scroll_bar_enabled () const {
-        return get_state().is_scroll_bar_enabled();
+        return get_state().scroll_bar_enabled();
       }
 
       inline bool list_base::is_moved () const {
-        return get_state().is_moved();
+        return get_state().moved();
       }
 
       inline core::point list_base::get_last_mouse_point () const {
@@ -188,7 +188,7 @@ namespace gui {
 
     template<orientation_t V, typename T>
     void basic_list<V, T>::enable_scroll_bar (bool enable) {
-      super::get_state().set_scroll_bar_enabled(enable);
+      super::set_state().scroll_bar_enabled(enable);
       if (enable) {
         create_scroll_bar(client_size());
       }
@@ -433,7 +433,7 @@ namespace gui {
     template<orientation_t V, typename T>
     inline void basic_list<V, T>::handle_wheel (const pos_t delta, const core::point&) {
       set_scroll_pos(get_scroll_pos() - traits.get_line_size() * delta);
-      super::get_state().set_moved(true);
+      super::set_state().moved(true);
     }
 
     template<orientation_t V, typename T>
@@ -445,7 +445,7 @@ namespace gui {
           super::set_cursor(win::cursor::move());
           pos_t delta = traits.get_1(super::get_last_mouse_point()) - traits.get_1(pt);
           set_scroll_pos(get_scroll_pos() + delta);
-          super::get_state().set_moved(true);
+          super::set_state().moved(true);
         }
         super::data.last_mouse_point = pt;
       } else {
@@ -511,7 +511,7 @@ namespace gui {
         graph.fill(draw::rectangle(core::rectangle(place.top_left(), area.x2y2())), back_brush);
       }
 
-      if (super::has_focus()) {
+      if (super::is_focused()) {
         draw::frame::dots(graph, area);
       }
 

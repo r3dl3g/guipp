@@ -400,8 +400,8 @@ namespace gui {
         return n.label;
       }
 
-      inline const tree_icon& default_node_info::icon (type const&, bool has_children, bool is_open, bool selected) {
-        return standard_icon(has_children, is_open, selected);
+      inline const gui::tree::tree_icon& default_node_info::icon (type const&, bool has_children, bool is_open, bool selected) {
+        return gui::tree::standard_icon(has_children, is_open, selected);
       }
 
     } // tree

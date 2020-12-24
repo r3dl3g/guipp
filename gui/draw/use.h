@@ -22,6 +22,7 @@
 // Library includes
 //
 #include <gui/core/guidefs.h>
+#include <gui/draw/draw_fwd.h>
 #include <gui++-draw-export.h>
 
 
@@ -72,11 +73,6 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct pen;
-    struct brush;
-    struct font;
-
-    // --------------------------------------------------------------------------
     template<>
     void Use<pen>::set (const pen&);
 
@@ -103,11 +99,6 @@ namespace gui {
 
       os::graphics g;
     };
-
-    // --------------------------------------------------------------------------
-    struct pen;
-    struct brush;
-    struct font;
 
     // --------------------------------------------------------------------------
     template<>

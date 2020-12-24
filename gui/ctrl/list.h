@@ -26,6 +26,8 @@
 #include <gui/ctrl/scroll_bar.h>
 #include <gui/ctrl/edit.h>
 #include <gui/ctrl/list_state.h>
+#include <gui/draw/brush.h>
+#include <gui/look/control.h>
 
 #include <util/string_util.h>
 #include <gui/core/orientation_traits.h>
@@ -212,8 +214,8 @@ namespace gui {
                    bool grab_focus = true);
         list_base (list_base&&);
 
-        const list_state get_state() const;
-        list_state get_state();
+        const list_state::is get_state() const;
+        list_state::set set_state();
 
         std::size_t get_count () const;
         int get_selection () const;

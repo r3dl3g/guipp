@@ -26,6 +26,7 @@
 #include <gui/ctrl/list.h>
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/button.h>
+#include <gui/look/drop_down.h>
 
 
 namespace gui {
@@ -54,22 +55,6 @@ namespace gui {
   } // layout
 
   namespace ctrl {
-
-    // --------------------------------------------------------------------------
-    namespace paint {
-
-      GUIPP_CTRL_EXPORT void drop_down_item (const draw::graphics& g,
-                           const core::rectangle& r,
-                           const draw::brush& background,
-                           const std::string& label,
-                           item_state state);
-
-      GUIPP_CTRL_EXPORT void drop_down_button (const draw::graphics& graph,
-                             const core::rectangle& r,
-                             const button_state& state,
-                             bool is_open);
-
-    } // paint
 
     // --------------------------------------------------------------------------
     template<typename T>

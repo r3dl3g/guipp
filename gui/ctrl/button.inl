@@ -38,24 +38,24 @@ namespace gui {
       super::create(clazz::get(), parent, place);
     }
 
-    inline const button_state button_base::get_state () const {
-      return button_state(*this);
+    inline const button_state::is button_base::get_state () const {
+      return button_state::is(flags);
     }
 
-    inline button_state button_base::get_state () {
-      return button_state(*this);
+    inline button_state::set button_base::set_state () {
+      return button_state::set(flags);
     }
 
     inline bool button_base::is_hilited () const {
-      return get_state().is_hilited();
+      return get_state().hilited();
     }
 
     inline bool button_base::is_pushed () const {
-      return get_state().is_pushed();
+      return get_state().pushed();
     }
 
     inline bool button_base::is_checked () const {
-      return get_state().is_checked();
+      return get_state().checked();
     }
 
     // --------------------------------------------------------------------------
@@ -93,21 +93,6 @@ namespace gui {
       : super(std::move(rhs)) {
       traits.init(*this);
       init();
-    }
-
-    template<class T>
-    void basic_button<T>::set_hilited (bool b) {
-      traits.set_hilited(*this, b);
-    }
-
-    template<class T>
-    void basic_button<T>::set_pushed (bool b) {
-      traits.set_pushed(*this, b);
-    }
-
-    template<class T>
-    void basic_button<T>::set_checked (bool b) {
-      traits.set_checked(*this, b);
     }
 
     template<class T>

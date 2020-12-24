@@ -355,7 +355,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     os::key_state get_key_state (const core::event& e) {
-      return static_cast<os::key_state>(get_state<XKeyEvent>(e));
+      return static_cast<os::key_state>(get_event_state<XKeyEvent>(e));
     }
 
     // --------------------------------------------------------------------------

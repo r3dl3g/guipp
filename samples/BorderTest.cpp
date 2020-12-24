@@ -15,6 +15,7 @@
 #include <gui/layout/attach_layout.h>
 #include <gui/layout/lineup_layout.h>
 #include <gui/draw/graphics.h>
+#include <gui/draw/pen.h>
 #include <gui/draw/bitmap.h>
 #include <gui/io/pnm.h>
 #include <gui/io/pnm_to_src.h>
@@ -388,21 +389,22 @@ void my_main_window::onCreated () {
   right_view.create(*this, core::rectangle(0, 0, 200, 400));
   simple_tree::type root;
   root.label = "root";
+  typedef ctrl::tree::node node;
   root.add_nodes({
-    tree::node("leaf 1"),
-    tree::node("sub 2", {
-      tree::node("sub 2.1", {
-        tree::node("leaf 2.1.1"),
-        tree::node("leaf 2.1.2")
+    node("leaf 1"),
+    node("sub 2", {
+      node("sub 2.1", {
+        node("leaf 2.1.1"),
+        node("leaf 2.1.2")
       }),
-      tree::node("sub 2.2", {
-        tree::node("leaf 2.2.1"),
-        tree::node("leaf 2.2.2"),
-        tree::node("leaf 2.2.3")
+      node("sub 2.2", {
+        node("leaf 2.2.1"),
+        node("leaf 2.2.2"),
+        node("leaf 2.2.3")
       }),
-      tree::node("leaf 2.3")
+      node("leaf 2.3")
     }),
-    tree::node("leaf 3")
+    node("leaf 3")
   });
   right_view.first.set_root(root);
   root.label = "root2";

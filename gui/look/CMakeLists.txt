@@ -44,7 +44,7 @@ if(NOT TARGET gui++-look-obj)
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
     add_definitions(-Dgui___look_obj_EXPORTS)
     add_library(gui++-look SHARED $<TARGET_OBJECTS:gui++-look-obj>)
-    target_link_libraries(gui++-look PRIVATE gui++-core gui++-draw gui++-io ${GUIPP_SYS_LIBRARIES})
+    target_link_libraries(gui++-look PRIVATE gui++-core gui++-win gui++-draw gui++-io ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
     set_target_properties(gui++-look PROPERTIES
       POSITION_INDEPENDENT_CODE ON
       FOLDER libraries

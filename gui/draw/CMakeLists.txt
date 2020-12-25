@@ -39,7 +39,7 @@ if(NOT TARGET gui++-draw-obj)
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
     add_definitions(-Dgui___draw_obj_EXPORTS)
     add_library(gui++-draw SHARED $<TARGET_OBJECTS:gui++-draw-obj>)
-    target_link_libraries(gui++-draw PRIVATE gui++-core ${GUIPP_SYS_LIBRARIES})
+    target_link_libraries(gui++-draw PRIVATE gui++-core ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
     set_target_properties(gui++-draw PROPERTIES
       POSITION_INDEPENDENT_CODE ON
       FOLDER libraries

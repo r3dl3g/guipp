@@ -55,7 +55,7 @@ namespace gui {
       };
 
     public:
-      struct is {
+      struct GUIPP_WIN_EXPORT is {
 
         is (const state_type& state);
 
@@ -73,7 +73,7 @@ namespace gui {
         const state_type& state;
       };
 
-      struct set {
+      struct GUIPP_WIN_EXPORT set {
 
         set (state_type& state);
 

@@ -31,9 +31,9 @@ namespace gui {
   namespace paint {
 
     void slider (const draw::graphics& graph,
-                const core::rectangle& area,
-                bool focused,
-                const draw::frame::drawer frame) {
+                 const core::rectangle& area,
+                 bool focused,
+                 draw::frame::drawer frame) {
       core::rectangle place = area;
       graph.fill(draw::rectangle(place), color::buttonColor());
       frame(graph, place);

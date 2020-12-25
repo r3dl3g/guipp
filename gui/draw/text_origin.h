@@ -159,10 +159,10 @@ namespace gui {
 
 namespace std {
 
-  GUIPP_CORE_EXPORT ostream& operator<< (ostream&, gui::placement_t);
+  GUIPP_DRAW_EXPORT ostream& operator<< (ostream&, gui::placement_t);
 
-  GUIPP_CORE_EXPORT ostream& operator<< (ostream&, gui::line_handling_t);
+  GUIPP_DRAW_EXPORT ostream& operator<< (ostream&, gui::line_handling_t);
 
-  GUIPP_CORE_EXPORT ostream& operator<< (ostream&, gui::text_origin_t);
+  GUIPP_DRAW_EXPORT ostream& operator<< (ostream&, gui::text_origin_t);
 
 } // namespace std

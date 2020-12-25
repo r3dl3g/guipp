@@ -45,7 +45,7 @@ if(NOT TARGET gui++-ctrl-obj)
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
     add_definitions(-Dgui___ctrl_obj_EXPORTS)
     add_library(gui++-ctrl SHARED $<TARGET_OBJECTS:gui++-ctrl-obj>)
-    target_link_libraries(gui++-ctrl PRIVATE gui++-core gui++-win gui++-draw gui++-io gui++-look ${GUIPP_SYS_LIBRARIES})
+    target_link_libraries(gui++-ctrl PRIVATE gui++-core gui++-win gui++-draw gui++-io gui++-layout gui++-look ${LOGGING_LIBRARIES} ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
     set_target_properties(gui++-ctrl PROPERTIES
       POSITION_INDEPENDENT_CODE ON
       FOLDER libraries

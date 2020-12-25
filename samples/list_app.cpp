@@ -3,11 +3,7 @@
 #include <gui/layout/layout_container.h>
 #include <gui/layout/border_layout.h>
 #include <gui/ctrl/file_tree.h>
-#include <logging/core.h>
 
-#define NOTHING
-
-DEFINE_LOGGING_CORE(NOTHING)
 
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {

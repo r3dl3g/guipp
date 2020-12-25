@@ -34,4 +34,4 @@
 DEFINE_LOGGING_CORE(GUIPP_EXPORT)
 #endif
 
-GUIPP_EXPORT std::string guipp_version = gui_PRODUCT_VERSION;
+GUIPP_EXPORT std::string guipp_version = GUIPP_PRODUCT_VERSION;

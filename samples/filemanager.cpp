@@ -3,11 +3,7 @@
 #include <gui/ctrl/menu.h>
 #include <gui/layout/layout.h>
 #include <util/string_util.h>
-#include <logging/core.h>
 
-#define NOTHING
-
-DEFINE_LOGGING_CORE(NOTHING)
 
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {

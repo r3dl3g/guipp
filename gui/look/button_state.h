@@ -34,7 +34,7 @@ namespace gui {
     struct GUIPP_LOOK_EXPORT button_state : public win::window_state {
       typedef window_state super;
 
-      struct is : public super::is {
+      struct GUIPP_LOOK_EXPORT is : public super::is {
 
         is (const win::state_type& state);
 
@@ -44,7 +44,7 @@ namespace gui {
 
       };
 
-      struct set : public super::set  {
+      struct GUIPP_LOOK_EXPORT set : public super::set  {
 
         set (win::state_type& state);
 

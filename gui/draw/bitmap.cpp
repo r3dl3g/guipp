@@ -559,6 +559,9 @@ namespace gui {
       bitmap_info bmi;
       bitmap_get_data(get_id(), data, bmi);
       bwmap bmp(std::move(data), std::move(bmi));
+#if GUIPP_WIN
+      bmp.invert();
+#endif //GUIPP_WIN
       return std::move(bmp);
     }
 

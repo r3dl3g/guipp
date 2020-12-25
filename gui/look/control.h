@@ -24,7 +24,6 @@
 //
 #include <gui/core/core_fwd.h>
 #include <gui/draw/draw_fwd.h>
-#include <gui/draw/text_origin.h>
 #include <gui++-look-export.h>
 
 
@@ -44,7 +43,7 @@ namespace gui {
                                       const draw::brush& background,
                                       const std::string& text,
                                       const ctrl::item_state& state,
-                                      text_origin_t origin_t = text_origin_t::vcenter_left);
+                                      const text_origin_t& origin_t = text_origin_t::vcenter_left);
 
   } // namespace paint
 

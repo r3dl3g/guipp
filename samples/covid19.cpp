@@ -10,7 +10,6 @@
 #include <gui/layout/grid_layout.h>
 #include <gui/layout/adaption_layout.h>
 #include <gui/layout/lineup_layout.h>
-#include <logging/core.h>
 #include <logging/file_logger.h>
 #include <util/csv_reader.h>
 #include <util/time_util.h>
@@ -23,9 +22,6 @@
 #include <fstream>
 #include <functional>
 
-#define NOTHING
-
-DEFINE_LOGGING_CORE(NOTHING)
 
 using namespace gui;
 using namespace gui::ctrl;

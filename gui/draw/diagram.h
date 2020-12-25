@@ -56,11 +56,11 @@ namespace gui {
       template<typename X, typename Y, typename P>
       struct get {
         inline static const X x (const P& p) {
-          return p.x;
+          return static_cast<X>(p.x);
         }
 
         inline static const Y y (const P& p) {
-          return p.y;
+          return static_cast<Y>(p.y);
         }
       };
 

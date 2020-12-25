@@ -4,11 +4,7 @@
 #include <gui/layout/border_layout.h>
 #include <gui/ctrl/label.h>
 #include <gui/draw/pen.h>
-#include <logging/core.h>
 
-#define NOTHING
-
-DEFINE_LOGGING_CORE(NOTHING)
 
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {

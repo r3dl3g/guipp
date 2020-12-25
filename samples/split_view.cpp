@@ -1,14 +1,9 @@
 
 #include <gui/win/container.h>
-#include <logging/core.h>
 #include <gui/layout/layout_container.h>
 #include <gui/layout/adaption_layout.h>
 #include <gui/ctrl/split_view.h>
 #include <gui/ctrl/label.h>
-
-#define NOTHING
-
-DEFINE_LOGGING_CORE(NOTHING)
 
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {

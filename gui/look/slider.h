@@ -36,7 +36,7 @@ namespace gui {
     GUIPP_LOOK_EXPORT void slider (const draw::graphics& graph,
                                    const core::rectangle& area,
                                    bool focused,
-                                   const draw::frame::drawer frame);
+                                   draw::frame::drawer frame);
 
   }
 

@@ -88,8 +88,8 @@ namespace gui {
     return bits_per_pixels[static_cast<byte>(px_fmt)];
   }
 
-  pixel_format_t get_pixel_format (int pixel_format, core::byte_order_t byte_order_t);
-  core::byte_order_t get_pixel_format_byte_order (pixel_format_t px_fmt);
+  GUIPP_CORE_EXPORT pixel_format_t get_pixel_format (int pixel_format, core::byte_order_t byte_order_t);
+  GUIPP_CORE_EXPORT core::byte_order_t get_pixel_format_byte_order (pixel_format_t px_fmt);
 
   template<pixel_format_t px_fmt>
   struct color_depth {

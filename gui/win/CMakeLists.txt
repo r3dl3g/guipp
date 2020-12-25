@@ -39,7 +39,7 @@ if(NOT TARGET gui++-win-obj)
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
     add_definitions(-Dgui___win_obj_EXPORTS)
     add_library(gui++-win SHARED $<TARGET_OBJECTS:gui++-win-obj>)
-    target_link_libraries(gui++-win PRIVATE gui++-core ${GUIPP_SYS_LIBRARIES})
+    target_link_libraries(gui++-win PRIVATE gui++-core ${LOGGING_LIBRARIES} ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
     set_target_properties(gui++-win PROPERTIES
       POSITION_INDEPENDENT_CODE ON
       FOLDER libraries

@@ -33,7 +33,7 @@ namespace std {
 
   using namespace gui;
 
-  GUIPP_CORE_EXPORT ostream& operator<< (ostream& out, placement_t v) {
+  ostream& operator<< (ostream& out, placement_t v) {
     const placement_t hvalue = static_cast<placement_t>(v & (placement_t::left|placement_t::hcenter|placement_t::right));
     switch (hvalue) {
       case placement_t::left:     out << "left | ";    break;
@@ -49,7 +49,7 @@ namespace std {
     return out;
   }
 
-  GUIPP_CORE_EXPORT ostream& operator<< (ostream& out, line_handling_t v) {
+  ostream& operator<< (ostream& out, line_handling_t v) {
     const line_handling_t value = static_cast<line_handling_t>(v & (line_handling_t::singleline | line_handling_t::wordbreak));
     switch (value) {
       case line_handling_t::singleline:      out << "top";     break;
@@ -58,7 +58,7 @@ namespace std {
     return out;
   }
 
-  GUIPP_CORE_EXPORT ostream& operator<< (ostream& out, gui::text_origin_t v) {
+  ostream& operator<< (ostream& out, gui::text_origin_t v) {
     out << static_cast<placement_t>(v) << " | " << static_cast<line_handling_t>(v);
     return out;
   }

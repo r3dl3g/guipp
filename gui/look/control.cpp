@@ -25,7 +25,9 @@
 #include <gui/draw/bitmap.h>
 #include <gui/draw/brush.h>
 #include <gui/draw/font.h>
+#include <gui/draw/text_origin.h>
 #include <gui/ctrl/item_state.h>
+#include <gui/look/control.h>
 
 
 namespace gui {
@@ -38,7 +40,7 @@ namespace gui {
                     const draw::brush& background,
                     const std::string& text,
                     const ctrl::item_state& state,
-                    text_origin_t origin) {
+                    const text_origin_t& origin) {
       using namespace draw;
       g.fill(rectangle(place), ctrl::item_state::selected == state ? color::highLightColor() : background);
       os::color col = color::windowTextColor();

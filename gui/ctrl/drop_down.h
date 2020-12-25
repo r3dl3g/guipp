@@ -80,7 +80,7 @@ namespace gui {
     using indirect_dropdown_data = indirect_list_data<T, D>;
 
     // --------------------------------------------------------------------------
-    class GUIPP_LAYOUT_EXPORT drop_down_list : public win::group_window<layout::drop_down> {
+    class GUIPP_CTRL_EXPORT drop_down_list : public win::group_window<layout::drop_down> {
     public:
       typedef win::group_window<layout::drop_down> super;
       typedef vertical_list list_type;

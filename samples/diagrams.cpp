@@ -2,15 +2,10 @@
 #include <gui/win/container.h>
 #include <gui/draw/diagram.h>
 #include <gui/core/grid.h>
-#include <logging/core.h>
 #ifdef WIN32
-#define _USE_MATH_DEFINES
 #include <math.h>
 #endif // GUIPP_WIN
 
-#define NOTHING
-
-DEFINE_LOGGING_CORE(NOTHING)
 
 using namespace gui;
 using namespace gui::draw;
@@ -307,7 +302,7 @@ void draw_graph_10 (const graphics& graph, const core::rectangle& area) {
   chart<int, double, scaling::linear, scaling::symlog> d(area, {-100, 100}, {0.01, 10000.0});
   clog::trace() << "Draw xscale in graph 10";
   d.draw_xscale(graph, 50, 10);
-  auto fmt = [] (float i) {
+  auto fmt = [] (double i) {
     return ostreamfmt(i);
   };
   clog::trace() << "Draw yscale in graph 10";
@@ -322,7 +317,7 @@ void draw_graph_11 (const graphics& graph, const core::rectangle& area) {
   clog::trace() << "Draw graph 11 in area:" << area;
 
   chart<double, double, scaling::symlog, scaling::symlog> d(area, {0.01, 100}, {0.01, 1000.0});
-  auto fmt = [] (float i) {
+  auto fmt = [] (double i) {
     return ostreamfmt(i);
   };
   d.draw_xscale(graph, 1, 1, fmt);
@@ -335,7 +330,7 @@ void draw_graph_12 (const graphics& graph, const core::rectangle& area) {
   clog::trace() << "Draw graph 12 in area:" << area;
 
   chart<double, double, scaling::symlog, scaling::linear> d(area, {0.01, 100}, {-1000.0, 1000.0});
-  auto fmt = [] (float i) {
+  auto fmt = [] (double i) {
     return ostreamfmt(i);
   };
   d.draw_xscale(graph, 1, 1, fmt);

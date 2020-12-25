@@ -122,7 +122,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<os::color background = IF_WIN32_ELSE((os::color)(COLOR_WINDOW + 1), color::white)>
-    class GUIPP_CTRL_EXPORT scroll_view : public scroll_view_base {
+    class scroll_view : public scroll_view_base {
     public:
       typedef scroll_view_base super;
       typedef win::window_class<scroll_view, background> clazz;

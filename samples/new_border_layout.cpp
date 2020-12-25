@@ -9,11 +9,7 @@
 #include <gui/ctrl/split_view.h>
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/textbox.h>
-#include <logging/core.h>
 
-#define NOTHING
-
-DEFINE_LOGGING_CORE(NOTHING)
 
 using namespace gui;
 using namespace gui::win;

@@ -9,11 +9,7 @@
 #include <gui/ctrl/label.h>
 #include <gui/draw/brush.h>
 #include <gui/draw/font.h>
-#include <logging/core.h>
 
-#define NOTHING
-
-DEFINE_LOGGING_CORE(NOTHING)
 
 struct drawing {
 

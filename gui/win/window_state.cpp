@@ -53,15 +53,15 @@ namespace gui {
     }
 
     bool window_state::is::enabled () const {
-#ifdef GUIPP_WIN
-      return win.is_valid() && IsWindowEnabled(win.get_id());
-#elif GUIPP_X11
       return !test(flags::window_disabled);
-#elif GUIPP_QT
-      return win.is_valid() && win.get_id()->isEnabled();
-#else
-# error Undefined system: window_state::is_enabled ()
-#endif // GUIPP_X11
+//#ifdef GUIPP_WIN
+//      return win.is_valid() && IsWindowEnabled(win.get_id());
+//#elif GUIPP_X11
+//#elif GUIPP_QT
+//      return win.is_valid() && win.get_id()->isEnabled();
+//#else
+//# error Undefined system: window_state::is_enabled ()
+//#endif // GUIPP_X11
     }
 
     bool window_state::is::overlapped () const {

@@ -37,6 +37,7 @@ struct test_initializer {
   test_initializer ()
     : dbgStrm(nullptr)
   {
+#ifdef GUIPP_WIN
     testing::set_error_log([] (const std::string& s) {
       clog::error().raw() << s;
     });
@@ -51,6 +52,7 @@ struct test_initializer {
       dbgStrm = nullptr;
       logging::core::instance().finish();
     });
+#endif // GUIPP_WIN
   }
 
 };

@@ -520,12 +520,14 @@ void test_file_icon () {
 
   draw::bitmap m(mask);
   draw::pixmap img(mask);
+  img.invert();
 
   {
     draw::graphics g(img);
     for (int32_t y = 0; y < 20; ++y) {
       for (int32_t x = 0; x < 20; ++x) {
-        const os::color  expected = gui::color::system_bw_colors::value[expected_bit_at_inv(x, y)];
+        const os::color expected = expected_bit_at_inv(x, y) ? color::black : color::white;
+            //gui::color::system_bw_colors::value[expected_bit_at_inv(x, y)];
         const os::color test = color::remove_transparency(g.get_pixel({x, y}));
         EXPECT_EQUAL(test, expected, " in test_file_icon at x = ", x, ", y = ", y);
       }
@@ -542,7 +544,7 @@ void test_file_icon () {
 
     for (int32_t y = 0; y < 20; ++y) {
       for (int32_t x = 0; x < 20; ++x) {
-        os::color expected = expected_bit_at_inv(x, y) ? color::gray : color::black;
+        os::color expected = expected_file_icon_map[y][x];
         os::color test = color::remove_transparency(g.get_pixel({x, y}));
         EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
       }

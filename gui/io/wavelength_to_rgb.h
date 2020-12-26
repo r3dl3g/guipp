@@ -41,7 +41,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------
-      GUIPP_IO_EXPORT os::color wave_length_to_rgb (const double wave);
+      GUIPP_IO_EXPORT os::color wave_length_to_rgb (double wave);
 
     } // namespace optics
 

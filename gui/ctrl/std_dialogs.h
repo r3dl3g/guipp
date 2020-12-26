@@ -277,10 +277,6 @@ namespace gui {
     public:
       typedef standard_dialog<dir_file_view<T>> super;
 
-      path_open_dialog_base ();
-      path_open_dialog_base (const path_open_dialog_base&);
-      path_open_dialog_base (path_open_dialog_base&&);
-
       void create (win::container& parent,
                    const std::string& title,
                    const std::string& ok_label,
@@ -307,8 +303,6 @@ namespace gui {
     public:
       typedef standard_dialog<dir_file_view<>, 30> super;
       typedef win::group_window<layout::border::layouter<4, 4, 120, 4>, color::very_very_light_gray> top_view_type;
-
-      file_save_dialog ();
 
       void create (win::container& parent,
                    const std::string& title,

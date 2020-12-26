@@ -169,7 +169,7 @@ namespace gui {
       window_ic_map s_window_ic_map;
 
       XIC get_window_ic (os::window id) {
-        window_ic_map::iterator i = s_window_ic_map.find(id);
+        auto i = s_window_ic_map.find(id);
         if (i != s_window_ic_map.end()) {
           return i->second;
         }
@@ -245,7 +245,7 @@ namespace gui {
       }
 
       void set_window (os::window id, window* win) {
-        const unsigned char* data = (const unsigned char*)&win;
+        const auto* data = (const unsigned char*)&win;
 #ifdef LOG_GET_WINDOW_PROPERTY
         clog::debug() << "set window " << id << ": "
                  << (int)data[0] << ' ' << (int)data[1] << ' ' << (int)data[2] << ' ' << (int)data[3] << ' '
@@ -365,7 +365,7 @@ namespace gui {
         detail::hot_keys.erase(i);
       }
 
-      int register_message_filter (detail::filter_call filter) {
+      int register_message_filter (const detail::filter_call& filter) {
         detail::message_filters.emplace_back(std::make_pair(detail::g_next_filter_id, filter));
         return detail::g_next_filter_id++;
       }
@@ -471,7 +471,7 @@ namespace gui {
         }
 
         if (!x11::s_im) {
-          x11::s_im = XOpenIM(core::global::get_instance(), NULL, NULL, NULL);
+          x11::s_im = XOpenIM(core::global::get_instance(), nullptr, nullptr, nullptr);
           XIMStyle app_supported_styles = XIMPreeditNone | XIMPreeditNothing | XIMPreeditArea |
                                           XIMStatusNone | XIMStatusNothing | XIMStatusArea;
 
@@ -495,7 +495,7 @@ namespace gui {
       void unregister_utf8_window (const window& win) {
         os::window id = detail::get_window_id(win);
 
-        x11::window_ic_map::iterator i = x11::s_window_ic_map.find(id);
+        auto i = x11::s_window_ic_map.find(id);
         if (i != x11::s_window_ic_map.end()) {
           XIC ic = i->second;
           if (ic) {
@@ -625,7 +625,7 @@ namespace gui {
 #endif
 
     // --------------------------------------------------------------------------
-    int run_loop (volatile bool& running, detail::filter_call filter) {
+    int run_loop (volatile bool& running, const detail::filter_call& filter) {
 
       running = true;
 
@@ -676,7 +676,7 @@ namespace gui {
         // Define our timeout. Ten milliseconds sounds good.
         timeval timeout {.tv_sec = 0, .tv_usec = 10000 };
         // Wait for next XEvent or a timer out
-        const int num_ready_fds = select(x11_fd + 1, &in_fds, NULL, NULL, &timeout);
+        const int num_ready_fds = select(x11_fd + 1, &in_fds, nullptr, nullptr, &timeout);
 
 //        clog::debug() << "select returned: " << num_ready_fds;
 
@@ -748,7 +748,7 @@ namespace gui {
 #endif // GUIPP_QT
     }
 
-    void run_on_main (std::function<void()> action) {
+    void run_on_main (const std::function<void()>& action) {
 #ifdef GUIPP_X11
       x11::queued_actions.enqueue(action);
 //      auto* win = global::get_application_main_window();

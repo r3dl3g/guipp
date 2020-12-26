@@ -60,7 +60,7 @@ namespace gui {
       using window::create;
 
       container (const container&);
-      container (container&&);
+      container (container&&) noexcept ;
 
     private:
       os::window get_id () const;
@@ -112,7 +112,7 @@ namespace gui {
 
       modal_window ();
       modal_window (const modal_window&);
-      modal_window (modal_window&&);
+      modal_window (modal_window&&) noexcept ;
 
       void end_modal ();
       void run_modal (window&);

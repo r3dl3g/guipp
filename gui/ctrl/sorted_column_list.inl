@@ -24,8 +24,8 @@ namespace gui {
 
     template<typename L, typename ... A>
     sorted_column_list_t<L, A...>::sorted_column_list_t (gui::core::size::type item_size,
-                                                      gui::os::color background,
-                                                      bool grab_focus)
+                                                         gui::os::color background,
+                                                         bool grab_focus)
       : super(item_size, background, grab_focus)
     {
       init();
@@ -39,14 +39,14 @@ namespace gui {
     }
 
     template<typename L, typename ... A>
-    sorted_column_list_t<L, A...>::sorted_column_list_t (sorted_column_list_t&& rhs)
+    sorted_column_list_t<L, A...>::sorted_column_list_t (sorted_column_list_t&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();
     }
 
     template<typename L, typename ... A>
-    void sorted_column_list_t<L, A...>::on_sort (std::function<sort_callback> s) {
+    void sorted_column_list_t<L, A...>::on_sort (const std::function<sort_callback>& s) {
       sorter = s;
     }
 

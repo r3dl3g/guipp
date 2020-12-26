@@ -31,7 +31,7 @@
 namespace gui {
 
   // --------------------------------------------------------------------------
-  namespace paint {
+  namespace look {
 
     GUIPP_LOOK_EXPORT void slider (const draw::graphics& graph,
                                    const core::rectangle& area,

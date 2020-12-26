@@ -36,7 +36,7 @@ namespace gui {
 
       struct GUIPP_LOOK_EXPORT is : public super::is {
 
-        is (const win::state_type& state);
+        explicit is (const win::state_type& state);
 
         bool pushed () const;
         bool hilited () const;
@@ -46,7 +46,7 @@ namespace gui {
 
       struct GUIPP_LOOK_EXPORT set : public super::set  {
 
-        set (win::state_type& state);
+        explicit set (win::state_type& state);
 
         bool hilited (bool b);
         bool pushed (bool b);

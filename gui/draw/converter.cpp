@@ -66,7 +66,7 @@ namespace gui {
 
       param param::create (uint32_t v, double scale, uint32_t max) {
         const double s = static_cast<double>(v) * scale;
-        uint32_t v0 = static_cast<uint32_t>(s);
+        auto v0 = static_cast<uint32_t>(s);
         uint32_t v1 = std::min(v0 + 1, max - 1);
         return {v0, v1, {s, v0}};
       }
@@ -123,7 +123,7 @@ namespace gui {
 
       param param::create (uint32_t v, double scale, uint32_t max) {
         const double s = static_cast<double>(v) * scale;
-        uint32_t v1 = static_cast<uint32_t>(s);
+        auto v1 = static_cast<uint32_t>(s);
         uint32_t v0 = v1 > 0 ? v1 - 1 : 0;
         uint32_t v2 = std::min(v1 + 1, max - 1);
         uint32_t v3 = std::min(v2 + 1, max - 1);
@@ -139,14 +139,14 @@ namespace gui {
       {}
 
       // --------------------------------------------------------------------------
-      double summation (const core::array_wrapper<const pixel::mono> src,
+      double summation (const core::array_wrapper<const pixel::mono>& src,
                         const bicubic::param& px) {
         return mono2double(src[px.v0]) * px.w.w0 + mono2double(src[px.v1]) * px.w.w1 +
                mono2double(src[px.v2]) * px.w.w2 + mono2double(src[px.v3]) * px.w.w3;
       }
 
       // --------------------------------------------------------------------------
-      double summation (const core::array_wrapper<const pixel::gray> src,
+      double summation (const core::array_wrapper<const pixel::gray>& src,
                         const bicubic::param& px) {
         return static_cast<double>(src[px.v0].value) * px.w.w0 +
                static_cast<double>(src[px.v1].value) * px.w.w1 +

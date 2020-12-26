@@ -55,7 +55,7 @@ namespace gui {
       lineup_layout () = default;
       lineup_layout (std::initializer_list<layout_function> list);
 
-      void layout (const core::rectangle& sz) const;
+      void layout (const core::rectangle& r) const;
     };
 
     // --------------------------------------------------------------------------

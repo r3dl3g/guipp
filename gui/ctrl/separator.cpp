@@ -29,9 +29,6 @@ namespace gui {
 
     namespace detail {
 
-      separator_base::separator_base ()
-      {}
-
       void separator_base::create (win::container& parent,
                                    const core::rectangle& place) {
         super::create(clazz::get(), parent, place);

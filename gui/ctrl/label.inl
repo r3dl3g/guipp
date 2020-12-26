@@ -82,7 +82,7 @@ namespace gui {
     }
 
     template<text_origin_t A, draw::frame::drawer D, os::color F, os::color B>
-    inline basic_label<A, D, F, B>::basic_label (basic_label&& rhs)
+    inline basic_label<A, D, F, B>::basic_label (basic_label&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();
@@ -91,7 +91,7 @@ namespace gui {
     template<text_origin_t align, draw::frame::drawer frame, os::color foreground, os::color background>
     inline void basic_label<align, frame, foreground, background>::paint (const draw::graphics& graph) {
       gui::core::rectangle place = frame(graph, client_area());
-      paint::label(graph, place, get_text(), foreground, background, align);
+      look::label(graph, place, get_text(), foreground, background, align);
     }
 
     template<text_origin_t A, draw::frame::drawer D, os::color F, os::color B>

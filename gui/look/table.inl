@@ -21,7 +21,7 @@
 
 namespace gui {
 
-  namespace paint {
+  namespace look {
 
     template<typename T, draw::frame::drawer F>
     inline void text_cell (const T& t,
@@ -36,6 +36,6 @@ namespace gui {
       F(graph, place);
     }
 
-  } // namespace paint
+  } // namespace look
 
 } // namespace gui

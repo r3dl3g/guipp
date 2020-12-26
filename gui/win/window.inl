@@ -33,7 +33,7 @@ namespace gui {
       id = w;
     }
 
-    inline const window_state::is window::get_state () const {
+    inline window_state::is window::get_state () const {
       return window_state::is(flags);
     }
 

@@ -81,29 +81,29 @@ namespace gui {
       datamap () = default;
 
       datamap (uint32_t w, uint32_t h);
-      datamap (const core::native_size& sz);
-      datamap (const const_image_data<T>& data);
-      datamap (const core::size& sz);
+      explicit datamap (const core::native_size& sz);
+      explicit datamap (const const_image_data<T>& data);
+      explicit datamap (const core::size& sz);
 
       datamap (const blob& data, const bitmap_info& bmi);
       datamap (blob&& data, bitmap_info&& bmi);
 
       template<pixel_format_t S>
-      datamap (const datamap<S>& src);
+      explicit datamap (const datamap<S>& src);
 
       template<pixel_format_t S>
-      datamap (const const_image_data<S>& src);
+      explicit datamap (const const_image_data<S>& src);
 
       void create (uint32_t w, uint32_t h);
       void create (const core::size& sz);
       void create (const core::native_size& sz);
-      void create (const const_image_data<T>& data);
+      void create (const const_image_data<T>& rhs);
 
       void copy_from (const datamap& src_img,
                       const core::native_rect& src_rect,
                       const core::native_point& dest_pt);
 
-      const const_image_data<T> get_data () const {
+      const_image_data<T> get_data () const {
         return super::get_data<T>();
       }
 

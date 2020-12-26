@@ -43,7 +43,7 @@ namespace gui {
                  win::window* edge,
                  view_type* client);
 
-      void layout (const core::rectangle& new_size) const;
+      void layout (const core::rectangle& r) const;
 
     private:
       view_type* client;

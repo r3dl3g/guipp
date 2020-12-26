@@ -55,15 +55,15 @@ namespace gui {
       byte depth () const;
       pixel_format_t pixel_format () const;
 
-      void operator= (const basic_map& rhs);
-      void operator= (basic_map&& rhs);
+      basic_map& operator= (const basic_map& rhs);
+      basic_map& operator= (basic_map&& rhs);
 
       static uint32_t calc_bytes_per_line (uint32_t w, pixel_format_t px_fmt);
 
     protected:
       basic_map ();
       basic_map (const basic_map&);
-      basic_map (basic_map&& rhs);
+      basic_map (basic_map&& rhs) noexcept ;
 
       void create (const bitmap_info& bmi);
 
@@ -78,12 +78,12 @@ namespace gui {
     public:
       typedef basic_map super;
 
-      bitmap ();
+      bitmap () = default;
 
-      bitmap (const bwmap& sz);
+      bitmap (const bwmap& rhs);
       bitmap (uint32_t w, uint32_t h);
-      bitmap (const core::native_size& sz);
-      bitmap (const core::size& sz);
+      explicit bitmap (const core::native_size& sz);
+      explicit bitmap (const core::size& sz);
 
       void create (uint32_t w, uint32_t h);
       void create (const core::native_size& sz);
@@ -107,7 +107,7 @@ namespace gui {
     public:
       typedef basic_map super;
 
-      pixmap ();
+      pixmap () = default;
 
       template<pixel_format_t T>
       pixmap (const datamap<T>& rhs);
@@ -130,7 +130,7 @@ namespace gui {
       void invert ();
 
       template<pixel_format_t T>
-      void operator= (const datamap<T>& rhs);
+      pixmap& operator= (const datamap<T>& rhs);
 
       template<pixel_format_t T>
       datamap<T> get () const;
@@ -160,25 +160,25 @@ namespace gui {
     public:
       typedef pixmap super;
 
-      masked_bitmap ();
+      masked_bitmap () = default;
 
       /// Copy/Move
-      masked_bitmap (const masked_bitmap&);
-      masked_bitmap (masked_bitmap&&);
+      masked_bitmap (const masked_bitmap&) = default;
+      masked_bitmap (masked_bitmap&&) = default;
 
       /**
        * Create from B/W Bitmap.
        * White will be transparent, black will be black.
        */
-      masked_bitmap (const bitmap& mask);
-      masked_bitmap (bitmap&& mask);
+      explicit masked_bitmap (const bitmap& rhs);
+      explicit masked_bitmap (bitmap&& mask);
 
       /**
        * Create from colored Pixmap.
        * Black will be transparent, all other will be painted.
        */
-      masked_bitmap (const pixmap& bmp);
-      masked_bitmap (pixmap&& bmp);
+      explicit masked_bitmap (const pixmap& rhs);
+      explicit masked_bitmap (pixmap&& rhs);
 
       /**
        * Create from colored Pixmap with bitmap mask.
@@ -187,14 +187,14 @@ namespace gui {
       masked_bitmap (const pixmap& bmp, const bitmap& mask);
       masked_bitmap (pixmap&& bmp, bitmap&& mask);
 
-      void operator= (const pixmap& bmp);
-      void operator= (pixmap&& bmp);
+      masked_bitmap& operator= (const pixmap& bmp);
+      masked_bitmap& operator= (pixmap&& bmp);
 
-      void operator= (const masked_bitmap& rhs);
-      void operator= (masked_bitmap&&);
+      masked_bitmap& operator= (const masked_bitmap& rhs);
+      masked_bitmap& operator= (masked_bitmap&&);
 
-      void operator= (const bitmap& bmp);
-      void operator= (bitmap&& bmp);
+      masked_bitmap& operator= (const bitmap& bmp);
+      masked_bitmap& operator= (bitmap&& bmp);
 
       core::native_size native_size () const;
 

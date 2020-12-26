@@ -42,7 +42,7 @@ namespace gui {
     }
 
     template<orientation_t H>
-    inline basic_scroll_bar<H>::basic_scroll_bar (basic_scroll_bar&& rhs)
+    inline basic_scroll_bar<H>::basic_scroll_bar (basic_scroll_bar&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();
@@ -278,7 +278,7 @@ namespace gui {
     }
 
     template<orientation_t H, scrollbar_drawer D>
-    scroll_bar_base<H, D>::scroll_bar_base (scroll_bar_base&& rhs)
+    scroll_bar_base<H, D>::scroll_bar_base (scroll_bar_base&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();

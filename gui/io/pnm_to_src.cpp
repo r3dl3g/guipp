@@ -21,14 +21,12 @@
 // Common includes
 //
 #include <iostream>
-#include <sstream>
 #include <iomanip>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <util/string_util.h>
 #include <gui/io/pnm_to_src.h>
 
 

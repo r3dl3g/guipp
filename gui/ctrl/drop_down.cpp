@@ -28,12 +28,12 @@ namespace gui {
 
   namespace layout {
 
-    core::rectangle drop_down::label_place (const core::rectangle& r) const {
+    core::rectangle drop_down::label_place (const core::rectangle& r) {
       core::size::type h = r.height() - 4;
       return core::rectangle(r.top_left() + core::point(2, 2), core::size(r.width() - h - 4, h));
     }
 
-    core::rectangle drop_down::button_place (const core::rectangle& r) const {
+    core::rectangle drop_down::button_place (const core::rectangle& r) {
       core::size::type h = r.height() - 4;
       return core::rectangle(r.top_left() + core::point(r.width() - h - 2, 2), core::size(h, h));
     }
@@ -63,7 +63,7 @@ namespace gui {
       init();
     }
 
-    drop_down_list::drop_down_list (drop_down_list&& rhs)
+    drop_down_list::drop_down_list (drop_down_list&& rhs) noexcept
       : super(std::move(rhs))
       , data(std::move(rhs.data))
       , me(util::bind_method(this, &drop_down_list::handle_move))
@@ -87,10 +87,10 @@ namespace gui {
       super::on_create(util::bind_method(this, &drop_down_list::create_children));
 
       data.button.on_paint(draw::paint([&](const draw::graphics & graph) {
-        paint::drop_down_button(graph,
-                                data.button.client_area(),
-                                data.button.get_state(),
-                                is_popup_visible());
+        look::drop_down_button(graph,
+                               data.button.client_area(),
+                               data.button.get_state(),
+                               is_popup_visible());
       }));
       data.button.on_clicked(util::bind_method(this, &drop_down_list::toggle_popup));
 
@@ -270,7 +270,7 @@ namespace gui {
     }
 
     drop_down_list::data::data (core::size::type item_size,
-                                             os::color background)
+                                os::color background)
       : items(item_size, background, false)
       , selection(-1)
       , visible_items(5)

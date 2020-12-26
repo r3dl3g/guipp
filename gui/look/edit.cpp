@@ -38,7 +38,7 @@
 
 namespace gui {
 
-  namespace paint {
+  namespace look {
 
     void edit_line (const draw::graphics& graph,
                     const core::rectangle& area,
@@ -101,6 +101,6 @@ namespace gui {
 #endif // SHOW_TEXT_AREA
     }
 
-  } // paint
+  } // look
 
 } // gui

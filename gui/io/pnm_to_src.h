@@ -43,18 +43,18 @@ namespace gui {
       GUIPP_IO_EXPORT void save_pnm_header_src (std::ostream& out, const std::string& name, PNM p, int w, int h, int max);
 
       template<pixel_format_t p>
-      void save_pnm_src (std::ostream& out, const draw::const_image_data<p>& data);
+      void save_pnm_src (std::ostream& out, const draw::const_image_data<p>& img);
 
       GUIPP_IO_EXPORT void write_pixel (std::ostream& out, const core::bit_wrapper<const pixel::mono>& pixel);
-      GUIPP_IO_EXPORT void write_pixel (std::ostream& out, const pixel::mono pixel);
-      GUIPP_IO_EXPORT void write_pixel (std::ostream& out, const pixel::gray pixel);
-      GUIPP_IO_EXPORT void write_pixel (std::ostream& out, const pixel::rgb pixel);
+      GUIPP_IO_EXPORT void write_pixel (std::ostream& out, pixel::mono pixel);
+      GUIPP_IO_EXPORT void write_pixel (std::ostream& out, pixel::gray pixel);
+      GUIPP_IO_EXPORT void write_pixel (std::ostream& out, pixel::rgb pixel);
 
       template<pixel_format_t T>
       void save_pnm_src (std::ostream& out, const draw::datamap<T>& bmp, const std::string& name);
 
       template<pixel_format_t T>
-      void save_pnm_src (const std::string& filename, const draw::datamap<T>& bmp, const std::string& name);
+      void save_pnm_src (const std::string& fname, const draw::datamap<T>& bmp, const std::string& name);
 
       // --------------------------------------------------------------------------
       template<pixel_format_t T>

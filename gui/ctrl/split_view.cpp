@@ -50,7 +50,7 @@ namespace gui {
     template<>
     core::rectangle split_view_traits<orientation_t::vertical>::get_first_place (const core::rectangle& sz,
                                                                                  double pos) {
-      const core::point::type w = core::point::type(sz.width() * pos - get_slider_width() / 2);
+      const auto w = core::point::type(sz.width() * pos - get_slider_width() / 2);
       return sz.with_width(w);
     }
 
@@ -71,7 +71,7 @@ namespace gui {
     template<>
     core::rectangle split_view_traits<orientation_t::horizontal>::get_first_place (const core::rectangle& sz,
                                                                                    double pos) {
-      const core::point::type h = core::point::type(sz.height() * pos - get_slider_width() / 2);
+      const auto h = core::point::type(sz.height() * pos - get_slider_width() / 2);
       return sz.with_height(h);
     }
 

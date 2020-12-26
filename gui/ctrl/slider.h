@@ -56,7 +56,7 @@ namespace gui {
 
         slider_base ();
         slider_base (const slider_base& rhs);
-        slider_base (slider_base&& rhs);
+        slider_base (slider_base&& rhs) noexcept ;
 
         void set_min (type min);
         void set_max (type min);
@@ -101,7 +101,7 @@ namespace gui {
 
         basic_slider ();
         basic_slider (const basic_slider& rhs);
-        basic_slider (basic_slider&& rhs);
+        basic_slider (basic_slider&& rhs) noexcept ;
 
         void create (win::container& parent,
                      const core::rectangle& place = core::rectangle::def);
@@ -124,7 +124,7 @@ namespace gui {
 
       basic_framed_slider ();
       basic_framed_slider (const basic_framed_slider& rhs);
-      basic_framed_slider (basic_framed_slider&& rhs);
+      basic_framed_slider (basic_framed_slider&& rhs) noexcept ;
 
     private:
       void paint (const draw::graphics& g);

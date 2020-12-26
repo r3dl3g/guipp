@@ -23,7 +23,6 @@
 #include <limits>
 #include <algorithm>
 #include <map>
-#include <math.h>
 
 // --------------------------------------------------------------------------
 //
@@ -33,7 +32,6 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/pen.h>
 #include <gui/draw/use.h>
-#include <logging/logger.h>
 
 
 #ifdef GUIPP_X11
@@ -441,16 +439,17 @@ namespace gui {
   namespace draw {
 
     // --------------------------------------------------------------------------
-    void basic_map::operator= (basic_map&& rhs) {
+    basic_map& basic_map::operator= (basic_map&& rhs) {
       if (&rhs != this) {
         clear();
         if (rhs.is_valid()) {
           std::swap(id, rhs.id);
         }
       }
+      return *this;
     }
 
-    void basic_map::operator= (const basic_map& rhs) {
+    basic_map& basic_map::operator= (const basic_map& rhs) {
       if (&rhs != this) {
         if (rhs) {
           bitmap_info bmi = rhs.get_info();
@@ -464,6 +463,7 @@ namespace gui {
           clear();
         }
       }
+      return *this;
     }
 
     bool basic_map::is_valid () const {
@@ -670,42 +670,48 @@ namespace gui {
       }
     }
 
-    void masked_bitmap::operator= (const masked_bitmap& rhs) {
+    masked_bitmap& masked_bitmap::operator= (const masked_bitmap& rhs) {
       if (&rhs != this) {
         image = rhs.image;
         mask = rhs.mask;
       }
+      return *this;
     }
 
-    void masked_bitmap::operator= (masked_bitmap&& rhs) {
+    masked_bitmap& masked_bitmap::operator= (masked_bitmap&& rhs) {
       if (&rhs != this) {
         image = std::move(rhs.image);
         mask = std::move(rhs.mask);
       }
+      return *this;
     }
 
-    void masked_bitmap::operator= (const pixmap& rhs) {
+    masked_bitmap& masked_bitmap::operator= (const pixmap& rhs) {
       image = rhs;
       if (image.is_valid()) {
         mask = image.get_mask({0x3f});
       }
+      return *this;
     }
 
-    void masked_bitmap::operator= (pixmap&& rhs) {
+    masked_bitmap& masked_bitmap::operator= (pixmap&& rhs) {
       image = std::move(rhs);
       if (image.is_valid()) {
         mask = image.get_mask({0x3f});
       }
+      return *this;
     }
 
-    void masked_bitmap::operator= (const bitmap& rhs) {
+    masked_bitmap& masked_bitmap::operator= (const bitmap& rhs) {
       mask = rhs;
       image.clear();
+      return *this;
     }
 
-    void masked_bitmap::operator= (bitmap&& rhs) {
+    masked_bitmap& masked_bitmap::operator= (bitmap&& rhs) {
       mask = std::move(rhs);
       image.clear();
+      return *this;
     }
 
     // --------------------------------------------------------------------------

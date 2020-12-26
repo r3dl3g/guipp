@@ -38,11 +38,12 @@ namespace gui {
         typedef control super;
         typedef no_erase_window_class<label_base> clazz;
 
-        label_base (const std::string& = std::string());
-        label_base (const text_source&);
+        explicit label_base (const std::string& = std::string());
+        explicit label_base (const text_source&);
+        explicit label_base (text_source&&) noexcept;
 
-        label_base (const label_base& rhs);
-        label_base (label_base&& rhs);
+        label_base (const label_base& rhs) = default;
+        label_base (label_base&& rhs) = default;
 
         void create (win::container& parent,
                      const core::rectangle& place = core::rectangle::def);
@@ -85,10 +86,10 @@ namespace gui {
     public:
       typedef detail::label_base super;
 
-      basic_label (const std::string& = std::string());
-      basic_label (const text_source&);
+      explicit basic_label (const std::string& = std::string());
+      explicit basic_label (const text_source&);
       basic_label (const basic_label& rhs);
-      basic_label (basic_label&& rhs);
+      basic_label (basic_label&& rhs) noexcept;
 
       void paint (const draw::graphics& graph);
 

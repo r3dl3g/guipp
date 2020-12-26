@@ -322,7 +322,7 @@ void test_bw_bilinear () {
   EXPECT_EQUAL(stretched.depth(), 1);
   EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::BW);
 
-  auto buffer = datamap2graysmap(stretched);
+  auto buffer = datamap2graysmap(graymap(stretched));
   EXPECT_EQUAL(buffer, graysmap2bwsmap(expected_bilinear[stretch_f]));
 }
 
@@ -382,7 +382,7 @@ void test_rgb_bilinear () {
   EXPECT_EQUAL(stretched.depth(), 24);
   EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::RGB);
 
-  auto buffer = datamap2graysmap(stretched);
+  auto buffer = datamap2graysmap(graymap(stretched));
   EXPECT_EQUAL(buffer, expected_bilinear[stretch_f]);
 }
 
@@ -410,7 +410,7 @@ void test_rgba_bilinear () {
   EXPECT_EQUAL(stretched.depth(), 24);
   EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::RGBA);
 
-  auto buffer = datamap2graysmap(stretched);
+  auto buffer = datamap2graysmap(graymap(stretched));
   EXPECT_EQUAL(buffer, expected_bilinear[stretch_f]);
 }
 
@@ -489,7 +489,7 @@ void test_bw_bicubic () {
   EXPECT_EQUAL(stretched.depth(), 1);
   EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::BW);
 
-  auto buffer = datamap2graysmap(stretched);
+  auto buffer = datamap2graysmap(graymap(stretched));
   EXPECT_EQUAL(buffer, graysmap2bwsmap(expected_bicubic[stretch_f]));
 }
 
@@ -549,7 +549,7 @@ void test_rgb_bicubic () {
   EXPECT_EQUAL(stretched.depth(), 24);
   EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::RGB);
 
-  auto buffer = datamap2graysmap(stretched);
+  auto buffer = datamap2graysmap(graymap(stretched));
   EXPECT_EQUAL(buffer, expected_bicubic[stretch_f]);
 }
 
@@ -577,7 +577,7 @@ void test_rgba_bicubic () {
   EXPECT_EQUAL(stretched.depth(), 24);
   EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::RGBA);
 
-  auto buffer = datamap2graysmap(stretched);
+  auto buffer = datamap2graysmap(graymap(stretched));
   EXPECT_EQUAL(buffer, expected_bicubic[stretch_f]);
 }
 

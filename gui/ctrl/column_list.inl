@@ -45,7 +45,7 @@ namespace gui {
 
       inline column_list_layout::column_list_layout (win::window* main, column_list_layout&& rhs)
         : main(main)
-        , list(std::move(rhs.list))
+        , list(rhs.list)
         , widths(std::move(rhs.widths))
         , aligns(std::move(rhs.aligns))
       {}
@@ -189,7 +189,7 @@ namespace gui {
     }
 
     template<typename Layout, os::color background>
-    column_list_header<Layout, background>::column_list_header (column_list_header&& rhs)
+    column_list_header<Layout, background>::column_list_header (column_list_header&& rhs) noexcept
       : super(std::move(rhs))
       , cell_drawer(std::move(rhs.cell_drawer))
       , last_mouse_point(std::move(rhs.last_mouse_point))
@@ -324,7 +324,7 @@ namespace gui {
       }
 
       template<typename Layout>
-      base_column_list<Layout>::base_column_list (base_column_list&& rhs)
+      base_column_list<Layout>::base_column_list (base_column_list&& rhs) noexcept
         : super(std::move(rhs))
         , header(std::move(rhs.header))
         , list(std::move(rhs.list))
@@ -372,7 +372,7 @@ namespace gui {
                       const draw::brush& background,
                       item_state state,
                       text_origin_t align) {
-      paint::text_item(graph, place, background, util::string::convert::from(t), state, align);
+      look::text_item(graph, place, background, util::string::convert::from(t), state, align);
       if (item_state::selected != state) {
         F(graph, place);
       }
@@ -434,7 +434,7 @@ namespace gui {
     {}
 
     template<typename L, typename ... A>
-    column_list_t<L, A ...>::column_list_t (column_list_t&& rhs)
+    column_list_t<L, A ...>::column_list_t (column_list_t&& rhs) noexcept
       : super(std::move(rhs))
     {}
 

@@ -168,7 +168,7 @@ namespace gui {
         init();
       }
 
-      edit_base::edit_base (edit_base&& rhs)
+      edit_base::edit_base (edit_base&& rhs) noexcept
         : super(std::move(rhs))
         , data(std::move(rhs.data))
       {
@@ -309,7 +309,7 @@ namespace gui {
         return get_text_in_range(get_selection());
       }
 
-      edit_base::pos_t edit_base::get_position_at_point (const core::point& pt) {
+      edit_base::pos_t edit_base::get_position_at_point (const core::point& pt) const {
         pos_t max_chars = data.text.size();
         for (pos_t i = data.scroll_pos + 1; i < max_chars; ++i) {
           core::size sz = draw::font::system().get_text_size(data.text.substr(data.scroll_pos, i - data.scroll_pos));
@@ -428,7 +428,7 @@ namespace gui {
               clog::debug() << "Key Ctrl + 0x" << std::hex << keycode;
               break;
             }
-          } else if (chars.size()) {
+          } else if (!chars.empty()) {
             replace_selection(chars);
             set_cursor_pos(data.selection.end(), false);
           }

@@ -72,7 +72,7 @@ namespace gui {
       init();
     }
 
-    scroll_bar::scroll_bar (scroll_bar&& rhs)
+    scroll_bar::scroll_bar (scroll_bar&& rhs) noexcept
       : super(std::move(rhs))
       , data(std::move(rhs.data))
     {

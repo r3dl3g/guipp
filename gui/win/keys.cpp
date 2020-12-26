@@ -22,7 +22,7 @@
 // Common includes
 //
 #include <sstream>
-#include <ctype.h>
+#include <cctype>
 
 // --------------------------------------------------------------------------
 //

@@ -38,11 +38,11 @@ namespace gui {
         typedef label_base super;
         typedef core::size::type type;
 
-        progress_bar_base (const std::string& = std::string());
-        progress_bar_base (const text_source&);
+        explicit progress_bar_base (const std::string& = std::string());
+        explicit progress_bar_base (const text_source&);
 
-        progress_bar_base (const progress_bar_base& rhs);
-        progress_bar_base (progress_bar_base&& rhs);
+        progress_bar_base (const progress_bar_base& rhs) = default;
+        progress_bar_base (progress_bar_base&& rhs) = default;
 
         void set_min (type mi);
         void set_max (type ma);
@@ -82,7 +82,7 @@ namespace gui {
 
       basic_progress_bar ();
       basic_progress_bar (const basic_progress_bar& rhs);
-      basic_progress_bar (basic_progress_bar&& rhs);
+      basic_progress_bar (basic_progress_bar&& rhs) noexcept ;
 
       void paint (const draw::graphics& graph);
 

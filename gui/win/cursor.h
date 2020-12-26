@@ -77,7 +77,7 @@ namespace gui {
     private:
       static os::cursor_type convert (cursor_type);
 
-      cursor (cursor_type t);
+      explicit cursor (cursor_type t);
 
       cursor_type type;
       mutable os::cursor id;

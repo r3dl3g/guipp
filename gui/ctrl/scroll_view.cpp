@@ -168,7 +168,7 @@ namespace gui {
       , in_scroll_event(false)
     {}
 
-    scroll_view::scroll_view (scroll_view&& rhs)
+    scroll_view::scroll_view (scroll_view&& rhs) noexcept
       : super(std::move(rhs))
       , me(util::bind_method(this, &scroll_view::handle_child_move))
       , se(util::bind_method(this, &scroll_view::handle_child_size))

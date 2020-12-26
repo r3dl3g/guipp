@@ -84,7 +84,7 @@ namespace gui {
         static constexpr int right = RI;
         static constexpr type_t type = T;
 
-        layouter (win::container* = nullptr);
+        explicit layouter (win::container* = nullptr);
 
         const layout_function& get_center () const;
         const layout_function& get_top () const;
@@ -92,24 +92,24 @@ namespace gui {
         const layout_function& get_left () const;
         const layout_function& get_right () const;
 
-        void set_center (layout_function center);
-        void set_top (layout_function top);
-        void set_bottom (layout_function bottom);
-        void set_left (layout_function left);
-        void set_right (layout_function right);
+        void set_center (const layout_function& center);
+        void set_top (const layout_function& top);
+        void set_bottom (const layout_function& bottom);
+        void set_left (const layout_function& left);
+        void set_right (const layout_function& right);
 
-        void set_center_top_bottom_left_right (layout_function center,
-                                               layout_function top,
-                                               layout_function bottom,
-                                               layout_function left,
-                                               layout_function right);
+        void set_center_top_bottom_left_right (const layout_function& center,
+                                               const layout_function& top,
+                                               const layout_function& bottom,
+                                               const layout_function& left,
+                                               const layout_function& right);
 
         int get_top_height () const;
         int get_bottom_height () const;
         int get_left_width () const;
         int get_right_width () const;
 
-        void layout (const core::rectangle& sz);
+        void layout (const core::rectangle& r);
 
       protected:
         struct {
@@ -127,19 +127,19 @@ namespace gui {
       public:
         typedef layouter<TO, BO, LE, RI, type_t::all_symmetric> super;
 
-        sym_layouter (win::container* p = nullptr);
+        explicit sym_layouter (win::container* p = nullptr);
 
         const layout_function& get_top_left () const;
         const layout_function& get_top_right () const;
         const layout_function& get_bottom_left () const;
         const layout_function& get_bottom_right () const;
 
-        void set_top_left (layout_function top_left);
-        void set_top_right (layout_function top_right);
-        void set_bottom_left (layout_function bottom_left);
-        void set_bottom_right (layout_function bottom_right);
+        void set_top_left (const layout_function& top_left);
+        void set_top_right (const layout_function& top_right);
+        void set_bottom_left (const layout_function& bottom_left);
+        void set_bottom_right (const layout_function& bottom_right);
 
-        void layout (const core::rectangle& sz);
+        void layout (const core::rectangle& r);
 
       protected:
         struct {

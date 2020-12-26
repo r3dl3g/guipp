@@ -78,7 +78,7 @@ namespace gui {
       bool is_toplevel () const;
       bool has_border () const;
 
-      const window_state::is get_state () const;
+      window_state::is get_state () const;
       window_state::set set_state ();
 
       bool is_visible () const;
@@ -209,12 +209,12 @@ namespace gui {
       static core::size screen_size ();
       static core::rectangle screen_area ();
 
-    protected:
-      window (const window&);
-      window (window&&);
-
       window& operator= (const window&) = delete;
       window& operator= (window&&) = delete;
+
+    protected:
+      window (const window&);
+      window (window&&) noexcept ;
 
       void create (const class_info&,
                    container&,

@@ -57,7 +57,7 @@ namespace gui {
     public:
       struct GUIPP_WIN_EXPORT is {
 
-        is (const state_type& state);
+        explicit is (const state_type& state);
 
         bool enabled () const;
         bool visible () const;
@@ -75,7 +75,7 @@ namespace gui {
 
       struct GUIPP_WIN_EXPORT set {
 
-        set (state_type& state);
+        explicit set (state_type& state);
 
         bool enable (bool on);
         bool visible (bool on);

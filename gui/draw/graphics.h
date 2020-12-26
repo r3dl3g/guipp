@@ -69,11 +69,11 @@ namespace gui {
       typedef std::vector<core::rectangle> clipping_stack_t;
 
       graphics (os::drawable target, os::graphics gc);
-      graphics (draw::basic_map& target);
+      explicit graphics (draw::basic_map& target);
       graphics (const graphics&);
       ~graphics ();
 
-      void operator= (const graphics&);
+      graphics& operator= (const graphics&);
 
       const graphics& clear (os::color color) const;
       const graphics& draw_pixel (const core::native_point& pt,
@@ -81,7 +81,7 @@ namespace gui {
 
       os::color get_pixel (const core::native_point&) const;
 
-      const graphics& draw_lines (std::vector<core::point> points,
+      const graphics& draw_lines (const std::vector<core::point>& points,
                                   const pen& pen) const;
 
       template<typename F> //frameable
@@ -163,8 +163,8 @@ namespace gui {
     struct GUIPP_DRAW_EXPORT paint {
       typedef std::function<void (const draw::graphics&)> painter;
 
-      paint (const painter& f);
-      paint (painter&& f);
+      explicit paint (const painter& f);
+      explicit paint (painter&& f);
 
       template<typename T, typename F>
       paint (T* t, F f);
@@ -179,8 +179,8 @@ namespace gui {
     struct GUIPP_DRAW_EXPORT buffered_paint {
       typedef std::function<void (const draw::graphics&)> painter;
 
-      buffered_paint (const painter& f);
-      buffered_paint (painter&& f);
+      explicit buffered_paint (const painter& f);
+      explicit buffered_paint (painter&& f);
 
       template<typename T, typename F>
       buffered_paint (T* t, F f);
@@ -196,10 +196,10 @@ namespace gui {
       clip (const graphics& g, const core::rectangle& r);
       ~clip ();
 
+      void operator= (clip&) = delete;
+
     private:
       const graphics& g;
-
-      void operator= (clip&) = delete;
     };
 
   } // draw

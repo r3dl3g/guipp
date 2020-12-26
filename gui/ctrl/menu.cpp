@@ -70,30 +70,6 @@ namespace gui {
       , sub_menu(false)
     {}
 
-    menu_entry::menu_entry (const menu_entry& rhs)
-      : label(rhs.label)
-      , hotkey(rhs.hotkey)
-      , icon(rhs.icon)
-      , action(rhs.action)
-      , menu_key(rhs.menu_key)
-      , width(rhs.width)
-      , separator(rhs.separator)
-      , state(rhs.state)
-      , sub_menu(rhs.sub_menu)
-    {}
-
-    menu_entry::menu_entry (menu_entry&& rhs)
-      : label(std::move(rhs.label))
-      , hotkey(std::move(rhs.hotkey))
-      , icon(std::move(rhs.icon))
-      , action(std::move(rhs.action))
-      , menu_key(rhs.menu_key)
-      , width(rhs.width)
-      , separator(rhs.separator)
-      , state(rhs.state)
-      , sub_menu(rhs.sub_menu)
-    {}
-
     menu_entry::menu_entry (bool sub_menu,
                             const text_source& label,
                             char menu_key,
@@ -121,7 +97,7 @@ namespace gui {
       , sub_menu(false)
     {}
 
-    void menu_entry::operator= (const menu_entry& rhs) {
+    menu_entry& menu_entry::operator= (const menu_entry& rhs) {
       if (this != &rhs) {
         label = rhs.label;
         hotkey = rhs.hotkey;
@@ -133,9 +109,10 @@ namespace gui {
         state = rhs.state;
         sub_menu = rhs.sub_menu;
       }
+      return *this;
     }
 
-    void menu_entry::operator= (menu_entry&& rhs) {
+    menu_entry& menu_entry::operator= (menu_entry&& rhs) noexcept {
       if (this != &rhs) {
         label = std::move(rhs.label);
         hotkey = std::move(rhs.hotkey);
@@ -147,6 +124,7 @@ namespace gui {
         state = rhs.state;
         sub_menu = rhs.sub_menu;
       }
+      return *this;
     }
 
     void menu_entry::check_hot_key (os::key_state m, os::key_symbol k) {
@@ -265,13 +243,13 @@ namespace gui {
       data.key_caller = nullptr;
     }
 
-    void menu_data::handle_mouse (bool b, const core::point& pt) {
+    void menu_data::handle_mouse (bool b, const core::point& pt) const {
       if (data.mouse_caller) {
         data.mouse_caller(b, pt);
       }
     }
 
-    bool menu_data::handle_key (os::key_symbol k) {
+    bool menu_data::handle_key (os::key_symbol k) const {
       if (data.key_caller) {
         return data.key_caller(k);
       }
@@ -366,7 +344,7 @@ namespace gui {
       init();
     }
 
-    main_menu::main_menu (main_menu&& rhs)
+    main_menu::main_menu (main_menu&& rhs) noexcept
       : super(std::move(rhs))
       , data(this, std::move(rhs.data))
     {
@@ -519,8 +497,8 @@ namespace gui {
         ++idx;
         auto w = i.get_width() + 20;
         r.width(w);
-        paint::main_menu_item(g, r, back_brush, i.get_label(), i.get_menu_key(),
-                              data.get_item_state(idx));
+        look::main_menu_item(g, r, back_brush, i.get_label(), i.get_menu_key(),
+                             data.get_item_state(idx));
         r.move_x(w);
       }
       if (r.x() < area.x2()) {
@@ -542,7 +520,7 @@ namespace gui {
       init();
     }
 
-    popup_menu::popup_menu (popup_menu&& rhs)
+    popup_menu::popup_menu (popup_menu&& rhs) noexcept
       : super(std::move(rhs))
       , data(this, std::move(rhs.data))
     {
@@ -734,10 +712,10 @@ namespace gui {
       for (auto& i : data) {
         ++idx;
         r.height(static_cast<core::size::type>(item_height));
-        paint::menu_item(g, r, back_brush, pos.text, pos.hotkey,
-                         i.get_label(), i.get_menu_key(), i.get_icon(),
-                         i.get_hot_key(), i.is_sub_menu(), i.has_separator(),
-                         data.get_item_state(idx));
+        look::menu_item(g, r, back_brush, pos.text, pos.hotkey,
+                        i.get_label(), i.get_menu_key(), i.get_icon(),
+                        i.get_hot_key(), i.is_sub_menu(), i.has_separator(),
+                        data.get_item_state(idx));
         r.move_y(static_cast<core::size::type>(item_height));
       }
     }

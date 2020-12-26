@@ -36,7 +36,7 @@ namespace gui {
     }
 
     template<text_origin_t A, draw::frame::drawer D, os::color F, os::color B>
-    inline basic_edit<A, D, F, B>::basic_edit (basic_edit&& rhs)
+    inline basic_edit<A, D, F, B>::basic_edit (basic_edit&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();
@@ -46,7 +46,7 @@ namespace gui {
     inline void basic_edit<origin, frame, foreground, background>::paint (const draw::graphics& graph) {
       auto area = frame(graph, client_area());
       area.shrink(core::size::one);
-      paint::edit_line(graph, area, data.text, draw::font::system(), foreground, background, origin, data.selection, data.cursor_pos, data.scroll_pos, is_focused());
+      look::edit_line(graph, area, data.text, draw::font::system(), foreground, background, origin, data.selection, data.cursor_pos, data.scroll_pos, is_focused());
     }
 
     template<text_origin_t A, draw::frame::drawer D, os::color F, os::color B>
@@ -69,7 +69,7 @@ namespace gui {
     }
 
     template<text_origin_t A, char C, draw::frame::drawer D, os::color F, os::color B>
-    inline basic_pass<A, C, D, F, B>::basic_pass (basic_pass&& rhs)
+    inline basic_pass<A, C, D, F, B>::basic_pass (basic_pass&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();
@@ -80,7 +80,7 @@ namespace gui {
       auto area = frame(graph, client_area());
       area.shrink(core::size::one);
       std::string t(data.text.length(), character);
-      paint::edit_line(graph, area, t, draw::font::system(), foreground, background, origin, data.selection, data.cursor_pos, data.scroll_pos, is_focused());
+      look::edit_line(graph, area, t, draw::font::system(), foreground, background, origin, data.selection, data.cursor_pos, data.scroll_pos, is_focused());
     }
 
     template<text_origin_t A, char C, draw::frame::drawer D, os::color F, os::color B>

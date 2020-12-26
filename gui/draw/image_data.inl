@@ -201,14 +201,15 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T>
     gray gray::build(T t) {
-      gray p;
+      gray p{};
       p = t;
       return p;
     }
 
     template<typename T>
-    inline void gray::operator= (T rhs) {
+    inline gray& gray::operator= (T rhs) {
       value = get_gray(rhs);
+      return *this;
     }
 
     // --------------------------------------------------------------------------
@@ -256,79 +257,85 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T>
     rgb rgb::build(T t) {
-      rgb p;
+      rgb p{};
       p = t;
       return p;
     }
 
     template<typename T>
-    inline void rgb::operator= (T rhs) {
+    inline rgb& rgb::operator= (T rhs) {
       put_rgb(*this, rhs);
+      return *this;
     }
 
     // --------------------------------------------------------------------------
     template<typename T>
     rgba rgba::build(T t) {
-      rgba p;
+      rgba p{};
       p = t;
       return p;
     }
 
     template<typename T>
-    inline void rgba::operator= (T rhs) {
+    inline rgba& rgba::operator= (T rhs) {
       put_rgba(*this, rhs);
+      return *this;
     }
 
     // --------------------------------------------------------------------------
     template<typename T>
     bgr bgr::build(T t) {
-      bgr p;
+      bgr p{};
       p = t;
       return p;
     }
 
     template<typename T>
-    inline void bgr::operator= (T rhs) {
+    inline bgr& bgr::operator= (T rhs) {
       put_rgb(*this, rhs);
+      return *this;
     }
 
     // --------------------------------------------------------------------------
     template<typename T>
     bgra bgra::build(T t) {
-      bgra p;
+      bgra p{};
       p = t;
       return p;
     }
 
     template<typename T>
-    inline void bgra::operator= (T rhs) {
+    inline bgra& bgra::operator= (T rhs) {
       put_rgba(*this, rhs);
+      return *this;
     }
 
     // --------------------------------------------------------------------------
     template<typename T>
     argb argb::build(T t) {
-      argb p;
+      argb p{};
       p = t;
       return p;
     }
 
     template<typename T>
-    inline void argb::operator= (T rhs) {
+    inline argb& argb::operator= (T rhs) {
       put_rgb(*this, rhs);
+      return *this;
     }
 
     // --------------------------------------------------------------------------
     template<typename T>
     abgr abgr::build(T t) {
-      abgr p;
+      abgr p{};
       p = t;
       return p;
     }
 
     template<typename T>
-    inline void abgr::operator= (T rhs) {
+    inline abgr& abgr::operator= (T rhs) {
       put_rgba(*this, rhs);
+      return *this;
     }
 
     // --------------------------------------------------------------------------
@@ -387,7 +394,7 @@ namespace gui {
     template<typename S>
     struct to_pixel<pixel_format_t::RGB, S> {
       static pixel::rgb to (S s) {
-        pixel::rgb p;
+        pixel::rgb p{};
         p = pixel::get_color(s);
         return p;
       }
@@ -403,8 +410,8 @@ namespace gui {
     template<pixel_format_t T>
     inline auto const_image_data<T>::row (uint32_t y) const -> const row_type {
       const byte* row = data.data(y * get_info().bytes_per_line, get_info().bytes_per_line);
-      using raw_type = const typename row_type::type;
-      return row_type(reinterpret_cast<raw_type*>(row), width());
+      using raw_t = const typename row_type::type;
+      return row_type(reinterpret_cast<raw_t*>(row), width());
     }
 
     template<pixel_format_t T>
@@ -427,8 +434,8 @@ namespace gui {
     template<pixel_format_t T>
     inline auto image_data<T>::row (uint32_t y) -> row_type {
       byte* row = data.data(y * get_info().bytes_per_line, get_info().bytes_per_line);
-      using raw_type = typename row_type::type;
-      return row_type(reinterpret_cast<raw_type*>(row), width());
+      using raw_t = typename row_type::type;
+      return row_type(reinterpret_cast<raw_t*>(row), width());
     }
 
     template<pixel_format_t T>

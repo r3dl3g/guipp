@@ -45,7 +45,7 @@ namespace gui {
         init();
       }
 
-      list_base::list_base (list_base&& rhs)
+      list_base::list_base (list_base&& rhs) noexcept
         : super(std::move(rhs))
         , data(std::move(rhs.data))
       {

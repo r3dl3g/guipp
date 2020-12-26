@@ -162,20 +162,6 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     template<typename T>
-    path_open_dialog_base<T>::path_open_dialog_base ()
-    {}
-
-    template<typename T>
-    path_open_dialog_base<T>::path_open_dialog_base (const path_open_dialog_base& rhs)
-      : super(rhs)
-    {}
-
-    template<typename T>
-    path_open_dialog_base<T>::path_open_dialog_base (path_open_dialog_base&& rhs)
-      : super(std::move(rhs))
-    {}
-
-    template<typename T>
     void path_open_dialog_base<T>::create (win::container& parent,
                                            const std::string& title,
                                            const std::string& ok_label,

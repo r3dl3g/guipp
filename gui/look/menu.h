@@ -32,7 +32,7 @@
 
 namespace gui {
 
-  namespace paint {
+  namespace look {
 
     // --------------------------------------------------------------------------
     GUIPP_LOOK_EXPORT void draw_menu_label (const draw::graphics& g,
@@ -64,6 +64,6 @@ namespace gui {
                                            ctrl::item_state state);
 
     // --------------------------------------------------------------------------
-  } // namespace paint
+  } // namespace look
 
 } // gui

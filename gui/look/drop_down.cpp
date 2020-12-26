@@ -31,7 +31,7 @@
 
 namespace gui {
 
-  namespace paint {
+  namespace look {
 
     void drop_down_item (const draw::graphics& g,
                          const core::rectangle& r,
@@ -58,9 +58,9 @@ namespace gui {
                            const ctrl::button_state::is& state,
                            bool is_open) {
 #ifdef BUILD_FOR_ARM
-      paint::button_frame_w95(graph, area, state);
+      look::button_frame_w95(graph, area, state);
 #else
-      paint::button_frame(graph, area, state);
+      look::button_frame(graph, area, state);
 #endif
       core::rectangle r = area.shrinked(core::size(4, 5));
       if (!r.empty()) {
@@ -74,6 +74,6 @@ namespace gui {
       }
     }
 
-  } // paint
+  } // look
 
 } // gui

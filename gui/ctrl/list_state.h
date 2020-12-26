@@ -38,7 +38,7 @@ namespace gui {
 
         struct GUIPP_CTRL_EXPORT is : public super::is {
 
-          is (const win::state_type& state);
+          explicit is (const win::state_type& state);
 
           bool moved () const;
           bool scroll_bar_enabled () const;
@@ -48,7 +48,7 @@ namespace gui {
 
         struct GUIPP_CTRL_EXPORT set : public super::set  {
 
-          set (win::state_type& state);
+          explicit set (win::state_type& state);
 
           bool moved (bool b);
           bool scroll_bar_enabled (bool b);

@@ -64,7 +64,7 @@ namespace gui {
 
         edit_base ();
         edit_base (const edit_base&);
-        edit_base (edit_base&&);
+        edit_base (edit_base&&) noexcept ;
 
         ~edit_base ();
 
@@ -102,7 +102,7 @@ namespace gui {
         void register_handler ();
 
         void prepare_input ();
-        pos_t get_position_at_point (const core::point& pt);
+        pos_t get_position_at_point (const core::point& pt) const;
 
         struct data {
           data ();
@@ -134,7 +134,7 @@ namespace gui {
 
       basic_edit ();
       basic_edit (const basic_edit& rhs);
-      basic_edit (basic_edit&& rhs);
+      basic_edit (basic_edit&& rhs) noexcept ;
 
       void paint (const draw::graphics& graph);
 
@@ -160,7 +160,7 @@ namespace gui {
 
       basic_pass ();
       basic_pass (const basic_pass& rhs);
-      basic_pass (basic_pass&& rhs);
+      basic_pass (basic_pass&& rhs) noexcept ;
 
       void paint (const draw::graphics& graph);
 

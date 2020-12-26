@@ -49,7 +49,7 @@ namespace gui {
 
   } // namespace tree
 
-  namespace paint {
+  namespace look {
 
     // --------------------------------------------------------------------------
     GUIPP_LOOK_EXPORT void tree_button (const draw::graphics& graph,
@@ -66,6 +66,6 @@ namespace gui {
                                       bool is_open,
                                       ctrl::item_state state);
 
-  } // paint
+  } // look
 
 } // gui

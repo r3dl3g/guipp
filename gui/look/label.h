@@ -30,7 +30,7 @@
 namespace gui {
 
   // --------------------------------------------------------------------------
-  namespace paint {
+  namespace look {
 
     GUIPP_LOOK_EXPORT void label (const draw::graphics& graph,
                                   const core::rectangle& area,

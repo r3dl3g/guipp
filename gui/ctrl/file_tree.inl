@@ -122,7 +122,7 @@ namespace gui {
     }
 
     template<typename T>
-    inline file_list<T>::file_list (file_list&& rhs)
+    inline file_list<T>::file_list (file_list&& rhs) noexcept
       : super(std::move(rhs))
       , current_dir(std::move(rhs.current_dir))
     {
@@ -135,7 +135,7 @@ namespace gui {
                                   const core::rectangle& r,
                                   const draw::brush& b,
                                   item_state state) {
-      paint::text_item(g, r, b, path.filename(), state, text_origin_t::vcenter_left);
+      look::text_item(g, r, b, path.filename(), state, text_origin_t::vcenter_left);
     }
 
     template<typename T>
@@ -181,7 +181,7 @@ namespace gui {
     }
 
     template<typename T>
-    inline file_column_list<T>::file_column_list (file_column_list&& rhs)
+    inline file_column_list<T>::file_column_list (file_column_list&& rhs) noexcept
       : super(std::move(rhs))
       , mouse_down_point(std::move(rhs.mouse_down_point))
       , order(std::move(rhs.order))
@@ -207,7 +207,7 @@ namespace gui {
     inline void file_column_list<T>::handle_header_mouse_up (os::key_state, const core::point& pt) {
       if (mouse_down_point == pt) {
         int i = super::get_column_layout().index_at(pt.x());
-        const unsigned short idx = static_cast<unsigned short>(order);
+        const auto idx = static_cast<unsigned short>(order);
         if (idx == i * 2) { // down
           sort_by(sort_order(i * 2 - 1)); // up
         } else {
@@ -265,7 +265,7 @@ namespace gui {
         g.text(draw::text_box(title[i], r, text_origin_t::center), draw::font::system(), color::windowTextColor());
         if (order != sort_order::none) {
           core::rectangle s = r.right_width(r.height()).shrinked({7, 8});
-          const unsigned short idx = static_cast<unsigned short>(order);
+          const auto idx = static_cast<unsigned short>(order);
           if (idx == i * 2) {
             draw_arrow_down(g, s, color::black);
           } else if (idx == i * 2 - 1) {

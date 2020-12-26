@@ -75,8 +75,8 @@ namespace gui {
 
       font& operator= (const font& rhs);
 
-      font (os::font id);
-      font (os::font_type id);
+      explicit font (os::font id);
+      explicit font (os::font_type id);
 
       operator os::font () const;
       os::font_type font_type () const;

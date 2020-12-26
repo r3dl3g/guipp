@@ -53,7 +53,7 @@ namespace gui {
       }
 
       template<>
-      basic_slider<orientation_t::vertical>::basic_slider (basic_slider&& rhs)
+      basic_slider<orientation_t::vertical>::basic_slider (basic_slider&& rhs) noexcept
         : super(std::move(rhs))
       {
         init();
@@ -116,7 +116,7 @@ namespace gui {
       }
 
       template<>
-      basic_slider<orientation_t::horizontal>::basic_slider (basic_slider&& rhs)
+      basic_slider<orientation_t::horizontal>::basic_slider (basic_slider&& rhs) noexcept
         : super(std::move(rhs))
       {
         init();
@@ -125,11 +125,10 @@ namespace gui {
       template<>
       void basic_slider<orientation_t::horizontal>::init () {
         on_mouse_move_abs([&](os::key_state keys,
-                          const core::point & p) {
+                              const core::point & p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && win::left_button_bit_mask::is_set(keys)) {
             set_value(start_window_point.y() + p.y() - start_mouse_point.y());
           }
-          return;
         });
         on_any_key_down([&](os::key_state state, os::key_symbol key, const std::string &) {
            switch (key) {
@@ -184,7 +183,7 @@ namespace gui {
         init();
       }
 
-      slider_base::slider_base (slider_base&& rhs)
+      slider_base::slider_base (slider_base&& rhs) noexcept
         : super(std::move(rhs))
         , min(std::move(rhs.min))
         , max(std::move(rhs.max))

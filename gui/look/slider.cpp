@@ -28,7 +28,7 @@
 
 namespace gui {
 
-  namespace paint {
+  namespace look {
 
     void slider (const draw::graphics& graph,
                  const core::rectangle& area,
@@ -42,6 +42,6 @@ namespace gui {
       }
     }
 
-  } //paint
+  } //look
 
 } // gui

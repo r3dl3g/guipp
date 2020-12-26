@@ -21,11 +21,9 @@
 // Common includes
 //
 #include <ostream>
-#include <locale>
 
 #ifdef GUIPP_X11
 # include <vector>
-# include <sstream>
 # include <X11/Xlib.h>
 #endif // GUIPP_X11
 #ifdef GUIPP_QT
@@ -411,10 +409,10 @@ namespace gui {
       if (italic && (strs.size() > 4)) {
         *italic = (strs[4] == "i") || (strs[4] == "I");
       }
-      if (size && (strs.size() > 8) && (strs[8].size() > 0)) {
+      if (size && (strs.size() > 8) && (!strs[8].empty())) {
         clog::debug() << "Font size:" << strs[8];
         *size = std::stoi(strs[8]) / 10;
-      } else if (size && (strs.size() > 7) && (strs[7].size() > 0)) {
+      } else if (size && (strs.size() > 7) && (!strs[7].empty())) {
         clog::debug() << "Font size:" << strs[7];
         *size = std::stoi(strs[7]);
       }

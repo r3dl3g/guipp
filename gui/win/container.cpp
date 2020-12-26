@@ -23,7 +23,7 @@
 //
 #include <algorithm>
 #include <map>
-#include <string.h>
+#include <cstring>
 
 #ifdef GUIPP_X11
 # include <X11/cursorfont.h>
@@ -246,7 +246,7 @@ namespace gui {
       init();
     }
 
-    container::container (container&& rhs)
+    container::container (container&& rhs) noexcept
       : super(std::move(rhs)) {
       init();
     }
@@ -304,7 +304,7 @@ namespace gui {
 
     void container::shift_focus (const window& focus, bool backward) const {
       window_list_t children = get_children();
-      if (children.size() > 0) {
+      if (!children.empty()) {
         if (backward) {
           if (iterate_focus(children.rbegin(), children.rend(), &focus)) {
             return;
@@ -457,9 +457,9 @@ namespace gui {
       unsigned long bytes_after_return;
       unsigned char *prop_return;
 
-      bool ret_a1 = (a1 ? false : true);
-      bool ret_a2 = (a2 ? false : true);
-      bool ret_a3 = (a3 ? false : true);
+      bool ret_a1 = a1 == 0;
+      bool ret_a2 = a2 == 0;
+      bool ret_a3 = a3 == 0;
       if (Success == XGetWindowProperty(dpy, id, x11::NET_WM_STATE,
                                         0, 99, false, AnyPropertyType,
                                         &actual_type_return,
@@ -571,7 +571,7 @@ namespace gui {
       using super = window;
 
     public:
-      input_only_window (container& parent) {
+      explicit input_only_window (container& parent) {
         super::create(clazz::get(), parent, parent.client_area());
         to_front();
       }
@@ -658,7 +658,7 @@ namespace gui {
       init();
     }
 
-    modal_window::modal_window (modal_window&& rhs)
+    modal_window::modal_window (modal_window&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();

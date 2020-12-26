@@ -63,7 +63,7 @@ namespace gui {
 
       scroll_view ();
       scroll_view (const scroll_view&);
-      scroll_view (scroll_view&&);
+      scroll_view (scroll_view&&) noexcept ;
 
       void layout (const core::rectangle& new_size) const;
 

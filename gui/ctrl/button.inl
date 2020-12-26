@@ -38,7 +38,7 @@ namespace gui {
       super::create(clazz::get(), parent, place);
     }
 
-    inline const button_state::is button_base::get_state () const {
+    inline button_state::is button_base::get_state () const {
       return button_state::is(flags);
     }
 
@@ -89,7 +89,7 @@ namespace gui {
     }
 
     template<class T>
-    inline basic_button<T>::basic_button (basic_button&& rhs)
+    inline basic_button<T>::basic_button (basic_button&& rhs) noexcept
       : super(std::move(rhs)) {
       traits.init(*this);
       init();
@@ -135,7 +135,7 @@ namespace gui {
     }
 
     template<class T, typename U, U D>
-    inline basic_text_button<T, U, D>::basic_text_button (basic_text_button&& rhs)
+    inline basic_text_button<T, U, D>::basic_text_button (basic_text_button&& rhs) noexcept
       : super(std::move(rhs))
       , text(std::move(rhs.text))
     {
@@ -203,7 +203,7 @@ namespace gui {
     }
 
     template<class T>
-    inline custom_button<T>::custom_button (custom_button&& rhs)
+    inline custom_button<T>::custom_button (custom_button&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();

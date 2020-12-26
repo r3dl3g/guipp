@@ -31,7 +31,7 @@
 namespace gui {
 
   // --------------------------------------------------------------------------
-  namespace paint {
+  namespace look {
 
     GUIPP_LOOK_EXPORT void scrollbar (const draw::graphics &g,
                                       ctrl::scrollbar_item select,
@@ -56,6 +56,6 @@ namespace gui {
                                           const core::rectangle& thumb,
                                           const core::rectangle& page_up,
                                           const core::rectangle& page_down);
-  } // namespace paint
+  } // namespace look
 
 } // namespace gui

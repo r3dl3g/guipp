@@ -197,7 +197,7 @@ namespace gui {
     template<bool BIN, pixel_format_t T>
     class opnm {
     public:
-      opnm (const draw::datamap<T>& bmp);
+      explicit opnm (const draw::datamap<T>& bmp);
       void write (std::ostream& out) const;
 
     private:
@@ -212,8 +212,8 @@ namespace gui {
     template<pixel_format_t T>
     class ipnm {
     public:
-      ipnm (draw::datamap<T>& bmp);
-      ipnm (draw::datamap<T>&& bmp);
+      explicit ipnm (draw::datamap<T>& bmp);
+      explicit ipnm (draw::datamap<T>&& bmp);
       void read (std::istream& in);
 
     private:
@@ -233,8 +233,8 @@ namespace gui {
       typedef pnm<i> super;
 
       ofpnm ();
-      ofpnm (const char* fname);
-      ofpnm (const std::string& fname);
+      explicit ofpnm (const char* fname);
+      explicit ofpnm (const std::string& fname);
 
       void open (const char* fname);
       void open (const std::string& fname);
@@ -252,8 +252,8 @@ namespace gui {
       typedef pnm<i> super;
 
       ifpnm ();
-      ifpnm (const char* fname);
-      ifpnm (const std::string& fname);
+      explicit ifpnm (const char* fname);
+      explicit ifpnm (const std::string& fname);
 
       void open (const char* fname);
       void open (const std::string& fname);

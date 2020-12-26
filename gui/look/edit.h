@@ -37,7 +37,7 @@
 namespace gui {
 
   // --------------------------------------------------------------------------
-  namespace paint {
+  namespace look {
 
     GUIPP_LOOK_EXPORT void edit_line (const draw::graphics& graph,
                                       const core::rectangle& area,
@@ -47,10 +47,10 @@ namespace gui {
                                       os::color background,
                                       const text_origin_t& origin_t,
                                       const core::range<size_t>& selection,
-                                      const size_t cursor_pos,
-                                      const size_t scroll_pos,
-                                      const bool is_focused);
+                                      size_t cursor_pos,
+                                      size_t scroll_pos,
+                                      bool is_focused);
 
-  } // paint
+  } // look
 
 } // gui

@@ -40,7 +40,7 @@ namespace gui {
       operator= (rhs);
     }
 
-    inline basic_map::basic_map (basic_map&& rhs)
+    inline basic_map::basic_map (basic_map&& rhs) noexcept
       : id() {
       operator= (std::move(rhs));
     }
@@ -66,9 +66,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline bitmap::bitmap ()
-    {}
-
     inline bitmap::bitmap (const bwmap& rhs) {
       operator= (rhs);
     }
@@ -94,9 +91,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline pixmap::pixmap ()
-    {}
-
     template<pixel_format_t T>
     inline pixmap::pixmap (const datamap<T>& rhs) {
       operator=(rhs);
@@ -171,8 +165,9 @@ namespace gui {
     }
 
     template<pixel_format_t T>
-    void pixmap::operator= (const datamap<T>& rhs) {
+    pixmap& pixmap::operator= (const datamap<T>& rhs) {
       put<T>(rhs);
+      return *this;
     }
 
     template<pixel_format_t T>
@@ -204,18 +199,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline masked_bitmap::masked_bitmap ()
-    {}
-
-    inline masked_bitmap::masked_bitmap (const masked_bitmap& rhs)
-      : image(rhs.image)
-      , mask(rhs.mask)
-    {}
-
-    inline masked_bitmap::masked_bitmap (masked_bitmap&& rhs) {
-      operator= (std::move(rhs));
-    }
-
     inline masked_bitmap::masked_bitmap (const pixmap& rhs) {
       operator= (rhs);
     }

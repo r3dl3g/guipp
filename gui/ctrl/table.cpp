@@ -324,9 +324,9 @@ namespace gui {
                       const os::color & foreground,
                       const os::color & background,
                       item_state state) {
-          gui::paint::text_cell<std::string, draw::frame::lines>(src(cell), graph, place,
-                                                                 align, foreground, background,
-                                                                 state);
+          gui::look::text_cell<std::string, draw::frame::lines>(src(cell), graph, place,
+                                                                align, foreground, background,
+                                                                state);
         };
       }
 
@@ -339,9 +339,9 @@ namespace gui {
                       const os::color & foreground,
                       const os::color & background,
                       item_state state) {
-          gui::paint::text_cell<std::string, draw::frame::raised_relief>(src(cell), graph, place,
-                                                                         align, foreground, background,
-                                                                         state);
+          gui::look::text_cell<std::string, draw::frame::raised_relief>(src(cell), graph, place,
+                                                                        align, foreground, background,
+                                                                        state);
         };
       }
 
@@ -504,8 +504,8 @@ namespace gui {
       init();
     }
 
-    table_view::table_view (table_view&& rhs)
-      : super(rhs)
+    table_view::table_view (table_view&& rhs) noexcept
+      : super(std::move(rhs))
       , geometrie(std::move(rhs.geometrie))
       , data(geometrie, std::move(rhs.data))
       , columns(geometrie, std::move(rhs.columns))

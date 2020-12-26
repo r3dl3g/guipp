@@ -137,7 +137,7 @@ namespace gui {
       , m_join(join)
     {}
 
-    pen::~pen () {}
+    pen::~pen () = default;
 
     os::color pen::color () const {
       return m_color;

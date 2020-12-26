@@ -53,31 +53,31 @@ namespace gui {
         return data.right;
       }
 
-      inline void dynamic_border_layout_base::set_center (layout_function center) {
+      inline void dynamic_border_layout_base::set_center (const layout_function& center) {
         data.center = center;
       }
 
-      inline void dynamic_border_layout_base::set_top (layout_function top) {
+      inline void dynamic_border_layout_base::set_top (const layout_function& top) {
         data.top = top;
       }
 
-      inline void dynamic_border_layout_base::set_bottom (layout_function bottom) {
+      inline void dynamic_border_layout_base::set_bottom (const layout_function& bottom) {
         data.bottom = bottom;
       }
 
-      inline void dynamic_border_layout_base::set_left (layout_function left) {
+      inline void dynamic_border_layout_base::set_left (const layout_function& left) {
         data.left = left;
       }
 
-      inline void dynamic_border_layout_base::set_right (layout_function right) {
+      inline void dynamic_border_layout_base::set_right (const layout_function& right) {
         data.right = right;
       }
 
-      inline void dynamic_border_layout_base::set_center_top_bottom_left_right (layout_function center,
-                                                                        layout_function top,
-                                                                        layout_function bottom,
-                                                                        layout_function left,
-                                                                        layout_function right) {
+      inline void dynamic_border_layout_base::set_center_top_bottom_left_right (const layout_function& center,
+                                                                                const layout_function& top,
+                                                                                const layout_function& bottom,
+                                                                                const layout_function& left,
+                                                                                const layout_function& right) {
         data.center = center;
         data.top = top;
         data.bottom = bottom;

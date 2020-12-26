@@ -90,7 +90,7 @@ struct htile_drawer : public ctrl::list_data {
                     ctrl::item_state state) const override {
     using namespace draw;
 
-    gui::paint::text_cell<std::size_t, F>(idx, g, place, text_origin_t::center, color::black, background.color(), state);
+    gui::look::text_cell<std::size_t, F>(idx, g, place, text_origin_t::center, color::black, background.color(), state);
   }
 };
 
@@ -109,9 +109,9 @@ struct vtile_drawer  : public ctrl::list_data {
     using namespace draw;
 
     std::string s = util::string::utf16_to_utf8(std::wstring(1, std::wstring::value_type(idx + 32)));
-    gui::paint::text_cell<std::string, F>(ostreamfmt(' ' << std::hex << std::setw(4) << std::setfill('0') << (idx + 32) << ": '" << s << '\''),
-                                          g, place, text_origin_t::vcenter_left, color::black, background.color(),
-                                          state);
+    gui::look::text_cell<std::string, F>(ostreamfmt(' ' << std::hex << std::setw(4) << std::setfill('0') << (idx + 32) << ": '" << s << '\''),
+                                         g, place, text_origin_t::vcenter_left, color::black, background.color(),
+                                         state);
   }
 };
 
@@ -607,7 +607,7 @@ my_main_window::my_main_window ()
     std::ostringstream strm;
     strm << "Item " << idx;
 
-    gui::paint::text_item(g, place, background, strm.str(), state);
+    gui::look::text_item(g, place, background, strm.str(), state);
   }, [] () { return 20; }));
   list1.on_selection_changed([&](ctrl::event_source) {
     labelC.set_text(ostreamfmt("List1 item " << list1.get_selection()));
@@ -912,7 +912,7 @@ void my_main_window::created_children () {
     my_column_list_drawer ()
       : super([] (const int& v, const draw::graphics& g, const core::rectangle& r,
                   const draw::brush&, ctrl::item_state state, text_origin_t) {
-        gui::paint::text_item(g, r, color::buttonColor(), ostreamfmt(v), state, text_origin_t::center);
+        gui::look::text_item(g, r, color::buttonColor(), ostreamfmt(v), state, text_origin_t::center);
         draw::frame::raised_relief(g, r);
       },
 
@@ -923,7 +923,7 @@ void my_main_window::created_children () {
       [] (const bool& v, const draw::graphics& g, const core::rectangle& r,
           const draw::brush& b, ctrl::item_state state, text_origin_t align) {
         std::string text = v ? u8"♣" : u8"♥";
-        gui::paint::text_item(g, r, b, text, state, align);
+        gui::look::text_item(g, r, b, text, state, align);
         draw::frame::sunken_relief(g, r);
       })
     {}
@@ -1055,7 +1055,7 @@ void my_main_window::created_children () {
   custom_button.set_drawer([] (const draw::graphics& g,
                                const core::rectangle& r,
                                const ctrl::button_state::is& s) {
-    gui::paint::flat_button(g, r, "Custom", s);
+    gui::look::flat_button(g, r, "Custom", s);
   });
 
   custom_button.create(main, core::rectangle(290, 410, 100, 25));
@@ -1158,7 +1158,7 @@ void my_main_window::created_children () {
 
 ctrl::paint_function my_main_window::create_paint1 () {
   return [&](const draw::graphics& graph) {
-    //clog::debug() << "win::paint 1";
+    //clog::debug() << "win::look 1";
 
     using namespace draw;
 
@@ -1241,7 +1241,7 @@ ctrl::paint_function my_main_window::create_paint1 () {
 
 ctrl::paint_function my_main_window::create_paint2 () {
   return [&](const draw::graphics& graph) {
-    //clog::debug() << "win::paint 2";
+    //clog::debug() << "win::look 2";
     using namespace draw;
 
     graph.fill(rectangle(window2.client_area()), color::light_gray);

@@ -57,7 +57,7 @@ namespace gui {
         struct vector : public std::vector<T> {
           typedef std::vector<T> super;
 
-          vector (const T& default_data);
+          explicit vector (const T& default_data);
 
           const T& get (std::size_t idx) const;
           void set (std::size_t idx, const T& t);
@@ -74,7 +74,7 @@ namespace gui {
         // --------------------------------------------------------------------------
         template<typename T>
         struct matrix {
-          matrix (const T& default_data);
+          explicit matrix (const T& default_data);
 
           const T& get_cell (const position& cell) const;
           void set_cell (const position& cell, const T& t);
@@ -104,7 +104,7 @@ namespace gui {
           int16_t x;
           int16_t y;
 
-          inline spawn (const int16_t x = 0, const int16_t y = 0)
+          inline spawn (const int16_t x = 0, const int16_t y = 0) // NOLINT(google-explicit-constructor)
             : x(x)
             , y(y)
           {}
@@ -133,7 +133,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       class GUIPP_CTRL_EXPORT layout {
       public:
-        layout (core::size::type default_size);
+        explicit layout (core::size::type default_size);
 
         core::size::type get_default_size () const;
         core::size::type get_size (int idx) const;
@@ -236,7 +236,7 @@ namespace gui {
                                                const std::function<cell_drawer>& drawer,
                                                const std::function<filter::selection_and_hilite>& selection_filter,
                                                const std::function<filter::selection_and_hilite>& hilite_filter);
-      } // namespace paint
+      } // namespace look
 
       // --------------------------------------------------------------------------
       template<template<typename U> class T>
@@ -248,12 +248,12 @@ namespace gui {
         template<typename U>
         using container_type = T<U>;
 
-        cell_view (metric& geometrie,
-                   text_origin_t align = text_origin_t::center,
-                   os::color foreground = color::black,
-                   os::color background = color::very_very_light_gray,
-                   const std::function<filter::selection_and_hilite>& selection_filter = filter::data_selection,
-                   const std::function<filter::selection_and_hilite>& hilite_filter = filter::data_hilite);
+        explicit cell_view (metric& geometrie,
+                            text_origin_t align = text_origin_t::center,
+                            os::color foreground = color::black,
+                            os::color background = color::very_very_light_gray,
+                            const std::function<filter::selection_and_hilite>& selection_filter = filter::data_selection,
+                            const std::function<filter::selection_and_hilite>& hilite_filter = filter::data_hilite);
 
         cell_view (metric& geometrie, const cell_view& rhs);
         cell_view (metric& geometrie, cell_view&& rhs);
@@ -304,10 +304,10 @@ namespace gui {
       public:
         typedef cell_view<data::matrix> super;
 
-        data_view (metric& geometrie,
-                   text_origin_t align = text_origin_t::center,
-                   os::color foreground = color::black,
-                   os::color background = color::very_very_light_gray);
+        explicit data_view (metric& geometrie,
+                            text_origin_t align = text_origin_t::center,
+                            os::color foreground = color::black,
+                            os::color background = color::very_very_light_gray);
 
         data_view (metric& geometrie, const data_view& rhs);
         data_view (metric& geometrie, data_view&& rhs);
@@ -323,10 +323,10 @@ namespace gui {
       public:
         typedef cell_view<data::vector> super;
 
-        column_view (metric& geometrie,
-                     text_origin_t align = text_origin_t::center,
-                     os::color foreground = color::black,
-                     os::color background = color::very_very_light_gray);
+        explicit column_view (metric& geometrie,
+                              text_origin_t align = text_origin_t::center,
+                              os::color foreground = color::black,
+                              os::color background = color::very_very_light_gray);
 
         column_view (metric& geometrie, const column_view& rhs);
         column_view (metric& geometrie, column_view&& rhs);
@@ -342,10 +342,10 @@ namespace gui {
       public:
         typedef cell_view<data::vector> super;
 
-        row_view (metric& geometrie,
-                  text_origin_t align = text_origin_t::center,
-                  os::color foreground = color::black,
-                  os::color background = color::very_very_light_gray);
+        explicit row_view (metric& geometrie,
+                           text_origin_t align = text_origin_t::center,
+                           os::color foreground = color::black,
+                           os::color background = color::very_very_light_gray);
 
         row_view (metric& geometrie, const row_view& rhs);
         row_view (metric& geometrie, row_view&& rhs);
@@ -379,17 +379,17 @@ namespace gui {
       color::black,
       color::very_very_light_gray> edge_view;
 
-      table_view (core::size::type default_width = 80,
-                  core::size::type default_height = 20,
-                  core::size::type row_width = 80,
-                  core::size::type column_height = 20,
-                  text_origin_t align = text_origin_t::center,
-                  os::color foreground = color::black,
-                  os::color background = color::white,
-                  os::color header_background = color::very_very_light_gray);
+      explicit table_view (core::size::type default_width = 80,
+                           core::size::type default_height = 20,
+                           core::size::type row_width = 80,
+                           core::size::type column_height = 20,
+                           text_origin_t align = text_origin_t::center,
+                           os::color foreground = color::black,
+                           os::color background = color::white,
+                           os::color header_background = color::very_very_light_gray);
 
       table_view (const table_view&);
-      table_view (table_view&&);
+      table_view (table_view&&) noexcept ;
 
       void enable_size (bool h_size, bool v_size);
 
@@ -471,14 +471,14 @@ namespace gui {
     // --------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT table_edit : public table_view {
     public:
-      table_edit (core::size::type default_width = 80,
-                  core::size::type default_height = 20,
-                  core::size::type row_width = 80,
-                  core::size::type column_height = 20,
-                  text_origin_t align = text_origin_t::center,
-                  os::color foreground = color::black,
-                  os::color background = color::white,
-                  os::color header_background = color::very_very_light_gray);
+      explicit table_edit (core::size::type default_width = 80,
+                           core::size::type default_height = 20,
+                           core::size::type row_width = 80,
+                           core::size::type column_height = 20,
+                           text_origin_t align = text_origin_t::center,
+                           os::color foreground = color::black,
+                           os::color background = color::white,
+                           os::color header_background = color::very_very_light_gray);
 
       void set_enable_edit (bool enable);
       bool is_edit_enabled () const;

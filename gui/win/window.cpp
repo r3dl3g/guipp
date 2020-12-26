@@ -97,7 +97,7 @@ namespace gui {
 #endif // GUIPP_X11
 
     struct log_hierarchy {
-      log_hierarchy (window* win)
+      explicit log_hierarchy (window* win)
         : win(win)
       {}
 
@@ -146,7 +146,7 @@ namespace gui {
       }
     }
 
-    window::window (window&& rhs)
+    window::window (window&& rhs) noexcept
       : id(0)
       , flags(std::move(rhs.flags))
     {
@@ -229,12 +229,12 @@ namespace gui {
     }
 
     bool window::handle_event (const core::event& e, gui::os::event_result& result) const {
-      const auto key = std::make_pair(this, IF_QT_ELSE(e.type(), e.type));
-      if (active_handler.find(key) != active_handler.end()) {
+      const auto keypair = std::make_pair(this, IF_QT_ELSE(e.type(), e.type));
+      if (active_handler.find(keypair) != active_handler.end()) {
         clog::warn() << "already in handle_event for window: " << this << " " << e;
         return false;
       }
-      active_handler.insert(key);
+      active_handler.insert(keypair);
       if (any_key_up_event::match(e)) {
         os::key_symbol key = get_key_symbol(e);
         if (key == keys::tab) {
@@ -248,7 +248,7 @@ namespace gui {
       if (is_enabled()) {
         res = events.handle_event(e, result);
       }
-      active_handler.erase(key);
+      active_handler.erase(keypair);
       return res;
     }
 
@@ -1245,8 +1245,8 @@ namespace gui {
     core::size window::screen_size () {
       auto dpy = core::global::get_instance();
       auto scr = core::global::x11::get_screen();
-      gui::os::size_type width = static_cast<gui::os::size_type>(DisplayWidth(dpy, scr));
-      gui::os::size_type height = static_cast<gui::os::size_type>(DisplayHeight(dpy, scr));
+      auto width = static_cast<gui::os::size_type>(DisplayWidth(dpy, scr));
+      auto height = static_cast<gui::os::size_type>(DisplayHeight(dpy, scr));
       return core::size(gui::os::size{ width, height });
     }
 

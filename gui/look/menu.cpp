@@ -35,7 +35,7 @@ using namespace gui::win;
 
 namespace gui {
 
-  namespace paint {
+  namespace look {
 
     void draw_menu_label (const draw::graphics& g,
                           const core::rectangle& r,
@@ -158,6 +158,6 @@ namespace gui {
       }
     }
 
-  } // namespace paint
+  } // namespace look
 
 } // namespace gui

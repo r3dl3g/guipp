@@ -120,7 +120,7 @@ namespace gui {
         return 0;
       }
 
-      int IOErrorHandler (Display* dpy) {
+      int IOErrorHandler (Display*) {
         clog::fatal() << "IO Error occured somewhere in X!";
         return 0;
       }
@@ -182,7 +182,7 @@ namespace gui {
 
       };
 
-      gui_init gui_static;
+      gui_init gui_static; // NOLINT(cert-err58-cpp)
 
       void init (gui::os::instance instance) {
         gui_static.init(instance);
@@ -340,6 +340,8 @@ namespace gui {
 # endif // GUIPP_USE_XCB
 
 # ifdef GUIPP_USE_XRANDR
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "NullDereferences"
       int get_xrandr_dpi () {
         int dpi = 0;
         auto dpy = get_instance();
@@ -373,6 +375,7 @@ namespace gui {
         clog::info() << "Xrandr.dpi = " << dpi;
         return dpi;
       }
+#pragma clang diagnostic pop
 # endif // GUIPP_USE_XRANDR
 
       int get_xlib_dpi () {
@@ -415,7 +418,6 @@ namespace gui {
 
           return floor((double)dpi / 95.9);
         }
-        return scale_factor;
       }
 
 #endif // GUIPP_X11

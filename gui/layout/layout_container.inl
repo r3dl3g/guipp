@@ -41,7 +41,7 @@ namespace gui {
       }
 
       template<typename B, typename L, typename ... A>
-      inline layout_container_base<B, L, A...>::layout_container_base (layout_container_base&& rhs)
+      inline layout_container_base<B, L, A...>::layout_container_base (layout_container_base&& rhs) noexcept
         : super(std::move(rhs))
         , layouter(std::move(rhs.layouter))
       {

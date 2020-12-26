@@ -22,7 +22,6 @@
 //
 #include <util/string_util.h>
 #include <gui/ctrl/textbox.h>
-#include <gui/ctrl/edit.h>
 #include <gui/win/clipboard.h>
 
 
@@ -198,7 +197,7 @@ namespace gui {
           const auto row_sz = data.font.line_height();
           const auto row_cnt = row_count();
           core::size::type w = 0;
-          for (auto text : data.lines) {
+          for (const auto& text : data.lines) {
             w = std::max(w, data.font.get_text_size(text).width());
           }
           data.virtual_size = {w, static_cast<core::size::type>(row_sz * row_cnt)};
@@ -212,7 +211,7 @@ namespace gui {
           core::rectangle area(data.offset, client_size());
           // first check row
           const auto row_sz = data.font.line_height();
-          const core::point::type y = static_cast<core::point::type>(data.cursor_pos.y() * row_sz);
+          const auto y = static_cast<core::point::type>(data.cursor_pos.y() * row_sz);
           if (y < area.y()) {
             data.offset.y(y);
           } else if (y + row_sz > area.y2()) {

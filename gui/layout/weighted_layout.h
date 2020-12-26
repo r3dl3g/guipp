@@ -37,13 +37,13 @@ namespace gui {
 
     struct weight_element {
 
-      weight_element (layout_function fkt, uint32_t fix)
+      weight_element (const layout_function& fkt, uint32_t fix)
         : fkt(fkt)
         , fix(fix)
         , weight(0.0F)
       {}
 
-      weight_element (layout_function fkt, uint32_t fix, float weight)
+      weight_element (const layout_function& fkt, uint32_t fix, float weight)
         : fkt(fkt)
         , fix(fix)
         , weight(weight)
@@ -75,7 +75,7 @@ namespace gui {
 
       void add (std::initializer_list<weight_element> list);
 
-      void layout (const core::rectangle& sz) const;
+      void layout (const core::rectangle& r) const;
 
     private:
       std::vector<weight_element> elements;

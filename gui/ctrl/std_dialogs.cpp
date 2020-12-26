@@ -206,9 +206,6 @@ namespace gui {
     }
 
     //-----------------------------------------------------------------------------
-    file_save_dialog::file_save_dialog ()
-    {}
-
     void file_save_dialog::create (win::container& parent,
                                    const std::string& title,
                                    const std::string& default_name,

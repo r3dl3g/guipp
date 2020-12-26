@@ -36,7 +36,7 @@ namespace gui {
 
   } // ctrl
 
-  namespace paint {
+  namespace look {
 
     GUIPP_LOOK_EXPORT void text_item (const draw::graphics&,
                                       const core::rectangle& place,
@@ -45,6 +45,6 @@ namespace gui {
                                       const ctrl::item_state& state,
                                       const text_origin_t& origin_t = text_origin_t::vcenter_left);
 
-  } // namespace paint
+  } // namespace look
 
 } // gui

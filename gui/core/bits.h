@@ -243,13 +243,13 @@ namespace gui {
         return static_cast<T>(get_bit(value, bit));
       }
 
-      inline T operator= (T b) {
+      inline const bit_wrapper& operator= (T b) {
 #ifdef GUIPP_WIN
         set_bit(value, bit, static_cast<byte>(b) != 0);
 #else
         set_bit(value, bit, static_cast<bool>(b));
 #endif
-        return b;
+        return *this;
       }
 
     private:

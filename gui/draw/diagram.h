@@ -55,24 +55,24 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<typename X, typename Y, typename P>
       struct get {
-        inline static const X x (const P& p) {
+        inline static X x (const P& p) {
           return static_cast<X>(p.x);
         }
 
-        inline static const Y y (const P& p) {
+        inline static Y y (const P& p) {
           return static_cast<Y>(p.y);
         }
       };
 
       // --------------------------------------------------------------------------
       template<typename X, typename Y, typename P>
-      inline const X get_x (const P& p) {
+      inline X get_x (const P& p) {
         return get<X, Y, P>::x(p);
       }
 
       // --------------------------------------------------------------------------
       template<typename X, typename Y, typename P>
-      inline const Y get_y (const P& p) {
+      inline Y get_y (const P& p) {
         return get<X, Y, P>::y(p);
       }
 
@@ -131,7 +131,6 @@ namespace gui {
         struct scale_fn {
           static T inc (T, T, T);
           static T step (T);
-          static T sub (T, T);
           static T min (const core::range<T>&);
 
           static T calc (T, T);
@@ -156,7 +155,7 @@ namespace gui {
         typedef T value_type;
         static const scaling scaling_type = S;
 
-        scaler (core::range<T> src = {T(0), T(1)}, core::range<T> target = {T(0), T(1)});
+        explicit scaler (core::range<T> src = {T(0), T(1)}, core::range<T> target = {T(0), T(1)});
 
         T operator() (T v) const;
 
@@ -391,32 +390,32 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       struct GUIPP_DRAW_EXPORT circle {
-        circle (float radius);
-        void operator() (const graphics&, const brush&, const core::point&);
+        explicit circle (float radius);
+        void operator() (const graphics&, const brush&, const core::point&) const;
       private:
         float radius;
       };
 
       // --------------------------------------------------------------------------
       struct GUIPP_DRAW_EXPORT diamond {
-        diamond (float radius);
-        void operator() (const graphics&, const brush&, const core::point&);
+        explicit diamond (float radius);
+        void operator() (const graphics&, const brush&, const core::point&) const;
       private:
         float radius;
       };
 
       // --------------------------------------------------------------------------
       struct GUIPP_DRAW_EXPORT cross {
-        cross (float radius);
-        void operator() (const graphics&, const brush&, const core::point&);
+        explicit cross (float radius);
+        void operator() (const graphics&, const brush&, const core::point&) const;
       private:
         float radius;
       };
 
       // --------------------------------------------------------------------------
       struct GUIPP_DRAW_EXPORT square {
-        square (float radius);
-        void operator() (const graphics&, const brush&, const core::point&);
+        explicit square (float radius);
+        void operator() (const graphics&, const brush&, const core::point&) const;
       private:
         float radius;
       };

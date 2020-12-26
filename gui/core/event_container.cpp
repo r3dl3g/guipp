@@ -61,9 +61,9 @@ namespace gui {
       // to avoid a creash when the event_handlers vector is changed during handle_event
       // we iterate with an old style index counter and check against size.
       typedef event_handler_list::size_type size_type;
-      for (size_type i = 0; i < event_handlers.size(); ++i) {
+      for (const auto& event_handler : event_handlers) {
         try {
-          result |= event_handlers[i](ev, resultValue);
+          result |= event_handler(ev, resultValue);
         } catch (std::exception& e) {
           clog::fatal() << "exception in event_container::handle_event: " << e;
         } catch (...) {

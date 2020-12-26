@@ -62,7 +62,7 @@ namespace gui {
     }
 
     template<text_origin_t A, draw::frame::drawer D, os::color F, os::color B, os::color C>
-    inline basic_progress_bar<A, D, F, B, C>::basic_progress_bar (basic_progress_bar&& rhs)
+    inline basic_progress_bar<A, D, F, B, C>::basic_progress_bar (basic_progress_bar&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();
@@ -72,7 +72,7 @@ namespace gui {
     inline void basic_progress_bar<align, frame, foreground, background, bar_color>::paint (const draw::graphics& graph) {
       gui::core::rectangle place = frame(graph, client_area());
       auto pos = (get_value() - get_min()) / (get_max() - get_min()) * place.width();
-      gui::paint::progress_bar(graph, client_area(), get_text(), foreground, background, align, bar_color, pos);
+      gui::look::progress_bar(graph, client_area(), get_text(), foreground, background, align, bar_color, pos);
     }
 
     template<text_origin_t A, draw::frame::drawer D, os::color F, os::color B, os::color C>

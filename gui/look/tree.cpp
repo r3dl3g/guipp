@@ -111,7 +111,7 @@ namespace gui {
 
   } // tree
 
-  namespace paint {
+  namespace look {
 
     void tree_button (const draw::graphics& graph,
                       const core::rectangle& area,
@@ -176,6 +176,6 @@ namespace gui {
       graph.text(draw::text_box(label, r, text_origin_t::vcenter_left), draw::font::system(), col);
     }
 
-  } // paint
+  } // look
 
 } // gui

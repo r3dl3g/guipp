@@ -76,12 +76,12 @@ namespace gui {
       draw::bitmap_info bmi = read_pnm_header(in, pnm, max);
       if (pnm2bpp(pnm) == T) {
         switch (pnm) {
-          case PNM::P1: bmp = read_pnm<PNM::P1>(in, bmi);  break;
-          case PNM::P2: bmp = read_pnm<PNM::P2>(in, bmi);  break;
-          case PNM::P3: bmp = read_pnm<PNM::P3>(in, bmi);  break;
-          case PNM::P4: bmp = read_pnm<PNM::P4>(in, bmi);  break;
-          case PNM::P5: bmp = read_pnm<PNM::P5>(in, bmi);  break;
-          case PNM::P6: bmp = read_pnm<PNM::P6>(in, bmi);  break;
+          case PNM::P1: bmp = draw::datamap<T>{read_pnm<PNM::P1>(in, bmi)};  break;
+          case PNM::P2: bmp = draw::datamap<T>{read_pnm<PNM::P2>(in, bmi)};  break;
+          case PNM::P3: bmp = draw::datamap<T>{read_pnm<PNM::P3>(in, bmi)};  break;
+          case PNM::P4: bmp = draw::datamap<T>{read_pnm<PNM::P4>(in, bmi)};  break;
+          case PNM::P5: bmp = draw::datamap<T>{read_pnm<PNM::P5>(in, bmi)};  break;
+          case PNM::P6: bmp = draw::datamap<T>{read_pnm<PNM::P6>(in, bmi)};  break;
         }
       } else {
 
@@ -103,8 +103,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<PNM i>
-    inline ofpnm<i>::ofpnm ()
-    {}
+    inline ofpnm<i>::ofpnm () = default;
 
     template<PNM i>
     inline ofpnm<i>::ofpnm (const char* fname)

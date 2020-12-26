@@ -51,7 +51,7 @@ namespace gui {
                                    const core::rectangle& place,
                                    const draw::brush& background,
                                    item_state state) {
-      paint::text_item(g, place, background, util::string::convert::from<T>(t), state, text_origin_t::vcenter_left);
+      look::text_item(g, place, background, util::string::convert::from<T>(t), state, text_origin_t::vcenter_left);
     }
 
     // --------------------------------------------------------------------------
@@ -72,8 +72,7 @@ namespace gui {
                             const draw::brush& background,
                             item_state state) const = 0;
 
-      virtual ~list_data ()
-      {}
+      virtual ~list_data () = default;
 
       const list_data& operator ()() const {
         return *this;
@@ -125,7 +124,7 @@ namespace gui {
     struct indirect_list_data : public list_data_t<T, D> {
       using super = list_data_t<T, D>;
 
-      indirect_list_data (const std::vector<T>& args)
+      explicit indirect_list_data (const std::vector<T>& args)
         : data(args)
       {}
 
@@ -210,11 +209,11 @@ namespace gui {
         typedef control super;
         typedef core::size::type pos_t;
 
-        list_base (os::color background = color::white,
+        explicit list_base (os::color background = color::white,
                    bool grab_focus = true);
-        list_base (list_base&&);
+        list_base (list_base&&) noexcept ;
 
-        const list_state::is get_state() const;
+        list_state::is get_state() const;
         list_state::set set_state();
 
         std::size_t get_count () const;
@@ -240,7 +239,7 @@ namespace gui {
 
       protected:
         struct data {
-          data (os::color background = color::white);
+          explicit data (os::color background = color::white);
 
           std::function<list_data_provider> items;
           int selection;
@@ -284,10 +283,10 @@ namespace gui {
 
       const pos_t zero = pos_t(0);
 
-      basic_list (size_type item_size,
+      explicit basic_list (size_type item_size,
                   os::color background = color::white,
                   bool grab_focus = true);
-      basic_list (basic_list&& rhs);
+      basic_list (basic_list&& rhs) noexcept ;
 
       void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
@@ -304,7 +303,7 @@ namespace gui {
       template<typename U, list_item_drawer<U> D = default_list_item_drawer<U>>
       void set_data (std::initializer_list<U> args);
 
-      void set_data (std::function<list_data_provider> data);
+      void set_data (const std::function<list_data_provider>& dta);
 
       size_type get_item_size () const;
       core::size::type get_item_dimension () const;
@@ -336,7 +335,7 @@ namespace gui {
       void set_hilite (int sel, bool notify = true);
       void clear_hilite (bool notify = true);
 
-      void handle_wheel (const pos_t delta, const core::point&);
+      void handle_wheel (pos_t delta, const core::point&);
       void handle_mouse_move (os::key_state keys, const core::point& pt);
       void handle_left_btn_up (os::key_state keys, const core::point& pt);
 
@@ -362,7 +361,7 @@ namespace gui {
       typedef core::orientation_traits<V> super;
       typedef core::size::type size_type;
 
-      linear_list_traits (size_type item_size);
+      explicit linear_list_traits (size_type item_size);
 
       size_type get_invisible_size (const core::size& list_size, size_t count) const;
 
@@ -402,11 +401,11 @@ namespace gui {
     public:
       typedef basic_list<V, linear_list_traits<V>> super;
 
-      linear_list (core::size::type item_size = list_defaults<>::item_size,
+      explicit linear_list (core::size::type item_size = list_defaults<>::item_size,
                    os::color background = color::white,
                    bool grab_focus = true);
 
-      linear_list (linear_list&& rhs);
+      linear_list (linear_list&& rhs) noexcept ;
 
       void paint (const draw::graphics& graph);
 
@@ -440,11 +439,11 @@ namespace gui {
       typedef std::string (source)(int);
       typedef void (target)(int, const std::string&);
 
-      edit_list (core::size::type item_size = list_defaults<>::item_size,
+      explicit edit_list (core::size::type item_size = list_defaults<>::item_size,
                  os::color background = color::white,
                  bool grab_focus = true);
 
-      edit_list (edit_list&& rhs);
+      edit_list (edit_list&& rhs) noexcept ;
 
       void set_enable_edit (bool enable);
 

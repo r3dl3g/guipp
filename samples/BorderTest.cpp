@@ -219,7 +219,7 @@ my_main_window::my_main_window ()
 }
 
 // --------------------------------------------------------------------------
-pixmap create_text_pixmap (const std::string& str,
+masked_bitmap create_text_pixmap (const std::string& str,
                            const core::rectangle& rect,
                            const os::color color) {
   pixmap img(rect.size());
@@ -227,7 +227,7 @@ pixmap create_text_pixmap (const std::string& str,
   text_box box(str, rect, text_origin_t::center);
   g.clear(color::black);
   g.text(box, font::menu(), color);
-  return img;
+  return masked_bitmap{img};
 }
 
 // --------------------------------------------------------------------------
@@ -312,16 +312,16 @@ void my_main_window::onCreated () {
   const float icn_sz = core::global::scale_from_native<float>(16);
   core::rectangle icon_rect(0, 0, icn_sz, icn_sz);
 
-  pixmap cut_icon = create_text_pixmap(IF_WIN32_ELSE(u8"\x2660", u8"♠"), icon_rect, color::dark_red);
-  pixmap copy_icon = create_text_pixmap(IF_WIN32_ELSE(u8"\x2663", u8"♣"), icon_rect, color::dark_blue);
-  pixmap paste_icon = create_text_pixmap(IF_WIN32_ELSE(u8"\x2665", u8"♥"), icon_rect, color::dark_green);
+  auto cut_icon = create_text_pixmap(IF_WIN32_ELSE(u8"\x2660", u8"♠"), icon_rect, color::dark_red);
+  auto copy_icon = create_text_pixmap(IF_WIN32_ELSE(u8"\x2663", u8"♣"), icon_rect, color::dark_blue);
+  auto paste_icon = create_text_pixmap(IF_WIN32_ELSE(u8"\x2665", u8"♥"), icon_rect, color::dark_green);
 
   edit_sub_menu.data.add_entry(menu_entry("Cut", 't', util::bind_method(this, &my_main_window::cut), hot_key('X', state::control), false, cut_icon));
   edit_sub_menu.data.add_entry(menu_entry("Copy", 'C', util::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));
   edit_sub_menu.data.add_entry(menu_entry("Paste", 'P', util::bind_method(this, &my_main_window::paste), hot_key('V', state::control), false, paste_icon));
   edit_sub_menu.data.add_entry(menu_entry("Del", 'D', util::bind_method(this, &my_main_window::del), hot_key(keys::del)));
   edit_sub_menu.data.add_entry(menu_entry("Settings", 'S', util::bind_method(this, &my_main_window::settings), hot_key(), true));
-  edit_sub_menu.data.add_entry(menu_entry("Options", 'O', [&]() { labels[0].set_text("options"); }, hot_key(), false, pixmap(), menu_state::disabled));
+  edit_sub_menu.data.add_entry(menu_entry("Options", 'O', [&]() { labels[0].set_text("options"); }, hot_key(), false, masked_bitmap(), menu_state::disabled));
   edit_sub_menu.data.register_hot_keys(this);
 
   scale_sub_menu.data.add_entries({
@@ -838,13 +838,13 @@ void my_main_window::test_rgb () {
   io::ifpnm<io::PNM::P3>("red24") >> red24;
 
   bws[0] = red;
-  bws[1] = red24;
+  bws[1] = bwmap(red24);
 
   io::ifpnm<io::PNM::P3>("green32") >> green;
   io::ifpnm<io::PNM::P3>("green24") >> green24;
 
   grays[0] = green;
-  grays[1] = green24;
+  grays[1] = graymap(green24);
 
   io::ifpnm<io::PNM::P3>("blue32") >> blue;
   io::ifpnm<io::PNM::P3>("blue24") >> blue24;
@@ -853,7 +853,7 @@ void my_main_window::test_rgb () {
   rgbs[1] = blue24;
 
   rgbas[0] = blue;
-  rgbas[1] = blue24;
+  rgbas[1] = rgbamap(blue24);
 
   window1.invalidate();
 }

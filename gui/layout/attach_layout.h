@@ -215,12 +215,11 @@ namespace gui {
                                       const core::size&,
                                       const core::rectangle&);
 
-      attachment (adjust_function adjust)
+      explicit attachment (adjust_function adjust)
         : adjust(adjust)
       {}
 
-      virtual ~attachment ()
-      {}
+      virtual ~attachment () = default;
 
       adjust_function adjust;
 

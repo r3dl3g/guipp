@@ -212,7 +212,7 @@ namespace gui {
               clog::debug() << "Key Ctrl + 0x" << std::hex << keycode;
               break;
             }
-          } else if (chars.size()) {
+          } else if (!chars.empty()) {
             replace_selection(chars);
             set_cursor_pos(data.selection.end(), false);
           }

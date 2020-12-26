@@ -48,7 +48,7 @@ namespace gui {
       GUIPP_CTRL_EXPORT basic_slider<orientation_t::vertical>::basic_slider (const basic_slider&);
 
       template<>
-      GUIPP_CTRL_EXPORT basic_slider<orientation_t::vertical>::basic_slider (basic_slider&&);
+      GUIPP_CTRL_EXPORT basic_slider<orientation_t::vertical>::basic_slider (basic_slider&&) noexcept;
 
       template<>
       GUIPP_CTRL_EXPORT void basic_slider<orientation_t::vertical>::set_value (core::point::type v);
@@ -67,7 +67,7 @@ namespace gui {
       GUIPP_CTRL_EXPORT basic_slider<orientation_t::horizontal>::basic_slider (const basic_slider&);
 
       template<>
-      GUIPP_CTRL_EXPORT basic_slider<orientation_t::horizontal>::basic_slider (basic_slider&&);
+      GUIPP_CTRL_EXPORT basic_slider<orientation_t::horizontal>::basic_slider (basic_slider&&) noexcept;
 
       template<>
       GUIPP_CTRL_EXPORT void basic_slider<orientation_t::horizontal>::set_value (core::point::type v);
@@ -97,7 +97,7 @@ namespace gui {
 
     template<orientation_t O,
              draw::frame::drawer F>
-    inline basic_framed_slider<O, F>::basic_framed_slider (basic_framed_slider&& rhs)
+    inline basic_framed_slider<O, F>::basic_framed_slider (basic_framed_slider&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();
@@ -112,7 +112,7 @@ namespace gui {
     template<orientation_t O,
              draw::frame::drawer F>
     void basic_framed_slider<O, F>::paint (const draw::graphics& g) {
-      paint::slider(g, super::client_area(), super::is_focused(), F);
+      look::slider(g, super::client_area(), super::is_focused(), F);
     }
 
   } // ctrl

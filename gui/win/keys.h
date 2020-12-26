@@ -65,8 +65,8 @@ namespace gui {
       typedef void (fn)();
       typedef std::function<fn> call;
 
-      hot_key (os::key_symbol key = 0,
-               os::key_state modifiers = 0);
+      explicit hot_key (os::key_symbol key = 0,
+                        os::key_state modifiers = 0);
 
       std::string get_key_string () const;
       bool match (os::key_state, os::key_symbol) const;

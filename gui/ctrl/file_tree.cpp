@@ -24,6 +24,7 @@
 # include <QtCore/QDir>
 #endif // GUIPP_QT
 #include <iterator>
+#include <utility>
 
 // --------------------------------------------------------------------------
 //
@@ -38,9 +39,6 @@ namespace gui {
 
   namespace fs {
 
-    filtered_iterator::filtered_iterator ()
-    {}
-
     filtered_iterator::filtered_iterator (const sys_fs::directory_iterator& i, std::function<filter_fn> f)
       : iterator(i)
       , end()
@@ -52,12 +50,12 @@ namespace gui {
     filtered_iterator::filtered_iterator (sys_fs::directory_iterator&& i, std::function<filter_fn> f)
       : iterator(std::move(i))
       , end()
-      , filter(f)
+      , filter(std::move(f))
     {
       init();
     }
 
-    filtered_iterator::filtered_iterator (filtered_iterator&& rhs)
+    filtered_iterator::filtered_iterator (filtered_iterator&& rhs) noexcept
       : iterator(std::move(rhs.iterator))
       , end(std::move(rhs.end))
       , filter(std::move(rhs.filter))
@@ -69,9 +67,7 @@ namespace gui {
       : iterator(rhs.iterator)
       , end(rhs.end)
       , filter(rhs.filter)
-    {
-      init();
-    }
+    {}
 
     void filtered_iterator::init () {
       while ((iterator != end) && is_excluded(*iterator)) {
@@ -79,7 +75,7 @@ namespace gui {
       }
     }
 
-    bool filtered_iterator::is_excluded (const sys_fs::directory_entry& i) {
+    bool filtered_iterator::is_excluded (const sys_fs::directory_entry& i) const {
       return (filter && filter(i));
     }
 
@@ -90,11 +86,12 @@ namespace gui {
       return *this;
     }
 
-    filtered_iterator& filtered_iterator::operator++ (int) {
+    filtered_iterator filtered_iterator::operator++ (int) {
+      filtered_iterator previous = *this;
       do {
         ++iterator;
       } while ((iterator != end) && is_excluded(*iterator));
-      return *this;
+      return previous;
     }
 
     file_info::file_info (const sys_fs::path& path)
@@ -144,7 +141,7 @@ namespace gui {
       auto paths = get_all_root_paths();
       for (const auto& p : paths) {
         try {
-          infos.push_back(p);
+          infos.emplace_back(p);
         } catch (std::exception& ex) {
           clog::warn() << ex;
         }
@@ -233,7 +230,7 @@ namespace gui {
         return util::string::starts_with(name, ".") && (name != "..");
       }
 
-      auto unsorted_path_info::sub_nodes(type const & n, std::function<fs::filter_fn> filter) -> range {
+      auto unsorted_path_info::sub_nodes(type const & n, const std::function<fs::filter_fn>& filter) -> range {
         return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)),
                                            [filter] (const sys_fs::directory_entry & i) {
           try {
@@ -246,7 +243,7 @@ namespace gui {
         fs::filtered_iterator(sys_fs::end(path_iterator(n))));
       }
 
-      auto unsorted_dir_info::sub_nodes(type const & n, std::function<fs::filter_fn> filter) -> range {
+      auto unsorted_dir_info::sub_nodes(type const & n, const std::function<fs::filter_fn>& filter) -> range {
         return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)),
                                            [filter] (const sys_fs::directory_entry & i) {
           try {
@@ -259,7 +256,7 @@ namespace gui {
         fs::filtered_iterator(sys_fs::end(path_iterator(n))));
       }
 
-      auto unsorted_file_info::sub_nodes(type const & n, std::function<fs::filter_fn> filter) -> range {
+      auto unsorted_file_info::sub_nodes(type const & n, const std::function<fs::filter_fn>& filter) -> range {
         return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)),
                                            [filter] (const sys_fs::directory_entry & i) {
           try {
@@ -272,7 +269,7 @@ namespace gui {
         fs::filtered_iterator(sys_fs::end(path_iterator(n))));
       }
 
-      auto sorted_path_info::sub_nodes(type const & n, std::function<fs::filter_fn> filter) -> range {
+      auto sorted_path_info::sub_nodes(type const & n, const std::function<fs::filter_fn>& filter) -> range {
         range v;
         for (auto i = sys_fs::begin(path_iterator(n)), e = sys_fs::end(path_iterator(n)); i != e; ++i) {
           try {
@@ -287,7 +284,7 @@ namespace gui {
         return v;
       }
 
-      auto sorted_dir_info::sub_nodes(type const & n, std::function<fs::filter_fn> filter) -> range {
+      auto sorted_dir_info::sub_nodes(type const & n, const std::function<fs::filter_fn>& filter) -> range {
         range v;
         for (auto i = sys_fs::begin(path_iterator(n)),
              e = sys_fs::end(path_iterator(n)); i != e; ++i) {
@@ -303,7 +300,7 @@ namespace gui {
         return v;
       }
 
-      auto sorted_file_info::sub_nodes(type const & n, std::function<fs::filter_fn> filter) -> range {
+      auto sorted_file_info::sub_nodes(type const & n, const std::function<fs::filter_fn>& filter) -> range {
         range v;
         for (auto i = sys_fs::begin(path_iterator(n)),
              e = sys_fs::end(path_iterator(n)); i != e; ++i) {
@@ -361,19 +358,19 @@ namespace gui {
             draw::frame::lines(g, r);
           },
           [] (const fs::file_info& path, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t align) {
-            paint::text_item(g, r, b, path.filename(), s, align);
+            look::text_item(g, r, b, path.filename(), s, align);
             draw::frame::lines(g, r);
           },
           [] (const fs::file_info& path, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t align) {
             if (path.is_directory()) {
-              paint::text_item(g, r, b, std::string(), s, align);
+              look::text_item(g, r, b, std::string(), s, align);
             } else {
-              paint::text_item(g, r, b, format_file_size(path.size), s, align);
+              look::text_item(g, r, b, format_file_size(path.size), s, align);
             }
             draw::frame::lines(g, r);
           },
           [] (const sys_fs::file_time_type& tp, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t align) {
-            paint::text_item(g, r, b, util::time::format_datetime(tp), s, align);
+            look::text_item(g, r, b, util::time::format_datetime(tp), s, align);
             draw::frame::lines(g, r);
           }
         )

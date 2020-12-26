@@ -96,11 +96,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct const_text {
-      const_text ()
+      const_text () = default;
+
+      explicit const_text (const std::string& text)
+        : text(text)
       {}
 
-      const_text (const std::string& text)
-        : text(text)
+      explicit const_text (std::string&& text)
+        : text(std::move(text))
       {}
 
       const std::string& operator() () const {

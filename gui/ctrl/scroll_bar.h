@@ -109,7 +109,7 @@ namespace gui {
       void set_min_max_step_page (type, type, type, type);
       void set_min_max_step_value (type, type, type, type);
 
-      void handle_wheel (const core::point::type delta, const core::point&);
+      void handle_wheel (core::point::type delta, const core::point&);
 
       static constexpr int get_scroll_bar_width () {
         return scroll_bar_width;
@@ -125,7 +125,7 @@ namespace gui {
     protected:
       scroll_bar ();
       scroll_bar (const scroll_bar&);
-      scroll_bar (scroll_bar&&);
+      scroll_bar (scroll_bar&&) noexcept ;
 
       void create (const win::class_info& type,
                    win::container& parent,
@@ -192,9 +192,9 @@ namespace gui {
                                     win::window_class_defaults<>::cursor,
                                     scroll_bar_traits<H>::style> clazz;
 
-      basic_scroll_bar (bool grab_focus = true);
+      explicit basic_scroll_bar (bool grab_focus = true);
       basic_scroll_bar (const basic_scroll_bar& rhs);
-      basic_scroll_bar (basic_scroll_bar&& rhs);
+      basic_scroll_bar (basic_scroll_bar&& rhs) noexcept ;
 
       void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
@@ -248,17 +248,17 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<orientation_t H,
 #if defined(BUILD_FOR_ARM) || defined(GUIPP_BUILD_FOR_MOBILE)
-             scrollbar_drawer D = paint::scrollbar_w95>
+             scrollbar_drawer D = look::scrollbar_w95>
 #else
-             scrollbar_drawer D = paint::scrollbar>
+             scrollbar_drawer D = look::scrollbar>
 #endif
     class scroll_bar_base : public basic_scroll_bar<H> {
     public:
       typedef basic_scroll_bar<H> super;
 
-      scroll_bar_base (bool grab_focus = true);
+      explicit scroll_bar_base (bool grab_focus = true);
       scroll_bar_base (const scroll_bar_base& rhs);
-      scroll_bar_base (scroll_bar_base&& rhs);
+      scroll_bar_base (scroll_bar_base&& rhs) noexcept ;
 
       void handle_paint (const draw::graphics&);
 

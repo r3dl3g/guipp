@@ -20,15 +20,11 @@
 //
 // Common includes
 //
-#include <iostream>
-#include <sstream>
-#include <iomanip>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <util/string_util.h>
 #include <gui/io/wavelength_to_rgb.h>
 
 // --------------------------------------------------------------------------

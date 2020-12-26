@@ -44,7 +44,7 @@ namespace gui {
       public:
         typedef ctrl::vertical_list list_type;
 
-        column_list_layout (win::window* main);
+        explicit column_list_layout (win::window* main);
         column_list_layout (win::window* main, const column_list_layout& rhs);
         column_list_layout (win::window* main, column_list_layout&& rhs);
 
@@ -99,7 +99,7 @@ namespace gui {
     public:
       typedef detail::column_list_layout super;
 
-      simple_column_list_layout (win::window* main);
+      explicit simple_column_list_layout (win::window* main);
       simple_column_list_layout (win::window* main, const simple_column_list_layout& rhs);
       simple_column_list_layout (win::window* main, simple_column_list_layout&& rhs);
 
@@ -107,7 +107,7 @@ namespace gui {
       void set_column_count (std::size_t i);
 
       void set_columns (std::initializer_list<simple_column_info> infos, bool update = true);
-      void set_column_min_width (std::size_t i, const column_size_type w);
+      void set_column_min_width (std::size_t i, column_size_type w);
       column_size_type get_column_min_width (std::size_t i) const;
 
     protected:
@@ -128,7 +128,7 @@ namespace gui {
     public:
       typedef simple_column_list_layout super;
 
-      weight_column_list_layout (win::window* main);
+      explicit weight_column_list_layout (win::window* main);
       weight_column_list_layout (win::window* main, const weight_column_list_layout& rhs);
       weight_column_list_layout (win::window* main, weight_column_list_layout&& rhs);
 
@@ -193,7 +193,7 @@ namespace gui {
 
       column_list_header ();
       column_list_header (const column_list_header& rhs);
-      column_list_header (column_list_header&& rhs);
+      column_list_header (column_list_header&& rhs) noexcept ;
 
       void paint (const draw::graphics& g);
 
@@ -201,7 +201,7 @@ namespace gui {
                    const core::rectangle& place = core::rectangle::def);
 
       void set_cell_drawer (std::function<cell_draw> cd);
-      void set_labels (std::initializer_list<std::string> labels);
+      void set_labels (std::initializer_list<std::string> args);
 
       void handle_left_btn_down (os::key_state, const core::point& pt);
       void handle_left_btn_up (os::key_state keys, const core::point& pt);
@@ -212,6 +212,8 @@ namespace gui {
 
       void layout (const core::rectangle&);
 
+      void operator= (column_list_header&) = delete;
+
     private:
       std::function<cell_draw> cell_drawer;
       core::point last_mouse_point;
@@ -220,7 +222,6 @@ namespace gui {
 
       void init ();
 
-      void operator= (column_list_header&) = delete;
     };
 
     namespace detail {
@@ -235,10 +236,10 @@ namespace gui {
         typedef vertical_list list_type;
         typedef no_erase_window_class<base_column_list> clazz;
 
-        base_column_list (core::size::type item_size = list_defaults<>::item_size,
+        explicit base_column_list (core::size::type item_size = list_defaults<>::item_size,
                           os::color background = color::white,
                           bool grab_focus = true);
-        base_column_list (base_column_list&& rhs);
+        base_column_list (base_column_list&& rhs) noexcept ;
 
         layout_type& get_column_layout ();
         const layout_type& get_column_layout () const;
@@ -355,7 +356,7 @@ namespace gui {
         return layout;
       }
 
-      const column_list_data& operator ()() const {
+      const column_list_data& operator() () const {
         return *this;
       }
 
@@ -379,11 +380,11 @@ namespace gui {
       typedef std::tuple<Arguments ...> row_type;
       typedef std::tuple<cell_drawer_t<Arguments>...> drawer_type;
 
-      column_list_data_t (cell_drawer_t<Arguments>... drwr)
+      explicit column_list_data_t (cell_drawer_t<Arguments>... drwr)
         : drawer(drwr...)
       {}
 
-      column_list_data_t (drawer_type&& drwr)
+      explicit column_list_data_t (drawer_type&& drwr)
         : drawer(std::move(drwr))
       {}
 
@@ -418,11 +419,11 @@ namespace gui {
 
       typedef std::vector<row_type> container_type;
 
-      const_column_list_data (cell_drawer_t<Arguments>... drwr)
+      explicit const_column_list_data (cell_drawer_t<Arguments>... drwr)
         : super(drwr...)
       {}
 
-      const_column_list_data (drawer_type&& drwr)
+      explicit const_column_list_data (drawer_type&& drwr)
         : super(std::move(drwr))
       {}
 
@@ -486,10 +487,10 @@ namespace gui {
 
       static const std::size_t count = sizeof ... (Arguments);
 
-      column_list_t (core::size::type item_size = list_defaults<>::item_size,
+      explicit column_list_t (core::size::type item_size = list_defaults<>::item_size,
                      os::color background = color::white,
                      bool grab_focus = true);
-      column_list_t (column_list_t&& rhs);
+      column_list_t (column_list_t&& rhs) noexcept ;
 
       void set_data (std::function<column_list_data_provider> data);
 

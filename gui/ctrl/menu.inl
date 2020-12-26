@@ -187,7 +187,7 @@ namespace gui {
       data.key_caller = fn;
     }
 
-    inline bool menu_data::is_open () {
+    inline bool menu_data::is_open () const {
       return (bool)data.close_caller;
     }
 

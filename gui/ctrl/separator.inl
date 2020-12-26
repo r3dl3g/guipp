@@ -28,12 +28,12 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<>
       inline draw::line line_traits<orientation_t::vertical>::first (const core::rectangle& r) {
-        return draw::line(r.top_left(), r.bottom_left());
+        return {r.top_left(), r.bottom_left()};
       }
 
       template<>
       inline draw::line line_traits<orientation_t::vertical>::second (const core::rectangle& r) {
-        return draw::line(r.top_right(), r.bottom_right());
+        return {r.top_right(), r.bottom_right()};
       }
 
       template<>
@@ -44,12 +44,12 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<>
       inline draw::line line_traits<orientation_t::horizontal>::first (const core::rectangle& r) {
-        return draw::line(r.top_left(), r.top_right());
+        return {r.top_left(), r.top_right()};
       }
 
       template<>
       inline draw::line line_traits<orientation_t::horizontal>::second (const core::rectangle& r) {
-        return draw::line(r.bottom_right(), r.bottom_left());
+        return {r.bottom_right(), r.bottom_left()};
       }
 
       template<>

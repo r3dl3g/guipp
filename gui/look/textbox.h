@@ -31,7 +31,7 @@
 namespace gui {
 
   // --------------------------------------------------------------------------
-  namespace paint {
+  namespace look {
 
     GUIPP_LOOK_EXPORT void text_box (const draw::graphics& graph,
                                      const core::rectangle& area,
@@ -43,8 +43,8 @@ namespace gui {
                                      const core::range<core::basic_point<int> >& selection,
                                      const core::basic_point<int>& cursor_pos,
                                      const core::point& offset,
-                                     const bool is_focused);
+                                     bool is_focused);
 
-  } // paint
+  } // look
 
 } // gui

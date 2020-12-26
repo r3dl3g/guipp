@@ -122,12 +122,9 @@ namespace gui {
       , m_style(style)
     {}
 
-    brush::brush (const brush& rhs)
-      : m_color(rhs.m_color)
-      , m_style(rhs.m_style)
-    {}
+    brush::brush (const brush& rhs) = default;
 
-    brush::~brush () {}
+    brush::~brush () = default;
 
     os::color brush::color () const {
       return m_color;

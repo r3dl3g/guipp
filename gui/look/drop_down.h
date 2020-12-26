@@ -45,7 +45,7 @@ namespace gui {
   } // ctrl
 
   // --------------------------------------------------------------------------
-  namespace paint {
+  namespace look {
 
     GUIPP_LOOK_EXPORT void drop_down_item (const draw::graphics& g,
                                            const core::rectangle& r,
@@ -58,6 +58,6 @@ namespace gui {
                                              const ctrl::button_state::is& state,
                                              bool is_open);
 
-  } // paint
+  } // look
 
 } // gui

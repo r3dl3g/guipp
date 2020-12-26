@@ -20,10 +20,8 @@
 //
 // Common includes
 //
-#include <memory.h>
 #include <array>
 #ifdef GUIPP_X11
-# include <cmath>
 # include <algorithm>
 #endif // GUIPP_X11
 #ifdef GUIPP_QT
@@ -34,7 +32,6 @@
 //
 // Library includes
 //
-#include <logging/logger.h>
 #include <util/ostreamfmt.h>
 #ifdef GUIPP_WIN
 # include <util/string_util.h>
@@ -406,7 +403,7 @@ namespace gui {
       ref_gc = false;
     }
 
-    void graphics::operator= (const graphics& rhs) {
+    graphics& graphics::operator= (const graphics& rhs) {
       if (&rhs != this) {
         destroy();
         target = rhs.target;
@@ -418,6 +415,7 @@ namespace gui {
           gc = rhs.gc;
         }
       }
+      return *this;
     }
 
     const graphics& graphics::draw_pixel (const core::native_point& pt,
@@ -445,7 +443,7 @@ namespace gui {
       return { (short)(pt.x + i), (short)(pt.y + i) };
     }
 
-    const graphics& graphics::draw_lines (std::vector<core::point> pts,
+    const graphics& graphics::draw_lines (const std::vector<core::point>& pts,
                                           const pen& p) const {
 
       Use<pen> pn(gc, p);

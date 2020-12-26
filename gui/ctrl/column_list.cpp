@@ -181,7 +181,7 @@ namespace gui {
       }
 
       if (0.0F == right_weight) {
-        right_weight = 1.0F / (count - i);
+        right_weight = 1.0F / static_cast<float>(count - i);
       }
 
       const core::size::type available_width = get_available_width();

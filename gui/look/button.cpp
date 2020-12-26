@@ -20,7 +20,7 @@
 //
 // Common includes
 //
-#include <math.h>
+#include <cmath>
 
 // --------------------------------------------------------------------------
 //
@@ -40,11 +40,11 @@ namespace gui {
 
   namespace image_data {
 
-#include <gui/look/res/button_frame.h>
-#include <gui/look/res/button_pressed_frame.h>
-#include <gui/look/res/button_rot_frame.h>
-#include <gui/look/res/button_pressed_rot_frame.h>
-#include <gui/look/res/simple_frame.h>
+#   include <gui/look/res/button_frame.h>
+#   include <gui/look/res/button_pressed_frame.h>
+#   include <gui/look/res/button_rot_frame.h>
+#   include <gui/look/res/button_pressed_rot_frame.h>
+#   include <gui/look/res/simple_frame.h>
 
   } // namespace image_data
 
@@ -114,10 +114,11 @@ namespace gui {
       static draw::graymap image_pressed(get_button_frame<true, false>().sub(4, 1, 24, 7));
       return !pressed ? image_pressed : image;
     }
+
   } // namespace detail
 
   // --------------------------------------------------------------------------
-  namespace paint {
+  namespace look {
 
     const int dot_line_width = 1;
     const draw::pen::Style dot_line_style = draw::pen::Style::dot;
@@ -156,8 +157,7 @@ namespace gui {
       draw::frame::deep_relief(graph, area, pushed);
 
       if (enabled && focused && !pushed) {
-        core::rectangle area = r;
-        area.shrink({6, 6});
+        area = r.shrinked({6, 6});
         graph.frame(draw::rectangle(area), draw::pen(color::light_gray, dot_line_width, dot_line_style));
       }
     }
@@ -378,6 +378,6 @@ namespace gui {
       }
     }
 
-  } // paint
+  } // look
 
 } // gui

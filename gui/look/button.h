@@ -31,7 +31,7 @@
 namespace gui {
 
   // --------------------------------------------------------------------------
-  namespace paint {
+  namespace look {
     GUIPP_LOOK_EXPORT void button_frame (const draw::graphics& graph,
                                          const core::rectangle& r,
                                          const ctrl::button_state::is& state);
@@ -107,7 +107,7 @@ namespace gui {
       tab_button(g, r, text, state, foreground, align);
     }
 
-  } // namespace paint
+  } // namespace look
 
   // --------------------------------------------------------------------------
 

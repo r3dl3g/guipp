@@ -32,7 +32,7 @@
 namespace gui {
 
   // --------------------------------------------------------------------------
-  namespace paint {
+  namespace look {
 
     namespace detail {
 
@@ -73,7 +73,7 @@ namespace gui {
                    const core::point& offset,
                    const bool is_focused) {
       const auto height = area.height();
-      const core::size::type row_sz = static_cast<core::size::type>(fnt.line_height());
+      const auto row_sz = static_cast<core::size::type>(fnt.line_height());
       const auto last = lines.size();
       const auto first = static_cast<int>(offset.y() / row_sz);
       core::rectangle r(area.x() - offset.x(), row_sz * first - offset.y(), area.width() + offset.x(), row_sz);
@@ -92,10 +92,10 @@ namespace gui {
       }
 
       for (auto idx = first; (idx < last) && (r.y() < height); ++idx) {
-        paint::edit_line(graph, r, lines[idx], fnt, foreground, background, origin,
-                         detail::get_line_selection(selection, idx),
-                         detail::get_line_cursor(cursor_pos, idx),
-                         0, true);
+        look::edit_line(graph, r, lines[idx], fnt, foreground, background, origin,
+                        detail::get_line_selection(selection, idx),
+                        detail::get_line_cursor(cursor_pos, idx),
+                        0, true);
         r.move_y(row_sz);
       }
 
@@ -108,6 +108,6 @@ namespace gui {
       }
     }
 
-  } // namespace paint
+  } // namespace look
 
 } // gui

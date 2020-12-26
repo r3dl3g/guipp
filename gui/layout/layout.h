@@ -85,12 +85,12 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct GUIPP_LAYOUT_EXPORT layout_element {
-      layout_element (const layout_function& fkt, bool is_separator = false)
+      explicit layout_element (const layout_function& fkt, bool is_separator = false)
         : fkt(fkt)
         , separator(is_separator)
       {}
 
-      layout_element (layout_function&& fkt, bool is_separator = false)
+      explicit layout_element (layout_function&& fkt, bool is_separator = false)
         : fkt(std::move(fkt))
         , separator(is_separator)
       {}
@@ -147,14 +147,13 @@ namespace gui {
     struct attachable_layout {
       using layout_type = L;
 
-      attachable_layout ()
-      {}
+      attachable_layout () = default;
 
-      attachable_layout (const layout_type& lay)
+      explicit attachable_layout (const layout_type& lay)
         : lay(lay)
       {}
 
-      attachable_layout (layout_type&& lay)
+      explicit attachable_layout (layout_type&& lay)
         : lay(std::move(lay))
       {}
 

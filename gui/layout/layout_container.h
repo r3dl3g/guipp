@@ -40,9 +40,9 @@ namespace gui {
         typedef B super;
         typedef L layout_type;
 
-        layout_container_base (const Args& ... args);
+        explicit layout_container_base (const Args& ... args);
         layout_container_base (const layout_container_base& rhs);
-        layout_container_base (layout_container_base&& rhs);
+        layout_container_base (layout_container_base&& rhs) noexcept ;
 
         void layout ();
         void layout (const core::rectangle&);
@@ -72,7 +72,7 @@ namespace gui {
       typedef layout_container<L, Args ...> super;
       typedef window_class<group_window, background> clazz;
 
-      group_window (const Args& ... args);
+      explicit group_window (const Args& ... args);
 
       void create (container& parent,
                    const core::rectangle& r = core::rectangle::def);

@@ -32,7 +32,7 @@
 namespace gui {
 
   // --------------------------------------------------------------------------
-  namespace paint {
+  namespace look {
 
     template<typename T,
              draw::frame::drawer F = draw::frame::sunken_relief>
@@ -53,7 +53,7 @@ namespace gui {
                                                                          const os::color& background,
                                                                          const ctrl::item_state& state);
 
-  } // namespace paint
+  } // namespace look
 
 } // gui
 

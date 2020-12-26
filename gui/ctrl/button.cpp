@@ -20,13 +20,11 @@
 //
 // Common includes
 //
-#include <math.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <gui/draw/graphics.h>
 #include <gui/ctrl/button.h>
 #include <gui/look/button.h>
 
@@ -43,14 +41,7 @@ namespace gui {
 
 
     // --------------------------------------------------------------------------
-    button_base::button_base () {
-    }
-
-    button_base::button_base (const button_base& rhs)
-      : super(rhs)
-    {}
-
-    button_base::button_base (button_base&& rhs)
+    button_base::button_base (button_base&& rhs) noexcept
       : super(std::move(rhs))
     {}
 

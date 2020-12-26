@@ -31,7 +31,7 @@
 namespace gui {
 
   // --------------------------------------------------------------------------
-  namespace paint {
+  namespace look {
 
     GUIPP_LOOK_EXPORT void progress_bar (const draw::graphics& graph,
                                          const core::rectangle& area,
@@ -42,6 +42,6 @@ namespace gui {
                                          os::color bar_color,
                                          core::size::type bar_pos);
 
-  } // namespace paint
+  } // namespace look
 
 } // namespace gui

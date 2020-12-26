@@ -26,7 +26,7 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      inline const list_state::is list_base::get_state () const {
+      inline list_state::is list_base::get_state () const {
         return list_state::is(flags);
       }
 
@@ -154,7 +154,7 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    inline basic_list<V, T>::basic_list (basic_list&& rhs)
+    inline basic_list<V, T>::basic_list (basic_list&& rhs) noexcept
       : super(std::move(rhs))
       , scrollbar(std::move(rhs.scrollbar))
       , traits(std::move(rhs.traits))
@@ -294,7 +294,7 @@ namespace gui {
     template<orientation_t V, typename T>
     core::rectangle basic_list<V, T>::get_scroll_bar_area (const core::size& s) const {
       core::rectangle r(s);
-      float sz = static_cast<float>(scroll_bar::get_scroll_bar_width());
+      auto sz = static_cast<float>(scroll_bar::get_scroll_bar_width());
       traits.set_2(r, traits.get_2(r.x2y2()) - sz, sz);
       return r;
     }
@@ -323,7 +323,7 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    inline void basic_list<V, T>::set_data (std::function<list_data_provider> dta) {
+    inline void basic_list<V, T>::set_data (const std::function<list_data_provider>& dta) {
       super::data.items = dta;
       invalidate();
     }
@@ -482,7 +482,7 @@ namespace gui {
     }
 
     template<orientation_t V>
-    inline linear_list<V>::linear_list (linear_list&& rhs)
+    inline linear_list<V>::linear_list (linear_list&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();
@@ -565,7 +565,7 @@ namespace gui {
       init();
     }
 
-    inline edit_list::edit_list (edit_list&& rhs)
+    inline edit_list::edit_list (edit_list&& rhs) noexcept
       : super(std::move(rhs))
       , data(std::move(rhs.data))
     {

@@ -42,10 +42,10 @@ namespace gui {
 
     struct GUIPP_CTRL_EXPORT filtered_iterator {
 
-      filtered_iterator ();
-      filtered_iterator (const sys_fs::directory_iterator& i, std::function<filter_fn> f = nullptr);
-      filtered_iterator (sys_fs::directory_iterator&& i, std::function<filter_fn> f = nullptr);
-      filtered_iterator (filtered_iterator&& rhs);
+      filtered_iterator () = default;
+      explicit filtered_iterator (const sys_fs::directory_iterator& i, std::function<filter_fn> f = nullptr);
+      explicit filtered_iterator (sys_fs::directory_iterator&& i, std::function<filter_fn> f = nullptr);
+      filtered_iterator (filtered_iterator&& rhs) noexcept ;
       filtered_iterator (const filtered_iterator& rhs);
 
       filtered_iterator& operator= (const filtered_iterator&) = default;
@@ -56,10 +56,10 @@ namespace gui {
       const sys_fs::directory_entry& operator* () const;
       const sys_fs::directory_entry* operator-> () const;
 
-      bool is_excluded (const sys_fs::directory_entry& i);
+      bool is_excluded (const sys_fs::directory_entry& i) const;
 
       filtered_iterator& operator++ ();
-      filtered_iterator& operator++ (int);
+      filtered_iterator operator++ (int);
 
       sys_fs::directory_iterator iterator;
       sys_fs::directory_iterator end;
@@ -73,7 +73,7 @@ namespace gui {
                      const filtered_iterator& rhs);
 
     struct GUIPP_CTRL_EXPORT file_info {
-      file_info (const sys_fs::path& path);
+      file_info (const sys_fs::path& path); // NOLINT(google-explicit-constructor)
       file_info ();
 
       sys_fs::path path;
@@ -121,37 +121,37 @@ namespace gui {
       struct GUIPP_CTRL_EXPORT unsorted_path_info : public path_info {
         typedef core::range<iterator> range;
 
-        static range sub_nodes (type const& n, std::function<fs::filter_fn> f = nullptr);
+        static range sub_nodes (type const& n, const std::function<fs::filter_fn>& f = nullptr);
       };
 
       struct GUIPP_CTRL_EXPORT unsorted_dir_info : public path_info {
         typedef core::range<iterator> range;
 
-        static range sub_nodes (type const& n, std::function<fs::filter_fn> f = nullptr);
+        static range sub_nodes (type const& n, const std::function<fs::filter_fn>& f = nullptr);
       };
 
       struct GUIPP_CTRL_EXPORT unsorted_file_info : public path_info {
         typedef core::range<iterator> range;
 
-        static range sub_nodes (type const& n, std::function<fs::filter_fn> f = nullptr);
+        static range sub_nodes (type const& n, const std::function<fs::filter_fn>& f = nullptr);
       };
 
       struct GUIPP_CTRL_EXPORT sorted_path_info : public path_info {
         typedef std::vector<type> range;
 
-        static range sub_nodes (type const& n, std::function<fs::filter_fn> f = nullptr);
+        static range sub_nodes (type const& n, const std::function<fs::filter_fn>& f = nullptr);
       };
 
       struct GUIPP_CTRL_EXPORT sorted_dir_info : public path_info {
         typedef std::vector<type> range;
 
-        static range sub_nodes (type const& n, std::function<fs::filter_fn> f = nullptr);
+        static range sub_nodes (type const& n, const std::function<fs::filter_fn>& f = nullptr);
       };
 
       struct GUIPP_CTRL_EXPORT sorted_file_info : public path_info {
         typedef std::vector<type> range;
 
-        static range sub_nodes (type const& n, std::function<fs::filter_fn> f = nullptr);
+        static range sub_nodes (type const& n, const std::function<fs::filter_fn>& f = nullptr);
       };
 
 
@@ -203,11 +203,11 @@ namespace gui {
     public:
       typedef vertical_list super;
 
-      file_list (core::size::type item_size = list_defaults<>::item_size,
+      explicit file_list (core::size::type item_size = list_defaults<>::item_size,
                  os::color background = color::white,
                  bool grab_focus = true);
       file_list (const file_list&);
-      file_list (file_list&&);
+      file_list (file_list&&) noexcept ;
 
       void set_path (const sys_fs::path& dir, std::function<fs::filter_fn> f = nullptr);
       sys_fs::path get_selected_path () const;
@@ -238,11 +238,11 @@ namespace gui {
       typedef column_list_t<layout::weight_column_list_layout,
                             const gui::tree::tree_icon*, fs::file_info, fs::file_info, sys_fs::file_time_type> super;
 
-      file_column_list (core::size::type item_size = list_defaults<>::item_size,
+      explicit file_column_list (core::size::type item_size = list_defaults<>::item_size,
                         os::color background = color::white,
                         bool grab_focus = true);
       file_column_list (const file_column_list& rhs);
-      file_column_list (file_column_list&& rhs);
+      file_column_list (file_column_list&& rhs) noexcept ;
 
       void set_path (const sys_fs::path& dir, std::function<fs::filter_fn> f = nullptr);
       sys_fs::path get_selected_path () const;

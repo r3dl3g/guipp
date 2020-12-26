@@ -72,7 +72,7 @@ namespace gui {
       static gray build(T t);
 
       template<typename T>
-      void operator= (T);
+      gray& operator= (T);
     };
 
     // --------------------------------------------------------------------------
@@ -86,7 +86,7 @@ namespace gui {
       static rgb build(T t);
 
       template<typename T>
-      void operator= (T);
+      rgb& operator= (T);
     };
 
     // --------------------------------------------------------------------------
@@ -101,7 +101,7 @@ namespace gui {
       static rgba build(T t);
 
       template<typename T>
-      void operator= (T);
+      rgba& operator= (T);
     };
 
     // --------------------------------------------------------------------------
@@ -115,7 +115,7 @@ namespace gui {
       static bgr build(T t);
 
       template<typename T>
-      void operator= (T);
+      bgr& operator= (T);
     };
 
     // --------------------------------------------------------------------------
@@ -130,7 +130,7 @@ namespace gui {
       static bgra build(T t);
 
       template<typename T>
-      void operator= (T);
+      bgra& operator= (T);
     };
 
     // --------------------------------------------------------------------------
@@ -145,7 +145,7 @@ namespace gui {
       static argb build(T t);
 
       template<typename T>
-      void operator= (T);
+      argb& operator= (T);
     };
 
     // --------------------------------------------------------------------------
@@ -160,7 +160,7 @@ namespace gui {
       static abgr build(T t);
 
       template<typename T>
-      void operator= (T);
+      abgr& operator= (T);
     };
 
 #pragma pack(pop)
@@ -462,7 +462,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct image_data_base {
-      inline image_data_base (const bitmap_info& info)
+      inline explicit image_data_base (const bitmap_info& info)
         : info(info)
       {}
 
@@ -545,8 +545,8 @@ namespace gui {
 
       row_type row (uint32_t y) {
         byte* row = data.data(y * get_info().bytes_per_line, get_info().bytes_per_line);
-        using raw_type = typename row_type::type;
-        return row_type(reinterpret_cast<raw_type*>(row), width());
+        using raw_t = typename row_type::type;
+        return {reinterpret_cast<raw_t*>(row), width()};
       }
 
       core::bit_wrapper<pixel_type> pixel (uint32_t x, uint32_t y) {

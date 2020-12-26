@@ -40,16 +40,9 @@ namespace gui {
         : text(t)
       {}
 
-      label_base::label_base (const label_base& rhs)
-        : super(rhs)
-        , text(rhs.text)
+      label_base::label_base (text_source&& t) noexcept
+        : text(std::move(t))
       {}
-
-      label_base::label_base (label_base&& rhs)
-        : super(rhs)
-      {
-        std::swap(text, rhs.text);
-      }
 
       void label_base::set_text (const std::string& t) {
         set_text(const_text(t));

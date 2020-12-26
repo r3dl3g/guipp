@@ -32,7 +32,7 @@
 
 namespace gui {
 
-  namespace paint {
+  namespace look {
 
     void progress_bar (const draw::graphics& graph,
                        const core::rectangle& area,
@@ -52,6 +52,6 @@ namespace gui {
 #endif // SHOW_TEXT_AREA
     }
 
-  } // namespace paint
+  } // namespace look
 
 } // namespace gui

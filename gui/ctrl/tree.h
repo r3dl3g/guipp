@@ -48,10 +48,10 @@ namespace gui {
                              bool has_children,
                              bool is_open,
                              item_state state) {
-        paint::tree_node(g, r, b, depth,
-                         I::label(t),
-                         I::icon(t, has_children, is_open, item_state::selected == state),
-                         has_children, is_open, state);
+        look::tree_node(g, r, b, depth,
+                        I::label(t),
+                        I::icon(t, has_children, is_open, item_state::selected == state),
+                        has_children, is_open, state);
       }
 
       // --------------------------------------------------------------------------
@@ -76,14 +76,14 @@ namespace gui {
         const roots_list_type& get_roots () const;
         void set_roots (const roots_list_type&);
 
-        basic_tree (core::size::type item_size = list_defaults<>::item_size,
-                    os::color background = color::white,
-                    bool grab_focus = true);
-        basic_tree (basic_tree&& rhs);
+        explicit basic_tree (core::size::type item_size = list_defaults<>::item_size,
+                             os::color background = color::white,
+                             bool grab_focus = true);
+        basic_tree (basic_tree&& rhs) noexcept ;
 
         void init ();
 
-        bool is_open (const reference) const;
+        bool is_open (reference) const;
         bool is_open (int idx) const;
         void set_open (int idx, bool o);
 
@@ -107,7 +107,7 @@ namespace gui {
 
         bool is_valid_idx (int idx) const;
 
-        const reference get_item (int idx) const;
+        reference get_item (int idx) const;
         int get_parent_item_of (int idx);
 
         int size () const;
@@ -136,7 +136,7 @@ namespace gui {
                         const draw::brush& background,
                         item_state state) const override;
 
-          bool is_open (const reference ref) const;
+          bool is_open (reference ref) const;
 
           const list_data& operator ()() const {
             return *this;
@@ -152,9 +152,9 @@ namespace gui {
         typedef std::vector<node> node_list;
         typedef node_list::const_iterator iterator;
 
-        node (const std::string& label = std::string());
-        node (const char* label);
-        node (std::string&& label);
+        explicit node (const std::string& label = std::string());
+        explicit node (const char* label);
+        explicit node (std::string&& label);
         node (const std::string& label, std::initializer_list<node> nodes);
 
         void add_node (const node& node);

@@ -32,7 +32,7 @@
 
 namespace gui {
 
-  namespace paint {
+  namespace look {
 
     namespace {
       std::string up_left_arrows[] = {
@@ -69,7 +69,7 @@ namespace gui {
       }
       os::color col = is_enabled ? color::black : color::gray;
       if (!up.empty()) {
-        paint::simple_frame(g, up, ctrl::scrollbar_item::up_button == hilite);
+        look::simple_frame(g, up, ctrl::scrollbar_item::up_button == hilite);
         if (ctrl::scrollbar_item::up_button == select) {
           draw::frame::sunken_relief(g, up.shrinked(core::size::two));
         }
@@ -77,7 +77,7 @@ namespace gui {
         g.text(draw::text_box(s, up, text_origin_t::center), draw::font::system(), col);
       }
       if (!down.empty()) {
-        paint::simple_frame(g, down, ctrl::scrollbar_item::down_button == hilite);
+        look::simple_frame(g, down, ctrl::scrollbar_item::down_button == hilite);
         if (ctrl::scrollbar_item::down_button == select) {
           draw::frame::sunken_relief(g, down.shrinked(core::size::two));
         }
@@ -85,7 +85,7 @@ namespace gui {
         g.text(draw::text_box(s, down, text_origin_t::center), draw::font::system(), col);
       }
       if (!thumb.empty()) {
-        paint::simple_frame(g, thumb, ctrl::scrollbar_item::thumb_button == hilite, 3, horizontal ? 3 : 13);
+        look::simple_frame(g, thumb, ctrl::scrollbar_item::thumb_button == hilite, 3, horizontal ? 3 : 13);
         if (ctrl::scrollbar_item::thumb_button == select) {
           draw::frame::sunken_relief(g, thumb.shrinked(core::size::two));
         }
@@ -121,7 +121,7 @@ namespace gui {
       }
       os::color col = is_enabled ? color::black : color::gray;
       if (!up.empty()) {
-        paint::button_frame_w95(g, up, true, false, ctrl::scrollbar_item::up_button == hilite, false);
+        look::button_frame_w95(g, up, true, false, ctrl::scrollbar_item::up_button == hilite, false);
         if (ctrl::scrollbar_item::up_button == select) {
           draw::frame::sunken_relief(g, up.shrinked(core::size::two));
         }
@@ -129,7 +129,7 @@ namespace gui {
         g.text(draw::text_box(s, up, text_origin_t::center), draw::font::system(), col);
       }
       if (!down.empty()) {
-        paint::button_frame_w95(g, down, true, false, ctrl::scrollbar_item::down_button == hilite, false);
+        look::button_frame_w95(g, down, true, false, ctrl::scrollbar_item::down_button == hilite, false);
         if (ctrl::scrollbar_item::down_button == select) {
           draw::frame::sunken_relief(g, down.shrinked(core::size::two));
         }
@@ -137,13 +137,13 @@ namespace gui {
         g.text(draw::text_box(s, down, text_origin_t::center), draw::font::system(), col);
       }
       if (!thumb.empty()) {
-        paint::button_frame_w95(g, thumb, true, false, ctrl::scrollbar_item::thumb_button == hilite, false);
+        look::button_frame_w95(g, thumb, true, false, ctrl::scrollbar_item::thumb_button == hilite, false);
         if (ctrl::scrollbar_item::thumb_button == select) {
           draw::frame::sunken_relief(g, thumb.shrinked(core::size::two));
         }
       }
     }
 
-  } // namespace paint
+  } // namespace look
 
 } // gui

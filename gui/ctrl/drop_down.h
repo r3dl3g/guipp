@@ -39,8 +39,8 @@ namespace gui {
       void layout (const core::rectangle&) const;
       void init (win::container*, win::window*);
 
-      core::rectangle label_place (const core::rectangle&) const;
-      core::rectangle button_place (const core::rectangle&) const;
+      static core::rectangle label_place (const core::rectangle&) ;
+      static core::rectangle button_place (const core::rectangle&) ;
 
     private:
       struct data {
@@ -70,7 +70,7 @@ namespace gui {
                                    const core::rectangle& r,
                                    const draw::brush& b,
                                    item_state state) {
-      paint::drop_down_item(g, r, b, util::string::convert::from(t), state);
+      look::drop_down_item(g, r, b, util::string::convert::from(t), state);
     }
 
     template<typename T, list_item_drawer<T> D = default_drop_down_drawer<T>>
@@ -85,9 +85,9 @@ namespace gui {
       typedef win::group_window<layout::drop_down> super;
       typedef vertical_list list_type;
 
-      drop_down_list (core::size::type item_size = 20,
-                      os::color background = color::white);
-      drop_down_list (drop_down_list&& rhs);
+      explicit drop_down_list (core::size::type item_size = 20,
+                               os::color background = color::white);
+      drop_down_list (drop_down_list&& rhs) noexcept ;
 
       void init ();
 
@@ -105,7 +105,7 @@ namespace gui {
       template<typename F>
       void set_data (std::initializer_list<F> args);
 
-      void set_data (std::function<list_data_provider> data);
+      void set_data (std::function<list_data_provider> dta);
 
       core::rectangle get_popup_place () const;
 
@@ -132,11 +132,11 @@ namespace gui {
       void create_popup (const core::rectangle& place);
 
       void handle_move (const core::point&);
-      void handle_wheel (const core::point::type delta, const core::point&);
+      void handle_wheel (core::point::type delta, const core::point&);
 
       struct data {
-        data (core::size::type item_size = 20,
-              os::color background = color::white);
+        explicit data (core::size::type item_size = 20,
+                       os::color background = color::white);
 
         push_button button;
         win::popup_window popup;

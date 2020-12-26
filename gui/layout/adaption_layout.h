@@ -52,9 +52,6 @@ namespace gui {
       adaption_layout (std::initializer_list<layout_function> list);
 
       void layout (const core::rectangle&) const;
-
-    private:
-      void init ();
     };
 
     template<orientation_t A, unsigned B, unsigned C, unsigned D, unsigned E, unsigned F, origin_t G>

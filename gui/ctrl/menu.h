@@ -57,11 +57,11 @@ namespace gui {
                   const icon_type& icon = icon_type(),
                   menu_state state = menu_state::enabled);
 
-      menu_entry (const menu_entry&);
-      void operator= (const menu_entry&);
+      menu_entry (const menu_entry&) = default;
+      menu_entry& operator= (const menu_entry&);
 
-      menu_entry (menu_entry&&);
-      void operator= (menu_entry&&);
+      menu_entry (menu_entry&&) = default;
+      menu_entry& operator= (menu_entry&&) noexcept ;
 
       std::string get_label () const;
       const win::hot_key& get_hot_key () const;
@@ -155,7 +155,7 @@ namespace gui {
       typedef std::function<mouse_fn> mouse_call;
       typedef std::function<key_fn> key_call;
 
-      menu_data (win::window* win);
+      explicit menu_data (win::window* win);
       menu_data (win::window* win, const menu_data& rhs);
       menu_data (win::window* win, menu_data&& rhs);
 
@@ -195,11 +195,11 @@ namespace gui {
 
       void set_key_function(key_call);
 
-      bool is_open ();
+      bool is_open () const;
 
       void close ();
-      void handle_mouse (bool, const core::point&);
-      bool handle_key (os::key_symbol);
+      void handle_mouse (bool, const core::point&) const;
+      bool handle_key (os::key_symbol) const;
 
       void init ();
 
@@ -238,7 +238,7 @@ namespace gui {
 
       main_menu ();
       main_menu (const main_menu&);
-      main_menu (main_menu&&);
+      main_menu (main_menu&&) noexcept ;
 
       using control::create;
       void create (win::container& parent,
@@ -270,7 +270,7 @@ namespace gui {
 
       popup_menu ();
       popup_menu (const popup_menu&);
-      popup_menu (popup_menu&&);
+      popup_menu (popup_menu&&) noexcept ;
       popup_menu (std::initializer_list<menu_entry> entries);
 
       void close ();

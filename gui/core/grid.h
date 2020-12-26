@@ -37,7 +37,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<std::size_t X, std::size_t Y>
     struct grid {
-      grid (const rectangle& r);
+      explicit grid (const rectangle& r);
 
       rectangle at (std::size_t x, std::size_t y) const;
 

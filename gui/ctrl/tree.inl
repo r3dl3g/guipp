@@ -47,7 +47,7 @@ namespace gui {
       }
 
       template<typename I>
-      inline basic_tree<I>::basic_tree (basic_tree&& rhs)
+      inline basic_tree<I>::basic_tree (basic_tree&& rhs) noexcept
         : super(std::move(rhs))
         , data(std::move(rhs.data))
       {
@@ -279,7 +279,7 @@ namespace gui {
       }
 
       template<typename I>
-      inline auto basic_tree<I>::get_item(int idx) const->const reference {
+      inline auto basic_tree<I>::get_item (int idx) const -> reference {
         return data.nodes[idx].ref;
       }
 
@@ -385,7 +385,7 @@ namespace gui {
       }
 
       inline auto default_node_info::sub_nodes(node const & n)->node_range {
-        return node_range(n.begin(), n.end());
+        return {n.begin(), n.end()};
       }
 
       inline auto default_node_info::make_reference(node const & n)->reference {

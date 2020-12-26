@@ -44,7 +44,7 @@ namespace gui {
     {}
 
     bool basic_datamap::is_valid () const {
-      return data.size() > 0;
+      return !data.empty();
     }
 
     basic_datamap::operator bool () const {

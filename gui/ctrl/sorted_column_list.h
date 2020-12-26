@@ -44,9 +44,9 @@ namespace gui {
                             gui::os::color background = gui::color::white,
                             bool grab_focus = true);
       sorted_column_list_t (const sorted_column_list_t& rhs);
-      sorted_column_list_t (sorted_column_list_t&& rhs);
+      sorted_column_list_t (sorted_column_list_t&& rhs) noexcept;
 
-      void on_sort (std::function<sort_callback> sorter);
+      void on_sort (const std::function<sort_callback>& sorter);
       void sort ();
 
       std::vector<std::string> header_label;

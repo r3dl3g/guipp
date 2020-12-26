@@ -216,7 +216,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<core::bit_order_t O>
-    void write_pnm4_line (std::ostream&, const draw::const_image_data<pixel_format_t::BW>::raw_type, int);
+    void write_pnm4_line (std::ostream&, draw::const_image_data<pixel_format_t::BW>::raw_type, int);
 
     template<>
     inline void write_pnm4_line<core::bit_order_t::msb_first> (std::ostream& out,

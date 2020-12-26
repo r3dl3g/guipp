@@ -41,7 +41,7 @@ namespace gui {
     namespace detail {
 
       struct boundary_check {
-        boundary_check (size_t maximum);
+        explicit boundary_check (size_t maximum);
         void operator () (size_t i) const;
 
       private:
@@ -58,7 +58,7 @@ namespace gui {
       typedef T type;
 
       array_wrapper (type* data, size_t size);
-      array_wrapper (std::vector<type>& data);
+      explicit array_wrapper (std::vector<type>& data);
 
       type& operator[] (size_t i);
       array_wrapper sub (size_t offset, size_t n);
@@ -82,7 +82,7 @@ namespace gui {
       typedef T type;
 
       array_wrapper (const type* data, size_t size);
-      array_wrapper (const std::vector<type>& data);
+      explicit array_wrapper (const std::vector<type>& data);
 
       const type& operator[] (size_t i) const;
       array_wrapper sub (size_t offset, size_t sz) const;
@@ -99,7 +99,7 @@ namespace gui {
       typedef byte type;
 
       bit_array_wrapper (type* data, size_t size);
-      bit_array_wrapper (std::vector<type>& data);
+      explicit bit_array_wrapper (std::vector<type>& data);
 
       bit_wrapper<T> operator[] (size_t i);
       bit_array_wrapper sub (size_t offset, size_t n);
@@ -118,7 +118,7 @@ namespace gui {
       typedef byte type;
 
       bit_array_wrapper (const type* data, size_t size);
-      bit_array_wrapper (const std::vector<type>& data);
+      explicit bit_array_wrapper (const std::vector<type>& data);
 
       bit_wrapper<T const> operator[] (size_t i) const;
       bit_array_wrapper sub (size_t offset, size_t n) const;

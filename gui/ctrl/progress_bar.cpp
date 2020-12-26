@@ -46,16 +46,6 @@ namespace gui {
         : super(t)
       {}
 
-      progress_bar_base::progress_bar_base (const progress_bar_base& rhs)
-        : super(rhs)
-        , data(rhs.data)
-      {}
-
-      progress_bar_base::progress_bar_base (progress_bar_base&& rhs)
-        : super(std::move(rhs))
-        , data(std::move(rhs.data))
-      {}
-
       void progress_bar_base::set_min (type mi) {
         data.min = mi;
         invalidate();

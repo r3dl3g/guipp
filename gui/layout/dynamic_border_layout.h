@@ -54,10 +54,10 @@ namespace gui {
 
       class dynamic_border_layout_base {
       public:
-        dynamic_border_layout_base (float top_height = 0,
-                            float bottom_height = 0,
-                            float left_width = 0,
-                            float right_width = 0);
+        explicit dynamic_border_layout_base (float top_height = 0,
+                                             float bottom_height = 0,
+                                             float left_width = 0,
+                                             float right_width = 0);
 
         const layout_function& get_center () const;
         const layout_function& get_top () const;
@@ -65,17 +65,17 @@ namespace gui {
         const layout_function& get_left () const;
         const layout_function& get_right () const;
 
-        void set_center (layout_function center);
-        void set_top (layout_function top);
-        void set_bottom (layout_function bottom);
-        void set_left (layout_function left);
-        void set_right (layout_function right);
+        void set_center (const layout_function& center);
+        void set_top (const layout_function& top);
+        void set_bottom (const layout_function& bottom);
+        void set_left (const layout_function& left);
+        void set_right (const layout_function& right);
 
-        void set_center_top_bottom_left_right (layout_function center,
-                                               layout_function top,
-                                               layout_function bottom,
-                                               layout_function left,
-                                               layout_function right);
+        void set_center_top_bottom_left_right (const layout_function& center,
+                                               const layout_function& top,
+                                               const layout_function& bottom,
+                                               const layout_function& left,
+                                               const layout_function& right);
 
         float get_top_height () const;
         float get_bottom_height () const;
@@ -89,10 +89,10 @@ namespace gui {
 
       protected:
         struct dynamic_border_layout_data {
-          dynamic_border_layout_data (float top_height = 0,
-                              float bottom_height = 0,
-                              float left_width = 0,
-                              float right_width = 0);
+          explicit dynamic_border_layout_data (float top_height = 0,
+                                               float bottom_height = 0,
+                                               float left_width = 0,
+                                               float right_width = 0);
 
           layout_function center;
           layout_function top;

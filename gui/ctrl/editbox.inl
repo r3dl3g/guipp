@@ -32,9 +32,9 @@ namespace gui {
     template<draw::frame::drawer frame, os::color foreground, os::color background>
     void basic_editbox<frame, foreground, background>::handle_paint (const draw::graphics& graph) {
       const auto area = client_area();
-      gui::paint::text_box(graph, area, data.lines, data.font,
-                           foreground, background, text_origin_t::vcenter_left,
-                           data.selection, data.cursor_pos, data.offset, is_focused());
+      gui::look::text_box(graph, area, data.lines, data.font,
+                          foreground, background, text_origin_t::vcenter_left,
+                          data.selection, data.cursor_pos, data.offset, is_focused());
       frame(graph, area);
     }
 

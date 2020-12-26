@@ -45,7 +45,7 @@ namespace gui {
       typedef core::size size_type;
       typedef core::size::type dim_type;
 
-      tile_list_traits (const size_type& item_size);
+      explicit tile_list_traits (const size_type& item_size);
 
       dim_type get_invisible_size (const core::size& list_size, size_t count) const;
 
@@ -82,13 +82,13 @@ namespace gui {
     public:
       typedef basic_list<V, tile_list_traits<V>> super;
 
-      basic_tile_view (const core::size& item_size = { 20, 20 },
-                       os::color background = color::white,
-                       bool grab_focus = true);
+      explicit basic_tile_view (const core::size& item_size = { 20, 20 },
+                                os::color background = color::white,
+                                bool grab_focus = true);
 
       basic_tile_view (const basic_tile_view& rhs);
 
-      basic_tile_view (basic_tile_view&& rhs);
+      basic_tile_view (basic_tile_view&& rhs) noexcept ;
 
       void set_border (const core::size& sz);
       void set_spacing (const core::size& sz);

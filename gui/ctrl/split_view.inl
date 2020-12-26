@@ -159,7 +159,7 @@ namespace gui {
     }
 
     template<orientation_t O, typename F, typename S>
-    inline split_view<O, F, S>::split_view (split_view&& rhs)
+    inline split_view<O, F, S>::split_view (split_view&& rhs) noexcept
       : super(std::move(rhs))
       , slider(std::move(rhs.slider))
       , first(std::move(rhs.first))

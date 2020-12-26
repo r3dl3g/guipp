@@ -20,14 +20,11 @@
 //
 // Common includes
 //
-#include <map>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <gui/win/container.h>
-#include <gui/layout/attach_layout.h>
 
 
 namespace gui {

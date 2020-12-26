@@ -96,7 +96,7 @@ namespace gui {
       typedef basic_framed_slider<O, draw::frame::raised_relief> slider_type;
 
       split_view ();
-      split_view (split_view&& rhs);
+      split_view (split_view&& rhs) noexcept;
       split_view (First&& first, Second&& second);
 
       void create (win::container& parent,

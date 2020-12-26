@@ -20,10 +20,7 @@
 //
 // Common includes
 //
-#include <limits>
-#include <algorithm>
 #include <map>
-#include <math.h>
 
 // --------------------------------------------------------------------------
 //

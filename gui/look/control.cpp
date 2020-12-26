@@ -32,7 +32,7 @@
 
 namespace gui {
 
-  namespace paint {
+  namespace look {
 
     // --------------------------------------------------------------------------
     void text_item (const draw::graphics& g,
@@ -43,14 +43,15 @@ namespace gui {
                     const text_origin_t& origin) {
       using namespace draw;
       g.fill(rectangle(place), ctrl::item_state::selected == state ? color::highLightColor() : background);
-      os::color col = color::windowTextColor();
+      os::color col;
       switch (state) {
-        case ctrl::item_state::selected: col = color::highLightTextColor(); break;
-        case ctrl::item_state::disabled: col = color::disabledTextColor(); break;
+        case ctrl::item_state::selected:  col = color::highLightTextColor(); break;
+        case ctrl::item_state::disabled:  col = color::disabledTextColor();  break;
+        default:                          col = color::windowTextColor();    break;
       }
       g.text(text_box(text, place, origin), font::system(), col);
     }
 
-  } // namespace paint
+  } // namespace look
 
 } // gui

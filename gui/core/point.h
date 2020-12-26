@@ -49,7 +49,7 @@ namespace gui {
       inline basic_point (type x, type y);
 
       explicit inline basic_point (type i);
-      explicit basic_point (const gui::os::point& pt);
+      explicit basic_point (const gui::os::point& rhs);
       explicit basic_point (const gui::os::rectangle& r);
 
       operator gui::os::point () const;

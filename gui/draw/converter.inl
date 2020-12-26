@@ -222,10 +222,10 @@ namespace gui {
       }
 
       template<>
-      pixel::mono GUIPP_DRAW_EXPORT interpolation (const pixel::mono p00,
-                                                   const pixel::mono p01,
-                                                   const pixel::mono p10,
-                                                   const pixel::mono p11,
+      pixel::mono GUIPP_DRAW_EXPORT interpolation (pixel::mono p00,
+                                                   pixel::mono p01,
+                                                   pixel::mono p10,
+                                                   pixel::mono p11,
                                                    const weights& wx,
                                                    const weights& wy);
 
@@ -303,16 +303,16 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      double GUIPP_DRAW_EXPORT summation (const core::array_wrapper<const pixel::mono> src,
+      double GUIPP_DRAW_EXPORT summation (const core::array_wrapper<const pixel::mono>& src,
                                           const bicubic::param& px);
 
       // --------------------------------------------------------------------------
-      double GUIPP_DRAW_EXPORT summation (const core::array_wrapper<const pixel::gray> src,
+      double GUIPP_DRAW_EXPORT summation (const core::array_wrapper<const pixel::gray>& src,
                                           const bicubic::param& px);
 
       // --------------------------------------------------------------------------
       template<typename T, typename std::enable_if<pixel::is_rgb_type<T>::value>::type* = nullptr>
-      pixel::rgb_t<double> summation (const core::array_wrapper<const T> src,
+      pixel::rgb_t<double> summation (const core::array_wrapper<const T>& src,
                                       const bicubic::param& px) {
         using namespace pixel;
         rgb_t<double> r = rgb_t<double>(src[px.v0]) * px.w.w0 +
@@ -343,12 +343,12 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T>
-      const T interpolation (const core::array_wrapper<const T> src0,
-                             const core::array_wrapper<const T> src1,
-                             const core::array_wrapper<const T> src2,
-                             const core::array_wrapper<const T> src3,
-                             const bicubic::param& px,
-                             const bicubic::param& py) {
+      T interpolation (const core::array_wrapper<const T>& src0,
+                       const core::array_wrapper<const T>& src1,
+                       const core::array_wrapper<const T>& src2,
+                       const core::array_wrapper<const T>& src3,
+                       const bicubic::param& px,
+                       const bicubic::param& py) {
         const auto sum = summation(src0, px) * py.w.w0 +
                          summation(src1, px) * py.w.w1 +
                          summation(src2, px) * py.w.w2 +

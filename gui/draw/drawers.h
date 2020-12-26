@@ -52,7 +52,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct GUIPP_DRAW_EXPORT rectangle {
-      rectangle (const core::rectangle& rect);
+      explicit rectangle (const core::rectangle& rect);
       rectangle (const core::point& pos,
                  const core::size& sz);
       rectangle (const core::point& pos1,
@@ -68,7 +68,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct GUIPP_DRAW_EXPORT ellipse {
-      ellipse (const core::rectangle& rect);
+      explicit ellipse (const core::rectangle& rect);
       ellipse (const core::point& pos,
                const core::size& sz);
       ellipse (const core::point& pos1,
@@ -112,7 +112,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct GUIPP_DRAW_EXPORT polyline {
-      polyline (const std::vector<core::point>& pts);
+      explicit polyline (const std::vector<core::point>& pts);
       polyline (std::initializer_list<core::point> pts);
 
       void operator() (const graphics&, const brush&, const pen&) const;
@@ -125,7 +125,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct GUIPP_DRAW_EXPORT polygon {
-      polygon (const std::vector<core::point>& pts);
+      explicit polygon (const std::vector<core::point>& pts);
       polygon (std::initializer_list<core::point> pts);
 
       void operator() (const graphics&, const brush&, const pen&) const;
@@ -158,13 +158,13 @@ namespace gui {
 
       void operator() (const graphics&, const font& font, os::color color) const;
 
+      // Not implemented!
+      void operator= (const bounding_box&) = delete;
+
     private:
       const std::string str;
       core::rectangle& rect;
       const text_origin_t origin;
-
-      // Not implemented!
-      void operator= (const bounding_box&) = delete;
     };
 
     // --------------------------------------------------------------------------
@@ -206,12 +206,12 @@ namespace gui {
 
       void operator() (const graphics&, const core::point&) const;
 
+      void operator= (image_frame&) = delete;
+
     private:
       const core::rectangle rect;
       const datamap<T>& img;
       const core::native_rect frame;
-
-      void operator= (image_frame&) = delete;
     };
 
     // --------------------------------------------------------------------------

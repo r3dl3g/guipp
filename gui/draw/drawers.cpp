@@ -20,9 +20,7 @@
 //
 // Common includes
 //
-#include <memory.h>
 #include <array>
-#include <functional>
 #ifdef GUIPP_X11
 # include <cmath>
 # include <algorithm>
@@ -36,7 +34,6 @@
 // Library includes
 //
 #include <logging/logger.h>
-#include <util/ostreamfmt.h>
 #ifdef GUIPP_WIN
 # include <util/string_util.h>
 #endif // GUIPP_WIN
@@ -564,7 +561,7 @@ namespace gui {
 
       using namespace os;
 
-      constexpr size_type two = size_type(2);
+      constexpr auto two = size_type(2);
 
       const os::rectangle r = rect.os();
       const os::size s = size.os();
@@ -613,7 +610,7 @@ namespace gui {
 #ifdef GUIPP_USE_XFT
     // --------------------------------------------------------------------------
     struct render_color : XRenderColor {
-      render_color (os::color c)
+      explicit render_color (os::color c)
         : XRenderColor({
                          (unsigned short)(color::extract<color::part::red>(c) << 8),
                          (unsigned short)(color::extract<color::part::green>(c) << 8),
@@ -775,8 +772,8 @@ namespace gui {
       gui::os::instance display = get_instance();
       XSetArcMode(display, g, ArcChord);
 
-      std::array<XArc, 4> arcs;
-      std::array<XSegment, 4> segments;
+      std::array<XArc, 4> arcs{};
+      std::array<XSegment, 4> segments{};
 
       calc_arcs<XArc, XSegment, XRectangle>(rect - core::size::one, size, &arcs, &segments, nullptr, degree_90);
 
@@ -790,8 +787,8 @@ namespace gui {
       gui::os::instance display = get_instance();
       XSetArcMode(display, g, ArcPieSlice);
 
-      std::array<XArc, 4> arcs;
-      std::array<XRectangle, 3> rects;
+      std::array<XArc, 4> arcs{};
+      std::array<XRectangle, 3> rects{};
       calc_arcs<XArc, XSegment, XRectangle>(rect - core::size::one, size, &arcs, nullptr, &rects, degree_90);
 
       XFillArcs(display, g, g, arcs.data(), (int)arcs.size());
@@ -810,9 +807,9 @@ namespace gui {
       gui::os::instance display = get_instance();
       XSetArcMode(display, g, ArcPieSlice);
 
-      std::array<XArc, 4> arcs;
-      std::array<XSegment, 4> segments;
-      std::array<XRectangle, 3> rects;
+      std::array<XArc, 4> arcs{};
+      std::array<XSegment, 4> segments{};
+      std::array<XRectangle, 3> rects{};
       calc_arcs<XArc, XSegment, XRectangle>(rect - core::size::one, size, &arcs, &segments, &rects, degree_90);
 
       XFillArcs(display, g, g, arcs.data(), (int)arcs.size());
@@ -1697,8 +1694,8 @@ namespace gui {
         return;
       }
 
-      const uint32_t width = core::roundup<uint32_t>(rect.os_width());
-      const uint32_t height = core::roundup<uint32_t>(rect.os_height());
+      const auto width = core::roundup<uint32_t>(rect.os_width());
+      const auto height = core::roundup<uint32_t>(rect.os_height());
 
       datamap<T> dest(width, height);
       copy_frame_image<T>(img.get_data(), dest.get_data(),

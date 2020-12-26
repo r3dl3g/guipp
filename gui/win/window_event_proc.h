@@ -78,7 +78,7 @@ namespace gui {
       GUIPP_WIN_EXPORT void register_hot_key (const hot_key&, const hot_key::call&, window* = nullptr);
       GUIPP_WIN_EXPORT void unregister_hot_key (const hot_key&);
 
-      GUIPP_WIN_EXPORT int register_message_filter (detail::filter_call filter);
+      GUIPP_WIN_EXPORT int register_message_filter (const detail::filter_call& filter);
       GUIPP_WIN_EXPORT void unregister_message_filter (int id);
 
       GUIPP_WIN_EXPORT window* get_current_focus_window ();
@@ -94,14 +94,14 @@ namespace gui {
     GUIPP_WIN_EXPORT bool is_button_event_outside (const window& w, const core::event& e);
     GUIPP_WIN_EXPORT bool check_hot_key (const core::event& e);
 
-    GUIPP_WIN_EXPORT int run_loop (volatile bool& running, detail::filter_call filter = nullptr);
+    GUIPP_WIN_EXPORT int run_loop (volatile bool& running, const detail::filter_call& filter = nullptr);
 
     GUIPP_WIN_EXPORT int run_main_loop ();
     GUIPP_WIN_EXPORT void quit_main_loop ();
 
     typedef void (simple_action)();
 
-    GUIPP_WIN_EXPORT void run_on_main (std::function<simple_action> action);
+    GUIPP_WIN_EXPORT void run_on_main (const std::function<simple_action>& action);
 
   } // namespace win
 

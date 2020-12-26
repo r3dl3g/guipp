@@ -34,7 +34,7 @@
 
 namespace gui {
 
-  namespace paint {
+  namespace look {
 
     os::color get_back_color (const ctrl::item_state& state, const os::color& background) {
       switch (state) {
@@ -65,6 +65,6 @@ namespace gui {
       graph.text(draw::text_box(t, place, align), font::system(), get_fore_color(state, foreground));
     }
 
-  } // namespace paint
+  } // namespace look
 
 } // gui

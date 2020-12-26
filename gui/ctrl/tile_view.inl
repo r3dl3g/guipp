@@ -29,9 +29,9 @@ namespace gui {
                                           const core::rectangle& place,
                                           const draw::brush& background,
                                           item_state state) {
-      gui::paint::text_item(g, place, background,
-                            util::string::convert::from<T>(t),
-                            state, text_origin_t::center);
+      gui::look::text_item(g, place, background,
+                           util::string::convert::from<T>(t),
+                           state, text_origin_t::center);
     }
 
     // --------------------------------------------------------------------------
@@ -177,7 +177,7 @@ namespace gui {
     }
 
     template<orientation_t V>
-    inline basic_tile_view<V>::basic_tile_view (basic_tile_view&& rhs)
+    inline basic_tile_view<V>::basic_tile_view (basic_tile_view&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();
@@ -241,7 +241,7 @@ namespace gui {
         const int last_line = core::div_ceil(idx, per_line);
 
         place = get_full_place_of_index(idx);
-        for (; (super::traits.get_1(place.top_left()) < list_sz); ++idx) {
+        for (; super::traits.get_1(place.top_left()) < list_sz; ++idx) {
           graph.fill(draw::rectangle(place), back_brush);
           place = get_full_place_of_index(idx + 1);
         }

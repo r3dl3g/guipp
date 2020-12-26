@@ -43,10 +43,10 @@ namespace gui {
     template<orientation_t O, os::color FG, os::color BG, typename B, typename L>
     inline void toggle_group<O, FG, BG, B, L>::add_button (const text_source& label) {
       button_type b = std::make_shared<B>(label);
-      buttons.push_back(b);
       b->on_clicked([&, b] () {
         uncheck_buttons(b);
       });
+      buttons.push_back(std::move(b));
     }
 
     template<orientation_t O, os::color FG, os::color BG, typename B, typename L>

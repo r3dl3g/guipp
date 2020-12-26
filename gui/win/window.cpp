@@ -831,6 +831,9 @@ namespace gui {
                                    &parent,
                                    &children,
                                    &nchildren));
+      if (children) {
+        XFree(children);
+      }
       return parent != root;
     }
 
@@ -846,6 +849,9 @@ namespace gui {
                                    &parent,
                                    &children,
                                    &nchildren));
+      if (children) {
+        XFree(children);
+      }
       return parent == root;
     }
 
@@ -866,18 +872,21 @@ namespace gui {
     }
 
     container* window::get_parent () const {
-      Window root_return = 0;
-      Window parent_return = 0;
-      Window *children_return = 0;
-      unsigned int nchildren_return = 0;
+      Window root = 0;
+      Window parent = 0;
+      Window *children = 0;
+      unsigned int nchildren = 0;
 
       x11::check_return(XQueryTree(core::global::get_instance(),
                                    get_id(),
-                                   &root_return,
-                                   &parent_return,
-                                   &children_return,
-                                   &nchildren_return));
-      return static_cast<container*>(detail::get_window(parent_return));
+                                   &root,
+                                   &parent,
+                                   &children,
+                                   &nchildren));
+      if (children) {
+        XFree(children);
+      }
+      return static_cast<container*>(detail::get_window(parent));
     }
 
     bool window::is_child_of (const container& parent) const {

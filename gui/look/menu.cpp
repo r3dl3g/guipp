@@ -27,7 +27,6 @@
 #include <gui/draw/pen.h>
 #include <gui/draw/font.h>
 #include <gui/draw/bitmap.h>
-#include <gui/ctrl/item_state.h>
 #include <gui/look/menu.h>
 
 

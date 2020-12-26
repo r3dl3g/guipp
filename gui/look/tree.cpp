@@ -24,7 +24,6 @@
 #include <gui/draw/drawers.h>
 #include <gui/draw/brush.h>
 #include <gui/draw/font.h>
-#include <gui/ctrl/item_state.h>
 #include <gui/io/pnm.h>
 #include <gui/look/tree.h>
 

@@ -349,26 +349,27 @@ namespace gui {
         for (int i = 0; i < (res ? res->noutput : 0); i++) {
           XRROutputInfo* rroi = XRRGetOutputInfo(dpy, res, res->outputs[i]);
 
-          if (!rroi || rroi->connection) {
-            continue; // No connection no crtcs
-          }
-          clog::info() << "Xrandr Screen " << i << " (" << rroi->name
-                       << "): connection: " << rroi->connection
-                       << ", WxH: " << rroi->mm_width << " x " << rroi->mm_height;
+          if (rroi && !rroi->connection) {
+            clog::info() << "Xrandr Screen " << i << " (" << rroi->name
+                         << "): connection: " << rroi->connection
+                         << ", WxH: " << rroi->mm_width << " x " << rroi->mm_height;
 
-          for( int j = 0; j < rroi->ncrtc; j++ ) {
-            XRRCrtcInfo* rrci = XRRGetCrtcInfo(dpy, res, res->crtcs[ j ] );
-            if (!rrci || !rrci->noutput) {
-              continue;
+            for( int j = 0; j < rroi->ncrtc; j++ ) {
+              XRRCrtcInfo* rrci = XRRGetCrtcInfo(dpy, res, res->crtcs[ j ] );
+              if (rrci && rrci->noutput) {
+                const int xdpi = ((int)rrci->width * 254) / ((int)rroi->mm_width * 10);
+                const int ydpi = ((int)rrci->height * 254) / ((int)rroi->mm_height * 10);
+                clog::info() << "Xrandr Crtc " << j << " XxY-WxH:" << rrci->x << " y " << rrci->y
+                             << " - " << rrci->width << " x " << rrci->height
+                             << " X-DPI: " << xdpi << " Y-DPI: " << ydpi;
+                dpi = std::max(dpi, std::max(xdpi, ydpi));
+              }
+              XRRFreeCrtcInfo(rrci);
             }
-            const int xdpi = ((int)rrci->width * 254) / ((int)rroi->mm_width * 10);
-            const int ydpi = ((int)rrci->height * 254) / ((int)rroi->mm_height * 10);
-            clog::info() << "Xrandr Crtc " << j << " XxY-WxH:" << rrci->x << " y " << rrci->y
-                         << " - " << rrci->width << " x " << rrci->height
-                         << " X-DPI: " << xdpi << " Y-DPI: " << ydpi;
-            dpi = std::max(dpi, std::max(xdpi, ydpi));
           }
+          XRRFreeOutputInfo(rroi);
         }
+        XRRFreeScreenResources(res);
         clog::info() << "Xrandr.dpi = " << dpi;
         return dpi;
       }

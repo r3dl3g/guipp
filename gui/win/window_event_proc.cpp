@@ -223,6 +223,7 @@ namespace gui {
         unsigned long nitems = 0;
         unsigned long bytes = 0;
         unsigned char* data = nullptr;
+        window* win = nullptr;
 
         const int status = XGetWindowProperty(core::global::get_instance(), id,
                                               core::x11::GUI_LIB_WIN_PTR,
@@ -235,9 +236,12 @@ namespace gui {
                    << (int)data[0] << ' ' << (int)data[1] << ' ' << (int)data[2] << ' ' << (int)data[3] << ' '
                    << (int)data[4] << ' ' << (int)data[5] << ' ' << (int)data[6] << ' ' << (int)data[7];
 #endif //LOG_GET_WINDOW_PROPERTY
-          return *(window**)data;
+          win = *(window**)data;
         }
-        return nullptr;
+        if (data) {
+          XFree(data);
+        }
+        return win;
       }
 
       void set_window (os::window id, window* win) {

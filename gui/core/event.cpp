@@ -30,7 +30,6 @@
 // Library includes
 //
 #include <gui/core/event.h>
-#include <logging/logger.h>
 
 namespace gui {
 
@@ -848,8 +847,11 @@ namespace std {
       case ColormapNotify:
         out << window(e.xcolormap);
       break;
-      case ClientMessage:
-        out << " " << XGetAtomName(gui::core::global::get_instance(), e.xclient.message_type) << " " << window(e.xclient);
+      case ClientMessage: {
+        char* atomName = XGetAtomName(gui::core::global::get_instance(), e.xclient.message_type);
+        out << " " << atomName << " " << window(e.xclient);
+        XFree(atomName);
+      }
       break;
       case MappingNotify:
         out << window(e.xmapping) << count(e.xmapping);

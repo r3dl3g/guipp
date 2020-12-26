@@ -144,6 +144,9 @@ namespace gui {
             }
           }
         }
+        if (children) {
+          XFree(children);
+        }
       }
     }
 
@@ -188,6 +191,9 @@ namespace gui {
               list.push_back(sub);
             }
           }
+        }
+        if (children) {
+          XFree(children);
         }
       }
       return list;
@@ -762,6 +768,7 @@ namespace gui {
       hints->flags |= InputHint;
       hints->input = True;
       XSetWMHints(display, id, hints);
+      XFree(hints);
 #endif // GUIPP_X11
     }
 

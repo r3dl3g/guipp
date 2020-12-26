@@ -670,7 +670,7 @@ namespace gui {
 
 #ifdef GUIPP_QT
     const font& font::system () {
-      static font f = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
+      static font f = font(QFontDatabase::systemFont(QFontDatabase::GeneralFont));
       return f;
     }
 
@@ -685,7 +685,7 @@ namespace gui {
     }
 
     const font& font::menu () {
-      static font f = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
+      static font f = font(QFontDatabase::systemFont(QFontDatabase::GeneralFont));
       return f;
     }
 
@@ -698,7 +698,7 @@ namespace gui {
       static font f = [] () {
         os::font fn;
         fn.setStyleHint(QFont::StyleHint::Serif);
-        return fn;
+        return font(fn);
       }();
       return f;
     }
@@ -707,7 +707,7 @@ namespace gui {
       static font f = [] () {
         os::font fn;
         fn.setStyleHint(QFont::StyleHint::SansSerif);
-        return fn;
+        return font(fn);
       }();
       return f;
     };
@@ -784,35 +784,35 @@ namespace gui {
     font font::with_size (size_type sz) const {
       os::font f(id);
       f.setPointSize(sz);
-      return f;
+      return font(f);
     }
 
     font font::with_thickness (Thickness t) const {
       os::font f(id);
       f.setWeight(static_cast<int>(t));
-      return f;
+      return font(f);
     }
 
     font font::with_rotation (int r) const {
-      return id;
+      return *this;
     }
 
     font font::with_italic (bool i) const {
       os::font f(id);
       f.setItalic(i);
-      return f;
+      return font(f);
     }
 
     font font::with_underline (bool u) const {
       os::font f(id);
       f.setUnderline(u);
-      return f;
+      return font(f);
     }
 
     font font::with_strikeout (bool s) const {
       os::font f(id);
       f.setStrikeOut(s);
-      return f;
+      return font(f);
     }
 
     bool font::operator== (const font& rhs) const {

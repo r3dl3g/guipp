@@ -67,7 +67,7 @@ font& font_serif () {
     os::font fn;
     fn.setStyleHint(QFont::StyleHint::Serif);
     fn.setPointSize(font::system().size() * 4 / 5);
-    return fn;
+    return font(fn);
   }();
 #else
   static font f = font::serif();

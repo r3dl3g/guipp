@@ -64,13 +64,13 @@ namespace gui {
       void editbox_base::handle_key (os::key_state keystate,
                                      os::key_symbol keycode,
                                      const std::string& chars) {
-        bool shift = win::shift_key_bit_mask::is_set(keystate);
-        bool ctrl = win::control_key_bit_mask::is_set(keystate);
+        bool shift = core::shift_key_bit_mask::is_set(keystate);
+        bool ctrl = core::control_key_bit_mask::is_set(keystate);
         std::string& current = current_line();
 
         switch (keycode) {
-        case win::keys::left:
-        case win::keys::numpad::left:
+        case core::keys::left:
+        case core::keys::numpad::left:
           if (ctrl) {
             // next word begin
             set_cursor_pos(find_prev_word(data.cursor_pos), shift);
@@ -82,8 +82,8 @@ namespace gui {
             set_cursor_pos({position::end.x(), row}, shift);
           }
           break;
-        case win::keys::right:
-        case win::keys::numpad::right:
+        case core::keys::right:
+        case core::keys::numpad::right:
           if (ctrl) {
             set_cursor_pos(find_next_word(data.cursor_pos), shift);
           } else if (data.cursor_pos.x() < current.size()) {
@@ -92,36 +92,36 @@ namespace gui {
             set_cursor_pos({0, data.cursor_pos.y() + 1}, shift);
           }
           break;
-        case win::keys::up:
-        case win::keys::numpad::up:
+        case core::keys::up:
+        case core::keys::numpad::up:
           if (ctrl) {} else if (data.cursor_pos.y() > 0) {
             set_cursor_pos({data.cursor_pos.x(), data.cursor_pos.y() - 1}, shift);
           }
           break;
-        case win::keys::down:
-        case win::keys::numpad::down:
+        case core::keys::down:
+        case core::keys::numpad::down:
           if (ctrl) {} else if (data.cursor_pos.y() < (row_count() - 1)) {
             set_cursor_pos({data.cursor_pos.x(), data.cursor_pos.y() + 1}, shift);
           }
           break;
-        case win::keys::home:
-        case win::keys::numpad::home:
+        case core::keys::home:
+        case core::keys::numpad::home:
           if (ctrl) {
             set_cursor_pos(position::zero, shift);
           } else {
             set_cursor_pos({0, data.cursor_pos.y()}, shift);
           }
           break;
-        case win::keys::end:
-        case win::keys::numpad::end:
+        case core::keys::end:
+        case core::keys::numpad::end:
           if (ctrl) {
             set_cursor_pos(position::end, shift);
           } else {
             set_cursor_pos({position::end.x(), data.cursor_pos.y()}, shift);
           }
           break;
-        case win::keys::del:
-        case win::keys::numpad::del:
+        case core::keys::del:
+        case core::keys::numpad::del:
           if (data.selection.empty()) {
             if (current.empty()) {
               erase_line(data.cursor_pos.y());
@@ -141,7 +141,7 @@ namespace gui {
             set_cursor_pos(data.selection.begin(), false);
           }
           break;
-        case win::keys::back_space:
+        case core::keys::back_space:
           if (data.selection.empty()) {
             if (current.empty()) {
               erase_line(data.cursor_pos.y());
@@ -168,17 +168,17 @@ namespace gui {
             set_cursor_pos(data.selection.begin(), false);
           }
           break;
-        case win::keys::escape:
+        case core::keys::escape:
           set_selection({});
           break;
-        case win::keys::clear:
+        case core::keys::clear:
           set_selection({position::zero, position::end});
           replace_selection(std::string());
           set_cursor_pos(position::zero, false);
           break;
-        case win::keys::tab:
+        case core::keys::tab:
           break;
-        case win::keys::enter: {
+        case core::keys::enter: {
           if (!data.selection.empty()) {
             replace_selection(std::string());
             set_cursor_pos(data.selection.begin(), false);
@@ -194,16 +194,16 @@ namespace gui {
         default: {
           if (ctrl) {
             switch (keycode) {
-            case win::keys::a:
+            case core::keys::a:
               // select all
               set_selection({position::zero, position::end});
               break;
-            case win::keys::v: {
+            case core::keys::v: {
               win::clipboard::get().get_text(*this, [&](const std::string & t) {
                                           replace_selection(t);
                                         });
               break;
-            case win::keys::x:
+            case core::keys::x:
               win::clipboard::get().set_text(*this, get_selected_text());
               replace_selection(std::string());
               break;

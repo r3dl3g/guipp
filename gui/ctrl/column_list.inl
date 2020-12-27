@@ -279,7 +279,7 @@ namespace gui {
 
     template<typename Layout, os::color background>
     void column_list_header<Layout, background>::handle_mouse_move (os::key_state keys, const core::point& pt) {
-      if (win::left_button_bit_mask::is_set(keys)) {
+      if (core::left_button_bit_mask::is_set(keys)) {
         if (last_mouse_point != core::point::undefined) {
           auto delta = pt.x() - last_mouse_point.x();
           if (down_idx > -1) {

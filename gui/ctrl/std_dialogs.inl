@@ -60,7 +60,7 @@ namespace gui {
     void standard_dialog_base<T, L, R>::show (win::container& parent) {
       super::run_modal(parent, {
         win::hot_key_action{
-          win::hot_key(win::keys::escape, win::state::none),
+          core::hot_key(core::keys::escape, core::state::none),
           [&] () {
             super::end_modal();
           }

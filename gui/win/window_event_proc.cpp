@@ -300,8 +300,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace detail {
 
-      typedef std::pair<os::window, hot_key::call> hot_key_entry;
-      typedef std::map<hot_key, hot_key_entry> hot_key_map;
+      typedef std::pair<os::window, core::hot_key::call> hot_key_entry;
+      typedef std::map<core::hot_key, hot_key_entry> hot_key_map;
       hot_key_map hot_keys;
 
       static int g_next_filter_id = 1;
@@ -316,7 +316,7 @@ namespace gui {
     namespace global {
 
       // --------------------------------------------------------------------------
-      void register_hot_key (const hot_key& hk, const hot_key::call& fn, window* win) {
+      void register_hot_key (const core::hot_key& hk, const core::hot_key::call& fn, window* win) {
 #ifdef GUIPP_WIN
         UINT modifiers = MOD_NOREPEAT;
         if (control_key_bit_mask::is_set(hk.get_modifiers())) {
@@ -346,7 +346,7 @@ namespace gui {
         detail::hot_keys.emplace(hk, std::make_pair(root, fn));
       }
 
-      void unregister_hot_key (const hot_key& hk) {
+      void unregister_hot_key (const core::hot_key& hk) {
         auto i = detail::hot_keys.find(hk);
         if (i == detail::hot_keys.end()) {
           return;
@@ -529,7 +529,7 @@ namespace gui {
 #elif GUIPP_QT
       if (e.type() == QEvent::KeyPress) {
 #endif
-        hot_key hk(get_key_symbol(e), get_key_state(e));
+        core::hot_key hk(get_key_symbol(e), get_key_state(e));
         auto i = detail::hot_keys.find(hk);
         if (i != detail::hot_keys.end()) {
           i->second.second();

@@ -262,6 +262,7 @@ void my_main_window::onCreated () {
   menu.create(top_view);
   menu.set_visible();
 
+  using namespace gui::core;
   file_sub_menu.data.add_entries({
     menu_entry("Open", 'O', util::bind_method(this, &my_main_window::open), hot_key('O', state::control)),
     menu_entry("Save As", 'S', util::bind_method(this, &my_main_window::save_as), hot_key('S', state::control)),
@@ -338,7 +339,7 @@ void my_main_window::onCreated () {
 
   tool_bar.create(top_view);
 
-  global::register_hot_key(hot_key(keys::f7), util::bind_method(this, &my_main_window::test_rgb), this);
+  gui::win::global::register_hot_key(hot_key(keys::f7), util::bind_method(this, &my_main_window::test_rgb), this);
 
   int i = 0;
   for (tool_bar_button& b : buttons) {
@@ -427,7 +428,7 @@ void my_main_window::onCreated () {
                   const core::rectangle& place,
                   const draw::brush&,
                   item_state state) const override {
-      g.fill(rectangle(place), item_state::selected == state ? color::dark_red
+      g.fill(draw::rectangle(place), item_state::selected == state ? color::dark_red
                                                              : (item_state::selected == state ? color::very_light_gray
                                                                                               : color::light_gray));
       if (item_state::selected != state) {
@@ -452,7 +453,7 @@ void my_main_window::onCreated () {
 
   client_view.create(*this);
 
-  window1.on_right_btn_up([&](os::key_state, const core::point& pt){
+  window1.on_right_btn_up([&](gui::os::key_state, const core::point& pt){
     edit_sub_menu.popup_at(window1.window_to_screen(pt), window1);
   });
 

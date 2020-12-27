@@ -237,9 +237,9 @@ namespace gui {
       active_handler.insert(keypair);
       if (any_key_up_event::match(e)) {
         os::key_symbol key = get_key_symbol(e);
-        if (key == keys::tab) {
+        if (key == core::keys::tab) {
           os::key_state state = get_key_state(e);
-          shift_focus(shift_key_bit_mask::is_set(state));
+          shift_focus(core::shift_key_bit_mask::is_set(state));
         }
       }
 

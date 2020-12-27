@@ -63,22 +63,22 @@ namespace gui {
       void basic_slider<orientation_t::vertical>::init () {
         on_mouse_move_abs([&](os::key_state keys,
                           const core::point & p) {
-          if ((start_mouse_point != core::point::undefined) && is_enabled() && win::left_button_bit_mask::is_set(keys)) {
+          if ((start_mouse_point != core::point::undefined) && is_enabled() && core::left_button_bit_mask::is_set(keys)) {
             set_value(start_window_point.x() + p.x() - start_mouse_point.x());
           }
         });
         on_any_key_down([&](os::key_state state, os::key_symbol key, const std::string &) {
            switch (key) {
-             case win::keys::left:
-               set_value(position().x() - (win::control_key_bit_mask::is_set(state) ? 10 : 1));
+             case core::keys::left:
+               set_value(position().x() - (core::control_key_bit_mask::is_set(state) ? 10 : 1));
                break;
-             case win::keys::right:
-               set_value(position().x() + (win::control_key_bit_mask::is_set(state) ? 10 : 1));
+             case core::keys::right:
+               set_value(position().x() + (core::control_key_bit_mask::is_set(state) ? 10 : 1));
                break;
-             case win::keys::home:
+             case core::keys::home:
                set_value(min);
                break;
-             case win::keys::end:
+             case core::keys::end:
                set_value(max);
                break;
            }
@@ -126,22 +126,22 @@ namespace gui {
       void basic_slider<orientation_t::horizontal>::init () {
         on_mouse_move_abs([&](os::key_state keys,
                               const core::point & p) {
-          if ((start_mouse_point != core::point::undefined) && is_enabled() && win::left_button_bit_mask::is_set(keys)) {
+          if ((start_mouse_point != core::point::undefined) && is_enabled() && core::left_button_bit_mask::is_set(keys)) {
             set_value(start_window_point.y() + p.y() - start_mouse_point.y());
           }
         });
         on_any_key_down([&](os::key_state state, os::key_symbol key, const std::string &) {
            switch (key) {
-             case win::keys::up:
-               set_value(position().y() - (win::control_key_bit_mask::is_set(state) ? 10 : 1));
+             case core::keys::up:
+               set_value(position().y() - (core::control_key_bit_mask::is_set(state) ? 10 : 1));
                break;
-             case win::keys::down:
-               set_value(position().y() + (win::control_key_bit_mask::is_set(state) ? 10 : 1));
+             case core::keys::down:
+               set_value(position().y() + (core::control_key_bit_mask::is_set(state) ? 10 : 1));
                break;
-             case win::keys::home:
+             case core::keys::home:
                set_value(min);
                break;
-             case win::keys::end:
+             case core::keys::end:
                set_value(max);
                break;
            }

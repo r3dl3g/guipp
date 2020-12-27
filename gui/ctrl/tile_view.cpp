@@ -30,23 +30,23 @@ namespace gui {
     template<>
     void basic_tile_view<orientation_t::horizontal>::handle_direction_key (os::key_symbol key) {
       switch (key) {
-        case win::keys::left:
-        case win::keys::numpad::left: {
+        case core::keys::left:
+        case core::keys::numpad::left: {
           try_to_select(super::get_selection() - static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
           break;
         }
-        case win::keys::right:
-        case win::keys::numpad::right: {
+        case core::keys::right:
+        case core::keys::numpad::right: {
           try_to_select(super::get_selection() + static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
           break;
         }
-        case win::keys::up:
-        case win::keys::numpad::up: {
+        case core::keys::up:
+        case core::keys::numpad::up: {
           try_to_select(super::get_selection() - 1, event_source::keyboard);
           break;
         }
-        case win::keys::down:
-        case win::keys::numpad::down: {
+        case core::keys::down:
+        case core::keys::numpad::down: {
           try_to_select(super::get_selection() + 1, event_source::keyboard);
           break;
         }
@@ -56,23 +56,23 @@ namespace gui {
     template<>
     void basic_tile_view<orientation_t::vertical>::handle_direction_key (os::key_symbol key) {
       switch (key) {
-        case win::keys::left:
-        case win::keys::numpad::left: {
+        case core::keys::left:
+        case core::keys::numpad::left: {
           try_to_select(super::get_selection() - 1, event_source::keyboard);
           break;
         }
-        case win::keys::right:
-        case win::keys::numpad::right: {
+        case core::keys::right:
+        case core::keys::numpad::right: {
           try_to_select(super::get_selection() + 1, event_source::keyboard);
           break;
         }
-        case win::keys::up:
-        case win::keys::numpad::up: {
+        case core::keys::up:
+        case core::keys::numpad::up: {
           try_to_select(super::get_selection() - static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
           break;
         }
-        case win::keys::down:
-        case win::keys::numpad::down: {
+        case core::keys::down:
+        case core::keys::numpad::down: {
           try_to_select(super::get_selection() + static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
           break;
         }

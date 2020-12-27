@@ -84,12 +84,12 @@ namespace gui {
     template<>
     void linear_list<orientation_t::horizontal>::handle_direction_key (os::key_symbol key) {
       switch (key) {
-      case win::keys::left:
-      case win::keys::numpad::left:
+      case core::keys::left:
+      case core::keys::numpad::left:
         set_selection(super::get_selection() - 1, event_source::keyboard);
         break;
-      case win::keys::right:
-      case win::keys::numpad::right:
+      case core::keys::right:
+      case core::keys::numpad::right:
         set_selection(super::get_selection() + 1, event_source::keyboard);
         break;
       }
@@ -98,12 +98,12 @@ namespace gui {
     template<>
     void linear_list<orientation_t::vertical>::handle_direction_key (os::key_symbol key) {
       switch (key) {
-      case win::keys::up:
-      case win::keys::numpad::up:
+      case core::keys::up:
+      case core::keys::numpad::up:
         set_selection(super::get_selection() - 1, event_source::keyboard);
         break;
-      case win::keys::down:
-      case win::keys::numpad::down:
+      case core::keys::down:
+      case core::keys::numpad::down:
         set_selection(super::get_selection() + 1, event_source::keyboard);
         break;
       }

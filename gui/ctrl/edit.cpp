@@ -323,12 +323,12 @@ namespace gui {
       void edit_base::handle_key (os::key_state keystate,
                                   os::key_symbol keycode,
                                   const std::string& chars) {
-        bool shift = win::shift_key_bit_mask::is_set(keystate);
-        bool ctrl = win::control_key_bit_mask::is_set(keystate);
+        bool shift = core::shift_key_bit_mask::is_set(keystate);
+        bool ctrl = core::control_key_bit_mask::is_set(keystate);
 
         switch (keycode) {
-        case win::keys::left:
-        case win::keys::numpad::left:
+        case core::keys::left:
+        case core::keys::numpad::left:
           if (ctrl) {
             // next word begin
             if (data.cursor_pos > 1) {
@@ -343,24 +343,24 @@ namespace gui {
             return;
           }
           break;
-        case win::keys::right:
-        case win::keys::numpad::right:
+        case core::keys::right:
+        case core::keys::numpad::right:
           if (ctrl) {
             set_cursor_pos(util::string::find_right_space(data.text, data.cursor_pos), shift);
           } else if (data.cursor_pos < get_text_length()) {
             set_cursor_pos(util::utf8::get_right_char(data.text, data.cursor_pos), shift);
           }
           break;
-        case win::keys::home:
-        case win::keys::numpad::home:
+        case core::keys::home:
+        case core::keys::numpad::home:
           set_cursor_pos(0, shift);
           break;
-        case win::keys::end:
-        case win::keys::numpad::end:
+        case core::keys::end:
+        case core::keys::numpad::end:
           set_cursor_pos(get_text_length(), shift);
           break;
-        case win::keys::del:
-        case win::keys::numpad::del:
+        case core::keys::del:
+        case core::keys::numpad::del:
           if (data.selection.empty()) {
             std::size_t cp = data.cursor_pos + 1;
             while ((cp < get_text_length()) && util::utf8::is_continuation_char(data.text.at(cp))) {
@@ -374,7 +374,7 @@ namespace gui {
             set_cursor_pos(data.selection.begin(), false);
           }
           break;
-        case win::keys::back_space:
+        case core::keys::back_space:
           if (data.selection.empty()) {
             if (data.cursor_pos > 0) {
               std::size_t cp = data.cursor_pos - 1;
@@ -390,36 +390,36 @@ namespace gui {
             set_cursor_pos(data.selection.begin(), false);
           }
           break;
-        case win::keys::escape:
+        case core::keys::escape:
           set_selection(range(), event_source::keyboard);
           notify_event(detail::SELECTION_CANCEL_MESSAGE);
           break;
-        case win::keys::clear:
+        case core::keys::clear:
           set_selection(range(0, data.text.size()), event_source::keyboard);
           replace_selection(std::string());
           set_cursor_pos(0, false);
           break;
-        case win::keys::tab:
+        case core::keys::tab:
           break;
-        case win::keys::enter:
+        case core::keys::enter:
           notify_event(detail::SELECTION_COMMIT_MESSAGE);
           break;
         default: {
           if (ctrl) {
             switch (keycode) {
-            case win::keys::a:
+            case core::keys::a:
               // select all
               set_selection(range(0, data.text.size()), event_source::keyboard);
               break;
-            case win::keys::v: {
+            case core::keys::v: {
               win::clipboard::get().get_text(*this, [&](const std::string & t) {
                 replace_selection(t);
               });
               break;
-            case win::keys::c:
+            case core::keys::c:
               win::clipboard::get().set_text(*this, get_selected_text());
               break;
-            case win::keys::x:
+            case core::keys::x:
               win::clipboard::get().set_text(*this, get_selected_text());
               replace_selection(std::string());
               break;
@@ -441,7 +441,7 @@ namespace gui {
         on_left_btn_down([&](os::key_state state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;
-          set_cursor_pos(get_position_at_point(pt), win::shift_key_bit_mask::is_set(state));
+          set_cursor_pos(get_position_at_point(pt), core::shift_key_bit_mask::is_set(state));
         });
         on_left_btn_up([&](os::key_state, const core::point&) {
           data.last_mouse_point = core::point::undefined;
@@ -456,7 +456,7 @@ namespace gui {
           set_selection(range(l, r), event_source::mouse);
         });
         on_mouse_move([&](os::key_state keys, const core::point& pt) {
-          if ((data.last_mouse_point != core::point::undefined) && win::left_button_bit_mask::is_set(keys)) {
+          if ((data.last_mouse_point != core::point::undefined) && core::left_button_bit_mask::is_set(keys)) {
             set_cursor_pos(get_position_at_point(pt), true);
           }
         });

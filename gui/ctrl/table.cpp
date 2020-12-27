@@ -740,7 +740,7 @@ namespace gui {
         }
         if (get_selection() != new_selection) {
           set_selection(new_selection, event_source::mouse);
-        } else if (win::control_key_bit_mask::is_set(keys)) {
+        } else if (core::control_key_bit_mask::is_set(keys)) {
           clear_selection(event_source::mouse);
         }
       }
@@ -751,7 +751,7 @@ namespace gui {
 
     void table_view::handle_mouse_move (os::key_state keys, const core::point& pt) {
       const core::rectangle r = data.client_area();
-      if (win::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
+      if (core::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if (last_mouse_point != core::point::undefined) {
           auto delta = last_mouse_point - pt;
           set_scroll_pos(get_scroll_pos() + delta);
@@ -783,7 +783,7 @@ namespace gui {
         const auto new_selection = columns.get_index_at_point(pt);
         if (get_selection() != new_selection) {
           set_selection(new_selection, event_source::mouse);
-        } else if (win::control_key_bit_mask::is_set(keys)) {
+        } else if (core::control_key_bit_mask::is_set(keys)) {
           clear_selection(event_source::mouse);
         }
       }
@@ -794,7 +794,7 @@ namespace gui {
     }
 
     void table_view::handle_column_mouse_move (os::key_state keys, const core::point& pt) {
-      if (win::left_button_bit_mask::is_set(keys)) {
+      if (core::left_button_bit_mask::is_set(keys)) {
         if (last_mouse_point != core::point::undefined) {
           auto delta = pt.x() - last_mouse_point.x();
           if (down_idx.x() > -1) {
@@ -837,7 +837,7 @@ namespace gui {
         const auto new_selection = rows.get_index_at_point(pt);
         if (get_selection() != new_selection) {
           set_selection(new_selection, event_source::mouse);
-        } else if (win::control_key_bit_mask::is_set(keys)) {
+        } else if (core::control_key_bit_mask::is_set(keys)) {
           clear_selection(event_source::mouse);
         }
       }
@@ -848,7 +848,7 @@ namespace gui {
     }
 
     void table_view::handle_row_mouse_move (os::key_state keys, const core::point& pt) {
-      if (win::left_button_bit_mask::is_set(keys)) {
+      if (core::left_button_bit_mask::is_set(keys)) {
         if (last_mouse_point != core::point::undefined) {
           auto delta = pt.y() - last_mouse_point.y();
           if (down_idx.y() > -1) {
@@ -880,36 +880,36 @@ namespace gui {
                                  os::key_symbol key,
                                  const std::string&) {
       switch (key) {
-      case win::keys::up:
-      case win::keys::numpad::up:
+      case core::keys::up:
+      case core::keys::numpad::up:
         if (enable_selection_) {
           set_selection(get_valid_selection(table::offset(0, -1)), event_source::keyboard);
         }
         break;
-      case win::keys::down:
-      case win::keys::numpad::down:
+      case core::keys::down:
+      case core::keys::numpad::down:
         if (enable_selection_) {
           set_selection(get_valid_selection(table::offset(0, 1)), event_source::keyboard);
         }
         break;
-      case win::keys::left:
-      case win::keys::numpad::left:
+      case core::keys::left:
+      case core::keys::numpad::left:
         if (enable_selection_) {
           set_selection(get_valid_selection(table::offset(-1, 0)), event_source::keyboard);
         }
         break;
-      case win::keys::right:
-      case win::keys::numpad::right:
+      case core::keys::right:
+      case core::keys::numpad::right:
         if (enable_selection_) {
           set_selection(get_valid_selection(table::offset(1, 0)), event_source::keyboard);
         }
         break;
-      case win::keys::page_up:
-      case win::keys::numpad::page_up: {
+      case core::keys::page_up:
+      case core::keys::numpad::page_up: {
         core::size sz = data.client_size();
         if (enable_selection_) {
           const core::point pt = geometrie.position_of(geometrie.selection);
-          if (win::alt_key_bit_mask::is_set(state)) {
+          if (core::alt_key_bit_mask::is_set(state)) {
             sz.height(0);
           } else {
             sz.width(0);
@@ -919,12 +919,12 @@ namespace gui {
         set_scroll_pos(get_scroll_pos() - sz);
         break;
       }
-      case win::keys::page_down:
-      case win::keys::numpad::page_down: {
+      case core::keys::page_down:
+      case core::keys::numpad::page_down: {
         core::size sz = data.client_size();
         if (enable_selection_) {
           const core::point pt = geometrie.position_of(geometrie.selection);
-          if (win::alt_key_bit_mask::is_set(state)) {
+          if (core::alt_key_bit_mask::is_set(state)) {
             sz.height(0);
           } else {
             sz.width(0);
@@ -935,19 +935,19 @@ namespace gui {
         break;
       }
       break;
-      case win::keys::home:
-      case win::keys::numpad::home:
+      case core::keys::home:
+      case core::keys::numpad::home:
         if (enable_selection_) {
           set_selection(table::position(0, 0), event_source::keyboard);
         } else {
           set_scroll_pos(core::point::zero);
         }
         break;
-      case win::keys::f2:
-      case win::keys::enter:
+      case core::keys::f2:
+      case core::keys::enter:
         send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
         break;
-      case win::keys::escape:
+      case core::keys::escape:
         clear_selection(event_source::keyboard);
         break;
       }

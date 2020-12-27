@@ -110,8 +110,8 @@ namespace gui {
         });
         super::on_any_key_down([&](os::key_state, os::key_symbol key, const std::string &){
           switch (key) {
-            case win::keys::left:
-            case win::keys::numpad::left: {
+            case core::keys::left:
+            case core::keys::numpad::left: {
               int idx = super::get_selection();
               if (is_valid_idx(idx)) {
                 const reference ref = get_item(idx);
@@ -127,8 +127,8 @@ namespace gui {
               }
               break;
             }
-            case win::keys::right:
-            case win::keys::numpad::right:
+            case core::keys::right:
+            case core::keys::numpad::right:
               open_node(super::get_selection());
               break;
           }

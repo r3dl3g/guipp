@@ -128,15 +128,15 @@ namespace gui {
                               std::function<yes_no_action> action) {
       run_modal(parent, {
         win::hot_key_action{
-          win::hot_key(win::keys::escape, win::state::none),
+          core::hot_key(core::keys::escape, core::state::none),
           [&] () { action(*this, false); }
         },
         win::hot_key_action{
-          win::hot_key(win::keys::right, win::state::none),
+          core::hot_key(core::keys::right, core::state::none),
           [&] () { forward_focus(false); }
         },
         win::hot_key_action{
-          win::hot_key(win::keys::left, win::state::none),
+          core::hot_key(core::keys::left, core::state::none),
           [&] () { forward_focus(true); }
         }
       });

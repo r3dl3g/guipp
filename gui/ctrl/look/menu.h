@@ -25,7 +25,7 @@
 #include <gui/core/core_fwd.h>
 #include <gui/core/gui_types.h>
 #include <gui/draw/draw_fwd.h>
-#include <gui/win/keys.h>
+#include <gui/core/keys.h>
 #include <gui/ctrl/item_state.h>
 #include <gui++-look-export.h>
 
@@ -50,7 +50,7 @@ namespace gui {
                                       const std::string& label,
                                       char menu_key,
                                       const draw::masked_bitmap& icon,
-                                      const win::hot_key& hotkey,
+                                      const core::hot_key& hotkey,
                                       bool is_sub_menu,
                                       bool separator,
                                       ctrl::item_state state);

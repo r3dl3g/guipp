@@ -146,10 +146,10 @@ namespace gui {
       void on_any_key_down (std::function<void(os::key_state, os::key_symbol, std::string)>&& f);
       void on_any_key_up (std::function<void(os::key_state, os::key_symbol)>&& f);
 
-      template<os::key_symbol symbol, os::key_state state = state::none>
+      template<os::key_symbol symbol, os::key_state state = core::state::none>
       void on_key_down (std::function<notification_fn>&& f);
 
-      template<os::key_symbol symbol, os::key_state state = state::none>
+      template<os::key_symbol symbol, os::key_state state = core::state::none>
       void on_key_up (std::function<notification_fn>&& f);
 
       void on_mouse_move (std::function<mouse_fn>&& f);

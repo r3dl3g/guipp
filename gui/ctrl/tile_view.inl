@@ -291,24 +291,24 @@ namespace gui {
                                          const std::string&) {
       handle_direction_key(key);
       switch (key) {
-      case win::keys::page_up:
-      case win::keys::numpad::page_up:
+      case core::keys::page_up:
+      case core::keys::numpad::page_up:
         super::try_to_select(super::get_selection() - static_cast<int>((super::get_list_size() + super::traits.get_line_spacing()) / super::traits.get_line_size()), event_source::keyboard);
         break;
-      case win::keys::page_down:
-      case win::keys::numpad::page_down:
+      case core::keys::page_down:
+      case core::keys::numpad::page_down:
         super::try_to_select(super::get_selection() + static_cast<int>((super::get_list_size() + super::traits.get_line_spacing()) / super::traits.get_line_size()), event_source::keyboard);
         break;
-      case win::keys::home:
-      case win::keys::numpad::home:
+      case core::keys::home:
+      case core::keys::numpad::home:
         super::try_to_select(0, event_source::keyboard);
         break;
-      case win::keys::end:
-      case win::keys::numpad::end:
+      case core::keys::end:
+      case core::keys::numpad::end:
         super::try_to_select(static_cast<int>(super::get_count()) - 1,
           event_source::keyboard);
         break;
-      case win::keys::enter:
+      case core::keys::enter:
         super::notify_event(detail::SELECTION_COMMIT_MESSAGE);
         break;
       }

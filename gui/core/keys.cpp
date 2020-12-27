@@ -29,15 +29,15 @@
 // Library includes
 //
 #include <logging/logger.h>
-#include <gui/win/keys.h>
+#include <gui/core/keys.h>
 
 
 namespace gui {
 
-  namespace win {
+  namespace core {
 
-    hot_key::hot_key (os::key_symbol k,
-                      os::key_state modifiers)
+    hot_key::hot_key (gui::os::key_symbol k,
+                      gui::os::key_state modifiers)
       : key(k)
       , modifiers(modifiers)
     {
@@ -59,7 +59,7 @@ namespace gui {
 #endif // GUIPP_X11
     }
 
-    std::string key_symbol_to_string (os::key_symbol key) {
+    std::string key_symbol_to_string (gui::os::key_symbol key) {
 #ifdef GUIPP_WIN
       UINT nScanCode = MapVirtualKey(key, MAPVK_VK_TO_VSC);
       switch (key) {
@@ -84,7 +84,7 @@ namespace gui {
         str = buffer.data();
       } else {
         switch (key) {
-        case win::keys::system:
+        case core::keys::system:
           str = "Win";
           break;
         default:
@@ -122,11 +122,11 @@ namespace gui {
 #elif GUIPP_QT
       return QKeySequence(key).toString().toStdString();
 #else
-# error Undefined system: std::string key_symbol_to_string (os::key_symbol key)
+# error Undefined system: std::string key_symbol_to_string (gui::os::key_symbol key)
 #endif // GUIPP_X11
     }
 
-    std::string key_state_to_string (os::key_state m) {
+    std::string key_state_to_string (gui::os::key_state m) {
       return key_symbol_to_string(m);
     }
 
@@ -161,7 +161,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     bool hot_key::operator< (const hot_key& rhs) const {
       if (key == rhs.key) {
-        os::key_state m = rhs.modifiers & ~(state::num_lock | state::scroll_lock | state::caps_lock);
+        gui::os::key_state m = rhs.modifiers & ~(state::num_lock | state::scroll_lock | state::caps_lock);
         return (modifiers < m);
       }
       return key < rhs.key;

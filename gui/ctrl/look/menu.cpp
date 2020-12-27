@@ -30,9 +30,6 @@
 #include <gui/ctrl/look/menu.h>
 
 
-using namespace gui::win;
-
-
 namespace gui {
 
   namespace look {
@@ -103,7 +100,7 @@ namespace gui {
                     const std::string& label,
                     char menu_key,
                     const draw::masked_bitmap& icon,
-                    const hot_key& hotkey,
+                    const core::hot_key& hotkey,
                     bool is_sub_menu,
                     bool separator,
                     ctrl::item_state state) {

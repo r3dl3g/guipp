@@ -92,7 +92,7 @@ namespace gui {
         }
       });
       btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
-        if (((k == win::keys::enter) || (k == win::keys::space)) && btn.is_pushed()) {
+        if (((k == core::keys::enter) || (k == core::keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
           btn.notify_event(detail::BN_CLICKED_MESSAGE);
         }
@@ -112,7 +112,7 @@ namespace gui {
         }
       });
       btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
-        if (((k == win::keys::enter) || (k == win::keys::space)) && btn.is_pushed()) {
+        if (((k == core::keys::enter) || (k == core::keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
           btn.set_checked(!btn.is_checked());
           btn.notify_event(detail::BN_CLICKED_MESSAGE);
@@ -133,7 +133,7 @@ namespace gui {
         }
       });
       btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
-        if (((k == win::keys::enter) || (k == win::keys::space)) && btn.is_pushed()) {
+        if (((k == core::keys::enter) || (k == core::keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
           if (!btn.is_checked()) {
             btn.set_checked(true);
@@ -192,7 +192,7 @@ namespace gui {
         }
       });
       btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
-        if (((k == win::keys::enter) || (k == win::keys::space)) && btn.is_pushed()) {
+        if (((k == core::keys::enter) || (k == core::keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
           btn.set_checked(!btn.is_checked());
           btn.notify_event(detail::BN_CLICKED_MESSAGE);
@@ -213,7 +213,7 @@ namespace gui {
         }
       });
       btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
-        if (((k == win::keys::enter) || (k == win::keys::space)) && btn.is_pushed()) {
+        if (((k == core::keys::enter) || (k == core::keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
           if (!btn.is_checked()) {
             btn.set_checked(true);

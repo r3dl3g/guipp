@@ -298,11 +298,11 @@ namespace gui {
           set_selection({l, r});
         });
         on_mouse_move([&, origin](os::key_state keys, const core::point& pt) {
-          if ((data.last_mouse_point != core::point::undefined) && win::left_button_bit_mask::is_set(keys)) {
+          if ((data.last_mouse_point != core::point::undefined) && core::left_button_bit_mask::is_set(keys)) {
             set_cursor_pos(get_position_at_point(pt, origin), true);
           }
         });
-        on_key_down<win::keys::c, win::state::control>([&]() {
+        on_key_down<core::keys::c, core::state::control>([&]() {
           win::clipboard::get().set_text(*this, get_selected_text());
         });
         on_set_focus([&] () {

@@ -263,7 +263,7 @@ namespace gui {
 
       set_accept_focus(true);
       on_set_focus([&] () {
-        forward_focus(shift_key_bit_mask::is_set(core::global::get_key_state()));
+        forward_focus(core::shift_key_bit_mask::is_set(core::global::get_key_state()));
       });
       on_show([&] () {
         set_children_visible();
@@ -725,7 +725,7 @@ namespace gui {
 #elif GUIPP_QT
           if (e.type() == QEvent::KeyPress) {
 #endif // GUIPP_QT
-            hot_key hk(get_key_symbol(e), get_key_state(e));
+            core::hot_key hk(get_key_symbol(e), get_key_state(e));
             for (hot_key_action k : hot_keys) {
               if (hk == k.hk) {
                 k.fn();

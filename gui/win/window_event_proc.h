@@ -31,8 +31,9 @@
 //
 // Library includes
 //
-#include <gui/win/keys.h>
+#include <gui/core/keys.h>
 #include <gui/core/rectangle.h>
+#include <gui++-win-export.h>
 
 
 namespace gui {
@@ -75,8 +76,8 @@ namespace gui {
 
     namespace global {
 
-      GUIPP_WIN_EXPORT void register_hot_key (const hot_key&, const hot_key::call&, window* = nullptr);
-      GUIPP_WIN_EXPORT void unregister_hot_key (const hot_key&);
+      GUIPP_WIN_EXPORT void register_hot_key (const core::hot_key&, const core::hot_key::call&, window* = nullptr);
+      GUIPP_WIN_EXPORT void unregister_hot_key (const core::hot_key&);
 
       GUIPP_WIN_EXPORT int register_message_filter (const detail::filter_call& filter);
       GUIPP_WIN_EXPORT void unregister_message_filter (int id);

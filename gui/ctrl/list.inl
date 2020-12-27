@@ -439,7 +439,7 @@ namespace gui {
     template<orientation_t V, typename T>
     void basic_list<V, T>::handle_mouse_move (os::key_state keys, const core::point& pt) {
       const core::rectangle r = content_area(client_size());
-      if (win::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
+      if (core::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if ((super::get_last_mouse_point() != core::point::undefined) &&
             (super::get_last_mouse_point() != pt)) {
           super::set_cursor(win::cursor::move());
@@ -458,12 +458,12 @@ namespace gui {
       if (!super::is_moved() && (super::get_last_mouse_point() != core::point::undefined)) {
         const int new_selection = get_index_at_point(pt);
         if (new_selection != super::get_selection()) {
-          if ((new_selection < 0) || win::control_key_bit_mask::is_set(keys)) {
+          if ((new_selection < 0) || core::control_key_bit_mask::is_set(keys)) {
             clear_selection(event_source::mouse);
           } else {
             set_selection(new_selection, event_source::mouse);
           }
-        } else if (win::control_key_bit_mask::is_set(keys)) {
+        } else if (core::control_key_bit_mask::is_set(keys)) {
           clear_selection(event_source::mouse);
         }
       }
@@ -523,28 +523,28 @@ namespace gui {
                                     const std::string&) {
       handle_direction_key(key);
       switch (key) {
-      case win::keys::page_up:
-      case win::keys::numpad::page_up:
+      case core::keys::page_up:
+      case core::keys::numpad::page_up:
         super::set_selection(super::get_selection() -
                       static_cast<int>(super::get_list_size() / super::get_item_dimension()),
                       event_source::keyboard);
         break;
-      case win::keys::page_down:
-      case win::keys::numpad::page_down:
+      case core::keys::page_down:
+      case core::keys::numpad::page_down:
         super::set_selection(super::get_selection() +
                       static_cast<int>(super::get_list_size() / super::get_item_dimension()),
                       event_source::keyboard);
         break;
-      case win::keys::home:
-      case win::keys::numpad::home:
+      case core::keys::home:
+      case core::keys::numpad::home:
         super::set_selection(0, event_source::keyboard);
         break;
-      case win::keys::end:
-      case win::keys::numpad::end:
+      case core::keys::end:
+      case core::keys::numpad::end:
         super::set_selection(static_cast<int>(super::get_count()) - 1,
                       event_source::keyboard);
         break;
-      case win::keys::enter:
+      case core::keys::enter:
         super::notify_event(detail::SELECTION_COMMIT_MESSAGE);
         break;
       }

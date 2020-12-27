@@ -37,7 +37,7 @@ namespace gui {
     menu_entry::menu_entry (const text_source& label,
                             char menu_key,
                             const std::function<menu_action>& action,
-                            const hot_key& hotkey,
+                            const core::hot_key& hotkey,
                             bool separator,
                             const icon_type& icon,
                             menu_state state)
@@ -55,7 +55,7 @@ namespace gui {
     menu_entry::menu_entry (const std::string& label,
                             char menu_key,
                             const std::function<menu_action>& action,
-                            const hot_key& hotkey,
+                            const core::hot_key& hotkey,
                             bool separator,
                             const icon_type& icon,
                             menu_state state)
@@ -74,7 +74,7 @@ namespace gui {
                             const text_source& label,
                             char menu_key,
                             const std::function<menu_action>& action,
-                            const hot_key& hotkey,
+                            const core::hot_key& hotkey,
                             bool separator,
                             const icon_type& icon,
                             menu_state state)
@@ -291,7 +291,7 @@ namespace gui {
       for (auto& i : data.items) {
         ++idx;
         if (i.get_menu_key()) {
-          global::register_hot_key(hot_key(i.get_menu_key(), state::alt), [&, idx]() {
+          global::register_hot_key(core::hot_key(i.get_menu_key(), core::state::alt), [&, idx]() {
             win->take_focus();
             set_selection(idx, event_source::keyboard);
           }, w);
@@ -302,7 +302,7 @@ namespace gui {
     void menu_data::unregister_menu_keys () {
       for (auto& i : data.items) {
         if (i.get_menu_key()) {
-          global::unregister_hot_key(hot_key(i.get_menu_key(), state::alt));
+          global::unregister_hot_key(core::hot_key(i.get_menu_key(), core::state::alt));
         }
       }
     }
@@ -424,8 +424,8 @@ namespace gui {
         return true;
       }
       switch (key) {
-      case win::keys::left:
-      case win::keys::numpad::left:
+      case core::keys::left:
+      case core::keys::numpad::left:
         if (data.is_open()) {
           data.rotate_selection(-1);
         } else {
@@ -433,8 +433,8 @@ namespace gui {
         }
         return true;
 
-      case win::keys::right:
-      case win::keys::numpad::right:
+      case core::keys::right:
+      case core::keys::numpad::right:
         if (data.is_open()) {
           data.rotate_selection(1);
         } else {
@@ -442,16 +442,16 @@ namespace gui {
         }
         return true;
 
-      case win::keys::up:
-      case win::keys::numpad::up:
-      case win::keys::escape:
+      case core::keys::up:
+      case core::keys::numpad::up:
+      case core::keys::escape:
         data.close();
         invalidate();
         return true;
 
-      case win::keys::down:
-      case win::keys::numpad::down:
-      case win::keys::enter:
+      case core::keys::down:
+      case core::keys::numpad::down:
+      case core::keys::enter:
         if (!data.is_open() && (data.get_hilite() > -1)) {
           data.set_selection(data.get_hilite(), event_source::keyboard);
         }
@@ -576,9 +576,9 @@ namespace gui {
         return true;
       }
       switch (key) {
-      case win::keys::left:
-      case win::keys::numpad::left:
-      case win::keys::escape:
+      case core::keys::left:
+      case core::keys::numpad::left:
+      case core::keys::escape:
         if (data.is_open()) {
           int idx = data.get_hilite();
           data.close();
@@ -587,13 +587,13 @@ namespace gui {
           return true;
         }
         break;
-      case win::keys::up:
-      case win::keys::numpad::up:
+      case core::keys::up:
+      case core::keys::numpad::up:
         data.rotate_hilite(-1);
         return true;
 
-      case win::keys::right:
-      case win::keys::numpad::right: {
+      case core::keys::right:
+      case core::keys::numpad::right: {
         int idx = data.get_hilite();
         if (!data.is_open() && (idx > -1) && data[idx].is_sub_menu()) {
           data.set_selection(idx, event_source::keyboard);
@@ -601,12 +601,12 @@ namespace gui {
         }
         break;
       }
-      case win::keys::down:
-      case win::keys::numpad::down:
+      case core::keys::down:
+      case core::keys::numpad::down:
         data.rotate_hilite(1);
         return true;
 
-      case win::keys::enter:
+      case core::keys::enter:
         if (data.get_hilite() > -1) {
           data.set_selection(data.get_hilite(), event_source::keyboard);
         }

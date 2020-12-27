@@ -27,7 +27,7 @@ namespace gui {
       return label();
     }
 
-    inline const win::hot_key& menu_entry::get_hot_key () const {
+    inline const core::hot_key& menu_entry::get_hot_key () const {
       return hotkey;
     }
 
@@ -92,7 +92,7 @@ namespace gui {
                                            bool separator,
                                            const icon_type& icon,
                                            menu_state state)
-      : menu_entry(true, label, menu_key, action, win::hot_key(), separator, icon, state)
+      : menu_entry(true, label, menu_key, action, core::hot_key(), separator, icon, state)
     {}
 
     inline sub_menu_entry::sub_menu_entry (const std::string& label,
@@ -101,7 +101,7 @@ namespace gui {
                                            bool separator,
                                            const icon_type& icon,
                                            menu_state state)
-      : menu_entry(true, const_text(label), menu_key, action, win::hot_key(), separator, icon, state)
+      : menu_entry(true, const_text(label), menu_key, action, core::hot_key(), separator, icon, state)
     {}
 
     // --------------------------------------------------------------------------
@@ -109,14 +109,14 @@ namespace gui {
                                              char menu_key,
                                              const std::function<menu_action>& action,
                                              menu_state state)
-      : menu_entry(true, label, menu_key, action, win::hot_key(), false, icon_type(), state)
+      : menu_entry(true, label, menu_key, action, core::hot_key(), false, icon_type(), state)
     {}
 
     inline main_menu_entry::main_menu_entry (const std::string& label,
                                              char menu_key,
                                              const std::function<menu_action>& action,
                                              menu_state state)
-      : menu_entry(true, const_text(label), menu_key, action, win::hot_key(), false, icon_type(), state)
+      : menu_entry(true, const_text(label), menu_key, action, core::hot_key(), false, icon_type(), state)
     {}
 
     // --------------------------------------------------------------------------

@@ -120,14 +120,14 @@ namespace gui {
                                            os::key_symbol key,
                                            const std::string& t) {
       if (is_popup_visible()) {
-        if (key == win::keys::tab) {
+        if (key == core::keys::tab) {
           hide_popup();
         }
         data.items.handle_key(state, key, t);
       } else {
         switch (key) {
-        case win::keys::down:
-        case win::keys::numpad::down:
+        case core::keys::down:
+        case core::keys::numpad::down:
           show_popup();
           break;
         }

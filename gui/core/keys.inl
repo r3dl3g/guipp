@@ -21,9 +21,9 @@
 
 namespace gui {
 
-  namespace win {
+  namespace core {
 
-    inline bool hot_key::match (os::key_state m, os::key_symbol k) const {
+    inline bool hot_key::match (gui::os::key_state m, gui::os::key_symbol k) const {
       return (key && (key == k) && ((m & modifiers) == modifiers));
     }
 
@@ -35,14 +35,14 @@ namespace gui {
       return (key == rhs.key) && (modifiers == rhs.modifiers);
     }
 
-    inline os::key_symbol hot_key::get_key () const {
+    inline gui::os::key_symbol hot_key::get_key () const {
       return key;
     }
 
-    inline os::key_state hot_key::get_modifiers () const {
+    inline gui::os::key_state hot_key::get_modifiers () const {
       return modifiers;
     }
 
-  } // namespace win
+  } // namespace core
 
 } // namespace gui

@@ -44,7 +44,7 @@ namespace gui {
       menu_entry (const text_source& label,
                   char menu_key,
                   const std::function<menu_action>& action,
-                  const win::hot_key& hotkey = win::hot_key(),
+                  const core::hot_key& hotkey = core::hot_key(),
                   bool separator = false,
                   const icon_type& icon = icon_type(),
                   menu_state state = menu_state::enabled);
@@ -52,7 +52,7 @@ namespace gui {
       menu_entry (const std::string& label,
                   char menu_key,
                   const std::function<menu_action>& action,
-                  const win::hot_key& hotkey = win::hot_key(),
+                  const core::hot_key& hotkey = core::hot_key(),
                   bool separator = false,
                   const icon_type& icon = icon_type(),
                   menu_state state = menu_state::enabled);
@@ -64,7 +64,7 @@ namespace gui {
       menu_entry& operator= (menu_entry&&) noexcept ;
 
       std::string get_label () const;
-      const win::hot_key& get_hot_key () const;
+      const core::hot_key& get_hot_key () const;
       const icon_type& get_icon () const;
       core::size::type get_width () const;
       char get_menu_key () const;
@@ -89,7 +89,7 @@ namespace gui {
                   const text_source& label,
                   char menu_key,
                   const std::function<menu_action>& action,
-                  const win::hot_key& hotkey,
+                  const core::hot_key& hotkey,
                   bool separator,
                   const icon_type& icon,
                   menu_state state);
@@ -98,7 +98,7 @@ namespace gui {
 
     private:
       text_source label;
-      win::hot_key hotkey;
+      core::hot_key hotkey;
       icon_type icon;
       std::function<menu_action> action;
       char menu_key;

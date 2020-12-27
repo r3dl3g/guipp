@@ -271,7 +271,7 @@ namespace gui {
     template<>
     void basic_scroll_bar<orientation_t::horizontal>::handle_mouse_move (os::key_state keys, const core::point& pt) {
       if (is_enabled()) {
-        if (win::left_button_bit_mask::is_set(keys)) {
+        if (core::left_button_bit_mask::is_set(keys)) {
           // check if on thumb
           if (get_selection() == scrollbar_item::thumb_button) {
             type delta = (pt.x() - get_last_mouse_point().x()) / get_scale();
@@ -299,7 +299,7 @@ namespace gui {
     template<>
     void basic_scroll_bar<orientation_t::vertical>::handle_mouse_move (os::key_state keys, const core::point& pt) {
       if (is_enabled()) {
-        if (win::left_button_bit_mask::is_set(keys)) {
+        if (core::left_button_bit_mask::is_set(keys)) {
           // check if on thumb
           if (get_selection() == scrollbar_item::thumb_button) {
             type delta = (pt.y() - get_last_mouse_point().y()) / get_scale();
@@ -329,28 +329,28 @@ namespace gui {
     void basic_scroll_bar<orientation_t::horizontal>::handle_any_key_up (os::key_state, os::key_symbol key) {
       if (is_enabled()) {
         switch (key) {
-        case win::keys::left:
-        case win::keys::numpad::left:
+        case core::keys::left:
+        case core::keys::numpad::left:
           set_value(get_value() - get_step(), true);
           break;
-        case win::keys::right:
-        case win::keys::numpad::right:
+        case core::keys::right:
+        case core::keys::numpad::right:
           set_value(get_value() + get_step(), true);
           break;
-        case win::keys::page_up:
-        case win::keys::numpad::page_up:
+        case core::keys::page_up:
+        case core::keys::numpad::page_up:
           set_value(get_value() - get_page(), true);
           break;
-        case win::keys::page_down:
-        case win::keys::numpad::page_down:
+        case core::keys::page_down:
+        case core::keys::numpad::page_down:
           set_value(get_value() + get_page(), true);
           break;
-        case win::keys::home:
-        case win::keys::numpad::home:
+        case core::keys::home:
+        case core::keys::numpad::home:
           set_value(get_min(), true);
           break;
-        case win::keys::end:
-        case win::keys::numpad::end:
+        case core::keys::end:
+        case core::keys::numpad::end:
           set_value(get_min(), true);
           break;
         }
@@ -361,28 +361,28 @@ namespace gui {
     void basic_scroll_bar<orientation_t::vertical>::handle_any_key_up (os::key_state, os::key_symbol key) {
       if (is_enabled()) {
         switch (key) {
-        case win::keys::up:
-        case win::keys::numpad::up:
+        case core::keys::up:
+        case core::keys::numpad::up:
           set_value(get_value() - get_step(), true);
           break;
-        case win::keys::down:
-        case win::keys::numpad::down:
+        case core::keys::down:
+        case core::keys::numpad::down:
           set_value(get_value() + get_step(), true);
           break;
-        case win::keys::page_up:
-        case win::keys::numpad::page_up:
+        case core::keys::page_up:
+        case core::keys::numpad::page_up:
           set_value(get_value() - get_page(), true);
           break;
-        case win::keys::page_down:
-        case win::keys::numpad::page_down:
+        case core::keys::page_down:
+        case core::keys::numpad::page_down:
           set_value(get_value() + get_page(), true);
           break;
-        case win::keys::home:
-        case win::keys::numpad::home:
+        case core::keys::home:
+        case core::keys::numpad::home:
           set_value(get_min(), true);
           break;
-        case win::keys::end:
-        case win::keys::numpad::end:
+        case core::keys::end:
+        case core::keys::numpad::end:
           set_value(get_min(), true);
           break;
         }

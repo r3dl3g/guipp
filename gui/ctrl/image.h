@@ -1,5 +1,5 @@
 /**
- * @copyright (c) 2016-2019 Ing. Buero Rothfuss
+ * @copyright (c) 2016-2021 Ing. Buero Rothfuss
  *                          Riedlinger Str. 8
  *                          70327 Stuttgart
  *                          Germany

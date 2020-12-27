@@ -32,7 +32,7 @@
 #include <gui/draw/brush.h>
 #include <gui/draw/font.h>
 #include <gui/draw/graphics.h>
-#include <gui/look/button.h>
+#include <gui/ctrl/look/button.h>
 #include <gui/io/pnm.h>
 
 
@@ -40,11 +40,11 @@ namespace gui {
 
   namespace image_data {
 
-#   include <gui/look/res/button_frame.h>
-#   include <gui/look/res/button_pressed_frame.h>
-#   include <gui/look/res/button_rot_frame.h>
-#   include <gui/look/res/button_pressed_rot_frame.h>
-#   include <gui/look/res/simple_frame.h>
+#   include <gui/ctrl/look/res/button_frame.h>
+#   include <gui/ctrl/look/res/button_pressed_frame.h>
+#   include <gui/ctrl/look/res/button_rot_frame.h>
+#   include <gui/ctrl/look/res/button_pressed_rot_frame.h>
+#   include <gui/ctrl/look/res/simple_frame.h>
 
   } // namespace image_data
 

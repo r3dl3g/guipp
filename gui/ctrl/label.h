@@ -23,7 +23,7 @@
 // Library includes
 //
 #include <gui/ctrl/control.h>
-#include <gui/look/label.h>
+#include <gui/ctrl/look/label.h>
 #include <util/string_util.h>
 
 

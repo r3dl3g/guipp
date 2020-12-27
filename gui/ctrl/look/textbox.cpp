@@ -25,8 +25,8 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/brush.h>
 #include <gui/draw/font.h>
-#include <gui/look/textbox.h>
-#include <gui/look/edit.h>
+#include <gui/ctrl/look/textbox.h>
+#include <gui/ctrl/look/edit.h>
 
 
 namespace gui {

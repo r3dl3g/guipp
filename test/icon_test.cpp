@@ -13,9 +13,9 @@
 #include <testlib/image_test_lib.h>
 
 namespace image_data {
-#include <gui/look/res/file_icon.h>
-#include <gui/look/res/close_folder_icon.h>
-#include <gui/look/res/open_folder_icon.h>
+#include <gui/ctrl/look/res/file_icon.h>
+#include <gui/ctrl/look/res/close_folder_icon.h>
+#include <gui/ctrl/look/res/open_folder_icon.h>
 } // namespace image_data
 
 

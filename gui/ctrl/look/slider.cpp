@@ -23,7 +23,7 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
 #include <gui/draw/brush.h>
-#include <gui/look/slider.h>
+#include <gui/ctrl/look/slider.h>
 
 
 namespace gui {

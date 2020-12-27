@@ -57,4 +57,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/look/table.inl>
+#include <gui/ctrl/look/table.inl>

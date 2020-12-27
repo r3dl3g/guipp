@@ -20,7 +20,7 @@
 //
 // Library includes
 //
-#include <gui/look/button_state.h>
+#include <gui/ctrl/button_state.h>
 
 namespace gui {
 

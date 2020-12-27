@@ -31,7 +31,7 @@
 #include <gui/core/core_fwd.h>
 #include <gui/draw/draw_fwd.h>
 #include <gui/ctrl/item_state.h>
-#include <gui/look/button_state.h>
+#include <gui/ctrl/button_state.h>
 #include <gui++-look-export.h>
 
 

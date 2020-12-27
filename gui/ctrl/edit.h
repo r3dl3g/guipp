@@ -24,7 +24,7 @@
 //
 #include <gui/draw/font.h>
 #include <gui/ctrl/control.h>
-#include <gui/look/edit.h>
+#include <gui/ctrl/look/edit.h>
 
 
 namespace gui {

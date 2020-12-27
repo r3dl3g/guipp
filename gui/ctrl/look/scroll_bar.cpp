@@ -26,8 +26,8 @@
 #include <gui/draw/pen.h>
 #include <gui/draw/brush.h>
 #include <gui/draw/font.h>
-#include <gui/look/scroll_bar.h>
-#include <gui/look/button.h>
+#include <gui/ctrl/look/scroll_bar.h>
+#include <gui/ctrl/look/button.h>
 
 
 namespace gui {

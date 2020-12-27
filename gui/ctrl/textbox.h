@@ -22,9 +22,9 @@
 //
 // Library includes
 //
-#include <gui/look/textbox.h>
 #include <gui/draw/font.h>
 #include <gui/ctrl/control.h>
+#include <gui/ctrl/look/textbox.h>
 
 
 namespace gui {

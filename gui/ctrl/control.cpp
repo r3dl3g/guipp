@@ -21,8 +21,8 @@
 // Library includes
 //
 #include <gui/draw/bitmap.h>
+#include <gui/ctrl/look/control.h>
 #include <gui/ctrl/control.h>
-#include <gui/look/control.h>
 
 
 namespace gui {

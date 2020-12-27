@@ -29,7 +29,7 @@
 // Library includes
 //
 #include <gui/win/window_event_handler.h>
-#include <gui/look/button.h>
+#include <gui/ctrl/look/button.h>
 #include <gui/ctrl/control.h>
 
 

@@ -27,7 +27,7 @@
 #include <gui/ctrl/edit.h>
 #include <gui/ctrl/list_state.h>
 #include <gui/draw/brush.h>
-#include <gui/look/control.h>
+#include <gui/ctrl/look/control.h>
 
 #include <util/string_util.h>
 #include <gui/core/orientation_traits.h>

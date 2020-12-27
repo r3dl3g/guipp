@@ -24,7 +24,7 @@
 #include <gui/draw/brush.h>
 #include <gui/draw/font.h>
 #include <gui/draw/drawers.h>
-#include <gui/look/label.h>
+#include <gui/ctrl/look/label.h>
 
 
 //#define SHOW_TEXT_AREA

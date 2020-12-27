@@ -185,7 +185,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   add_subdirectory(draw gui_draw)
   add_subdirectory(io gui_io)
   add_subdirectory(ctrl gui_ctrl)
-  add_subdirectory(look gui_look)
+  add_subdirectory(ctrl/look gui_look)
   add_subdirectory(app gui_app)
 
   message(STATUS "gui GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")

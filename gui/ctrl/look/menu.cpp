@@ -27,7 +27,7 @@
 #include <gui/draw/pen.h>
 #include <gui/draw/font.h>
 #include <gui/draw/bitmap.h>
-#include <gui/look/menu.h>
+#include <gui/ctrl/look/menu.h>
 
 
 using namespace gui::win;

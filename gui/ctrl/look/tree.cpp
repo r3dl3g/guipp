@@ -25,16 +25,16 @@
 #include <gui/draw/brush.h>
 #include <gui/draw/font.h>
 #include <gui/io/pnm.h>
-#include <gui/look/tree.h>
+#include <gui/ctrl/look/tree.h>
 
 
 namespace gui {
 
   namespace image_data {
 
-#include <gui/look/res/file_icon.h>
-#include <gui/look/res/close_folder_icon.h>
-#include <gui/look/res/open_folder_icon.h>
+#include <gui/ctrl/look/res/file_icon.h>
+#include <gui/ctrl/look/res/close_folder_icon.h>
+#include <gui/ctrl/look/res/open_folder_icon.h>
 
   } // image_data
 

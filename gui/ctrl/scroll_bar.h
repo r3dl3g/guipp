@@ -25,7 +25,7 @@
 #include <gui/core/orientation_traits.h>
 #include <gui/ctrl/control.h>
 #include <gui/ctrl/scrollbar_item.h>
-#include <gui/look/scroll_bar.h>
+#include <gui/ctrl/look/scroll_bar.h>
 
 
 namespace gui {

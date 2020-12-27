@@ -22,12 +22,10 @@
 //
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
-#include <gui/draw/bitmap.h>
 #include <gui/draw/brush.h>
 #include <gui/draw/font.h>
-#include <gui/draw/text_origin.h>
 #include <gui/ctrl/item_state.h>
-#include <gui/look/control.h>
+#include <gui/ctrl/look/control.h>
 
 
 namespace gui {

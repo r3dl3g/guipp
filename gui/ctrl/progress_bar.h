@@ -22,7 +22,7 @@
 //
 // Library includes
 //
-#include <gui/look/progress_bar.h>
+#include <gui/ctrl/look/progress_bar.h>
 #include <gui/ctrl/label.h>
 
 

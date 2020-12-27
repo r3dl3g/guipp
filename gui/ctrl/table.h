@@ -27,7 +27,7 @@
 #include <gui/ctrl/scroll_bar.h>
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/edit.h>
-#include <gui/look/table.h>
+#include <gui/ctrl/look/table.h>
 
 
 namespace gui {

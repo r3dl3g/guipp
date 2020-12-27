@@ -26,7 +26,7 @@
 #include <gui/ctrl/list.h>
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/button.h>
-#include <gui/look/drop_down.h>
+#include <gui/ctrl/look/drop_down.h>
 
 
 namespace gui {

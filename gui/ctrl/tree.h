@@ -28,8 +28,8 @@
 //
 // Library includes
 //
-#include <gui/look/tree.h>
 #include <gui/ctrl/list.h>
+#include <gui/ctrl/look/tree.h>
 
 
 namespace gui {

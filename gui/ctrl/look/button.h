@@ -25,7 +25,7 @@
 #include <gui/core/core_fwd.h>
 #include <gui/core/color.h>
 #include <gui/draw/draw_fwd.h>
-#include <gui/look/button_state.h>
+#include <gui/ctrl/button_state.h>
 
 
 namespace gui {

@@ -26,7 +26,6 @@
 // Library includes
 //
 #include <gui/ctrl/button.h>
-#include <gui/look/button.h>
 
 
 namespace gui {

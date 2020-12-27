@@ -20,7 +20,7 @@
 //
 // Library includes
 //
-#include <gui/look/progress_bar.h>
+#include <gui/ctrl/look/progress_bar.h>
 #include <gui/draw/drawers.h>
 #include <gui/draw/graphics.h>
 #include <gui/draw/pen.h>

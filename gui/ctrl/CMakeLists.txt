@@ -8,7 +8,7 @@ if(NOT TARGET gui++-ctrl-obj)
 
   add_subdirectory(../win gui_win)
   add_subdirectory(../io gui_io)
-  add_subdirectory(../look gui_look)
+  add_subdirectory(look gui_look)
 
   set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
   set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} PARENT_SCOPE)

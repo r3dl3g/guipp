@@ -29,7 +29,7 @@
 #include <gui/draw/drawers.h>
 #include <gui/draw/brush.h>
 #include <gui/draw/font.h>
-#include <gui/look/table.h>
+#include <gui/ctrl/look/table.h>
 
 
 namespace gui {

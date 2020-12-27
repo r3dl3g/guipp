@@ -31,7 +31,7 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/brush.h>
 #include <gui/draw/pen.h>
-#include <gui/look/edit.h>
+#include <gui/ctrl/look/edit.h>
 
 
 //#define SHOW_TEXT_AREA

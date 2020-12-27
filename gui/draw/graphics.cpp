@@ -128,7 +128,7 @@ namespace gui {
       ref_gc = false;
     }
 
-    void graphics::operator= (const graphics& rhs) {
+    graphics& graphics::operator= (const graphics& rhs) {
       if (&rhs != this) {
         destroy();
         target = rhs.target;
@@ -142,6 +142,7 @@ namespace gui {
           gc = rhs.gc;
         }
       }
+      return *this;
     }
 
     const graphics& graphics::draw_pixel (const core::native_point& pt,
@@ -154,7 +155,7 @@ namespace gui {
       return GetPixel(gc, pt.x(), pt.y());
     }
 
-    const graphics& graphics::draw_lines (std::vector<core::point> points,
+    const graphics& graphics::draw_lines (const std::vector<core::point>& points,
                                           const pen& p) const {
       Use<pen> pn(gc, p);
       const auto off = p.os_size() / 2;

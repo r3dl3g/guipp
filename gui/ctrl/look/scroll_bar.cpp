@@ -46,17 +46,18 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void scrollbar (const draw::graphics &g,
-                    ctrl::scrollbar_item select,
-                    ctrl::scrollbar_item hilite,
-                    bool is_enabled,
-                    bool horizontal,
-                    bool is_focused,
-                    const core::rectangle& up,
-                    const core::rectangle& down,
-                    const core::rectangle& thumb,
-                    const core::rectangle& page_up,
-                    const core::rectangle& page_down) {
+    template<>
+    void scrollbar<look_and_feel_t::metal> (const draw::graphics &g,
+                                            ctrl::scrollbar_item select,
+                                            ctrl::scrollbar_item hilite,
+                                            bool is_enabled,
+                                            bool horizontal,
+                                            bool is_focused,
+                                            const core::rectangle& up,
+                                            const core::rectangle& down,
+                                            const core::rectangle& thumb,
+                                            const core::rectangle& page_up,
+                                            const core::rectangle& page_down) {
       if (!page_up.empty()) {
         g.fill(draw::rectangle(page_up),
                select == ctrl::scrollbar_item::page_up ? color::light_gray
@@ -98,17 +99,18 @@ namespace gui {
       }
     }
 
-    void scrollbar_w95 (const draw::graphics &g,
-                        ctrl::scrollbar_item select,
-                        ctrl::scrollbar_item hilite,
-                        bool is_enabled,
-                        bool horizontal,
-                        bool is_focused,
-                        const core::rectangle& up,
-                        const core::rectangle& down,
-                        const core::rectangle& thumb,
-                        const core::rectangle& page_up,
-                        const core::rectangle& page_down) {
+    template<>
+    void scrollbar<look_and_feel_t::w95> (const draw::graphics &g,
+                                          ctrl::scrollbar_item select,
+                                          ctrl::scrollbar_item hilite,
+                                          bool is_enabled,
+                                          bool horizontal,
+                                          bool is_focused,
+                                          const core::rectangle& up,
+                                          const core::rectangle& down,
+                                          const core::rectangle& thumb,
+                                          const core::rectangle& page_up,
+                                          const core::rectangle& page_down) {
       if (!page_up.empty()) {
         g.fill(draw::rectangle(page_up),
                select == ctrl::scrollbar_item::page_up ? color::light_gray
@@ -121,7 +123,7 @@ namespace gui {
       }
       os::color col = is_enabled ? color::black : color::gray;
       if (!up.empty()) {
-        look::button_frame_w95(g, up, true, false, ctrl::scrollbar_item::up_button == hilite, false);
+        look::button_frame<look_and_feel_t::w95>(g, up, true, false, ctrl::scrollbar_item::up_button == hilite, false);
         if (ctrl::scrollbar_item::up_button == select) {
           draw::frame::sunken_relief(g, up.shrinked(core::size::two));
         }
@@ -129,7 +131,7 @@ namespace gui {
         g.text(draw::text_box(s, up, text_origin_t::center), draw::font::system(), col);
       }
       if (!down.empty()) {
-        look::button_frame_w95(g, down, true, false, ctrl::scrollbar_item::down_button == hilite, false);
+        look::button_frame<look_and_feel_t::w95>(g, down, true, false, ctrl::scrollbar_item::down_button == hilite, false);
         if (ctrl::scrollbar_item::down_button == select) {
           draw::frame::sunken_relief(g, down.shrinked(core::size::two));
         }
@@ -137,7 +139,7 @@ namespace gui {
         g.text(draw::text_box(s, down, text_origin_t::center), draw::font::system(), col);
       }
       if (!thumb.empty()) {
-        look::button_frame_w95(g, thumb, true, false, ctrl::scrollbar_item::thumb_button == hilite, false);
+        look::button_frame<look_and_feel_t::w95>(g, thumb, true, false, ctrl::scrollbar_item::thumb_button == hilite, false);
         if (ctrl::scrollbar_item::thumb_button == select) {
           draw::frame::sunken_relief(g, thumb.shrinked(core::size::two));
         }

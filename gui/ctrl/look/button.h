@@ -26,24 +26,40 @@
 #include <gui/core/color.h>
 #include <gui/draw/draw_fwd.h>
 #include <gui/ctrl/button_state.h>
+#include <gui/ctrl/look/look_and_feel.h>
 
 
 namespace gui {
 
   // --------------------------------------------------------------------------
   namespace look {
-    GUIPP_LOOK_EXPORT void button_frame (const draw::graphics& graph,
-                                         const core::rectangle& r,
-                                         const ctrl::button_state::is& state);
 
-    GUIPP_LOOK_EXPORT void button_frame_w95 (const draw::graphics& graph,
-                                             const core::rectangle& r,
-                                             const ctrl::button_state::is& state);
-
-    GUIPP_LOOK_EXPORT void button_frame_w95 (const draw::graphics& graph,
+    template<look_and_feel_t L = system_look_and_feel>
+    void button_frame (const draw::graphics& graph,
                                              const core::rectangle& r,
                                              bool enabled, bool pushed,
                                              bool hilited, bool focused);
+
+    template<>
+    GUIPP_LOOK_EXPORT void button_frame<look_and_feel_t::metal> (const draw::graphics& graph,
+                                                                 const core::rectangle& r,
+                                                                 bool enabled, bool pushed,
+                                                                 bool hilited, bool focused);
+
+    template<>
+    GUIPP_LOOK_EXPORT void button_frame<look_and_feel_t::w95> (const draw::graphics& graph,
+                                                               const core::rectangle& r,
+                                                               bool enabled, bool pushed,
+                                                               bool hilited, bool focused);
+
+    template<look_and_feel_t L = system_look_and_feel>
+    inline void button_frame (const draw::graphics& graph,
+                              const core::rectangle& r,
+                              const ctrl::button_state::is& state) {
+      button_frame<L>(graph, r,
+                      state.enabled(), state.pushed(),
+                      state.hilited(), state.focused());
+    }
 
     GUIPP_LOOK_EXPORT void simple_frame (const draw::graphics& graph,
                                          const core::rectangle& r,

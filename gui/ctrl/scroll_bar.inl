@@ -199,6 +199,22 @@ namespace gui {
       }
     }
 
+    template<orientation_t H>
+    void basic_scroll_bar<H>::handle_paint (const draw::graphics& g) {
+      auto geo = get_geometry();
+      look::scrollbar<>(g,
+                        super::get_selection(),
+                        super::get_hilite(),
+                        super::is_enabled(),
+                        H == orientation_t::horizontal,
+                        super::is_focused(),
+                        up_button_place(geo),
+                        down_button_place(geo),
+                        thumb_button_place(geo),
+                        page_up_place(geo),
+                        page_down_place(geo));
+    }
+
     // --------------------------------------------------------------------------
     template<>
     GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation_t::vertical>::init ();
@@ -260,43 +276,6 @@ namespace gui {
     template<>
     inline core::point basic_scroll_bar<orientation_t::vertical>::build_pos (type pos, type other) {
       return core::point(other, pos);
-    }
-
-    // --------------------------------------------------------------------------
-    template<orientation_t H, scrollbar_drawer D>
-    scroll_bar_base<H, D>::scroll_bar_base (bool grab_focus)
-      : super(grab_focus)
-    {
-      init();
-    }
-
-    template<orientation_t H, scrollbar_drawer D>
-    scroll_bar_base<H, D>::scroll_bar_base (const scroll_bar_base& rhs)
-      : super(rhs)
-    {
-      init();
-    }
-
-    template<orientation_t H, scrollbar_drawer D>
-    scroll_bar_base<H, D>::scroll_bar_base (scroll_bar_base&& rhs) noexcept
-      : super(std::move(rhs))
-    {
-      init();
-    }
-
-    // --------------------------------------------------------------------------
-    template<orientation_t H, scrollbar_drawer D>
-    void scroll_bar_base<H, D>::handle_paint (const draw::graphics& g) {
-      auto geo = super::get_geometry();
-      D(g, super::get_selection(), super::get_hilite(), super::is_enabled(), H == orientation_t::horizontal, super::is_focused(),
-        super::up_button_place(geo), super::down_button_place(geo),
-        super::thumb_button_place(geo), super::page_up_place(geo), super::page_down_place(geo));
-    }
-
-    // --------------------------------------------------------------------------
-    template<orientation_t H, scrollbar_drawer D>
-    void scroll_bar_base<H, D>::init () {
-      super::on_paint(draw::paint(this, &scroll_bar_base::handle_paint));
     }
 
     // --------------------------------------------------------------------------

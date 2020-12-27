@@ -203,6 +203,7 @@ namespace gui {
       void handle_left_btn_up (os::key_state, const core::point&);
       void handle_mouse_move (os::key_state, const core::point&);
       void handle_any_key_up (os::key_state, os::key_symbol key);
+      void handle_paint (const draw::graphics&);
 
     protected:
       struct geometry {
@@ -246,29 +247,8 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<orientation_t H,
-#if defined(BUILD_FOR_ARM) || defined(GUIPP_BUILD_FOR_MOBILE)
-             scrollbar_drawer D = look::scrollbar_w95>
-#else
-             scrollbar_drawer D = look::scrollbar>
-#endif
-    class scroll_bar_base : public basic_scroll_bar<H> {
-    public:
-      typedef basic_scroll_bar<H> super;
-
-      explicit scroll_bar_base (bool grab_focus = true);
-      scroll_bar_base (const scroll_bar_base& rhs);
-      scroll_bar_base (scroll_bar_base&& rhs) noexcept ;
-
-      void handle_paint (const draw::graphics&);
-
-    private:
-      void init ();
-    };
-
-    // --------------------------------------------------------------------------
-    using vertical_scroll_bar = scroll_bar_base<orientation_t::vertical>;
-    using horizontal_scroll_bar = scroll_bar_base<orientation_t::horizontal>;
+    using vertical_scroll_bar = basic_scroll_bar<orientation_t::vertical>;
+    using horizontal_scroll_bar = basic_scroll_bar<orientation_t::horizontal>;
 
   } // ctrl
 

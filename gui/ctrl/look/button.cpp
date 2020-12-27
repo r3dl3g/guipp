@@ -124,29 +124,10 @@ namespace gui {
     const draw::pen::Style dot_line_style = draw::pen::Style::dot;
 
     // --------------------------------------------------------------------------
-    void simple_frame (const draw::graphics& graph,
-                       const core::rectangle& r,
-                       bool hilite,
-                       uint32_t horizontal,
-                       uint32_t vertical) {
-      graph.copy(draw::frame_image(r, hilite ? detail::get_simple_frame().brightness(1.025F)
-                                             : detail::get_simple_frame(),
-                                   horizontal, vertical), r.top_left());
-    }
-
-    // --------------------------------------------------------------------------
-    void button_frame_w95 (const draw::graphics& graph,
-                           const core::rectangle& r,
-                           const ctrl::button_state::is& state) {
-      button_frame_w95(graph, r,
-                       state.enabled(), state.pushed(),
-                       state.hilited(), state.focused());
-    }
-
-    // --------------------------------------------------------------------------
-    void button_frame_w95 (const draw::graphics& graph,
-                           const core::rectangle& r,
-                           bool enabled, bool pushed, bool hilited, bool focused) {
+    template<>
+    void button_frame<look_and_feel_t::w95> (const draw::graphics& graph,
+                                             const core::rectangle& r,
+                                             bool enabled, bool pushed, bool hilited, bool focused) {
       core::rectangle area = r;
       graph.fill(draw::rectangle(area), enabled && hilited ? color::buttonHighLightColor() : color::buttonColor());
       if (enabled && focused) {
@@ -163,21 +144,20 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void button_frame (const draw::graphics& graph,
-                       const core::rectangle& r,
-                       const ctrl::button_state::is& state) {
-      bool enabled = state.enabled();
-      if (enabled && state.hilited()) {
+    template<>
+    void button_frame<look_and_feel_t::metal> (const draw::graphics& graph,
+                                               const core::rectangle& r,
+                                               bool enabled, bool pushed, bool hilited, bool focused) {
+      if (enabled && hilited) {
         graph.copy(draw::frame_image(r, detail::get_button_frame<false, false>().brightness(1.025F), 4), r.top_left());
       } else {
         graph.copy(draw::frame_image(r, detail::get_button_frame<false, false>(), 4), r.top_left());
       }
-      bool pushed = state.pushed();
       if (pushed) {
         draw::frame::sunken_relief(graph, r.shrinked(core::size::two));
       }
 
-      if (enabled && state.focused() && !pushed) {
+      if (enabled && focused && !pushed) {
         core::rectangle area = r;
         area.shrink({2, 2});
         graph.frame(draw::rectangle(area), draw::pen(color::very_light_blue, 2, draw::pen::Style::solid));
@@ -185,18 +165,14 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void push_button (const draw::graphics& graph,
-                      const core::rectangle& r,
-                      const std::string& text,
-                      const ctrl::button_state::is& state) {
-#if defined(BUILD_FOR_ARM) || defined(GUIPP_BUILD_FOR_MOBILE)
-      button_frame_w95(graph, r, state);
-#else
-      button_frame(graph, r, state);
-#endif
-      using namespace draw;
-      graph.text(text_box(text, r, text_origin_t::center), font::system(),
-                 state.enabled() ? color::windowTextColor() : color::disabledTextColor());
+    void simple_frame (const draw::graphics& graph,
+                       const core::rectangle& r,
+                       bool hilite,
+                       uint32_t horizontal,
+                       uint32_t vertical) {
+      graph.copy(draw::frame_image(r, hilite ? detail::get_simple_frame().brightness(1.025F)
+                                             : detail::get_simple_frame(),
+                                   horizontal, vertical), r.top_left());
     }
 
     // --------------------------------------------------------------------------
@@ -235,6 +211,17 @@ namespace gui {
       if (enabled && state.focused()) {
         g.frame(draw::rectangle(r), draw::pen(f, dot_line_width, dot_line_style));
       }
+    }
+
+    // --------------------------------------------------------------------------
+    void push_button (const draw::graphics& graph,
+                      const core::rectangle& r,
+                      const std::string& text,
+                      const ctrl::button_state::is& state) {
+      button_frame<>(graph, r, state);
+      using namespace draw;
+      graph.text(text_box(text, r, text_origin_t::center), font::system(),
+                 state.enabled() ? color::windowTextColor() : color::disabledTextColor());
     }
 
     // --------------------------------------------------------------------------

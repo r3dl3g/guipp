@@ -24,8 +24,8 @@
 //
 #include <gui/core/core_fwd.h>
 #include <gui/core/color.h>
+#include <gui/core/button_state.h>
 #include <gui/draw/draw_fwd.h>
-#include <gui/ctrl/button_state.h>
 #include <gui/ctrl/look/look_and_feel.h>
 #include <gui++-look-export.h>
 
@@ -56,7 +56,7 @@ namespace gui {
     template<look_and_feel_t L = system_look_and_feel>
     inline void button_frame (const draw::graphics& graph,
                               const core::rectangle& r,
-                              const ctrl::button_state::is& state) {
+                              const core::button_state::is& state) {
       button_frame<L>(graph, r,
                       state.enabled(), state.pushed(),
                       state.hilited(), state.focused());
@@ -71,7 +71,7 @@ namespace gui {
     GUIPP_LOOK_EXPORT void flat_button (const draw::graphics& g,
                                         const core::rectangle& r,
                                         const std::string& text,
-                                        const ctrl::button_state::is& state,
+                                        const core::button_state::is& state,
                                         os::color foreground = color::white,
                                         os::color background = color::dark_gray);
 
@@ -79,40 +79,40 @@ namespace gui {
     void color_flat_button (const draw::graphics& g,
                             const core::rectangle& r,
                             const std::string& text,
-                            const ctrl::button_state::is& state) {
+                            const core::button_state::is& state) {
       flat_button(g, r, text, state, foreground, background);
     }
 
     GUIPP_LOOK_EXPORT void push_button (const draw::graphics& graph,
                                         const core::rectangle& r,
                                         const std::string& text,
-                                        const ctrl::button_state::is& state);
+                                        const core::button_state::is& state);
 
     GUIPP_LOOK_EXPORT void radio_button (const draw::graphics& graph,
                                          const core::rectangle& area,
                                          const std::string& text,
-                                         const ctrl::button_state::is& state);
+                                         const core::button_state::is& state);
 
     GUIPP_LOOK_EXPORT void check_box (const draw::graphics& graph,
                                       const core::rectangle& area,
                                       const std::string& text,
-                                      const ctrl::button_state::is& state);
+                                      const core::button_state::is& state);
 
     GUIPP_LOOK_EXPORT void switch_button (const draw::graphics& graph,
                                           const core::rectangle& rect,
                                           const std::string& text,
-                                          const ctrl::button_state::is& state);
+                                          const core::button_state::is& state);
 
     GUIPP_LOOK_EXPORT void animated_switch_button (const draw::graphics& graph,
                                                    const core::rectangle& rect,
                                                    const std::string& text,
-                                                   const ctrl::button_state::is& state,
+                                                   const core::button_state::is& state,
                                                    float animation_step = 1.0F);
 
     GUIPP_LOOK_EXPORT void tab_button (const draw::graphics& g,
                                        const core::rectangle& r,
                                        const std::string& text,
-                                       const ctrl::button_state::is& state,
+                                       const core::button_state::is& state,
                                        os::color foreground,
                                        alignment_t a);
 
@@ -120,7 +120,7 @@ namespace gui {
     void aligned_tab_button (const draw::graphics& g,
                              const core::rectangle& r,
                              const std::string& text,
-                             const ctrl::button_state::is& state) {
+                             const core::button_state::is& state) {
       tab_button(g, r, text, state, foreground, align);
     }
 

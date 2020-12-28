@@ -22,21 +22,20 @@
 //
 // Library includes
 //
-#include <gui/win/window_state.h>
-#include <gui++-ctrl-export.h>
+#include <gui/core/window_state.h>
 
 
 namespace gui {
 
-  namespace ctrl {
+  namespace core {
 
      // --------------------------------------------------------------------------
-    struct GUIPP_CTRL_EXPORT button_state : public win::window_state {
+    struct GUIPP_CORE_EXPORT button_state : public window_state {
       typedef window_state super;
 
-      struct GUIPP_CTRL_EXPORT is : public super::is {
+      struct GUIPP_CORE_EXPORT is : public super::is {
 
-        explicit is (const win::state_type& state);
+        explicit is (const state_type& state);
 
         bool pushed () const;
         bool hilited () const;
@@ -44,9 +43,9 @@ namespace gui {
 
       };
 
-      struct GUIPP_CTRL_EXPORT set : public super::set  {
+      struct GUIPP_CORE_EXPORT set : public super::set  {
 
-        explicit set (win::state_type& state);
+        explicit set (state_type& state);
 
         bool hilited (bool b);
         bool pushed (bool b);
@@ -69,6 +68,6 @@ namespace gui {
 
     };
 
-  } // namespace ctrl
+  } // namespace core
 
 } // namespace gui

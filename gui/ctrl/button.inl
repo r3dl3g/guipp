@@ -38,12 +38,12 @@ namespace gui {
       super::create(clazz::get(), parent, place);
     }
 
-    inline button_state::is button_base::get_state () const {
-      return button_state::is(flags);
+    inline core::button_state::is button_base::get_state () const {
+      return core::button_state::is(flags);
     }
 
-    inline button_state::set button_base::set_state () {
-      return button_state::set(flags);
+    inline core::button_state::set button_base::set_state () {
+      return core::button_state::set(flags);
     }
 
     inline bool button_base::is_hilited () const {

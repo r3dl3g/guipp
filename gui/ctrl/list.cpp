@@ -53,7 +53,7 @@ namespace gui {
       }
 
       void list_base::init () {
-        list_state::set state = set_state();
+        auto state = set_state();
         state.moved(false);
         state.scroll_bar_enabled(true);
         bool grab_focus = get_state().grab_focus();

@@ -33,12 +33,12 @@ namespace gui {
       id = w;
     }
 
-    inline window_state::is window::get_state () const {
-      return window_state::is(flags);
+    inline core::window_state::is window::get_state () const {
+      return core::window_state::is(flags);
     }
 
-    inline window_state::set window::set_state () {
-      return window_state::set(flags);
+    inline core::window_state::set window::set_state () {
+      return core::window_state::set(flags);
     }
 
     inline void window::set_disable_redraw (bool on) {

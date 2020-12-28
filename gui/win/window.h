@@ -22,9 +22,9 @@
 //
 // Library includes
 //
-#include <gui/core/event_container.h>
 #include <gui/core/gui_types.h>
-#include <gui/win/window_state.h>
+#include <gui/core/event_container.h>
+#include <gui/core/window_state.h>
 #include <gui/win/window_class.h>
 #include <gui/win/window_event_handler.h>
 
@@ -78,8 +78,8 @@ namespace gui {
       bool is_toplevel () const;
       bool has_border () const;
 
-      window_state::is get_state () const;
-      window_state::set set_state ();
+      core::window_state::is get_state () const;
+      core::window_state::set set_state ();
 
       bool is_visible () const;
       void set_visible (bool s = true);
@@ -247,7 +247,7 @@ namespace gui {
       core::event_container events;
 
     protected:
-      state_type flags;
+      gui::core::state_type flags;
     };
 
     // --------------------------------------------------------------------------

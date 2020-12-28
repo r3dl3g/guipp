@@ -1054,7 +1054,7 @@ void my_main_window::created_children () {
 
   custom_button.set_drawer([] (const draw::graphics& g,
                                const core::rectangle& r,
-                               const ctrl::button_state::is& s) {
+                               const core::button_state::is& s) {
     gui::look::flat_button(g, r, "Custom", s);
   });
 

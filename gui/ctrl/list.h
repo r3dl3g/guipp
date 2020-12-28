@@ -22,15 +22,15 @@
 //
 // Library includes
 //
+#include <util/string_util.h>
+#include <gui/core/orientation_traits.h>
+#include <gui/core/list_state.h>
+#include <gui/draw/brush.h>
 #include <gui/win/window_event_handler.h>
 #include <gui/ctrl/scroll_bar.h>
 #include <gui/ctrl/edit.h>
-#include <gui/ctrl/list_state.h>
-#include <gui/draw/brush.h>
 #include <gui/ctrl/look/control.h>
 
-#include <util/string_util.h>
-#include <gui/core/orientation_traits.h>
 
 namespace gui {
 
@@ -213,8 +213,8 @@ namespace gui {
                    bool grab_focus = true);
         list_base (list_base&&) noexcept ;
 
-        list_state::is get_state() const;
-        list_state::set set_state();
+        core::list_state::is get_state() const;
+        core::list_state::set set_state();
 
         std::size_t get_count () const;
         int get_selection () const;

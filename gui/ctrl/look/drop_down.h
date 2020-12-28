@@ -31,7 +31,7 @@
 #include <gui/core/core_fwd.h>
 #include <gui/draw/draw_fwd.h>
 #include <gui/ctrl/item_state.h>
-#include <gui/ctrl/button_state.h>
+#include <gui/core/button_state.h>
 #include <gui++-look-export.h>
 
 
@@ -55,7 +55,7 @@ namespace gui {
 
     GUIPP_LOOK_EXPORT void drop_down_button (const draw::graphics& graph,
                                              const core::rectangle& r,
-                                             const ctrl::button_state::is& state,
+                                             const core::button_state::is& state,
                                              bool is_open);
 
   } // look

@@ -20,12 +20,12 @@
 //
 // Library includes
 //
-#include <gui/win/window.h>
+#include <gui/core/window_state.h>
 
 
 namespace gui {
 
-  namespace win {
+  namespace core {
 
     // --------------------------------------------------------------------------
     window_state::is::is (const state_type& state)
@@ -97,6 +97,6 @@ namespace gui {
       return set_flag(flags::window_disabled, !on);
     }
 
-  } // namespace win
+  } // namespace core
 
 } // namespace gui

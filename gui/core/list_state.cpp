@@ -11,7 +11,7 @@
  *
  * Customer   -
  *
- * @brief     C++ API: button state
+ * @brief     C++ API: list
  *
  * @file
  */
@@ -20,46 +20,47 @@
 //
 // Library includes
 //
-#include <gui/ctrl/button_state.h>
+#include <gui/core/list_state.h>
+
 
 namespace gui {
 
-  namespace ctrl {
+  namespace core {
 
     // --------------------------------------------------------------------------
-    button_state::is::is (const win::state_type& state)
+    list_state::is::is (const state_type& state)
       : super::is(state)
     {}
 
-    bool button_state::is::hilited () const {
-      return test(flags::button_hilited);
+    bool list_state::is::moved () const {
+      return test(flags::mouse_moved);
     }
 
-    bool button_state::is::pushed () const {
-      return test(flags::button_pushed);
+    bool list_state::is::scroll_bar_enabled () const {
+      return test(flags::scroll_bar_enabled);
     }
 
-    bool button_state::is::checked () const {
-      return test(flags::button_checked);
+    bool list_state::is::grab_focus () const {
+      return test(flags::grab_focus);
     }
 
     // --------------------------------------------------------------------------
-    button_state::set::set (win::state_type& state)
+    list_state::set::set (state_type& state)
       : super::set(state)
     {}
 
-    bool button_state::set::hilited (bool h) {
-      return set_flag(flags::button_hilited, h);
+    bool list_state::set::moved (bool h) {
+      return set_flag(flags::mouse_moved, h);
     }
 
-    bool button_state::set::pushed (bool h) {
-      return set_flag(flags::button_pushed, h);
+    bool list_state::set::scroll_bar_enabled (bool h) {
+      return set_flag(flags::scroll_bar_enabled, h);
     }
 
-    bool button_state::set::checked (bool f) {
-      return set_flag(flags::button_checked, f);
+    bool list_state::set::grab_focus (bool f) {
+      return set_flag(flags::grab_focus, f);
     }
 
-  } // ctrl
+  } // namespace core
 
-} // gui
+} // namespace gui

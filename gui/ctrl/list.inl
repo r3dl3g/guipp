@@ -26,12 +26,12 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      inline list_state::is list_base::get_state () const {
-        return list_state::is(flags);
+      inline core::list_state::is list_base::get_state () const {
+        return core::list_state::is(flags);
       }
 
-      inline list_state::set list_base::set_state () {
-        return list_state::set(flags);
+      inline core::list_state::set list_base::set_state () {
+        return core::list_state::set(flags);
       }
 
       inline std::size_t list_base::get_count () const {

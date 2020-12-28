@@ -29,18 +29,17 @@
 //
 // Library includes
 //
-#include <gui++-win-export.h>
+#include <gui++-core-export.h>
 
 
 namespace gui {
 
   // --------------------------------------------------------------------------
-  namespace win {
+  namespace core {
 
     typedef std::bitset<sizeof(unsigned long) * 8> state_type;
-
     // --------------------------------------------------------------------------
-    struct GUIPP_WIN_EXPORT window_state {
+    struct GUIPP_CORE_EXPORT window_state {
     protected:
       struct flags {
         enum {
@@ -55,7 +54,7 @@ namespace gui {
       };
 
     public:
-      struct GUIPP_WIN_EXPORT is {
+      struct GUIPP_CORE_EXPORT is {
 
         explicit is (const state_type& state);
 
@@ -73,7 +72,7 @@ namespace gui {
         const state_type& state;
       };
 
-      struct GUIPP_WIN_EXPORT set {
+      struct GUIPP_CORE_EXPORT set {
 
         explicit set (state_type& state);
 
@@ -98,6 +97,6 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-  } // namespace win
+  } // namespace core
 
 } // namespace gui

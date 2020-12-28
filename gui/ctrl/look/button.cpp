@@ -179,7 +179,7 @@ namespace gui {
     void flat_button (const draw::graphics& g,
                       const core::rectangle& r,
                       const std::string& text,
-                      const ctrl::button_state::is& state,
+                      const core::button_state::is& state,
                       os::color foreground,
                       os::color background) {
       bool enabled = state.enabled();
@@ -217,7 +217,7 @@ namespace gui {
     void push_button (const draw::graphics& graph,
                       const core::rectangle& r,
                       const std::string& text,
-                      const ctrl::button_state::is& state) {
+                      const core::button_state::is& state) {
       button_frame<>(graph, r, state);
       using namespace draw;
       graph.text(text_box(text, r, text_origin_t::center), font::system(),
@@ -228,7 +228,7 @@ namespace gui {
     void tab_button (const draw::graphics& g,
                      const core::rectangle& r,
                      const std::string& text,
-                     const ctrl::button_state::is& state,
+                     const core::button_state::is& state,
                      os::color foreground,
                      alignment_t a) {
       if (state.checked()) {
@@ -269,7 +269,7 @@ namespace gui {
     void switch_button (const draw::graphics& graph,
                         const core::rectangle& rect,
                         const std::string& text,
-                        const ctrl::button_state::is& state) {
+                        const core::button_state::is& state) {
       animated_switch_button(graph, rect, text, state);
     }
 
@@ -277,7 +277,7 @@ namespace gui {
     void animated_switch_button (const draw::graphics& graph,
                                  const core::rectangle& rect,
                                  const std::string& text,
-                                 const ctrl::button_state::is& state,
+                                 const core::button_state::is& state,
                                  float animation_step) {
       bool enabled = state.enabled();
       core::size::type height = rect.height();
@@ -307,7 +307,7 @@ namespace gui {
     void radio_button (const draw::graphics& graph,
                        const core::rectangle& rec,
                        const std::string& text,
-                       const ctrl::button_state::is& state) {
+                       const core::button_state::is& state) {
       using namespace draw;
 
       core::rectangle area = rec;
@@ -336,7 +336,7 @@ namespace gui {
     void check_box (const draw::graphics& graph,
                     const core::rectangle& rec,
                     const std::string& text,
-                    const ctrl::button_state::is& state) {
+                    const core::button_state::is& state) {
       using namespace draw;
 
       core::rectangle area = rec;

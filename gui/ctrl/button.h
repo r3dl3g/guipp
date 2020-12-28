@@ -79,22 +79,22 @@ namespace gui {
     // --------------------------------------------------------------------------
     typedef void (button_drawer) (const draw::graphics&,
                                   const core::rectangle&,
-                                  const button_state::is&);
+                                  const core::button_state::is&);
     // --------------------------------------------------------------------------
     typedef void (text_button_drawer) (const draw::graphics&,
                                        const core::rectangle&,
                                        const std::string&,
-                                       const button_state::is&);
+                                       const core::button_state::is&);
     // --------------------------------------------------------------------------
     typedef void (animated_button_drawer) (const draw::graphics&,
                                            const core::rectangle&,
-                                           const button_state::is&,
+                                           const core::button_state::is&,
                                            float); // animation_step
     // --------------------------------------------------------------------------
     typedef void (animated_text_button_drawer) (const draw::graphics&,
                                                 const core::rectangle&,
                                                 const std::string&,
-                                                const button_state::is&,
+                                                const core::button_state::is&,
                                                 float); // animation_step
 
     // --------------------------------------------------------------------------
@@ -110,8 +110,8 @@ namespace gui {
       void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
-      button_state::is get_state () const;
-      button_state::set set_state ();
+      core::button_state::is get_state () const;
+      core::button_state::set set_state ();
 
       bool is_hilited () const;
       bool is_pushed () const;
@@ -135,14 +135,14 @@ namespace gui {
       void draw (const draw::graphics& g,
                  const core::rectangle& r,
                  const std::string& t,
-                 const button_state::is& s) {
+                 const core::button_state::is& s) {
         D(g, r, t, s);
       }
 
       template<button_drawer& D>
       void draw (const draw::graphics& g,
                  const core::rectangle& r,
-                 const button_state::is& s) {
+                 const core::button_state::is& s) {
         D(g, r, s);
       }
     };
@@ -156,14 +156,14 @@ namespace gui {
       void draw (const draw::graphics& g,
                  const core::rectangle& r,
                  const std::string& t,
-                 const button_state::is& s) {
+                 const core::button_state::is& s) {
         D(g, r, t, s);
       }
 
       template<button_drawer& D>
       void draw (const draw::graphics& g,
                  const core::rectangle& r,
-                 const button_state::is& s) {
+                 const core::button_state::is& s) {
         D(g, r, s);
       }
     };
@@ -178,14 +178,14 @@ namespace gui {
       void draw (const draw::graphics& g,
                  const core::rectangle& r,
                  const std::string& t,
-                 const button_state::is& s) {
+                 const core::button_state::is& s) {
         D(g, r, t, s, animation_step);
       }
 
       template<animated_button_drawer& D>
       void draw (const draw::graphics& g,
                  const core::rectangle& r,
-                 const button_state::is& s) {
+                 const core::button_state::is& s) {
         D(g, r, s, animation_step);
       }
 

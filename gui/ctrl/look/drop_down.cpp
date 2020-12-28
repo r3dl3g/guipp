@@ -55,7 +55,7 @@ namespace gui {
 
     void drop_down_button (const draw::graphics& graph,
                            const core::rectangle& area,
-                           const ctrl::button_state::is& state,
+                           const core::button_state::is& state,
                            bool is_open) {
 #ifdef BUILD_FOR_ARM
       look::button_frame_w95(graph, area, state);

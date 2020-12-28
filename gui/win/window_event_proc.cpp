@@ -319,16 +319,16 @@ namespace gui {
       void register_hot_key (const core::hot_key& hk, const core::hot_key::call& fn, window* win) {
 #ifdef GUIPP_WIN
         UINT modifiers = MOD_NOREPEAT;
-        if (control_key_bit_mask::is_set(hk.get_modifiers())) {
+        if (core::control_key_bit_mask::is_set(hk.get_modifiers())) {
           modifiers |= MOD_CONTROL;
         }
-        if (alt_key_bit_mask::is_set(hk.get_modifiers())) {
+        if (core::alt_key_bit_mask::is_set(hk.get_modifiers())) {
           modifiers |= MOD_ALT;
         }
-        if (system_key_bit_mask::is_set(hk.get_modifiers())) {
+        if (core::system_key_bit_mask::is_set(hk.get_modifiers())) {
           modifiers |= MOD_WIN;
         }
-        if (shift_key_bit_mask::is_set(hk.get_modifiers())) {
+        if (core::shift_key_bit_mask::is_set(hk.get_modifiers())) {
           modifiers |= MOD_SHIFT;
         }
         os::window root = win ? detail::get_window_id(*win) : NULL;

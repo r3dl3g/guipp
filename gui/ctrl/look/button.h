@@ -27,6 +27,7 @@
 #include <gui/draw/draw_fwd.h>
 #include <gui/ctrl/button_state.h>
 #include <gui/ctrl/look/look_and_feel.h>
+#include <gui++-look-export.h>
 
 
 namespace gui {

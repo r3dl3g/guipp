@@ -33,7 +33,7 @@
 
 
 #ifdef GUIPP_WIN
-# include <gui/win/keys_win32.h>
+# include <gui/core/keys_win32.h>
 #elif GUIPP_X11
 # include <gui/core/keys_x11.h>
 #elif GUIPP_QT

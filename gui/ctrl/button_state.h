@@ -23,7 +23,7 @@
 // Library includes
 //
 #include <gui/win/window_state.h>
-#include <gui++-look-export.h>
+#include <gui++-ctrl-export.h>
 
 
 namespace gui {
@@ -31,10 +31,10 @@ namespace gui {
   namespace ctrl {
 
      // --------------------------------------------------------------------------
-    struct GUIPP_LOOK_EXPORT button_state : public win::window_state {
+    struct GUIPP_CTRL_EXPORT button_state : public win::window_state {
       typedef window_state super;
 
-      struct GUIPP_LOOK_EXPORT is : public super::is {
+      struct GUIPP_CTRL_EXPORT is : public super::is {
 
         explicit is (const win::state_type& state);
 
@@ -44,7 +44,7 @@ namespace gui {
 
       };
 
-      struct GUIPP_LOOK_EXPORT set : public super::set  {
+      struct GUIPP_CTRL_EXPORT set : public super::set  {
 
         explicit set (win::state_type& state);
 

@@ -37,7 +37,7 @@
 #elif GUIPP_X11
 # include <gui/core/keys_x11.h>
 #elif GUIPP_QT
-# include <gui/win/keys_qt.h>
+# include <gui/core/keys_qt.h>
 #else
 # error Unknown target system
 #endif

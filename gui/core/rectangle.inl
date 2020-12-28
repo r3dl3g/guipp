@@ -432,7 +432,7 @@ namespace gui {
 
     template<typename T, typename S>
     inline auto basic_rectangle<T, S>::operator- (const point_t& pt) const -> self {
-      return {position() + pt, size()};
+      return {position() - size_t(pt.x(), pt.y()), size()};
     }
 
     template<typename T, typename S>

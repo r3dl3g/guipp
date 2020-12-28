@@ -190,7 +190,7 @@ namespace gui {
 
     template<orientation_t V>
     core::rectangle basic_tile_view<V>::get_full_place_of_index (int idx) {
-      const auto per_line = super::traits.get_items_per_line(super::content_size(super::client_size()));
+      const auto per_line = super::traits.get_items_per_line(super::content_size());
       const auto line = per_line > 0 ? static_cast<std::size_t>(idx) / per_line : 0;
       const auto offs = idx - (line * per_line);
 
@@ -205,7 +205,7 @@ namespace gui {
 
     template<orientation_t V>
     void basic_tile_view<V>::paint (const draw::graphics& graph) {
-      const auto list_size = super::content_size(super::client_size());
+      const auto list_size = super::content_size();
       const core::rectangle area(list_size);
 
       draw::brush back_brush(super::get_background());

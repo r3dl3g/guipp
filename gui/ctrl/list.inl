@@ -269,7 +269,7 @@ namespace gui {
 
     template<orientation_t V, typename T>
     inline auto basic_list<V, T>::get_list_size () const -> pos_t {
-      return traits.get_1(content_size(client_size()));
+      return traits.get_1(content_size());
     }
 
     template<orientation_t V, typename T>
@@ -279,6 +279,11 @@ namespace gui {
         traits.set_2(sz, traits.get_2(sz) - scroll_bar::get_scroll_bar_width());
       }
       return sz;
+    }
+
+    template<orientation_t V, typename T>
+    core::size basic_list<V, T>::content_size () const {
+      return content_size(client_size());
     }
 
     template<orientation_t V, typename T>
@@ -378,7 +383,7 @@ namespace gui {
     template<orientation_t V, typename T>
     core::rectangle basic_list<V, T>::get_place_of_index (int idx) {
       if (super::is_valid_idx(idx)) {
-        return traits.get_place_of_index(content_size(client_size()), idx, get_scroll_pos());
+        return traits.get_place_of_index(content_size(), idx, get_scroll_pos());
       }
       return core::rectangle::zero;
     }
@@ -408,7 +413,7 @@ namespace gui {
     template<orientation_t V, typename T>
     void basic_list<V, T>::make_selection_visible () {
       if (super::has_selection()) {
-        const auto list_size = content_size(client_size());
+        const auto list_size = content_size();
         const auto list_sz = traits.get_1(list_size);
         const auto scroll_pos = get_scroll_pos();
         const auto line_size = traits.get_line_size();
@@ -424,7 +429,7 @@ namespace gui {
 
     template<orientation_t V, typename T>
     void basic_list<V, T>::set_scroll_pos (pos_t pos) {
-      auto value = std::max(zero, std::min(pos, traits.get_invisible_size(content_size(client_size()), super::get_count())));
+      auto value = std::max(zero, std::min(pos, traits.get_invisible_size(content_size(), super::get_count())));
       if (value != scrollbar.get_value()) {
         scrollbar.set_value(value);
       }

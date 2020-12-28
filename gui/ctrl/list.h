@@ -321,6 +321,8 @@ namespace gui {
 
       core::size content_size (const core::size& client_sz, bool scrollbar_visible) const;
       core::size content_size (const core::size& client_sz) const;
+      core::size content_size () const;
+
       core::rectangle content_area (const core::size& sz) const;
 
       void adjust_scroll_bar ();

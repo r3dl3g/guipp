@@ -1425,26 +1425,28 @@ namespace gui {
     void arc::operator() (const graphics& g,
                           const brush& b,
                           const pen& p) const {
-//      if (radius < 10) {
+      const auto rad = core::global::scale_to_native<unsigned int>(radius);
+//      if (rad < 10) {
 //        QPen pen(os::brush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()), Qt::FlatCap, Qt::RoundJoin);
 //        QPainterPath path;
-//        const float step_angle = 180.0F / radius;
-//        path.moveTo(find_ellipse_coords(pos, start_angle, radius));
+//        const float step_angle = 180.0F / rad;
+//        path.moveTo(find_ellipse_coords(pos, start_angle, rad));
 //        for (float angle = start_angle + step_angle; angle < end_a; angle += step_angle) {
-//          path.lineTo(find_ellipse_coords(pos, std::min(angle, end_a), radius));
+//          path.lineTo(find_ellipse_coords(pos, std::min(angle, end_a), rad));
 //        }
 //        path.closeSubpath();
 //        g.os()->strokePath(path, pen);
 //      } else {
+
         Use<brush> br(g, b);
         Use<pen> pn(g, p);
 
         if ((end_angle - start_angle) == 360.0) {
-          QRectF rect(pos.os_x() - radius, pos.os_y() - radius, radius * 2, radius * 2);
+          QRectF rect(pos.os_x() - rad, pos.os_y() - rad, rad * 2, rad * 2);
           g.os()->drawEllipse(rect);
 //          g.os()->drawArc(rect, static_cast<int>(start_angle*16.0F), static_cast<int>((end_angle - start_angle)*16.0F));
         } else {
-          QRectF rect(pos.os_x() - radius, pos.os_y() - radius, radius * 2, radius * 2);
+          QRectF rect(pos.os_x() - rad, pos.os_y() - rad, rad * 2, rad * 2);
           g.os()->drawPie(rect, static_cast<int>(start_angle*16.0F), static_cast<int>((end_angle - start_angle)*16.0F));
         }
 //      }
@@ -1454,7 +1456,7 @@ namespace gui {
 //      QPen pen(os::brush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()),
 //                           Qt::FlatCap, Qt::RoundJoin);
 //      QPainterPath path;
-//      QRectF outer_rect(pos.os_x() - radius, pos.os_y() - radius, radius * 2 + 1, radius * 2 + 1);
+//      QRectF outer_rect(pos.os_x() - rad, pos.os_y() - rad, rad * 2 + 1, rad * 2 + 1);
 ////      QRectF inner_rect(pen.width(), pen.width(), width() - pen.width() * 2, height() - pen.width() * 2);
 //      path.arcMoveTo(outer_rect, start_angle);
 //      path.arcTo(outer_rect, start_angle, end_a - start_angle);

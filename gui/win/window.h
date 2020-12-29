@@ -95,9 +95,10 @@ namespace gui {
       bool is_redraw_disabled () const;
       void set_disable_redraw (bool on = true);
 
-      void shift_focus (bool backward = false) const;
+      void shift_focus (bool backward = false);
 
-      void take_focus () const;
+      void take_focus ();
+      void focus_lost ();
 
       void to_front ();
       void to_back ();
@@ -200,7 +201,7 @@ namespace gui {
       template<typename H>
       void unregister_event_handler (const typename H::function& f);
 
-      bool handle_event (const core::event&, gui::os::event_result&) const;
+      bool handle_event (const core::event&, gui::os::event_result&);
 
       void notify_event (os::message_type message, long l1 = 0, long l2 = 0);
 

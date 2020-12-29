@@ -228,7 +228,7 @@ namespace gui {
       std::set<std::pair<const window*, os::event_id>> active_handler;
     }
 
-    bool window::handle_event (const core::event& e, gui::os::event_result& result) const {
+    bool window::handle_event (const core::event& e, gui::os::event_result& result) {
       const auto keypair = std::make_pair(this, IF_QT_ELSE(e.type(), e.type));
       if (active_handler.find(keypair) != active_handler.end()) {
         clog::warn() << "already in handle_event for window: " << this << " " << e;
@@ -252,12 +252,16 @@ namespace gui {
       return res;
     }
 
-    void window::shift_focus (bool backward) const {
-      const container* parent = get_parent();
+    void window::shift_focus (bool backward) {
+      container* parent = get_parent();
       if (parent) {
-        parent->shift_focus(*this, backward);
+        parent->shift_focus(this, backward);
         invalidate();
       }
+    }
+
+    void window::focus_lost () {
+      set_state().focused(false);
     }
 
     bool window::can_accept_focus () const {
@@ -524,8 +528,9 @@ namespace gui {
       }
     }
 
-    void window::take_focus () const {
+    void window::take_focus () {
       if (is_valid()) {
+        set_state().focused(true);
         SetFocus(get_id());
         invalidate();
       }
@@ -923,7 +928,8 @@ namespace gui {
       }
     }
 
-    void window::take_focus () const {
+    void window::take_focus () {
+      set_state().focused(true);
       x11::check_return(XSetInputFocus(core::global::get_instance(), get_id(),
                                        RevertToParent, CurrentTime));
       invalidate();
@@ -1343,9 +1349,10 @@ namespace gui {
       }
     }
 
-    void window::take_focus () const {
+    void window::take_focus () {
       if (is_valid()) {
         auto win = get_id();
+        set_state().focused(true);
         win->setFocus();
         invalidate();
       }

@@ -281,7 +281,7 @@ namespace gui {
     }
 
     template<typename iterator>
-    bool iterate_focus (iterator begin, iterator end, const window* focus) {
+    bool iterate_focus (iterator begin, iterator end, window* focus) {
       const auto start = std::find(begin, end, focus);
       auto i = start;
       if (i != end) {
@@ -302,28 +302,29 @@ namespace gui {
       return false;
     }
 
-    void container::shift_focus (const window& focus, bool backward) const {
+    void container::shift_focus (window* focus, bool backward) {
+      focus->focus_lost();
       window_list_t children = get_children();
       if (!children.empty()) {
         if (backward) {
-          if (iterate_focus(children.rbegin(), children.rend(), &focus)) {
+          if (iterate_focus(children.rbegin(), children.rend(), focus)) {
             return;
           }
         } else {
-          if (iterate_focus(children.begin(), children.end(), &focus)) {
+          if (iterate_focus(children.begin(), children.end(), focus)) {
             return;
           }
         }
       }
       auto parent = get_parent();
       if (parent) {
-        parent->shift_focus(*this, backward);
+        parent->shift_focus(this, backward);
       } else {
         forward_focus(backward);
       }
     }
 
-    void container::forward_focus (bool backward) const {
+    void container::forward_focus (bool backward) {
       window::shift_focus(backward);
     }
 

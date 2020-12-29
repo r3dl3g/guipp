@@ -33,6 +33,7 @@
 //
 #include <gui/core/keys.h>
 #include <gui/core/rectangle.h>
+#include <gui/core/event.h>
 #include <gui++-win-export.h>
 
 

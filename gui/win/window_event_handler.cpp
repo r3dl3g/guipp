@@ -327,13 +327,13 @@ namespace gui {
       }
 
       namespace {
-        std::map<const window*, os::event_id> window_event_mask;
+        std::map<const receiver*, os::event_id> window_event_mask;
       }
 
-      void prepare_win_for_event (const window* win, os::event_id mask) {
-        os::window id = win ? detail::get_window_id(*win) : 0;
+      void prepare_win_for_event (const receiver* win, os::event_id mask) {
+        os::window id = win ? detail::get_window_id(*static_cast<const window*>(win)) : 0;
         if (id) {
-          auto i = window_event_mask.find(win);
+          auto i = window_event_mask.find(static_cast<const window*>(win));
           if (i != window_event_mask.end()) {
             i->second |= mask;
             XSelectInput(core::global::get_instance(), id, i->second);
@@ -347,8 +347,8 @@ namespace gui {
         }
       }
 
-      void unprepare_win (const window* win) {
-        window_event_mask.erase(win);
+      void unprepare_win (const receiver* win) {
+        window_event_mask.erase(static_cast<const window*>(win));
       }
 
     } // namespace x11

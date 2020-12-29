@@ -111,11 +111,107 @@ namespace gui {
         return 1;
       }
 
-    }
-
-    namespace x11 {
       bool check_return (int r);
       bool check_status (Status s);
+
+      // --------------------------------------------------------------------------
+      template<typename T>
+      void change_property (os::instance display, os::window id, const char* type, T value);
+
+      template<>
+      void change_property<const char*>(os::instance display, os::window id, const char* type, const char* value) {
+        Atom t = XInternAtom(display, type, False);
+        Atom v = XInternAtom(display, value, False);
+        XChangeProperty(display, id, t, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&v), 1);
+      }
+
+      template<>
+      void change_property<os::window>(os::instance display, os::window id, const char* type, os::window value) {
+        Atom t = XInternAtom(display, type, False);
+        XChangeProperty(display, id, t, XA_WINDOW, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
+      }
+
+      std::string get_property (os::instance display, os::window id, const char* name) {
+        Atom prop_name = XInternAtom(display, name, False);
+        Atom actual_type;
+        int actual_format;
+        unsigned long nitems, bytes_after;
+        unsigned char *data = 0;
+        std::string str;
+        if ((Success == XGetWindowProperty(display, id, prop_name, 0, 1024, false,
+                                           XA_ATOM, &actual_type, &actual_format,
+                                           &nitems, &bytes_after, &data))
+            && (nitems > 0)) {
+          if (actual_type == XA_ATOM) {
+            str = XGetAtomName(display, *(Atom*)data);
+          }
+          XFree(data);
+        }
+        return str;
+      }
+
+      void set_wm_protocols (os::instance display, os::window id) {
+        Atom protocols[] = {
+          core::x11::WM_TAKE_FOCUS,
+          core::x11::WM_DELETE_WINDOW,
+        };
+        XSetWMProtocols(display, id, protocols, 2);
+      }
+
+      bool query_net_wm_state (os::window id,
+                                 Atom a1,
+                                 Atom a2 = 0,
+                                 Atom a3 = 0) {
+        auto dpy = core::global::get_instance();
+
+        Atom actual_type_return;
+        int actual_format_return;
+        unsigned long nitems_return;
+        unsigned long bytes_after_return;
+        unsigned char *prop_return;
+
+        bool ret_a1 = a1 == 0;
+        bool ret_a2 = a2 == 0;
+        bool ret_a3 = a3 == 0;
+        if (Success == XGetWindowProperty(dpy, id, NET_WM_STATE,
+                                          0, 99, false, AnyPropertyType,
+                                          &actual_type_return,
+                                          &actual_format_return,
+                                          &nitems_return,
+                                          &bytes_after_return,
+                                          &prop_return)) {
+          if (actual_type_return == ATOM_ATOM) {
+            Atom* atoms = (Atom*)prop_return;
+            for (unsigned long i = 0; i < nitems_return; ++i) {
+              ret_a1 |= (atoms[i] == a1);
+              ret_a2 |= (atoms[i] == a2);
+              ret_a3 |= (atoms[i] == a3);
+            }
+          }
+        }
+        return ret_a1 && ret_a2 && ret_a3;
+      }
+
+      void send_net_wm_state (os::window id,
+                                long action,
+                                Atom a1,
+                                Atom a2 = 0,
+                                Atom a3 = 0) {
+        auto dpy = core::global::get_instance();
+
+        XEvent xev;
+        memset(&xev, 0, sizeof (xev));
+        xev.type = ClientMessage;
+        xev.xclient.window = id;
+        xev.xclient.message_type = NET_WM_STATE;
+        xev.xclient.format = 32;
+        xev.xclient.data.l[0] = action;
+        xev.xclient.data.l[1] = a1;
+        xev.xclient.data.l[2] = a2;
+        xev.xclient.data.l[3] = a3;
+
+        XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureNotifyMask, &xev);
+      }
     }
 
     // --------------------------------------------------------------------------
@@ -402,104 +498,6 @@ namespace gui {
 #endif // GUIPP_WIN
 
 #ifdef GUIPP_X11
-    // --------------------------------------------------------------------------
-    template<typename T>
-    void change_property (gui::os::instance display, os::window id, const char* type, T value);
-
-    template<>
-    void change_property<const char*>(gui::os::instance display, os::window id, const char* type, const char* value) {
-      Atom t = XInternAtom(display, type, False);
-      Atom v = XInternAtom(display, value, False);
-      XChangeProperty(display, id, t, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&v), 1);
-    }
-
-    template<>
-    void change_property<os::window>(gui::os::instance display, os::window id, const char* type, os::window value) {
-      Atom t = XInternAtom(display, type, False);
-      XChangeProperty(display, id, t, XA_WINDOW, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
-    }
-
-    std::string get_property (gui::os::instance display, os::window id, const char* name) {
-      Atom prop_name = XInternAtom(display, name, False);
-      Atom actual_type;
-      int actual_format;
-      unsigned long nitems, bytes_after;
-      unsigned char *data = 0;
-      std::string str;
-      if ((Success == XGetWindowProperty(display, id, prop_name, 0, 1024, false,
-                                         XA_ATOM, &actual_type, &actual_format,
-                                         &nitems, &bytes_after, &data))
-          && (nitems > 0)) {
-        if (actual_type == XA_ATOM) {
-          str = XGetAtomName(display, *(Atom*)data);
-        }
-        XFree(data);
-      }
-      return str;
-    }
-
-    void set_wm_protocols (gui::os::instance display, os::window id) {
-      Atom protocols[] = {
-        core::x11::WM_TAKE_FOCUS,
-        core::x11::WM_DELETE_WINDOW,
-      };
-      XSetWMProtocols(display, id, protocols, 2);
-    }
-
-    bool query_net_wm_state (os::window id,
-                             Atom a1,
-                             Atom a2 = 0,
-                             Atom a3 = 0) {
-      auto dpy = core::global::get_instance();
-
-      Atom actual_type_return;
-      int actual_format_return;
-      unsigned long nitems_return;
-      unsigned long bytes_after_return;
-      unsigned char *prop_return;
-
-      bool ret_a1 = a1 == 0;
-      bool ret_a2 = a2 == 0;
-      bool ret_a3 = a3 == 0;
-      if (Success == XGetWindowProperty(dpy, id, x11::NET_WM_STATE,
-                                        0, 99, false, AnyPropertyType,
-                                        &actual_type_return,
-                                        &actual_format_return,
-                                        &nitems_return,
-                                        &bytes_after_return,
-                                        &prop_return)) {
-        if (actual_type_return == x11::ATOM_ATOM) {
-          Atom* atoms = (Atom*)prop_return;
-          for (unsigned long i = 0; i < nitems_return; ++i) {
-            ret_a1 |= (atoms[i] == a1);
-            ret_a2 |= (atoms[i] == a2);
-            ret_a3 |= (atoms[i] == a3);
-          }
-        }
-      }
-      return ret_a1 && ret_a2 && ret_a3;
-    }
-
-    void send_net_wm_state (os::window id,
-                            long action,
-                            Atom a1,
-                            Atom a2 = 0,
-                            Atom a3 = 0) {
-      auto dpy = core::global::get_instance();
-
-      XEvent xev;
-      memset(&xev, 0, sizeof (xev));
-      xev.type = ClientMessage;
-      xev.xclient.window = id;
-      xev.xclient.message_type = x11::NET_WM_STATE;
-      xev.xclient.format = 32;
-      xev.xclient.data.l[0] = action;
-      xev.xclient.data.l[1] = a1;
-      xev.xclient.data.l[2] = a2;
-      xev.xclient.data.l[3] = a3;
-
-      XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureNotifyMask, &xev);
-    }
 
     void overlapped_window::create (const class_info& cls,
                                     const core::rectangle& r) {
@@ -527,15 +525,15 @@ namespace gui {
     }
 
     bool overlapped_window::is_maximized () const {
-      return query_net_wm_state(get_id(), x11::NET_WM_STATE_MAXIMIZED_HORZ, x11::NET_WM_STATE_MAXIMIZED_VERT);
+      return x11::query_net_wm_state(get_id(), x11::NET_WM_STATE_MAXIMIZED_HORZ, x11::NET_WM_STATE_MAXIMIZED_VERT);
     }
 
     bool overlapped_window::is_top_most () const {
-      return query_net_wm_state(get_id(), x11::NET_WM_STATE_ABOVE);
+      return x11::query_net_wm_state(get_id(), x11::NET_WM_STATE_ABOVE);
     }
 
     bool overlapped_window::is_minimized () const {
-      return query_net_wm_state(get_id(), x11::NET_WM_STATE_HIDDEN);
+      return x11::query_net_wm_state(get_id(), x11::NET_WM_STATE_HIDDEN);
     }
 
     void overlapped_window::minimize () {
@@ -543,22 +541,22 @@ namespace gui {
     }
 
     void overlapped_window::maximize () {
-      send_net_wm_state(get_id(), _NET_WM_STATE_ADD,
-                        x11::NET_WM_STATE_MAXIMIZED_HORZ,
-                        x11::NET_WM_STATE_MAXIMIZED_VERT);
+      x11::send_net_wm_state(get_id(), _NET_WM_STATE_ADD,
+                             x11::NET_WM_STATE_MAXIMIZED_HORZ,
+                             x11::NET_WM_STATE_MAXIMIZED_VERT);
 
     }
 
     void overlapped_window::restore () {
-      send_net_wm_state(get_id(), _NET_WM_STATE_REMOVE,
-                        x11::NET_WM_STATE_MAXIMIZED_HORZ,
-                        x11::NET_WM_STATE_MAXIMIZED_VERT);
+      x11::send_net_wm_state(get_id(), _NET_WM_STATE_REMOVE,
+                             x11::NET_WM_STATE_MAXIMIZED_HORZ,
+                             x11::NET_WM_STATE_MAXIMIZED_VERT);
     }
 
     void overlapped_window::set_top_most (bool toplevel) {
-      send_net_wm_state(get_id(),
-                        toplevel ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE,
-                        x11::NET_WM_STATE_ABOVE);
+      x11::send_net_wm_state(get_id(),
+                             toplevel ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE,
+                             x11::NET_WM_STATE_ABOVE);
     }
 
     // --------------------------------------------------------------------------
@@ -759,8 +757,8 @@ namespace gui {
 
       os::window id = detail::get_window_id(*this);
 
-      change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_NORMAL");
-      set_wm_protocols(display, id);
+      x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_NORMAL");
+      x11::set_wm_protocols(display, id);
 
       XWMHints* hints = XGetWMHints(display, id);
       if (!hints) {
@@ -781,7 +779,7 @@ namespace gui {
 
       os::window id = detail::get_window_id(*this);
 
-      change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU");
+      x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU");
 
       XSetWindowAttributes wa;
       wa.override_redirect = 1;
@@ -795,10 +793,10 @@ namespace gui {
       gui::os::instance display = core::global::get_instance();
 #ifdef GUIPP_X11
       auto id = detail::get_window_id(*this);
-      change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DIALOG");
-      change_property(display, id, "_NET_WM_STATE", "_NET_WM_STATE_MODAL");
-      change_property(display, id, "WM_CLIENT_LEADER", detail::get_window_id(parent));
-      set_wm_protocols(display, id);
+      x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DIALOG");
+      x11::change_property(display, id, "_NET_WM_STATE", "_NET_WM_STATE_MODAL");
+      x11::change_property(display, id, "WM_CLIENT_LEADER", detail::get_window_id(parent));
+      x11::set_wm_protocols(display, id);
 #endif // GUIPP_X11
     }
 

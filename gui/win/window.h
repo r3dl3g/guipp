@@ -22,11 +22,9 @@
 //
 // Library includes
 //
-#include <gui/core/gui_types.h>
-#include <gui/core/event_container.h>
 #include <gui/core/window_state.h>
 #include <gui/win/window_class.h>
-#include <gui/win/window_event_handler.h>
+#include <gui/win/receiver.h>
 
 
 // --------------------------------------------------------------------------
@@ -56,9 +54,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    class GUIPP_WIN_EXPORT window {
+    class GUIPP_WIN_EXPORT window : public receiver {
     public:
-      typedef core::event_container::event_handler_function event_handler_function;
 
       window ();
       ~window ();
@@ -132,75 +129,6 @@ namespace gui {
       void capture_pointer ();
       void uncapture_pointer ();
 
-      typedef void(notification_fn)();
-      typedef void(mouse_fn)(os::key_state, core::point);
-      typedef void(wheel_fn)(core::point::type, core::point);
-      typedef void(move_fn)(core::point);
-      typedef void(size_fn)(core::size);
-      typedef void(place_fn)(core::rectangle);
-
-      void on_create (std::function<notification_fn>&& f);
-
-      void on_close (std::function<notification_fn>&& f);
-      void on_destroy (std::function<notification_fn>&& f);
-
-      void on_any_key_down (std::function<void(os::key_state, os::key_symbol, std::string)>&& f);
-      void on_any_key_up (std::function<void(os::key_state, os::key_symbol)>&& f);
-
-      template<os::key_symbol symbol, os::key_state state = core::state::none>
-      void on_key_down (std::function<notification_fn>&& f);
-
-      template<os::key_symbol symbol, os::key_state state = core::state::none>
-      void on_key_up (std::function<notification_fn>&& f);
-
-      void on_mouse_move (std::function<mouse_fn>&& f);
-      void on_mouse_move_abs (std::function<mouse_fn>&& f);
-
-      void on_left_btn_down (std::function<mouse_fn>&& f);
-      void on_left_btn_up (std::function<mouse_fn>&& f);
-      void on_right_btn_down (std::function<mouse_fn>&& f);
-      void on_right_btn_up (std::function<mouse_fn>&& f);
-      void on_middle_btn_down (std::function<mouse_fn>&& f);
-      void on_middle_btn_up (std::function<mouse_fn>&& f);
-
-      void on_btn_down (std::function<mouse_fn>&& f);
-      void on_btn_up (std::function<mouse_fn>&& f);
-
-      void on_left_btn_dblclk (std::function<mouse_fn>&& f);
-      void on_right_btn_dblclk (std::function<mouse_fn>&& f);
-      void on_middle_btn_dblclk (std::function<mouse_fn>&& f);
-
-      template<orientation_t V>
-      void on_wheel (std::function<wheel_fn>&& f);
-
-      void on_wheel_x (std::function<wheel_fn>&& f);
-      void on_wheel_y (std::function<wheel_fn>&& f);
-
-      void on_show (std::function<notification_fn>&& f);
-      void on_hide (std::function<notification_fn>&& f);
-
-      void on_set_focus (std::function<notification_fn>&& f);
-      void on_lost_focus (std::function<notification_fn>&& f);
-
-      void on_mouse_enter (std::function<notification_fn>&& f);
-      void on_mouse_leave (std::function<notification_fn>&& f);
-
-      void on_move (std::function<move_fn>&& f);
-      void on_size (std::function<size_fn>&& f);
-
-      void on_layout (std::function<place_fn>&& f);
-
-      void on_paint (std::function<void(os::window, os::graphics)>&& f);
-
-      template<typename H>
-      void on (typename H::function&& f);
-
-      template<typename H>
-      void on (const typename H::function& f);
-
-      template<typename H>
-      void unregister_event_handler (const typename H::function& f);
-
       bool handle_event (const core::event&, gui::os::event_result&);
 
       void notify_event (os::message_type message, long l1 = 0, long l2 = 0);
@@ -215,7 +143,7 @@ namespace gui {
 
     protected:
       window (const window&);
-      window (window&&) noexcept ;
+      window (window&&) noexcept;
 
       void create (const class_info&,
                    container&,
@@ -226,8 +154,6 @@ namespace gui {
                             const core::rectangle&);
 
       void set_accept_focus (bool a);
-
-      void register_event_handler (event_handler_function&& f, os::event_id mask);
 
     private:
       friend void detail::set_id (window*, os::window);
@@ -245,7 +171,6 @@ namespace gui {
       void init ();
 
       os::window id;
-      core::event_container events;
 
     protected:
       gui::core::state_type flags;

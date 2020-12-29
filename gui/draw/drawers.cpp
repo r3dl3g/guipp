@@ -1425,7 +1425,7 @@ namespace gui {
     void arc::operator() (const graphics& g,
                           const brush& b,
                           const pen& p) const {
-      const auto rad = core::global::scale_to_native<unsigned int>(radius);
+      const auto rad = core::global::scale_to_native<qreal>(radius);
 //      if (rad < 10) {
 //        QPen pen(os::brush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()), Qt::FlatCap, Qt::RoundJoin);
 //        QPainterPath path;

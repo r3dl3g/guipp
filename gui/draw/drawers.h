@@ -98,31 +98,39 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT pie {
-      pie (const core::point& center,
-           core::size::type radius,
-           const core::angle& start_angle,
-           const core::angle& end_angle);
-      pie (const core::point& center,
-           const core::size& size,
-           const core::angle& start_angle,
-           const core::angle& end_angle);
-      pie (const core::rectangle& rect,
-           const core::angle& start_angle,
-           const core::angle& end_angle);
+    enum class arc_type {
+      pie,
+      arc
+    };
+
+    // --------------------------------------------------------------------------
+    template<arc_type T>
+    struct arc_or_pie {
+      arc_or_pie (const core::point& center,
+                  core::size::type radius,
+                  const core::angle& start_angle,
+                  const core::angle& end_angle);
+      arc_or_pie (const core::point& center,
+                  const core::size& size,
+                  const core::angle& start_angle,
+                  const core::angle& end_angle);
+      arc_or_pie (const core::rectangle& rect,
+                  const core::angle& start_angle,
+                  const core::angle& end_angle);
 
       void operator() (const graphics&, const brush&, const pen&) const;
       void operator() (const graphics&, const pen&) const;
       void operator() (const graphics&, const brush&) const;
 
     private:
-      void prepare (const graphics&) const;
-
       const core::rectangle rect;
       const core::angle start_angle;
       const core::angle end_angle;
 
     };
+
+    using pie = arc_or_pie<arc_type::pie>;
+    using arc = arc_or_pie<arc_type::arc>;
 
     // --------------------------------------------------------------------------
     struct GUIPP_DRAW_EXPORT polyline {

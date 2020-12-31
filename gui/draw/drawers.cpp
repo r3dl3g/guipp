@@ -114,6 +114,12 @@ namespace gui {
       return start.deg() + 360.0F == end.deg();
     }
 
+    template<arc_type T>
+    void draw_arc (const graphics& g, const arc_coords& c);
+
+    template<arc_type T>
+    void fill_arc (const graphics& g, const arc_coords& c);
+
     // --------------------------------------------------------------------------
 #ifdef GUIPP_WIN
     brush null_brush((os::brush)GetStockObject(NULL_BRUSH));
@@ -312,7 +318,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void draw_pie (const graphics& g, const arc_coords& c) {
+    template<>
+    void draw_arc<arc_type::pie> (const graphics& g, const arc_coords& c) {
       if (c.is_closed()) {
         if ((c.w < 3) || (c.h < 3)) {
           Rectangle(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1);
@@ -325,8 +332,23 @@ namespace gui {
       }
     }
 
-    void fill_pie (const graphics& g, const arc_coords& c) {
-      draw_pie(g, c);
+    template<>
+    void draw_arc<arc_type::arc> (const graphics& g, const arc_coords& c) {
+      if (c.is_closed()) {
+        if ((c.w < 3) || (c.h < 3)) {
+          Rectangle(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1);
+        } else {
+          Ellipse(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1);
+        }
+      } else {
+        auto pt = c.calc_points();
+        Arc(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1, pt[0].x, pt[0].y, pt[2].x, pt[2].y);
+      }
+    }
+
+    template<arc_type T>
+    void fill_arc (const graphics& g, const arc_coords& c) {
+      draw_arc<T>(g, c);
     }
 
     // --------------------------------------------------------------------------
@@ -758,10 +780,18 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void draw_pie (const graphics& g, const arc_coords& c) {
+    template<>
+    void draw_arc<arc_type::arc> (const graphics& g, const arc_coords& c) {
       gui::os::instance display = get_instance();
 
+      XSetArcMode(get_instance(), g, ArcPieSlice);
       XDrawArc(display, g, g, c.x, c.y, c.w, c.h, c.start, c.end - c.start);
+    }
+
+    template<>
+    void draw_arc<arc_type::pie> (const graphics& g, const arc_coords& c) {
+      draw_arc<arc_type::arc>(g, c);
+      gui::os::instance display = get_instance();
 
       if (!c.is_closed()) {
         auto pt = c.calc_points();
@@ -771,13 +801,10 @@ namespace gui {
       }
     }
 
-    void fill_pie (const graphics& g, const arc_coords& c) {
-      XFillArc(get_instance(), g, g, c.x, c.y, c.w, c.h, c.start, c.end - c.start);
-    }
-
-    // --------------------------------------------------------------------------
-    void pie::prepare (const graphics& g) const {
+    template<arc_type T>
+    void fill_arc (const graphics& g, const arc_coords& c) {
       XSetArcMode(get_instance(), g, ArcPieSlice);
+      XFillArc(get_instance(), g, g, c.x, c.y, c.w, c.h, c.start, c.end - c.start);
     }
 
     // --------------------------------------------------------------------------
@@ -1239,7 +1266,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void draw_pie (const graphics& g, const arc_coords& c) {
+    template<>
+    void draw_arc<arc_type::pie> (const graphics& g, const arc_coords& c) {
       QRectF r(c.x, c.y, c.w, c.h);
       if (c.is_closed()) {
         g.os()->drawEllipse(r);
@@ -1248,12 +1276,19 @@ namespace gui {
       }
     }
 
-    void fill_pie (const graphics& g, const arc_coords& c) {
-      draw_pie(g, c);
+    template<>
+    void draw_arc<arc_type::arc> (const graphics& g, const arc_coords& c) {
+      QRectF r(c.x, c.y, c.w, c.h);
+      if (c.is_closed()) {
+        g.os()->drawEllipse(r);
+      } else {
+        g.os()->drawArc(r, c.start, c.end - c.start);
+      }
     }
 
-    // --------------------------------------------------------------------------
-    void pie::prepare (const graphics& g) const {
+    template<arc_type T>
+    void fill_arc (const graphics& g, const arc_coords& c) {
+      draw_arc<T>(g, c);
     }
 
     // --------------------------------------------------------------------------
@@ -1347,58 +1382,59 @@ namespace gui {
 #endif // GUIPP_QT
 
     // --------------------------------------------------------------------------
-    pie::pie (const core::point& center,
-              core::size::type radius,
-              const core::angle& start,
-              const core::angle& end)
-      : rect(center - core::size(radius), center + core::size(radius))
-      , start_angle(std::min(start, end))
-      , end_angle(std::max(start, end))
-    {}
-
-    pie::pie (const core::point& center,
-              const core::size& radius,
-              const core::angle& start,
-              const core::angle& end)
-      : rect(center - radius, radius * 2.0)
-      , start_angle(std::min(start, end))
-      , end_angle(std::max(start, end))
-    {}
-
-    pie::pie (const core::rectangle& rect,
-              const core::angle& start,
-              const core::angle& end)
-      : rect(rect)
-      , start_angle(std::min(start, end))
-      , end_angle(std::max(start, end))
-    {}
-
-    void pie::operator() (const graphics& g,
+    template<>
+    void arc_or_pie<arc_type::arc>::operator() (const graphics& g,
                           const pen& p) const {
       arc_coords c(rect, start_angle, end_angle);
       Use<pen> pn(g, p);
+#ifdef GUIPP_WIN32
       Use<brush> br(g, null_brush);
-      prepare(g);
-      draw_pie(g, c);
+#endif
+      draw_arc<arc_type::arc>(g, c);
     }
 
-    void pie::operator() (const graphics& g,
+    template<>
+    void arc_or_pie<arc_type::arc>::operator() (const graphics& g,
                           const brush& b) const {
       arc_coords c(rect, start_angle, end_angle);
       Use<brush> br(g, b);
-      prepare(g);
-      fill_pie(g, c);
+      fill_arc<arc_type::arc>(g, c);
     }
 
-    void pie::operator() (const graphics& g,
+    template<>
+    void arc_or_pie<arc_type::arc>::operator() (const graphics& g,
                           const brush& b,
                           const pen& p) const {
       arc_coords c(rect, start_angle, end_angle);
       Use<brush> br(g, b);
-      prepare(g);
-      fill_pie(g, c);
+      fill_arc<arc_type::arc>(g, c);
       Use<pen> pn(g, p);
-      draw_pie(g, c);
+      draw_arc<arc_type::arc>(g, c);
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    void arc_or_pie<arc_type::pie>::operator() (const graphics& g,
+                                                const pen& p) const {
+      arc_coords c(rect, start_angle, end_angle);
+      Use<pen> pn(g, p);
+#ifdef GUIPP_WIN32
+      Use<brush> br(g, null_brush);
+#endif
+      draw_arc<arc_type::pie>(g, c);
+    }
+
+    template<>
+    void arc_or_pie<arc_type::pie>::operator() (const graphics& g,
+                                                const brush& b) const {
+      arc_or_pie<arc_type::pie>::operator()(g, pen(b.color()));
+    }
+
+    template<>
+    void arc_or_pie<arc_type::pie>::operator() (const graphics& g,
+                                                const brush& b,
+                                                const pen& p) const {
+      arc_or_pie<arc_type::pie>::operator()(g, p);
     }
 
     // --------------------------------------------------------------------------

@@ -74,6 +74,54 @@ namespace gui {
     {}
 
     // --------------------------------------------------------------------------
+    template<arc_type T>
+    arc_or_pie<T>::arc_or_pie (const core::point& center,
+                               core::size::type radius,
+                               const core::angle& start,
+                               const core::angle& end)
+      : rect(center - core::size(radius), center + core::size(radius))
+      , start_angle(std::min(start, end))
+      , end_angle(std::max(start, end))
+    {}
+
+    template<arc_type T>
+    arc_or_pie<T>::arc_or_pie (const core::point& center,
+                               const core::size& radius,
+                               const core::angle& start,
+                               const core::angle& end)
+      : rect(center - radius, radius * 2.0)
+      , start_angle(std::min(start, end))
+      , end_angle(std::max(start, end))
+    {}
+
+    template<arc_type T>
+    arc_or_pie<T>::arc_or_pie (const core::rectangle& rect,
+                               const core::angle& start,
+                               const core::angle& end)
+      : rect(rect)
+      , start_angle(std::min(start, end))
+      , end_angle(std::max(start, end))
+    {}
+
+    template<>
+    void arc_or_pie<arc_type::arc>::operator() (const graphics&, const brush&, const pen&) const;
+
+    template<>
+    void arc_or_pie<arc_type::arc>::operator() (const graphics&, const pen&) const;
+
+    template<>
+    void arc_or_pie<arc_type::arc>::operator() (const graphics&, const brush&) const;
+
+    template<>
+    void arc_or_pie<arc_type::pie>::operator() (const graphics&, const brush&, const pen&) const;
+
+    template<>
+    void arc_or_pie<arc_type::pie>::operator() (const graphics&, const pen&) const;
+
+    template<>
+    void arc_or_pie<arc_type::pie>::operator() (const graphics&, const brush&) const;
+
+    // --------------------------------------------------------------------------
     inline text_box::text_box (const std::string& str,
                                const core::rectangle& rect,
                                text_origin_t origin)

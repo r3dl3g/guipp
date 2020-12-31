@@ -1377,6 +1377,7 @@ namespace gui {
                           const pen& p) const {
       arc_coords c(rect, start_angle, end_angle);
       Use<pen> pn(g, p);
+      Use<brush> br(g, null_brush);
       prepare(g);
       draw_pie(g, c);
     }

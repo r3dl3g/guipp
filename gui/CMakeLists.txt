@@ -118,9 +118,13 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     endif(X11_FOUND)
     #        set (GUIPP_SYS_LIBRARIES X11 Xft fontconfig xcb Xdmcp bsd dl freetype Xrender expat Xau z png16)
 
+  elseif (CMAKE_CXX_PLATFORM_ID STREQUAL "MinGW")
+    message(STATUS "GUIPP: build with MinGW for Win32!")
+    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_WIN -DUSE_MINGW -D_WIN32_WINNT=0x0601)
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} mingw32)
   elseif (WIN32)
     message(STATUS "GUIPP: build for Win32!")
-        set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_WIN)
+    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_WIN)
     set (GUIPP_SYS_LIBRARIES Shcore)
   endif ()
 
@@ -166,7 +170,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   set (GUIPP_APP_LIBRARIES
     gui++-app
     ${GUIPP_LIBRARIES}
-    )
+  )
 
   if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS}

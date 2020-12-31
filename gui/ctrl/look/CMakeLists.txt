@@ -21,7 +21,20 @@ if(NOT TARGET gui++-look-obj)
   set (INCLUDE_INSTALL_DIR include/guipp/gui/look)
   set (LIBRARY_INSTALL_DIR lib/guipp)
 
-  file(GLOB SOURCE_FILES "*.cpp")
+  set(SOURCE_FILES
+      button.cpp
+      control.cpp
+      drop_down.cpp
+      edit.cpp
+      label.cpp
+      menu.cpp
+      progress_bar.cpp
+      scroll_bar.cpp
+      slider.cpp
+      table.cpp
+      textbox.cpp
+      tree.cpp
+  )
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
   file(GLOB RESOURCE_FILES "res/*.h")
 

@@ -84,6 +84,18 @@ namespace gui {
     } size;
     typedef XRectangle rectangle;
 
+    inline point_type get_x (const XPoint& p) { return p.x; }
+    inline point_type get_y (const XPoint& p) { return p.y; }
+
+    inline size_type get_width (const size& s) { return s.cx; }
+    inline size_type get_height (const size& s) { return s.cy; }
+
+    inline point_type get_x (const XRectangle& r) { return r.x; }
+    inline point_type get_y (const XRectangle& r) { return r.y; }
+    inline size_type get_width (const XRectangle& r) { return r.width; }
+    inline size_type get_height (const XRectangle& r) { return r.height; }
+
+
     typedef int event_id;
     typedef Atom message_type;
     typedef int event_result;

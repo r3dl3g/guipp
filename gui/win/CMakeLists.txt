@@ -27,7 +27,7 @@ if(NOT TARGET gui++-win-obj)
       window_class.cpp
       window_event_handler.cpp
       window_event_proc.cpp
-      )
+  )
 
   set(INCLUDE_FILES
       clipboard.h
@@ -49,7 +49,7 @@ if(NOT TARGET gui++-win-obj)
       window_event_handler_win32.h
       window_event_handler_x11.h
       window_event_proc.h
-      )
+  )
 
   add_library(gui++-win-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
 

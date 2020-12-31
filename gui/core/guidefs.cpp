@@ -29,7 +29,7 @@
 #  include <X11/extensions/Xrandr.h>
 # endif // GUIPP_USE_XRANDR
 #elif GUIPP_WIN
-#include <shellscalingapi.h>
+//#include <shellscalingapi.h>
 #pragma warning(disable:4996)
 #elif GUIPP_QT
 #include <QtWidgets/QApplication>

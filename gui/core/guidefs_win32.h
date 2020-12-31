@@ -26,7 +26,8 @@
 //
 // Common includes
 //
-#define NOMINMAX
+#undef NOMINMAX
+#define NOMINMAX 1
 #include <windows.h>
 
 // --------------------------------------------------------------------------
@@ -81,6 +82,17 @@ namespace gui {
     typedef POINT point;
     typedef SIZE size;
     typedef RECT rectangle;
+
+    inline point_type get_x (const POINT& p) { return p.x; }
+    inline point_type get_y (const POINT& p) { return p.y; }
+
+    inline size_type get_width (const SIZE& s) { return s.cx; }
+    inline size_type get_height (const SIZE& s) { return s.cy; }
+
+    inline point_type get_x (const RECT& r) { return r.left; }
+    inline point_type get_y (const RECT& r) { return r.top; }
+    inline size_type get_width (const RECT& r) { return r.right - r.left; }
+    inline size_type get_height (const RECT& r) { return r.bottom - r.top; }
 
     typedef UINT event_id;
     typedef UINT message_type;

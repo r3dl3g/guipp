@@ -13,7 +13,7 @@ if(NOT TARGET gui++-app-obj)
   set (INCLUDE_INSTALL_DIR include/guipp/gui/app)
   set (LIBRARY_INSTALL_DIR lib/guipp)
 
-  file(GLOB SOURCE_FILES "*.cpp")
+  set(SOURCE_FILES app.cpp)
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
   add_definitions(${GUIPP_CXX_FLAGS})

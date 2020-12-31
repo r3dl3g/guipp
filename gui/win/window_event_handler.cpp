@@ -261,7 +261,7 @@ namespace gui {
         gui::os::event_result result;
         os::size s = sz;
         long l2 = (long)s.cy << 16 | (long)s.cx;
-        core::event e{ detail::get_window_id(*win), message, 0, static_cast<WPARAM>(l2)};
+        core::event e{ detail::get_window_id(*win), message, 0, static_cast<LPARAM>(l2)};
         win->handle_event(e, result);
       }
     }

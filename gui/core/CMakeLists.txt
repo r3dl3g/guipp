@@ -13,7 +13,18 @@ if(NOT TARGET gui++-core-obj)
   set (INCLUDE_INSTALL_DIR include/guipp/gui/core)
   set (LIBRARY_INSTALL_DIR lib/guipp)
 
-  file(GLOB SOURCE_FILES "*.cpp")
+  set(SOURCE_FILES
+      angle.cpp
+      bits.cpp
+      button_state.cpp
+      color.cpp
+      event.cpp
+      event_container.cpp
+      guidefs.cpp
+      keys.cpp
+      list_state.cpp
+      window_state.cpp
+  )
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
   message(STATUS "GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")

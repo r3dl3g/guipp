@@ -294,10 +294,10 @@ namespace gui {
 
       graph.draw(draw::round_rectangle(switch_rect, core::size(edge)), fill_col, color::medium_gray);
       auto center = thumb.center();
-      graph.draw(draw::arc(center, edge, 0, 360), thumb_col, color::medium_gray);
-      graph.frame(draw::arc(center, edge - 1, 40, 250), color::white);
-      graph.frame(draw::arc(center, edge - 1, 250, 40), color::medium_gray);
-      graph.fill(draw::arc(center, edge - 2, 0, 360), thumb_col);
+      graph.draw(draw::pie(center, edge, 0, 360), thumb_col, color::medium_gray);
+      graph.frame(draw::pie(center, edge - 1, 40, 250), color::white);
+      graph.frame(draw::pie(center, edge - 1, 250, 40), color::medium_gray);
+      graph.fill(draw::pie(center, edge - 2, 0, 360), thumb_col);
 
       os::color text_col = enabled ? color::windowTextColor() : color::disabledTextColor();
       graph.text(draw::text_box(text, rect + core::point(width + 10, 0), text_origin_t::vcenter_left), draw::font::system(), text_col);

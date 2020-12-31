@@ -2623,7 +2623,7 @@ void test_frame_arc_20x20 () {
 
   pixmap img(23, 23);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(11, 11), 10, 0, 360), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(11, 11), 10, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2657,7 +2657,7 @@ void test_frame_arc_10x10 () {
 
   pixmap img(13, 13);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(6, 6), 5, 0, 360), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(6, 6), 5, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2681,7 +2681,7 @@ void test_frame_arc_8x8 () {
 
   pixmap img(11, 11);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(5, 5), 4, 0, 360), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(5, 5), 4, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2718,7 +2718,7 @@ void test_frame_arc_6x6 () {
 
   pixmap img(9, 9);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(4, 4), 3, 0, 360), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(4, 4), 3, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2738,7 +2738,7 @@ void test_frame_arc_4x4 () {
 
   pixmap img(7, 7);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(3, 3), 2, 0, 360), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(3, 3), 2, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2756,7 +2756,7 @@ void test_frame_arc_3x3 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 1.5, 0, 360), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(2, 2), 1.5, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2774,7 +2774,7 @@ void test_frame_arc_2x2 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 1, 0, 360), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(2, 2), 1, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2791,7 +2791,7 @@ void test_frame_arc_1x1 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 0.5, 0, 360), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(2, 2), 0.5, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2808,7 +2808,7 @@ void test_frame_arc_0x0 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 0, 0, 360), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(2, 2), 0, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2825,7 +2825,7 @@ void test_fill_arc_4x4 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).fill(draw::arc(core::point(2, 2), 2, 0, 360), color::red);
+  graphics(img).clear(color::black).fill(draw::pie(core::point(2, 2), 2, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2842,7 +2842,7 @@ void test_fill_arc_3x3 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).fill(draw::arc(core::point(2, 2), 1.5, 0, 360), color::red);
+  graphics(img).clear(color::black).fill(draw::pie(core::point(2, 2), 1.5, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2861,7 +2861,7 @@ void test_fill_arc_2x2 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).fill(draw::arc(core::point(2, 2), 1, 0, 360), color::red);
+  graphics(img).clear(color::black).fill(draw::pie(core::point(2, 2), 1, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2878,7 +2878,7 @@ void test_fill_arc_1x1 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).fill(draw::arc(core::point(2, 2), 0.5, 0, 360), color::red);
+  graphics(img).clear(color::black).fill(draw::pie(core::point(2, 2), 0.5, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2894,7 +2894,7 @@ void test_fill_arc_0x0 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).fill(draw::arc(core::point(2, 2), 0, 0, 360), color::red);
+  graphics(img).clear(color::black).fill(draw::pie(core::point(2, 2), 0, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2910,7 +2910,7 @@ void test_draw_arc_4x4 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 2, 0, 360), color::blue, color::red);
+  graphics(img).clear(color::black).draw(draw::pie(core::point(2, 2), 2, 0, 360), color::blue, color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2926,7 +2926,7 @@ void test_draw_arc_3x3 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 1.5, 0, 360), color::blue, color::red);
+  graphics(img).clear(color::black).draw(draw::pie(core::point(2, 2), 1.5, 0, 360), color::blue, color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2943,7 +2943,7 @@ void test_draw_arc_2x2 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 1, 0, 360), color::blue, color::red);
+  graphics(img).clear(color::black).draw(draw::pie(core::point(2, 2), 1, 0, 360), color::blue, color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2959,7 +2959,7 @@ void test_draw_arc_1x1 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 0.5, 0, 360), color::blue, color::red);
+  graphics(img).clear(color::black).draw(draw::pie(core::point(2, 2), 0.5, 0, 360), color::blue, color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2975,7 +2975,7 @@ void test_draw_arc_0x0 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 0, 0, 360), color::blue, color::red);
+  graphics(img).clear(color::black).draw(draw::pie(core::point(2, 2), 0, 0, 360), color::blue, color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -2992,7 +2992,7 @@ void test_frame_arc_45_135 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 2, 45, 135), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(2, 2), 2, 45, 135), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -3008,7 +3008,7 @@ void test_frame_arc_135_225 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 2, 135, 225), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(2, 2), 2, 135, 225), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -3024,7 +3024,7 @@ void test_frame_arc_225_315 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 2, 225, 315), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(2, 2), 2, 225, 315), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -3040,7 +3040,7 @@ void test_frame_arc_315_405 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 2, 315, 405), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(2, 2), 2, 315, 405), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -3057,7 +3057,7 @@ void test_draw_arc_45_135 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 2, 45, 135), color::blue, color::red);
+  graphics(img).clear(color::black).draw(draw::pie(core::point(2, 2), 2, 45, 135), color::blue, color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -3074,7 +3074,7 @@ void test_draw_arc_135_225 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 2, 135, 225), color::blue, color::red);
+  graphics(img).clear(color::black).draw(draw::pie(core::point(2, 2), 2, 135, 225), color::blue, color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -3091,7 +3091,7 @@ void test_draw_arc_225_315 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 2, 225, 315), color::blue, color::red);
+  graphics(img).clear(color::black).draw(draw::pie(core::point(2, 2), 2, 225, 315), color::blue, color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -3108,7 +3108,7 @@ void test_draw_arc_315_405 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 2, 315, 405), color::blue, color::red);
+  graphics(img).clear(color::black).draw(draw::pie(core::point(2, 2), 2, 315, 405), color::blue, color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -3125,7 +3125,7 @@ void test_frame_arc_45_135_2 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 3), 3, 45, 135), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(2, 3), 3, 45, 135), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -3142,7 +3142,7 @@ void test_frame_arc_135_225_2 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(3, 2), 3, 135, 225), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(3, 2), 3, 135, 225), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -3159,7 +3159,7 @@ void test_frame_arc_225_315_2 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 1), 3, 225, 315), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(2, 1), 3, 225, 315), color::red);
 
   auto buffer = pixmap2colormap(img);
 
@@ -3176,7 +3176,7 @@ void test_frame_arc_315_405_2 () {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(color::black).frame(draw::arc(core::point(1, 2), 3, 315, 405), color::red);
+  graphics(img).clear(color::black).frame(draw::pie(core::point(1, 2), 3, 315, 405), color::red);
 
   auto buffer = pixmap2colormap(img);
 

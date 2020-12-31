@@ -609,9 +609,6 @@ namespace gui {
     }
 
     graphics::~graphics () {
-      if (gc) {
-        gc->end();
-      }
       destroy();
     }
 

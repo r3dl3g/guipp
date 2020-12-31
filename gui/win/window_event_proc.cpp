@@ -54,6 +54,9 @@ namespace util {
 #elif linux
     using thread_id = jugger<std::thread::native_handle_type, std::thread::id>;
     template struct robber<thread_id, &std::thread::id::_M_thread>;
+#elif USE_MINGW
+    using thread_id = jugger<DWORD, std::thread::id>;
+    template struct robber<thread_id, &std::thread::id::mId>;
 #elif WIN32
     using thread_id = jugger<_Thrd_id_t, std::thread::id>;
     template struct robber<thread_id, &std::thread::id::_Id>;

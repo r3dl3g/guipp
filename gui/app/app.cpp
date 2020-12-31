@@ -16,7 +16,7 @@
  * @file
  */
 #include <fstream>
-#include <string.h>
+#include <cstring>
 
 #ifdef GUIPP_QT
 #include <QtWidgets/qapplication.h>
@@ -33,8 +33,6 @@
 #include <util/string_util.h>
 #include <gui/app/app.h>
 #include <gui/core/guidefs.h>
-#include <gui_version.h>
-#include <gui++-export.h>
 
 
 #ifdef GUIPP_WIN

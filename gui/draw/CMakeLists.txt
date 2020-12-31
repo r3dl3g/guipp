@@ -17,7 +17,22 @@ if(NOT TARGET gui++-draw-obj)
   set (INCLUDE_INSTALL_DIR include/guipp/gui/draw)
   set (LIBRARY_INSTALL_DIR lib/guipp)
 
-  file(GLOB SOURCE_FILES "*.cpp")
+  set(SOURCE_FILES
+      bitmap_info.cpp
+      datamap.cpp
+      converter.cpp
+      frames.cpp
+      drawers.cpp
+      brush.cpp
+      diagram.cpp
+      bitmap.cpp
+      font.cpp
+      graphics.cpp
+      image_data.cpp
+      pen.cpp
+      text_origin.cpp
+      use.cpp
+  )
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
   add_library(gui++-draw-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})

@@ -44,7 +44,7 @@ namespace gui {
       {}
 
       void circle::operator() (const graphics& g, const brush& b, const core::point& pt) const {
-        g.fill(draw::arc(pt, radius, 0, 360), b);
+        g.fill(draw::pie(pt, radius, 0, 360), b);
       }
 
       // --------------------------------------------------------------------------

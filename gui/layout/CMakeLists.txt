@@ -17,7 +17,10 @@ if(NOT TARGET gui++-layout-obj)
   set (INCLUDE_INSTALL_DIR include/guipp/gui/layout)
   set (LIBRARY_INSTALL_DIR lib/guipp)
 
-  set(SOURCE_FILES attach_layout.cpp layout.cpp)
+  set(SOURCE_FILES
+      attach_layout.cpp
+      layout.cpp
+  )
   set(INCLUDE_FILES
     adaption_layout.h
     attach_layout.h

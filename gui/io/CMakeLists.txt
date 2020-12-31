@@ -17,7 +17,11 @@ if(NOT TARGET gui++-io-obj)
   set (INCLUDE_INSTALL_DIR include/guipp/gui/io)
   set (LIBRARY_INSTALL_DIR lib/guipp)
 
-  file(GLOB SOURCE_FILES "*.cpp")
+  set(SOURCE_FILES
+      pnm.cpp
+      pnm_to_src.cpp
+      wavelength_to_rgb.cpp
+  )
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
   add_library(gui++-io-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})

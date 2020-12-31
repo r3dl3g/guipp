@@ -22,7 +22,31 @@ if(NOT TARGET gui++-ctrl-obj)
   set (INCLUDE_INSTALL_DIR include/guipp/gui/ctrl)
   set (LIBRARY_INSTALL_DIR lib/guipp)
 
-  file(GLOB SOURCE_FILES "*.cpp")
+  set(SOURCE_FILES
+      button.cpp
+      column_list.cpp
+      control.cpp
+      drop_down.cpp
+      edit.cpp
+      editbox.cpp
+      file_tree.cpp
+      image.cpp
+      label.cpp
+      list.cpp
+      menu.cpp
+      progress_bar.cpp
+      scroll_bar.cpp
+      scroll_view.cpp
+      separator.cpp
+      slider.cpp
+      split_view.cpp
+      std_dialogs.cpp
+      table.cpp
+      textbox.cpp
+      tile_view.cpp
+      tree.cpp
+  )
+
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
   file(GLOB RESOURCE_FILES "res/*.h")
 

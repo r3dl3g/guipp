@@ -1171,27 +1171,27 @@ ctrl::paint_function my_main_window::create_paint1 () {
     graph.frame(polygon({ { 5, 5 }, { 155, 5 }, {75, 8} }), color::red);
 
     core::point pt(10, 60);
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.fill(pie(pt, 2, 0, 360), color::blue);
     graph.text(text("Hello World 1!", pt), font::system(), color::black);
 
     pt.move_y(15);
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.fill(pie(pt, 2, 0, 360), color::blue);
     graph.text(text("Hello World 2!", pt), font::system_bold(), color::black);
 
     pt.move_y(15);
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.fill(pie(pt, 2, 0, 360), color::blue);
     graph.text(text("Hello World 3!", pt), font::sans_serif().with_italic(true), color::black);
 
     pt.move_y(15);
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.fill(pie(pt, 2, 0, 360), color::blue);
     graph.text(text("Hello World 4!", pt), font::serif(), color::black);
 
     pt.move_y(15);
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.fill(pie(pt, 2, 0, 360), color::blue);
     graph.text(text("Hello World 5!", pt), font::monospace(), color::black);
 
     pt.move_y(15);
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.fill(pie(pt, 2, 0, 360), color::blue);
     graph.text(text("Hello World 6!", pt), font::sans_serif().with_size(18), color::blue);
 
     auto draw_text_box = [](const draw::graphics& g,
@@ -1209,7 +1209,7 @@ ctrl::paint_function my_main_window::create_paint1 () {
       const std::string& t,
       const core::point& p,
       text_origin_t o) {
-      g.fill(arc(p, 2, 0, 360), color::blue);
+      g.fill(pie(p, 2, 0, 360), color::blue);
       g.text(text(t, p, o), font::system(), color::red);
     };
 
@@ -1273,9 +1273,9 @@ ctrl::paint_function my_main_window::create_paint2 () {
     auto end = end_angle.get_value();
 
     core::point pos4(150, 30);
-    graph.frame(arc(pos4, 20, start, end), color::blue);
-    graph.fill(arc(pos4 + offs1, 20, start, end), color::dark_green);
-    graph.draw(arc(pos4 + offs2, 20, start, end), color::red, color::cyan);
+    graph.frame(pie(pos4, 20, start, end), color::blue);
+    graph.fill(pie(pos4 + offs1, 20, start, end), color::dark_green);
+    graph.draw(pie(pos4 + offs2, 20, start, end), color::red, color::cyan);
 
     //color cyan = color::cyan;
     //color cyan_trans = cyan.transparency(0.5);

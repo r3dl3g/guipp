@@ -30,6 +30,7 @@
 // Library includes
 //
 #include <gui/core/gui_types.h>
+#include <gui/core/angle.h>
 #include <gui/draw/graphics.h>
 #include <gui/draw/text_origin.h>
 #include <gui++-draw-export.h>
@@ -84,7 +85,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct GUIPP_DRAW_EXPORT round_rectangle {
-      round_rectangle (const core::rectangle& rect, const core::size& size);
+      round_rectangle (const core::rectangle& rect, const core::size& radius);
+      round_rectangle (const core::rectangle& rect, core::size::type radius);
 
       void operator() (const graphics&, const brush&, const pen&) const;
       void operator() (const graphics&, const pen&) const;
@@ -92,22 +94,34 @@ namespace gui {
 
     private:
       const core::rectangle rect;
-      const core::size size;
+      const core::size radius;
     };
 
     // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT arc {
-      arc (const core::point& pos, float radius, float start_angle, float end_angle);
+    struct GUIPP_DRAW_EXPORT pie {
+      pie (const core::point& center,
+           core::size::type radius,
+           const core::angle& start_angle,
+           const core::angle& end_angle);
+      pie (const core::point& center,
+           const core::size& size,
+           const core::angle& start_angle,
+           const core::angle& end_angle);
+      pie (const core::rectangle& rect,
+           const core::angle& start_angle,
+           const core::angle& end_angle);
 
       void operator() (const graphics&, const brush&, const pen&) const;
       void operator() (const graphics&, const pen&) const;
       void operator() (const graphics&, const brush&) const;
 
     private:
-      const core::point pos;
-      float radius;
-      float start_angle;
-      float end_angle;
+      void prepare (const graphics&) const;
+
+      const core::rectangle rect;
+      const core::angle start_angle;
+      const core::angle end_angle;
+
     };
 
     // --------------------------------------------------------------------------

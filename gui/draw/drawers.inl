@@ -62,9 +62,15 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     inline round_rectangle::round_rectangle (const core::rectangle& rect,
-                                             const core::size& size)
+                                             const core::size& radius)
       : rect(rect)
-      , size(size)
+      , radius(radius)
+    {}
+
+    inline round_rectangle::round_rectangle (const core::rectangle& rect,
+                                             core::size::type radius)
+      : rect(rect)
+      , radius(radius)
     {}
 
     // --------------------------------------------------------------------------

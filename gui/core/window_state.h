@@ -38,6 +38,7 @@ namespace gui {
   namespace core {
 
     typedef std::bitset<sizeof(unsigned long) * 8> state_type;
+
     // --------------------------------------------------------------------------
     struct GUIPP_CORE_EXPORT window_state {
     protected:

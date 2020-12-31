@@ -51,6 +51,70 @@ namespace gui {
 
   namespace draw {
 
+    // --------------------------------------------------------------------------
+    struct arc_coords {
+      const os::point_type x;
+      const os::point_type y;
+      const os::size_type w;
+      const os::size_type h;
+      const core::angle start;
+      const core::angle end;
+
+      arc_coords (const core::rectangle& rect,
+                  const core::angle& start_angle,
+                  const core::angle& end_angle);
+
+      std::array<os::point, 3> calc_points () const;
+
+      os::point center (const os::size& radius) const;
+      os::size radius () const;
+
+      bool is_closed () const;
+    };
+
+    arc_coords::arc_coords (const core::rectangle& rect,
+                            const core::angle& start_angle,
+                            const core::angle& end_angle)
+      : x(rect.os_x())
+      , y(rect.os_y())
+      , w(rect.os_width())
+      , h(rect.os_height())
+      , start(start_angle)
+      , end(end_angle)
+    {}
+
+    inline os::point calc_arc_point (const os::point& pt,
+                                     const os::size& sz,
+                                     double a) {
+      return os::point{short(os::get_x(pt) + os::get_width(sz) * cos(a)),
+                       short(os::get_y(pt) - os::get_height(sz) * sin(a))};
+    }
+
+    os::size arc_coords::radius () const {
+      return {static_cast<os::size_type>(w / 2.0),
+              static_cast<os::size_type>(h / 2.0)};
+    }
+
+    os::point arc_coords::center (const os::size& radius) const {
+      return {static_cast<os::point_type>(x + os::get_width(radius)),
+              static_cast<os::point_type>(y + os::get_width(radius))};
+    }
+
+    std::array<os::point, 3> arc_coords::calc_points () const {
+      const auto r = radius();
+      const auto c = center(r);
+      return {
+        calc_arc_point(c, r, start.rad()),
+        c,
+        calc_arc_point(c, r, end.rad())
+      };
+    }
+
+    bool arc_coords::is_closed () const {
+      return start.deg() + 360.0F == end.deg();
+    }
+
+    // --------------------------------------------------------------------------
 #ifdef GUIPP_WIN
     brush null_brush((os::brush)GetStockObject(NULL_BRUSH));
     pen null_pen((os::win32::pen)GetStockObject(NULL_PEN));
@@ -215,8 +279,8 @@ namespace gui {
                 rect.os_y(),
                 rect.os_x2(),
                 rect.os_y2(),
-                (size.os_width() * 2),
-                (size.os_height() * 2));
+                (radius.os_width() * 2),
+                (radius.os_height() * 2));
     }
 
     void round_rectangle::operator() (const graphics& g,
@@ -229,8 +293,8 @@ namespace gui {
                 rect.os_y(),
                 rect.os_x2(),
                 rect.os_y2(),
-                (size.os_width() * 2),
-                (size.os_height() * 2));
+                (radius.os_width() * 2),
+                (radius.os_height() * 2));
     }
 
     void round_rectangle::operator() (const graphics& g,
@@ -243,90 +307,30 @@ namespace gui {
                 rect.os_y(),
                 rect.os_x2(),
                 rect.os_y2(),
-                (size.os_width() * 2),
-                (size.os_height() * 2));
+                (radius.os_width() * 2),
+                (radius.os_height() * 2));
     }
 
     // --------------------------------------------------------------------------
-    arc::arc (const core::point& pos,
-              float radius,
-              float start_angle,
-              float end_angle)
-      : pos(pos)
-      , radius(radius)
-      , start_angle(start_angle)
-      , end_angle(end_angle) 
-    {}
-
-    void arc::operator() (const graphics& g,
-                          const brush& b,
-                          const pen& p) const {
-      const uint32_t sz = static_cast<unsigned int>(core::global::scale_to_native<uint32_t>(radius * 2));
-
-      auto end_a = end_angle;
-      while (end_a < start_angle) {
-        end_a += 360;
-      }
-
-      Use<brush> br(g, b);
-      Use<pen> pn(g, p);
-      if ((end_a - start_angle == 360)) {
-        const auto tl = pos - core::size(radius, radius);
-        const auto x = tl.os_x();
-        const auto y = tl.os_y();
-        if (sz < 3) {
-          Rectangle(g, x, y, x + sz + 1, y + sz + 1);
+    void draw_pie (const graphics& g, const arc_coords& c) {
+      if (c.is_closed()) {
+        if ((c.w < 3) || (c.h < 3)) {
+          Rectangle(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1);
         } else {
-          Ellipse(g, x, y, x + sz + 1, y + sz + 1);
+          Ellipse(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1);
         }
       } else {
-        const auto x = pos.os_x();
-        const auto y = pos.os_y();
-        const auto r = core::global::scale_to_native<DWORD>(radius);
-        BeginPath(g);
-        MoveToEx(g, x, x, nullptr);
-        AngleArc(g, x, x, r, start_angle, end_a - start_angle);
-        LineTo(g, x, x);
-        EndPath(g);
-        StrokeAndFillPath(g);
+        auto pt = c.calc_points();
+        Pie(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1, pt[0].x, pt[0].y, pt[2].x, pt[2].y);
       }
     }
 
-    void arc::operator() (const graphics& g,
-                          const pen& p) const {
-      const uint32_t sz = core::global::scale_to_native<uint32_t>(radius * 2);
-
-      auto end_a = end_angle;
-      while (end_a < start_angle) {
-        end_a += 360;
-      }
-      Use<pen> pn(g, p);
-      if ((end_a - start_angle == 360)) {
-        const auto tl = pos - core::size(radius, radius);
-        const auto x = tl.os_x();
-        const auto y = tl.os_y();
-        Use<brush> br(g, null_brush);
-        if (sz < 3) {
-          Rectangle(g, x, y, x + sz + 1, y + sz + 1);
-        } else {
-          Ellipse(g, x, y, x + sz + 1, y + sz + 1);
-        }
-      } else {
-        const auto x = pos.os_x();
-        const auto y = pos.os_y();
-        const auto r = core::global::scale_to_native<DWORD>(radius);
-        BeginPath(g);
-        MoveToEx(g, x, y, nullptr);
-        AngleArc(g, x, y, r, start_angle, end_a - start_angle);
-        LineTo(g, x, y);
-        EndPath(g);
-        StrokePath(g);
-      }
+    void fill_pie (const graphics& g, const arc_coords& c) {
+      draw_pie(g, c);
     }
 
-    void arc::operator() (const graphics& g,
-                          const brush& b) const {
-      operator()(g, b, b.color());
+    // --------------------------------------------------------------------------
+    void pie::prepare (const graphics& g) const {
     }
 
     // --------------------------------------------------------------------------
@@ -481,75 +485,6 @@ namespace gui {
 
 #if defined(GUIPP_X11) || defined(GUIPP_QT)
 
-#ifdef GUIPP_X11
-    inline os::point_type get_x (const os::rectangle& r) {
-      return r.x;
-    }
-
-    inline os::point_type get_y (const os::rectangle& r) {
-      return r.y;
-    }
-
-    inline os::size_type get_width (const os::rectangle& r) {
-      return r.width;
-    }
-
-    inline os::size_type get_height (const os::rectangle& r) {
-      return r.height;
-    }
-
-    inline os::point_type get_x (const os::point& p) {
-      return p.x;
-    }
-
-    inline os::point_type get_y (const os::point& p) {
-      return p.y;
-    }
-
-    inline os::size_type get_width (const os::size& s) {
-      return s.cx;
-    }
-
-    inline os::size_type get_height (const os::size& s) {
-      return s.cy;
-    }
-#endif // GUIPP_X11
-
-#ifdef GUIPP_QT
-    inline os::point_type get_x (const os::rectangle& r) {
-      return r.x();
-    }
-
-    inline os::point_type get_y (const os::rectangle& r) {
-      return r.y();
-    }
-
-    inline os::size_type get_width (const os::rectangle& r) {
-      return r.width();
-    }
-
-    inline os::size_type get_height (const os::rectangle& r) {
-      return r.height();
-    }
-
-    inline os::point_type get_x (const os::point& p) {
-      return p.x();
-    }
-
-    inline os::point_type get_y (const os::point& p) {
-      return p.y();
-    }
-
-    inline os::size_type get_width (const os::size& s) {
-      return s.width();
-    }
-
-    inline os::size_type get_height (const os::size& s) {
-      return s.height();
-    }
-#endif // GUIPP_QT
-
-
     // --------------------------------------------------------------------------
     template<typename Arc, typename Line, typename Rectangle, typename Angle>
     void calc_arcs (const core::rectangle& rect,
@@ -566,16 +501,16 @@ namespace gui {
       const os::rectangle r = rect.os();
       const os::size s = size.os();
 
-      const size_type w = std::min(get_width(s), static_cast<size_type>(get_width(r) / 2));
-      const size_type h = std::min(get_height(s), static_cast<size_type>(get_height(r) / 2));
+      const size_type w = std::min(os::get_width(s), static_cast<size_type>(os::get_width(r) / 2));
+      const size_type h = std::min(os::get_height(s), static_cast<size_type>(os::get_height(r) / 2));
 
       const point_type x0 = get_x(r);
-      const point_type x3 = get_x(r) + get_width(r);
+      const point_type x3 = get_x(r) + os::get_width(r);
       const point_type x1 = x0 + w;
       const point_type x2 = x3 - w;
 
       const point_type y0 = get_y(r);
-      const point_type y3 = get_y(r) + get_height(r);
+      const point_type y3 = get_y(r) + os::get_height(r);
       const point_type y1 = y0 + h;
       const point_type y2 = y3 - h;
 
@@ -775,7 +710,7 @@ namespace gui {
       std::array<XArc, 4> arcs{};
       std::array<XSegment, 4> segments{};
 
-      calc_arcs<XArc, XSegment, XRectangle>(rect - core::size::one, size, &arcs, &segments, nullptr, degree_90);
+      calc_arcs<XArc, XSegment, XRectangle>(rect - core::size::one, radius, &arcs, &segments, nullptr, degree_90);
 
       XDrawArcs(display, g, g, arcs.data(), (int)arcs.size());
       XDrawSegments(display, g, g, segments.data(), (int)segments.size());
@@ -789,7 +724,7 @@ namespace gui {
 
       std::array<XArc, 4> arcs{};
       std::array<XRectangle, 3> rects{};
-      calc_arcs<XArc, XSegment, XRectangle>(rect - core::size::one, size, &arcs, nullptr, &rects, degree_90);
+      calc_arcs<XArc, XSegment, XRectangle>(rect - core::size::one, radius, &arcs, nullptr, &rects, degree_90);
 
       XFillArcs(display, g, g, arcs.data(), (int)arcs.size());
       pen p(b.color());
@@ -810,7 +745,7 @@ namespace gui {
       std::array<XArc, 4> arcs{};
       std::array<XSegment, 4> segments{};
       std::array<XRectangle, 3> rects{};
-      calc_arcs<XArc, XSegment, XRectangle>(rect - core::size::one, size, &arcs, &segments, &rects, degree_90);
+      calc_arcs<XArc, XSegment, XRectangle>(rect - core::size::one, radius, &arcs, &segments, &rects, degree_90);
 
       XFillArcs(display, g, g, arcs.data(), (int)arcs.size());
       XFillRectangles(display, g, g, rects.data(), (int)rects.size());
@@ -823,90 +758,26 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    arc::arc (const core::point& pos,
-              float radius,
-              float start_angle,
-              float end_angle)
-      : pos(pos), radius(radius), start_angle(start_angle), end_angle(end_angle) {}
-
-    void frame_arc (const graphics& g,
-                    const pen& p,
-                    const core::point& pos,
-                    float radius,
-                    float start_angle,
-                    float end_angle) {
-
+    void draw_pie (const graphics& g, const arc_coords& c) {
       gui::os::instance display = get_instance();
 
-      const auto tl = pos - core::size(radius, radius);
-      const unsigned int sz = scale_to_native<unsigned int>(radius * 2);
+      XDrawArc(display, g, g, c.x, c.y, c.w, c.h, c.start, c.end - c.start);
 
-      while (end_angle < start_angle) {
-        end_angle += 360;
-      }
-
-      Use<pen> pn(g, p);
-      XDrawArc(display, g, g, tl.os_x(), tl.os_y(), sz, sz, int(start_angle * 64), int((end_angle - start_angle) * 64));
-
-      int istart = int(start_angle * 1000.0F) % 360000;
-      int iend = int(end_angle * 1000.0F) % 360000;
-      if (istart != iend) {
-        double start = M_PI * start_angle / 180.0;
-        double end = M_PI * end_angle / 180.0;
-        os::point pt[3];
-        pt[0].x = short(scale_to_native<os::point_type>(pos.x() + radius * cos(start)));
-        pt[0].y = short(scale_to_native<os::point_type>(pos.y() - radius * sin(start)));
-        pt[1].x = short(scale_to_native<os::point_type>(pos.x()));
-        pt[1].y = short(scale_to_native<os::point_type>(pos.y()));
-        pt[2].x = short(scale_to_native<os::point_type>(pos.x() + radius * cos(end)));
-        pt[2].y = short(scale_to_native<os::point_type>(pos.y() - radius * sin(end)));
-        XDrawLines(display, g, g, pt, 3, CoordModeOrigin);
+      if (!c.is_closed()) {
+        auto pt = c.calc_points();
+        XDrawLines(display, g, g, pt.data(), pt.size(), CoordModeOrigin);
         XDrawPoint(display, g, g, pt[0].x, pt[0].y);
         XDrawPoint(display, g, g, pt[2].x, pt[2].y);
       }
     }
 
-    void fill_arc (const graphics& g,
-                   const brush& b,
-                   const core::point& pos,
-                   float radius,
-                   float start_angle,
-                   float end_angle) {
-      Use<brush> br(g, b);
-
-      const auto tl = pos - core::size(radius, radius);
-      const unsigned int sz = scale_to_native<unsigned int>(radius * 2);
-
-      int x = tl.os_x();
-      int y = tl.os_y();
-
-      while (end_angle < start_angle) {
-        end_angle += 360;
-      }
-
-      gui::os::instance display = get_instance();
-      XSetArcMode(display, g, ArcPieSlice);
-      XFillArc(display, g, g, x, y, sz, sz, int(start_angle * 64), int((end_angle - start_angle) * 64));
-
-      XDrawArc(get_instance(), g, g, x, y, sz, sz, int(start_angle * 64), int((end_angle - start_angle) * 64));
+    void fill_pie (const graphics& g, const arc_coords& c) {
+      XFillArc(get_instance(), g, g, c.x, c.y, c.w, c.h, c.start, c.end - c.start);
     }
 
-    void arc::operator() (const graphics& g,
-                          const brush& b,
-                          const pen& p) const {
-      fill_arc(g, b, pos, radius, start_angle, end_angle);
-      frame_arc(g, p, pos, radius, start_angle, end_angle);
-    }
-
-    void arc::operator() (const graphics& g,
-                          const pen& p) const {
-      frame_arc(g, p, pos, radius, start_angle, end_angle);
-    }
-
-    void arc::operator() (const graphics& g,
-                          const brush& b) const {
-      fill_arc(g, b, pos, radius, start_angle, end_angle);
-      frame_arc(g, pen(b.color()), pos, radius, start_angle, end_angle);
+    // --------------------------------------------------------------------------
+    void pie::prepare (const graphics& g) const {
+      XSetArcMode(get_instance(), g, ArcPieSlice);
     }
 
     // --------------------------------------------------------------------------
@@ -1341,21 +1212,6 @@ namespace gui {
     // --------------------------------------------------------------------------
     void round_rectangle::operator() (const graphics& g,
                                       const pen& p) const {
-//      Use<pen> pn(g, p);
-
-//      struct Arc {
-//        int x, y, w, h, a, l;
-//      };
-
-//      std::array<Arc, 4> arcs;
-//      std::array<QLine, 4> segments;
-//      calc_arcs<Arc, QLine, os::rectangle>(rect - core::size::one, size, &arcs, &segments, nullptr, 90*16);
-
-//      for (const Arc& arc : arcs) {
-//        const Arc& arc = arcs[0];
-//        g.os()->drawArc(arc.x, arc.y, arc.w, arc.h, arc.a, arc.l);
-//      }
-//      g.os()->drawLines(segments.data(), segments.size());
       operator()(g, null_brush, p);
     }
 
@@ -1370,112 +1226,34 @@ namespace gui {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
 
-//      struct Arc {
-//        int x, y, w, h, a, l;
-//      };
-
-//      std::array<Arc, 4> arcs;
-//      std::array<QLine, 4> segments;
-//      std::array<os::rectangle, 3> rects;
-//      calc_arcs<Arc, QLine, os::rectangle>(rect - core::size::one, size, &arcs, &segments, &rects, 90*16);
-
-//      /*for (const Arc& arc : arcs)*/ {
-//        const Arc& arc = arcs[0];
-//        g.os()->drawArc(arc.x, arc.y, arc.w, arc.h, arc.a, arc.l);
-//      }
-////      for (const os::rectangle& a : rects) {
-////        g.os()->drawRect(a);
-////      }
-////      g.os()->drawLines(segments.data(), segments.size());
-
       const auto pw = p.os_size();
       const auto off = pw / 2;
       const os::rectangle r = rect.os();
       if ((r.width() > pw) && (r.height() > pw)) {
-        g.os()->drawRoundedRect(r.x() + off, r.y() + off, r.width() - pw, r.height() - pw, size.os_width(), size.os_height());
+        g.os()->drawRoundedRect(r.x() + off, r.y() + off, r.width() - pw, r.height() - pw, radius.os_width(), radius.os_height());
       } else if ((r.width() > 1) && (r.height() > 1)) {
-        g.os()->drawRoundedRect(r.x(), r.y(), pw, pw, size.os_width(), size.os_height());
+        g.os()->drawRoundedRect(r.x(), r.y(), pw, pw, radius.os_width(), radius.os_height());
       } else if ((1 == r.width()) && (1 == r.height())) {
         g.os()->drawPoint(r.x() + off, r.y() + off);
       }
     }
 
     // --------------------------------------------------------------------------
-    arc::arc (const core::point& pos,
-              float radius,
-              float start,
-              float end)
-      : pos(pos)
-      , radius(radius)
-      , start_angle(start)
-      , end_angle(end)
-    {
-      if (end_angle < start_angle) {
-        std::swap(end_angle, start_angle);
+    void draw_pie (const graphics& g, const arc_coords& c) {
+      QRectF r(c.x, c.y, c.w, c.h);
+      if (c.is_closed()) {
+        g.os()->drawEllipse(r);
+      } else {
+        g.os()->drawPie(r, c.start, c.end - c.start);
       }
     }
 
-    QPointF find_ellipse_coords (const core::point &pt, float angle, float radius) {
-      const double F = M_PI / 180.0;
-      const double y = std::sin(angle * F) * radius;
-      const double x = std::cos(angle * F) * radius;
-      return QPointF(pt.os_x() + x, pt.os_y() + y);
+    void fill_pie (const graphics& g, const arc_coords& c) {
+      draw_pie(g, c);
     }
 
-    void arc::operator() (const graphics& g,
-                          const brush& b,
-                          const pen& p) const {
-      const auto rad = core::global::scale_to_native<qreal>(radius);
-//      if (rad < 10) {
-//        QPen pen(os::brush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()), Qt::FlatCap, Qt::RoundJoin);
-//        QPainterPath path;
-//        const float step_angle = 180.0F / rad;
-//        path.moveTo(find_ellipse_coords(pos, start_angle, rad));
-//        for (float angle = start_angle + step_angle; angle < end_a; angle += step_angle) {
-//          path.lineTo(find_ellipse_coords(pos, std::min(angle, end_a), rad));
-//        }
-//        path.closeSubpath();
-//        g.os()->strokePath(path, pen);
-//      } else {
-
-        Use<brush> br(g, b);
-        Use<pen> pn(g, p);
-
-        if ((end_angle - start_angle) == 360.0) {
-          QRectF rect(pos.os_x() - rad, pos.os_y() - rad, rad * 2, rad * 2);
-          g.os()->drawEllipse(rect);
-//          g.os()->drawArc(rect, static_cast<int>(start_angle*16.0F), static_cast<int>((end_angle - start_angle)*16.0F));
-        } else {
-          QRectF rect(pos.os_x() - rad, pos.os_y() - rad, rad * 2, rad * 2);
-          g.os()->drawPie(rect, static_cast<int>(start_angle*16.0F), static_cast<int>((end_angle - start_angle)*16.0F));
-        }
-//      }
-
-//      g.os()->setRenderHint(QPainter::Antialiasing, true);
-//      Use<brush> br(g, b);
-//      QPen pen(os::brush(p.color()), p.os_size(), static_cast<Qt::PenStyle>(p.style()),
-//                           Qt::FlatCap, Qt::RoundJoin);
-//      QPainterPath path;
-//      QRectF outer_rect(pos.os_x() - rad, pos.os_y() - rad, rad * 2 + 1, rad * 2 + 1);
-////      QRectF inner_rect(pen.width(), pen.width(), width() - pen.width() * 2, height() - pen.width() * 2);
-//      path.arcMoveTo(outer_rect, start_angle);
-//      path.arcTo(outer_rect, start_angle, end_a - start_angle);
-////      path.lineTo(my_find_ellipse_coords(inner_rect, angle));
-////      path.arcTo(inner_rect, angle, -angle);
-////      path.lineTo(my_find_ellipse_coords(outer_rect, 0));
-//      path.closeSubpath();
-//      g.os()->strokePath(path, pen);
-
-    }
-
-    void arc::operator() (const graphics& g,
-                          const pen& p) const {
-      operator()(g, null_brush, p);
-    }
-
-    void arc::operator() (const graphics& g,
-                          const brush& b) const {
-      operator()(g, b, b.color());
+    // --------------------------------------------------------------------------
+    void pie::prepare (const graphics& g) const {
     }
 
     // --------------------------------------------------------------------------
@@ -1567,6 +1345,60 @@ namespace gui {
       g.os()->drawText(r, static_cast<int>(origin), t);
     }
 #endif // GUIPP_QT
+
+    // --------------------------------------------------------------------------
+    pie::pie (const core::point& center,
+              core::size::type radius,
+              const core::angle& start,
+              const core::angle& end)
+      : rect(center - core::size(radius), center + core::size(radius))
+      , start_angle(std::min(start, end))
+      , end_angle(std::max(start, end))
+    {}
+
+    pie::pie (const core::point& center,
+              const core::size& radius,
+              const core::angle& start,
+              const core::angle& end)
+      : rect(center - radius, radius * 2.0)
+      , start_angle(std::min(start, end))
+      , end_angle(std::max(start, end))
+    {}
+
+    pie::pie (const core::rectangle& rect,
+              const core::angle& start,
+              const core::angle& end)
+      : rect(rect)
+      , start_angle(std::min(start, end))
+      , end_angle(std::max(start, end))
+    {}
+
+    void pie::operator() (const graphics& g,
+                          const pen& p) const {
+      arc_coords c(rect, start_angle, end_angle);
+      Use<pen> pn(g, p);
+      prepare(g);
+      draw_pie(g, c);
+    }
+
+    void pie::operator() (const graphics& g,
+                          const brush& b) const {
+      arc_coords c(rect, start_angle, end_angle);
+      Use<brush> br(g, b);
+      prepare(g);
+      fill_pie(g, c);
+    }
+
+    void pie::operator() (const graphics& g,
+                          const brush& b,
+                          const pen& p) const {
+      arc_coords c(rect, start_angle, end_angle);
+      Use<brush> br(g, b);
+      prepare(g);
+      fill_pie(g, c);
+      Use<pen> pn(g, p);
+      draw_pie(g, c);
+    }
 
     // --------------------------------------------------------------------------
     polyline::polyline (const std::vector<core::point>& pts) {

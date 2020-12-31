@@ -26,6 +26,9 @@
 # include <map>
 #endif // GUIPP_X11
 #include <thread>
+#ifdef USE_MINGW
+#include <mingw/mingw.thread.h>
+#endif
 
 // --------------------------------------------------------------------------
 //

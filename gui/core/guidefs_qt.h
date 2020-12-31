@@ -94,6 +94,17 @@ namespace gui {
     typedef QSize size;
     typedef QRect rectangle;
 
+    inline point_type get_x (const QPoint& p) { return p.x(); }
+    inline point_type get_y (const QPoint& p) { return p.y(); }
+
+    inline size_type get_width (const QSize& s) { return s.width(); }
+    inline size_type get_height (const QSize& s) { return s.height(); }
+
+    inline point_type get_x (const QRect& r) { return r.x(); }
+    inline point_type get_y (const QRect& r) { return r.y(); }
+    inline size_type get_width (const QRect& r) { return r.width(); }
+    inline size_type get_height (const QRect& r) { return r.height(); }
+
     typedef /*QEvent::Type*/int event_id;
     typedef /*QEvent::Type*/int message_type;
     typedef int event_result;

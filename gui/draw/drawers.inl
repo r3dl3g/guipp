@@ -104,22 +104,22 @@ namespace gui {
     {}
 
     template<>
-    void arc_or_pie<arc_type::arc>::operator() (const graphics&, const brush&, const pen&) const;
+    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::arc>::operator() (const graphics&, const brush&, const pen&) const;
 
     template<>
-    void arc_or_pie<arc_type::arc>::operator() (const graphics&, const pen&) const;
+    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::arc>::operator() (const graphics&, const pen&) const;
 
     template<>
-    void arc_or_pie<arc_type::arc>::operator() (const graphics&, const brush&) const;
+    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::arc>::operator() (const graphics&, const brush&) const;
 
     template<>
-    void arc_or_pie<arc_type::pie>::operator() (const graphics&, const brush&, const pen&) const;
+    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::pie>::operator() (const graphics&, const brush&, const pen&) const;
 
     template<>
-    void arc_or_pie<arc_type::pie>::operator() (const graphics&, const pen&) const;
+    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::pie>::operator() (const graphics&, const pen&) const;
 
     template<>
-    void arc_or_pie<arc_type::pie>::operator() (const graphics&, const brush&) const;
+    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::pie>::operator() (const graphics&, const brush&) const;
 
     // --------------------------------------------------------------------------
     inline text_box::text_box (const std::string& str,

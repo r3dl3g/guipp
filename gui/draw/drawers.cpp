@@ -352,10 +352,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void pie::prepare (const graphics& g) const {
-    }
-
-    // --------------------------------------------------------------------------
     void polyline::operator() (const graphics& g,
                               const brush& b,
                               const pen& p) const {
@@ -1384,7 +1380,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void arc_or_pie<arc_type::arc>::operator() (const graphics& g,
-                          const pen& p) const {
+                                                const pen& p) const {
       arc_coords c(rect, start_angle, end_angle);
       Use<pen> pn(g, p);
 #ifdef GUIPP_WIN32
@@ -1395,7 +1391,7 @@ namespace gui {
 
     template<>
     void arc_or_pie<arc_type::arc>::operator() (const graphics& g,
-                          const brush& b) const {
+                                                const brush& b) const {
       arc_coords c(rect, start_angle, end_angle);
       Use<brush> br(g, b);
       fill_arc<arc_type::arc>(g, c);
@@ -1403,8 +1399,8 @@ namespace gui {
 
     template<>
     void arc_or_pie<arc_type::arc>::operator() (const graphics& g,
-                          const brush& b,
-                          const pen& p) const {
+                                                const brush& b,
+                                                const pen& p) const {
       arc_coords c(rect, start_angle, end_angle);
       Use<brush> br(g, b);
       fill_arc<arc_type::arc>(g, c);

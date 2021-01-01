@@ -111,7 +111,7 @@ namespace gui {
                   const core::angle& start_angle,
                   const core::angle& end_angle);
       arc_or_pie (const core::point& center,
-                  const core::size& size,
+                  const core::size& radius,
                   const core::angle& start_angle,
                   const core::angle& end_angle);
       arc_or_pie (const core::rectangle& rect,

@@ -18,15 +18,13 @@ if(NOT TARGET gui++-app-obj)
 
   add_definitions(${GUIPP_CXX_FLAGS})
 
-  add_library(gui++-app-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
+  add_library(gui++-app OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
 
-  set_target_properties(gui++-app-obj PROPERTIES
+  set_target_properties(gui++-app PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
                         CXX_STANDARD 11
   )
-
-  add_library(gui++-app STATIC $<TARGET_OBJECTS:gui++-app-obj>)
 
   if (GUIPP_STANDALONE_BUILD)
     install(TARGETS gui++-app DESTINATION ${LIBRARY_INSTALL_DIR})

@@ -73,7 +73,7 @@ namespace gui {
     void Use<brush>::set (const brush& b) {
       gui::os::instance display = get_instance();
       XSetForeground(display, g, b.color());
-      XSetFillStyle(display, g, b.style());
+      XSetFillStyle(display, g, static_cast<int>(b.style()));
     }
 
 #ifndef GUIPP_USE_XFT

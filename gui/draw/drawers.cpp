@@ -370,7 +370,7 @@ namespace gui {
     }
 
     template<arc_type T>
-    void draw_arc<T> (const graphics& g, const arc_coords& c, const pen& p) {
+    void draw_arc (const graphics& g, const arc_coords& c, const pen& p) {
       Use<pen> pn(g, p);
       if (c.full()) {
         draw_full_arc(g, c);

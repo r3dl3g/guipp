@@ -39,7 +39,7 @@ namespace gui {
 
 #ifdef GUIPP_WIN
     const brush brush::invisible((os::brush)GetStockObject(NULL_BRUSH));
-    const brush brush::default((os::brush)GetStockObject(WHITE_BRUSH));
+    const brush brush::standard((os::brush)GetStockObject(WHITE_BRUSH));
 
     brush::brush (os::brush os_id)
       : id(os_id) {
@@ -116,8 +116,8 @@ namespace gui {
 #endif // GUIPP_WIN
 
 #if defined(GUIPP_X11) || defined(GUIPP_QT)
-    const brush brush::invisible((color::black, brush::Style::invisible);
-    const brush brush::default();
+    const brush brush::invisible(color::black, brush::Style::invisible);
+    const brush brush::standard;
 
     brush::brush (const os::color& color, Style style)
       : m_color(color)

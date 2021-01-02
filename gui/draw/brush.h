@@ -39,7 +39,7 @@ namespace gui {
       };
 
       static const brush invisible;
-      static const brush default;
+      static const brush standard;
 
       brush (const os::color& = color::black, Style = Style::solid);
       brush (const brush&);

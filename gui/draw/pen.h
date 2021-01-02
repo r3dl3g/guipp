@@ -61,7 +61,7 @@ namespace gui {
       };
 
       static const pen invisible;
-      static const pen default;
+      static const pen standard;
 
       pen (const os::color& = color::black, size_type = 1, Style = Style::solid, Cap = Cap::square, Join = Join::miter);
       pen (const pen&);

@@ -1335,7 +1335,13 @@ namespace gui {
     template<arc_type T>
     void fill_arc (const graphics& g, const arc_coords& c, const brush& b) {
       Use<brush> br(g, b);
-      draw_arc<T>(g, c);
+
+      QRectF r(c.x, c.y, c.w, c.h);
+      if (c.full()) {
+        g.os()->drawEllipse(r);
+      } else {
+        g.os()->drawPie(r, c.start, c.end - c.start);
+      }
     }
 
     // --------------------------------------------------------------------------

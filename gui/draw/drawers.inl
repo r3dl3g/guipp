@@ -80,8 +80,8 @@ namespace gui {
                                const core::angle& start,
                                const core::angle& end)
       : rect(center - core::size(radius), center + core::size(radius))
-      , start_angle(std::min(start, end))
-      , end_angle(std::max(start, end))
+      , start_angle(start)
+      , end_angle(end)
     {}
 
     template<arc_type T>
@@ -90,8 +90,8 @@ namespace gui {
                                const core::angle& start,
                                const core::angle& end)
       : rect(center - radius, radius * 2.0)
-      , start_angle(std::min(start, end))
-      , end_angle(std::max(start, end))
+      , start_angle(start)
+      , end_angle(end)
     {}
 
     template<arc_type T>
@@ -99,8 +99,8 @@ namespace gui {
                                const core::angle& start,
                                const core::angle& end)
       : rect(rect)
-      , start_angle(std::min(start, end))
-      , end_angle(std::max(start, end))
+      , start_angle(start)
+      , end_angle(end)
     {}
 
     template<>

@@ -36,15 +36,15 @@ namespace gui {
       Use (os::graphics g, const T& t)
         : g(g)
         , obj(t)
-        , old(set(t))
+        , old(set(obj))
       {}
 
-      HGDIOBJ set (HGDIOBJ t) {
-        return SelectObject(g, t);
+      HGDIOBJ set (HGDIOBJ o) {
+        return SelectObject(g, o);
       }
 
-      void unset (HGDIOBJ t) {
-        SelectObject(g, t);
+      void unset (HGDIOBJ o) {
+        SelectObject(g, o);
       }
 
       inline ~Use () {
@@ -52,7 +52,7 @@ namespace gui {
       }
 
       os::graphics g;
-      HGDIOBJ obj;
+      T obj;
       HGDIOBJ old;
     };
 

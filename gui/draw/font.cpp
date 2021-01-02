@@ -275,6 +275,17 @@ namespace gui {
               (strcmp(info.lfFaceName, rhs.info.lfFaceName) == 0));
     }
 
+    font& font::operator= (const font& rhs) {
+      if (this != &rhs) {
+        if (id) {
+          DeleteObject(id);
+        }
+        info = rhs.info;
+        id = CreateFontIndirect(&info);
+      }
+      return *this;
+    }
+
     std::ostream& operator<< (std::ostream& out, const font& f) {
       out << f.name() << ", " << f.size() << ", " << f.thickness() << ", " << f.italic();
       return out;

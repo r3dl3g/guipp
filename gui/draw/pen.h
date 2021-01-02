@@ -60,6 +60,9 @@ namespace gui {
         bevel =       IF_WIN32_X11_QT_ELSE(PS_JOIN_BEVEL,     JoinBevel,              Qt::PenJoinStyle::BevelJoin,  3)
       };
 
+      static const pen invisible;
+      static const pen default;
+
       pen (const os::color& = color::black, size_type = 1, Style = Style::solid, Cap = Cap::square, Join = Join::miter);
       pen (const pen&);
       ~pen ();
@@ -103,8 +106,6 @@ namespace gui {
 #endif // GUIPP_X11 || GUIPP_QT
 
     };
-
-    const extern pen default_pen;
 
   }
 

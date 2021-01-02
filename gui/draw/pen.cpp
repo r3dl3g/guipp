@@ -34,7 +34,8 @@ namespace gui {
   namespace draw {
 
 #ifdef GUIPP_WIN
-    const pen default_pen((os::win32::pen)GetStockObject(BLACK_PEN));
+    const pen pen::invisible((os::win32::pen)GetStockObject(NULL_PEN));
+    const pen pen::default((os::win32::pen)GetStockObject(BLACK_PEN));
 
     pen::pen (os::win32::pen id)
       : id(id)
@@ -127,7 +128,8 @@ namespace gui {
     }
 
 #if defined(GUIPP_X11) || defined(GUIPP_QT)
-    const pen default_pen;
+    const pen pen::invisible(color::black, pen::Style::invisible);
+    const pen pen::default();
 
     pen::pen (const os::color& color, size_type size, Style style, Cap cap, Join join)
       : m_color(color)

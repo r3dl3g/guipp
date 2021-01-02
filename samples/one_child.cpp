@@ -23,8 +23,9 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   client_window<color::white> drawing;
 
   drawing.on_paint(draw::paint([&] (const draw::graphics& g) {
-    g.frame(draw::rectangle(drawing.client_area().shrinked({5, 5})), color::blue);
-    g.frame(draw::arc(drawing.client_area().shrinked({5, 5}), -45, 45), color::green);
+    g.frame(draw::rectangle(drawing.client_area().shrinked({5, 5})), color::black);
+    g.frame(draw::pie(drawing.client_area().shrinked({10, 10}), -45, 45), color::blue);
+    g.frame(draw::arc(drawing.client_area().shrinked({15, 15}), -45, 45), color::green);
     g.frame(draw::pie(drawing.client_area().center(), 70, 45, 315), color::red);
   }));
 

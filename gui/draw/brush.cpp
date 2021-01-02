@@ -38,7 +38,8 @@ namespace gui {
   namespace draw {
 
 #ifdef GUIPP_WIN
-    const brush default_brush((os::brush)GetStockObject(WHITE_BRUSH));
+    const brush brush::invisible((os::brush)GetStockObject(NULL_BRUSH));
+    const brush brush::default((os::brush)GetStockObject(WHITE_BRUSH));
 
     brush::brush (os::brush os_id)
       : id(os_id) {
@@ -59,7 +60,7 @@ namespace gui {
       : id(0)
     {
       info.lbColor = color;
-      info.lbStyle = style;
+      info.lbStyle = static_cast<UINT>(style);
       info.lbHatch = 0;
     }
 
@@ -97,7 +98,7 @@ namespace gui {
 
     brush brush::with_style (Style s) const {
       os::win32::brush_type newType = info;
-      newType.lbStyle = s;
+      newType.lbStyle = static_cast<UINT>(s);
       return brush(CreateBrushIndirect(&newType));
     }
 
@@ -115,7 +116,8 @@ namespace gui {
 #endif // GUIPP_WIN
 
 #if defined(GUIPP_X11) || defined(GUIPP_QT)
-    const brush default_brush;
+    const brush brush::invisible((color::black, brush::Style::invisible);
+    const brush brush::default();
 
     brush::brush (const os::color& color, Style style)
       : m_color(color)

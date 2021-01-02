@@ -64,12 +64,14 @@ namespace gui {
                   const core::angle& start_angle,
                   const core::angle& end_angle);
 
+      std::array<os::point, 2> calc_points0 () const;
       std::array<os::point, 3> calc_points () const;
 
       os::point center (const os::size& radius) const;
       os::size radius () const;
 
-      bool is_closed () const;
+      bool full () const;
+      bool empty () const;
     };
 
     arc_coords::arc_coords (const core::rectangle& rect,
@@ -97,7 +99,16 @@ namespace gui {
 
     os::point arc_coords::center (const os::size& radius) const {
       return {static_cast<os::point_type>(x + os::get_width(radius)),
-              static_cast<os::point_type>(y + os::get_width(radius))};
+              static_cast<os::point_type>(y + os::get_height(radius))};
+    }
+
+    std::array<os::point, 2> arc_coords::calc_points0 () const {
+      const auto r = radius();
+      const auto c = center(r);
+      return {
+        c,
+        calc_arc_point(c, r, start.rad())
+      };
     }
 
     std::array<os::point, 3> arc_coords::calc_points () const {
@@ -110,21 +121,22 @@ namespace gui {
       };
     }
 
-    bool arc_coords::is_closed () const {
+    bool arc_coords::full () const {
       return start.deg() + 360.0F == end.deg();
     }
 
-    template<arc_type T>
-    void draw_arc (const graphics& g, const arc_coords& c);
+    bool arc_coords::empty () const {
+      return start.deg() == end.deg();
+    }
 
     template<arc_type T>
-    void fill_arc (const graphics& g, const arc_coords& c);
+    void draw_arc (const graphics& g, const arc_coords& c, const pen& p);
+
+    template<arc_type T>
+    void fill_arc (const graphics& g, const arc_coords& c, const brush& b);
 
     // --------------------------------------------------------------------------
 #ifdef GUIPP_WIN
-    brush null_brush((os::brush)GetStockObject(NULL_BRUSH));
-    pen null_pen((os::win32::pen)GetStockObject(NULL_PEN));
-
     // --------------------------------------------------------------------------
     void line::operator() (const graphics& g, const pen& p) const {
       const auto pw = p.os_size();
@@ -200,7 +212,7 @@ namespace gui {
         }
       } else if ((r.right > r.left) && (r.bottom > r.top)) {
         Use<pen> upn(g, p);
-        Use<brush> ubr(g, null_brush);
+        Use<brush> ubr(g, brush::invisible);
         const auto tl = pen_offsets_tl(pw);
         const auto br = pen_offsets_br(pw);
         Rectangle(g, r.left + tl, r.top + tl, r.right + br, r.bottom + br);
@@ -259,7 +271,7 @@ namespace gui {
         }
       } else if ((r.right > r.left) && (r.bottom > r.top)) {
         Use<pen> upn(g, p);
-        Use<brush> ubr(g, null_brush);
+        Use<brush> ubr(g, brush::invisible);
         if ((r.right - r.left < 2) || (r.bottom - r.top < 2)) {
           const auto br = pen_offsets_br(pw + 2);
           Rectangle(g, r.left, r.top, r.right + br + 2, r.bottom + br + 2);
@@ -279,7 +291,7 @@ namespace gui {
     void round_rectangle::operator() (const graphics& g,
                                       const pen& p) const {
       Use<pen> pn(g, p);
-      Use<brush> br(g, null_brush);
+      Use<brush> br(g, brush::invisible);
       RoundRect(g,
                 rect.os_x(),
                 rect.os_y(),
@@ -318,37 +330,67 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<>
-    void draw_arc<arc_type::pie> (const graphics& g, const arc_coords& c) {
-      if (c.is_closed()) {
-        if ((c.w < 3) || (c.h < 3)) {
-          Rectangle(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1);
-        } else {
-          Ellipse(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1);
-        }
+    void draw_full_arc (const graphics& g, const arc_coords& c) {
+      if ((c.w < 3) || (c.h < 3)) {
+        Rectangle(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1);
       } else {
-        auto pt = c.calc_points();
-        Pie(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1, pt[0].x, pt[0].y, pt[2].x, pt[2].y);
-      }
-    }
-
-    template<>
-    void draw_arc<arc_type::arc> (const graphics& g, const arc_coords& c) {
-      if (c.is_closed()) {
-        if ((c.w < 3) || (c.h < 3)) {
-          Rectangle(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1);
-        } else {
-          Ellipse(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1);
-        }
-      } else {
-        auto pt = c.calc_points();
-        Arc(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1, pt[0].x, pt[0].y, pt[2].x, pt[2].y);
+        Ellipse(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1);
       }
     }
 
     template<arc_type T>
-    void fill_arc (const graphics& g, const arc_coords& c) {
-      draw_arc<T>(g, c);
+    void draw_empty_arc (const graphics& g, const arc_coords&, os::color);
+
+    template<>
+    void draw_empty_arc<arc_type::pie> (const graphics& g, const arc_coords& c, os::color col) {
+      auto pt = c.calc_points0();
+      MoveToEx(g, os::get_x(pt[1]), os::get_y(pt[1]), nullptr);
+      LineTo(g, os::get_x(pt[0]), os::get_y(pt[0]));
+    }
+
+    template<>
+    void draw_empty_arc<arc_type::arc> (const graphics& g, const arc_coords& c, os::color col) {
+      auto pt = c.calc_points0();
+      SetPixel(g, os::get_x(pt[1]), os::get_y(pt[1]), col);
+    }
+
+    template<arc_type T>
+    void draw_angle_arc (const graphics& g, const arc_coords&);
+
+    template<>
+    void draw_angle_arc<arc_type::pie> (const graphics& g, const arc_coords& c) {
+      auto pt = c.calc_points();
+      Pie(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1, pt[0].x, pt[0].y, pt[2].x, pt[2].y);
+    }
+
+    template<>
+    void draw_angle_arc<arc_type::arc> (const graphics& g, const arc_coords& c) {
+      auto pt = c.calc_points();
+      Arc(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1, pt[0].x, pt[0].y, pt[2].x, pt[2].y);
+    }
+
+    template<arc_type T>
+    void draw_arc<T> (const graphics& g, const arc_coords& c, const pen& p) {
+      Use<pen> pn(g, p);
+      if (c.full()) {
+        draw_full_arc(g, c);
+      } else if (c.empty()) {
+        draw_empty_arc<T>(g, c, p.color());
+      } else {
+        draw_angle_arc<T>(g, c);
+      }
+    }
+
+    template<arc_type T>
+    void fill_arc (const graphics& g, const arc_coords& c, const brush& b) {
+      Use<brush> br(g, b);
+      if (c.full()) {
+        draw_full_arc(g, c);
+      } else if (c.empty()) {
+        draw_empty_arc<T>(g, c, b.color());
+      } else {
+        draw_angle_arc<T>(g, c);
+      }
     }
 
     // --------------------------------------------------------------------------
@@ -363,7 +405,7 @@ namespace gui {
     void polyline::operator() (const graphics& g,
                               const pen& p) const {
       Use<pen> pn(g, p);
-      Use<brush> br(g, null_brush);
+      Use<brush> br(g, brush::invisible);
       Polyline(g, (const POINT*)points.data(), (int)points.size());
     }
 
@@ -387,7 +429,7 @@ namespace gui {
     void polygon::operator() (const graphics& g,
                                const pen& p) const {
       Use<pen> pn(g, p);
-      Use<brush> br(g, null_brush);
+      Use<brush> br(g, brush::invisible);
       Polygon(g, (const POINT*)points.data(), (int)points.size());
     }
 
@@ -777,7 +819,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void draw_arc<arc_type::arc> (const graphics& g, const arc_coords& c) {
+    void draw_arc<arc_type::arc> (const graphics& g, const arc_coords& c, const pen& p) {
+      Use<pen> pn(g, p);
+
       gui::os::instance display = get_instance();
 
       XSetArcMode(get_instance(), g, ArcPieSlice);
@@ -785,11 +829,15 @@ namespace gui {
     }
 
     template<>
-    void draw_arc<arc_type::pie> (const graphics& g, const arc_coords& c) {
-      draw_arc<arc_type::arc>(g, c);
+    void draw_arc<arc_type::pie> (const graphics& g, const arc_coords& c, const pen& p) {
+      Use<pen> pn(g, p);
+
       gui::os::instance display = get_instance();
 
-      if (!c.is_closed()) {
+      XSetArcMode(get_instance(), g, ArcPieSlice);
+      XDrawArc(display, g, g, c.x, c.y, c.w, c.h, c.start, c.end - c.start);
+
+      if (!c.full()) {
         auto pt = c.calc_points();
         XDrawLines(display, g, g, pt.data(), pt.size(), CoordModeOrigin);
         XDrawPoint(display, g, g, pt[0].x, pt[0].y);
@@ -798,7 +846,8 @@ namespace gui {
     }
 
     template<arc_type T>
-    void fill_arc (const graphics& g, const arc_coords& c) {
+    void fill_arc (const graphics& g, const arc_coords& c, const brush& b) {
+      Use<brush> br(g, b);
       XSetArcMode(get_instance(), g, ArcPieSlice);
       XFillArc(get_instance(), g, g, c.x, c.y, c.w, c.h, c.start, c.end - c.start);
     }
@@ -1117,9 +1166,6 @@ namespace gui {
 
 #ifdef GUIPP_QT
 
-    brush null_brush(color::black, brush::invisible);
-    pen null_pen(color::black, 1, pen::Style::invisible);
-
     void line::operator() (const graphics& g, const pen& p) const {
 
       const auto pw = p.os_size();
@@ -1193,7 +1239,7 @@ namespace gui {
       const auto pw = p.os_size();
       const auto off = pw / 2;
       const os::rectangle r = rect.os();
-      Use<brush> ubr(g, null_brush);
+      Use<brush> ubr(g, brush::invisible);
       Use<pen> pn(g, p);
       if ((r.width() > pw) && (r.height() > pw)) {
         g.os()->drawRect(r.x() + off, r.y() + off, r.width() - pw, r.height() - pw);
@@ -1224,7 +1270,7 @@ namespace gui {
 
     void ellipse::operator() (const graphics& g,
                               const pen& p) const {
-      operator()(g, null_brush, p);
+      operator()(g, brush::invisible, p);
     }
 
     void ellipse::operator() (const graphics& g,
@@ -1235,7 +1281,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     void round_rectangle::operator() (const graphics& g,
                                       const pen& p) const {
-      operator()(g, null_brush, p);
+      operator()(g, brush::invisible, p);
     }
 
     void round_rectangle::operator() (const graphics& g,
@@ -1263,9 +1309,11 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void draw_arc<arc_type::pie> (const graphics& g, const arc_coords& c) {
+    void draw_arc<arc_type::pie> (const graphics& g, const arc_coords& c, const pen& p) {
+      Use<pen> pn(g, p);
+
       QRectF r(c.x, c.y, c.w, c.h);
-      if (c.is_closed()) {
+      if (c.full()) {
         g.os()->drawEllipse(r);
       } else {
         g.os()->drawPie(r, c.start, c.end - c.start);
@@ -1273,9 +1321,11 @@ namespace gui {
     }
 
     template<>
-    void draw_arc<arc_type::arc> (const graphics& g, const arc_coords& c) {
+    void draw_arc<arc_type::arc> (const graphics& g, const arc_coords& c, const pen& p) {
+      Use<pen> pn(g, p);
+
       QRectF r(c.x, c.y, c.w, c.h);
-      if (c.is_closed()) {
+      if (c.full()) {
         g.os()->drawEllipse(r);
       } else {
         g.os()->drawArc(r, c.start, c.end - c.start);
@@ -1283,7 +1333,8 @@ namespace gui {
     }
 
     template<arc_type T>
-    void fill_arc (const graphics& g, const arc_coords& c) {
+    void fill_arc (const graphics& g, const arc_coords& c, const brush& b) {
+      Use<brush> br(g, b);
       draw_arc<T>(g, c);
     }
 
@@ -1298,7 +1349,7 @@ namespace gui {
 
     void polyline::operator() (const graphics& g,
                               const pen& p) const {
-      operator()(g, null_brush, p);
+      operator()(g, brush::invisible, p);
     }
 
     void polyline::operator() (const graphics& g,
@@ -1317,7 +1368,7 @@ namespace gui {
 
     void polygon::operator() (const graphics& g,
                                const pen& p) const {
-      operator()(g, null_brush, p);
+      operator()(g, brush::invisible, p);
     }
 
     void polygon::operator() (const graphics& g,
@@ -1381,56 +1432,47 @@ namespace gui {
     template<>
     void arc_or_pie<arc_type::arc>::operator() (const graphics& g,
                                                 const pen& p) const {
-      arc_coords c(rect, start_angle, end_angle);
-      Use<pen> pn(g, p);
-#ifdef GUIPP_WIN32
-      Use<brush> br(g, null_brush);
-#endif
-      draw_arc<arc_type::arc>(g, c);
+      Use<brush> br(g, brush::invisible);
+      draw_arc<arc_type::arc>(g, arc_coords(rect, start_angle, end_angle), p);
     }
 
     template<>
     void arc_or_pie<arc_type::arc>::operator() (const graphics& g,
                                                 const brush& b) const {
-      arc_coords c(rect, start_angle, end_angle);
-      Use<brush> br(g, b);
-      fill_arc<arc_type::arc>(g, c);
+      arc_or_pie<arc_type::arc>::operator()(g, pen(b.color()));
     }
 
     template<>
     void arc_or_pie<arc_type::arc>::operator() (const graphics& g,
                                                 const brush& b,
                                                 const pen& p) const {
-      arc_coords c(rect, start_angle, end_angle);
-      Use<brush> br(g, b);
-      fill_arc<arc_type::arc>(g, c);
-      Use<pen> pn(g, p);
-      draw_arc<arc_type::arc>(g, c);
+      arc_or_pie<arc_type::arc>::operator()(g, p);
     }
 
     // --------------------------------------------------------------------------
     template<>
     void arc_or_pie<arc_type::pie>::operator() (const graphics& g,
                                                 const pen& p) const {
-      arc_coords c(rect, start_angle, end_angle);
-      Use<pen> pn(g, p);
-#ifdef GUIPP_WIN32
-      Use<brush> br(g, null_brush);
-#endif
-      draw_arc<arc_type::pie>(g, c);
+      Use<brush> br(g, brush::invisible);
+      draw_arc<arc_type::pie>(g, arc_coords(rect, start_angle, end_angle), p);
     }
 
     template<>
     void arc_or_pie<arc_type::pie>::operator() (const graphics& g,
                                                 const brush& b) const {
-      arc_or_pie<arc_type::pie>::operator()(g, pen(b.color()));
+      Use<pen> pn(g, b.color());
+      fill_arc<arc_type::pie>(g, arc_coords(rect, start_angle, end_angle), b);
     }
 
     template<>
     void arc_or_pie<arc_type::pie>::operator() (const graphics& g,
                                                 const brush& b,
                                                 const pen& p) const {
-      arc_or_pie<arc_type::pie>::operator()(g, p);
+      arc_coords c(rect, start_angle, end_angle);
+      Use<pen> pn(g, pen::invisible);
+      fill_arc<arc_type::pie>(g, c, b);
+      Use<brush> br(g, brush::invisible);
+      draw_arc<arc_type::pie>(g, c, p);
     }
 
     // --------------------------------------------------------------------------

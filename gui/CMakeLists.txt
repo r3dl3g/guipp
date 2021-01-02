@@ -121,12 +121,17 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   elseif (CMAKE_CXX_PLATFORM_ID STREQUAL "MinGW")
     message(STATUS "GUIPP: build with MinGW for Win32!")
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_WIN -DUSE_MINGW -D_WIN32_WINNT=0x0601)
+    set (GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++ -static)
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} mingw32)
   elseif (WIN32)
     message(STATUS "GUIPP: build for Win32!")
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_WIN)
     set (GUIPP_SYS_LIBRARIES Shcore)
   endif ()
+
+  if (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
+    set (GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} /Y- /bigobj)
+  endif()
 
   if (GUIPP_USE_XCB)
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} X11-xcb xcb xcb-xrm)
@@ -136,8 +141,8 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   if (GUIPP_BUILD_STATIC_MODULE_LIBS)
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_BUILT_AS_STATIC)
     set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES}
-      gui++-look-static
       gui++-ctrl-static
+      gui++-look-static
       gui++-io-static
       gui++-draw-static
       gui++-layout-static
@@ -150,8 +155,8 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${LOGGING_SYS_LIBRARIES} ${UTIL_SYS_LIBRARIES})
   elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
     set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES}
-      gui++-look
       gui++-ctrl
+      gui++-look
       gui++-io
       gui++-draw
       gui++-layout
@@ -180,7 +185,8 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       -Dgui___draw_obj_EXPORTS
       -Dgui___io_obj_EXPORTS
       -Dgui___ctrl_obj_EXPORTS
-      -Dgui___look_obj_EXPORTS)
+      -Dgui___look_obj_EXPORTS
+    )
   endif()
 
   add_subdirectory(core gui_core)
@@ -207,6 +213,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES} PARENT_SCOPE)
     set (GUIPP_APP_LIBRARIES ${GUIPP_APP_LIBRARIES} PARENT_SCOPE)
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} PARENT_SCOPE)
+    set (GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} PARENT_SCOPE)
   endif()
 
   # header file to pass version settings to the source code

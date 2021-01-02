@@ -628,7 +628,7 @@ public:
 
 void wipe_disk (const sys_fs::path& file, progress_dialog& dlg, uintmax_t space, volatile bool& active) {
   try {
-    std::ofstream out(file);
+    std::ofstream out(file.string());
     finally on_exit(file, out);
     std::vector<char> buffer(10 * 1024 * 1024, 0);
     uintmax_t written = 0;

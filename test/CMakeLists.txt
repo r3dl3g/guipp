@@ -20,7 +20,10 @@ if (GUIPP_USE_QT)
 endif()
 
 add_definitions(${GUIPP_CXX_FLAGS})
+add_link_options(${GUIPP_EXE_LINKER_FLAGS})
+
 message(STATUS "app GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
+message(STATUS "app GUIPP_EXE_LINKER_FLAGS: ${GUIPP_EXE_LINKER_FLAGS}")
 #message(STATUS "app GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
 message(STATUS "app GUIPP_LIBRARIES: ${GUIPP_LIBRARIES}")
 message(STATUS "app GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
@@ -47,10 +50,6 @@ set(tests
 )
 
 message(STATUS "GUIPP_LIBRARIES: ${GUIPP_LIBRARIES}")
-
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
-    add_definitions(/Y- /bigobj)
-endif()
 
 foreach(test ${tests})
     add_executable(${test} WIN32 ${test}.cpp)

@@ -48,6 +48,9 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
     add_definitions(/Y- /bigobj)
 endif()
 
+add_definitions(${GUIPP_CXX_FLAGS})
+add_link_options(${GUIPP_EXE_LINKER_FLAGS})
+
 foreach(test ${apps})
     add_executable(${test} WIN32 ${test}.cpp)
     target_link_libraries(${test} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})

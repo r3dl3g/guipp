@@ -49,6 +49,7 @@ namespace gui {
           case pixel_format_t::BGRA: convert::format::convert<pixel_format_t::BGRA, S>(get_data<pixel_format_t::BGRA>(), dest.get_data(), w, h); break;
           case pixel_format_t::ARGB: convert::format::convert<pixel_format_t::ARGB, S>(get_data<pixel_format_t::ARGB>(), dest.get_data(), w, h); break;
           case pixel_format_t::ABGR: convert::format::convert<pixel_format_t::ABGR, S>(get_data<pixel_format_t::ABGR>(), dest.get_data(), w, h); break;
+          default: break;
         }
         return dest;
       }

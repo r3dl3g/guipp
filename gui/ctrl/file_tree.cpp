@@ -437,6 +437,7 @@ namespace gui {
         case sort_order::size_up: sort_by<sort_order::size_up>(list); break;
         case sort_order::date_down: sort_by<sort_order::date_down>(list); break;
         case sort_order::date_up: sort_by<sort_order::date_up>(list); break;
+        default: break;
       }
     }
 

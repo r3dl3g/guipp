@@ -621,6 +621,7 @@ namespace gui {
           const QMouseEvent& me = e.cast<QMouseEvent>();
           return !w.absolute_place().is_inside(core::point(me.globalPos()));
         }
+        default: break;
       }
       return false;
     }

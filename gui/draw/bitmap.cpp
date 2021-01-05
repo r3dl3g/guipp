@@ -421,7 +421,12 @@ namespace gui {
         bmi = draw::bitmap_info(sz.width(), sz.height(), img.bytesPerLine(), fmt);
 
         const uchar* bits = img.constBits();
-        data.assign(bits, bits + img.byteCount());
+        data.assign(bits, bits +
+#if QT_VERSION > QT_VERSION_CHECK(5, 13, 0)
+                    img.sizeInBytes());
+#else
+                    img.byteCount());
+#endif
 //        if (fmt == pixel_format_t::BW) {
 //          for (byte& b : data) {
 //            b = ~b;

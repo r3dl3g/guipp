@@ -39,12 +39,14 @@ namespace std {
       case placement_t::left:     out << "left | ";    break;
       case placement_t::hcenter:  out << "hcenter | "; break;
       case placement_t::right:    out << "right | ";   break;
+      default: break;
     }
     const auto vvalue = static_cast<placement_t>(v & (placement_t::top|placement_t::vcenter|placement_t::bottom));
     switch (vvalue) {
       case placement_t::top:      out << "top";     break;
       case placement_t::vcenter:  out << "vcenter"; break;
       case placement_t::bottom:   out << "bottom";  break;
+      default: break;
     }
     return out;
   }

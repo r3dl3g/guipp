@@ -103,6 +103,7 @@ namespace gui {
       case COLOR_MENU:          return very_light_gray;
       case COLOR_MENUTEXT:      return black;
       case COLOR_MENUHILIGHT:   return rgb<48, 140, 198>::value;
+      default: break;
 
 //        XColor exact_def_return, screen_def_return;
 //        XLookupColor(display, colormap, color_name, &exact_def_return, &screen_def_return);

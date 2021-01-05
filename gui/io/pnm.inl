@@ -128,12 +128,15 @@ namespace gui {
     template<PNM i>
     inline void ofpnm<i>::operator<< (const draw::pixmap& b) {
       switch (b.pixel_format()) {
-        case pixel_format_t::BW:   opnm<super::bin, pixel_format_t::BW>(b.get<pixel_format_t::BW>()).write(out); break;
-        case pixel_format_t::GRAY: opnm<super::bin, pixel_format_t::GRAY>(b.get<pixel_format_t::GRAY>()).write(out); break;
-        case pixel_format_t::RGB:  opnm<super::bin, pixel_format_t::RGB>(b.get<pixel_format_t::RGB>()).write(out); break;
-        case pixel_format_t::BGR:  opnm<super::bin, pixel_format_t::BGR>(b.get<pixel_format_t::BGR>()).write(out); break;
-        case pixel_format_t::RGBA: opnm<super::bin, pixel_format_t::RGBA>(b.get<pixel_format_t::RGBA>()).write(out); break;
-        case pixel_format_t::BGRA: opnm<super::bin, pixel_format_t::BGRA>(b.get<pixel_format_t::BGRA>()).write(out); break;
+          case pixel_format_t::Undefined: break;
+          case pixel_format_t::BW:   opnm<super::bin, pixel_format_t::BW>(b.get<pixel_format_t::BW>()).write(out); break;
+          case pixel_format_t::GRAY: opnm<super::bin, pixel_format_t::GRAY>(b.get<pixel_format_t::GRAY>()).write(out); break;
+          case pixel_format_t::RGB:  opnm<super::bin, pixel_format_t::RGB>(b.get<pixel_format_t::RGB>()).write(out); break;
+          case pixel_format_t::BGR:  opnm<super::bin, pixel_format_t::BGR>(b.get<pixel_format_t::BGR>()).write(out); break;
+          case pixel_format_t::RGBA: opnm<super::bin, pixel_format_t::RGBA>(b.get<pixel_format_t::RGBA>()).write(out); break;
+          case pixel_format_t::BGRA: opnm<super::bin, pixel_format_t::BGRA>(b.get<pixel_format_t::BGRA>()).write(out); break;
+          case pixel_format_t::ARGB: opnm<super::bin, pixel_format_t::ARGB>(b.get<pixel_format_t::ARGB>()).write(out); break;
+          case pixel_format_t::ABGR: opnm<super::bin, pixel_format_t::ABGR>(b.get<pixel_format_t::ABGR>()).write(out); break;
       }
     }
 

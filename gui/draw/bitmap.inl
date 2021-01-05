@@ -157,6 +157,7 @@ namespace gui {
             case pixel_format_t::BGRA: put_helper<T, pixel_format_t::BGRA>(this, rhs); break;
             case pixel_format_t::ARGB: put_helper<T, pixel_format_t::ARGB>(this, rhs); break;
             case pixel_format_t::ABGR: put_helper<T, pixel_format_t::ABGR>(this, rhs); break;
+            default: break;
           }
         }
       } else {

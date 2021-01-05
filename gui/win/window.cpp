@@ -1378,7 +1378,7 @@ namespace gui {
       id->setCursor(type.get_cursor());
 
       QPalette pal = id->palette();
-      pal.setColor(QPalette::Background, QColor(type.get_background()));
+      pal.setColor(QPalette::Window, QColor(type.get_background()));
       id->setAutoFillBackground(true);
       id->setPalette(pal);
       id->setFocusPolicy(data->can_accept_focus() ? Qt::WheelFocus : Qt::NoFocus);

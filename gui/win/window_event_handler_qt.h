@@ -94,6 +94,16 @@ namespace gui {
       return core::point(e.cast<T>().pos());
     }
 
+  template<>
+  inline core::point get_point<QWheelEvent> (const core::event& e) {
+#if QT_VERSION > QT_VERSION_CHECK(5, 13, 0)
+    const auto pt = e.cast<QWheelEvent>().position();
+    return core::point(os::point(pt.x(), pt.y()));
+#else
+    return core::point(e.cast<QWheelEvent>().pos());
+#endif
+  }
+
     template<typename T>
     inline core::size get_size (const core::event& e) {
       return core::size(e.cast<T>().size());

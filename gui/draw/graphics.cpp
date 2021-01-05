@@ -647,7 +647,11 @@ namespace gui {
       QWidget* w = dynamic_cast<QWidget*>(target);
       if (w) {
         QPixmap px;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
+        px = w->grab({pt.x(), pt.y(), 1, 1});
+#else
         px.grabWidget(w, pt.x(), pt.y(), 1, 1);
+#endif
         return px.toImage().pixel(0, 0);
       } else {
         QPixmap* p = dynamic_cast<QPixmap*>(target);

@@ -55,5 +55,7 @@ foreach(test ${apps})
     add_executable(${test} WIN32 ${test}.cpp)
     target_link_libraries(${test} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
     install(TARGETS ${test} DESTINATION bin)
-    set_target_properties(${test} PROPERTIES FOLDER apps CXX_STANDARD 11)
+    set_target_properties(${test} PROPERTIES
+                          FOLDER apps
+                          CXX_STANDARD ${GUIPP_CXX_STANDARD})
 endforeach(test)

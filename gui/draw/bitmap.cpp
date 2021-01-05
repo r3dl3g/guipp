@@ -562,7 +562,7 @@ namespace gui {
 #if GUIPP_WIN
       bmp.invert();
 #endif //GUIPP_WIN
-      return std::move(bmp);
+      return bmp;
     }
 
     bitmap::operator bwmap () const {

@@ -23,7 +23,7 @@ if(NOT TARGET gui++-app-obj)
   set_target_properties(gui++-app PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
-                        CXX_STANDARD 11
+                        CXX_STANDARD ${GUIPP_CXX_STANDARD}
   )
 
   if (GUIPP_STANDALONE_BUILD)

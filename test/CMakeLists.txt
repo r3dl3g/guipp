@@ -35,6 +35,7 @@ include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS})
 
 enable_testing()
 
+set (TESTING_CXX_STANDARD ${GUIPP_CXX_STANDARD})
 add_subdirectory(./../testlib testlib)
 add_subdirectory(./../testing testing)
 
@@ -55,5 +56,7 @@ foreach(test ${tests})
     add_executable(${test} WIN32 ${test}.cpp)
     target_link_libraries(${test} testing testlib ${GUIPP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
     add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
-    set_target_properties(${test} PROPERTIES FOLDER tests CXX_STANDARD 11)
+    set_target_properties(${test} PROPERTIES
+                          FOLDER tests
+                          CXX_STANDARD ${GUIPP_CXX_STANDARD})
 endforeach(test)

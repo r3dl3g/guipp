@@ -9,7 +9,6 @@
 #include <streambuf>
 #include <iomanip>
 
-using namespace std;
 
 namespace testing {
 
@@ -52,16 +51,10 @@ namespace testing {
     return str;
   }
 
-  pixmap_str mk_str(std::initializer_list<string> i) {
+  pixmap_str mk_str(std::initializer_list<std::string> i) {
     return pixmap_str(i);
   }
 
-  std::ostream& operator<< (std::ostream& o, const pixmap_str& v) {
-    for (const auto& i : v) {
-      o << i << std::endl;
-    }
-    return o;
-  }
   // --------------------------------------------------------------------------
   colormap data2colormap (char const* raw_data, const int bits_per_pixel, const int bytes_per_line, const int width, const int height) {
     colormap result;
@@ -91,11 +84,11 @@ namespace testing {
           const char* scanline = raw_data + y_offset;
           for (int x = 0; x < width; ++x) {
             const char bits = scanline[x >> 3];
-#ifdef WIN32
-            const char test_bit = (bits >> (~x & 7)) & 1;
-#else
-            const char test_bit = (bits >> (x & 7)) & 1;
-#endif // WIN32
+//#ifdef WIN32
+//            const char test_bit = (bits >> (~x & 7)) & 1;
+//#else
+//            const char test_bit = (bits >> (x & 7)) & 1;
+//#endif // WIN32
             const char bit = gui::core::get_bit(bits, x & 7);
             line.push_back(gui::color::system_bw_colors::value[bit]);
           }
@@ -170,72 +163,6 @@ namespace testing {
   }
 
   // --------------------------------------------------------------------------
-  std::ostream& operator<< (std::ostream& out, const colormap& m) {
-    out << std::endl << '{' << std::endl;
-    //bool first_line = true;
-    for(const colorline& line: m) {
-      //if (first_line) {
-      //  first_line = false;
-      //} else {
-      //  out << ",";
-      //}
-      out << '{';
-      bool first = true;
-      for(const uint32_t v: line) {
-        if (first) {
-          first = false;
-        } else {
-          out << ",";
-        }
-        switch (v & 0xffffff) {
-          case _ & 0xffffff: out << "_"; break;
-          case R & 0xffffff: out << "R"; break;
-          case G & 0xffffff: out << "G"; break;
-          case B & 0xffffff: out << "B"; break;
-          case W & 0xffffff: out << "W"; break;
-          case Y & 0xffffff: out << "Y"; break;
-          case V & 0xffffff: out << "V"; break;
-          case M & 0xffffff: out << "M"; break;
-          case D & 0xffffff: out << "D"; break;
-          case L & 0xffffff: out << "L"; break;
-          default:
-            out << "0x" << std::setw(6) << std::setfill('0') << std::hex << (v & 0xffffff);
-            break;
-        }
-      }
-      out << "}," << std::endl;
-    }
-    out << '}';
-    return out;
-  }
-
-  // --------------------------------------------------------------------------
-  std::ostream& operator<< (std::ostream& out, const graysmap& m) {
-    out << '[';
-    bool first_line = true;
-    for(const grayline& line: m) {
-      if (first_line) {
-        first_line = false;
-      } else {
-        out << ",";
-      }
-      out << '[';
-      bool first = true;
-      for(const uint8_t v: line) {
-        if (first) {
-          first = false;
-        } else {
-          out << ",";
-        }
-        out << (int)v;
-      }
-      out << ']' << std::endl;
-    }
-    out << ']';
-    return out;
-  }
-
-  // --------------------------------------------------------------------------
   bool operator== (const colorline& lhs, const colorline& rhs) {
     if (lhs.size() != rhs.size()) {
       return false;
@@ -260,8 +187,85 @@ namespace testing {
     return true;
 
   }
+
   // --------------------------------------------------------------------------
+} // namespace testing
 
-}
 // --------------------------------------------------------------------------
+namespace std {
 
+  // --------------------------------------------------------------------------
+  ostream& operator<< (ostream& out, const testing::colormap& m) {
+    out << endl << '{' << endl;
+    //bool first_line = true;
+    for(const auto& line: m) {
+      //if (first_line) {
+      //  first_line = false;
+      //} else {
+      //  out << ",";
+      //}
+      out << '{';
+      bool first = true;
+      for(const uint32_t v: line) {
+        if (first) {
+          first = false;
+        } else {
+          out << ",";
+        }
+        switch (v & 0xffffff) {
+          case testing::_ & 0xffffff: out << "_"; break;
+          case testing::R & 0xffffff: out << "R"; break;
+          case testing::G & 0xffffff: out << "G"; break;
+          case testing::B & 0xffffff: out << "B"; break;
+          case testing::W & 0xffffff: out << "W"; break;
+          case testing::Y & 0xffffff: out << "Y"; break;
+          case testing::V & 0xffffff: out << "V"; break;
+          case testing::M & 0xffffff: out << "M"; break;
+          case testing::D & 0xffffff: out << "D"; break;
+          case testing::L & 0xffffff: out << "L"; break;
+          default:
+            out << "0x" << setw(6) << setfill('0') << hex << (v & 0xffffff);
+            break;
+        }
+      }
+      out << "}," << endl;
+    }
+    out << '}';
+    return out;
+  }
+
+  // --------------------------------------------------------------------------
+  ostream& operator<< (ostream& out, const testing::graysmap& m) {
+    out << '[';
+    bool first_line = true;
+    for(const auto& line: m) {
+      if (first_line) {
+        first_line = false;
+      } else {
+        out << ",";
+      }
+      out << '[';
+      bool first = true;
+      for(const uint8_t v: line) {
+        if (first) {
+          first = false;
+        } else {
+          out << ",";
+        }
+        out << (int)v;
+      }
+      out << ']' << endl;
+    }
+    out << ']';
+    return out;
+  }
+
+  ostream& operator<< (ostream& o, const testing::pixmap_str& v) {
+    for (const auto& i : v) {
+      o << i << endl;
+    }
+    return o;
+  }
+
+  // --------------------------------------------------------------------------
+} // namespace std

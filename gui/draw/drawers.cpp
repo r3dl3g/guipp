@@ -699,10 +699,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    static const short int degree_0 = 0;
     static const short int degree_90 = 90 * 64;
-    static const short int degree_180 = 180 * 64;
-    static const short int degree_270 = 270 * 64;
     static const short int degree_360 = 360 * 64;
 
     // --------------------------------------------------------------------------

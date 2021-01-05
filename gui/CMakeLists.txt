@@ -12,16 +12,23 @@ option(GUIPP_USE_XCB "On to make use of the xcb library. Default Off" OFF)
 option(GUIPP_STANDALONE_BUILD "On to make an installable standalone build, Off to build as part of a project. Default Off" OFF)
 option(GUIPP_BUILD_FOR_MOBILE "On to optimize for smartphone, Off to optimize for dekstop. Default Off" OFF)
 option(GUIPP_USE_QT "On to make use of the Qt library. Default Off" OFF)
+option(GUIPP_CXX_STANDARD "C++ standard to overwrite default cmake standard" ${CMAKE_CXX_STANDARD})
 
 if(NOT TARGET gui++ AND NOT TARGET gui++-static)
-
-  add_subdirectory(../logging logging)
-  add_subdirectory(../util util)
 
   set (GUIPP_VERSION_MAJOR 0)
   set (GUIPP_VERSION_MINOR 1)
   set (GUIPP_VERSION_PATCH 0)
   set (GUIPP_VERSION "${GUIPP_VERSION_MAJOR}.${GUIPP_VERSION_MINOR}.${GUIPP_VERSION_PATCH}")
+
+  if (GUIPP_CXX_STANDARD STREQUAL "OFF")
+    set (GUIPP_CXX_STANDARD 17)
+  endif ()
+
+  set (LOGGING_CXX_STANDARD ${GUIPP_CXX_STANDARD})
+  set (UTIL_CXX_STANDARD ${GUIPP_CXX_STANDARD})
+  add_subdirectory(../logging logging)
+  add_subdirectory(../util util)
 
   if (WIN32)
     set (GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN -D_USE_MATH_DEFINES)
@@ -199,6 +206,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   add_subdirectory(app gui_app)
 
   message(STATUS "gui GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
+  message(STATUS "gui GUIPP_CXX_STANDARD: ${GUIPP_CXX_STANDARD}")
 #  message(STATUS "gui GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
   message(STATUS "gui GUIPP_LIBRARIES: ${GUIPP_LIBRARIES}")
   message(STATUS "gui GUIPP_APP_LIBRARIES: ${GUIPP_APP_LIBRARIES}")
@@ -214,6 +222,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     set (GUIPP_APP_LIBRARIES ${GUIPP_APP_LIBRARIES} PARENT_SCOPE)
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} PARENT_SCOPE)
     set (GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} PARENT_SCOPE)
+    set (GUIPP_CXX_STANDARD ${GUIPP_CXX_STANDARD} PARENT_SCOPE)
   endif()
 
   # header file to pass version settings to the source code
@@ -247,7 +256,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
                           FOLDER libraries
                           VERSION ${GUIPP_VERSION}
                           SOVERSION ${GUIPP_VERSION_MAJOR}
-                          CXX_STANDARD 11
+                          CXX_STANDARD ${GUIPP_CXX_STANDARD}
     )
 
     if (GUIPP_STANDALONE_BUILD)
@@ -275,7 +284,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
                           FOLDER libraries
                           VERSION ${GUIPP_VERSION}
                           SOVERSION ${GUIPP_VERSION_MAJOR}
-                          CXX_STANDARD 11
+                          CXX_STANDARD ${GUIPP_CXX_STANDARD}
     )
 
     if (GUIPP_STANDALONE_BUILD)
@@ -301,7 +310,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
                           FOLDER libraries
                           VERSION ${GUIPP_VERSION}
                           SOVERSION ${GUIPP_VERSION_MAJOR}
-                          CXX_STANDARD 11
+                          CXX_STANDARD ${GUIPP_CXX_STANDARD}
     )
 
     if (GUIPP_STANDALONE_BUILD)

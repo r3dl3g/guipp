@@ -55,7 +55,7 @@ if(NOT TARGET gui++-ctrl-obj)
   set_target_properties(gui++-ctrl-obj PROPERTIES
     POSITION_INDEPENDENT_CODE ON
     FOLDER libraries
-    CXX_STANDARD 11
+    CXX_STANDARD ${GUIPP_CXX_STANDARD}
   )
 
   if(GUIPP_BUILD_STATIC_MODULE_LIBS)
@@ -75,7 +75,7 @@ if(NOT TARGET gui++-ctrl-obj)
       FOLDER libraries
       VERSION ${GUIPP_VERSION}
       SOVERSION ${GUIPP_VERSION_MAJOR}
-      CXX_STANDARD 11
+      CXX_STANDARD ${GUIPP_CXX_STANDARD}
       )
     if (GUIPP_STANDALONE_BUILD)
       install(TARGETS gui++-ctrl DESTINATION ${LIBRARY_INSTALL_DIR})

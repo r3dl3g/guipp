@@ -15,7 +15,6 @@ namespace testing {
   bool operator== (const colormap&, const colormap&);
 
   colormap data2colormap (const char* data, const int bits_per_pixel, const int bytes_per_line, const int width, const int height);
-
   colormap pixmap2colormap (const gui::draw::basic_map&);
 
   template<gui::pixel_format_t T>
@@ -55,9 +54,6 @@ namespace testing {
   graysmap datamap2graysmap (const gui::draw::graymap&);
   gui::draw::graymap graysmap2datamap (const graysmap&);
 
-  std::ostream& operator<< (std::ostream&, const colormap&);
-  std::ostream& operator<< (std::ostream&, const graysmap&);
-
   inline colormap CM(std::initializer_list<colorline> i) {
     return colormap(i);
   }
@@ -72,8 +68,6 @@ namespace testing {
 
   pixmap_str mk_str(std::initializer_list<std::string>);
 
-  std::ostream& operator<< (std::ostream&, const pixmap_str&);
-
   // --------------------------------------------------------------------------
   constexpr gui::os::color _ = gui::color::black;
   constexpr gui::os::color R = gui::color::red;
@@ -87,4 +81,14 @@ namespace testing {
   constexpr gui::os::color L = gui::color::gray;
 
   // --------------------------------------------------------------------------
-}
+} // namespace testing
+
+namespace std {
+
+  ostream& operator<< (ostream&, const testing::colormap&);
+  ostream& operator<< (ostream&, const testing::graysmap&);
+  ostream& operator<< (ostream&, const testing::pixmap_str&);
+
+
+  // --------------------------------------------------------------------------
+} // namespace std

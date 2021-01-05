@@ -152,8 +152,8 @@ namespace gui {
     private:
       void destroy ();
 
-      os::drawable target;
       os::graphics gc;
+      os::drawable target;
       bool own_gc;
       bool ref_gc;
       mutable clipping_stack_t clipping_stack;

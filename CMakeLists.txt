@@ -49,7 +49,7 @@ if (NOT CMAKE_DEBUG_POSTFIX)
 endif ()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_definitions(-std=c++14 -fexceptions -Wall -Wno-switch -Wno-unused-command-line-argument -Wno-sign-compare)
+    add_definitions(-fexceptions -Wall -Wno-switch -Wno-unused-command-line-argument -Wno-sign-compare)
 endif ()
 
 get_directory_property(HAS_PARENT PARENT_DIRECTORY)
@@ -65,6 +65,7 @@ endif ()
 
 if(HAS_PARENT)
   set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} PARENT_SCOPE)
+  set (GUIPP_CXX_STANDARD ${GUIPP_CXX_STANDARD} PARENT_SCOPE)
   set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} PARENT_SCOPE)
   set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES} PARENT_SCOPE)
   set (GUIPP_APP_LIBRARIES ${GUIPP_APP_LIBRARIES} PARENT_SCOPE)

@@ -4,7 +4,7 @@ project("gui++-draw" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
-if(NOT TARGET gui++-draw-obj)
+if(NOT TARGET gui++-draw)
 
   add_subdirectory(../core gui_core)
 
@@ -35,39 +35,32 @@ if(NOT TARGET gui++-draw-obj)
   )
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
-  add_library(gui++-draw-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
-
-  set_target_properties(gui++-draw-obj PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    FOLDER libraries
-    CXX_STANDARD ${GUIPP_CXX_STANDARD}
-  )
+  add_library(gui++-draw ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
 
   if(GUIPP_BUILD_STATIC_MODULE_LIBS)
+
     add_definitions(-DGUIPP_BUILT_AS_STATIC)
-    add_library(gui++-draw-static STATIC $<TARGET_OBJECTS:gui++-draw-obj>)
-    if (GUIPP_STANDALONE_BUILD)
-      install(TARGETS gui++-draw-static DESTINATION ${LIBRARY_INSTALL_DIR})
-    endif()
-  endif()
 
-  if(GUIPP_BUILD_SHARED_MODULE_LIBS)
-    add_definitions(-Dgui___draw_obj_EXPORTS)
-    add_library(gui++-draw SHARED $<TARGET_OBJECTS:gui++-draw-obj>)
+  elseif(GUIPP_BUILD_SHARED_MODULE_LIBS)
+
+    add_definitions(-Dgui___draw_EXPORTS)
     target_link_libraries(gui++-draw PRIVATE gui++-core ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
-    set_target_properties(gui++-draw PROPERTIES
-      POSITION_INDEPENDENT_CODE ON
-      FOLDER libraries
-      VERSION ${GUIPP_VERSION}
-      SOVERSION ${GUIPP_VERSION_MAJOR}
-      CXX_STANDARD ${GUIPP_CXX_STANDARD}
-      )
-    if (GUIPP_STANDALONE_BUILD)
-      install(TARGETS gui++-draw DESTINATION ${LIBRARY_INSTALL_DIR})
-    endif()
+
   endif()
 
-  GENERATE_EXPORT_HEADER(gui++-draw-obj
+  if (GUIPP_STANDALONE_BUILD)
+    install(TARGETS gui++-draw DESTINATION ${LIBRARY_INSTALL_DIR})
+  endif()
+
+  set_target_properties(gui++-draw PROPERTIES
+                        POSITION_INDEPENDENT_CODE ON
+                        FOLDER libraries
+                        VERSION ${GUIPP_VERSION}
+                        SOVERSION ${GUIPP_VERSION_MAJOR}
+                        CXX_STANDARD ${GUIPP_CXX_STANDARD}
+                        )
+
+  GENERATE_EXPORT_HEADER(gui++-draw
     BASE_NAME GUIPP_DRAW
     EXPORT_MACRO_NAME GUIPP_DRAW_EXPORT
     EXPORT_FILE_NAME gui++-draw-export.h

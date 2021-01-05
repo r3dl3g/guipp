@@ -4,7 +4,7 @@ project("gui++-ctrl" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
-if(NOT TARGET gui++-ctrl-obj)
+if(NOT TARGET gui++-ctrl)
 
   add_subdirectory(../win gui_win)
   add_subdirectory(../io gui_io)
@@ -16,7 +16,7 @@ if(NOT TARGET gui++-ctrl-obj)
 
   add_definitions(${GUIPP_CXX_FLAGS})
 
-  message(STATUS "ctrl GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
+  DebugPrint("ctrl GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
 #  message(STATUS "ctrl GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
 
   set (INCLUDE_INSTALL_DIR include/guipp/gui/ctrl)
@@ -50,39 +50,39 @@ if(NOT TARGET gui++-ctrl-obj)
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
   file(GLOB RESOURCE_FILES "res/*.h")
 
-  add_library(gui++-ctrl-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES} ${RESOURCE_FILES})
+  add_library(gui++-ctrl ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES} ${RESOURCE_FILES})
 
-  set_target_properties(gui++-ctrl-obj PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    FOLDER libraries
-    CXX_STANDARD ${GUIPP_CXX_STANDARD}
-  )
+  set_target_properties(gui++-ctrl PROPERTIES
+                        POSITION_INDEPENDENT_CODE ON
+                        FOLDER libraries
+                        VERSION ${GUIPP_VERSION}
+                        SOVERSION ${GUIPP_VERSION_MAJOR}
+                        CXX_STANDARD ${GUIPP_CXX_STANDARD}
+                        )
 
   if(GUIPP_BUILD_STATIC_MODULE_LIBS)
     add_definitions(-DGUIPP_BUILT_AS_STATIC)
-    add_library(gui++-ctrl-static STATIC $<TARGET_OBJECTS:gui++-ctrl-obj>)
-    if (GUIPP_STANDALONE_BUILD)
-      install(TARGETS gui++-ctrl-static DESTINATION ${LIBRARY_INSTALL_DIR})
-    endif()
   endif()
 
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
-    add_definitions(-Dgui___ctrl_obj_EXPORTS)
-    add_library(gui++-ctrl SHARED $<TARGET_OBJECTS:gui++-ctrl-obj>)
-    target_link_libraries(gui++-ctrl PRIVATE gui++-core gui++-win gui++-draw gui++-io gui++-layout gui++-look ${LOGGING_LIBRARIES} ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
-    set_target_properties(gui++-ctrl PROPERTIES
-      POSITION_INDEPENDENT_CODE ON
-      FOLDER libraries
-      VERSION ${GUIPP_VERSION}
-      SOVERSION ${GUIPP_VERSION_MAJOR}
-      CXX_STANDARD ${GUIPP_CXX_STANDARD}
-      )
-    if (GUIPP_STANDALONE_BUILD)
-      install(TARGETS gui++-ctrl DESTINATION ${LIBRARY_INSTALL_DIR})
-    endif()
+    add_definitions(-Dgui___ctrl_EXPORTS)
+    target_link_libraries(gui++-ctrl PRIVATE
+                          gui++-core
+                          gui++-win
+                          gui++-draw
+                          gui++-io
+                          gui++-layout
+                          gui++-look
+                          ${LOGGING_LIBRARIES}
+                          ${UTIL_LIBRARIES}
+                          ${GUIPP_SYS_LIBRARIES})
   endif()
 
-  GENERATE_EXPORT_HEADER(gui++-ctrl-obj
+  if (GUIPP_STANDALONE_BUILD)
+    install(TARGETS gui++-ctrl DESTINATION ${LIBRARY_INSTALL_DIR})
+  endif()
+
+  GENERATE_EXPORT_HEADER(gui++-ctrl
     BASE_NAME GUIPP_CTRL
     EXPORT_MACRO_NAME GUIPP_CTRL_EXPORT
     EXPORT_FILE_NAME gui++-ctrl-export.h

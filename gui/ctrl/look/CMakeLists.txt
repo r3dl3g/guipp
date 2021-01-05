@@ -4,7 +4,7 @@ project("gui++-look" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
-if(NOT TARGET gui++-look-obj)
+if(NOT TARGET gui++-look)
 
   add_subdirectory(../../draw gui_draw)
   add_subdirectory(../../io gui_io)
@@ -15,7 +15,7 @@ if(NOT TARGET gui++-look-obj)
 
   add_definitions(${GUIPP_CXX_FLAGS})
 
-  message(STATUS "look GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
+  DebugPrint("look GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
 #  message(STATUS "look GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
 
   set (INCLUDE_INSTALL_DIR include/guipp/gui/look)
@@ -38,39 +38,35 @@ if(NOT TARGET gui++-look-obj)
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
   file(GLOB RESOURCE_FILES "res/*.h")
 
-  add_library(gui++-look-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES} ${RESOURCE_FILES})
+  add_library(gui++-look ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES} ${RESOURCE_FILES})
 
-  set_target_properties(gui++-look-obj PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    FOLDER libraries
-    CXX_STANDARD ${GUIPP_CXX_STANDARD}
-  )
+  set_target_properties(gui++-look PROPERTIES
+                        POSITION_INDEPENDENT_CODE ON
+                        FOLDER libraries
+                        VERSION ${GUIPP_VERSION}
+                        SOVERSION ${GUIPP_VERSION_MAJOR}
+                        CXX_STANDARD ${GUIPP_CXX_STANDARD}
+                        )
 
   if(GUIPP_BUILD_STATIC_MODULE_LIBS)
     add_definitions(-DGUIPP_BUILT_AS_STATIC)
-    add_library(gui++-look-static STATIC $<TARGET_OBJECTS:gui++-look-obj>)
-    if (GUIPP_STANDALONE_BUILD)
-      install(TARGETS gui++-look-static DESTINATION ${LIBRARY_INSTALL_DIR})
-    endif()
   endif()
 
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
-    add_definitions(-Dgui___look_obj_EXPORTS)
-    add_library(gui++-look SHARED $<TARGET_OBJECTS:gui++-look-obj>)
-    target_link_libraries(gui++-look PRIVATE gui++-core gui++-draw gui++-io ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
-    set_target_properties(gui++-look PROPERTIES
-      POSITION_INDEPENDENT_CODE ON
-      FOLDER libraries
-      VERSION ${GUIPP_VERSION}
-      SOVERSION ${GUIPP_VERSION_MAJOR}
-      CXX_STANDARD ${GUIPP_CXX_STANDARD}
-      )
-    if (GUIPP_STANDALONE_BUILD)
-      install(TARGETS gui++-look DESTINATION ${LIBRARY_INSTALL_DIR})
-    endif()
+    add_definitions(-Dgui___look_EXPORTS)
+    target_link_libraries(gui++-look PRIVATE
+                          gui++-core
+                          gui++-draw
+                          gui++-io
+                          ${UTIL_LIBRARIES}
+                          ${GUIPP_SYS_LIBRARIES})
   endif()
 
-  GENERATE_EXPORT_HEADER(gui++-look-obj
+  if (GUIPP_STANDALONE_BUILD)
+    install(TARGETS gui++-look DESTINATION ${LIBRARY_INSTALL_DIR})
+  endif()
+
+  GENERATE_EXPORT_HEADER(gui++-look
     BASE_NAME GUIPP_LOOK
     EXPORT_MACRO_NAME GUIPP_LOOK_EXPORT
     EXPORT_FILE_NAME gui++-look-export.h

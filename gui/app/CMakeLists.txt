@@ -4,7 +4,7 @@ project("gui++-app" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
-if(NOT TARGET gui++-app-obj)
+if(NOT TARGET gui++-app)
 
   add_subdirectory(./../core gui_core)
 
@@ -23,6 +23,8 @@ if(NOT TARGET gui++-app-obj)
   set_target_properties(gui++-app PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
+                        VERSION ${GUIPP_VERSION}
+                        SOVERSION ${GUIPP_VERSION_MAJOR}
                         CXX_STANDARD ${GUIPP_CXX_STANDARD}
   )
 

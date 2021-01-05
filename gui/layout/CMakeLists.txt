@@ -4,7 +4,7 @@ project("gui++-layout" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
-if(NOT TARGET gui++-layout-obj)
+if(NOT TARGET gui++-layout)
 
   add_subdirectory(../win gui_win)
 
@@ -42,39 +42,33 @@ if(NOT TARGET gui++-layout-obj)
     weighted_layout.inl
   )
 
-  add_library(gui++-layout-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
+  add_library(gui++-layout ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
 
-  set_target_properties(gui++-layout-obj PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    FOLDER libraries
-    CXX_STANDARD ${GUIPP_CXX_STANDARD}
-  )
+  set_target_properties(gui++-layout PROPERTIES
+                        POSITION_INDEPENDENT_CODE ON
+                        FOLDER libraries
+                        VERSION ${GUIPP_VERSION}
+                        SOVERSION ${GUIPP_VERSION_MAJOR}
+                        CXX_STANDARD ${GUIPP_CXX_STANDARD}
+                        )
 
   if(GUIPP_BUILD_STATIC_MODULE_LIBS)
     add_definitions(-DGUIPP_BUILT_AS_STATIC)
-    add_library(gui++-layout-static STATIC $<TARGET_OBJECTS:gui++-layout-obj>)
-    if (GUIPP_STANDALONE_BUILD)
-      install(TARGETS gui++-layout-static DESTINATION ${LIBRARY_INSTALL_DIR})
-    endif()
   endif()
 
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
-    add_definitions(-Dgui___layout_obj_EXPORTS)
-    add_library(gui++-layout SHARED $<TARGET_OBJECTS:gui++-layout-obj>)
-    target_link_libraries(gui++-layout PRIVATE gui++-core gui++-win ${GUIPP_SYS_LIBRARIES})
-    set_target_properties(gui++-layout PROPERTIES
-      POSITION_INDEPENDENT_CODE ON
-      FOLDER libraries
-      VERSION ${GUIPP_VERSION}
-      SOVERSION ${GUIPP_VERSION_MAJOR}
-      CXX_STANDARD ${GUIPP_CXX_STANDARD}
-      )
-    if (GUIPP_STANDALONE_BUILD)
-      install(TARGETS gui++-layout DESTINATION ${LIBRARY_INSTALL_DIR})
-    endif()
+    add_definitions(-Dgui___layout_EXPORTS)
+    target_link_libraries(gui++-layout PRIVATE
+                          gui++-core
+                          gui++-win
+                          ${GUIPP_SYS_LIBRARIES})
   endif()
 
-  GENERATE_EXPORT_HEADER(gui++-layout-obj
+  if (GUIPP_STANDALONE_BUILD)
+    install(TARGETS gui++-layout DESTINATION ${LIBRARY_INSTALL_DIR})
+  endif()
+
+  GENERATE_EXPORT_HEADER(gui++-layout
     BASE_NAME GUIPP_LAYOUT
     EXPORT_MACRO_NAME GUIPP_LAYOUT_EXPORT
     EXPORT_FILE_NAME gui++-layout-export.h

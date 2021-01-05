@@ -4,7 +4,7 @@ project("gui++-win" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
-if(NOT TARGET gui++-win-obj)
+if(NOT TARGET gui++-win)
 
   add_subdirectory(../core gui_core)
 
@@ -51,40 +51,34 @@ if(NOT TARGET gui++-win-obj)
       window_event_proc.h
   )
 
-  add_library(gui++-win-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
+  add_library(gui++-win ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
 
-  set_target_properties(gui++-win-obj PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    FOLDER libraries
-    CXX_STANDARD ${GUIPP_CXX_STANDARD}
-  )
+  set_target_properties(gui++-win PROPERTIES
+                        POSITION_INDEPENDENT_CODE ON
+                        FOLDER libraries
+                        VERSION ${GUIPP_VERSION}
+                        SOVERSION ${GUIPP_VERSION_MAJOR}
+                        CXX_STANDARD ${GUIPP_CXX_STANDARD}
+                        )
 
   if(GUIPP_BUILD_STATIC_MODULE_LIBS)
     add_definitions(-DGUIPP_BUILT_AS_STATIC)
-    add_library(gui++-win-static STATIC $<TARGET_OBJECTS:gui++-win-obj>)
-    if (GUIPP_STANDALONE_BUILD)
-      install(TARGETS gui++-win-static DESTINATION ${LIBRARY_INSTALL_DIR})
-    endif()
   endif()
 
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
-    add_definitions(-Dgui___win_obj_EXPORTS)
-    add_library(gui++-win SHARED $<TARGET_OBJECTS:gui++-win-obj>)
-    target_link_libraries(gui++-win PRIVATE gui++-core ${LOGGING_LIBRARIES} ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
-    set_target_properties(gui++-win PROPERTIES
-      POSITION_INDEPENDENT_CODE ON
-      FOLDER libraries
-      VERSION ${GUIPP_VERSION}
-      SOVERSION ${GUIPP_VERSION_MAJOR}
-      CXX_STANDARD ${GUIPP_CXX_STANDARD}
-    )
-
-    if (GUIPP_STANDALONE_BUILD)
-      install(TARGETS gui++-win DESTINATION ${LIBRARY_INSTALL_DIR})
-    endif()
+    add_definitions(-Dgui___win_EXPORTS)
+    target_link_libraries(gui++-win PRIVATE
+                          gui++-core
+                          ${LOGGING_LIBRARIES}
+                          ${UTIL_LIBRARIES}
+                          ${GUIPP_SYS_LIBRARIES})
   endif()
 
-  GENERATE_EXPORT_HEADER(gui++-win-obj
+  if (GUIPP_STANDALONE_BUILD)
+    install(TARGETS gui++-win DESTINATION ${LIBRARY_INSTALL_DIR})
+  endif()
+
+  GENERATE_EXPORT_HEADER(gui++-win
     BASE_NAME GUIPP_WIN
     EXPORT_MACRO_NAME GUIPP_WIN_EXPORT
     EXPORT_FILE_NAME gui++-win-export.h

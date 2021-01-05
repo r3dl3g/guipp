@@ -115,10 +115,10 @@ void test_qimage2qpixmap () {
                    {W,W,W,W},
                    {W,W,W,W}}));
 
-  std::vector<byte> buffer;
+  std::vector<core::byte> buffer;
   buffer.assign(img.constBits(), img.constBits() + img.byteCount());
 
-  QImage img2((const byte*)buffer.data(), img.width(), img.height(), img.bytesPerLine(), img.format());
+  QImage img2((const core::byte*)buffer.data(), img.width(), img.height(), img.bytesPerLine(), img.format());
   pix.convertFromImage(img2);
   EXPECT_EQUAL(qimage2colormap(pix.toImage()),
                CM({{W,W,W,W},

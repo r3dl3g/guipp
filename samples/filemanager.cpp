@@ -73,7 +73,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
       if (sys_fs::is_regular_file(path)) {
 #ifdef WIN32
         std::string path_str = util::string::utf16_to_utf8(path.c_str());
-#elif unix
+#elif unix || __APPLE__
         std::string path_str = path.c_str();
 #endif // GUIPP_X11
 

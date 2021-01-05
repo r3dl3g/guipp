@@ -2,17 +2,16 @@
 builddir=./$(c++ --version | { read first rest ; echo $first ; })$(c++ -dumpversion)
 prjdir=$PWD/..
 
-#mkdir -p $builddir/xcode
-#pushd $builddir/xcode
-#cmake "$prjdir" -G"Xcode" -DCMAKE_CONFIGURATION_TYPES=Debug;Release -DGUIPP_USE_QT=ON
-#popd
+build () {
+  mkdir -p $builddir/$1
+  pushd $builddir/$1
+  shift
+  type=$1
+  shift
+  cmake "$prjdir" -G"Unix Makefiles" -DCMAKE_BUILD_TYPE="$type" -DGUIPP_USE_QT=ON -DCMAKE_PREFIX_PATH=/usr/local/opt/qt5 $*
+  popd
+}
 
-mkdir -p $builddir/debug
-pushd $builddir/debug
-cmake "$prjdir" -G"Unix Makefiles" -DCMAKE_BUILD_TYPE="Debug" -DGUIPP_USE_QT=ON -DCMAKE_PREFIX_PATH=/usr/local/opt/qt5
-popd
-
-#mkdir -p $builddir/release
-#pushd $builddir/release
-#cmake "$prjdir" -G"Unix Makefiles" -DCMAKE_BUILD_TYPE="Release"
-#popd
+build release-static Release -DGUIPP_BUILD_STATIC_MODULE_LIBS=ON
+build release-shared Release -DGUIPP_BUILD_SHARED_MODULE_LIBS=ON
+build release Release

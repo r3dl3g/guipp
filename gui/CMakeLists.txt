@@ -6,7 +6,9 @@ project("gui++" CXX)
 
 include (GenerateExportHeader)
 
-cmake_policy(SET CMP0077 NEW)
+if(POLICY CMP0077)
+  cmake_policy(SET CMP0077 NEW)
+endif()
 
 option(GUIPP_BUILD_STATIC_MODULE_LIBS "On to build a static library for each submodule, Off to build shared libraries. Default Off" OFF)
 option(GUIPP_BUILD_SHARED_MODULE_LIBS "On to build a shared library for each submodule, Off to build static libraries. default Off" OFF)
@@ -53,9 +55,6 @@ if(NOT TARGET gui++)
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_BINARY_DIR}
     )
-
-  set (INCLUDE_INSTALL_DIR include/guipp/gui)
-  set (LIBRARY_INSTALL_DIR lib/guipp)
 
   if (WIN32)
     set (GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN -D_USE_MATH_DEFINES)
@@ -142,7 +141,7 @@ if(NOT TARGET gui++)
   elseif (CMAKE_CXX_PLATFORM_ID STREQUAL "MinGW")
     DebugPrint("GUIPP: build with MinGW for Win32!")
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_WIN -DUSE_MINGW -D_WIN32_WINNT=0x0601)
-    set (GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++ -static)
+    set (GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} "-static-libgcc -static-libstdc++ -static")
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} mingw32)
   elseif (WIN32)
     DebugPrint("GUIPP: build for Win32!")
@@ -215,7 +214,7 @@ if(NOT TARGET gui++)
   endif()
 
   set (GUIPP_APP_LIBRARIES
-    gui++-app
+    $<TARGET_OBJECTS:gui++-app>
     ${GUIPP_LIBRARIES}
   )
 
@@ -307,10 +306,6 @@ if(NOT TARGET gui++)
                         CXX_STANDARD ${GUIPP_CXX_STANDARD}
                         )
 
-  if (GUIPP_STANDALONE_BUILD)
-    install(TARGETS gui++ DESTINATION ${LIBRARY_INSTALL_DIR})
-  endif()
-
   GENERATE_EXPORT_HEADER(gui++
                          BASE_NAME GUIPP
                          EXPORT_MACRO_NAME GUIPP_EXPORT
@@ -318,7 +313,11 @@ if(NOT TARGET gui++)
                          STATIC_DEFINE GUIPP_BUILT_AS_STATIC
                          )
 
+  set (INCLUDE_INSTALL_DIR include/guipp/gui)
+  set (LIBRARY_INSTALL_DIR lib/guipp)
+
   if (GUIPP_STANDALONE_BUILD)
+    install(TARGETS gui++ DESTINATION ${LIBRARY_INSTALL_DIR})
     install(FILES ${INCLUDE_FILES}
       ${PROJECT_BINARY_DIR}/gui++-export.h
       ${PROJECT_BINARY_DIR}/gui_version.h

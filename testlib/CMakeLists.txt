@@ -10,7 +10,10 @@ if(NOT TARGET testlib)
   file(GLOB SOURCE_FILES "*.cpp")
   file(GLOB INCLUDE_FILES "*.h")
 
-  add_library(testlib ${SOURCE_FILES} ${INCLUDE_FILES})
+  add_definitions(${GUIPP_CXX_FLAGS})
+  SET(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${GUIPP_EXE_LINKER_FLAGS})
+
+  add_library(testlib STATIC ${SOURCE_FILES} ${INCLUDE_FILES})
   set_target_properties(testlib PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries

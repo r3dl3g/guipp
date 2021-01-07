@@ -120,7 +120,7 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace look {
 
-    const int dot_line_width = 1;
+    const gui::draw::pen::size_type dot_line_width = 1;
     const draw::pen::Style dot_line_style = draw::pen::Style::dot;
 
     // --------------------------------------------------------------------------

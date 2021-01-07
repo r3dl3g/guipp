@@ -44,7 +44,7 @@ namespace gui {
     }
 
     float angle::rad () const {
-      return M_PI * degrees / 180.0;
+      return static_cast<float>(M_PI * degrees / 180.0);
     }
 
     angle angle::deg (float d) {

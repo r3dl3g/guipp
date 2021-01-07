@@ -17,6 +17,10 @@ if (GUIPP_USE_QT)
   find_package(Qt5Widgets REQUIRED)
 endif()
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} "/Y- /bigobj")
+endif()
+
 add_definitions(${GUIPP_CXX_FLAGS})
 DebugPrint("samples GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
 #DebugPrint("samples GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
@@ -44,13 +48,12 @@ set(apps
     covid19
 )
 
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
-    add_definitions(/Y- /bigobj)
-endif()
-
 add_definitions(${GUIPP_CXX_FLAGS})
-#add_link_options(${GUIPP_EXE_LINKER_FLAGS})
-SET(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${GUIPP_EXE_LINKER_FLAGS})
+if (${CMAKE_VERSION} VERSION_LESS "3.13.0")
+  set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${GUIPP_EXE_LINKER_FLAGS})
+else ()
+  add_link_options(${GUIPP_EXE_LINKER_FLAGS})
+endif ()
 
 foreach(app ${apps})
     add_executable(${app} WIN32 ${app}.cpp)

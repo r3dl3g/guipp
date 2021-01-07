@@ -196,14 +196,14 @@ namespace gui {
     struct bw_bits {};
 
     template<>
-    struct bw_bits<false> {
+    struct GUIPP_CORE_EXPORT bw_bits<false> {
       static constexpr byte value[2] = {0xff, 0};
       static constexpr bool white = false;
       static constexpr bool black = true;
     };
 
     template<>
-    struct bw_bits<true> {
+    struct GUIPP_CORE_EXPORT bw_bits<true> {
       static constexpr byte value[2] = {0, 0xff};
       static constexpr bool white = true;
       static constexpr bool black = false;
@@ -220,7 +220,7 @@ namespace gui {
     struct system_bit_mask<bit, bit_order_t::msb_first> : msb_bit_mask<bit> {};
 
     // --------------------------------------------------------------------------
-    struct system_bw_bits : public bw_bits<os::bitmap_bit_white> {
+    struct GUIPP_CORE_EXPORT system_bw_bits : public bw_bits<os::bitmap_bit_white> {
       typedef bw_bits<os::bitmap_bit_white> super;
       static constexpr byte mask[8] = {
         system_bit_mask<0>::value,

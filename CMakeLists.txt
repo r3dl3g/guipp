@@ -49,7 +49,10 @@ if (NOT CMAKE_DEBUG_POSTFIX)
 endif ()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_definitions(-fexceptions -Wall -Wno-switch -Wno-unused-command-line-argument -Wno-sign-compare)
+    add_definitions(-Wall -Wno-switch -Wno-unused-command-line-argument -Wno-sign-compare)
+    if (NOT CMAKE_CXX_PLATFORM_ID STREQUAL "Windows")
+        add_definitions(-fexceptions)
+    endif ()
 endif ()
 
 get_directory_property(HAS_PARENT PARENT_DIRECTORY)

@@ -50,8 +50,11 @@ set(tests
 DebugPrint("GUIPP_LIBRARIES: ${GUIPP_LIBRARIES}")
 
 add_definitions(${GUIPP_CXX_FLAGS})
-#add_link_options(${GUIPP_EXE_LINKER_FLAGS})
-SET(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${GUIPP_EXE_LINKER_FLAGS})
+if (${CMAKE_VERSION} VERSION_LESS "3.13.0")
+  set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${GUIPP_EXE_LINKER_FLAGS})
+else ()
+  add_link_options(${GUIPP_EXE_LINKER_FLAGS})
+endif ()
 
 foreach(test ${tests})
     add_executable(${test} WIN32 ${test}.cpp)

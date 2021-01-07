@@ -108,11 +108,11 @@ namespace gui {
   };
 
   constexpr orientation_t operator! (orientation_t o) {
-    return orientation_t(!static_cast<bool>(o));
+    return o == orientation_t::vertical ? orientation_t::horizontal : orientation_t::vertical;
   }
 
   constexpr orientation_t operator~ (orientation_t o) {
-    return orientation_t(!static_cast<bool>(o));
+    return operator!(o);
   }
 
   constexpr orientation_t operator- (orientation_t lhs, orientation_t rhs) {
@@ -264,7 +264,7 @@ namespace gui {
       template<typename R, typename T>
       inline typename std::enable_if<std::is_unsigned<R>::value, R>::type
       scale_from_native (const T& v) {
-        return static_cast<R>(std::max<T>(T(0), round(static_cast<T>(v / get_scale_factor()))));
+        return static_cast<R>(std::max<T>(T(0), static_cast<T>(round(v / get_scale_factor()))));
       }
 
       template<typename R, typename T>

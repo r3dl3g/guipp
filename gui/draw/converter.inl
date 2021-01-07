@@ -65,7 +65,7 @@ namespace gui {
       }
 
       inline bool check_limit (const pixel::mono t, pixel::gray) {
-        return static_cast<bool>(t);
+        return t == pixel::mono::white;
       }
 
       inline bool check_limit (const pixel::gray t, pixel::gray limit) {

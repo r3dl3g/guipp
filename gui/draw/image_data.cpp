@@ -39,7 +39,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& out, const mono& px) {
-      out << static_cast<bool>(px);
+      out << static_cast<int>(px);
       return out;
     }
 
@@ -96,7 +96,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     mono operator+ (const mono& lhs, const mono& rhs) {
-      return mono(static_cast<bool>(lhs) | static_cast<bool>(rhs));
+      return mono(static_cast<byte>(lhs) | static_cast<byte>(rhs));
     }
 
     gray operator+ (const gray& lhs, const gray& rhs) {

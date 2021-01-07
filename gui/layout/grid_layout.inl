@@ -29,11 +29,20 @@ namespace gui {
       : super(list)
     {}
 
-    template<unsigned width, unsigned height, unsigned border, unsigned gap>
-    void grid_lineup<width, height, border, gap>::layout (const core::rectangle& r) const {
+    template<unsigned W, unsigned H, unsigned B, unsigned G>
+    void grid_lineup<W, H, B, G>::layout (const core::rectangle& r) const {
       clog::trace() << "grid_lineup::layout(" << r << ")";
+
+      typedef core::rectangle::point_type ptype;
+      typedef core::rectangle::size_type stype;
+
+      const stype width = static_cast<stype>(W);
+      const stype height = static_cast<stype>(H);
+      const stype border = static_cast<stype>(B);
+      const stype gap = static_cast<stype>(G);
+
       const auto& elements = super::get_elements();
-      const type border2 = (border * 2);
+      const type border2 = border * 2;
       const type xmax = r.width() - border2;
       const type ymax = r.height() - border2;
 

@@ -790,8 +790,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     void dialog_window::create (const class_info& cls, container& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
-      gui::os::instance display = core::global::get_instance();
 #ifdef GUIPP_X11
+      gui::os::instance display = core::global::get_instance();
       auto id = detail::get_window_id(*this);
       x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DIALOG");
       x11::change_property(display, id, "_NET_WM_STATE", "_NET_WM_STATE_MODAL");

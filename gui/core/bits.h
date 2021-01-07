@@ -62,6 +62,30 @@
 # pragma error "Unknown target system"
 #endif
 
+#if __clang__
+# define IF_CLANG_ELSE(A, B) A
+# define IF_GCC_ELSE(A, B) B
+# define IF_MINGW_ELSE(A, B) B
+# define IF_MSC_ELSE(A, B) B
+#elif __GNUC__
+# define IF_CLANG_ELSE(A, B) B
+# define IF_GCC_ELSE(A, B) A
+# define IF_MINGW_ELSE(A, B) B
+# define IF_MSC_ELSE(A, B) B
+#elif __MINGW32__ || __MINGW64__
+# define IF_CLANG_ELSE(A, B) B
+# define IF_GCC_ELSE(A, B) B
+# define IF_MINGW_ELSE(A, B) A
+# define IF_MSC_ELSE(A, B) B
+#elif _MSC_VER
+# define IF_CLANG_ELSE(A, B) B
+# define IF_GCC_ELSE(A, B) B
+# define IF_MINGW_ELSE(A, B) B
+# define IF_MSC_ELSE(A, B) A
+#else
+# pragma error "Unknown compiler"
+#endif
+
 #if defined(GUIPP_BUILD_FOR_MOBILE)
 # define IF_MOBILE_ELSE(A, B) A
 #else

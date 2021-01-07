@@ -313,9 +313,9 @@ void my_main_window::onCreated () {
   const float icn_sz = core::global::scale_from_native<float>(16);
   core::rectangle icon_rect(0, 0, icn_sz, icn_sz);
 
-  auto cut_icon = create_text_pixmap(IF_WIN32_ELSE(u8"\x2660", u8"♠"), icon_rect, color::dark_red);
-  auto copy_icon = create_text_pixmap(IF_WIN32_ELSE(u8"\x2663", u8"♣"), icon_rect, color::dark_blue);
-  auto paste_icon = create_text_pixmap(IF_WIN32_ELSE(u8"\x2665", u8"♥"), icon_rect, color::dark_green);
+  auto cut_icon = create_text_pixmap(IF_MSC_ELSE(u8"\x2660", u8"♠"), icon_rect, color::dark_red);
+  auto copy_icon = create_text_pixmap(IF_MSC_ELSE(u8"\x2663", u8"♣"), icon_rect, color::dark_blue);
+  auto paste_icon = create_text_pixmap(IF_MSC_ELSE(u8"\x2665", u8"♥"), icon_rect, color::dark_green);
 
   edit_sub_menu.data.add_entry(menu_entry("Cut", 't', util::bind_method(this, &my_main_window::cut), hot_key('X', state::control), false, cut_icon));
   edit_sub_menu.data.add_entry(menu_entry("Copy", 'C', util::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));

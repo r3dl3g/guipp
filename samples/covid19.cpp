@@ -728,11 +728,11 @@ covid19main::covid19main ()
                   layout::lay(lethality_button),
                   layout::lay(per100k_button),
                   layout::lay(tests_button)})
+  , table(64, 20)
   , edge_layput({layout::lay(width_label),
                 layout::lay(width),
                 layout::lay(height_label),
                 layout::lay(height)})
-  , table(64, 20)
 {
 
   on_create([&] () {
@@ -1004,7 +1004,7 @@ void covid19main::draw_uncached (std::size_t idx_,
                                  const draw::graphics& graph,
                                  const core::rectangle& area,
                                  const draw::brush& background,
-                                 item_state state) const {
+                                 item_state /*state*/) const {
   //  auto inner = draw::frame::sunken_relief(graph, area);
   const int idx = static_cast<int>(idx_);
   graph.fill(draw::rectangle(area), background);
@@ -1185,7 +1185,7 @@ struct timed_progress {
   const std::chrono::milliseconds step;
 };
 // --------------------------------------------------------------------------
-void covid19main::load_tests_data (std::istream& in, const double file_size, bool new_struct) {
+void covid19main::load_tests_data (std::istream& in, const double file_size, bool /*new_struct*/) {
   timed_progress prgrs(progress, client_size(), file_size);
   util::time::chronometer stopwatch;
   country_data::country_map_t& country_map = full_data.country_map;

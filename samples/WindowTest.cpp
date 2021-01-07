@@ -922,7 +922,7 @@ void my_main_window::created_children () {
 
       [] (const bool& v, const draw::graphics& g, const core::rectangle& r,
           const draw::brush& b, ctrl::item_state state, text_origin_t align) {
-        std::string text = v ? u8"♣" : u8"♥";
+        std::string text = v ? IF_MSC_ELSE(u8"\x2660", u8"♠") : IF_MSC_ELSE(u8"\x2665", u8"♥");
         gui::look::text_item(g, r, b, text, state, align);
         draw::frame::sunken_relief(g, r);
       })

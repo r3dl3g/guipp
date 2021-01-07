@@ -51,7 +51,7 @@ public:
   log_all_events() {
   }
 
-  bool operator()(const core::event& e, gui::os::event_result& result) {
+  bool operator()(const core::event& e, gui::os::event_result&) {
     if (!win::is_none_client_event(e) &&
         !win::is_frequent_event(e) ) {
       clog::debug() << "Message: " << e << IF_WIN32_ELSE(" (" << std::hex << e.wParam << ", " << e.lParam << ")", "");

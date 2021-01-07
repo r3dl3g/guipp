@@ -34,6 +34,8 @@ namespace gui {
       events.register_event_handler(std::move(f));
 #ifdef GUIPP_X11
       x11::prepare_win_for_event(this, mask);
+#else
+      (void)mask;
 #endif // GUIPP_X11
     }
 

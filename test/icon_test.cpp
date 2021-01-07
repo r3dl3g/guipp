@@ -28,7 +28,7 @@ inline std::string make_string (T(&t)[N]) {
 }
 
 template<typename T, size_t N>
-inline std::size_t size_of_array (T(&t)[N]) {
+inline std::size_t size_of_array (T(&)[N]) {
   return N;
 }
 
@@ -557,7 +557,7 @@ void test_file_icon_selected () {
   core::global::set_scale_factor(1.0);
 
   const draw::masked_bitmap& icon = gui::tree::file_icon(true);
-  auto sz = icon.native_size();
+  //auto sz = icon.native_size();
   draw::pixmap mem(20, 20);
   os::color highLight = color::highLightColor();
 

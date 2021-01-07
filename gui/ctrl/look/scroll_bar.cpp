@@ -105,7 +105,7 @@ namespace gui {
                                           ctrl::scrollbar_item hilite,
                                           bool is_enabled,
                                           bool horizontal,
-                                          bool is_focused,
+                                          bool /*is_focused*/,
                                           const core::rectangle& up,
                                           const core::rectangle& down,
                                           const core::rectangle& thumb,

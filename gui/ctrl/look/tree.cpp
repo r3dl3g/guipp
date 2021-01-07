@@ -60,7 +60,7 @@ namespace gui {
       return std::string();
     }
 
-    tree::tree_icon build_tree_icon (icon_type type, bool selected) {
+    tree::tree_icon build_tree_icon (icon_type type, bool /*selected*/) {
       using namespace gui::draw;
       bwmap mask;
       std::istringstream in(get_icon_chars(type));

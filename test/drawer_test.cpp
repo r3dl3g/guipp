@@ -136,7 +136,9 @@ void test_raw_rect () {
                            {_,_,_,_,_}}));
 }
 
+#ifdef GUIPP_X11
 static const int degree_360 = 360 * 64;
+#endif
 
 // --------------------------------------------------------------------------
 void test_raw_ellipse () {

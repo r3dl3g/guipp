@@ -189,7 +189,7 @@ namespace gui {
       return gui::color::get_alpha(c);
     }
 
-    inline byte get_alpha (core::bit_wrapper<const mono> p) {
+    inline byte get_alpha (core::bit_wrapper<const mono>) {
       return IF_WIN32_ELSE(0, 255);
     }
 

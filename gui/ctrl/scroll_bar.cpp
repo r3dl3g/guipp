@@ -232,7 +232,7 @@ namespace gui {
     template<>
     void basic_scroll_bar<orientation_t::horizontal>::init () {
       using namespace win;
-      super::register_event_handler(event_handler_function([&] (const core::event& e, gui::os::event_result& r) {
+      super::register_event_handler(event_handler_function([&] (const core::event& e, gui::os::event_result& /*r*/) {
         if (!left_btn_down_event::if_match_call(e, this, &basic_scroll_bar::handle_left_btn_down)) {
           if (!left_btn_up_event::if_match_call(e, this, &basic_scroll_bar::handle_left_btn_up)) {
             if (!wheel_x_event::if_match_call(e, this, &scroll_bar::handle_wheel)) {
@@ -251,7 +251,7 @@ namespace gui {
     template<>
     void basic_scroll_bar<orientation_t::vertical>::init () {
       using namespace win;
-      super::register_event_handler(event_handler_function([&] (const core::event& e, gui::os::event_result& r) {
+      super::register_event_handler(event_handler_function([&] (const core::event& e, gui::os::event_result& /*r*/) {
         if (!left_btn_down_event::if_match_call(e, this, &basic_scroll_bar::handle_left_btn_down)) {
           if (!left_btn_up_event::if_match_call(e, this, &basic_scroll_bar::handle_left_btn_up)) {
             if (!wheel_y_event::if_match_call(e, this, &scroll_bar::handle_wheel)) {

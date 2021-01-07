@@ -89,7 +89,7 @@ namespace testing {
 //#else
 //            const char test_bit = (bits >> (x & 7)) & 1;
 //#endif // WIN32
-            const char bit = gui::core::get_bit(bits, x & 7);
+            const int bit = gui::core::get_bit(bits, x & 7);
             line.push_back(gui::color::system_bw_colors::value[bit]);
           }
           break;

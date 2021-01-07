@@ -267,7 +267,7 @@ namespace gui {
 
       template<>
       inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::bottom_max_top_min>::
-      get_bottom_position (const core::rectangle& r, const core::rectangle& sz) -> points {
+      get_bottom_position (const core::rectangle& /*r*/, const core::rectangle& sz) -> points {
         return detail::make_points(0, sz.width());
       }
 

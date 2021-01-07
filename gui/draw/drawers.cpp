@@ -342,7 +342,7 @@ namespace gui {
     void draw_empty_arc (const graphics& g, const arc_coords&, os::color);
 
     template<>
-    void draw_empty_arc<arc_type::pie> (const graphics& g, const arc_coords& c, os::color col) {
+    void draw_empty_arc<arc_type::pie> (const graphics& g, const arc_coords& c, os::color) {
       auto pt = c.calc_points0();
       MoveToEx(g, os::get_x(pt[1]), os::get_y(pt[1]), nullptr);
       LineTo(g, os::get_x(pt[0]), os::get_y(pt[0]));
@@ -1447,7 +1447,7 @@ namespace gui {
 
     template<>
     void arc_or_pie<arc_type::arc>::operator() (const graphics& g,
-                                                const brush& b,
+                                                const brush&,
                                                 const pen& p) const {
       arc_or_pie<arc_type::arc>::operator()(g, p);
     }

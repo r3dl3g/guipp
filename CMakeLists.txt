@@ -24,7 +24,7 @@ endif ()
 
 if (CMAKE_CXX_PLATFORM_ID STREQUAL "Windows" AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     message(STATUS "Building with Clang!")
-    set(CMAKE_CXX_FLAGS "${_PLATFORM_DEFINES}${_PLATFORM_DEFINES_CXX} -fms-extensions -fms-compatibility -Fp -EHsc -D_WINDOWS")
+    set(CMAKE_CXX_FLAGS "${_PLATFORM_DEFINES}${_PLATFORM_DEFINES_CXX} -fms-extensions -fms-compatibility -Wno-ignored-qualifiers -Fp -EHsc -D_WINDOWS")
     set(CMAKE_CXX_FLAGS_DEBUG  "/MDd -O0 -Zi")
     set(CMAKE_CXX_FLAGS_RELEASE  "/MD -O2 -DNDEBUG")
     set(INSTALL_BASE_DIR "C:\\Programm Files\\guipp")

@@ -1,8 +1,9 @@
 .svn
 boost
-build/clang*
-build/c++*
+build/Linux*
+build/MinGW*
 build/xcode*
+build/*.tmp
 CMakeLists.txt.user*
 dist
 clion

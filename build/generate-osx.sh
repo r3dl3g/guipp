@@ -1,5 +1,5 @@
 
-. ./generate.sh
+. ./.generate.sh
 
 #QTDIR=/usr/local/opt/qt5
 QTDIR=../qt/dist

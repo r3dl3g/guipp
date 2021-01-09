@@ -19,6 +19,10 @@ if (GUIPP_USE_QT)
   find_package(Qt5Widgets REQUIRED)
 endif()
 
+if (GUIPP_USE_BOOST)
+  find_package(Boost 1.66 REQUIRED COMPONENTS filesystem)
+endif()
+
 DebugPrint("app GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
 DebugPrint("app GUIPP_EXE_LINKER_FLAGS: ${GUIPP_EXE_LINKER_FLAGS}")
 #DebugPrint("app GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")

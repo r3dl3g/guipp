@@ -44,6 +44,10 @@ if(NOT TARGET gui++)
   add_subdirectory(../logging logging)
   add_subdirectory(../util util)
 
+  if (GUIPP_USE_BOOST)
+    find_package(Boost 1.66 REQUIRED COMPONENTS filesystem)
+  endif()
+
   if (GUIPP_BUILD_FOR_MOBILE)
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_BUILD_FOR_MOBILE)
   endif ()

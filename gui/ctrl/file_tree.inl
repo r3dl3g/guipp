@@ -72,9 +72,9 @@ namespace gui {
     namespace path_tree {
 
       inline sys_fs::directory_iterator path_iterator (fs::file_info const& n) {
-#ifdef WIN32
+#if defined(WIN32) || defined(USE_BOOST)
         return sys_fs::directory_iterator(n.path);
-#elif unix || __APPLE__
+#elif defined(unix) || defined(__APPLE__)
         return sys_fs::directory_iterator(n.path, sys_fs::directory_options::skip_permission_denied);
 #else
 # error Undefined system: sys_fs::directory_iterator path_iterator (fs::file_info const& n)

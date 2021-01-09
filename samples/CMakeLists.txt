@@ -17,6 +17,10 @@ if (GUIPP_USE_QT)
   find_package(Qt5Widgets REQUIRED)
 endif()
 
+if (GUIPP_USE_BOOST)
+  find_package(Boost 1.66 REQUIRED COMPONENTS filesystem)
+endif()
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} "/Y- /bigobj")
 endif()

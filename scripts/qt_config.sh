@@ -1,0 +1,11 @@
+./configure -opensource -release -confirm-license -gui -widgets -prefix $PWD/dist \
+  -qt-zlib -qt-libpng -qt-freetype -qt-libjpeg \
+  -no-gif -no-cups -no-iconv -no-pch -no-dbus -no-opengl -no-fontconfig -no-openssl \
+  -make libs -no-compile-examples -nomake tools -nomake tests -nomake examples \
+  -skip qt3d -skip qtactiveqt -skip qtandroidextras -skip qtcanvas3d -skip qtcharts -skip qtconnectivity \
+  -skip qtdatavis3d -skip qtdeclarative -skip qtdoc -skip qtgamepad -skip qtgraphicaleffects -skip qtimageformats \
+  -skip qtlocation -skip qtmacextras -skip qtmultimedia -skip qtnetworkauth -skip qtpurchasing -skip qtquickcontrols \
+  -skip qtquickcontrols2 -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus \
+  -skip qtserialport -skip qtsvg -skip qtspeech -skip qttools -skip qttranslations -skip qtvirtualkeyboard \
+  -skip qtwayland -skip qtwebchannel -skip qtwebsockets -skip qtwebview -skip qtwinextras -skip qtx11extras \
+  -skip qtxmlpatterns -skip qtwebengine

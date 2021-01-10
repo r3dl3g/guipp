@@ -2,6 +2,6 @@
 export CC=clang
 export CXX=clang++
 
-. ./generate.sh
+. ./.generate.sh
 
 generate_all clang $*

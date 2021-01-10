@@ -1,18 +1,18 @@
 
-if [ "$CXX" == "" ]; then
-  builddir=./$(c++ --version | { read first rest ; echo $first ; })$(c++ -dumpversion)
-else
-  builddir=./$($CXX --version | { read first rest ; echo $first ; })$($CXX -dumpversion)
-fi
-
-prjdir=$PWD/..
+. ./.get_compiler_ver.sh
 
 generate () {
-  mkdir -p $builddir/$1
-  pushd $builddir/$1
+  prjdir=$PWD/..
+
+  outdir=$1
   shift
   type=$1
   shift
+
+  builddir=./$(compiler_ver $*)/$outdir
+
+  mkdir -p $builddir
+  pushd $builddir
   cmake "$prjdir" -G"Unix Makefiles" -DCMAKE_BUILD_TYPE="$type" $*
   popd
 }

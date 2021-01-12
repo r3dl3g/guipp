@@ -234,6 +234,8 @@ namespace gui {
           os::key_state state = get_key_state(e);
           shift_focus(core::shift_key_bit_mask::is_set(state));
         }
+      } else if (lost_focus_event::match(e)) {
+        focus_lost();
       }
 
 //      clog::trace() << "handle_event: for window: " << this << " " << e;

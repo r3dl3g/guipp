@@ -34,10 +34,16 @@ namespace gui {
 //      simple,
 //      flat,
       w95,
-      metal
+      metal,
+      osx
     };
 
-    const look_and_feel_t system_look_and_feel = IF_MOBILE_ELSE(look_and_feel_t::w95, look_and_feel_t::metal);
+    const look_and_feel_t system_look_and_feel =
+#ifdef __APPLE__
+        look_and_feel_t::osx;
+#else
+      IF_MOBILE_ELSE(look_and_feel_t::w95, look_and_feel_t::metal);
+#endif
 
   }
 

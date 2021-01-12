@@ -46,6 +46,24 @@ namespace gui {
 #   include <gui/ctrl/look/res/button_pressed_rot_frame.h>
 #   include <gui/ctrl/look/res/simple_frame.h>
 
+#   include <gui/ctrl/look/res/metal_check_off.h>
+#   include <gui/ctrl/look/res/metal_check_on.h>
+#   include <gui/ctrl/look/res/metal_check_disabled.h>
+
+#   include <gui/ctrl/look/res/metal_radio_off.h>
+#   include <gui/ctrl/look/res/metal_radio_on.h>
+#   include <gui/ctrl/look/res/metal_radio_disabled.h>
+
+#   include <gui/ctrl/look/res/osx_checkbox_off.h>
+#   include <gui/ctrl/look/res/osx_checkbox_on.h>
+#   include <gui/ctrl/look/res/osx_radio_off.h>
+#   include <gui/ctrl/look/res/osx_radio_on.h>
+
+#   include <gui/ctrl/look/res/osx_frame.h>
+#   include <gui/ctrl/look/res/osx_disabled_frame.h>
+#   include <gui/ctrl/look/res/osx_default_frame.h>
+#   include <gui/ctrl/look/res/osx_pressed_frame.h>
+
   } // namespace image_data
 
   namespace detail {
@@ -55,22 +73,29 @@ namespace gui {
       return std::string((const char*)t, N);
     }
 
-    draw::graymap build_image (const std::string& name) {
+    draw::graymap build_gray_image (const std::string& data) {
       draw::graymap bmp;
-      std::istringstream in(name);
+      std::istringstream in(data);
+      io::load_pnm(in, bmp);
+      return bmp;
+    }
+
+    draw::rgbmap build_rgb_image (const std::string& data) {
+      draw::rgbmap bmp;
+      std::istringstream in(data);
       io::load_pnm(in, bmp);
       return bmp;
     }
 
     draw::graymap build_button_frame_image (bool pressed, bool rot) {
-      return build_image(pressed ? (rot ? make_string(image_data::button_pressed_rot_frame_bytes)
-                                        : make_string(image_data::button_pressed_frame_bytes))
-                                 : (rot ? make_string(image_data::button_rot_frame_bytes)
-                                        : make_string(image_data::button_frame_bytes)));
+      return build_gray_image(pressed ? (rot ? make_string(image_data::button_pressed_rot_frame_bytes)
+                                             : make_string(image_data::button_pressed_frame_bytes))
+                                      : (rot ? make_string(image_data::button_rot_frame_bytes)
+                                             : make_string(image_data::button_frame_bytes)));
     }
 
     draw::graymap build_simple_frame_image () {
-      return build_image(make_string(image_data::simple_frame_bytes));
+      return build_gray_image(make_string(image_data::simple_frame_bytes));
     }
 
     template<bool rot, bool pressed>
@@ -113,6 +138,72 @@ namespace gui {
       static draw::graymap image(get_button_frame<true, true>().sub(4, 1, 24, 7));
       static draw::graymap image_pressed(get_button_frame<true, false>().sub(4, 1, 24, 7));
       return !pressed ? image_pressed : image;
+    }
+
+    template<typename T>
+    T upscale (const T& img) {
+      if (core::global::get_scale_factor() != 1.0) {
+        T up(img.native_size() * core::global::get_scale_factor());
+        up.stretch_from(img);
+        return up;
+      }
+      return img;
+    }
+
+    template<typename T>
+    T downscale (const T& img) {
+      if (core::global::get_scale_factor() != 2.0) {
+        T up(img.native_size() * (core::global::get_scale_factor() / 2.0));
+        up.stretch_from(img);
+        return up;
+      }
+      return img;
+    }
+
+    const draw::rgbmap& get_osx_checkbox (bool active) {
+      static draw::rgbmap off = upscale(build_gray_image(make_string(image_data::osx_checkbox_off)).convert<pixel_format_t::RGB>());
+      static draw::rgbmap on = upscale(build_rgb_image(make_string(image_data::osx_checkbox_on)));
+      return active ? on : off;
+    }
+
+    const draw::rgbmap& get_osx_radio (bool active) {
+      static draw::rgbmap off = upscale(build_gray_image(make_string(image_data::osx_radio_off)).convert<pixel_format_t::RGB>());
+      static draw::rgbmap on = upscale(build_rgb_image(make_string(image_data::osx_radio_on)));
+      return active ? on : off;
+    }
+
+    const draw::rgbmap& get_osx_frame () {
+      static draw::rgbmap img = build_gray_image(make_string(image_data::osx_frame)).convert<pixel_format_t::RGB>();
+      return img;
+    }
+
+    const draw::rgbmap& get_osx_disabled_frame () {
+      static draw::rgbmap img = build_gray_image(make_string(image_data::osx_disabled_frame)).convert<pixel_format_t::RGB>();
+      return img;
+    }
+
+    const draw::rgbmap& get_osx_default_frame () {
+      static draw::rgbmap img = build_rgb_image(make_string(image_data::osx_default_frame));
+      return img;
+    }
+
+    const draw::rgbmap& get_osx_pressed_frame () {
+      static draw::rgbmap img = build_rgb_image(make_string(image_data::osx_pressed_frame));
+      return img;
+    }
+
+    const draw::graymap& get_metal_checkbox (bool active, bool disabled) {
+      static draw::graymap off = downscale(build_gray_image(make_string(image_data::metal_check_off)));
+      static draw::graymap on = downscale(build_gray_image(make_string(image_data::metal_check_on)));
+      static draw::graymap dis = downscale(build_gray_image(make_string(image_data::metal_check_disabled)));
+      return disabled ? dis : active ? on : off;
+    }
+
+    const draw::graymap& get_metal_radio (bool active, bool disabled) {
+      static draw::graymap off = downscale(build_gray_image(make_string(image_data::metal_radio_off)));
+      static draw::graymap on = downscale(build_gray_image(make_string(image_data::metal_radio_on)));
+      static draw::graymap dis = downscale(build_gray_image(make_string(image_data::metal_radio_disabled)));
+      return disabled ? dis : active ? on : off;
     }
 
   } // namespace detail
@@ -161,6 +252,22 @@ namespace gui {
         core::rectangle area = r;
         area.shrink({2, 2});
         graph.frame(draw::rectangle(area), draw::pen(color::very_light_blue, 2, draw::pen::Style::solid));
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    void button_frame<look_and_feel_t::osx> (const draw::graphics& graph,
+                                             const core::rectangle& r,
+                                             bool enabled, bool pushed, bool, bool focused) {
+      if (!enabled) {
+        graph.copy(draw::frame_image(r, detail::get_osx_disabled_frame(), 4), r.top_left());
+      } else if (pushed) {
+        graph.copy(draw::frame_image(r, detail::get_osx_pressed_frame(), 4), r.top_left());
+      } else if (focused) {
+        graph.copy(draw::frame_image(r, detail::get_osx_default_frame(), 4), r.top_left());
+      } else {
+        graph.copy(draw::frame_image(r, detail::get_osx_frame(), 4), r.top_left());
       }
     }
 
@@ -308,10 +415,11 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void radio_button (const draw::graphics& graph,
-                       const core::rectangle& rec,
-                       const std::string& text,
-                       const core::button_state::is& state) {
+    template<>
+    void radio_button_t<look_and_feel_t::w95> (const draw::graphics& graph,
+                                               const core::rectangle& rec,
+                                               const std::string& text,
+                                               const core::button_state::is& state) {
       using namespace draw;
 
       core::rectangle area = rec;
@@ -337,10 +445,47 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void check_box (const draw::graphics& graph,
-                    const core::rectangle& rec,
-                    const std::string& text,
-                    const core::button_state::is& state) {
+    template<>
+    void radio_button_t<look_and_feel_t::metal> (const draw::graphics& graph,
+                                                 const core::rectangle& rec,
+                                                 const std::string& text,
+                                                 const core::button_state::is& state) {
+      core::rectangle area = rec;
+      const auto& img = detail::get_metal_radio(state.checked(), !state.enabled());
+      graph.fill(draw::image(img, area, text_origin_t::vcenter_left), color::buttonColor());
+      area.x(20);
+      os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
+      graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    void radio_button_t<look_and_feel_t::osx> (const draw::graphics& graph,
+                                               const core::rectangle& rec,
+                                               const std::string& text,
+                                               const core::button_state::is& state) {
+      core::rectangle area = rec;
+      const auto& img = detail::get_osx_radio(state.checked());
+      graph.fill(draw::image(img, area, text_origin_t::vcenter_left), color::buttonColor());
+      area.x(20);
+      os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
+      graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
+    }
+
+    // --------------------------------------------------------------------------
+    void radio_button (const draw::graphics& graph,
+                       const core::rectangle& rec,
+                       const std::string& text,
+                       const core::button_state::is& state) {
+      radio_button_t<>(graph, rec, text, state);
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    void check_box_t<look_and_feel_t::w95> (const draw::graphics& graph,
+                                            const core::rectangle& rec,
+                                            const std::string& text,
+                                            const core::button_state::is& state) {
       using namespace draw;
 
       core::rectangle area = rec;
@@ -353,7 +498,7 @@ namespace gui {
       core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
       graph.draw(rectangle(r),
                  state.pushed() ? color::very_light_gray
-                                   : color::buttonColor(),
+                                : color::buttonColor(),
                  col);
 
       if (state.checked()) {
@@ -367,6 +512,42 @@ namespace gui {
         area.grow({3, 3});
         graph.frame(draw::rectangle(area), pen(color::black, dot_line_width, dot_line_style));
       }
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    void check_box_t<look_and_feel_t::metal> (const draw::graphics& graph,
+                                              const core::rectangle& rec,
+                                              const std::string& text,
+                                              const core::button_state::is& state) {
+      core::rectangle area = rec;
+      const auto& img = detail::get_metal_checkbox(state.checked(), !state.enabled());
+      graph.fill(draw::image(img, area, text_origin_t::vcenter_left), color::buttonColor());
+      area.x(20);
+      os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
+      graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    void check_box_t<look_and_feel_t::osx> (const draw::graphics& graph,
+                                            const core::rectangle& rec,
+                                            const std::string& text,
+                                            const core::button_state::is& state) {
+      core::rectangle area = rec;
+      const auto& img = detail::get_osx_checkbox(state.checked());
+      graph.fill(draw::image(img, area, text_origin_t::vcenter_left), color::buttonColor());
+      area.x(20);
+      os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
+      graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
+    }
+
+    // --------------------------------------------------------------------------
+    void check_box (const draw::graphics& graph,
+                    const core::rectangle& rec,
+                    const std::string& text,
+                    const core::button_state::is& state) {
+      check_box_t<>(graph, rec, text, state);
     }
 
   } // look

@@ -23,6 +23,7 @@
 // Common includes
 //
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 
 // --------------------------------------------------------------------------
@@ -39,22 +40,28 @@ namespace gui {
     namespace src {
 
       // --------------------------------------------------------------------------
-      // --------------------------------------------------------------------------
       GUIPP_IO_EXPORT void save_pnm_header_src (std::ostream& out, const std::string& name, PNM p, int w, int h, int max);
+      GUIPP_IO_EXPORT void save_pnm_header_src (std::ostream& out, const std::string& name, const draw::bitmap_info&);
 
-      template<pixel_format_t p>
-      void save_pnm_src (std::ostream& out, const draw::const_image_data<p>& img);
-
+      // --------------------------------------------------------------------------
       GUIPP_IO_EXPORT void write_pixel (std::ostream& out, const core::bit_wrapper<const pixel::mono>& pixel);
       GUIPP_IO_EXPORT void write_pixel (std::ostream& out, pixel::mono pixel);
       GUIPP_IO_EXPORT void write_pixel (std::ostream& out, pixel::gray pixel);
-      GUIPP_IO_EXPORT void write_pixel (std::ostream& out, pixel::rgb pixel);
+
+      template<typename T, typename std::enable_if<pixel::is_rgb_type<T>::value>::type* = nullptr>
+      void write_pixel (std::ostream& out, T pixel);
+
+      template<pixel_format_t p>
+      void save_pnm_src (std::ostream& out, const draw::const_image_data<p>& img);
 
       template<pixel_format_t T>
       void save_pnm_src (std::ostream& out, const draw::datamap<T>& bmp, const std::string& name);
 
       template<pixel_format_t T>
       void save_pnm_src (const std::string& fname, const draw::datamap<T>& bmp, const std::string& name);
+
+      void save_pnm_src (const std::string& fname, const draw::basic_datamap& bmp, const std::string& name);
+      void save_pnm_src (std::ostream& out, const draw::basic_datamap& bmp, const std::string& name);
 
       // --------------------------------------------------------------------------
       template<pixel_format_t T>

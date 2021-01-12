@@ -38,12 +38,21 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
+      template<typename T, typename std::enable_if<pixel::is_rgb_type<T>::value>::type* = nullptr>
+      void write_pixel (std::ostream& out, T pixel) {
+        out << std::setw(3) << static_cast<int>(pixel.red) << ", "
+            << std::setw(3) << static_cast<int>(pixel.green) << ", "
+            << std::setw(3) << static_cast<int>(pixel.blue);
+      }
+
+      // --------------------------------------------------------------------------
       template<pixel_format_t T>
       void opnm<T>::write (std::ostream& out) const {
         const auto& bmi = bmp.get_info();
         save_pnm_header_src(out, name, BPP2PNM<T, true>::pnm, bmi.width, bmi.height, BPP2MAX<T>::max);
         save_pnm_src<T>(out, bmp.get_data());
       }
+
       // --------------------------------------------------------------------------
       template<pixel_format_t T>
       void save_pnm_src (std::ostream& out, const draw::const_image_data<T>& img) {

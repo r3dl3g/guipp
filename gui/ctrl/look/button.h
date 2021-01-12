@@ -53,6 +53,12 @@ namespace gui {
                                                                bool enabled, bool pushed,
                                                                bool hilited, bool focused);
 
+    template<>
+    GUIPP_LOOK_EXPORT void button_frame<look_and_feel_t::osx> (const draw::graphics& graph,
+                                                               const core::rectangle& r,
+                                                               bool enabled, bool pushed,
+                                                               bool hilited, bool focused);
+
     template<look_and_feel_t L = system_look_and_feel>
     inline void button_frame (const draw::graphics& graph,
                               const core::rectangle& r,
@@ -88,10 +94,58 @@ namespace gui {
                                         const std::string& text,
                                         const core::button_state::is& state);
 
+    template<look_and_feel_t L = system_look_and_feel>
+    void radio_button_t (const draw::graphics& graph,
+                         const core::rectangle& area,
+                         const std::string& text,
+                         const core::button_state::is& state);
+
+    template<>
+    GUIPP_LOOK_EXPORT void radio_button_t<look_and_feel_t::metal> (const draw::graphics& graph,
+                                                                   const core::rectangle& area,
+                                                                   const std::string& text,
+                                                                   const core::button_state::is& state);
+
+    template<>
+    GUIPP_LOOK_EXPORT void radio_button_t<look_and_feel_t::w95> (const draw::graphics& graph,
+                                                                 const core::rectangle& area,
+                                                                 const std::string& text,
+                                                                 const core::button_state::is& state);
+
+    template<>
+    GUIPP_LOOK_EXPORT void radio_button_t<look_and_feel_t::osx> (const draw::graphics& graph,
+                                                                 const core::rectangle& area,
+                                                                 const std::string& text,
+                                                                 const core::button_state::is& state);
+
     GUIPP_LOOK_EXPORT void radio_button (const draw::graphics& graph,
                                          const core::rectangle& area,
                                          const std::string& text,
                                          const core::button_state::is& state);
+
+    template<look_and_feel_t L = system_look_and_feel>
+    void check_box_t (const draw::graphics& graph,
+                      const core::rectangle& area,
+                      const std::string& text,
+                      const core::button_state::is& state);
+
+    template<>
+    GUIPP_LOOK_EXPORT void check_box_t<look_and_feel_t::metal> (const draw::graphics& graph,
+                                                                const core::rectangle& area,
+                                                                const std::string& text,
+                                                                const core::button_state::is& state);
+
+    template<>
+    GUIPP_LOOK_EXPORT void check_box_t<look_and_feel_t::w95> (const draw::graphics& graph,
+                                                              const core::rectangle& area,
+                                                              const std::string& text,
+                                                              const core::button_state::is& state);
+
+    template<>
+    GUIPP_LOOK_EXPORT void check_box_t<look_and_feel_t::osx> (const draw::graphics& graph,
+                                                              const core::rectangle& area,
+                                                              const std::string& text,
+                                                              const core::button_state::is& state);
 
     GUIPP_LOOK_EXPORT void check_box (const draw::graphics& graph,
                                       const core::rectangle& area,

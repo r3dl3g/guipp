@@ -57,14 +57,19 @@ namespace gui {
 
       void clear ();
 
+      template<pixel_format_t S>
+      const const_image_data<S> const_reinterpret () const {
+        return const_image_data<S>(core::array_wrapper<const byte>(data), info);
+      }
+
+      template<pixel_format_t S>
+      const image_data<S> reinterpret () {
+        return image_data<S>(core::array_wrapper<byte>(data), info);
+      }
+
     protected:
       basic_datamap (const blob&, const bitmap_info&);
       basic_datamap (blob&&, bitmap_info&&);
-
-      template<pixel_format_t S>
-      const const_image_data<S> get_data () const {
-        return const_image_data<S>(core::array_wrapper<const byte>(data), info);
-      }
 
       bitmap_info info;
       blob data;
@@ -104,11 +109,11 @@ namespace gui {
                       const core::native_point& dest_pt);
 
       const_image_data<T> get_data () const {
-        return super::get_data<T>();
+        return super::const_reinterpret<T>();
       }
 
       image_data<T> get_data () {
-        return image_data<T>(core::array_wrapper<byte>(data), info);
+        return super::reinterpret<T>();
       }
 
       void crop (uint32_t x, uint32_t y, uint32_t w, uint32_t h);

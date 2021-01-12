@@ -62,20 +62,9 @@ namespace gui {
     template<> struct PNM2BPP<PNM::P5> { static constexpr pixel_format_t px_fmt = pixel_format_t::GRAY;  static constexpr bool bin = true;   };
     template<> struct PNM2BPP<PNM::P6> { static constexpr pixel_format_t px_fmt = pixel_format_t::RGB;   static constexpr bool bin = true;   };
 
-    inline pixel_format_t pnm2bpp (PNM pnm) {
-      switch (pnm) {
-        case PNM::P1:
-        case PNM::P4:
-          return pixel_format_t::BW;
-        case PNM::P2:
-        case PNM::P5:
-          return pixel_format_t::GRAY;
-        case PNM::P3:
-        case PNM::P6:
-          return pixel_format_t::RGB;
-      }
-      return pixel_format_t::Undefined;
-    }
+    GUIPP_IO_EXPORT pixel_format_t pnm2bpp (PNM);
+    GUIPP_IO_EXPORT PNM bpp2pnm (pixel_format_t);
+    GUIPP_IO_EXPORT int bpp2max (pixel_format_t);
 
     template<pixel_format_t, bool>
     struct BPP2PNM {};

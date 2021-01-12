@@ -33,8 +33,12 @@ namespace gui {
     }
 
     core::rectangle drop_down::button_place (const core::rectangle& r) {
-      core::size::type h = r.height() - 4;
-      return core::rectangle(r.top_left() + core::point(r.width() - h - 2, 2), core::size(h, h));
+      if (look::look_and_feel_t::w95 == look::system_look_and_feel) {
+        core::size::type h = r.height() - 4;
+        return core::rectangle(r.top_left() + core::point(r.width() - h - 2, 2), core::size(h, h));
+      }
+      core::size::type h = r.height();
+      return core::rectangle(r.top_left() + core::point(r.width() - h, 0), core::size(h, h));
     }
 
     void drop_down::layout (const core::rectangle& r) const {
@@ -103,16 +107,14 @@ namespace gui {
 
     void drop_down_list::paint (const draw::graphics& graph) {
       core::rectangle area = super::client_area();
-      draw::frame::sunken_deep_relief(graph, area);
-      bool has_f = data.button.is_focused();
+      bool focused = data.button.is_focused();
+      look::drop_down(graph, area, focused);
       if (data.selection > -1) {
         data.items.draw_item(data.selection,
                              graph,
                              super::get_layout().label_place(super::client_area()),
                              data.items.get_background(),
-                             has_f ? item_state::hilited : item_state::normal);
-      } else if (has_f) {
-        draw::frame::dots(graph, area);
+                             focused ? item_state::hilited : item_state::normal);
       }
     }
 
@@ -165,6 +167,7 @@ namespace gui {
 
     void drop_down_list::hide_popup () {
       data.popup.set_visible(false);
+      data.button.invalidate();
     }
 
     void drop_down_list::set_selection (int idx, event_source src) {

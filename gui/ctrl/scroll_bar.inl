@@ -81,9 +81,35 @@ namespace gui {
       return (spc_size - tmb_size) / (get_max() - get_min());
     }
 
+    namespace detail {
+
+      template<typename T, look::look_and_feel_t L>
+      struct geometry {
+        static T button_size (T length, T thickness) {
+          return std::min(thickness, length / T(2));
+        }
+
+        static T thumb_min (T spc_size, T btn_size) {
+          return std::min(btn_size, spc_size);
+        }
+      };
+
+      template<typename T>
+      struct geometry<T, look::look_and_feel_t::osx> {
+        constexpr static T button_size (T length, T thickness) {
+          return 0;
+        }
+
+        constexpr static T thumb_min (T, T) {
+          return 32;
+        }
+      };
+
+    } // namespace detail
+
     template<orientation_t H>
     inline auto basic_scroll_bar<H>::button_size (type length, type thickness)->type {
-      return std::min(thickness, length / type(2));
+      return detail::geometry<type, look::system_look_and_feel>::button_size(length, thickness);
     }
 
     template<orientation_t H>
@@ -93,7 +119,8 @@ namespace gui {
 
     template<orientation_t H>
     inline auto basic_scroll_bar<H>::thumb_size (type spc_size, type btn_size) const->type {
-      return std::max(get_page() * spc_size / (get_range() + get_page()), std::min(btn_size, spc_size));
+      return std::max(get_page() * spc_size / (get_range() + get_page()),
+                      detail::geometry<type, look::system_look_and_feel>::thumb_min(btn_size, spc_size));
     }
 
     template<orientation_t H>

@@ -34,6 +34,38 @@ namespace gui {
 
   namespace io {
 
+    pixel_format_t pnm2bpp (PNM pnm) {
+      switch (pnm) {
+        case PNM::P1:
+        case PNM::P4:
+          return pixel_format_t::BW;
+        case PNM::P2:
+        case PNM::P5:
+          return pixel_format_t::GRAY;
+        case PNM::P3:
+        case PNM::P6:
+          return pixel_format_t::RGB;
+      }
+      return pixel_format_t::Undefined;
+    }
+
+    PNM bpp2pnm (pixel_format_t bpp) {
+      switch (bpp) {
+        case pixel_format_t::BW: return PNM::P4;
+        case pixel_format_t::GRAY: return PNM::P5;
+        case pixel_format_t::Undefined: return PNM(0);
+        default: return PNM::P6;
+      }
+    }
+
+    int bpp2max (pixel_format_t bpp) {
+      switch (bpp) {
+        case pixel_format_t::BW: return 0;
+        case pixel_format_t::Undefined: return -1;
+        default: return 255;
+      }
+    }
+
     std::ostream& operator<< (std::ostream& out, const PNM& pnm) {
       out << 'P' << static_cast<int>(pnm);
       return out;
@@ -352,12 +384,14 @@ namespace gui {
         auto row = raw.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           int r, g, b;
-          in >> b >> g >> r;
+          in >> r;
+          in >> g;
+          in >> b;
           row[x] = pixel::rgb{
-            static_cast<byte>(b),
-            static_cast<byte>(g),
-            static_cast<byte>(r)
-          };
+                   static_cast<byte>(b),
+                   static_cast<byte>(g),
+                   static_cast<byte>(r)
+        };
         }
       }
       return img;

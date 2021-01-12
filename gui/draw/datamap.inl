@@ -34,21 +34,21 @@ namespace gui {
       const bitmap_info& bmi = get_info();
 
       if (S == bmi.pixel_format) {
-        return datamap<S>(get_data<S>());
+        return datamap<S>(const_reinterpret<S>());
       } else {
         const auto w = bmi.width;
         const auto h = bmi.height;
 
         datamap<S> dest(w, h);
         switch (bmi.pixel_format) {
-          case pixel_format_t::BW:   convert::format::convert<pixel_format_t::BW,   S>(get_data<pixel_format_t::BW>(),   dest.get_data(), w, h); break;
-          case pixel_format_t::GRAY: convert::format::convert<pixel_format_t::GRAY, S>(get_data<pixel_format_t::GRAY>(), dest.get_data(), w, h); break;
-          case pixel_format_t::RGB:  convert::format::convert<pixel_format_t::RGB,  S>(get_data<pixel_format_t::RGB>(),  dest.get_data(), w, h); break;
-          case pixel_format_t::RGBA: convert::format::convert<pixel_format_t::RGBA, S>(get_data<pixel_format_t::RGBA>(), dest.get_data(), w, h); break;
-          case pixel_format_t::BGR:  convert::format::convert<pixel_format_t::BGR,  S>(get_data<pixel_format_t::BGR>(),  dest.get_data(), w, h); break;
-          case pixel_format_t::BGRA: convert::format::convert<pixel_format_t::BGRA, S>(get_data<pixel_format_t::BGRA>(), dest.get_data(), w, h); break;
-          case pixel_format_t::ARGB: convert::format::convert<pixel_format_t::ARGB, S>(get_data<pixel_format_t::ARGB>(), dest.get_data(), w, h); break;
-          case pixel_format_t::ABGR: convert::format::convert<pixel_format_t::ABGR, S>(get_data<pixel_format_t::ABGR>(), dest.get_data(), w, h); break;
+          case pixel_format_t::BW:   convert::format::convert<pixel_format_t::BW,   S>(const_reinterpret<pixel_format_t::BW>(),   dest.get_data(), w, h); break;
+          case pixel_format_t::GRAY: convert::format::convert<pixel_format_t::GRAY, S>(const_reinterpret<pixel_format_t::GRAY>(), dest.get_data(), w, h); break;
+          case pixel_format_t::RGB:  convert::format::convert<pixel_format_t::RGB,  S>(const_reinterpret<pixel_format_t::RGB>(),  dest.get_data(), w, h); break;
+          case pixel_format_t::RGBA: convert::format::convert<pixel_format_t::RGBA, S>(const_reinterpret<pixel_format_t::RGBA>(), dest.get_data(), w, h); break;
+          case pixel_format_t::BGR:  convert::format::convert<pixel_format_t::BGR,  S>(const_reinterpret<pixel_format_t::BGR>(),  dest.get_data(), w, h); break;
+          case pixel_format_t::BGRA: convert::format::convert<pixel_format_t::BGRA, S>(const_reinterpret<pixel_format_t::BGRA>(), dest.get_data(), w, h); break;
+          case pixel_format_t::ARGB: convert::format::convert<pixel_format_t::ARGB, S>(const_reinterpret<pixel_format_t::ARGB>(), dest.get_data(), w, h); break;
+          case pixel_format_t::ABGR: convert::format::convert<pixel_format_t::ABGR, S>(const_reinterpret<pixel_format_t::ABGR>(), dest.get_data(), w, h); break;
           default: break;
         }
         return dest;

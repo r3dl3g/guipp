@@ -61,12 +61,12 @@ namespace gui {
       if (!page_up.empty()) {
         g.fill(draw::rectangle(page_up),
                select == ctrl::scrollbar_item::page_up ? color::light_gray
-                                                 : color::very_light_gray);
+                                                       : color::very_light_gray);
       }
       if (!page_down.empty()) {
         g.fill(draw::rectangle(page_down + core::size::one),
                select == ctrl::scrollbar_item::page_down ? color::light_gray
-                                                   : color::very_light_gray);
+                                                         : color::very_light_gray);
       }
       os::color col = is_enabled ? color::black : color::gray;
       if (!up.empty()) {
@@ -114,12 +114,12 @@ namespace gui {
       if (!page_up.empty()) {
         g.fill(draw::rectangle(page_up),
                select == ctrl::scrollbar_item::page_up ? color::light_gray
-                                                 : color::very_light_gray);
+                                                       : color::very_light_gray);
       }
       if (!page_down.empty()) {
         g.fill(draw::rectangle(page_down + core::size::one),
                select == ctrl::scrollbar_item::page_down ? color::light_gray
-                                                   : color::very_light_gray);
+                                                         : color::very_light_gray);
       }
       os::color col = is_enabled ? color::black : color::gray;
       if (!up.empty()) {
@@ -144,6 +144,37 @@ namespace gui {
           draw::frame::sunken_relief(g, thumb.shrinked(core::size::two));
         }
       }
+    }
+
+    template<>
+    void scrollbar<look_and_feel_t::osx> (const draw::graphics &g,
+                                          ctrl::scrollbar_item select,
+                                          ctrl::scrollbar_item hilite,
+                                          bool is_enabled,
+                                          bool horizontal,
+                                          bool /*is_focused*/,
+                                          const core::rectangle& up,
+                                          const core::rectangle& down,
+                                          const core::rectangle& thumb,
+                                          const core::rectangle& page_up,
+                                          const core::rectangle& page_down) {
+      if (!page_up.empty()) {
+        g.fill(draw::rectangle(page_up), color::rgb_gray<250>::value);
+      }
+      if (!page_down.empty()) {
+        g.fill(draw::rectangle(page_down + core::size::one), color::rgb_gray<250>::value);
+      }
+      if (!thumb.empty()) {
+        g.fill(draw::rectangle(thumb), color::rgb_gray<250>::value);
+        core::rectangle r = thumb.shrinked({4, 4});
+        if (ctrl::scrollbar_item::thumb_button == select) {
+          g.fill(draw::round_rectangle(r, 4), color::rgb_gray<128>::value);
+        } else {
+         g.fill(draw::round_rectangle(r, 4), color::rgb_gray<195>::value);
+        }
+      }
+      core::rectangle full = thumb | page_up | page_down;
+      g.frame(draw::rectangle(full), color::rgb_gray<232>::value);
     }
 
   } // namespace look

@@ -387,8 +387,9 @@ namespace gui {
           if (i == end) {
             i = begin;
           }
-          if ((*i)->can_accept_focus()) {
-            (*i)->take_focus();
+          window* win = *i;
+          if (win->can_accept_focus()) {
+            win->take_focus();
             return true;
           }
           ++i;
@@ -401,6 +402,8 @@ namespace gui {
     void container::shift_focus (window* focus, bool backward) {
       focus->focus_lost();
       window_list_t children = get_children();
+//      window_list_t children;
+      collect_children_deep(children, *this);
       if (!children.empty()) {
         if (backward) {
           if (iterate_focus(children.rbegin(), children.rend(), focus)) {

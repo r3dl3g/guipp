@@ -388,15 +388,15 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<bool W>
-    struct bw_colors {};
+    struct GUIPP_CORE_EXPORT bw_colors {};
 
     template<>
-    struct bw_colors<false> {
+    struct GUIPP_CORE_EXPORT bw_colors<false> {
       static constexpr os::color value[2] = {white, black};
     };
 
     template<>
-    struct bw_colors<true> {
+    struct GUIPP_CORE_EXPORT bw_colors<true> {
       static constexpr os::color value[2] = {black, white};
     };
 

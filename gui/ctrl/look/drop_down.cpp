@@ -62,7 +62,7 @@ namespace gui {
     template<>
     void drop_down_item_t<look_and_feel_t::metal> (const draw::graphics& g,
                                                    const core::rectangle& r,
-                                                   const draw::brush& b,
+                                                   const draw::brush&,
                                                    const std::string& t,
                                                    const ctrl::item_state& s) {
       os::color col = color::black;
@@ -155,7 +155,7 @@ namespace gui {
                                                    const core::button_state::is&,
                                                    bool) {
       const auto& img = detail::get_osx_dropdown_button();
-      graph.fill(draw::image(img, area, text_origin_t::vcenter_left), color::buttonColor());
+      graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
     }
 
     void drop_down_button (const draw::graphics& graph,

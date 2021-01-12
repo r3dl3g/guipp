@@ -16,7 +16,7 @@ int gui_main(const std::vector<std::string>& args) {
       continue;
     }
     sys_fs::path p(f);
-    auto stem = p.stem();
+    auto stem = p.stem().string();
     p.replace_extension("h");
     auto src = p.string();
     clog::info() << "Convert " << f << " to " << src;

@@ -149,12 +149,12 @@ namespace gui {
     template<>
     void scrollbar<look_and_feel_t::osx> (const draw::graphics &g,
                                           ctrl::scrollbar_item select,
-                                          ctrl::scrollbar_item hilite,
-                                          bool is_enabled,
-                                          bool horizontal,
+                                          ctrl::scrollbar_item /*hilite*/,
+                                          bool /*is_enabled*/,
+                                          bool /*horizontal*/,
                                           bool /*is_focused*/,
-                                          const core::rectangle& up,
-                                          const core::rectangle& down,
+                                          const core::rectangle& /*up*/,
+                                          const core::rectangle& /*down*/,
                                           const core::rectangle& thumb,
                                           const core::rectangle& page_up,
                                           const core::rectangle& page_down) {

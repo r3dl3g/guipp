@@ -96,7 +96,7 @@ namespace gui {
 
       template<typename T>
       struct geometry<T, look::look_and_feel_t::osx> {
-        constexpr static T button_size (T length, T thickness) {
+        constexpr static T button_size (T, T) {
           return 0;
         }
 

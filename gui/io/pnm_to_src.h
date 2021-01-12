@@ -60,8 +60,8 @@ namespace gui {
       template<pixel_format_t T>
       void save_pnm_src (const std::string& fname, const draw::datamap<T>& bmp, const std::string& name);
 
-      void save_pnm_src (const std::string& fname, const draw::basic_datamap& bmp, const std::string& name);
-      void save_pnm_src (std::ostream& out, const draw::basic_datamap& bmp, const std::string& name);
+      GUIPP_IO_EXPORT void save_pnm_src (const std::string& fname, const draw::basic_datamap& bmp, const std::string& name);
+      GUIPP_IO_EXPORT void save_pnm_src (std::ostream& out, const draw::basic_datamap& bmp, const std::string& name);
 
       // --------------------------------------------------------------------------
       template<pixel_format_t T>

@@ -452,7 +452,7 @@ namespace gui {
                                                  const core::button_state::is& state) {
       core::rectangle area = rec;
       const auto& img = detail::get_metal_radio(state.checked(), !state.enabled());
-      graph.fill(draw::image(img, area, text_origin_t::vcenter_left), color::buttonColor());
+      graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
       area.x(20);
       os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
       graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
@@ -466,7 +466,7 @@ namespace gui {
                                                const core::button_state::is& state) {
       core::rectangle area = rec;
       const auto& img = detail::get_osx_radio(state.checked());
-      graph.fill(draw::image(img, area, text_origin_t::vcenter_left), color::buttonColor());
+      graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
       area.x(20);
       os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
       graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
@@ -522,7 +522,7 @@ namespace gui {
                                               const core::button_state::is& state) {
       core::rectangle area = rec;
       const auto& img = detail::get_metal_checkbox(state.checked(), !state.enabled());
-      graph.fill(draw::image(img, area, text_origin_t::vcenter_left), color::buttonColor());
+      graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
       area.x(20);
       os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
       graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
@@ -536,7 +536,7 @@ namespace gui {
                                             const core::button_state::is& state) {
       core::rectangle area = rec;
       const auto& img = detail::get_osx_checkbox(state.checked());
-      graph.fill(draw::image(img, area, text_origin_t::vcenter_left), color::buttonColor());
+      graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
       area.x(20);
       os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
       graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);

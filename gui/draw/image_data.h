@@ -49,12 +49,12 @@ namespace gui {
     struct mono_colors {};
 
     template<>
-    struct mono_colors<false> {
+    struct GUIPP_DRAW_EXPORT mono_colors<false> {
       static constexpr mono value[2] = {mono::white, mono::black};
     };
 
     template<>
-    struct mono_colors<true> {
+    struct GUIPP_DRAW_EXPORT mono_colors<true> {
       static constexpr mono value[2] = {mono::black, mono::white};
     };
 
@@ -189,56 +189,56 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    struct color<mono> {
+    struct GUIPP_DRAW_EXPORT color<mono> {
       static constexpr mono black = { mono::black };
       static constexpr mono white = { mono::white };
     };
 
     // --------------------------------------------------------------------------
     template<>
-    struct color<gray> {
+    struct GUIPP_DRAW_EXPORT color<gray> {
       static constexpr gray black = { 0 };
       static constexpr gray white = { 0xff };
     };
 
     // --------------------------------------------------------------------------
     template<>
-    struct color<rgb> {
+    struct GUIPP_DRAW_EXPORT color<rgb> {
       static constexpr rgb black = {0, 0, 0};
       static constexpr rgb white = {0xff, 0xff, 0xff};
     };
 
     // --------------------------------------------------------------------------
     template<>
-    struct color<rgba> {
+    struct GUIPP_DRAW_EXPORT color<rgba> {
       static constexpr rgba black = {0, 0, 0, 0};
       static constexpr rgba white = {0xff, 0xff, 0xff, 0};
     };
 
     // --------------------------------------------------------------------------
     template<>
-    struct color<bgr> {
+    struct GUIPP_DRAW_EXPORT color<bgr> {
       static constexpr bgr black = {0, 0, 0};
       static constexpr bgr white = {0xff, 0xff, 0xff};
     };
 
     // --------------------------------------------------------------------------
     template<>
-    struct color<bgra> {
+    struct GUIPP_DRAW_EXPORT color<bgra> {
       static constexpr bgra black = {0, 0, 0, 0};
       static constexpr bgra white = {0xff, 0xff, 0xff, 0};
     };
 
     // --------------------------------------------------------------------------
     template<>
-    struct color<argb> {
+    struct GUIPP_DRAW_EXPORT color<argb> {
       static constexpr argb black = {0, 0, 0, 0};
       static constexpr argb white = {0, 0xff, 0xff, 0xff};
     };
 
     // --------------------------------------------------------------------------
     template<>
-    struct color<abgr> {
+    struct GUIPP_DRAW_EXPORT color<abgr> {
       static constexpr abgr black = {0, 0, 0, 0};
       static constexpr abgr white = {0, 0xff, 0xff, 0xff};
     };

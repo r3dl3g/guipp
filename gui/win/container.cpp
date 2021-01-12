@@ -403,7 +403,7 @@ namespace gui {
       focus->focus_lost();
       window_list_t children = get_children();
 //      window_list_t children;
-      collect_children_deep(children, *this);
+//      collect_children_deep(children, *this);
       if (!children.empty()) {
         if (backward) {
           if (iterate_focus(children.rbegin(), children.rend(), focus)) {

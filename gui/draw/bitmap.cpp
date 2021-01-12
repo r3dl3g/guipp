@@ -400,15 +400,13 @@ namespace gui {
     void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi) {
       if (id) {
         const auto fmt = draw::bitmap_info::convert(bmi.pixel_format);
-        blob tmp;
-        tmp.assign(data, data + bmi.mem_size());
         if (bmi.pixel_format == pixel_format_t::BW) {
-          QImage img((const uchar *)tmp.data(), bmi.width, bmi.height, bmi.bytes_per_line, fmt);
+          QImage img((const uchar *)data, bmi.width, bmi.height, bmi.bytes_per_line, fmt);
           img.setColorTable({ QColor(Qt::white).rgb(), QColor(Qt::black).rgb() });
 //          img.setColorTable({ QColor(Qt::black).rgb(), QColor(Qt::white).rgb() });
           *id = QBitmap::fromImage(img);
         } else {
-          *id = QPixmap::fromImage(QImage((const uchar *)tmp.data(), bmi.width, bmi.height, bmi.bytes_per_line, fmt));
+          *id = QPixmap::fromImage(QImage((const uchar *)data, bmi.width, bmi.height, bmi.bytes_per_line, fmt));
         }
       }
     }

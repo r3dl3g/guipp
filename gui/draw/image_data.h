@@ -78,9 +78,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct rgb {
 
-      byte blue;
-      byte green;
       byte red;
+      byte green;
+      byte blue;
 
       template<typename T>
       static rgb build(T t);
@@ -92,9 +92,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct rgba {
 
-      byte blue;
-      byte green;
       byte red;
+      byte green;
+      byte blue;
       byte alpha;
 
       template<typename T>
@@ -107,9 +107,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct bgr {
 
-      byte red;
-      byte green;
       byte blue;
+      byte green;
+      byte red;
 
       template<typename T>
       static bgr build(T t);
@@ -121,9 +121,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct bgra {
 
-      byte red;
-      byte green;
       byte blue;
+      byte green;
+      byte red;
       byte alpha;
 
       template<typename T>
@@ -137,9 +137,9 @@ namespace gui {
     struct argb {
 
       byte alpha;
-      byte blue;
-      byte green;
       byte red;
+      byte green;
+      byte blue;
 
       template<typename T>
       static argb build(T t);
@@ -152,9 +152,9 @@ namespace gui {
     struct abgr {
 
       byte alpha;
-      byte red;
-      byte green;
       byte blue;
+      byte green;
+      byte red;
 
       template<typename T>
       static abgr build(T t);

@@ -38,7 +38,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, typename std::enable_if<pixel::is_rgb_type<T>::value>::type* = nullptr>
+      template<typename T, typename std::enable_if<pixel::is_rgb_type<T>::value>::type*>
       void write_pixel (std::ostream& out, T pixel) {
         out << std::setw(3) << static_cast<int>(pixel.red) << ", "
             << std::setw(3) << static_cast<int>(pixel.green) << ", "

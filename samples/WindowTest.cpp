@@ -192,7 +192,7 @@ private:
   ctrl::vertical_separator btn_sep2;
 
   win::group_window<layout::horizontal_adaption<5, 10, 2, 50, 90, origin_t::end>, color::very_light_gray> btn_group;
-  win::group_window<layout::vertical_adaption<5, 5>> chck_group;
+  win::group_window<layout::vertical_adaption<2, 1>> chck_group;
 
   group_group_t group_group;
 
@@ -1062,7 +1062,7 @@ void my_main_window::created_children () {
 
   switch_button2.create(main, "Switcher", core::rectangle(20, 445, 150, 20));
 
-  text_drop_down.set_data(ctrl::calc_list_data<std::string>([](std::size_t i) {
+  text_drop_down.set_data(ctrl::calc_list_data<std::string, ctrl::default_drop_down_drawer<std::string>>([](std::size_t i) {
     return ostreamfmt("Item " << i);
   }, [] () {
     return 10;

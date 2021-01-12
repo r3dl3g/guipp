@@ -15,6 +15,9 @@ add_subdirectory(./../gui gui)
 if (GUIPP_USE_QT)
   DebugPrint("GUIPP samples: build with Qt5!")
   find_package(Qt5Widgets REQUIRED)
+#  find_package(ICU REQUIRED data i18n io lx uc)
+#  find_package(PNG REQUIRED)
+#  set(APP_SYS_LIBRARIES ${ICU_LIBRARIES} ${PNG_LIBRARIES})
 endif()
 
 if (GUIPP_USE_BOOST)
@@ -38,18 +41,19 @@ include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS})
 
 set(apps
     hello_world
+    pnm2src
     one_child
-    WindowTest
-    BorderTest
-    filemanager
-    list_app
-    tree_app
     new_border_layout
     attach_all_layout
+    diagrams
     dialogs
     split_view
-    diagrams
+    list_app
+    tree_app
+    filemanager
     covid19
+    WindowTest
+    BorderTest
 )
 
 add_definitions(${GUIPP_CXX_FLAGS})
@@ -61,6 +65,7 @@ endif ()
 
 foreach(app ${apps})
     add_executable(${app} WIN32 ${app}.cpp)
+#    target_link_libraries(${app} ${APP_SYS_LIBRARIES} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
     target_link_libraries(${app} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
     install(TARGETS ${app} DESTINATION bin)
     set_target_properties(${app} PROPERTIES

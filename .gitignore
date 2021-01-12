@@ -1,8 +1,6 @@
 .svn
 boost
-build/Linux*
-build/MinGW*
-build/xcode*
+build/*/*
 build/*.tmp
 CMakeLists.txt.user*
 dist

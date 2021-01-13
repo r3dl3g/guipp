@@ -521,7 +521,7 @@ namespace gui {
       core::rectangle r(core::point(area.x() + 1, y - 6), core::size(12, 12));
       graph.frame(ellipse(r), col);
       if (state.checked()) {
-        r.shrink(core::size(2, 2));
+        r.shrink(core::size(3, 3));
         graph.fill(ellipse(r), col);
       }
 

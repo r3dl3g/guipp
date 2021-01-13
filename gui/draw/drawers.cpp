@@ -472,12 +472,22 @@ namespace gui {
       Use<font> fn(g, f);
       RECT r = rect;
       std::wstring wstr = util::string::utf8_to_utf16(str);
-      DrawTextW(g, wstr.c_str(), (int)wstr.size(), &r, static_cast<unsigned int>(origin) | DT_CALCRECT);
-      rect = core::rectangle(r);
-      //auto sz = f.get_text_size(str);
-      //if (rect.size() != sz) {
-      //  clog::debug() << "Text size differs: DT_CALCRECT:" << rect.size() << ", GetTextExtentPoint32:" << sz;
-      //}
+      DrawTextW(g, wstr.c_str(), (int)wstr.size(), &r, static_cast<unsigned int>(text_origin_t::top_left) | DT_CALCRECT);
+      core::rectangle rr(r);
+      if (origin_is_right(origin)) {
+        rect.set_horizontal(rect.x2() - rr.width(), rr.width());
+      } else if (origin_is_h_center(origin)) {
+        rect.set_horizontal(rect.center_x() - rr.width() / 2, rr.width());
+      } else {
+        rect.width(rr.width());
+      }
+      if (origin_is_bottom(origin)) {
+        rect.set_vertical(rect.y2() - rr.height(), rr.height());
+      } else if (origin_is_v_center(origin)) {
+        rect.set_vertical(rect.center_y() - rr.height() / 2, rr.height());
+      } else {
+        rect.height(rr.height());
+      }
     }
 
     // --------------------------------------------------------------------------

@@ -48,43 +48,24 @@ namespace gui {
                     const core::rectangle& page_down);
 
     template<>
-    GUIPP_LOOK_EXPORT void scrollbar<look_and_feel_t::metal> (const draw::graphics &g,
-                                                              ctrl::scrollbar_item select,
-                                                              ctrl::scrollbar_item hilite,
-                                                              bool is_enabled,
-                                                              bool horizontal,
-                                                              bool is_focused,
-                                                              const core::rectangle& up,
-                                                              const core::rectangle& down,
-                                                              const core::rectangle& thumb,
-                                                              const core::rectangle& page_up,
-                                                              const core::rectangle& page_down);
+    GUIPP_LOOK_EXPORT void scrollbar<look_and_feel_t::metal> (const draw::graphics &, ctrl::scrollbar_item, ctrl::scrollbar_item,
+                                                              bool, bool, bool, const core::rectangle&, const core::rectangle&,
+                                                              const core::rectangle&, const core::rectangle&, const core::rectangle&);
 
     template<>
-    GUIPP_LOOK_EXPORT void scrollbar<look_and_feel_t::w95> (const draw::graphics &g,
-                                                            ctrl::scrollbar_item select,
-                                                            ctrl::scrollbar_item hilite,
-                                                            bool is_enabled,
-                                                            bool horizontal,
-                                                            bool is_focused,
-                                                            const core::rectangle& up,
-                                                            const core::rectangle& down,
-                                                            const core::rectangle& thumb,
-                                                            const core::rectangle& page_up,
-                                                            const core::rectangle& page_down);
+    GUIPP_LOOK_EXPORT void scrollbar<look_and_feel_t::w95> (const draw::graphics &, ctrl::scrollbar_item, ctrl::scrollbar_item,
+                                                            bool, bool, bool, const core::rectangle&, const core::rectangle&,
+                                                            const core::rectangle&, const core::rectangle&, const core::rectangle&);
 
     template<>
-    GUIPP_LOOK_EXPORT void scrollbar<look_and_feel_t::osx> (const draw::graphics &g,
-                                                            ctrl::scrollbar_item select,
-                                                            ctrl::scrollbar_item hilite,
-                                                            bool is_enabled,
-                                                            bool horizontal,
-                                                            bool is_focused,
-                                                            const core::rectangle& up,
-                                                            const core::rectangle& down,
-                                                            const core::rectangle& thumb,
-                                                            const core::rectangle& page_up,
-                                                            const core::rectangle& page_down);
+    GUIPP_LOOK_EXPORT void scrollbar<look_and_feel_t::w10> (const draw::graphics &, ctrl::scrollbar_item, ctrl::scrollbar_item,
+                                                            bool, bool, bool, const core::rectangle&, const core::rectangle&,
+                                                            const core::rectangle&, const core::rectangle&, const core::rectangle&);
+
+    template<>
+    GUIPP_LOOK_EXPORT void scrollbar<look_and_feel_t::osx> (const draw::graphics &, ctrl::scrollbar_item, ctrl::scrollbar_item,
+                                                            bool, bool, bool, const core::rectangle&, const core::rectangle&,
+                                                            const core::rectangle&, const core::rectangle&, const core::rectangle&);
 
   } // namespace look
 

@@ -35,6 +35,15 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace look {
 
+    namespace win10 {
+
+      GUIPP_LOOK_EXPORT os::color get_button_color (const core::button_state::is& state);
+      GUIPP_LOOK_EXPORT os::color get_button_color (bool enabled, bool pushed, bool hilited, bool focused);
+      GUIPP_LOOK_EXPORT os::color get_button_frame_color (const core::button_state::is& state);
+      GUIPP_LOOK_EXPORT os::color get_button_frame_color (bool enabled, bool pushed, bool hilited, bool focused);
+
+    }
+
     template<look_and_feel_t L = system_look_and_feel>
     void button_frame (const draw::graphics& graph,
                                              const core::rectangle& r,
@@ -49,6 +58,12 @@ namespace gui {
 
     template<>
     GUIPP_LOOK_EXPORT void button_frame<look_and_feel_t::w95> (const draw::graphics& graph,
+                                                               const core::rectangle& r,
+                                                               bool enabled, bool pushed,
+                                                               bool hilited, bool focused);
+
+    template<>
+    GUIPP_LOOK_EXPORT void button_frame<look_and_feel_t::w10> (const draw::graphics& graph,
                                                                const core::rectangle& r,
                                                                bool enabled, bool pushed,
                                                                bool hilited, bool focused);
@@ -113,6 +128,12 @@ namespace gui {
                                                                  const core::button_state::is& state);
 
     template<>
+    GUIPP_LOOK_EXPORT void radio_button_t<look_and_feel_t::w10> (const draw::graphics& graph,
+                                                                 const core::rectangle& area,
+                                                                 const std::string& text,
+                                                                 const core::button_state::is& state);
+
+    template<>
     GUIPP_LOOK_EXPORT void radio_button_t<look_and_feel_t::osx> (const draw::graphics& graph,
                                                                  const core::rectangle& area,
                                                                  const std::string& text,
@@ -137,6 +158,12 @@ namespace gui {
 
     template<>
     GUIPP_LOOK_EXPORT void check_box_t<look_and_feel_t::w95> (const draw::graphics& graph,
+                                                              const core::rectangle& area,
+                                                              const std::string& text,
+                                                              const core::button_state::is& state);
+
+    template<>
+    GUIPP_LOOK_EXPORT void check_box_t<look_and_feel_t::w10> (const draw::graphics& graph,
                                                               const core::rectangle& area,
                                                               const std::string& text,
                                                               const core::button_state::is& state);

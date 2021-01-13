@@ -234,6 +234,52 @@ namespace gui {
       }
     }
 
+    namespace win10 {
+
+      os::color get_button_color (bool enabled, bool pushed, bool hilited, bool focused) {
+        if (!enabled) {
+          return color::rgb_gray<204>::value;
+        } else if (pushed) {
+          return color::rgb<204, 228, 247>::value;
+        } else if (focused || hilited) {
+          return color::rgb<229, 241, 251>::value;
+        } else {
+          return color::rgb_gray<225>::value;
+        }
+      }
+
+      os::color get_button_frame_color (bool enabled, bool pushed, bool hilited, bool focused) {
+        if (!enabled) {
+          return color::rgb_gray<191>::value;
+        } else if (pushed) {
+          return color::rgb<0, 84, 153>::value;
+        } else if (focused || hilited) {
+          return color::rgb<0, 120, 215>::value;
+        } else {
+          return color::rgb_gray<173>::value;
+        }
+      }
+
+      os::color get_button_color (const core::button_state::is& state) {
+        return get_button_color(state.enabled(), state.pushed(), state.hilited(), state.focused());
+      }
+
+      os::color get_button_frame_color (const core::button_state::is& state) {
+        return get_button_frame_color(state.enabled(), state.pushed(), state.hilited(), state.focused());
+      }
+
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    void button_frame<look_and_feel_t::w10> (const draw::graphics& graph,
+                                             const core::rectangle& r,
+                                             bool enabled, bool pushed, bool hilited, bool focused) {
+      graph.draw(draw::rectangle(r),
+                 win10::get_button_color(enabled, pushed, hilited, focused),
+                 win10::get_button_frame_color(enabled, pushed, hilited, focused));
+    }
+
     // --------------------------------------------------------------------------
     template<>
     void button_frame<look_and_feel_t::metal> (const draw::graphics& graph,
@@ -444,6 +490,41 @@ namespace gui {
       }
     }
 
+    os::color get_w10_color (const core::button_state::is& state) {
+      if (!state.enabled()) {
+        return color::rgb_gray<204>::value;
+      } else if (state.focused() || state.pushed()) {
+        return color::rgb<0, 120, 215>::value;
+      } else {
+        return color::black;
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    void radio_button_t<look_and_feel_t::w10> (const draw::graphics& graph,
+                                               const core::rectangle& rec,
+                                               const std::string& text,
+                                               const core::button_state::is& state) {
+      using namespace draw;
+
+      auto area = rec;
+      graph.fill(rectangle(area), color::buttonColor());
+
+      os::color col = get_w10_color(state);
+
+      core::point::type y = area.center_y();
+      core::rectangle r(core::point(area.x() + 1, y - 6), core::size(12, 12));
+      graph.frame(ellipse(r), col);
+      if (state.checked()) {
+        r.shrink(core::size(2, 2));
+        graph.fill(ellipse(r), col);
+      }
+
+      area.x(20);
+      graph.text(text_box(text, area, text_origin_t::vcenter_left), font::system(), col);
+    }
+
     // --------------------------------------------------------------------------
     template<>
     void radio_button_t<look_and_feel_t::metal> (const draw::graphics& graph,
@@ -512,6 +593,30 @@ namespace gui {
         area.grow({3, 3});
         graph.frame(draw::rectangle(area), pen(color::black, dot_line_width, dot_line_style));
       }
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    void check_box_t<look_and_feel_t::w10> (const draw::graphics& graph,
+                                            const core::rectangle& rec,
+                                            const std::string& text,
+                                            const core::button_state::is& state) {
+      using namespace draw;
+
+      auto area = rec;
+      graph.fill(rectangle(area), color::buttonColor());
+
+      os::color col = get_w10_color(state);
+
+      core::point::type y = area.center_y();
+      core::rectangle r(core::point(area.x() + 1, y - 6), core::size(12, 12));
+      graph.frame(rectangle(r), col);
+      if (state.checked()) {
+        graph.frame(polyline({{r.x() + 1, y}, {r.x() + 4, y + 3}, {r.x() + 10, y - 3}}), pen(col, 2));
+      }
+
+      area.x(20);
+      graph.text(text_box(text, area, text_origin_t::vcenter_left), font::system(), col);
     }
 
     // --------------------------------------------------------------------------

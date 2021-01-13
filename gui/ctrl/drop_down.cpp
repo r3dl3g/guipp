@@ -32,13 +32,30 @@ namespace gui {
       return core::rectangle(r.top_left() + core::point(2, 2), core::size(r.width() - h - 4, h));
     }
 
-    core::rectangle drop_down::button_place (const core::rectangle& r) {
-      if (look::look_and_feel_t::w95 == look::system_look_and_feel) {
+    namespace detail {
+
+      template<look::look_and_feel_t L = look::system_look_and_feel>
+      inline core::rectangle button_place (const core::rectangle& r) {
+        core::size::type h = r.height();
+        return core::rectangle(r.top_left() + core::point(r.width() - h, 0), core::size(h, h));
+      }
+
+      template<>
+      inline core::rectangle button_place<look::look_and_feel_t::w95> (const core::rectangle& r) {
         core::size::type h = r.height() - 4;
         return core::rectangle(r.top_left() + core::point(r.width() - h - 2, 2), core::size(h, h));
       }
-      core::size::type h = r.height();
-      return core::rectangle(r.top_left() + core::point(r.width() - h, 0), core::size(h, h));
+
+      template<>
+      inline core::rectangle button_place<look::look_and_feel_t::w10> (const core::rectangle& r) {
+        core::size::type h = r.height() - 2;
+        return core::rectangle(r.top_left() + core::point(r.width() - h - 1, 1), core::size(h, h));
+      }
+
+    } // namespace detail
+
+    core::rectangle drop_down::button_place (const core::rectangle& r) {
+      return detail::button_place<>(r);
     }
 
     void drop_down::layout (const core::rectangle& r) const {
@@ -107,14 +124,13 @@ namespace gui {
 
     void drop_down_list::paint (const draw::graphics& graph) {
       core::rectangle area = super::client_area();
-      bool focused = data.button.is_focused();
-      look::drop_down(graph, area, focused);
+      look::drop_down(graph, area, data.button.get_state());
       if (data.selection > -1) {
         data.items.draw_item(data.selection,
                              graph,
                              super::get_layout().label_place(super::client_area()),
                              data.items.get_background(),
-                             focused ? item_state::hilited : item_state::normal);
+                             data.button.is_focused() ? item_state::hilited : item_state::normal);
       }
     }
 
@@ -168,6 +184,7 @@ namespace gui {
     void drop_down_list::hide_popup () {
       data.popup.set_visible(false);
       data.button.invalidate();
+      invalidate();
     }
 
     void drop_down_list::set_selection (int idx, event_source src) {

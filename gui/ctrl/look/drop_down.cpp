@@ -25,6 +25,7 @@
 #include <gui/draw/drawers.h>
 #include <gui/draw/frames.h>
 #include <gui/draw/brush.h>
+#include <gui/draw/pen.h>
 #include <gui/draw/font.h>
 #include <gui/ctrl/look/drop_down.h>
 #include <gui/ctrl/look/button.h>
@@ -96,6 +97,15 @@ namespace gui {
     }
 
     template<>
+    void drop_down_item_t<look_and_feel_t::w10> (const draw::graphics& g,
+                                                 const core::rectangle& r,
+                                                 const draw::brush& b,
+                                                 const std::string& t,
+                                                 const ctrl::item_state& s) {
+      drop_down_item_t<look_and_feel_t::w95>(g, r, b, t, s);
+    }
+
+    template<>
     void drop_down_item_t<look_and_feel_t::osx> (const draw::graphics& g,
                                                  const core::rectangle& r,
                                                  const draw::brush& b,
@@ -112,6 +122,18 @@ namespace gui {
       drop_down_item_t<>(g, r, b, t, s);
     }
 
+    std::vector<core::point> get_button_poly (const core::rectangle& area, bool is_open) {
+      core::rectangle r = area.shrinked(area.size() / 3);
+      if (!r.empty()) {
+        if (is_open) {
+          return {r.bottom_right(), {r.center_x(), r.y()}, r.bottom_left()};
+        } else {
+          return {r.top_left(), {r.center_x(), r.y2()}, r.top_right()};
+        }
+      }
+      return {};
+    }
+
     template<>
     void drop_down_button_t<look_and_feel_t::metal> (const draw::graphics& graph,
                                                      const core::rectangle& area,
@@ -119,16 +141,7 @@ namespace gui {
                                                      bool is_open) {
       button_frame<look_and_feel_t::metal>(graph, area, state);
 //      graph.fill(draw::rectangle(area), color::buttonColor());
-      core::rectangle r = area.shrinked(core::size(4, 5));
-      if (!r.empty()) {
-        std::vector<core::point> p;
-        if (is_open) {
-          p = {r.bottom_right(), {r.center_x(), r.y()}, r.bottom_left()};
-        } else {
-          p = {r.top_left(), {r.center_x(), r.y2()}, r.top_right()};
-        }
-        graph.fill(draw::polygon(p), color::black);
-      }
+      graph.fill(draw::polygon(get_button_poly(area, is_open)), color::black);
     }
 
     template<>
@@ -137,16 +150,17 @@ namespace gui {
                                                    const core::button_state::is& state,
                                                    bool is_open) {
       look::button_frame<look_and_feel_t::w95>(graph, area, state);
-      core::rectangle r = area.shrinked(core::size(4, 5));
-      if (!r.empty()) {
-        std::vector<core::point> p;
-        if (is_open) {
-          p = {r.bottom_right(), {r.center_x(), r.y()}, r.bottom_left()};
-        } else {
-          p = {r.top_left(), {r.center_x(), r.y2()}, r.top_right()};
-        }
-        graph.fill(draw::polygon(p), color::black);
-      }
+      graph.fill(draw::polygon(get_button_poly(area, is_open)), color::black);
+    }
+
+    template<>
+    void drop_down_button_t<look_and_feel_t::w10> (const draw::graphics& graph,
+                                                   const core::rectangle& r,
+                                                   const core::button_state::is& state,
+                                                   bool is_open) {
+//      look::button_frame<look_and_feel_t::w10>(graph, r, state);
+      graph.fill(draw::rectangle(r), win10::get_button_color(state));
+      graph.frame(draw::polyline(get_button_poly(r, is_open)), color::black);
     }
 
     template<>
@@ -168,31 +182,38 @@ namespace gui {
     template<>
     void drop_down_t<look_and_feel_t::metal> (const draw::graphics& graph,
                                               const core::rectangle& r,
-                                              bool focused) {
-      button_frame<look_and_feel_t::metal>(graph, r, true, false, false, focused);
+                                              const core::button_state::is& state) {
+      button_frame<look_and_feel_t::metal>(graph, r, state);
     }
 
     template<>
     void drop_down_t<look_and_feel_t::w95> (const draw::graphics& graph,
                                             const core::rectangle& area,
-                                            bool focused) {
+                                            const core::button_state::is& state) {
       draw::frame::sunken_deep_relief(graph, area);
-      if (focused) {
+      if (state.focused()) {
         draw::frame::dots(graph, area);
       }
     }
 
     template<>
+    void drop_down_t<look_and_feel_t::w10> (const draw::graphics& graph,
+                                            const core::rectangle& area,
+                                            const core::button_state::is& state) {
+      button_frame<look_and_feel_t::w10>(graph, area, state);
+    }
+
+    template<>
     void drop_down_t<look_and_feel_t::osx> (const draw::graphics& graph,
                                             const core::rectangle& r,
-                                            bool focused) {
-      button_frame<look_and_feel_t::osx>(graph, r, true, false, false, focused);
+                                            const core::button_state::is& state) {
+      button_frame<look_and_feel_t::osx>(graph, r, state);
     }
 
     void drop_down (const draw::graphics& graph,
                     const core::rectangle& area,
-                    bool focused) {
-      drop_down_t<>(graph, area, focused);
+                    const core::button_state::is& state) {
+      drop_down_t<>(graph, area, state);
     }
 
   } // look

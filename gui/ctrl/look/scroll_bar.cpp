@@ -146,6 +146,63 @@ namespace gui {
       }
     }
 
+    std::vector<core::point> up_left_arrows_poly (const core::rectangle& area, bool horizontal) {
+      core::rectangle r = area.shrinked(area.size() / 3);
+      if (!r.empty()) {
+        if (horizontal) {
+          return {r.top_right(), {r.x(), r.center_y()}, r.bottom_right()};
+        } else {
+          return {r.bottom_right(), {r.center_x(), r.y()}, r.bottom_left()};
+        }
+      }
+      return {};
+    }
+
+    std::vector<core::point> down_right_arrows_poly (const core::rectangle& area, bool horizontal) {
+      core::rectangle r = area.shrinked(area.size() / 3);
+      if (!r.empty()) {
+        if (horizontal) {
+          return {r.top_left(), {r.x2(), r.center_y()}, r.bottom_left()};
+        } else {
+          return {r.top_left(), {r.center_x(), r.y2()}, r.top_right()};
+        }
+      }
+      return {};
+    }
+
+    template<>
+    void scrollbar<look_and_feel_t::w10> (const draw::graphics &g,
+                                          ctrl::scrollbar_item select,
+                                          ctrl::scrollbar_item hilite,
+                                          bool is_enabled,
+                                          bool horizontal,
+                                          bool /*is_focused*/,
+                                          const core::rectangle& up,
+                                          const core::rectangle& down,
+                                          const core::rectangle& thumb,
+                                          const core::rectangle& page_up,
+                                          const core::rectangle& page_down) {
+      if (!page_up.empty()) {
+        g.fill(draw::rectangle(page_up), color::rgb_gray<240>::value);
+      }
+      if (!page_down.empty()) {
+        g.fill(draw::rectangle(page_down + core::size::one), color::rgb_gray<240>::value);
+      }
+      os::color col = is_enabled ? color::black : color::gray;
+      if (!up.empty()) {
+        g.fill(draw::rectangle(up), color::rgb_gray<240>::value);
+        g.frame(draw::polyline(up_left_arrows_poly(up, horizontal)), col);
+      }
+      if (!down.empty()) {
+        g.fill(draw::rectangle(down), color::rgb_gray<240>::value);
+        g.frame(draw::polyline(down_right_arrows_poly(down, horizontal)), col);
+      }
+      if (!thumb.empty()) {
+        g.fill(draw::rectangle(thumb), ctrl::scrollbar_item::thumb_button == select ?
+                 color::rgb_gray<166>::value : color::rgb_gray<205>::value);
+      }
+    }
+
     template<>
     void scrollbar<look_and_feel_t::osx> (const draw::graphics &g,
                                           ctrl::scrollbar_item select,

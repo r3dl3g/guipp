@@ -31,9 +31,8 @@ namespace gui {
   namespace look {
 
     enum class look_and_feel_t {
-//      simple,
-//      flat,
       w95,
+      w10,
       metal,
       osx
     };
@@ -42,7 +41,7 @@ namespace gui {
 #ifdef __APPLE__
         look_and_feel_t::osx;
 #else
-      IF_MOBILE_ELSE(look_and_feel_t::w95, look_and_feel_t::metal);
+      IF_MOBILE_ELSE(look_and_feel_t::w10, look_and_feel_t::metal);
 #endif
 
   }

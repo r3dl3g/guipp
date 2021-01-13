@@ -57,30 +57,28 @@ namespace gui {
 
       graph.fill(rectangle(area), background);
 
-      core::point::type y1 = area.y();
-      core::point::type y2 = area.y2();
 
       if (is_focused && (selection.begin() < selection.end())) {
+        gui::core::rectangle selection_area = area;
         auto begin = scroll_pos;
-        core::point::type left = area.x();
         if (selection.begin() > scroll_pos) {
           begin = selection.begin();
           std::string t1 = text.substr(scroll_pos, begin - scroll_pos);
-          gui::core::rectangle a1 = area;
-          graph.text(bounding_box(t1, a1, origin), fnt, foreground);
-          left = a1.x2();
+          graph.text(bounding_box(t1, selection_area, origin), fnt, foreground);
+          selection_area.x(selection_area.x2());
         }
 
-        gui::core::rectangle a2 = area.with_x(left);
         if (selection.end() > scroll_pos) {
           std::string t2 = text.substr(begin, selection.end() - begin);
-          graph.text(bounding_box(t2, a2, origin), fnt, foreground);
-          graph.fill(rectangle(a2), color::invert(color::highLightColor()));
+          graph.text(bounding_box(t2, selection_area, origin), fnt, foreground);
+          selection_area.y(area.y()).height(area.height());
+          graph.fill(rectangle(selection_area), color::invert(color::highLightColor()));
         }
+
         graph.text(text_box(text.substr(scroll_pos), area, origin), fnt, foreground);
 
         if (selection.end() > scroll_pos) {
-          graph.invert(a2);
+          graph.invert(selection_area);
         }
 
       } else {
@@ -91,8 +89,8 @@ namespace gui {
         gui::core::rectangle cursor_area = area;
         graph.text(bounding_box(text.substr(scroll_pos, cursor_pos - scroll_pos), cursor_area, origin),
                    fnt, foreground);
-        graph.frame(line(core::point(cursor_area.x2(), y1),
-                         core::point(cursor_area.x2(), y2)),
+        graph.frame(line(core::point(cursor_area.x2(), area.y()),
+                         core::point(cursor_area.x2(), area.y2())),
                     foreground);
       }
 #ifdef SHOW_TEXT_AREA

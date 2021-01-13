@@ -166,70 +166,83 @@ namespace gui {
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::set_position (const point_t& pt) {
+    inline auto basic_rectangle<T, S>::set_position (const point_t& pt) -> self& {
       pos = pt;
+      return *this;
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::set_size (const size_t& s) {
+    inline auto basic_rectangle<T, S>::set_size (const size_t& s) -> self& {
       sz = s;
+      return *this;
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::x (point_type x) {
+    inline auto basic_rectangle<T, S>::x (point_type x) -> self& {
       pos.x(x);
+      return *this;
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::y (point_type y) {
+    inline auto basic_rectangle<T, S>::y (point_type y) -> self& {
       pos.y(y);
+      return *this;
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::x2 (point_type new_x) {
+    inline auto basic_rectangle<T, S>::x2 (point_type new_x) -> self& {
       sz.width(new_x - x());
+      return *this;
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::y2 (point_type new_y) {
+    inline auto basic_rectangle<T, S>::y2 (point_type new_y) -> self& {
       sz.height(new_y - y());
+      return *this;
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::width (size_type width) {
+    inline auto basic_rectangle<T, S>::width (size_type width) -> self& {
       sz.width(width);
+      return *this;
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::height (size_type height) {
+    inline auto basic_rectangle<T, S>::height (size_type height) -> self& {
       sz.height(height);
+      return *this;
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::right (point_type new_x) {
+    inline auto basic_rectangle<T, S>::right (point_type new_x) -> self& {
       sz.width(new_x - x() + 1);
+      return *this;
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::bottom (point_type new_y) {
+    inline auto basic_rectangle<T, S>::bottom (point_type new_y) -> self& {
       sz.height(new_y - y() + 1);
+      return *this;
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::top_left (const point_t& pt) {
+    inline auto basic_rectangle<T, S>::top_left (const point_t& pt) -> self& {
       pos = pt;
+      return *this;
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::bottom_right (const point_t& pt) {
+    inline auto basic_rectangle<T, S>::bottom_right (const point_t& pt) -> self& {
       sz.width(pt.x() - pos.x() + 1);
       sz.height(pt.y() - pos.y() + 1);
+      return *this;
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::x2y2 (const point_t& pt) {
+    inline auto basic_rectangle<T, S>::x2y2 (const point_t& pt) -> self& {
       sz.width(pt.x() - pos.x());
       sz.height(pt.y() - pos.y());
+      return *this;
     }
 
     template<typename T, typename S>
@@ -514,38 +527,52 @@ namespace gui {
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::move (const point_t& pt) {
+    inline auto basic_rectangle<T, S>::move (const point_t& pt) -> self& {
       pos += pt;
+      return *this;
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::move (const size_t& sz) {
+    inline auto basic_rectangle<T, S>::move (const size_t& sz) -> self& {
       pos += sz;
+      return *this;
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::move_x (point_type dx) {
+    inline auto basic_rectangle<T, S>::move_x (point_type dx) -> self& {
       pos.move_x(dx);
+      return *this;
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::move_y (point_type dy) {
+    inline auto basic_rectangle<T, S>::move_y (point_type dy) -> self& {
       pos.move_y(dy);
+      return *this;
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::move_to_x (point_type new_x) {
-      x(new_x);
+    inline auto basic_rectangle<T, S>::move_to_x (point_type new_x) -> self& {
+      return x(new_x);
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::move_to_y (point_type new_y) {
-      y(new_y);
+    inline auto basic_rectangle<T, S>::move_to_y (point_type new_y) -> self& {
+      return y(new_y);
     }
 
     template<typename T, typename S>
-    inline void basic_rectangle<T, S>::set_center (const point_t& pt) {
-      set_position({ pt.x() - width() / point_type(2), pt.y() - height() / point_type(2) });
+    inline auto basic_rectangle<T, S>::set_center (const point_t& pt) -> self& {
+      return set_position({ pt.x() - width() / point_type(2), pt.y() - height() / point_type(2) });
+    }
+
+    template<typename T, typename S>
+    inline auto basic_rectangle<T, S>::set_horizontal (const point_type x_, const size_type w_) -> self& {
+      return x(x).width(w_);
+    }
+
+    template<typename T, typename S>
+    inline auto basic_rectangle<T, S>::set_vertical (const point_type y_, const size_type h_) -> self& {
+      return y(y_).height(h_);
     }
 
     template<typename T, typename S>

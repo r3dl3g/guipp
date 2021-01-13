@@ -85,21 +85,21 @@ namespace gui {
       point_type right () const;        /// position of most right pixel
       point_type bottom () const;       /// position of most bottom pixel
 
-      void x (point_type x);
-      void y (point_type y);
-      void x2 (point_type x);
-      void y2 (point_type y);
-      void height (size_type height);
-      void width (size_type width);
-      void right (point_type x);
-      void bottom (point_type y);
+      self& x (point_type x);
+      self& y (point_type y);
+      self& x2 (point_type x);
+      self& y2 (point_type y);
+      self& height (size_type height);
+      self& width (size_type width);
+      self& right (point_type x);
+      self& bottom (point_type y);
 
       bool empty () const;
       bool is_inside (const point_t& p) const;
 
-      void top_left (const point_t& pt);
-      void bottom_right (const point_t& pt);
-      void x2y2 (const point_t& pt);
+      self& top_left (const point_t& pt);
+      self& bottom_right (const point_t& pt);
+      self& x2y2 (const point_t& pt);
 
       point_type center_x () const;
       point_type center_y () const;
@@ -148,18 +148,21 @@ namespace gui {
       self operator+ (const self& r) const;
       self operator- (const self& r) const;
 
-      void move (const point_t& pt);
-      void move (const size_t& sz);
+      self& move (const point_t& pt);
+      self& move (const size_t& sz);
 
-      void move_x (point_type dx);
-      void move_y (point_type dy);
+      self& move_x (point_type dx);
+      self& move_y (point_type dy);
 
-      void move_to_x (point_type x);
-      void move_to_y (point_type y);
+      self& move_to_x (point_type x);
+      self& move_to_y (point_type y);
 
-      void set_size (const size_t& sz);
-      void set_position (const point_t& pt);
-      void set_center (const point_t& pt);
+      self& set_size (const size_t& sz);
+      self& set_position (const point_t& pt);
+      self& set_center (const point_t& pt);
+
+      self& set_horizontal (const point_type x, const size_type w);
+      self& set_vertical (const point_type y, const size_type h);
 
       inline gui::os::point_type os_x () const;
       inline gui::os::point_type os_y () const;

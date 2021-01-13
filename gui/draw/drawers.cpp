@@ -932,40 +932,37 @@ namespace gui {
       int px = rect.os_x();
       int py = rect.os_y();
 #ifdef GUIPP_USE_XFT
-      int height = 0, width = 0;
-      int dx = 0, dy = 0;
       if (f.font_type()) {
-        XGlyphInfo extents;
+        XGlyphInfo extents = {};
         XftTextExtentsUtf8(display,
                            f.font_type(),
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
-        auto fi = f.font_type();
-        height = fi->ascent;
-        width = extents.xOff;
-        dx = 0;
-        dy = fi->ascent - fi->descent;
+
+        px += extents.x;
+        py += extents.y;
+
+        if (origin_is_h_center(origin)) {
+          px += (rect.os_width() - extents.width) / 2;
+        } else if (origin_is_right(origin)) {
+          px += rect.os_width() - extents.width;
+        }
+
+        if (origin_is_v_center(origin)) {
+          py += (rect.os_height() - extents.height) / 2;
+        } else if (origin_is_bottom(origin)) {
+          py += rect.os_height() - extents.height;
+        }
+
       } else {
         clog::error() << "font_type is zero!";
-      }
-
-      if (origin_is_h_center(origin)) {
-        px += (rect.os_width() - width) / 2;
-      } else if (origin_is_right(origin)) {
-        px += rect.os_width() - width;
-      }
-      if (origin_is_v_center(origin)) {
-        py += (rect.os_height() - height) / 2;
-      } else if (origin_is_bottom(origin)) {
-        py += rect.os_height() - height;
       }
 
       xft_color xftcolor(c, g);
       clip clp(g, rect);
 
-      XftDrawStringUtf8(g, &xftcolor, f.font_type(),
-                        px + dx, py + dy,
+      XftDrawStringUtf8(g, &xftcolor, f.font_type(), px, py,
                         (XftChar8*)str.c_str(), int(str.size()));
 #else
       Use<font> fn(g, f);
@@ -1013,38 +1010,36 @@ namespace gui {
                                    os::color c) const {
       gui::os::instance display = get_instance();
 
-      int px = rect.os_x();
-      int py = rect.os_y();
-
 #ifdef GUIPP_USE_XFT
-      int height = 0, width = 0;
       if (f.font_type()) {
-        XGlyphInfo extents;
+        XGlyphInfo extents = {};
         XftTextExtentsUtf8(display,
                            f.font_type(),
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
-        auto fi = f.font_type();
-        height = fi->height;
-        width = extents.xOff;
+        int px = rect.os_x() + extents.x;
+        int py = rect.os_y() + extents.y - extents.height;
+
+        if (origin_is_h_center(origin)) {
+          px += (rect.os_width() - extents.width) / 2;
+        } else if (origin_is_right(origin)) {
+          px += rect.os_width() - extents.width;
+        }
+
+        if (origin_is_v_center(origin)) {
+          py += (rect.os_height() - extents.height) / 2;
+        } else if (origin_is_bottom(origin)) {
+          py += rect.os_height() - extents.height;
+        }
+
+        rect.top_left({core::global::scale_from_native<core::point::type>(px), core::global::scale_from_native<core::point::type>(py)});
+        rect.set_size({core::global::scale_from_native<core::size::type>(extents.width), core::global::scale_from_native<core::size::type>(extents.height)});
+
       } else {
         clog::error() << "font_type is zero!";
       }
 
-      if (origin_is_h_center(origin)) {
-        px += (rect.os_width() - width) / 2;
-      } else if (origin_is_right(origin)) {
-        px += rect.os_width() - width;
-      }
-      if (origin_is_v_center(origin)) {
-        py += (rect.os_height() - height) / 2;
-      } else if (origin_is_bottom(origin)) {
-        py += rect.os_height() - height;
-      }
-
-      rect.top_left({core::global::scale_from_native<core::point::type>(px), core::global::scale_from_native<core::point::type>(py)});
-      rect.set_size({core::global::scale_from_native<core::size::type>(width), core::global::scale_from_native<core::size::type>(height)});
 #else
       Use<font> fn(g, f);
       Use<pen> pn(g, c);
@@ -1090,42 +1085,34 @@ namespace gui {
       int px = pos.os_x();
       int py = pos.os_y();
 #ifdef GUIPP_USE_XFT
-      int height = 0, width = 0;
-      int dx = 0, dy = 0;
-
       if (f.font_type()) {
-        XGlyphInfo extents;
+        XGlyphInfo extents = {};
         XftTextExtentsUtf8(display,
                            f.font_type(),
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
-        auto fi = f.font_type();
-        height = fi->ascent;
-        width = extents.xOff;
-        dx = extents.x;
-        dy = fi->ascent - fi->descent;
+        px += extents.x;
+        py += extents.y;
+
+        if (origin_is_h_center(origin)) {
+          px -= extents.width / 2;
+        } else if (origin_is_right(origin)) {
+          px -= extents.width;
+        }
+
+        if (origin_is_v_center(origin)) {
+          py -= extents.height / 2;
+        } else if (origin_is_bottom(origin)) {
+          py -= extents.height;
+        }
+
       } else {
         clog::error() << "font_type is zero!";
       }
 
-
-      if (origin_is_h_center(origin)) {
-        px -= width / 2;
-      } else if (origin_is_right(origin)) {
-        px -= width;
-      }
-
-      if (origin_is_v_center(origin)) {
-        py -= dy / 2;
-      } else if (origin_is_bottom(origin)) {
-        py -= dy;
-      }
-
       xft_color xftcolor(c, g);
-
-      XftDrawStringUtf8(g, &xftcolor, f.font_type(),
-                        (px + dx), (py + dy),
+      XftDrawStringUtf8(g, &xftcolor, f.font_type(), px, py,
                         (XftChar8*)str.c_str(), int(str.size()));
 #else
       Use<font> fn(g, f);

@@ -25,6 +25,11 @@ namespace gui {
 
     template<bool BIN, pixel_format_t T>
     inline opnm<BIN, T>::opnm (const draw::datamap<T>& bmp)
+      : bmp(bmp.get_data())
+    {}
+
+    template<bool BIN, pixel_format_t T>
+    inline opnm<BIN, T>::opnm (const draw::const_image_data<T>& bmp)
       : bmp(bmp)
     {}
 
@@ -32,7 +37,7 @@ namespace gui {
     inline void opnm<BIN, T>::write (std::ostream& out) const {
       const draw::bitmap_info& bmi = bmp.get_info();
       write_pnm_header(out, BPP2PNM<T, BIN>::pnm, bmi, BPP2MAX<T>::max);
-      write_pnm<BPP2PNM<T, BIN>::pnm, T>(out, bmp.get_data());
+      write_pnm<BPP2PNM<T, BIN>::pnm, T>(out, bmp);
     }
 
 //    template<>
@@ -185,7 +190,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<pixel_format_t T>
-    inline void save_pnm (std::ostream& out, const draw::datamap<T>& bmp, bool binary) {
+    inline void save_pnm (std::ostream& out, const draw::const_image_data<T>& bmp, bool binary) {
       if (binary) {
         out << opnm<true, T>(bmp);
       } else {
@@ -194,14 +199,25 @@ namespace gui {
     }
 
     template<pixel_format_t T>
-    inline void load_pnm (std::istream& in, draw::datamap<T>& bmp) {
-      in >> ipnm<T>(bmp);
+    inline void save_pnm (const std::string& name, const draw::const_image_data<T>& bmp, bool binary) {
+      std::ofstream out(name);
+      save_pnm(out, bmp, binary);
+    }
+
+    template<pixel_format_t T>
+    inline void save_pnm (std::ostream& out, const draw::datamap<T>& bmp, bool binary) {
+      save_pnm(out, bmp.get_data(), binary);
     }
 
     template<pixel_format_t T>
     inline void save_pnm (const std::string& name, const draw::datamap<T>& bmp, bool binary) {
-      std::ofstream out(name);
-      save_pnm(out, bmp, binary);
+      save_pnm(name, bmp.get_data(), binary);
+    }
+
+    // --------------------------------------------------------------------------
+    template<pixel_format_t T>
+    inline void load_pnm (std::istream& in, draw::datamap<T>& bmp) {
+      in >> ipnm<T>(bmp);
     }
 
     template<pixel_format_t T>

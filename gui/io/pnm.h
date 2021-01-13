@@ -63,7 +63,7 @@ namespace gui {
     template<> struct PNM2BPP<PNM::P6> { static constexpr pixel_format_t px_fmt = pixel_format_t::RGB;   static constexpr bool bin = true;   };
 
     GUIPP_IO_EXPORT pixel_format_t pnm2bpp (PNM);
-    GUIPP_IO_EXPORT PNM bpp2pnm (pixel_format_t);
+    GUIPP_IO_EXPORT PNM bpp2pnm (pixel_format_t, bool binary = true);
     GUIPP_IO_EXPORT int bpp2max (pixel_format_t);
 
     template<pixel_format_t, bool>
@@ -174,6 +174,12 @@ namespace gui {
     void save_pnm (const std::string& name, const draw::datamap<T>& bmp, bool binary = true);
 
     template<pixel_format_t T>
+    void save_pnm (std::ostream& out, const draw::const_image_data<T>& bmp, bool binary = true);
+
+    template<pixel_format_t T>
+    void save_pnm (const std::string& name, const draw::const_image_data<T>& bmp, bool binary = true);
+
+    template<pixel_format_t T>
     void load_pnm (std::istream& in, draw::datamap<T>& bmp);
 
     template<pixel_format_t T>
@@ -187,10 +193,11 @@ namespace gui {
     class opnm {
     public:
       explicit opnm (const draw::datamap<T>& bmp);
+      explicit opnm (const draw::const_image_data<T>& bmp);
       void write (std::ostream& out) const;
 
     private:
-      const draw::datamap<T>& bmp;
+      const draw::const_image_data<T>& bmp;
     };
 
     // --------------------------------------------------------------------------
@@ -230,6 +237,7 @@ namespace gui {
 
       void operator<< (const draw::pixmap& b);
       void operator<< (const draw::datamap<PNM2BPP<i>::px_fmt>& b);
+      void operator<< (const draw::const_image_data<PNM2BPP<i>::px_fmt>& b);
 
     private:
       std::ofstream out;

@@ -49,12 +49,12 @@ namespace gui {
       return pixel_format_t::Undefined;
     }
 
-    PNM bpp2pnm (pixel_format_t bpp) {
+    PNM bpp2pnm (pixel_format_t bpp, bool binary) {
       switch (bpp) {
-        case pixel_format_t::BW: return PNM::P4;
-        case pixel_format_t::GRAY: return PNM::P5;
+        case pixel_format_t::BW: return binary ? PNM::P4 : PNM::P1;
+        case pixel_format_t::GRAY: return binary ? PNM::P5 : PNM::P2;
         case pixel_format_t::Undefined: return PNM(0);
-        default: return PNM::P6;
+        default: return binary ? PNM::P6 : PNM::P3;
       }
     }
 
@@ -224,7 +224,9 @@ namespace gui {
                                                 const draw::const_image_data<pixel_format_t::GRAY>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       const std::size_t n = bmi.mem_size();
-      out.write(reinterpret_cast<const char*>(img.raw_data().data(0, n)), n);
+      for (uint_fast32_t y = 0; y < bmi.height; ++y) {
+        out.write(reinterpret_cast<const char*>(img.row(y).data(0, bmi.width)), bmi.width);
+      }
     }
 
     // --------------------------------------------------------------------------
@@ -388,9 +390,9 @@ namespace gui {
           in >> g;
           in >> b;
           row[x] = pixel::rgb{
-                   static_cast<byte>(b),
+                   static_cast<byte>(r),
                    static_cast<byte>(g),
-                   static_cast<byte>(r)
+                   static_cast<byte>(b)
         };
         }
       }

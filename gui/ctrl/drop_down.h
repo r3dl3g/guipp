@@ -34,22 +34,11 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace layout {
 
-    class GUIPP_CTRL_EXPORT drop_down {
-    public:
-      void layout (const core::rectangle&) const;
-      void init (win::container*, win::window*);
+    struct GUIPP_CTRL_EXPORT drop_down {
 
       static core::rectangle label_place (const core::rectangle&) ;
       static core::rectangle button_place (const core::rectangle&) ;
 
-    private:
-      struct data {
-        data ();
-
-        win::container* main;
-        win::window* button;
-
-      } data;
     };
 
   } // layout
@@ -80,14 +69,14 @@ namespace gui {
     using indirect_dropdown_data = indirect_list_data<T, D>;
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT drop_down_list : public win::group_window<layout::drop_down> {
+    class GUIPP_CTRL_EXPORT drop_down_list : public push_button {
     public:
-      typedef win::group_window<layout::drop_down> super;
+      typedef push_button super;
       typedef vertical_list list_type;
 
       explicit drop_down_list (core::size::type item_size = 20,
                                os::color background = color::white);
-      drop_down_list (drop_down_list&& rhs) noexcept ;
+      drop_down_list (drop_down_list&& rhs) noexcept;
 
       void init ();
 
@@ -128,7 +117,6 @@ namespace gui {
       ~drop_down_list ();
 
     private:
-      void create_children ();
       void create_popup (const core::rectangle& place);
 
       void handle_move (const core::point&);
@@ -138,7 +126,6 @@ namespace gui {
         explicit data (core::size::type item_size = 20,
                        os::color background = color::white);
 
-        push_button button;
         win::popup_window popup;
         list_type items;
         int selection;

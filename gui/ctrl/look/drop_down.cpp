@@ -139,8 +139,6 @@ namespace gui {
                                                      const core::rectangle& area,
                                                      const core::button_state::is& state,
                                                      bool is_open) {
-      button_frame<look_and_feel_t::metal>(graph, area, state);
-//      graph.fill(draw::rectangle(area), color::buttonColor());
       graph.fill(draw::polygon(get_button_poly(area, is_open)), color::black);
     }
 
@@ -158,8 +156,6 @@ namespace gui {
                                                    const core::rectangle& r,
                                                    const core::button_state::is& state,
                                                    bool is_open) {
-//      look::button_frame<look_and_feel_t::w10>(graph, r, state);
-      graph.fill(draw::rectangle(r), win10::get_button_color(state));
       graph.frame(draw::polyline(get_button_poly(r, is_open)), color::black);
     }
 
@@ -169,7 +165,7 @@ namespace gui {
                                                    const core::button_state::is&,
                                                    bool) {
       const auto& img = detail::get_osx_dropdown_button();
-      graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
+      graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_right), color::buttonColor());
     }
 
     void drop_down_button (const draw::graphics& graph,

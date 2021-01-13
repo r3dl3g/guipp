@@ -39,9 +39,13 @@ namespace gui {
 
     const look_and_feel_t system_look_and_feel =
 #ifdef __APPLE__
-        look_and_feel_t::osx;
+      look_and_feel_t::osx;
+#elif WIN32
+      look_and_feel_t::w10;
+#elif unix
+      look_and_feel_t::metal;
 #else
-      IF_MOBILE_ELSE(look_and_feel_t::w10, look_and_feel_t::metal);
+        look_and_feel_t::w95;
 #endif
 
   }

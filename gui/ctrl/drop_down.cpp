@@ -52,22 +52,16 @@ namespace gui {
         return core::rectangle(r.top_left() + core::point(r.width() - h - 1, 1), core::size(h, h));
       }
 
+      template<>
+      inline core::rectangle button_place<look::look_and_feel_t::osx> (const core::rectangle& r) {
+        core::size::type h = r.height();
+        return core::rectangle(r.top_left() + core::point(r.width() - 17, 0), core::size(17, h));
+      }
+
     } // namespace detail
 
     core::rectangle drop_down::button_place (const core::rectangle& r) {
       return detail::button_place<>(r);
-    }
-
-    void drop_down::layout (const core::rectangle& r) const {
-      clog::trace() << "drop_down::layout()";
-      if (data.button) {
-        data.button->place(button_place(r));
-      }
-    }
-
-    void drop_down::init (win::container* c, win::window* b) {
-      data.main = c;
-      data.button = b;
     }
 
   } // layout
@@ -92,45 +86,32 @@ namespace gui {
     }
 
     void drop_down_list::init () {
-      super::get_layout().init(this, &(data.button));
 
       super::on_paint(draw::paint(util::bind_method(this, &drop_down_list::paint)));
+
       super::on_lost_focus([&] () {
         super::invalidate();
       });
-      super::on_left_btn_down([&](os::key_state, const core::point &) {
-        toggle_popup();
-        super::take_focus();
-      });
 
+      super::on_clicked(util::bind_method(this, &drop_down_list::toggle_popup));
       super::on_wheel<orientation_t::vertical>(util::bind_method(this, &drop_down_list::handle_wheel));
-      super::on_create(util::bind_method(this, &drop_down_list::create_children));
-
-      data.button.on_paint(draw::paint([&](const draw::graphics & graph) {
-        look::drop_down_button(graph,
-                               data.button.client_area(),
-                               data.button.get_state(),
-                               is_popup_visible());
-      }));
-      data.button.on_clicked(util::bind_method(this, &drop_down_list::toggle_popup));
-
-      data.button.on_lost_focus([&] () {
-        super::invalidate();
-      });
-      data.button.on_any_key_down(util::bind_method(this, &drop_down_list::handle_key));
-
+      super::on_any_key_down(util::bind_method(this, &drop_down_list::handle_key));
       data.items.on_selection_changed(util::bind_method(this, &drop_down_list::handle_selection_changed));
     }
 
     void drop_down_list::paint (const draw::graphics& graph) {
       core::rectangle area = super::client_area();
-      look::drop_down(graph, area, data.button.get_state());
+      look::drop_down(graph, area, get_state());
+      look::drop_down_button(graph,
+                             layout::drop_down::button_place(area),
+                             get_state(),
+                             is_popup_visible());
       if (data.selection > -1) {
         data.items.draw_item(data.selection,
                              graph,
-                             super::get_layout().label_place(super::client_area()),
+                             layout::drop_down::label_place(area),
                              data.items.get_background(),
-                             data.button.is_focused() ? item_state::hilited : item_state::normal);
+                             is_focused() ? item_state::hilited : item_state::normal);
       }
     }
 
@@ -183,7 +164,6 @@ namespace gui {
 
     void drop_down_list::hide_popup () {
       data.popup.set_visible(false);
-      data.button.invalidate();
       invalidate();
     }
 
@@ -239,11 +219,6 @@ namespace gui {
       }
     }
 
-    void drop_down_list::create_children () {
-      data.button.create(*this);//, get_layout().button_place(r));
-      data.button.set_visible();
-    }
-
     void drop_down_list::create_popup (const core::rectangle& place) {
       data.popup.on_size([&] (const core::size & sz) {
         data.items.place(core::rectangle(sz));
@@ -267,7 +242,7 @@ namespace gui {
           data.filter_id = 0;
         }
       });
-      data.popup.create(*this, place);
+      data.popup.create(*super::get_parent(), place);
 
       auto* root = super::get_parent()->get_overlapped_window();
       if (root) {

@@ -29,6 +29,11 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     g.frame(draw::pie(drawing.client_area().center(), 70, 45, 315), color::red);
   }));
 
+  drawing.on_left_btn_dblclk([&] (os::key_state, const core::point&) {
+    label.enable(!label.is_enabled());
+    label.invalidate();
+  });
+
   main.get_layout().set_center(layout::lay(drawing));
   main.get_layout().set_top(layout::lay(label));
   main.create({50, 50, 800, 600});

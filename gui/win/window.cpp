@@ -240,7 +240,7 @@ namespace gui {
 
 //      clog::trace() << "handle_event: for window: " << this << " " << e;
       bool res = false;
-      if (is_enabled()) {
+      if (is_enabled() || paint_event::match(e)) {
         res = events.handle_event(e, result);
       }
       active_handler.erase(keypair);

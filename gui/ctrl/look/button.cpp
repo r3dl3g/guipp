@@ -49,10 +49,12 @@ namespace gui {
 #   include <gui/ctrl/look/res/metal_check_off.h>
 #   include <gui/ctrl/look/res/metal_check_on.h>
 #   include <gui/ctrl/look/res/metal_check_disabled.h>
+#   include <gui/ctrl/look/res/metal_check_disabled_on.h>
 
 #   include <gui/ctrl/look/res/metal_radio_off.h>
 #   include <gui/ctrl/look/res/metal_radio_on.h>
 #   include <gui/ctrl/look/res/metal_radio_disabled.h>
+#   include <gui/ctrl/look/res/metal_radio_disabled_on.h>
 
 #   include <gui/ctrl/look/res/osx_checkbox_off.h>
 #   include <gui/ctrl/look/res/osx_checkbox_on.h>
@@ -195,15 +197,17 @@ namespace gui {
     const draw::graymap& get_metal_checkbox (bool active, bool disabled) {
       static draw::graymap off = downscale(build_gray_image(make_string(image_data::metal_check_off)));
       static draw::graymap on = downscale(build_gray_image(make_string(image_data::metal_check_on)));
-      static draw::graymap dis = downscale(build_gray_image(make_string(image_data::metal_check_disabled)));
-      return disabled ? dis : active ? on : off;
+      static draw::graymap dis_off = downscale(build_gray_image(make_string(image_data::metal_check_disabled)));
+      static draw::graymap dis_on = downscale(build_gray_image(make_string(image_data::metal_check_disabled_on)));
+      return disabled ? (active ? dis_on : dis_off) : (active ? on : off);
     }
 
     const draw::graymap& get_metal_radio (bool active, bool disabled) {
       static draw::graymap off = downscale(build_gray_image(make_string(image_data::metal_radio_off)));
       static draw::graymap on = downscale(build_gray_image(make_string(image_data::metal_radio_on)));
-      static draw::graymap dis = downscale(build_gray_image(make_string(image_data::metal_radio_disabled)));
-      return disabled ? dis : active ? on : off;
+      static draw::graymap dis_off = downscale(build_gray_image(make_string(image_data::metal_radio_disabled)));
+      static draw::graymap dis_on = downscale(build_gray_image(make_string(image_data::metal_radio_disabled_on)));
+      return disabled ? (active ? dis_on : dis_off) : (active ? on : off);
     }
 
   } // namespace detail

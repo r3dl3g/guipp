@@ -197,7 +197,7 @@ namespace gui {
       void write (std::ostream& out) const;
 
     private:
-      const draw::const_image_data<T>& bmp;
+      draw::const_image_data<T> bmp;
     };
 
     // --------------------------------------------------------------------------

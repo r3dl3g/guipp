@@ -24,8 +24,8 @@ namespace gui {
   namespace io {
 
     template<bool BIN, pixel_format_t T>
-    inline opnm<BIN, T>::opnm (const draw::datamap<T>& bmp)
-      : bmp(bmp.get_data())
+    inline opnm<BIN, T>::opnm (const draw::datamap<T>& map)
+      : bmp(map.get_data())
     {}
 
     template<bool BIN, pixel_format_t T>

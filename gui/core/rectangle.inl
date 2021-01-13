@@ -567,7 +567,7 @@ namespace gui {
 
     template<typename T, typename S>
     inline auto basic_rectangle<T, S>::set_horizontal (const point_type x_, const size_type w_) -> self& {
-      return x(x).width(w_);
+      return x(x_).width(w_);
     }
 
     template<typename T, typename S>

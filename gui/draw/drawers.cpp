@@ -1409,8 +1409,8 @@ namespace gui {
           r.setTop(pos.os_y() - area.height());
           r.setBottom(pos.os_y() + area.height());
         } else if (origin_is_bottom(origin)) {
-          r.setTop(pos.os_y());
-          r.setBottom(area.bottom());
+          r.setTop(area.top());
+          r.setBottom(pos.os_y());
         }
       }
 

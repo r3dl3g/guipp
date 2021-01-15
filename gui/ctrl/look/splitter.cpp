@@ -23,14 +23,14 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
 #include <gui/draw/brush.h>
-#include <gui/ctrl/look/slider.h>
+#include <gui/ctrl/look/splitter.h>
 
 
 namespace gui {
 
   namespace look {
 
-    void slider (const draw::graphics& graph,
+    void splitter (const draw::graphics& graph,
                  const core::rectangle& area,
                  bool focused,
                  draw::frame::drawer frame) {

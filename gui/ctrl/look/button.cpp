@@ -58,13 +58,18 @@ namespace gui {
 
 #   include <gui/ctrl/look/res/osx_checkbox_off.h>
 #   include <gui/ctrl/look/res/osx_checkbox_on.h>
+#   include <gui/ctrl/look/res/osx_checkbox_disabled_off.h>
+#   include <gui/ctrl/look/res/osx_checkbox_disabled_on.h>
+
 #   include <gui/ctrl/look/res/osx_radio_off.h>
 #   include <gui/ctrl/look/res/osx_radio_on.h>
+#   include <gui/ctrl/look/res/osx_radio_disabled_off.h>
+#   include <gui/ctrl/look/res/osx_radio_disabled_on.h>
 
 #   include <gui/ctrl/look/res/osx_frame.h>
-#   include <gui/ctrl/look/res/osx_disabled_frame.h>
-#   include <gui/ctrl/look/res/osx_default_frame.h>
-#   include <gui/ctrl/look/res/osx_pressed_frame.h>
+#   include <gui/ctrl/look/res/osx_frame_disabled.h>
+#   include <gui/ctrl/look/res/osx_frame_default.h>
+#   include <gui/ctrl/look/res/osx_frame_pressed.h>
 
   } // namespace image_data
 
@@ -162,16 +167,20 @@ namespace gui {
       return img;
     }
 
-    const draw::rgbmap& get_osx_checkbox (bool active) {
+    const draw::rgbmap& get_osx_checkbox (bool active, bool disabled) {
       static draw::rgbmap off = upscale(build_gray_image(make_string(image_data::osx_checkbox_off)).convert<pixel_format_t::RGB>());
       static draw::rgbmap on = upscale(build_rgb_image(make_string(image_data::osx_checkbox_on)));
-      return active ? on : off;
+      static draw::rgbmap dis_off = upscale(build_gray_image(make_string(image_data::osx_checkbox_disabled_off)).convert<pixel_format_t::RGB>());
+      static draw::rgbmap dis_on = upscale(build_gray_image(make_string(image_data::osx_checkbox_disabled_on)).convert<pixel_format_t::RGB>());
+      return disabled ? (active ? dis_on : dis_off) : (active ? on : off);
     }
 
-    const draw::rgbmap& get_osx_radio (bool active) {
+    const draw::rgbmap& get_osx_radio (bool active, bool disabled) {
       static draw::rgbmap off = upscale(build_gray_image(make_string(image_data::osx_radio_off)).convert<pixel_format_t::RGB>());
       static draw::rgbmap on = upscale(build_rgb_image(make_string(image_data::osx_radio_on)));
-      return active ? on : off;
+      static draw::rgbmap dis_off = upscale(build_gray_image(make_string(image_data::osx_radio_disabled_off)).convert<pixel_format_t::RGB>());
+      static draw::rgbmap dis_on = upscale(build_gray_image(make_string(image_data::osx_radio_disabled_on)).convert<pixel_format_t::RGB>());
+      return disabled ? (active ? dis_on : dis_off) : (active ? on : off);
     }
 
     const draw::rgbmap& get_osx_frame () {
@@ -180,17 +189,17 @@ namespace gui {
     }
 
     const draw::rgbmap& get_osx_disabled_frame () {
-      static draw::rgbmap img = build_gray_image(make_string(image_data::osx_disabled_frame)).convert<pixel_format_t::RGB>();
+      static draw::rgbmap img = build_gray_image(make_string(image_data::osx_frame_disabled)).convert<pixel_format_t::RGB>();
       return img;
     }
 
     const draw::rgbmap& get_osx_default_frame () {
-      static draw::rgbmap img = build_rgb_image(make_string(image_data::osx_default_frame));
+      static draw::rgbmap img = build_rgb_image(make_string(image_data::osx_frame_default));
       return img;
     }
 
     const draw::rgbmap& get_osx_pressed_frame () {
-      static draw::rgbmap img = build_rgb_image(make_string(image_data::osx_pressed_frame));
+      static draw::rgbmap img = build_rgb_image(make_string(image_data::osx_frame_pressed));
       return img;
     }
 
@@ -309,7 +318,7 @@ namespace gui {
     template<>
     void button_frame<look_and_feel_t::osx> (const draw::graphics& graph,
                                              const core::rectangle& r,
-                                             bool enabled, bool pushed, bool, bool focused) {
+                                             bool enabled, bool pushed, bool hilite, bool focused) {
       if (!enabled) {
         graph.copy(draw::frame_image(r, detail::get_osx_disabled_frame(), 4), r.top_left());
       } else if (pushed) {
@@ -550,7 +559,7 @@ namespace gui {
                                                const std::string& text,
                                                const core::button_state::is& state) {
       core::rectangle area = rec;
-      const auto& img = detail::get_osx_radio(state.checked());
+      const auto& img = detail::get_osx_radio(state.checked(), !state.enabled());
       graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
       area.x(20);
       os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
@@ -644,7 +653,7 @@ namespace gui {
                                             const std::string& text,
                                             const core::button_state::is& state) {
       core::rectangle area = rec;
-      const auto& img = detail::get_osx_checkbox(state.checked());
+      const auto& img = detail::get_osx_checkbox(state.checked(), !state.enabled());
       graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
       area.x(20);
       os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();

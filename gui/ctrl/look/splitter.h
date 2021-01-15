@@ -33,7 +33,7 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace look {
 
-    GUIPP_LOOK_EXPORT void slider (const draw::graphics& graph,
+    GUIPP_LOOK_EXPORT void splitter (const draw::graphics& graph,
                                    const core::rectangle& area,
                                    bool focused,
                                    draw::frame::drawer frame);

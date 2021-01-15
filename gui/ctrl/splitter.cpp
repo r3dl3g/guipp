@@ -29,7 +29,7 @@
 //
 // Library includes
 //
-#include <gui/ctrl/slider.h>
+#include <gui/ctrl/splitter.h>
 #include <gui/core/guidefs.h>
 
 
@@ -41,26 +41,26 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      basic_slider<orientation_t::vertical>::basic_slider () {
+      basic_splitter<orientation_t::vertical>::basic_splitter () {
         init();
       }
 
       template<>
-      basic_slider<orientation_t::vertical>::basic_slider (const basic_slider& rhs)
+      basic_splitter<orientation_t::vertical>::basic_splitter (const basic_splitter& rhs)
         : super(rhs)
       {
         init();
       }
 
       template<>
-      basic_slider<orientation_t::vertical>::basic_slider (basic_slider&& rhs) noexcept
+      basic_splitter<orientation_t::vertical>::basic_splitter (basic_splitter&& rhs) noexcept
         : super(std::move(rhs))
       {
         init();
       }
 
       template<>
-      void basic_slider<orientation_t::vertical>::init () {
+      void basic_splitter<orientation_t::vertical>::init () {
         on_mouse_move_abs([&](os::key_state keys,
                           const core::point & p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && core::left_button_bit_mask::is_set(keys)) {
@@ -86,11 +86,11 @@ namespace gui {
       }
 
       template<>
-      void basic_slider<orientation_t::vertical>::set_value (core::point::type v) {
+      void basic_splitter<orientation_t::vertical>::set_value (core::point::type v) {
         const auto new_x = std::min<core::point::type>(max, std::max<core::point::type>(min, v));
         const auto pt = position();
         if (new_x != pt.x()) {
-//          clog::debug() << "slider::set_value old:" << pt.x() << " new:" << new_x;
+//          clog::debug() << "splitter::set_value old:" << pt.x() << " new:" << new_x;
           move(core::point(new_x, pt.y()), true);
           super::notify_event(detail::SLIDER_MESSAGE, static_cast<long>(new_x - pt.x()));
         }
@@ -98,32 +98,32 @@ namespace gui {
       }
 
       template<>
-      core::point::type basic_slider<orientation_t::vertical>::get_value () const {
+      core::point::type basic_splitter<orientation_t::vertical>::get_value () const {
         return position().x();
       }
 
       // --------------------------------------------------------------------------
       template<>
-      basic_slider<orientation_t::horizontal>::basic_slider () {
+      basic_splitter<orientation_t::horizontal>::basic_splitter () {
         init();
       }
 
       template<>
-      basic_slider<orientation_t::horizontal>::basic_slider (const basic_slider& rhs)
+      basic_splitter<orientation_t::horizontal>::basic_splitter (const basic_splitter& rhs)
         : super(rhs)
       {
         init();
       }
 
       template<>
-      basic_slider<orientation_t::horizontal>::basic_slider (basic_slider&& rhs) noexcept
+      basic_splitter<orientation_t::horizontal>::basic_splitter (basic_splitter&& rhs) noexcept
         : super(std::move(rhs))
       {
         init();
       }
 
       template<>
-      void basic_slider<orientation_t::horizontal>::init () {
+      void basic_splitter<orientation_t::horizontal>::init () {
         on_mouse_move_abs([&](os::key_state keys,
                               const core::point & p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && core::left_button_bit_mask::is_set(keys)) {
@@ -149,11 +149,11 @@ namespace gui {
       }
 
       template<>
-      void basic_slider<orientation_t::horizontal>::set_value (core::point::type v) {
+      void basic_splitter<orientation_t::horizontal>::set_value (core::point::type v) {
         const auto new_y = std::min<core::point::type>(max, std::max<core::point::type>(min, v));
         const auto pt = position();
         if (new_y != pt.y()) {
-//          clog::debug() << "slider::set_value old:" << pt.y() << " new:" << new_y;
+//          clog::debug() << "splitter::set_value old:" << pt.y() << " new:" << new_y;
           move(core::point(pt.x(), new_y), true);
           super::notify_event(detail::SLIDER_MESSAGE, static_cast<long>(new_y - pt.y()));
         }
@@ -161,19 +161,19 @@ namespace gui {
       }
 
       template<>
-      core::point::type basic_slider<orientation_t::horizontal>::get_value () const {
+      core::point::type basic_splitter<orientation_t::horizontal>::get_value () const {
         return position().y();
       }
 
       // --------------------------------------------------------------------------
-      slider_base::slider_base ()
+      splitter_base::splitter_base ()
         : min(0)
         , max(std::numeric_limits<type>::max())
       {
         init();
       }
 
-      slider_base::slider_base (const slider_base& rhs)
+      splitter_base::splitter_base (const splitter_base& rhs)
         : super(rhs)
         , min(rhs.min)
         , max(rhs.max)
@@ -183,7 +183,7 @@ namespace gui {
         init();
       }
 
-      slider_base::slider_base (slider_base&& rhs) noexcept
+      splitter_base::splitter_base (splitter_base&& rhs) noexcept
         : super(std::move(rhs))
         , min(std::move(rhs.min))
         , max(std::move(rhs.max))
@@ -193,7 +193,7 @@ namespace gui {
         init();
       }
 
-      void slider_base::init () {
+      void splitter_base::init () {
 #ifdef GUIPP_X11
         static int initialized = detail::init_control_messages();
         (void)initialized;
@@ -221,21 +221,21 @@ namespace gui {
         });
       }
 
-      void slider_base::set_min (type i) {
+      void splitter_base::set_min (type i) {
         if (min != i) {
           min = i;
           invalidate();
         }
       }
 
-      void slider_base::set_max (type i) {
+      void splitter_base::set_max (type i) {
         if (max != i) {
           max = i;
           invalidate();
         }
       }
 
-      void slider_base::set_min_max (type mi, type ma) {
+      void splitter_base::set_min_max (type mi, type ma) {
         if ((min != mi) || (max != ma)) {
           min = mi;
           max = ma;
@@ -243,7 +243,7 @@ namespace gui {
         }
       }
 
-      void slider_base::on_slide (std::function<void(int)>&& f) {
+      void splitter_base::on_slide (std::function<void(int)>&& f) {
         on<slider_event>(std::move(f));
       }
 

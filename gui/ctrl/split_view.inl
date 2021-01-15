@@ -23,7 +23,7 @@
 // Library includes
 //
 #include <gui/layout/layout_container.h>
-#include <gui/ctrl/slider.h>
+#include <gui/ctrl/splitter.h>
 
 
 namespace gui {
@@ -37,7 +37,7 @@ namespace gui {
 
     template<>
     GUIPP_CTRL_EXPORT core::size::type
-    split_view_traits<orientation_t::vertical>::get_slider_width ();
+    split_view_traits<orientation_t::vertical>::get_splitter_width ();
 
     template<>
     GUIPP_CTRL_EXPORT core::rectangle
@@ -49,7 +49,7 @@ namespace gui {
 
     template<>
     GUIPP_CTRL_EXPORT core::rectangle
-    split_view_traits<orientation_t::vertical>::get_slider_place (const core::rectangle&, double);
+    split_view_traits<orientation_t::vertical>::get_splitter_place (const core::rectangle&, double);
 
     // --------------------------------------------------------------------------
     template<>
@@ -58,7 +58,7 @@ namespace gui {
 
     template<>
     GUIPP_CTRL_EXPORT core::size::type
-    split_view_traits<orientation_t::horizontal>::get_slider_width ();
+    split_view_traits<orientation_t::horizontal>::get_splitter_width ();
 
     template<>
     GUIPP_CTRL_EXPORT core::rectangle
@@ -70,14 +70,14 @@ namespace gui {
 
     template<>
     GUIPP_CTRL_EXPORT core::rectangle
-    split_view_traits<orientation_t::horizontal>::get_slider_place (const core::rectangle&, double);
+    split_view_traits<orientation_t::horizontal>::get_splitter_place (const core::rectangle&, double);
 
     // --------------------------------------------------------------------------
     template<orientation_t O, typename F, typename S>
     inline split_view<O, F, S>::split_view ()
       : first(nullptr)
       , second(nullptr)
-      , slider(nullptr)
+      , splitter(nullptr)
       , split_pos(0.5)
     {}
 
@@ -103,13 +103,13 @@ namespace gui {
     }
 
     template<orientation_t O, typename F, typename S>
-    inline ctrl::detail::slider_base* split_view<O, F, S>::get_slider () const {
-      return slider;
+    inline ctrl::detail::splitter_base* split_view<O, F, S>::get_splitter () const {
+      return splitter;
     }
 
     template<orientation_t O, typename F, typename S>
-    inline void split_view<O, F, S>::set_slider (ctrl::detail::slider_base* s) {
-      slider = s;
+    inline void split_view<O, F, S>::set_splitter (ctrl::detail::splitter_base* s) {
+      splitter = s;
     }
 
     template<orientation_t O, typename F, typename S>
@@ -125,10 +125,10 @@ namespace gui {
     template<orientation_t O, typename F, typename S>
     inline void split_view<O, F, S>::set (F* f,
                                           S* s,
-                                          ctrl::detail::slider_base* sl) {
+                                          ctrl::detail::splitter_base* sl) {
       first = f;
       second = s;
-      slider = sl;
+      splitter = sl;
     }
 
     template<orientation_t O, typename F, typename S>
@@ -140,8 +140,8 @@ namespace gui {
       if (second) {
         second->place(traits::get_second_place(sz, split_pos), IF_WIN32_ELSE(true, false));
       }
-      if (slider) {
-        slider->place(traits::get_slider_place(sz, split_pos), IF_WIN32_ELSE(true, false));
+      if (splitter) {
+        splitter->place(traits::get_splitter_place(sz, split_pos), IF_WIN32_ELSE(true, false));
       }
     }
 
@@ -155,18 +155,18 @@ namespace gui {
     template<orientation_t O, typename F, typename S>
     inline split_view<O, F, S>::split_view () {
       init();
-      super::get_layout().set(&first, &second, &slider);
+      super::get_layout().set(&first, &second, &splitter);
     }
 
     template<orientation_t O, typename F, typename S>
     inline split_view<O, F, S>::split_view (split_view&& rhs) noexcept
       : super(std::move(rhs))
-      , slider(std::move(rhs.slider))
+      , splitter(std::move(rhs.splitter))
       , first(std::move(rhs.first))
       , second(std::move(rhs.second))
     {
       init();
-      super::get_layout().set(&first, &second, &slider);
+      super::get_layout().set(&first, &second, &splitter);
     }
 
     template<orientation_t O, typename F, typename S>
@@ -175,7 +175,7 @@ namespace gui {
       , second(std::move(second))
     {
       init();
-      super::get_layout().set(&(this->first), &(this->second), &(this->slider));
+      super::get_layout().set(&(this->first), &(this->second), &(this->splitter));
     }
 
     template<orientation_t O, typename F, typename S>
@@ -185,17 +185,17 @@ namespace gui {
       super::create(clazz::get(), parent, place);
       set_split_pos(split_pos);
 
-      slider.create(*this, layout_type::traits::get_slider_place(place, split_pos));
+      splitter.create(*this, layout_type::traits::get_splitter_place(place, split_pos));
       first.create(*this, layout_type::traits::get_first_place(place, split_pos));
       second.create(*this, layout_type::traits::get_second_place(place, split_pos));
-      slider.set_visible();
+      splitter.set_visible();
       first.set_visible();
       second.set_visible();
     }
 
     template<orientation_t O, typename F, typename S>
     inline double split_view<O, F, S>::get_split_pos () const {
-      return super::get_layout().get_split_pos(slider.position(), super::client_size());
+      return super::get_layout().get_split_pos(splitter.position(), super::client_size());
     }
 
     template<orientation_t O, typename F, typename S>
@@ -206,7 +206,7 @@ namespace gui {
 
     template<orientation_t O, typename F, typename S>
     void split_view<O, F, S>::init () {
-      slider.on_slide([&] (int) {
+      splitter.on_slide([&] (int) {
         super::get_layout().set_split_pos(get_split_pos());
         super::layout(super::client_area());
       });

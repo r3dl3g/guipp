@@ -186,6 +186,9 @@ namespace gui {
     template<>
     GUIPP_WIN_EXPORT window* get_client_data<0, window*>(const core::event& e);
     // --------------------------------------------------------------------------
+    template<>
+    GUIPP_WIN_EXPORT core::point::type get_client_data<0, core::point::type>(const core::event& e);
+    // --------------------------------------------------------------------------
     template<typename T>
     inline window* get_window (const core::event& e) {
       return detail::get_window(event_type_cast<T>(e).window);

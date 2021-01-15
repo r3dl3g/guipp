@@ -31,13 +31,13 @@ namespace gui {
     namespace cls {
 
       // --------------------------------------------------------------------------
-      template<typename T, os::color C = color::medium_gray>
+      template<typename T, os::color C = color::very_light_gray>
       using main_window_class = window_class<T, C>;
 
-      template<typename T, os::color C = color::light_gray>
+      template<typename T, os::color C = color::very_light_gray>
       using popup_window_class = window_class<T, C>;
 
-      template<typename T, os::color C = color::light_gray>
+      template<typename T, os::color C = color::very_light_gray>
       using dialog_window_class = window_class<T, C>;
 
       // --------------------------------------------------------------------------

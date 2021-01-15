@@ -81,7 +81,7 @@ namespace gui {
     template<text_origin_t origin,
              draw::frame::drawer frame = draw::frame::no_frame,
              os::color foreground = color::black,
-             os::color background = color::very_light_gray>
+             os::color background = color::very_very_light_gray>
     class basic_label : public detail::label_base {
     public:
       typedef detail::label_base super;
@@ -102,19 +102,19 @@ namespace gui {
     using label_left = basic_label<text_origin_t::vcenter_left,
                                    draw::frame::no_frame,
                                    color::black,
-                                   color::very_light_gray>;
+                                   color::very_very_light_gray>;
 
     using label = label_left;
 
     using label_right = basic_label<text_origin_t::vcenter_right,
                                     draw::frame::no_frame,
                                     color::black,
-                                    color::very_light_gray>;
+                                    color::very_very_light_gray>;
 
     using label_center = basic_label<text_origin_t::center,
                                      draw::frame::no_frame,
                                      color::black,
-                                     color::very_light_gray>;
+                                     color::very_very_light_gray>;
 
   } // ctrl
 

@@ -53,9 +53,9 @@ namespace gui {
       : selection(scrollbar_item::nothing)
       , hilite(scrollbar_item::nothing)
       , min(0)
-      , max(100)
-      , step(1)
-      , page(10)
+      , max(1)
+      , step(0.01)
+      , page(0.1)
       , value(0)
       , last_value(0)
     {}
@@ -214,7 +214,7 @@ namespace gui {
     }
 
     void scroll_bar::send_notify () {
-      super::notify_event(detail::SCROLLBAR_MESSAGE, static_cast<long>(data.value));
+      super::notify_event_double(detail::SCROLLBAR_MESSAGE, data.value);
     }
 
     void scroll_bar::handle_wheel (const core::point::type delta, const core::point&) {

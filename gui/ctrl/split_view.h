@@ -23,7 +23,7 @@
 // Library includes
 //
 #include <gui/layout/layout_container.h>
-#include <gui/ctrl/slider.h>
+#include <gui/ctrl/splitter.h>
 
 
 namespace gui {
@@ -35,8 +35,8 @@ namespace gui {
     struct split_view_traits {
       static core::rectangle get_first_place (const core::rectangle&, double pos);
       static core::rectangle get_second_place (const core::rectangle&, double pos);
-      static core::rectangle get_slider_place (const core::rectangle&, double pos);
-      static core::size::type get_slider_width ();
+      static core::rectangle get_splitter_place (const core::rectangle&, double pos);
+      static core::size::type get_splitter_width ();
       static double get_split_pos (const core::point&, const core::size&);
     };
 
@@ -50,15 +50,15 @@ namespace gui {
 
       First* get_first () const;
       Second* get_second () const;
-      ctrl::detail::slider_base* get_slider () const;
+      ctrl::detail::splitter_base* get_splitter () const;
 
       void set_first (First* first);
       void set_second (Second* second);
-      void set_slider (ctrl::detail::slider_base* slider);
+      void set_splitter (ctrl::detail::splitter_base* splitter);
 
       void set (First* first,
                 Second* second,
-                ctrl::detail::slider_base* slider);
+                ctrl::detail::splitter_base* splitter);
 
       double get_split_pos (const core::point&, const core::size&) const;
       void set_split_pos (double);
@@ -68,7 +68,7 @@ namespace gui {
     private:
       First* first;
       Second* second;
-      ctrl::detail::slider_base* slider;
+      ctrl::detail::splitter_base* splitter;
       double split_pos;
     };
 
@@ -93,7 +93,7 @@ namespace gui {
       typedef typename super::layout_type layout_type;
       typedef win::window_class<split_view, IF_WIN32_ELSE((os::color)(COLOR_WINDOW + 1), color::white)> clazz;
 
-      typedef basic_framed_slider<O, draw::frame::raised_relief> slider_type;
+      typedef basic_framed_splitter<O, draw::frame::raised_relief> splitter_type;
 
       split_view ();
       split_view (split_view&& rhs) noexcept;
@@ -106,7 +106,7 @@ namespace gui {
       double get_split_pos () const;
       void set_split_pos (double pos);
 
-      slider_type slider;
+      splitter_type splitter;
       First first;
       Second second;
 

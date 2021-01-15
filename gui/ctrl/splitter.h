@@ -11,7 +11,7 @@
  *
  * Customer   -
  *
- * @brief     C++ API: slider control
+ * @brief     C++ API: splitter control
  *
  * @file
  */
@@ -23,7 +23,7 @@
 // Library includes
 //
 #include <gui/ctrl/control.h>
-#include <gui/ctrl/look/slider.h>
+#include <gui/ctrl/look/splitter.h>
 
 
 namespace gui {
@@ -49,14 +49,14 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class GUIPP_CTRL_EXPORT slider_base : public control {
+      class GUIPP_CTRL_EXPORT splitter_base : public control {
       public:
         typedef control super;
         typedef core::point::type type;
 
-        slider_base ();
-        slider_base (const slider_base& rhs);
-        slider_base (slider_base&& rhs) noexcept ;
+        splitter_base ();
+        splitter_base (const splitter_base& rhs);
+        splitter_base (splitter_base&& rhs) noexcept ;
 
         void set_min (type min);
         void set_max (type min);
@@ -80,28 +80,28 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<orientation_t O>
-      struct slider_cursor {};
+      struct splitter_cursor {};
 
       template<>
-      struct slider_cursor<orientation_t::horizontal> {
+      struct splitter_cursor<orientation_t::horizontal> {
         static constexpr win::cursor_type value = win::cursor_type::size_v;
       };
 
       template<>
-      struct slider_cursor<orientation_t::vertical> {
+      struct splitter_cursor<orientation_t::vertical> {
         static constexpr win::cursor_type value = win::cursor_type::size_h;
       };
 
       // --------------------------------------------------------------------------
       template<orientation_t O>
-      class basic_slider : public slider_base {
+      class basic_splitter : public splitter_base {
       public:
-        typedef slider_base super;
-        typedef no_erase_window_class<basic_slider, slider_cursor<O>::value> clazz;
+        typedef splitter_base super;
+        typedef no_erase_window_class<basic_splitter, splitter_cursor<O>::value> clazz;
 
-        basic_slider ();
-        basic_slider (const basic_slider& rhs);
-        basic_slider (basic_slider&& rhs) noexcept ;
+        basic_splitter ();
+        basic_splitter (const basic_splitter& rhs);
+        basic_splitter (basic_splitter&& rhs) noexcept ;
 
         void create (win::container& parent,
                      const core::rectangle& place = core::rectangle::def);
@@ -118,13 +118,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<orientation_t O,
              draw::frame::drawer F = draw::frame::raised_relief>
-    class basic_framed_slider : public detail::basic_slider<O> {
+    class basic_framed_splitter : public detail::basic_splitter<O> {
     public:
-      typedef detail::basic_slider<O> super;
+      typedef detail::basic_splitter<O> super;
 
-      basic_framed_slider ();
-      basic_framed_slider (const basic_framed_slider& rhs);
-      basic_framed_slider (basic_framed_slider&& rhs) noexcept ;
+      basic_framed_splitter ();
+      basic_framed_splitter (const basic_framed_splitter& rhs);
+      basic_framed_splitter (basic_framed_splitter&& rhs) noexcept ;
 
     private:
       void paint (const draw::graphics& g);
@@ -133,11 +133,11 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    using vertical_slider = basic_framed_slider<orientation_t::vertical>;
-    using horizontal_slider = basic_framed_slider<orientation_t::horizontal>;
+    using vertical_splitter = basic_framed_splitter<orientation_t::vertical>;
+    using horizontal_splitter = basic_framed_splitter<orientation_t::horizontal>;
 
   } // ctrl
 
 } // gui
 
-#include <gui/ctrl/slider.inl>
+#include <gui/ctrl/splitter.inl>

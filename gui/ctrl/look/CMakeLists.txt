@@ -30,7 +30,7 @@ if(NOT TARGET gui++-look)
       menu.cpp
       progress_bar.cpp
       scroll_bar.cpp
-      slider.cpp
+      splitter.cpp
       table.cpp
       textbox.cpp
       tree.cpp

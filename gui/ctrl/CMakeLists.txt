@@ -38,7 +38,7 @@ if(NOT TARGET gui++-ctrl)
       scroll_bar.cpp
       scroll_view.cpp
       separator.cpp
-      slider.cpp
+      splitter.cpp
       split_view.cpp
       std_dialogs.cpp
       table.cpp

@@ -445,6 +445,14 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template<>
+    core::point::type get_client_data<0, core::point::type>(const core::event& e) {
+      os::window l1 = e.xclient.data.l[0];
+      double d1 = static_cast<double>(l1) / 1000000.0;
+      return d1;
+    }
+
+    // --------------------------------------------------------------------------
     window* get_current_focus_window (const core::event&) {
       return global::get_current_focus_window();
     }

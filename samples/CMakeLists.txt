@@ -45,6 +45,7 @@ set(apps
     one_child
     new_border_layout
     attach_all_layout
+    look_and_feel
     diagrams
     dialogs
     split_view

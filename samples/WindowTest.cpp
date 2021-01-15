@@ -22,7 +22,7 @@
 #include <gui/ctrl/button.h>
 #include <gui/ctrl/list.h>
 #include <gui/ctrl/virtual_view.h>
-#include <gui/ctrl/slider.h>
+#include <gui/ctrl/splitter.h>
 #include <gui/ctrl/split_view.h>
 #include <gui/ctrl/edit.h>
 #include <gui/ctrl/column_list.h>
@@ -258,8 +258,8 @@ private:
 
   ctrl::check_box<> scroll_check_box;
 
-  ctrl::horizontal_slider hslider;
-  ctrl::vertical_slider vslider;
+  ctrl::horizontal_splitter hsplitter;
+  ctrl::vertical_splitter vsplitter;
 
   const ctrl::paint_function paint1;
   const ctrl::paint_function paint2;
@@ -565,6 +565,7 @@ my_main_window::my_main_window ()
     table_view.set_enable_edit(on);
     up_button.enable(on);
     switch_button.enable(on);
+    scroll_check_box.enable(on);
   });
 
   min_button.on_clicked([&] () {
@@ -590,11 +591,11 @@ my_main_window::my_main_window ()
   });
   null_button.on_clicked([&] () {
     clog::debug() << "0 clicked";
-    vslider.set_value(vslider.get_min());
+    vsplitter.set_value(vsplitter.get_min());
   });
   full_button.on_clicked([&] () {
     clog::debug() << "Full clicked";
-    vslider.set_value(size().width() - 15);
+    vsplitter.set_value(size().width() - 15);
   });
 
   list1.set_data(ctrl::draw_list_data([] (std::size_t idx,
@@ -706,10 +707,10 @@ my_main_window::my_main_window ()
     window2.invalidate();
   });
 
-  vslider.on_move([&](const core::point&) {
+  vsplitter.on_move([&](const core::point&) {
     layout();
   });
-  hslider.on_move([&](const core::point&) {
+  hsplitter.on_move([&](const core::point&) {
     layout();
   });
 
@@ -719,7 +720,7 @@ my_main_window::my_main_window ()
     textbox.hscroll.set_value(pos);
     progress.set_value(pos);
   });
-//  main_split_view.slider.on_move([&](const core::point&){
+//  main_split_view.splitter.on_move([&](const core::point&){
 //    hscroll.set_value(static_cast<ctrl::scroll_bar::type>(main_split_view.get_split_pos() * hscroll.get_max()), false);
 //  });
 
@@ -1026,11 +1027,11 @@ void my_main_window::created_children () {
   labelC.create(main, core::rectangle(50, 391, 120, 20));
   labelR.create(main, core::rectangle(50, 412, 120, 20));
 
-  hslider.create(main, core::rectangle(5, 470, 500, 5));
-  hslider.set_min_max(420, 600);
+  hsplitter.create(main, core::rectangle(5, 470, 500, 5));
+  hsplitter.set_min_max(420, 600);
 
-  vslider.create(main, core::rectangle(750, 5, 5, 500));
-  vslider.set_min_max(570, 1800);
+  vsplitter.create(main, core::rectangle(750, 5, 5, 500));
+  vsplitter.set_min_max(570, 1800);
 
   chck_group.create(main, core::rectangle(180, 350, 100, 80));
 
@@ -1120,39 +1121,39 @@ void my_main_window::created_children () {
   get_layout().attach_fix<What::top, Where::height, -45>(&btn_group, this);
   get_layout().attach_fix<What::bottom, Where::height, 0>(&btn_group, this);
 
-  get_layout().attach_relative<What::left, make_relative(0.1), 10>(&hslider, this);
-  get_layout().attach_relative<What::right, make_relative(0.9), 0>(&hslider, this);
+  get_layout().attach_relative<What::left, make_relative(0.1), 10>(&hsplitter, this);
+  get_layout().attach_relative<What::right, make_relative(0.9), 0>(&hsplitter, this);
 
-  get_layout().attach_fix<What::bottom, Where::y, -5>(&vslider, &btn_group);
+  get_layout().attach_fix<What::bottom, Where::y, -5>(&vsplitter, &btn_group);
 
-  get_layout().attach_fix<What::right, Where::x, -25>(&column_list, &vslider);
-  get_layout().attach_fix<What::left, Where::x, -20>(&vscroll, &vslider);
-  get_layout().attach_fix<What::right, Where::x, -3>(&vscroll, &vslider);
+  get_layout().attach_fix<What::right, Where::x, -25>(&column_list, &vsplitter);
+  get_layout().attach_fix<What::left, Where::x, -20>(&vscroll, &vsplitter);
+  get_layout().attach_fix<What::right, Where::x, -3>(&vscroll, &vsplitter);
 
-  get_layout().attach_fix<What::right, Where::x, -4>(&group_group, &vslider);
-  get_layout().attach_fix<What::bottom, Where::y2, -8>(&group_group, &hslider);
+  get_layout().attach_fix<What::right, Where::x, -4>(&group_group, &vsplitter);
+  get_layout().attach_fix<What::bottom, Where::y2, -8>(&group_group, &hsplitter);
 
-  get_layout().attach_fix<What::left, Where::x2, 2>(&table_view, &vslider);
+  get_layout().attach_fix<What::left, Where::x2, 2>(&table_view, &vsplitter);
   get_layout().attach_fix<What::right, Where::width, -10>(&table_view, this);
 
-  get_layout().attach_fix<What::left, Where::x2, 2>(&editor, &vslider);
+  get_layout().attach_fix<What::left, Where::x2, 2>(&editor, &vsplitter);
   get_layout().attach_fix<What::right, Where::width, -10>(&editor, this);
   get_layout().attach_fix<What::top, Where::y, 320>(&editor, this);
-  get_layout().attach_fix<What::bottom, Where::y2, -8>(&editor, &hslider);
+  get_layout().attach_fix<What::bottom, Where::y2, -8>(&editor, &hsplitter);
 
-  get_layout().attach_fix<What::left, Where::x2, 2>(&textbox, &vslider);
+  get_layout().attach_fix<What::left, Where::x2, 2>(&textbox, &vsplitter);
   get_layout().attach_fix<What::right, Where::width, -10>(&textbox, this);
-  get_layout().attach_fix<What::top, Where::y2, 4>(&textbox, &hslider);
+  get_layout().attach_fix<What::top, Where::y2, 4>(&textbox, &hsplitter);
   get_layout().attach_fix<What::bottom, Where::height, -50>(&textbox, this);
 
-  get_layout().attach_fix<What::bottom, Where::y2, -8>(&switch_button2, &hslider);
-  get_layout().attach_fix<What::bottom, Where::y2, -8>(&text_drop_down, &hslider);
-  get_layout().attach_fix<What::bottom, Where::y2, -8>(&color_drop_down, &hslider);
+  get_layout().attach_fix<What::bottom, Where::y2, -8>(&switch_button2, &hsplitter);
+  get_layout().attach_fix<What::bottom, Where::y2, -8>(&text_drop_down, &hsplitter);
+  get_layout().attach_fix<What::bottom, Where::y2, -8>(&color_drop_down, &hsplitter);
 
-  get_layout().attach_fix<What::top, Where::y2, 4>(&htileview, &hslider);
+  get_layout().attach_fix<What::top, Where::y2, 4>(&htileview, &hsplitter);
   get_layout().attach_fix<What::bottom, Where::height, -50>(&htileview, this);
 
-  get_layout().attach_fix<What::top, Where::y2, 4>(&vtileview, &hslider);
+  get_layout().attach_fix<What::top, Where::y2, 4>(&vtileview, &hsplitter);
   get_layout().attach_fix<What::bottom, Where::height, -50>(&vtileview, this);
 }
 

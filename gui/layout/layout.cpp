@@ -74,6 +74,14 @@ namespace gui {
       }
     }
 
+    void layout_base::add (win::window& w) {
+      add(lay(w));
+    }
+
+    void layout_base::add (win::window* w) {
+      add(lay(w));
+    }
+
     void layout_base::remove_all () {
       elements.clear();
     }

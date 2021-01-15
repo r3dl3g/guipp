@@ -127,6 +127,8 @@ namespace gui {
 
       void add (std::initializer_list<layout_function> list);
       void add (std::initializer_list<win::window*> list);
+      void add (win::window&);
+      void add (win::window*);
 
       void remove_all ();
 

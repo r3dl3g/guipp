@@ -35,14 +35,18 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace layout {
 
-    // --------------------------------------------------------------------------
-    template<orientation_t H,
-             unsigned border = 0,
-             unsigned gap = 0,
-             unsigned sep = 2,
-             unsigned min = 0,
-             unsigned max = std::numeric_limits<unsigned>::max(),
-             origin_t R = origin_t::start>
+    /** -------------------------------------------------------------------------
+     * Linup all added elements with the same adapted width and hight
+     * to fill up the available space
+     * ----------------------------------------------------------------------- */
+    template<orientation_t H,     /// Orientation vertical or horizontal
+             unsigned border = 0, /// Border on all sides around the elements
+             unsigned gap = 0,    /// Gap between the elements
+             unsigned sep = 2,    /// Size of separator
+             unsigned min = 0,    /// Minimum size of an element
+             unsigned max = std::numeric_limits<unsigned>::max(), /// Maximum size of an element
+             origin_t R = origin_t::start /// origin where the elements begin to line up
+             >
     class adaption_layout : public detail::origin_layout<H, R> {
     public:
       typedef core::size::type type;
@@ -54,6 +58,9 @@ namespace gui {
       void layout (const core::rectangle&) const;
     };
 
+    /** -------------------------------------------------------------------------
+     * Just a helper for templates
+     * ----------------------------------------------------------------------- */
     template<orientation_t A, unsigned B, unsigned C, unsigned D, unsigned E, unsigned F, origin_t G>
     struct is_layout<adaption_layout<A, B, C, D, E, F, G>> {
       enum {
@@ -61,7 +68,11 @@ namespace gui {
       };
     };
 
-    // --------------------------------------------------------------------------
+    /** -------------------------------------------------------------------------
+     * Linup all added elements horizontal with the same adapted width and hight
+     * to fill up the available space
+     * @see adaption_layout
+     * ----------------------------------------------------------------------- */
     template<unsigned border = 0,
              unsigned gap = 0,
              unsigned sep = 2,
@@ -70,7 +81,11 @@ namespace gui {
              origin_t o = origin_t::start>
     using horizontal_adaption = adaption_layout<orientation_t::horizontal, border, gap, sep, min, max, o>;
 
-    // --------------------------------------------------------------------------
+    /** -------------------------------------------------------------------------
+     * Linup all added elements vertical with the same adapted width and hight
+     * to fill up the available space
+     * @see adaption_layout
+     * ----------------------------------------------------------------------- */
     template<unsigned border = 0,
              unsigned gap = 0,
              unsigned sep = 2,

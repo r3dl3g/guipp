@@ -35,13 +35,17 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace layout {
 
-    // --------------------------------------------------------------------------
-    template<orientation_t H,
-             unsigned D,
-             unsigned B = 0,
-             unsigned G = 0,
-             unsigned S = 2,
-             origin_t R = origin_t::start>
+    /** -------------------------------------------------------------------------
+     * Linup all added elements with a fix width and hight until the available
+     * space is filled up.
+     * ----------------------------------------------------------------------- */
+    template<orientation_t H, /// Orientation vertical or horizontal
+             unsigned D,      /// Fix dimension of all added elements in direction of orientation
+             unsigned B = 0,  /// Border on all sides around the elements
+             unsigned G = 0,  /// Gap between the elements
+             unsigned S = 2,  /// Size of separator
+             origin_t R = origin_t::start /// origin where the elements begin to line up
+             >
     class lineup_layout : public detail::origin_layout<H, R> {
     public:
       typedef core::size::type type;
@@ -58,7 +62,9 @@ namespace gui {
       void layout (const core::rectangle& r) const;
     };
 
-    // --------------------------------------------------------------------------
+    /** -------------------------------------------------------------------------
+     * Just a helper for templates
+     * ----------------------------------------------------------------------- */
     template<orientation_t H, unsigned D, unsigned B, unsigned G, unsigned S, origin_t R>
     struct is_layout<lineup_layout<H, D, B, G, S, R>> {
       enum {
@@ -66,15 +72,27 @@ namespace gui {
       };
     };
 
-    // --------------------------------------------------------------------------
+    /** -------------------------------------------------------------------------
+     * Linup all added elements horizontal with a fix width and hight until the
+     * available space is filled up.
+     * @see lineup_layout
+     * ----------------------------------------------------------------------- */
     template<unsigned D, unsigned B = 0, unsigned G = 0, unsigned S = 2, origin_t R = origin_t::start>
     using horizontal_lineup = lineup_layout<orientation_t::horizontal, D, B, G, S, R>;
 
-    // --------------------------------------------------------------------------
+    /** -------------------------------------------------------------------------
+     * Linup all added elements vertical with a fix width and hight until the
+     * available space is filled up.
+     * @see lineup_layout
+     * ----------------------------------------------------------------------- */
     template<unsigned D, unsigned B = 0, unsigned G = 0, unsigned S = 2, origin_t R = origin_t::start>
     using vertical_lineup = lineup_layout<orientation_t::vertical, D, B, G, S, R>;
 
-    // --------------------------------------------------------------------------
+    /** -------------------------------------------------------------------------
+     * Linup all added elements with a fix width and hight until the available
+     * space is filled up depending on given alignment_t.
+     * @see lineup_layout
+     * ----------------------------------------------------------------------- */
     template<alignment_t a, unsigned D, unsigned B = 0, unsigned G = 0, unsigned S = 2>
     using lineup = lineup_layout<alignment_orientation<a>::value, D, B, G, S, alignment_origin<a>::value>;
 

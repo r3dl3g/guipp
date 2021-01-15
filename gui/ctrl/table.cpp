@@ -78,6 +78,16 @@ namespace gui {
 
       } // namespace data
 
+      table::position invalid(-1, -1);
+
+      inline bool is_valid (const table::position& p) {
+        return p != invalid;
+      }
+
+      inline void clear (table::position& p) {
+        p = invalid;
+      }
+
       // --------------------------------------------------------------------------
       core::size metric::get_size (const position& cell) const {
         core::size sz(widths.get_size(cell.x()), heights.get_size(cell.y()));
@@ -555,7 +565,7 @@ namespace gui {
 
     void table_view::init () {
       if (!enable_selection_) {
-        geometrie.selection.clear();
+        table::clear(geometrie.selection);
       }
       if (!enable_hilite_) {
         geometrie.hilite.clear();
@@ -619,8 +629,8 @@ namespace gui {
     }
 
     void table_view::clear_selection (event_source notify) {
-      if (geometrie.selection.is_valid()) {
-        geometrie.selection.clear();
+      if (table::is_valid(geometrie.selection)) {
+        table::clear(geometrie.selection);
         if (notify != event_source::logic) {
           send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
           redraw_all();
@@ -637,7 +647,7 @@ namespace gui {
       }
       if (geometrie.selection != selection) {
         geometrie.selection = selection;
-        if (geometrie.selection.is_valid()) {
+        if (table::is_valid(geometrie.selection)) {
           make_selection_visible();
           redraw_all();
         }

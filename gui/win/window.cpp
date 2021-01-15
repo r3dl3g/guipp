@@ -126,6 +126,15 @@ namespace gui {
       init();
     }
 
+    os::window get_desktop_window () {
+#if GUIPP_X11
+      return DefaultRootWindow(core::global::get_instance());
+#else
+      return NULL;
+#endif
+
+    }
+
     window::window (const window& rhs)
       : id(0)
       , flags(rhs.flags)
@@ -134,15 +143,8 @@ namespace gui {
       if (rhs.is_valid()) {
         container* parent = rhs.get_parent();
         create_internal(rhs.get_window_class(),
-                        parent ? detail::get_window_id(*parent) :
-#ifdef GUIPP_WIN
-                                 NULL
-#elif GUIPP_X11
-                                 DefaultRootWindow(core::global::get_instance())
-#elif GUIPP_QT
-                                 NULL
-#endif
-                        , rhs.place());
+                        parent ? detail::get_window_id(*parent) : get_desktop_window(),
+                        rhs.place());
       }
     }
 
@@ -251,12 +253,12 @@ namespace gui {
       container* parent = get_parent();
       if (parent) {
         parent->shift_focus(this, backward);
-        invalidate();
       }
     }
 
     void window::focus_lost () {
       set_state().focused(false);
+      invalidate();
     }
 
     bool window::can_accept_focus () const {
@@ -278,6 +280,11 @@ namespace gui {
 
     const class_info& window::get_window_class () const {
       return hidden::window_class_info_map[get_class_name()];
+    }
+
+    void window::notify_event_double (os::message_type message, double d1) {
+      long l1 = static_cast<long>(d1 * 1000000.0);
+      send_client_message(this, message, l1, 0);
     }
 
     // --------------------------------------------------------------------------
@@ -403,7 +410,7 @@ namespace gui {
       }
     }
 
-    void window::take_focus () {
+    void window::take_focus (bool) {
       if (is_valid()) {
         set_state().focused(true);
         SetFocus(get_id());
@@ -620,7 +627,7 @@ namespace gui {
     void window::notify_event (os::message_type message, long l1, long l2) {
       send_client_message(this, message, l1, l2);
     }
-    
+
     std::string window::get_class_name () const {
       char class_name[256];
       GetClassName(id, class_name, 256);
@@ -803,7 +810,7 @@ namespace gui {
       }
     }
 
-    void window::take_focus () {
+    void window::take_focus (bool) {
       set_state().focused(true);
       x11::check_return(XSetInputFocus(core::global::get_instance(), get_id(),
                                        RevertToParent, CurrentTime));
@@ -1224,7 +1231,7 @@ namespace gui {
       }
     }
 
-    void window::take_focus () {
+    void window::take_focus (bool) {
       if (is_valid()) {
         auto win = get_id();
         set_state().focused(true);

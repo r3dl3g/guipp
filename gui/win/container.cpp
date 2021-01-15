@@ -358,9 +358,9 @@ namespace gui {
 #endif // GUIPP_X11
 
       set_accept_focus(true);
-      on_set_focus([&] () {
-        forward_focus(core::shift_key_bit_mask::is_set(core::global::get_key_state()));
-      });
+//      on_set_focus([&] () {
+//        shift_focus(core::shift_key_bit_mask::is_set(core::global::get_key_state()));
+//      });
       on_show([&] () {
         set_children_visible();
       });
@@ -377,40 +377,47 @@ namespace gui {
     }
 
     template<typename iterator>
-    bool iterate_focus (iterator begin, iterator end, window* focus) {
-      const auto start = std::find(begin, end, focus);
-      auto i = start;
-      if (i != end) {
-        ++i;
-        auto count = std::distance(begin, end);
-        while (count) {
-          if (i == end) {
-            i = begin;
-          }
-          window* win = *i;
-          if (win->can_accept_focus()) {
-            win->take_focus();
-            return true;
-          }
-          ++i;
-          --count;
+    iterator focus_next (iterator i, iterator end, bool backward) {
+      while (i != end) {
+        window* win = *i;
+        if (win->can_accept_focus()) {
+          win->take_focus(backward);
+          return i;
         }
+        ++i;
       }
-      return false;
+      return end;
     }
 
-    void container::shift_focus (window* focus, bool backward) {
-      focus->focus_lost();
+    template<typename iterator>
+    iterator iterate_focus (iterator begin, iterator end, window* current_focus, bool backward) {
+      auto i = std::find(begin, end, current_focus);
+      if (i != end) {
+        ++i;
+      } else {
+        i = begin;
+      }
+      i = focus_next(i, end, backward);
+      if (i != end) {
+        if (current_focus) {
+          current_focus->focus_lost();
+        }
+        return i;
+      }
+      return end;
+    }
+
+    void container::shift_focus (window* current_focus, bool backward) {
       window_list_t children = get_children();
-//      window_list_t children;
-//      collect_children_deep(children, *this);
       if (!children.empty()) {
         if (backward) {
-          if (iterate_focus(children.rbegin(), children.rend(), focus)) {
+          auto end = std::rend(children);
+          if (iterate_focus(std::rbegin(children), end, current_focus, backward) != end) {
             return;
           }
         } else {
-          if (iterate_focus(children.begin(), children.end(), focus)) {
+          auto end = std::end(children);
+          if (iterate_focus(std::begin(children), end, current_focus, backward) != end) {
             return;
           }
         }
@@ -418,13 +425,31 @@ namespace gui {
       auto parent = get_parent();
       if (parent) {
         parent->shift_focus(this, backward);
-      } else {
-        forward_focus(backward);
+      } else if (!children.empty() && (current_focus)) {
+        // restart from first with current_focus = nullptr
+        shift_focus(nullptr, backward);
       }
     }
 
-    void container::forward_focus (bool backward) {
+    void container::shift_focus (bool backward) {
       window::shift_focus(backward);
+    }
+
+    bool container::can_accept_focus () const {
+      if (window::can_accept_focus()) {
+        return true;
+      }
+      window_list_t children = get_children();
+      for (const auto& c : children) {
+        if (c->can_accept_focus()) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    void container::take_focus (bool backward) {
+      shift_focus(nullptr, backward);
     }
 
     // --------------------------------------------------------------------------

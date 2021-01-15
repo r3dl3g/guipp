@@ -54,7 +54,10 @@ namespace gui {
       window_list_t get_children () const;
 
       void shift_focus (window*, bool backward = false);
-      void forward_focus (bool backward = false);
+
+      void shift_focus (bool backward = false) override;
+      bool can_accept_focus () const override;
+      void take_focus (bool backward = false) override;
 
     protected:
       using window::create;

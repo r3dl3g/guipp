@@ -58,7 +58,7 @@ namespace gui {
     public:
 
       window ();
-      ~window ();
+      virtual ~window ();
 
       void destroy ();
       void close ();
@@ -86,15 +86,15 @@ namespace gui {
       void disable ();
 
       bool is_focus_accepting () const;
-      bool can_accept_focus () const;
       bool is_focused () const;
 
       bool is_redraw_disabled () const;
       void set_disable_redraw (bool on = true);
 
-      void shift_focus (bool backward = false);
+      virtual bool can_accept_focus () const;
+      virtual void shift_focus (bool backward = false);
+      virtual void take_focus (bool backward = false);
 
-      void take_focus ();
       void focus_lost ();
 
       void to_front ();
@@ -132,6 +132,7 @@ namespace gui {
       bool handle_event (const core::event&, gui::os::event_result&);
 
       void notify_event (os::message_type message, long l1 = 0, long l2 = 0);
+      void notify_event_double (os::message_type message, double d1);
 
       operator os::drawable() const;
 

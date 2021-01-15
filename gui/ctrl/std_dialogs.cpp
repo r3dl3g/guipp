@@ -133,11 +133,11 @@ namespace gui {
         },
         win::hot_key_action{
           core::hot_key(core::keys::right, core::state::none),
-          [&] () { forward_focus(false); }
+          [&] () { shift_focus(false); }
         },
         win::hot_key_action{
           core::hot_key(core::keys::left, core::state::none),
-          [&] () { forward_focus(true); }
+          [&] () { shift_focus(true); }
         }
       });
     }

@@ -71,7 +71,8 @@ namespace gui {
                    const core::range<core::basic_point<int> >& selection,
                    const core::basic_point<int>& cursor_pos,
                    const core::point& offset,
-                   const bool is_focused) {
+                   const bool is_focused,
+                   const bool is_enabled) {
       const auto height = area.height();
       const auto row_sz = static_cast<core::size::type>(fnt.line_height());
       const auto last = lines.size();
@@ -95,7 +96,7 @@ namespace gui {
         look::edit_line(graph, r, lines[idx], fnt, foreground, background, origin,
                         detail::get_line_selection(selection, idx),
                         detail::get_line_cursor(cursor_pos, idx),
-                        0, true);
+                        0, is_focused, is_enabled);
         r.move_y(row_sz);
       }
 

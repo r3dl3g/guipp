@@ -50,7 +50,7 @@ namespace gui {
                              item_state state) {
         look::tree_node(g, r, b, depth,
                         I::label(t),
-                        I::icon(t, has_children, is_open, item_state::selected == state),
+                        I::icon(t, has_children, is_open, state.is_selected()),
                         has_children, is_open, state);
       }
 

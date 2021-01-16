@@ -188,14 +188,9 @@ namespace gui {
 
         item_state get_cell_item_state (const std::function<filter::selection_and_hilite>& selection_filter,
                                         const std::function<filter::selection_and_hilite>& hilite_filter,
-                                        const position& cell, const metric& geometrie) {
-          if (selection_filter(cell, geometrie)) {
-            return item_state::selected;
-          } else if (hilite_filter(cell, geometrie)) {
-            return item_state::hilited;
-          } else {
-            return item_state::normal;
-          }
+                                        const position& cell, const metric& geometrie,
+                                        bool disabled = false) {
+          return item_state(hilite_filter(cell, geometrie), selection_filter(cell, geometrie), disabled);
         }
 
         void draw_table_data (const draw::graphics& graph,

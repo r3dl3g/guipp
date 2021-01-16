@@ -69,12 +69,12 @@ namespace gui {
 
   core::byte_order_t get_pixel_format_byte_order (pixel_format_t px_fmt) {
     switch (px_fmt) {
-      case pixel_format_t::BW:
       case pixel_format_t::RGB:
       case pixel_format_t::RGBA:
       case pixel_format_t::ARGB:
       default:
         return core::byte_order_t::big_endian;
+      case pixel_format_t::BW:
       case pixel_format_t::GRAY:
       case pixel_format_t::BGR:
       case pixel_format_t::BGRA:

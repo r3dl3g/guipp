@@ -373,7 +373,7 @@ namespace gui {
                       item_state state,
                       text_origin_t align) {
       look::text_item(graph, place, background, util::string::convert::from(t), state, align);
-      if (item_state::selected != state) {
+      if (!(state.is_selected())) {
         F(graph, place);
       }
     }

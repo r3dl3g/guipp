@@ -202,7 +202,7 @@ namespace gui {
       auto display = core::global::get_instance();
       auto gc = XCreateGC(display, id, 0, nullptr);
 
-      core::byte_order_t byte_order_t = get_pixel_format_byte_order(bmi.pixel_format);
+      core::byte_order_t byte_order = get_pixel_format_byte_order(bmi.pixel_format);
 
       XImage im {
         static_cast<int>(bmi.width),
@@ -210,7 +210,7 @@ namespace gui {
         0,                                                      /* number of pixels offset in X direction */
         ZPixmap,                                                /* XYBitmap, XYPixmap, ZPixmap */
         const_cast<char*>(reinterpret_cast<const char*>(data)), /* pointer to image data */
-        static_cast<bool>(byte_order_t),                          /* data byte order, LSBFirst, MSBFirst */
+        static_cast<bool>(byte_order),                          /* data byte order, LSBFirst, MSBFirst */
         BitmapUnit(display),                                    /* quant. of scanline 8, 16, 32 */
         BitmapBitOrder(display),                                /* LSBFirst, MSBFirst */
         BitmapPad(display),                                     /* 8, 16, 32 either XY or ZPixmap */
@@ -224,104 +224,6 @@ namespace gui {
       int res = XPutImage(display, id, gc, &im, 0, 0, 0, 0, bmi.width, bmi.height);
       res = XFreeGC(display, gc);
     }
-
-//    void pixmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi) {
-//      auto display = core::global::get_instance();
-//      //auto screen = core::global::x11::get_screen();
-//      auto gc = XCreateGC(display, id, 0, nullptr);
-
-//      int byte_order_t = get_pixel_format_byte_order(bmi.pixel_format);
-
-//      XImage im {
-//        static_cast<int>(bmi.width),
-//        static_cast<int>(bmi.height),                           /* size of image */
-//        0,                                                      /* number of pixels offset in X direction */
-//        ZPixmap,                                                /* XYBitmap, XYPixmap, ZPixmap */
-//        const_cast<char*>(reinterpret_cast<const char*>(data)), /* pointer to image data */
-//        byte_order_t,                                             /* data byte order, LSBFirst, MSBFirst */
-//        BitmapUnit(display),                                    /* quant. of scanline 8, 16, 32 */
-//        BitmapBitOrder(display),                                /* LSBFirst, MSBFirst */
-//        BitmapPad(display),                                     /* 8, 16, 32 either XY or ZPixmap */
-//        bmi.depth(),                                            /* depth of image */
-//        static_cast<int>(bmi.bytes_per_line),                   /* accelarator to next line */
-//        bmi.depth()                                            /* bits per pixel (ZPixmap) */
-//      };
-
-//      Status st = XInitImage(&im);
-//      (void)st;
-//      int res = XPutImage(display, id, gc, &im, 0, 0, 0, 0, bmi.width, bmi.height);
-//      res = XFreeGC(display, gc);
-//    }
-
-//    void pixmap_get_data (os::bitmap id, blob& data, draw::bitmap_info& bmi) {
-//      bmi = bitmap_get_info(id);
-//      auto display = core::global::get_instance();
-//      XImage* im = XGetImage(display, id, 0, 0, bmi.width, bmi.height, AllPlanes, ZPixmap);
-//      if (im) {
-//        draw::bitmap_info src_bmi = {
-//          static_cast<uint32_t>(im->width),
-//          static_cast<uint32_t>(im->height),
-//          static_cast<uint32_t>(im->bytes_per_line),
-//          get_pixel_format(im->bits_per_pixel, im->byte_order_t)
-//        };
-//        bmi = {
-//          static_cast<uint32_t>(im->width),
-//          static_cast<uint32_t>(im->height),
-//          src_bmi.pixel_format
-//        };
-//        const size_t n = src_bmi.mem_size();
-//        if (src_bmi.pixel_format != bmi.pixel_format) {
-//          data.resize(n);
-
-//          byte* src = reinterpret_cast<byte*>(im->data);
-//          switch (bmi.pixel_format) {
-//            case pixel_format_t::RGB: {
-//              typedef draw::const_image_data<pixel_format_t::RGBA> src_data;
-//              typedef draw::image_data<pixel_format_t::RGB> dst_data;
-//              //<pixel_format_t::RGBA, pixel_format_t::RGB>
-//              convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
-//                                    dst_data(dst_data::raw_type(data), bmi),
-//                                    im->width, im->height);
-//            }
-//            break;
-//            case pixel_format_t::RGBA: {
-//                typedef draw::const_image_data<pixel_format_t::RGB> src_data;
-//                typedef draw::image_data<pixel_format_t::RGBA> dst_data;
-//                //<pixel_format_t::RGB, pixel_format_t::RGBA>
-//                convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
-//                                      dst_data(dst_data::raw_type(data), bmi),
-//                                      im->width, im->height);
-//              }
-//            break;
-//            case pixel_format_t::BGR: {
-//                typedef draw::const_image_data<pixel_format_t::ABGR> src_data;
-//                typedef draw::image_data<pixel_format_t::BGR> dst_data;
-//                //<pixel_format_t::BGRA, pixel_format_t::BGR>
-//                convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
-//                                      dst_data(dst_data::raw_type(data), bmi),
-//                                      im->width, im->height);
-//              }
-//            break;
-//            case pixel_format_t::BGRA: {
-//                typedef draw::const_image_data<pixel_format_t::BGR> src_data;
-//                typedef draw::image_data<pixel_format_t::BGRA> dst_data;
-//                //<pixel_format_t::BGR, pixel_format_t::BGRA>
-//                convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
-//                                      dst_data(dst_data::raw_type(data), bmi),
-//                                      im->width, im->height);
-//              }
-//            break;
-//          }
-//        } else {
-//          data.resize(n);
-//          memcpy(data.data(), im->data, n);
-////          data.assign(im->data, im->data + n);
-//        }
-//        XDestroyImage(im);
-//      } else {
-//        throw std::runtime_error("get image failed");
-//      }
-//    }
 
 # endif // !USE_XSHM
 

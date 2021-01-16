@@ -51,13 +51,7 @@ namespace gui {
       }
 
       inline item_state list_base::get_item_state (int idx) const {
-        if (get_selection() == idx) {
-          return item_state::selected;
-        } else if (get_hilite() == idx) {
-          return item_state::hilited;
-        } else {
-          return item_state::normal;
-        }
+        return item_state(get_hilite() == idx, get_selection() == idx, !is_enabled());
       }
 
       inline os::color list_base::get_background () const {
@@ -355,7 +349,7 @@ namespace gui {
       scroll_bar::type invisible = traits.get_invisible_size(cs, get_count());
       scrollbar.set_min_max_step_page(zero, std::max(invisible, zero), traits.get_line_size(), traits.get_1(cs));
 
-      if (super::is_valid()) {
+      if (super::is_valid() && super::is_enabled()) {
         const bool show_scroll = (invisible > zero) && super::is_scroll_bar_enabled();
         if (show_scroll) {
           create_scroll_bar(sz);

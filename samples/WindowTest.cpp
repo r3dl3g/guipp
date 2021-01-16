@@ -135,13 +135,10 @@ namespace gui {
       graph.fill(draw::rectangle(place), c);
       graph.text(draw::text_box(win::color_to_string(c), place, text_origin_t::center), draw::font::system(), color::invert(c));
 
-      switch (state) {
-        case item_state::selected:
-          graph.frame(draw::rectangle(place), color::black);
-          break;
-        case item_state::hilited:
-          graph.frame(draw::rectangle(place), color::highLightColor());
-          break;
+      if (state.is_selected()) {
+        graph.frame(draw::rectangle(place), color::black);
+      } else if (state.is_hilited()) {
+        graph.frame(draw::rectangle(place), color::highLightColor());
       }
     }
 

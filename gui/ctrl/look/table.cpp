@@ -29,28 +29,13 @@
 #include <gui/draw/drawers.h>
 #include <gui/draw/brush.h>
 #include <gui/draw/font.h>
+#include <gui/ctrl/look/control.h>
 #include <gui/ctrl/look/table.h>
 
 
 namespace gui {
 
   namespace look {
-
-    os::color get_back_color (const ctrl::item_state& state, const os::color& background) {
-      switch (state) {
-        case ctrl::item_state::selected:  return color::highLightColor();
-        case ctrl::item_state::hilited:   return color::darker(background, 0.05F);
-        default: return background;
-      }
-    }
-
-    os::color get_fore_color (const ctrl::item_state& state, const os::color& foreground) {
-      switch (state) {
-        case ctrl::item_state::selected:  return color::highLightTextColor();
-        case ctrl::item_state::hilited:   return color::darker(foreground, 0.25F);
-        default: return foreground;
-      }
-    }
 
     template<>
     void text_cell<std::string, draw::frame::no_frame>(const std::string& t,
@@ -61,8 +46,8 @@ namespace gui {
                                                        const os::color& background,
                                                        const ctrl::item_state& state) {
       using namespace draw;
-      graph.fill(draw::rectangle(place), get_back_color(state, background));
-      graph.text(draw::text_box(t, place, align), font::system(), get_fore_color(state, foreground));
+      graph.fill(draw::rectangle(place), get_background_color(state, background));
+      graph.text(draw::text_box(t, place, align), font::system(), get_text_color(state, foreground));
     }
 
   } // namespace look

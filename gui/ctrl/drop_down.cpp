@@ -111,7 +111,7 @@ namespace gui {
                              graph,
                              layout::drop_down::label_place(area),
                              data.items.get_background(),
-                             is_focused() ? item_state::hilited : item_state::normal);
+                             item_state(is_focused(), false, !is_enabled()));
       }
     }
 

@@ -5,12 +5,14 @@
 #include <gui/layout/border_layout.h>
 #include <gui/layout/grid_layout.h>
 #include <gui/layout/lineup_layout.h>
+#include <gui/layout/adaption_layout.h>
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/button.h>
 #include <gui/ctrl/edit.h>
 #include <gui/ctrl/progress_bar.h>
 #include <gui/ctrl/drop_down.h>
 #include <gui/ctrl/scroll_bar.h>
+#include <gui/ctrl/tree.h>
 
 
 const std::size_t COLUMNS = 4;
@@ -67,6 +69,46 @@ void add (top_grid_t& l, std::array<T, COLUMNS>& a, const std::string& label) {
   }
 }
 
+template<int H = 0>
+class header_layout {
+public:
+  static constexpr int height = H;
+  typedef gui::layout::layout_function layout_function;
+
+  void set_header_body (layout_function header, layout_function body) {
+    this->header = header;
+    this->body = body;
+  }
+
+  void set_header (layout_function header) {
+    this->header = header;
+  }
+
+  void set_body (layout_function body) {
+    this->body = body;
+  }
+
+  void layout (const gui::core::rectangle& r) {
+    if (header) {
+      header(r.with_height(height));
+    }
+    if (body) {
+      body(r.with_vertical(r.y() + height, r.height() - height));
+    }
+  }
+
+protected:
+  layout_function header;
+  layout_function body;
+};
+
+template<int H>
+struct gui::layout::is_layout<header_layout<H>> {
+  enum {
+    value = true
+  };
+};
+
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui;
@@ -76,7 +118,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   typedef layout_main_window<layout::border::layouter<10, 10, 10, 10, layout::border::type_t::all_symmetric>> main_window_t;
   typedef layout::vertical_lineup<236, 0, 8> center_layout_t;
-  typedef layout::horizontal_lineup<120, 0, 4> center_grid_t;
+  typedef layout::horizontal_adaption<0, 4, 0, 80, 200> center_grid_t;
 
   main_window_t main;
   center_layout_t center;
@@ -90,7 +132,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   label_center centerlabel;
   label stdlabel;
 
-//  std::array<label, COLUMNS> labels;
   std::array<text_button, COLUMNS> buttons;
   std::array<radio_button<>, COLUMNS> radios;
   std::array<check_box<>, COLUMNS> checks;
@@ -103,6 +144,32 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   std::array<vertical_list, 2> vlist;
   std::array<horizontal_list, 2> hlist;
   std::array<edit_list, 2> elist;
+  std::array<tree_view, 2> trees;
+
+  std::array<label, 8> header_labels;
+  std::array<header_layout<22>, header_labels.size()> header_layouts;
+
+  for (int i = 0; i < header_labels.size(); ++i) {
+    header_layouts[i].set_header(layout::lay(header_labels[i]));
+    cgrid.add(layout::lay(header_layouts[i]));
+  }
+  header_layouts[0].set_body(layout::lay(vlist[0]));
+  header_layouts[1].set_body(layout::lay(vlist[1]));
+  header_layouts[2].set_body(layout::lay(hlist[0]));
+  header_layouts[3].set_body(layout::lay(hlist[1]));
+  header_layouts[4].set_body(layout::lay(elist[0]));
+  header_layouts[5].set_body(layout::lay(elist[1]));
+  header_layouts[6].set_body(layout::lay(trees[0]));
+  header_layouts[7].set_body(layout::lay(trees[1]));
+
+  header_labels[0].set_text("Vertical list");
+  header_labels[1].set_text("Disabled");
+  header_labels[2].set_text("Horizontal list");
+  header_labels[3].set_text("Disabled");
+  header_labels[4].set_text("Editable list");
+  header_labels[5].set_text("Disabled");
+  header_labels[6].set_text("Tree");
+  header_labels[7].set_text("Disabled");
 
   std::vector<std::string> edata;
   edata.insert(edata.end(), { "Eins", "Zwei", "Drei", "View", "Fünf", "Sechs", "Sieben", "Acht", "Neun", "Zehn", "Fuß" });
@@ -110,22 +177,47 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   center.add(tgrid);
   center.add(layout::lay(cgrid));
 
-  cgrid.add({layout::lay(vlist[0]), layout::lay(vlist[1]), layout::lay(hlist[0]), layout::lay(hlist[1]), layout::lay(elist[0]), layout::lay(elist[1])});
-
-  vlist[0].set_item_size(22);
-  vlist[1].set_item_size(22);
-  hlist[0].set_item_size(22);
-  hlist[1].set_item_size(22);
-  elist[0].set_item_size(22);
-  elist[1].set_item_size(22);
-
   vlist[0].set_data(ctrl::indirect_list_data<std::string>(edata));
   vlist[1].set_data(ctrl::indirect_list_data<std::string>(edata));
   hlist[0].set_data(ctrl::const_list_data<std::string>({"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}));
   hlist[1].set_data(ctrl::const_list_data<std::string>({"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"}));
-
   elist[0].set_data(ctrl::indirect_list_data<std::string>(edata));
   elist[1].set_data(ctrl::indirect_list_data<std::string>(edata));
+
+  tree_view::type root;
+  root.label = "root";
+  typedef ctrl::tree::node node;
+  root.add_nodes({
+    node("leaf 1"),
+    node("sub 2", {
+      node("sub 2.1", {
+        node("leaf 2.1.1"),
+        node("leaf 2.1.2")
+      }),
+      node("sub 2.2", {
+        node("leaf 2.2.1"),
+        node("leaf 2.2.2"),
+        node("leaf 2.2.3")
+      }),
+      node("leaf 2.3")
+    }),
+    node("leaf 3")
+  });
+  trees[0].set_root(root);
+  trees[1].set_root(root);
+  trees[1].open_all();
+  trees[0].update_node_list();
+  trees[1].update_node_list();
+
+  trees[0].on_selection_changed([&](event_source src){
+    trees[1].set_selection(trees[0].get_selection(), src);
+  });
+  vlist[0].on_selection_changed([&](event_source src){
+    vlist[1].set_selection(vlist[0].get_selection(), src);
+  });
+  hlist[0].on_selection_changed([&](event_source src){
+    hlist[1].set_selection(hlist[0].get_selection(), src);
+  });
 
   auto invalidate_lists = [&] () {
     vlist[0].invalidate();
@@ -151,6 +243,20 @@ int gui_main(const std::vector<std::string>& /*args*/) {
       progress_bars[i].set_value(v);
     });
   }
+
+  edits[0].on_selection_changed([&](event_source src){
+    edits[2].set_selection(edits[0].get_selection(), src);
+  });
+  edits[0].on_content_changed([&](){
+    edits[2].set_text(edits[0].get_text());
+  });
+
+  edits[1].on_selection_changed([&](event_source src){
+    edits[3].set_selection(edits[1].get_selection(), src);
+  });
+  edits[1].on_content_changed([&](){
+    edits[3].set_text(edits[1].get_text());
+  });
 
   main.get_layout().set_center(layout::lay(center));
 
@@ -188,17 +294,23 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   main.on_create([&](){
     tgrid.create(main);
-    hlist[0].create(main);
-    hlist[1].create(main);
+    for (int i = 0; i < header_labels.size(); ++i) {
+      header_labels[i].create(main);
+    }
     vlist[0].create(main);
     vlist[1].create(main);
+    hlist[0].create(main);
+    hlist[1].create(main);
     elist[0].create(main);
     elist[1].create(main);
+    trees[0].create(main);
+    trees[1].create(main);
   });
 
   hlist[1].disable();
   vlist[1].disable();
   elist[1].disable();
+  trees[1].disable();
 
   main.create({50, 50, 800, 600});
   main.on_destroy(&quit_main_loop);

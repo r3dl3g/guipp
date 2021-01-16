@@ -226,8 +226,11 @@ namespace gui {
       }
 
       void edit_base::set_selection (const edit_base::range& sel, event_source) {
-        data.selection = sel;
-        invalidate();
+        if (sel != data.selection) {
+          data.selection = sel;
+          invalidate();
+          notify_event(detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(event_source::logic));
+        }
       }
 
       edit_base::range edit_base::get_selection () const {
@@ -236,20 +239,22 @@ namespace gui {
 
       void edit_base::set_cursor_pos (pos_t pos, bool shift) {
         pos_t new_pos = std::min(pos, get_text_length());
+        auto new_sel = get_selection();
         if (shift) {
-          if (data.cursor_pos == data.selection.end()) {
-            data.selection = {data.selection.begin(), new_pos};
-          } else if (data.cursor_pos == data.selection.begin()) {
-            data.selection = {new_pos, data.selection.end()};
+          if (data.cursor_pos == new_sel.end()) {
+            new_sel = {new_sel.begin(), new_pos};
+          } else if (data.cursor_pos == new_sel.begin()) {
+            new_sel = {new_pos, new_sel.end()};
           } else {
-            data.selection = range(new_pos);
+            new_sel = range(new_pos);
           }
-          data.selection.sort();
+          new_sel.sort();
         } else {
-          data.selection = range(new_pos);
+          new_sel = range(new_pos);
         }
         data.cursor_pos = new_pos;
 
+        set_selection(new_sel, event_source::logic);
         make_selection_visible(true);
       }
 

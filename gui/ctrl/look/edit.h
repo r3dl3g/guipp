@@ -49,7 +49,8 @@ namespace gui {
                                       const core::range<size_t>& selection,
                                       size_t cursor_pos,
                                       size_t scroll_pos,
-                                      bool is_focused);
+                                      bool is_focused,
+                                      bool is_enabled);
 
   } // look
 

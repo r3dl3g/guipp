@@ -351,9 +351,9 @@ namespace gui {
         : super(
           [] (const gui::tree::tree_icon* const& img, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t) {
             if (img) {
-              g.fill(draw::image<gui::tree::tree_icon>(*img, r), item_state::selected == s ? color::highLightColor() : b);
+              g.fill(draw::image<gui::tree::tree_icon>(*img, r), s.is_selected() ? color::highLightColor() : b);
             } else {
-              g.fill(draw::rectangle(r), item_state::selected == s ? color::highLightColor() : b);
+              g.fill(draw::rectangle(r), s.is_selected() ? color::highLightColor() : b);
             }
             draw::frame::lines(g, r);
           },

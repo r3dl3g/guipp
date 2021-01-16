@@ -25,6 +25,7 @@
 #include <gui/draw/brush.h>
 #include <gui/draw/font.h>
 #include <gui/io/pnm.h>
+#include <gui/ctrl/look/control.h>
 #include <gui/ctrl/look/tree.h>
 
 
@@ -115,7 +116,8 @@ namespace gui {
 
     void tree_button (const draw::graphics& graph,
                       const core::rectangle& area,
-                      bool is_open) {
+                      bool is_open,
+                      bool is_disabled) {
 
       core::rectangle r(area.center() - core::size(4, 4), core::size(8, 8));
       if (!r.empty()) {
@@ -129,7 +131,7 @@ namespace gui {
           core::point::type x2 = x + 4;
           p = {core::point(x, r.y()), core::point(x, r.y2()), {x2, r.center_y()}};
         }
-        graph.fill(draw::polygon(p), color::black);
+        graph.fill(draw::polygon(p), is_disabled ? color::light_gray : color::black);
       }
     }
 
@@ -142,23 +144,13 @@ namespace gui {
                     bool has_children,
                     bool is_open,
                     ctrl::item_state state) {
-      switch (state) {
-        case ctrl::item_state::selected:
-          graph.fill(draw::rectangle(area), color::highLightColor());
-          break;
-        case ctrl::item_state::hilited:
-          graph.fill(draw::rectangle(area), color::buttonHighLightColor());
-          break;
-        default:
-          graph.fill(draw::rectangle(area), background);
-          break;
-      }
+      graph.fill(draw::rectangle(area), get_background_color(state, background.color()));
 
       core::rectangle r = area + core::point(core::point::type(depth * 16), 0);
 
       if (has_children) {
         r.width(16);
-        tree_button(graph, r, is_open);
+        tree_button(graph, r, is_open, state.is_disabled());
       }
 
       r += core::point(16, 0);
@@ -171,9 +163,8 @@ namespace gui {
       }
 
       r.x2(area.x2());
-      os::color col = ctrl::item_state::selected == state ? color::highLightTextColor()
-                                                    : color::black;
-      graph.text(draw::text_box(label, r, text_origin_t::vcenter_left), draw::font::system(), col);
+      graph.text(draw::text_box(label, r, text_origin_t::vcenter_left),
+                 draw::font::system(), get_text_color(state));
     }
 
   } // look

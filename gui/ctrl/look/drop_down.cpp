@@ -27,8 +27,9 @@
 #include <gui/draw/brush.h>
 #include <gui/draw/pen.h>
 #include <gui/draw/font.h>
-#include <gui/ctrl/look/drop_down.h>
+#include <gui/ctrl/look/control.h>
 #include <gui/ctrl/look/button.h>
+#include <gui/ctrl/look/drop_down.h>
 #include <gui/io/pnm.h>
 
 
@@ -60,66 +61,12 @@ namespace gui {
 
   namespace look {
 
-    template<>
-    void drop_down_item_t<look_and_feel_t::metal> (const draw::graphics& g,
-                                                   const core::rectangle& r,
-                                                   const draw::brush&,
-                                                   const std::string& t,
-                                                   const ctrl::item_state& s) {
-      os::color col = color::black;
-      if (ctrl::item_state::selected == s) {
-        g.fill(draw::rectangle(r), color::highLightColor());
-        col = color::highLightTextColor();
-      } else if (ctrl::item_state::hilited == s) {
-        g.fill(draw::rectangle(r), color::menuColorHighlight());
-      }
-
-      g.text(draw::text_box(t, r, text_origin_t::vcenter_left), draw::font::system(), col);
-    }
-
-    template<>
-    void drop_down_item_t<look_and_feel_t::w95> (const draw::graphics& g,
-                                                 const core::rectangle& r,
-                                                 const draw::brush& b,
-                                                 const std::string& t,
-                                                 const ctrl::item_state& s) {
-      os::color col = color::black;
-      if (ctrl::item_state::selected == s) {
-        g.fill(draw::rectangle(r), color::highLightColor());
-        col = color::highLightTextColor();
-      } else if (ctrl::item_state::hilited == s) {
-        g.fill(draw::rectangle(r), color::menuColorHighlight());
-      } else {
-        g.fill(draw::rectangle(r), b);
-      }
-
-      g.text(draw::text_box(t, r, text_origin_t::vcenter_left), draw::font::system(), col);
-    }
-
-    template<>
-    void drop_down_item_t<look_and_feel_t::w10> (const draw::graphics& g,
-                                                 const core::rectangle& r,
-                                                 const draw::brush& b,
-                                                 const std::string& t,
-                                                 const ctrl::item_state& s) {
-      drop_down_item_t<look_and_feel_t::w95>(g, r, b, t, s);
-    }
-
-    template<>
-    void drop_down_item_t<look_and_feel_t::osx> (const draw::graphics& g,
-                                                 const core::rectangle& r,
-                                                 const draw::brush& b,
-                                                 const std::string& t,
-                                                 const ctrl::item_state& s) {
-      drop_down_item_t<look_and_feel_t::metal>(g, r, b, t, s);
-    }
-
     void drop_down_item (const draw::graphics& g,
                          const core::rectangle& r,
                          const draw::brush& b,
                          const std::string& t,
                          const ctrl::item_state& s) {
-      drop_down_item_t<>(g, r, b, t, s);
+      text_item(g, r, b, t, s, text_origin_t::vcenter_left);
     }
 
     std::vector<core::point> get_button_poly (const core::rectangle& area, bool is_open) {
@@ -139,7 +86,7 @@ namespace gui {
                                                      const core::rectangle& area,
                                                      const core::button_state::is& state,
                                                      bool is_open) {
-      graph.fill(draw::polygon(get_button_poly(area, is_open)), color::black);
+      graph.fill(draw::polygon(get_button_poly(area, is_open)), state.enabled() ? color::black : color::light_gray);
     }
 
     template<>
@@ -148,7 +95,7 @@ namespace gui {
                                                    const core::button_state::is& state,
                                                    bool is_open) {
       look::button_frame<look_and_feel_t::w95>(graph, area, state);
-      graph.fill(draw::polygon(get_button_poly(area, is_open)), color::black);
+      graph.fill(draw::polygon(get_button_poly(area, is_open)), state.enabled() ? color::black : color::light_gray);
     }
 
     template<>
@@ -156,7 +103,7 @@ namespace gui {
                                                    const core::rectangle& r,
                                                    const core::button_state::is& state,
                                                    bool is_open) {
-      graph.frame(draw::polyline(get_button_poly(r, is_open)), color::black);
+      graph.frame(draw::polyline(get_button_poly(r, is_open)), state.enabled() ? color::black : color::light_gray);
     }
 
     template<>

@@ -41,47 +41,12 @@ namespace gui {
   namespace ctrl {
 
     struct button_state;
-    enum class item_state;
+    struct item_state;
 
   } // ctrl
 
   // --------------------------------------------------------------------------
   namespace look {
-
-    template<look_and_feel_t L = system_look_and_feel>
-    void drop_down_item_t (const draw::graphics&,
-                           const core::rectangle&,
-                           const draw::brush&,
-                           const std::string&,
-                           const ctrl::item_state&);
-
-    template<>
-    GUIPP_LOOK_EXPORT void drop_down_item_t<look_and_feel_t::metal> (const draw::graphics&,
-                                                                     const core::rectangle&,
-                                                                     const draw::brush&,
-                                                                     const std::string&,
-                                                                     const ctrl::item_state&);
-
-    template<>
-    GUIPP_LOOK_EXPORT void drop_down_item_t<look_and_feel_t::w95> (const draw::graphics&,
-                                                                   const core::rectangle&,
-                                                                   const draw::brush&,
-                                                                   const std::string&,
-                                                                   const ctrl::item_state&);
-
-    template<>
-    GUIPP_LOOK_EXPORT void drop_down_item_t<look_and_feel_t::w10> (const draw::graphics&,
-                                                                   const core::rectangle&,
-                                                                   const draw::brush&,
-                                                                   const std::string&,
-                                                                   const ctrl::item_state&);
-
-    template<>
-    GUIPP_LOOK_EXPORT void drop_down_item_t<look_and_feel_t::osx> (const draw::graphics&,
-                                                                   const core::rectangle&,
-                                                                   const draw::brush&,
-                                                                   const std::string&,
-                                                                   const ctrl::item_state&);
 
     GUIPP_LOOK_EXPORT void drop_down_item (const draw::graphics& g,
                                            const core::rectangle& r,

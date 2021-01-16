@@ -319,15 +319,7 @@ namespace gui {
     }
 
     item_state menu_data::get_item_state (int idx) const {
-      if (data.items[idx].is_disabled()) {
-        return item_state::disabled;
-      } else if (get_selection() == idx) {
-        return item_state::selected;
-      } else if (get_hilite() == idx) {
-        return item_state::hilited;
-      } else {
-        return item_state::normal;
-      }
+      return item_state(get_hilite() == idx, get_selection() == idx, data.items[idx].is_disabled());
     }
 
     // --------------------------------------------------------------------------

@@ -43,7 +43,8 @@ namespace gui {
                                      const core::range<core::basic_point<int> >& selection,
                                      const core::basic_point<int>& cursor_pos,
                                      const core::point& offset,
-                                     bool is_focused);
+                                     bool is_focused,
+                                     bool is_enabled);
 
   } // look
 

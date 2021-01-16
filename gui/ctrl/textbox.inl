@@ -72,7 +72,7 @@ namespace gui {
       const auto area = client_area();
       gui::look::text_box(graph, area, data.lines, data.font,
                           fg, bg, align,
-                          data.selection, data.cursor_pos, data.offset, is_focused());
+                          data.selection, data.cursor_pos, data.offset, is_focused(), is_enabled());
       frame(graph, area);
     }
 

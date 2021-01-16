@@ -27,6 +27,7 @@
 #include <gui/draw/pen.h>
 #include <gui/draw/font.h>
 #include <gui/draw/bitmap.h>
+#include <gui/ctrl/look/control.h>
 #include <gui/ctrl/look/menu.h>
 
 
@@ -60,12 +61,14 @@ namespace gui {
       }
     }
 
-    os::color get_menu_color (ctrl::item_state state) {
-      switch (state) {
-        case ctrl::item_state::selected:  return color::highLightTextColor();
-        case ctrl::item_state::disabled:  return color::disabledTextColor();
-        default:                    return color::menuTextColor();
+    os::color get_background_menu_color (ctrl::item_state state, os::color def_color) {
+      if (state.is_selected()) {
+        return color::highLightColor();
       }
+      if (state.is_hilited()) {
+        return color::menuColorHighlight();
+      }
+      return def_color;
     }
 
     // --------------------------------------------------------------------------
@@ -75,20 +78,8 @@ namespace gui {
                          const std::string& label,
                          char menu_key,
                          ctrl::item_state state) {
-      switch (state) {
-        case ctrl::item_state::selected:
-          g.fill(draw::rectangle(r), color::highLightColor());
-          break;
-        case ctrl::item_state::hilited:
-          g.fill(draw::rectangle(r), color::menuColorHighlight());
-          break;
-        default:
-          g.fill(draw::rectangle(r), background);
-          break;
-      }
-
-      core::rectangle r2 = r + core::point(10, 0);
-      draw_menu_label(g, r2, label, menu_key, get_menu_color(state));
+      g.fill(draw::rectangle(r), get_background_menu_color(state, background.color()));
+      draw_menu_label(g, r + core::point(10, 0), label, menu_key, get_text_color(state));
     }
 
     // --------------------------------------------------------------------------
@@ -104,14 +95,14 @@ namespace gui {
                     bool is_sub_menu,
                     bool separator,
                     ctrl::item_state state) {
-      if (ctrl::item_state::selected == state) {
+      if (state.is_selected()) {
         if (separator) {
           g.fill(draw::rectangle(r.with_height(2)), background);
           g.fill(draw::rectangle(r.with_y(r.y() + 2)), color::highLightColor());
         } else {
           g.fill(draw::rectangle(r), color::highLightColor());
         }
-      } else if (ctrl::item_state::hilited == state) {
+      } else if (state.is_hilited()) {
         if (separator) {
           g.fill(draw::rectangle(r.with_height(2)), background);
           g.fill(draw::rectangle(r.with_y(r.y() + 2)), color::menuColorHighlight());
@@ -130,7 +121,7 @@ namespace gui {
         r2 += core::point(0, 2);
       }
 
-      os::color col = get_menu_color(state);
+      os::color col = get_text_color(state);
 
       if (icon) {
         auto sz = icon.image.scaled_size();

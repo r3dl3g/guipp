@@ -226,6 +226,10 @@ namespace gui {
                                                    detail::fast_mul_2(extract<part::blue>(c))));
     }
 
+    constexpr os::color remove_color (os::color c) {
+      return calc_rgb_gray(calc_weight_gray(c));
+    }
+
     constexpr os::color remove_transparency (os::color c) {
       return (c & ~mask<part::alpha>::value);
     }

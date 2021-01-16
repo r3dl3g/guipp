@@ -54,7 +54,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     GUIPP_LOOK_EXPORT void tree_button (const draw::graphics& graph,
                                         const core::rectangle& area,
-                                        bool is_open);
+                                        bool is_open,
+                                        bool is_disabled);
 
     GUIPP_LOOK_EXPORT void tree_node (const draw::graphics& graph,
                                       const core::rectangle& area,

@@ -428,13 +428,13 @@ void my_main_window::onCreated () {
                   const core::rectangle& place,
                   const draw::brush&,
                   item_state state) const override {
-      g.fill(draw::rectangle(place), item_state::selected == state ? color::dark_red
-                                                             : (item_state::selected == state ? color::very_light_gray
-                                                                                              : color::light_gray));
-      if (item_state::selected != state) {
+      g.fill(draw::rectangle(place), state.is_selected() ? color::dark_red
+                                                         : (state.is_hilited() ? color::very_light_gray
+                                                                               : color::light_gray));
+      if (!(state.is_selected())) {
         frame::raised_relief(g, place);
       }
-      g.text(text_box(ostreamfmt("Item " << idx), place, text_origin_t::center), font::system_bold(), item_state::selected == state ? color::light_yellow : color::black);
+      g.text(text_box(ostreamfmt("Item " << idx), place, text_origin_t::center), font::system_bold(), state.is_selected() ? color::light_yellow : color::black);
     }
 
   };

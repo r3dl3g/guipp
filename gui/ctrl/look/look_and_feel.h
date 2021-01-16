@@ -45,7 +45,7 @@ namespace gui {
 #elif unix
       look_and_feel_t::metal;
 #else
-        look_and_feel_t::w95;
+      look_and_feel_t::w95;
 #endif
 
   }

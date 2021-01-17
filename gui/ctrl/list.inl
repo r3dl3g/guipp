@@ -160,7 +160,9 @@ namespace gui {
     inline void basic_list<V, T>::create (win::container& parent,
                                           const core::rectangle& place) {
       super::create(clazz::get(), parent, place);
-      adjust_scroll_bar(place.size());
+      if (!place.empty()) {
+        adjust_scroll_bar(place.size());
+      }
     }
 
     template<orientation_t V, typename T>

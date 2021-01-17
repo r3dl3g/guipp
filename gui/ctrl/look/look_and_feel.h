@@ -38,7 +38,7 @@ namespace gui {
     };
 
     const look_and_feel_t system_look_and_feel =
-#ifndef __APPLE__
+#ifdef __APPLE__
       look_and_feel_t::osx;
 #elif WIN32
       look_and_feel_t::w10;

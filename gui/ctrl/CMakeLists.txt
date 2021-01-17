@@ -44,7 +44,6 @@ if(NOT TARGET gui++-ctrl)
       table.cpp
       textbox.cpp
       tile_view.cpp
-      tree.cpp
   )
 
   file(GLOB INCLUDE_FILES "*.h" "*.inl")

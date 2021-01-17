@@ -25,12 +25,24 @@
 #include <gui/draw/brush.h>
 #include <gui/draw/font.h>
 #include <gui/ctrl/item_state.h>
+#include <gui/ctrl/look/look_and_feel.h>
 #include <gui/ctrl/look/control.h>
 
 
 namespace gui {
 
   namespace look {
+
+
+    template<look_and_feel_t L = system_look_and_feel>
+    os::color disabled_selected_background_color (os::color highLightColor) {
+      return color::remove_color(highLightColor);
+    }
+
+    template<>
+    os::color disabled_selected_background_color<look_and_feel_t::osx> (os::color) {
+      return color::rgb_gray<220>::value;
+    }
 
     os::color get_background_color (ctrl::item_state state, os::color def_color) {
       using i = ctrl::item_state;
@@ -44,11 +56,21 @@ namespace gui {
           return color::highLightColor();
         case i::disabled_selected:
         case i::disabled_hilited_selected:
-          return color::remove_color(color::highLightColor());
+          return disabled_selected_background_color<>(color::highLightColor());
         case i::hilited:
           return color::darker(def_color, 0.05F);
       }
       return def_color;
+    }
+
+    template<look_and_feel_t L = system_look_and_feel>
+    os::color disabled_selected_text_color (os::color highLightColor) {
+      return color::remove_color(highLightColor);
+    }
+
+    template<>
+    os::color disabled_selected_text_color<look_and_feel_t::osx> (os::color) {
+      return color::windowTextColor();
     }
 
     os::color get_text_color (ctrl::item_state state, os::color def_color) {
@@ -64,7 +86,7 @@ namespace gui {
           return color::highLightTextColor();
         case i::disabled_selected:
         case i::disabled_hilited_selected:
-          return color::remove_color(color::highLightTextColor());
+          return disabled_selected_text_color<>(color::highLightTextColor());
         case i::hilited:
           return color::darker(def_color, 0.25F);
       }

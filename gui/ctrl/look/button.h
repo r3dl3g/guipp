@@ -32,6 +32,14 @@
 
 namespace gui {
 
+  namespace draw {
+
+    template<pixel_format_t T>
+    class datamap;
+
+    typedef datamap<pixel_format_t::RGB> rgbmap;
+
+  }
   // --------------------------------------------------------------------------
   namespace look {
 
@@ -42,7 +50,16 @@ namespace gui {
       GUIPP_LOOK_EXPORT os::color get_button_frame_color (const core::button_state::is& state);
       GUIPP_LOOK_EXPORT os::color get_button_frame_color (bool enabled, bool pushed, bool hilited, bool focused);
 
-    }
+    } // namespace win10
+
+    namespace osx {
+
+      GUIPP_LOOK_EXPORT const draw::rgbmap& get_frame ();
+      GUIPP_LOOK_EXPORT const draw::rgbmap& get_disabled_frame ();
+      GUIPP_LOOK_EXPORT const draw::rgbmap& get_focused_frame ();
+      GUIPP_LOOK_EXPORT const draw::rgbmap& get_pressed_frame ();
+
+    } // namespace osx
 
     template<look_and_feel_t L = system_look_and_feel>
     void button_frame (const draw::graphics& graph,

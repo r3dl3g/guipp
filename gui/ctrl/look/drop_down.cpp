@@ -38,6 +38,7 @@ namespace gui {
   namespace image_data {
 
 #   include <gui/ctrl/look/res/osx_dropdown_button.h>
+#   include <gui/ctrl/look/res/osx_dropdown_disabled_button.h>
 
   } // namespace image_data
 
@@ -49,12 +50,14 @@ namespace gui {
     }
 
     draw::rgbmap build_rgb_image (const std::string& data);
+    draw::graymap build_gray_image (const std::string& data);
     template<typename T>
     T upscale (const T& img);
 
-    const draw::rgbmap& get_osx_dropdown_button () {
+    const draw::rgbmap& get_osx_dropdown_button (bool enabled) {
       static draw::rgbmap img = upscale(build_rgb_image(make_string(image_data::osx_dropdown_button)));
-      return img;
+      static draw::rgbmap dis = upscale(build_gray_image(make_string(image_data::osx_dropdown_disabled_button)).convert<pixel_format_t::RGB>());
+      return enabled ? img : dis;
     }
 
   }
@@ -109,9 +112,9 @@ namespace gui {
     template<>
     void drop_down_button_t<look_and_feel_t::osx> (const draw::graphics& graph,
                                                    const core::rectangle& area,
-                                                   const core::button_state::is&,
+                                                   const core::button_state::is& state,
                                                    bool) {
-      const auto& img = detail::get_osx_dropdown_button();
+      const auto& img = detail::get_osx_dropdown_button(state.enabled());
       graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_right), color::buttonColor());
     }
 
@@ -146,11 +149,23 @@ namespace gui {
       button_frame<look_and_feel_t::w10>(graph, area, state);
     }
 
+    void drop_down_frame (const draw::graphics& graph,
+                          const core::rectangle& r,
+                          bool pushed, bool hilite, bool focused) {
+      if (pushed && hilite) {
+        graph.copy(draw::frame_image(r, osx::get_pressed_frame(), 4), r.top_left());
+      } else if (focused) {
+        graph.copy(draw::frame_image(r, osx::get_focused_frame(), 4), r.top_left());
+      } else {
+        graph.copy(draw::frame_image(r, osx::get_frame(), 4), r.top_left());
+      }
+    }
+
     template<>
     void drop_down_t<look_and_feel_t::osx> (const draw::graphics& graph,
                                             const core::rectangle& r,
                                             const core::button_state::is& state) {
-      button_frame<look_and_feel_t::osx>(graph, r, state);
+      drop_down_frame(graph, r, state.pushed(), state.hilited(), state.focused());
     }
 
     void drop_down (const draw::graphics& graph,

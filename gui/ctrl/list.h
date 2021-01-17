@@ -45,13 +45,13 @@ namespace gui {
                                       item_state);
 
     // --------------------------------------------------------------------------
-    template<typename T>
+    template<typename T, text_origin_t O = text_origin_t::vcenter_left>
     void default_list_item_drawer (const T& t,
                                    const draw::graphics& g,
                                    const core::rectangle& place,
                                    const draw::brush& background,
                                    item_state state) {
-      look::text_item(g, place, background, util::string::convert::from<T>(t), state, text_origin_t::vcenter_left);
+      look::text_item(g, place, background, util::string::convert::from<T>(t), state, O);
     }
 
     // --------------------------------------------------------------------------

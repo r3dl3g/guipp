@@ -118,12 +118,14 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   typedef layout_main_window<layout::border::layouter<10, 10, 10, 10, layout::border::type_t::all_symmetric>> main_window_t;
   typedef layout::vertical_lineup<236, 0, 8> center_layout_t;
+  typedef layout::vertical_lineup<40, 0, 8> bottom_layout_t;
   typedef layout::horizontal_adaption<0, 4, 0, 80, 200> center_grid_t;
 
   main_window_t main;
   center_layout_t center;
   top_grid_t tgrid;
   center_grid_t cgrid;
+  center_grid_t bgrid;
 
   std::array<label, 9> info;
 
@@ -146,41 +148,39 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   std::array<edit_list, 2> elist;
   std::array<tree_view, 2> trees;
 
-  std::array<label, 8> header_labels;
-  std::array<header_layout<22>, header_labels.size()> header_layouts;
+  std::array<label, 6> cheader_labels;
+  std::array<header_layout<22>, cheader_labels.size()> cheader_layouts;
 
-  for (int i = 0; i < header_labels.size(); ++i) {
-    header_layouts[i].set_header(layout::lay(header_labels[i]));
-    cgrid.add(layout::lay(header_layouts[i]));
+  for (int i = 0; i < cheader_labels.size(); ++i) {
+    cheader_layouts[i].set_header(layout::lay(cheader_labels[i]));
+    cgrid.add(layout::lay(cheader_layouts[i]));
   }
-  header_layouts[0].set_body(layout::lay(vlist[0]));
-  header_layouts[1].set_body(layout::lay(vlist[1]));
-  header_layouts[2].set_body(layout::lay(hlist[0]));
-  header_layouts[3].set_body(layout::lay(hlist[1]));
-  header_layouts[4].set_body(layout::lay(elist[0]));
-  header_layouts[5].set_body(layout::lay(elist[1]));
-  header_layouts[6].set_body(layout::lay(trees[0]));
-  header_layouts[7].set_body(layout::lay(trees[1]));
 
-  header_labels[0].set_text("Vertical list");
-  header_labels[1].set_text("Disabled");
-  header_labels[2].set_text("Horizontal list");
-  header_labels[3].set_text("Disabled");
-  header_labels[4].set_text("Editable list");
-  header_labels[5].set_text("Disabled");
-  header_labels[6].set_text("Tree");
-  header_labels[7].set_text("Disabled");
+  int i = 0;
+  cheader_layouts[i++].set_body(layout::lay(vlist[0]));
+  cheader_layouts[i++].set_body(layout::lay(vlist[1]));
+  cheader_layouts[i++].set_body(layout::lay(elist[0]));
+  cheader_layouts[i++].set_body(layout::lay(elist[1]));
+  cheader_layouts[i++].set_body(layout::lay(trees[0]));
+  cheader_layouts[i++].set_body(layout::lay(trees[1]));
+
+  i = 0;
+  cheader_labels[i++].set_text("Vertical list");
+  cheader_labels[i++].set_text("Disabled");
+  cheader_labels[i++].set_text("Editable list");
+  cheader_labels[i++].set_text("Disabled");
+  cheader_labels[i++].set_text("Tree");
+  cheader_labels[i++].set_text("Disabled");
 
   std::vector<std::string> edata;
   edata.insert(edata.end(), { "Eins", "Zwei", "Drei", "View", "Fünf", "Sechs", "Sieben", "Acht", "Neun", "Zehn", "Fuß" });
 
   center.add(tgrid);
   center.add(layout::lay(cgrid));
+  center.add(layout::lay(bgrid));
 
   vlist[0].set_data(ctrl::indirect_list_data<std::string>(edata));
   vlist[1].set_data(ctrl::indirect_list_data<std::string>(edata));
-  hlist[0].set_data(ctrl::const_list_data<std::string>({"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}));
-  hlist[1].set_data(ctrl::const_list_data<std::string>({"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"}));
   elist[0].set_data(ctrl::indirect_list_data<std::string>(edata));
   elist[1].set_data(ctrl::indirect_list_data<std::string>(edata));
 
@@ -205,6 +205,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   });
   trees[0].set_root(root);
   trees[1].set_root(root);
+  trees[0].open_all();
   trees[1].open_all();
   trees[0].update_node_list();
   trees[1].update_node_list();
@@ -215,15 +216,34 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   vlist[0].on_selection_changed([&](event_source src){
     vlist[1].set_selection(vlist[0].get_selection(), src);
   });
+
+  std::array<label, 2> bheader_labels;
+  std::array<bottom_layout_t, bheader_labels.size()> bheader_layouts;
+
+  for (int i = 0; i < bheader_labels.size(); ++i) {
+    bheader_layouts[i].add(layout::lay(bheader_labels[i]));
+    bgrid.add(layout::lay(bheader_layouts[i]));
+  }
+
   hlist[0].on_selection_changed([&](event_source src){
     hlist[1].set_selection(hlist[0].get_selection(), src);
   });
 
+  i = 0;
+  bheader_layouts[i++].add(layout::lay(hlist[0]));
+  bheader_layouts[i++].add(layout::lay(hlist[1]));
+
+  i = 0;
+  bheader_labels[i++].set_text("Horizontal list");
+  bheader_labels[i++].set_text("Disabled");
+
+  typedef ctrl::const_list_data<std::string, default_list_item_drawer<std::string, text_origin_t::center>> hlist_data_t;
+  hlist[0].set_data(hlist_data_t({"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}));
+  hlist[1].set_data(hlist_data_t({"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"}));
+
   auto invalidate_lists = [&] () {
     vlist[0].invalidate();
     vlist[1].invalidate();
-    hlist[0].invalidate();
-    hlist[1].invalidate();
     elist[0].invalidate();
     elist[1].invalidate();
   };
@@ -294,23 +314,27 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   main.on_create([&](){
     tgrid.create(main);
-    for (int i = 0; i < header_labels.size(); ++i) {
-      header_labels[i].create(main);
+    for (auto& l : cheader_labels) {
+      l.create(main);
     }
     vlist[0].create(main);
     vlist[1].create(main);
-    hlist[0].create(main);
-    hlist[1].create(main);
     elist[0].create(main);
     elist[1].create(main);
     trees[0].create(main);
     trees[1].create(main);
+
+    for (auto& l : bheader_labels) {
+      l.create(main);
+    }
+    hlist[0].create(main);
+    hlist[1].create(main);
   });
 
-  hlist[1].disable();
   vlist[1].disable();
   elist[1].disable();
   trees[1].disable();
+  hlist[1].disable();
 
   main.create({50, 50, 800, 600});
   main.on_destroy(&quit_main_loop);

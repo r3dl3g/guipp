@@ -183,26 +183,6 @@ namespace gui {
       return disabled ? (active ? dis_on : dis_off) : (active ? on : off);
     }
 
-    const draw::rgbmap& get_osx_frame () {
-      static draw::rgbmap img = build_gray_image(make_string(image_data::osx_frame)).convert<pixel_format_t::RGB>();
-      return img;
-    }
-
-    const draw::rgbmap& get_osx_disabled_frame () {
-      static draw::rgbmap img = build_gray_image(make_string(image_data::osx_frame_disabled)).convert<pixel_format_t::RGB>();
-      return img;
-    }
-
-    const draw::rgbmap& get_osx_default_frame () {
-      static draw::rgbmap img = build_rgb_image(make_string(image_data::osx_frame_default));
-      return img;
-    }
-
-    const draw::rgbmap& get_osx_pressed_frame () {
-      static draw::rgbmap img = build_rgb_image(make_string(image_data::osx_frame_pressed));
-      return img;
-    }
-
     const draw::graymap& get_metal_checkbox (bool active, bool disabled) {
       static draw::graymap off = downscale(build_gray_image(make_string(image_data::metal_check_off)));
       static draw::graymap on = downscale(build_gray_image(make_string(image_data::metal_check_on)));
@@ -223,6 +203,30 @@ namespace gui {
 
   // --------------------------------------------------------------------------
   namespace look {
+
+    namespace osx {
+
+      const draw::rgbmap& get_frame () {
+        static draw::rgbmap img = detail::build_gray_image(detail::make_string(image_data::osx_frame)).convert<pixel_format_t::RGB>();
+        return img;
+      }
+
+      const draw::rgbmap& get_disabled_frame () {
+        static draw::rgbmap img = detail::build_gray_image(detail::make_string(image_data::osx_frame_disabled)).convert<pixel_format_t::RGB>();
+        return img;
+      }
+
+      const draw::rgbmap& get_focused_frame () {
+        static draw::rgbmap img = detail::build_rgb_image(detail::make_string(image_data::osx_frame_default));
+        return img;
+      }
+
+      const draw::rgbmap& get_pressed_frame () {
+        static draw::rgbmap img = detail::build_rgb_image(detail::make_string(image_data::osx_frame_pressed));
+        return img;
+      }
+
+    } // namespace osx
 
     const gui::draw::pen::size_type dot_line_width = 1;
     const draw::pen::Style dot_line_style = draw::pen::Style::dot;
@@ -320,13 +324,13 @@ namespace gui {
                                              const core::rectangle& r,
                                              bool enabled, bool pushed, bool hilite, bool focused) {
       if (!enabled) {
-        graph.copy(draw::frame_image(r, detail::get_osx_disabled_frame(), 4), r.top_left());
-      } else if (pushed) {
-        graph.copy(draw::frame_image(r, detail::get_osx_pressed_frame(), 4), r.top_left());
+        graph.copy(draw::frame_image(r, osx::get_disabled_frame(), 4), r.top_left());
+      } else if (pushed && hilite) {
+        graph.copy(draw::frame_image(r, osx::get_pressed_frame(), 4), r.top_left());
       } else if (focused) {
-        graph.copy(draw::frame_image(r, detail::get_osx_default_frame(), 4), r.top_left());
+        graph.copy(draw::frame_image(r, osx::get_focused_frame(), 4), r.top_left());
       } else {
-        graph.copy(draw::frame_image(r, detail::get_osx_frame(), 4), r.top_left());
+        graph.copy(draw::frame_image(r, osx::get_frame(), 4), r.top_left());
       }
     }
 

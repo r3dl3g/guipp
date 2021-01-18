@@ -93,7 +93,7 @@ namespace gui {
 
         void replace_selection (const std::string& new_text);
         std::string get_text_in_range (const range&) const;
-        std::string get_selected_text () const;
+        virtual std::string get_selected_text () const;
 
         void set_text_filter (text_filter);
         std::string filter_text (const std::string&) const;
@@ -163,6 +163,8 @@ namespace gui {
       basic_pass (basic_pass&& rhs) noexcept ;
 
       void paint (const draw::graphics& graph);
+
+      virtual std::string get_selected_text () const;
 
     private:
       void init ();

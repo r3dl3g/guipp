@@ -188,20 +188,20 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   root.label = "root";
   typedef ctrl::tree::node node;
   root.add_nodes({
-    node("leaf 1"),
-    node("sub 2", {
-      node("sub 2.1", {
-        node("leaf 2.1.1"),
-        node("leaf 2.1.2")
+    node("1 leaf"),
+    node("2 sub", {
+      node("2.1 sub", {
+        node("2.1.1 leaf"),
+        node("2.1.2 leaf")
       }),
-      node("sub 2.2", {
-        node("leaf 2.2.1"),
-        node("leaf 2.2.2"),
-        node("leaf 2.2.3")
+      node("2.2 sub", {
+        node("2.2.1leaf"),
+        node("2.2.2 leaf"),
+        node("2.2.3 leaf")
       }),
-      node("leaf 2.3")
+      node("2.3 leaf")
     }),
-    node("leaf 3")
+    node("3 leaf")
   });
   trees[0].set_root(root);
   trees[1].set_root(root);

@@ -91,6 +91,12 @@ namespace gui {
       super::on_paint(draw::paint(this, &basic_pass::paint));
     }
 
+    template<text_origin_t A, char C, draw::frame::drawer D, os::color F, os::color B>
+    std::string basic_pass<A, C, D, F, B>::get_selected_text () const {
+      auto r = super::get_selection();
+      return std::string(r.size(), C);
+    }
+
   } // ctrl
 
 } // gui

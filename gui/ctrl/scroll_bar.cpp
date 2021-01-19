@@ -32,7 +32,7 @@ namespace gui {
 
     template<>
     float get_param<0, float>(const core::event& e) {
-      return (float)e.wParam;
+      return (float)(e.wParam / 1000000.0);
     }
 
   } // namespace win

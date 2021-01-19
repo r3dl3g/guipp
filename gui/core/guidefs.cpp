@@ -55,13 +55,13 @@ namespace gui {
       case 8: return pixel_format_t::GRAY;
       case 24:
         switch (byte_order_t) {
-          case core::byte_order_t::little_endian: return pixel_format_t::BGR;
-          case core::byte_order_t::big_endian: return pixel_format_t::RGB;
+          case core::byte_order_t::little_endian: return pixel_format_t::RGB;
+          case core::byte_order_t::big_endian: return pixel_format_t::BGR;
         }
       case 32:
         switch (byte_order_t) {
-          case core::byte_order_t::little_endian: return pixel_format_t::BGRA;
-          case core::byte_order_t::big_endian: return pixel_format_t::RGBA;
+          case core::byte_order_t::little_endian: return IF_QT_ELSE(pixel_format_t::RGBA, pixel_format_t::BGRA);
+          case core::byte_order_t::big_endian: return IF_QT_ELSE(pixel_format_t::ABGR, pixel_format_t::ARGB);
         }
     }
     return pixel_format_t::Undefined;

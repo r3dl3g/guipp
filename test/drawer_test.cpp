@@ -10,14 +10,6 @@
 #include <testlib/image_test_lib.h>
 #include <testlib/testlib.h>
 
-#define TEST_CLEAR
-#define TEST_RAW
-#define TEST_LINE
-#define TEST_RECT
-#define TEST_ELLIPSE
-#define TEST_ARC
-#define TEST_ROUND_RECT
-#define TEST_POLYGON
 
 using namespace gui;
 using namespace gui::draw;
@@ -125,7 +117,7 @@ void test_raw_rect () {
   Rectangle(g, r.os_x(), r.os_y(), r.os_x2(), r.os_y2());
 #endif
 #ifdef GUIPP_QT
-  g.os()->drawRect(r.os());
+  g.os()->drawRect(r.os_x(), r.os_y(), r.os_width() - 1, r.os_height() - 1);
 #endif
 
   auto buffer = pixmap2colormap(img);
@@ -142,168 +134,172 @@ static const int degree_360 = 360 * 64;
 
 // --------------------------------------------------------------------------
 void test_raw_ellipse () {
-  [] () {
-    core::global::set_scale_factor(1.0);
-    pixmap img(5, 5);
-    graphics g(img);
-    g.clear(color::black);
-    pen p(color::red);
-    draw::Use<pen> up(g, p);
+  core::global::set_scale_factor(1.0);
+  pixmap img(5, 5);
+  graphics g(img);
+  g.clear(color::black);
+  pen p(color::red);
+  draw::Use<pen> up(g, p);
 
-    core::rectangle r(core::point(1, 1), core::size(3, 3));
+  core::rectangle r(core::point(1, 1), core::size(3, 3));
 #ifdef GUIPP_X11
-    XSetArcMode(core::global::get_instance(), g, ArcChord);
-    XDrawArc(core::global::get_instance(), img, g, 1, 1, 2, 2, 0, degree_360);
+  XSetArcMode(core::global::get_instance(), g, ArcChord);
+  XDrawArc(core::global::get_instance(), img, g, 1, 1, 2, 2, 0, degree_360);
 #endif
 #ifdef GUIPP_WIN
-    SelectObject(g, GetStockObject(NULL_BRUSH));
-    Ellipse(g, r.os_x(), r.os_y(), r.os_x2(), r.os_y2());
+  SelectObject(g, GetStockObject(NULL_BRUSH));
+  Ellipse(g, r.os_x(), r.os_y(), r.os_x2(), r.os_y2());
 #endif
 #ifdef GUIPP_QT
-  g.os()->drawEllipse(r.os());
+  g.os()->drawEllipse(r.os_x(), r.os_y(), r.os_width() - 1, r.os_height() - 1);
 #endif
 
-    auto buffer = pixmap2colormap(img);
-    EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,R,R,R,_},
-                           {_,R,_,R,_},
-                           {_,R,R,R,_},
-                           {_,_,_,_,_}}));
-  } ();
-  [] () {
-    core::global::set_scale_factor(1.0);
-    pixmap img(7, 7);
-    graphics g(img);
-    g.clear(color::black);
-    pen p(color::red);
-    draw::Use<pen> up(g, p);
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
+                           {_, R, R, R, _},
+                           {_, R, _, R, _},
+                           {_, R, R, R, _},
+                           {_, _, _, _, _}}));
+}
 
-    core::rectangle r(core::point(1, 1), core::size(5, 5));
+// --------------------------------------------------------------------------
+void test_raw_ellipse2 () {
+  core::global::set_scale_factor(1.0);
+  pixmap img(7, 7);
+  graphics g(img);
+  g.clear(color::black);
+  pen p(color::red);
+  draw::Use<pen> up(g, p);
+
+  core::rectangle r(core::point(1, 1), core::size(5, 5));
 #ifdef GUIPP_X11
-    XSetArcMode(core::global::get_instance(), g, ArcChord);
-    XDrawArc(core::global::get_instance(), img, g, 1, 1, 4, 4, 0, degree_360);
+  XSetArcMode(core::global::get_instance(), g, ArcChord);
+  XDrawArc(core::global::get_instance(), img, g, r.os_x(), r.os_y(), r.os_width() - 1, r.os_height() - 1, 0, degree_360);
 #endif
 #ifdef GUIPP_WIN
-    SelectObject(g, GetStockObject(NULL_BRUSH));
-    Ellipse(g, r.os_x(), r.os_y(), r.os_x2(), r.os_y2());
+  SelectObject(g, GetStockObject(NULL_BRUSH));
+  Ellipse(g, r.os_x(), r.os_y(), r.os_x2(), r.os_y2());
 #endif
 #ifdef GUIPP_QT
-  g.os()->drawEllipse(r.os());
+  g.os()->drawEllipse(r.os_x(), r.os_y(), r.os_width() - 1, r.os_height() - 1);
 #endif
 
-    auto buffer = pixmap2colormap(img);
-    EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_},
-                           {_,_,R,R,R,_,_},
-                           {_,R,_,_,_,R,_},
-                           {_,R,_,_,_,R,_},
-                           {_,R,_,_,_,R,_},
-                           {_,_,R,R,R,_,_},
-                           {_,_,_,_,_,_,_}
-    }));
-  } ();
-  [] () {
-    core::global::set_scale_factor(1.0);
-    pixmap img(15, 15);
-    graphics g(img);
-    g.clear(color::black);
-    pen p(color::red);
-    draw::Use<pen> up(g, p);
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_},
+                         {_,_,R,R,R,_,_},
+                         {_,R,_,_,_,R,_},
+                         {_,R,_,_,_,R,_},
+                         {_,R,_,_,_,R,_},
+                         {_,_,R,R,R,_,_},
+                         {_,_,_,_,_,_,_}
+  }));
+}
+
+// --------------------------------------------------------------------------
+void test_raw_ellipse3 () {
+  core::global::set_scale_factor(1.0);
+  pixmap img(15, 15);
+  graphics g(img);
+  g.clear(color::black);
+  pen p(color::red);
+  draw::Use<pen> up(g, p);
 
 #ifdef GUIPP_X11
-    XSetArcMode(core::global::get_instance(), g, ArcChord);
-    XDrawArc(core::global::get_instance(), img, g, 3, 3, 8, 8, 0, degree_360);
-    XDrawArc(core::global::get_instance(), img, g, 4, 4, 6, 6, 0, degree_360);
-    XDrawArc(core::global::get_instance(), img, g, 5, 5, 4, 4, 0, degree_360);
+  XSetArcMode(core::global::get_instance(), g, ArcChord);
+  XDrawArc(core::global::get_instance(), img, g, 3, 3, 8, 8, 0, degree_360);
+  XDrawArc(core::global::get_instance(), img, g, 4, 4, 6, 6, 0, degree_360);
+  XDrawArc(core::global::get_instance(), img, g, 5, 5, 4, 4, 0, degree_360);
 
-    constexpr gui::os::color r = R;
+  constexpr gui::os::color r = R;
 #endif
 #ifdef GUIPP_WIN
-    SelectObject(g, GetStockObject(NULL_BRUSH));
-    Ellipse(g, 3, 3, 12, 12);
-    Ellipse(g, 4, 4, 11, 11);
-    Ellipse(g, 5, 5, 10, 10);
+  SelectObject(g, GetStockObject(NULL_BRUSH));
+  Ellipse(g, 3, 3, 12, 12);
+  Ellipse(g, 4, 4, 11, 11);
+  Ellipse(g, 5, 5, 10, 10);
 
-    constexpr gui::os::color r = _;
+  constexpr gui::os::color r = _;
 #endif
 #ifdef GUIPP_QT
-    constexpr gui::os::color r = R;
+  constexpr gui::os::color r = R;
 #endif
 
-    auto buffer = pixmap2colormap(img);
-    EXPECT_EQUAL(buffer, CM({
-      {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-      {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-      {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-      {_,_,_,_,_,r,R,R,R,r,_,_,_,_,_},
-      {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
-      {_,_,_,r,R,R,R,R,R,R,R,r,_,_,_},
-      {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
-      {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
-      {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
-      {_,_,_,r,R,R,R,R,R,R,R,r,_,_,_},
-      {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
-      {_,_,_,_,_,r,R,R,R,r,_,_,_,_,_},
-      {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-      {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-      {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-    }));
-  } ();
-  [] () {
-    core::global::set_scale_factor(3.0);
-    pixmap img(15, 15);
-    graphics g(img);
-    g.clear(color::black);
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, CM({
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,r,R,R,R,r,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,r,R,R,R,R,R,R,R,r,_,_,_},
+    {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
+    {_,_,_,r,R,R,R,R,R,R,R,r,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,r,R,R,R,r,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+  }));
+}
+
+// --------------------------------------------------------------------------
+void test_raw_ellipse4 () {
+  core::global::set_scale_factor(3.0);
+  pixmap img(15, 15);
+  graphics g(img);
+  g.clear(color::black);
 
 #ifdef GUIPP_X11
-    pen p(color::red);
-    draw::Use<pen> up(g, p);
-    XDrawArc(core::global::get_instance(), img, g, 4, 4, 6, 6, 0, degree_360);
+  pen p(color::red);
+  draw::Use<pen> up(g, p);
+  XDrawArc(core::global::get_instance(), img, g, 4, 4, 6, 6, 0, degree_360);
 
-    constexpr gui::os::color r = R;
-    constexpr gui::os::color x = _;
+  constexpr gui::os::color r = R;
+  constexpr gui::os::color x = _;
 #endif
 #ifdef GUIPP_WIN
-    auto hPen = CreatePen(PS_SOLID, 3, color::red);
-    auto hOldPen = SelectObject(g, hPen);
-    auto hBrush = CreateSolidBrush(color::black);
-    auto hOldBrush = SelectObject(g, hBrush);
-    //SetBkMode(g, TRANSPARENT);
-    //auto hOldBrush = SelectObject(g, GetStockObject(NULL_BRUSH));
-    POINT org = {0, 0};
-    GetBrushOrgEx(g, &org);
-    Ellipse(g, 4, 4, 11, 11);
-    SelectObject(g, hOldBrush);
-    //DeleteObject(hBrush);
-    SelectObject(g, hOldPen);
-    DeleteObject(hPen);
+  auto hPen = CreatePen(PS_SOLID, 3, color::red);
+  auto hOldPen = SelectObject(g, hPen);
+  auto hBrush = CreateSolidBrush(color::black);
+  auto hOldBrush = SelectObject(g, hBrush);
+  //SetBkMode(g, TRANSPARENT);
+  //auto hOldBrush = SelectObject(g, GetStockObject(NULL_BRUSH));
+  POINT org = {0, 0};
+  GetBrushOrgEx(g, &org);
+  Ellipse(g, 4, 4, 11, 11);
+  SelectObject(g, hOldBrush);
+  //DeleteObject(hBrush);
+  SelectObject(g, hOldPen);
+  DeleteObject(hPen);
 
-    constexpr gui::os::color r = _;
-    constexpr gui::os::color x = R;
+  constexpr gui::os::color r = _;
+  constexpr gui::os::color x = R;
 #endif
 #ifdef GUIPP_QT
-    constexpr gui::os::color r = R;
-    constexpr gui::os::color x = _;
+  constexpr gui::os::color r = R;
+  constexpr gui::os::color x = _;
 #endif
 
-    auto buffer = pixmap2colormap(img);
-    EXPECT_EQUAL(buffer, CM({
-      {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-      {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-      {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-      {_,_,_,_,_,r,R,R,R,r,_,_,_,_,_},
-      {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
-      {_,_,_,r,R,R,R,R,R,R,R,r,_,_,_},
-      {_,_,_,R,R,R,x,_,x,R,R,R,_,_,_},
-      {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
-      {_,_,_,R,R,R,x,_,x,R,R,R,_,_,_},
-      {_,_,_,r,R,R,R,R,R,R,R,r,_,_,_},
-      {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
-      {_,_,_,_,_,r,R,R,R,r,_,_,_,_,_},
-      {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-      {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-      {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-    }));
-  } ();
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, CM({
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,r,R,R,R,r,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,r,R,R,R,R,R,R,R,r,_,_,_},
+    {_,_,_,R,R,R,x,_,x,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,x,_,x,R,R,R,_,_,_},
+    {_,_,_,r,R,R,R,R,R,R,R,r,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,r,R,R,R,r,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+  }));
 }
 
 // --------------------------------------------------------------------------
@@ -1826,29 +1822,37 @@ void test_frame_ellipse_4x4 () {
 // --------------------------------------------------------------------------
 void test_frame_ellipse_3x3 () {
   tester<draw::ellipse>(1.0F, 5, {0, 0}, {3, 3}, CM({
+#ifdef GUIPP_QT
+    {R,R,R,R,_},
+    {R,_,_,R,_},
+    {R,_,_,R,_},
+    {R,R,R,R,_},
+    {_,_,_,_,_}
+#elif GUIPP_X11
     {_,R,R,_,_},
     {R,_,_,R,_},
     {R,_,_,R,_},
     {_,R,R,_,_},
     {_,_,_,_,_}
+#endif
   }));
 }
 
 // --------------------------------------------------------------------------
 void test_frame_ellipse_2x2 () {
   tester<draw::ellipse>(1.0F, 5, {0, 0}, {2, 2}, CM({
-#ifdef GUIPP_WIN
+#ifdef GUIPP_X11
+    {R,R,R,_,_},
+    {R,_,R,_,_},
+    {R,R,R,_,_},
+    {_,_,_,_,_},
+    {_,_,_,_,_},
+#else
     {_,R,_,_,_},
     {R,_,R,_,_},
     {_,R,_,_,_},
     {_,_,_,_,_},
     {_,_,_,_,_}
-#else
-    {R,R,R,_,_},
-    {R,_,R,_,_},
-    {R,R,R,_,_},
-    {_,_,_,_,_},
-    {_,_,_,_,_},
 #endif
   }));
 }
@@ -1890,8 +1894,8 @@ void test_frame_ellipse_4x4_x2 () {
     {_,_,_,R,R,R,R,R,R,R,R,_,_,_},
     {_,_,_,_,R,R,R,R,R,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-    {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-#else
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_}
+#elif GUIPP_X11
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,R,R,R,R,R,R,_,_,_,_},
@@ -1905,7 +1909,22 @@ void test_frame_ellipse_4x4_x2 () {
     {_,_,_,R,R,R,R,R,R,R,R,_,_,_},
     {_,_,_,_,R,R,R,R,R,R,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_}
+#elif GUIPP_QT
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,R,R,_,_,_,_,R,R,_,_,_},
+    {_,_,R,R,_,_,_,_,_,_,R,R,_,_},
+    {_,_,R,R,_,_,_,_,_,_,R,R,_,_},
+    {_,_,R,R,_,_,_,_,_,_,R,R,_,_},
+    {_,_,R,R,_,_,_,_,_,_,R,R,_,_},
+    {_,_,_,R,R,_,_,_,_,R,R,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_}
 #endif // GUIPP_WIN
   }));
 }
@@ -1926,7 +1945,7 @@ void test_frame_ellipse_3x3_x2 () {
     {_,_,_,R,R,R,R,R,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
-#else
+#elif GUIPP_X11
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,R,R,R,R,R,R,_,_,_},
@@ -1939,6 +1958,19 @@ void test_frame_ellipse_3x3_x2 () {
     {_,_,_,R,R,R,R,R,R,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
+#elif GUIPP_QT
+    {_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,_,_,_,_},
+    {_,_,_,R,R,R,R,R,R,_,_,_},
+    {_,_,R,R,R,_,_,R,R,R,_,_},
+    {_,_,R,R,_,_,_,_,R,R,_,_},
+    {_,_,R,R,_,_,_,_,R,R,_,_},
+    {_,_,R,R,R,_,_,R,R,R,_,_},
+    {_,_,_,R,R,R,R,R,R,_,_,_},
+    {_,_,_,_,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_}
 #endif // GUIPP_WIN
                                                      }));
 }
@@ -1946,6 +1978,18 @@ void test_frame_ellipse_3x3_x2 () {
 // --------------------------------------------------------------------------
 void test_frame_ellipse_2x2_x2 () {
   tester<draw::ellipse>(2.0F, 10, {1, 1}, {3, 3}, CM({
+#ifdef GUIPP_QT
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,R,R,_,_,_,_},
+    {_,_,_,R,R,R,R,_,_,_},
+    {_,_,R,R,_,_,R,R,_,_},
+    {_,_,R,R,_,_,R,R,_,_},
+    {_,_,_,R,R,R,R,_,_,_},
+    {_,_,_,_,R,R,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_}
+#else
     {_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_},
     {_,_,_,R,R,R,R,_,_,_},
@@ -1956,12 +2000,23 @@ void test_frame_ellipse_2x2_x2 () {
     {_,_,_,R,R,R,R,_,_,_},
     {_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_}
+#endif
   }));
 }
 
 // --------------------------------------------------------------------------
 void test_frame_ellipse_1x1_x2 () {
   tester<draw::ellipse>(2.0F, 8, {1, 1}, {2, 2}, CM({
+#ifdef GUIPP_QT
+    {_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_},
+    {_,_,_,R,R,_,_,_},
+    {_,_,R,R,R,R,_,_},
+    {_,_,R,R,R,R,_,_},
+    {_,_,_,R,R,_,_,_},
+    {_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_}
+#else
     {_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_},
     {_,_,R,R,R,R,_,_},
@@ -1970,6 +2025,7 @@ void test_frame_ellipse_1x1_x2 () {
     {_,_,R,R,R,R,_,_},
     {_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_},
+#endif
   }));
 }
 
@@ -2010,7 +2066,29 @@ void test_frame_ellipse_4x4_x3 () {
     {_,_,_,_,_,_,_,_,R,R,R,R,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-#else
+#elif GUIPP_QT
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,R,R,R,R,R,R,R,_,_,_,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,R,R,R,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,R,R,R,_,_,_,_,_,_,_,R,R,R,_,_,_,_},
+    {_,_,_,R,R,R,_,_,_,_,_,_,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,_,_,_,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,_,_,_,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,_,_,_,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,_,_,_,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,_,_,_,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,_,_,_,_,_,_,R,R,R,_,_,_},
+    {_,_,_,_,R,R,R,_,_,_,_,_,_,_,R,R,R,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,_,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,R,R,R,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,_,_,_,R,R,R,R,R,R,R,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
+#elif GUIPP_X11
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2058,7 +2136,26 @@ void test_frame_ellipse_3x3_x3 () {
     {_,_,_,_,_,_,_,_,R,R,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-#else
+#elif GUIPP_QT
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,R,R,R,R,R,R,_,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,R,R,R,_,_,_,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,_,_,_,R,R,R,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,_,R,R,R,R,R,R,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
+#elif GUIPP_X11
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2100,7 +2197,23 @@ void test_frame_ellipse_2x2_x3 () {
     {_,_,_,_,_,_,R,R,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-#else
+#elif GUIPP_QT
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,R,R,R,R,R,R,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,R,R,R,R,R,R,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,_,_,_,R,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
+#elif GUIPP_X11
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2192,22 +2305,38 @@ void test_draw_ellipse_4x4 () {
 // --------------------------------------------------------------------------
 void test_draw_ellipse_3x3 () {
   tester2<draw::ellipse, color::blue, color::red>(1.0F, 5, {0, 0}, {3, 3}, CM({
+#ifdef GUIPP_QT
+    {R,R,R,R,_},
+    {R,B,B,R,_},
+    {R,B,B,R,_},
+    {R,R,R,R,_},
+    {_,_,_,_,_}
+#elif GUIPP_X11
     {_,R,R,_,_},
     {R,B,B,R,_},
     {R,B,B,R,_},
     {_,R,R,_,_},
     {_,_,_,_,_}
+#endif
   }));
 }
 
 // --------------------------------------------------------------------------
 void test_draw_ellipse_2x2 () {
   tester2<draw::ellipse, color::blue, color::red>(1.0F, 5, {1, 1}, {3, 3}, CM({
+#ifdef GUIPP_QT
+    {_,_,_,_,_},
+    {_,_,R,_,_},
+    {_,R,B,R,_},
+    {_,_,R,_,_},
+    {_,_,_,_,_}
+#elif GUIPP_X11
     {_,_,_,_,_},
     {_,R,R,R,_},
     {_,R,B,R,_},
     {_,R,R,R,_},
     {_,_,_,_,_}
+#endif
   }));
 }
 
@@ -2236,6 +2365,22 @@ void test_draw_ellipse_0x0 () {
 // --------------------------------------------------------------------------
 void test_draw_ellipse_4x4_2 () {
   tester2<draw::ellipse, color::blue, color::red>(2.0F, 14, {1, 1}, {5, 5}, CM({
+#ifdef GUIPP_QT
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,R,R,B,B,B,B,R,R,_,_,_},
+    {_,_,R,R,B,B,B,B,B,B,R,R,_,_},
+    {_,_,R,R,B,B,B,B,B,B,R,R,_,_},
+    {_,_,R,R,B,B,B,B,B,B,R,R,_,_},
+    {_,_,R,R,B,B,B,B,B,B,R,R,_,_},
+    {_,_,_,R,R,B,B,B,B,R,R,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_}
+#elif GUIPP_X11
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,R,R,R,R,R,R,_,_,_,_},
@@ -2250,12 +2395,27 @@ void test_draw_ellipse_4x4_2 () {
     {_,_,_,_,R,R,R,R,R,R,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+#endif
   }));
 }
 
 // --------------------------------------------------------------------------
 void test_draw_ellipse_3x3_2 () {
   tester2<draw::ellipse, color::blue, color::red>(2.0F, 12, {1, 1}, {4, 4}, CM({
+#ifdef GUIPP_QT
+    {_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,_,_,_,_},
+    {_,_,_,R,R,R,R,R,R,_,_,_},
+    {_,_,R,R,R,B,B,R,R,R,_,_},
+    {_,_,R,R,B,B,B,B,R,R,_,_},
+    {_,_,R,R,B,B,B,B,R,R,_,_},
+    {_,_,R,R,R,B,B,R,R,R,_,_},
+    {_,_,_,R,R,R,R,R,R,_,_,_},
+    {_,_,_,_,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_}
+#elif GUIPP_X11
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,R,R,R,R,R,R,_,_,_},
@@ -2268,12 +2428,25 @@ void test_draw_ellipse_3x3_2 () {
     {_,_,_,R,R,R,R,R,R,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
+#endif
   }));
 }
 
 // --------------------------------------------------------------------------
 void test_draw_ellipse_2x2_2 () {
   tester2<draw::ellipse, color::blue, color::red>(2.0F, 10, {1, 1}, {3, 3}, CM({
+#ifdef GUIPP_QT
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,R,R,_,_,_,_},
+    {_,_,_,R,R,R,R,_,_,_},
+    {_,_,R,R,B,B,R,R,_,_},
+    {_,_,R,R,B,B,R,R,_,_},
+    {_,_,_,R,R,R,R,_,_,_},
+    {_,_,_,_,R,R,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_}
+#elif GUIPP_X11
     {_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_},
     {_,_,_,R,R,R,R,_,_,_},
@@ -2284,12 +2457,23 @@ void test_draw_ellipse_2x2_2 () {
     {_,_,_,R,R,R,R,_,_,_},
     {_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_}
+#endif
   }));
 }
 
 // --------------------------------------------------------------------------
 void test_draw_ellipse_1x1_2 () {
   tester2<draw::ellipse, color::blue, color::red>(2.0F, 8, {1, 1}, {2, 2}, CM({
+#ifdef GUIPP_QT
+    {_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_},
+    {_,_,_,R,R,_,_,_},
+    {_,_,R,R,R,R,_,_},
+    {_,_,R,R,R,R,_,_},
+    {_,_,_,R,R,_,_,_},
+    {_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_}
+#elif GUIPP_X11
     {_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_},
     {_,_,R,R,R,R,_,_},
@@ -2298,6 +2482,7 @@ void test_draw_ellipse_1x1_2 () {
     {_,_,R,R,R,R,_,_},
     {_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_},
+#endif
   }));
 }
 
@@ -2338,7 +2523,29 @@ void test_draw_ellipse_4x4_3 () {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-#else
+#elif GUIPP_QT
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,R,R,R,R,R,R,R,_,_,_,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,R,R,R,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,R,R,R,B,B,B,B,B,B,B,R,R,R,_,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,_,R,R,R,B,B,B,B,B,B,B,R,R,R,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,B,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,R,R,R,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,_,_,_,R,R,R,R,R,R,R,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
+#elif GUIPP_X11
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2386,7 +2593,26 @@ void test_draw_ellipse_3x3_3 () {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-#else
+#elif GUIPP_QT
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,R,R,R,R,R,R,_,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,_,R,R,R,R,R,R,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
+#elif GUIPP_X11
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2428,7 +2654,23 @@ void test_draw_ellipse_2x2_3 () {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-#else
+#elif GUIPP_QT
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,R,R,R,R,R,R,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,R,R,R,R,R,R,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,_,_,_,R,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
+#elif GUIPP_X11
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2762,12 +3004,21 @@ void test_frame_arc_3x3 () {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,_,R,R,_},
-                           {_,R,_,_,R},
-                           {_,R,_,_,R},
-                           {_,_,R,R,_},
-                          }));
+  EXPECT_EQUAL(buffer, CM({
+#ifdef GUIPP_QT
+    {_,_,_,_,_},
+    {_,R,R,R,R},
+    {_,R,_,_,R},
+    {_,R,_,_,R},
+    {_,R,R,R,R}
+#else
+    {_,_,_,_,_},
+    {_,_,R,R,_},
+    {_,R,_,_,R},
+    {_,R,_,_,R},
+    {_,_,R,R,_},
+#endif
+  }));
 
 }
 // --------------------------------------------------------------------------
@@ -2780,11 +3031,21 @@ void test_frame_arc_2x2 () {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,R,R,R,_},
-                           {_,R,_,R,_},
-                           {_,R,R,R,_},
-                           {_,_,_,_,_}}));
+  EXPECT_EQUAL(buffer, CM({
+#ifdef GUIPP_QT
+    {_,_,_,_,_},
+    {_,_,R,_,_},
+    {_,R,_,R,_},
+    {_,_,R,_,_},
+    {_,_,_,_,_}
+#else
+    {_,_,_,_,_},
+    {_,R,R,R,_},
+    {_,R,_,R,_},
+    {_,R,R,R,_},
+    {_,_,_,_,_}
+#endif
+  }));
 
 }
 // --------------------------------------------------------------------------
@@ -2849,12 +3110,20 @@ void test_fill_arc_3x3 () {
   auto buffer = pixmap2colormap(img);
 
   EXPECT_EQUAL(buffer, CM({
-                           {_,_,_,_,_},
-                           {_,_,R,R,_},
-                           {_,R,R,R,R},
-                           {_,R,R,R,R},
-                           {_,_,R,R,_},
-                          }));
+#ifdef GUIPP_QT
+    {_,_,_,_,_},
+    {_,R,R,R,R},
+    {_,R,R,R,R},
+    {_,R,R,R,R},
+    {_,R,R,R,R}
+#else
+    {_,_,_,_,_},
+    {_,_,R,R,_},
+    {_,R,R,R,R},
+    {_,R,R,R,R},
+    {_,_,R,R,_},
+#endif
+  }));
 
 }
 // --------------------------------------------------------------------------
@@ -2867,11 +3136,21 @@ void test_fill_arc_2x2 () {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,R,R,R,_},
-                           {_,R,R,R,_},
-                           {_,R,R,R,_},
-                           {_,_,_,_,_}}));
+  EXPECT_EQUAL(buffer, CM({
+#ifdef GUIPP_QT
+    {_,_,_,_,_},
+    {_,_,R,_,_},
+    {_,R,R,R,_},
+    {_,_,R,_,_},
+    {_,_,_,_,_}
+#else
+    {_,_,_,_,_},
+    {_,R,R,R,_},
+    {_,R,R,R,_},
+    {_,R,R,R,_},
+    {_,_,_,_,_}
+#endif
+  }));
 
 }
 // --------------------------------------------------------------------------
@@ -2932,12 +3211,21 @@ void test_draw_arc_3x3 () {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,_,R,R,_},
-                           {_,R,B,B,R},
-                           {_,R,B,B,R},
-                           {_,_,R,R,_},
-                          }));
+  EXPECT_EQUAL(buffer, CM({
+#ifdef GUIPP_QT
+    {_,_,_,_,_},
+    {_,R,R,R,R},
+    {_,R,B,B,R},
+    {_,R,B,B,R},
+    {_,R,R,R,R}
+#else
+    {_,_,_,_,_},
+    {_,_,R,R,_},
+    {_,R,B,B,R},
+    {_,R,B,B,R},
+    {_,_,R,R,_},
+#endif
+  }));
 }
 // --------------------------------------------------------------------------
 void test_draw_arc_2x2 () {
@@ -2949,11 +3237,21 @@ void test_draw_arc_2x2 () {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,R,R,R,_},
-                           {_,R,B,R,_},
-                           {_,R,R,R,_},
-                           {_,_,_,_,_}}));
+  EXPECT_EQUAL(buffer, CM({
+#ifdef GUIPP_QT
+    {_,_,_,_,_},
+    {_,_,R,_,_},
+    {_,R,B,R,_},
+    {_,_,R,_,_},
+    {_,_,_,_,_}
+#else
+    {_,_,_,_,_},
+    {_,R,R,R,_},
+    {_,R,B,R,_},
+    {_,R,R,R,_},
+    {_,_,_,_,_}
+#endif
+  }));
 }
 // --------------------------------------------------------------------------
 void test_draw_arc_1x1 () {
@@ -3327,6 +3625,15 @@ void test_clear_blue () {
 void test_clear_white () {
   test_clear_color(W);
 }
+
+#define TEST_CLEAR
+#define TEST_RAW
+#define TEST_LINE
+#define TEST_RECT
+#define TEST_ELLIPSE
+#define TEST_ARC
+#define TEST_ROUND_RECT
+#define TEST_POLYGON
 
 // --------------------------------------------------------------------------
 void test_main (const testing::start_params& params) {

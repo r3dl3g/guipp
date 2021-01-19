@@ -104,7 +104,15 @@ namespace gui {
         case QImage::Format_Grayscale8: return pixel_format_t::GRAY;
         case QImage::Format_RGB888: return pixel_format_t::RGB;
         case QImage::Format_RGBA8888: return pixel_format_t::RGBA;
+#if QT_VERSION > QT_VERSION_CHECK(5, 14, 0)
+        case QImage::Format_BGR888: return pixel_format_t::BGR;
+#endif
         case QImage::Format_ARGB32: return pixel_format_t::ARGB;
+        case QImage::Format_RGB32:
+          switch (core::os::bitmap_byte_order) {
+            case core::byte_order_t::little_endian: return pixel_format_t::BGRA;
+            case core::byte_order_t::big_endian: return pixel_format_t::ARGB;
+          }
         default:
           return pixel_format_t::RGBA;
       }

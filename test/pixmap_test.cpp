@@ -152,6 +152,70 @@ void test_qbitmap2qimage () {
 
 
 // --------------------------------------------------------------------------
+void test_byte_order_in_rgba () {
+  pixel::rgba rgba = pixel::rgba::build(color::red);
+  EXPECT_EQUAL(rgba.red, 255);
+  EXPECT_EQUAL(rgba.green, 0);
+  EXPECT_EQUAL(rgba.blue, 0);
+  EXPECT_EQUAL(rgba.alpha, 0);
+
+  gui::byte quad[4];
+  memcpy(quad, &rgba, sizeof(rgba));
+  EXPECT_EQUAL(quad[0], 255);
+  EXPECT_EQUAL(quad[1], 0);
+  EXPECT_EQUAL(quad[2], 0);
+  EXPECT_EQUAL(quad[3], 0);
+}
+
+// --------------------------------------------------------------------------
+void test_byte_order_in_argb () {
+  pixel::argb rgba = pixel::argb::build(color::red);
+  EXPECT_EQUAL(rgba.red, 255);
+  EXPECT_EQUAL(rgba.green, 0);
+  EXPECT_EQUAL(rgba.blue, 0);
+  EXPECT_EQUAL(rgba.alpha, 0);
+
+  gui::byte quad[4];
+  memcpy(quad, &rgba, sizeof(rgba));
+  EXPECT_EQUAL(quad[0], 0);
+  EXPECT_EQUAL(quad[1], 255);
+  EXPECT_EQUAL(quad[2], 0);
+  EXPECT_EQUAL(quad[3], 0);
+}
+
+// --------------------------------------------------------------------------
+void test_byte_order_in_bgra () {
+  pixel::bgra rgba = pixel::bgra::build(color::red);
+  EXPECT_EQUAL(rgba.red, 255);
+  EXPECT_EQUAL(rgba.green, 0);
+  EXPECT_EQUAL(rgba.blue, 0);
+  EXPECT_EQUAL(rgba.alpha, 0);
+
+  gui::byte quad[4];
+  memcpy(quad, &rgba, sizeof(rgba));
+  EXPECT_EQUAL(quad[0], 0);
+  EXPECT_EQUAL(quad[1], 0);
+  EXPECT_EQUAL(quad[2], 255);
+  EXPECT_EQUAL(quad[3], 0);
+}
+
+// --------------------------------------------------------------------------
+void test_byte_order_in_abgr () {
+  pixel::abgr rgba = pixel::abgr::build(color::red);
+  EXPECT_EQUAL(rgba.red, 255);
+  EXPECT_EQUAL(rgba.green, 0);
+  EXPECT_EQUAL(rgba.blue, 0);
+  EXPECT_EQUAL(rgba.alpha, 0);
+
+  gui::byte quad[4];
+  memcpy(quad, &rgba, sizeof(rgba));
+  EXPECT_EQUAL(quad[0], 0);
+  EXPECT_EQUAL(quad[1], 0);
+  EXPECT_EQUAL(quad[2], 0);
+  EXPECT_EQUAL(quad[3], 255);
+}
+
+// --------------------------------------------------------------------------
 void test_bitmap_black () {
   core::global::set_scale_factor(1.0);
 
@@ -680,6 +744,11 @@ void test_main (const testing::start_params& params) {
   run_test(test_qbitmap2qimage);
   run_test(test_qimage2qpixmap);
 #endif //GUIPP_QT
+
+  run_test(test_byte_order_in_rgba);
+  run_test(test_byte_order_in_argb);
+  run_test(test_byte_order_in_bgra);
+  run_test(test_byte_order_in_abgr);
 
   run_test(test_bitmap_black);
   run_test(test_bitmap_white);

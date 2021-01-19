@@ -88,8 +88,10 @@ namespace gui {
     inline os::point calc_arc_point (const os::point& pt,
                                      const os::size& sz,
                                      double a) {
-      return os::point{short(os::get_x(pt) + os::get_width(sz) * cos(a)),
-                       short(os::get_y(pt) - os::get_height(sz) * sin(a))};
+      const auto ca = cos(a);
+      const auto sa = sin(a);
+      return os::point{(short)round(os::get_x(pt) + os::get_width(sz) * ca),
+                       (short)round(os::get_y(pt) - os::get_height(sz) * sa)};
     }
 
     os::size arc_coords::radius () const {
@@ -1191,10 +1193,10 @@ namespace gui {
         const auto x1 = to.os_x();
         const auto y1 = to.os_y();
 
-        const auto x0off = (x1 < x0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
-        const auto y0off = (y1 < y0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
-        const auto x1off = (x1 > x0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
-        const auto y1off = (y1 > y0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
+        const auto x0off = (x1 < x0) && (y1 != y0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
+        const auto y0off = (y1 < y0) && (x1 != x0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
+        const auto x1off = (x1 > x0) && (y1 != y0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
+        const auto y1off = (y1 > y0) && (x1 != x0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
 
         g.os()->drawLine(x0 + x0off, y0 + y0off, x1 + x1off, y1 + y1off);
       }
@@ -1460,8 +1462,11 @@ namespace gui {
     template<>
     void arc_or_pie<arc_type::pie>::operator() (const graphics& g,
                                                 const brush& b) const {
-      Use<pen> pn(g, b.color());
-      fill_arc<arc_type::pie>(g, arc_coords(rect, start_angle, end_angle), b);
+      arc_coords c(rect, start_angle, end_angle);
+      pen pn(b.color());
+      Use<pen> upn(g, pn);
+      fill_arc<arc_type::pie>(g, c, b);
+      draw_arc<arc_type::pie>(g, c, pn);
     }
 
     template<>

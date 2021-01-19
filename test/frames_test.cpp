@@ -172,13 +172,21 @@ void test_dots_frame () {
     {W,W,W,W,W,W,W},
     {W,_,W,_,W,_,W},
     {W,W,W,W,W,W,W},
-#else
+#elif GUIPP_X11
     {W,W,W,W,W,W,W},
     {W,_,W,_,W,_,W},
     {W,_,W,W,W,W,W},
     {W,W,W,W,W,_,W},
     {W,_,W,W,W,W,W},
     {W,W,_,W,_,W,W},
+    {W,W,W,W,W,W,W}
+#elif GUIPP_QT
+    {W,W,W,W,W,W,W},
+    {W,_,_,W,W,_,W},
+    {W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W},
+    {W,_,W,W,W,_,W},
+    {W,W,W,_,W,W,W},
     {W,W,W,W,W,W,W}
 #endif // GUIPP_WIN
   }));
@@ -203,7 +211,7 @@ void test_dots_frame_x2 () {
     {W,W,_,_,W,W,_,_,W,W,_,_,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-#else
+#elif GUIPP_X11
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,_,W,_,W,_,W,_,W,W,W,W},
@@ -216,6 +224,21 @@ void test_dots_frame_x2 () {
     {W,W,W,W,W,W,W,W,W,W,_,_,W,W},
     {W,W,_,_,_,W,_,W,_,W,_,W,W,W},
     {W,W,W,W,_,W,_,W,_,W,_,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W}
+#elif GUIPP_QT
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,_,_,W,W,W,W,_,_,W,W,W},
+    {W,W,_,_,_,W,W,W,W,_,_,W,W,W},
+    {W,W,_,_,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,_,_,W,W},
+    {W,W,W,W,W,W,W,W,W,W,_,_,W,W},
+    {W,W,_,_,W,W,W,W,W,W,W,W,W,W},
+    {W,W,_,_,W,W,W,_,_,W,W,W,W,W},
+    {W,W,W,W,W,W,W,_,_,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W}
 #endif // GUIPP_WIN
@@ -248,7 +271,7 @@ void test_dots_frame_x3 () {
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-#else
+#elif GUIPP_X11
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
@@ -270,6 +293,28 @@ void test_dots_frame_x3 () {
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
     {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+#elif GUIPP_QT
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,_,_,_,W,W,W,W,W,W,_,_,_,W,W,W,W,W},
+    {W,W,W,_,_,_,_,W,W,W,W,W,W,_,_,_,W,W,W,W,W},
+    {W,W,W,_,_,_,_,W,W,W,W,W,W,_,_,_,W,W,W,W,W},
+    {W,W,W,_,_,_,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W},
+    {W,W,W,_,_,_,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,_,_,_,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,_,_,_,W,W,W,W,_,_,_,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W}
 #endif // GUIPP_WIN
   }));
 }

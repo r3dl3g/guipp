@@ -288,12 +288,7 @@ namespace gui {
       if (id) {
         pixel_format_t fmt = pixel_format_t::RGBA;
         const auto depth = id->depth();
-        switch (depth) {
-          case 1: fmt = pixel_format_t::BW;   break;
-          case 8: fmt = pixel_format_t::GRAY; break;
-          case 24: fmt = pixel_format_t::RGB; break;
-//          case 32: fmt = pixel_format_t::RGBA;
-        }
+        fmt = gui::get_pixel_format(depth, core::os::bitmap_byte_order);
         return draw::bitmap_info(id->width(), id->height(), fmt);
       }
       return {};

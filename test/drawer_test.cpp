@@ -3003,8 +3003,7 @@ void test_frame_arc_3x3 () {
   graphics(img).clear(color::black).frame(draw::pie(core::point(2, 2), 1.5, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
-
-  EXPECT_EQUAL(buffer, CM({
+  auto expected = CM({
 #ifdef GUIPP_QT
     {_,_,_,_,_},
     {_,R,R,R,R},
@@ -3016,11 +3015,12 @@ void test_frame_arc_3x3 () {
     {_,_,R,R,_},
     {_,R,_,_,R},
     {_,R,_,_,R},
-    {_,_,R,R,_},
+    {_,_,R,R,_}
 #endif
-  }));
-
+  });
+  EXPECT_EQUAL(buffer, expected);
 }
+
 // --------------------------------------------------------------------------
 void test_frame_arc_2x2 () {
   core::global::set_scale_factor(1.0);
@@ -3030,8 +3030,7 @@ void test_frame_arc_2x2 () {
   graphics(img).clear(color::black).frame(draw::pie(core::point(2, 2), 1, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
-
-  EXPECT_EQUAL(buffer, CM({
+  auto expected = CM({
 #ifdef GUIPP_QT
     {_,_,_,_,_},
     {_,_,R,_,_},
@@ -3045,7 +3044,8 @@ void test_frame_arc_2x2 () {
     {_,R,R,R,_},
     {_,_,_,_,_}
 #endif
-  }));
+  });
+  EXPECT_EQUAL(buffer, expected);
 
 }
 // --------------------------------------------------------------------------
@@ -3108,8 +3108,7 @@ void test_fill_arc_3x3 () {
   graphics(img).clear(color::black).fill(draw::pie(core::point(2, 2), 1.5, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
-
-  EXPECT_EQUAL(buffer, CM({
+  auto expected = CM({
 #ifdef GUIPP_QT
     {_,_,_,_,_},
     {_,R,R,R,R},
@@ -3123,7 +3122,8 @@ void test_fill_arc_3x3 () {
     {_,R,R,R,R},
     {_,_,R,R,_},
 #endif
-  }));
+  });
+  EXPECT_EQUAL(buffer, expected);
 
 }
 // --------------------------------------------------------------------------
@@ -3135,8 +3135,7 @@ void test_fill_arc_2x2 () {
   graphics(img).clear(color::black).fill(draw::pie(core::point(2, 2), 1, 0, 360), color::red);
 
   auto buffer = pixmap2colormap(img);
-
-  EXPECT_EQUAL(buffer, CM({
+  auto expected = CM({
 #ifdef GUIPP_QT
     {_,_,_,_,_},
     {_,_,R,_,_},
@@ -3150,7 +3149,8 @@ void test_fill_arc_2x2 () {
     {_,R,R,R,_},
     {_,_,_,_,_}
 #endif
-  }));
+  });
+  EXPECT_EQUAL(buffer, expected);
 
 }
 // --------------------------------------------------------------------------
@@ -3210,8 +3210,7 @@ void test_draw_arc_3x3 () {
   graphics(img).clear(color::black).draw(draw::pie(core::point(2, 2), 1.5, 0, 360), color::blue, color::red);
 
   auto buffer = pixmap2colormap(img);
-
-  EXPECT_EQUAL(buffer, CM({
+  auto expected = CM({
 #ifdef GUIPP_QT
     {_,_,_,_,_},
     {_,R,R,R,R},
@@ -3225,7 +3224,9 @@ void test_draw_arc_3x3 () {
     {_,R,B,B,R},
     {_,_,R,R,_},
 #endif
-  }));
+  });
+  EXPECT_EQUAL(buffer, expected);
+
 }
 // --------------------------------------------------------------------------
 void test_draw_arc_2x2 () {
@@ -3236,8 +3237,7 @@ void test_draw_arc_2x2 () {
   graphics(img).clear(color::black).draw(draw::pie(core::point(2, 2), 1, 0, 360), color::blue, color::red);
 
   auto buffer = pixmap2colormap(img);
-
-  EXPECT_EQUAL(buffer, CM({
+  auto expected = CM({
 #ifdef GUIPP_QT
     {_,_,_,_,_},
     {_,_,R,_,_},
@@ -3251,7 +3251,9 @@ void test_draw_arc_2x2 () {
     {_,R,R,R,_},
     {_,_,_,_,_}
 #endif
-  }));
+  });
+  EXPECT_EQUAL(buffer, expected);
+
 }
 // --------------------------------------------------------------------------
 void test_draw_arc_1x1 () {

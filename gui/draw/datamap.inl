@@ -226,6 +226,9 @@ namespace gui {
     inline datamap<pixel_format_t::BW> datamap<T>::get_mask (pixel::gray limit) const {
       datamap<pixel_format_t::BW> img(info.size());
       convert::format::mask<T, pixel_format_t::BW>(get_data(), img.get_data(), info.width, info.height, limit);
+      if (!core::os::bitmap_bit_white) {
+        img.invert();
+      }
       return img;
     }
 

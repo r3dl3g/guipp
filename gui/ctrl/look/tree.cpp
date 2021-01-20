@@ -66,10 +66,6 @@ namespace gui {
       bwmap mask;
       std::istringstream in(get_icon_chars(type));
       io::load_pnm(in, mask);
-#ifdef GUIPP_WIN
-      mask.invert();
-#endif // GUIPP_WIN
-
 
       if (core::global::get_scale_factor() != 1.0) {
         bwmap rhs = mask;

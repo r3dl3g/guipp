@@ -268,15 +268,9 @@ void test_bitmap_get_image_mask () {
 
     XSetClipMask(display, gc, None);
 #elif GUIPP_WIN
-    mask.invert();
     HDC mask_dc = CreateCompatibleDC(gc);
     SelectObject(mask_dc, mask.get_id());
-    //HDC img_dc = CreateCompatibleDC(gc);
-    //SelectObject(img_dc, pix.get_id());
-
     BitBlt(gc, 0, 0, 20, 20, mask_dc, 0, 0, SRCAND);
-    //BitBlt(gc, 0, 0, 20, 20, img_dc, 0, 0, SRCPAINT);
-    //DeleteDC(img_dc);
     DeleteDC(mask_dc);
 #elif GUIPP_QT
     gc.os()->setClipRegion(QRegion((QBitmap&)*mask.get_id()));
@@ -427,6 +421,7 @@ void test_masked_from_pixmap () {
     for (uint32_t y = 0; y < 5; ++y) {
       for (uint32_t x = 0; x < 5; ++x) {
         const auto expected = gui::color::system_bw_colors::value[expected_bw_color[x][y] == color::white];
+        //const auto expected = expected_bw_color[x][y];
         const os::color test = color::remove_transparency(g.get_pixel({static_cast<int>(x), static_cast<int>(y)}));
         EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
       }
@@ -526,8 +521,8 @@ void test_file_icon () {
     draw::graphics g(img);
     for (int32_t y = 0; y < 20; ++y) {
       for (int32_t x = 0; x < 20; ++x) {
-        const os::color expected = expected_bit_at_inv(x, y) ? color::black : color::white;
-            //gui::color::system_bw_colors::value[expected_bit_at_inv(x, y)];
+        //const os::color expected = expected_bit_at_inv(x, y) ? color::black : color::white;
+        const os::color expected = gui::color::system_bw_colors::value[!expected_bit_at_inv(x, y)];
         const os::color test = color::remove_transparency(g.get_pixel({x, y}));
         EXPECT_EQUAL(test, expected, " in test_file_icon at x = ", x, ", y = ", y);
       }

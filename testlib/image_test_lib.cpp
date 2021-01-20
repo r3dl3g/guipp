@@ -116,6 +116,11 @@ namespace testing {
     if (res != data.size()) {
       std::cerr << "GetBitmapBits returned " << res << " expected:" << data.size() << std::endl;
     }
+    //if (1 == bmp.bmBitsPixel) { // Windows bitmaps are inverted
+    //  for (auto& c : data) {
+    //    c = ~c;
+    //  }
+    //}
     return data2colormap((const char*)data.data(), bmp.bmBitsPixel, bmp.bmWidthBytes, bmp.bmWidth, bmp.bmHeight);
 #elif GUIPP_QT
     QImage img = map.get_id()->toImage();

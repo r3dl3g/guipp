@@ -269,8 +269,8 @@ namespace gui {
       if (id) {
         RECT s;
         GetWindowRect(id, &s);
-        r.width(s.right - s.left);
-        r.height(s.top - s.bottom);
+        r.width(std::abs(s.right - s.left));
+        r.height(std::abs(s.bottom - s.top));
       } else {
         HGDIOBJ hBmp = GetCurrentObject(gc, OBJ_BITMAP);
         if (hBmp) {

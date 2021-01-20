@@ -1466,6 +1466,7 @@ namespace gui {
       pen pn(b.color());
       Use<pen> upn(g, pn);
       fill_arc<arc_type::pie>(g, c, b);
+      Use<brush> br(g, brush::invisible);
       draw_arc<arc_type::pie>(g, c, pn);
     }
 

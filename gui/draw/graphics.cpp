@@ -856,7 +856,7 @@ namespace gui {
 #ifndef GUIPP_QT
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) const {
       if (bmp) {
-        if (bmp.depth() == depth()) {
+        if (bmp.get_info().bits_per_pixel() == depth()) {
           return copy_from(static_cast<const os::drawable&>(bmp), src, pt);
         } else {
           switch (depth()) {
@@ -876,7 +876,7 @@ namespace gui {
 
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_rect& src, const core::native_point& pt) const {
       if (bmp) {
-        if (bmp.depth() == depth()) {
+        if (bmp.get_info().bits_per_pixel() == depth()) {
           return copy_from(static_cast<const os::drawable&>(bmp), src, pt);
         } else {
           switch (depth()) {

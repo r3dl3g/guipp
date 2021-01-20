@@ -440,7 +440,46 @@ void test_masked_from_pixmap () {
       }
     }
   }
+}
 
+void test_pixmap2colormap () {
+  draw::pixmap img({8, 8});
+  draw::graphics(img).clear(color::red);
+
+  EXPECT_EQUAL(pixmap2colormap(img), CM(
+    {
+      {R,R,R,R,R,R,R,R},
+      {R,R,R,R,R,R,R,R},
+      {R,R,R,R,R,R,R,R},
+      {R,R,R,R,R,R,R,R},
+      {R,R,R,R,R,R,R,R},
+      {R,R,R,R,R,R,R,R},
+      {R,R,R,R,R,R,R,R},
+      {R,R,R,R,R,R,R,R}
+    }
+  ));
+}
+
+void test_text_pixmap () {
+  draw::pixmap img({10, 10});
+  draw::text_box box("+", {0, 0, 10, 10}, text_origin_t::center);
+  draw::graphics(img).clear(color::black).text(box, draw::font::system_bold(), color::blue);
+
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, CM(
+    {
+      {_,_,_,_,_,_,_,_,_,_},
+      {_,_,_,_,_,_,_,_,_,_},
+      {_,_,_,_,B,B,_,_,_,_},
+      {_,_,_,_,B,B,_,_,_,_},
+      {_,_,_,_,B,B,_,_,_,_},
+      {_,_,B,B,B,B,B,B,_,_},
+      {_,_,_,_,B,B,_,_,_,_},
+      {_,_,_,_,B,B,_,_,_,_},
+      {_,_,_,_,B,B,_,_,_,_},
+      {_,_,_,_,_,_,_,_,_,_}
+    }
+  ));
 }
 
 // --------------------------------------------------------------------------
@@ -585,6 +624,8 @@ void test_main (const testing::start_params& params) {
   run_test(test_masked_bitmap);
   run_test(test_file_icon);
   run_test(test_file_icon_selected);
+  run_test(test_pixmap2colormap);
+  run_test(test_text_pixmap);
 }
 
 // --------------------------------------------------------------------------

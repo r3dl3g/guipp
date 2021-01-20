@@ -55,6 +55,24 @@ namespace testing {
     return pixmap_str(i);
   }
 
+#ifdef WIN32
+  inline uint32_t flip_rgb (uint32_t n) {
+    uint32_t flipped = ((n & 0xff) << 16) | (n & 0xff00) | ((n & 0xff0000) >> 16) | ((n & 0xff000000));
+    return flipped;
+  }
+  inline uint32_t flip_rgba (uint32_t n) {
+    uint32_t flipped = ((n & 0xff) << 16) | (n & 0xff00) | ((n & 0xff0000) >> 16) | ((n & 0xff000000));
+    return flipped;
+  }
+#else
+  inline uint32_t flip_rgb (uint32_t c) {
+    return c;
+  }
+  inline uint32_t flip_rgba (uint32_t c) {
+    return c;
+  }
+#endif // WIN32
+
   // --------------------------------------------------------------------------
   colormap data2colormap (char const* raw_data, const int bits_per_pixel, const int bytes_per_line, const int width, const int height) {
     colormap result;
@@ -66,12 +84,12 @@ namespace testing {
       switch (bits_per_pixel) {
         case 32:
           for (int x = 0; x < width * 4; x += 4) {
-            line.push_back(*reinterpret_cast<const uint32_t*>(raw_data + y_offset + x));
+            line.push_back(flip_rgba(*reinterpret_cast<const uint32_t*>(raw_data + y_offset + x)));
           }
           break;
         case 24:
           for (int x = 0; x < width * 3; x += 3) {
-            line.push_back(*reinterpret_cast<const uint32_t*>(raw_data + y_offset + x) & 0x00ffffff);
+            line.push_back(flip_rgb(*reinterpret_cast<const uint32_t*>(raw_data + y_offset + x) & 0x00ffffff));
           }
           break;
         case 8:
@@ -116,11 +134,6 @@ namespace testing {
     if (res != data.size()) {
       std::cerr << "GetBitmapBits returned " << res << " expected:" << data.size() << std::endl;
     }
-    //if (1 == bmp.bmBitsPixel) { // Windows bitmaps are inverted
-    //  for (auto& c : data) {
-    //    c = ~c;
-    //  }
-    //}
     return data2colormap((const char*)data.data(), bmp.bmBitsPixel, bmp.bmWidthBytes, bmp.bmWidth, bmp.bmHeight);
 #elif GUIPP_QT
     QImage img = map.get_id()->toImage();

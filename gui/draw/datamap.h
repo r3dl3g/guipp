@@ -63,6 +63,11 @@ namespace gui {
       }
 
       template<pixel_format_t S>
+      const const_image_data<S> const_reinterpret () {
+        return const_image_data<S>(core::array_wrapper<const byte>(data), info);
+      }
+
+      template<pixel_format_t S>
       const image_data<S> reinterpret () {
         return image_data<S>(core::array_wrapper<byte>(data), info);
       }
@@ -109,6 +114,10 @@ namespace gui {
                       const core::native_point& dest_pt);
 
       const_image_data<T> get_data () const {
+        return super::const_reinterpret<T>();
+      }
+
+      const_image_data<T> get_const_data () {
         return super::const_reinterpret<T>();
       }
 

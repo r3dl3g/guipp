@@ -445,10 +445,17 @@ namespace gui {
 
     void bitmap::operator= (const bwmap& rhs) {
       if (rhs) {
-        const auto raw = rhs.get_data();
-        const auto& bmi = raw.get_info();
+        const auto& bmi = rhs.get_info();
         create(bmi.size());
-        bitmap_put_data(get_id(), raw.raw_data().data(0, bmi.mem_size()), bmi);
+        if (core::os::bitmap_bit_white) {
+          const auto raw = rhs.get_data();
+          bitmap_put_data(get_id(), raw.raw_data().data(0, bmi.mem_size()), bmi);
+        } else {
+          bwmap data = rhs;
+          data.invert();
+          const auto raw = data.get_const_data();
+          bitmap_put_data(get_id(), raw.raw_data().data(0, bmi.mem_size()), bmi);
+        }
       } else {
         clear();
       }
@@ -459,9 +466,9 @@ namespace gui {
       bitmap_info bmi;
       bitmap_get_data(get_id(), data, bmi);
       bwmap bmp(std::move(data), std::move(bmi));
-#if GUIPP_WIN
-      bmp.invert();
-#endif //GUIPP_WIN
+      if (!core::os::bitmap_bit_white) {
+        bmp.invert();
+      }
       return bmp;
     }
 

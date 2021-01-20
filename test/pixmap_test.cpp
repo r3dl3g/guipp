@@ -627,7 +627,7 @@ void test_pixmap2bitmap () {
   XDestroyImage(xim);
 #endif // GUIPP_X11
 
-  EXPECT_EQUAL(buffer, IF_WIN32_ELSE("40 00 80 00", "02 00 00 00 01 00 00 00"));
+  EXPECT_EQUAL(buffer, IF_WIN32_ELSE("7f ff bf ff", "02 00 00 00 01 00 00 00"));
 
   bwmap bw2 = img.get();
 

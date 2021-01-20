@@ -264,26 +264,27 @@ namespace gui {
     }
 
     core::native_rect graphics::native_area () const {
-      RECT r = {0, 0, 0, 0};
+      core::native_rect r = {0, 0, 0, 0};
       os::window id = WindowFromDC(gc);
       if (id) {
-        GetWindowRect(id, &r);
-        r.left = 0;
-        r.top = 0;
+        RECT s;
+        GetWindowRect(id, &s);
+        r.width(s.right - s.left);
+        r.height(s.top - s.bottom);
       } else {
         HGDIOBJ hBmp = GetCurrentObject(gc, OBJ_BITMAP);
         if (hBmp) {
           BITMAP bmp;
           memset(&bmp, 0, sizeof (BITMAP));
           GetObject(hBmp, sizeof (BITMAP), &bmp);
-          r.right = bmp.bmWidth;
-          r.bottom = bmp.bmHeight;
+          r.width(bmp.bmWidth);
+          r.height(bmp.bmHeight);
         } else {
-          r.right = GetDeviceCaps(gc, HORZRES);
-          r.bottom = GetDeviceCaps(gc, VERTRES);
+          r.width(GetDeviceCaps(gc, HORZRES));
+          r.height(GetDeviceCaps(gc, VERTRES));
         }
       }
-      return core::native_rect(r);
+      return r;
     }
 
     void graphics::set_clip_rect (const core::rectangle& rect) const {

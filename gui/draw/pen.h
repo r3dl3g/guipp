@@ -74,6 +74,8 @@ namespace gui {
         return id;
       }
 
+      void recreate (size_type = 1);
+
 #endif // GUIPP_WIN
 
       os::color color () const;

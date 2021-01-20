@@ -43,21 +43,30 @@ namespace gui {
       GetObject(id, sizeof (os::win32::pen_type), &info);
     }
 
+    void pen::recreate (size_type width) {
+      if (id) {
+        DeleteObject(id);
+        id = 0;
+      }
+      info.elpWidth = core::global::scale_to_native<os::size_type, size_type>(width);
+      LOGBRUSH LogBrush;
+      LogBrush.lbColor = info.elpColor;
+      LogBrush.lbStyle = BS_SOLID;
+      LogBrush.lbHatch = 0;
+      id = ExtCreatePen(info.elpPenStyle, info.elpWidth, &LogBrush, 0, NULL);
+    }
+
+
     pen::pen (const os::color& color, size_type width, Style style, Cap cap, Join join)
       : id(nullptr)
     {
       info.elpColor = color;
       info.elpPenStyle = static_cast<DWORD>(style) | static_cast<DWORD>(cap) | static_cast<DWORD>(join) | PS_GEOMETRIC;
-      info.elpWidth = core::global::scale_to_native<os::size_type, size_type>(width);
       info.elpBrushStyle = BS_SOLID;
       info.elpHatch = 0;
       info.elpNumEntries = 0;
       info.elpStyleEntry[0] = 0;
-      LOGBRUSH LogBrush;
-      LogBrush.lbColor = color;
-      LogBrush.lbStyle = BS_SOLID;
-      LogBrush.lbHatch = 0;
-      id = ExtCreatePen(info.elpPenStyle, info.elpWidth, &LogBrush, 0, NULL);
+      recreate(width);
     }
 
     pen::~pen () {

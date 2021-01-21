@@ -443,7 +443,7 @@ void test_masked_from_pixmap () {
 }
 
 void test_pixmap2colormap () {
-  draw::pixmap img({8, 8});
+  draw::pixmap img(core::native_size{8, 8});
   draw::graphics(img).clear(color::red);
 
   EXPECT_EQUAL(pixmap2colormap(img), CM(
@@ -461,7 +461,7 @@ void test_pixmap2colormap () {
 }
 
 void test_text_pixmap () {
-  draw::pixmap img({10, 10});
+  draw::pixmap img(core::native_size{10, 10});
   draw::text_box box("+", {0, 0, 10, 10}, text_origin_t::center);
   draw::graphics(img).clear(color::black).text(box, draw::font::system_bold(), color::blue);
 

@@ -6,6 +6,7 @@
 #include <gui/layout/grid_layout.h>
 #include <gui/layout/lineup_layout.h>
 #include <gui/layout/adaption_layout.h>
+#include <gui/layout/split_layout.h>
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/button.h>
 #include <gui/ctrl/edit.h>
@@ -69,46 +70,6 @@ void add (top_grid_t& l, std::array<T, COLUMNS>& a, const std::string& label) {
   }
 }
 
-template<int H = 0>
-class header_layout {
-public:
-  static constexpr int height = H;
-  typedef gui::layout::layout_function layout_function;
-
-  void set_header_body (layout_function header, layout_function body) {
-    this->header = header;
-    this->body = body;
-  }
-
-  void set_header (layout_function header) {
-    this->header = header;
-  }
-
-  void set_body (layout_function body) {
-    this->body = body;
-  }
-
-  void layout (const gui::core::rectangle& r) {
-    if (header) {
-      header(r.with_height(height));
-    }
-    if (body) {
-      body(r.with_vertical(r.y() + height, r.height() - height));
-    }
-  }
-
-protected:
-  layout_function header;
-  layout_function body;
-};
-
-template<int H>
-struct gui::layout::is_layout<header_layout<H>> {
-  enum {
-    value = true
-  };
-};
-
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui;
@@ -149,7 +110,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   std::array<tree_view, 2> trees;
 
   std::array<label, 6> cheader_labels;
-  std::array<header_layout<22>, cheader_labels.size()> cheader_layouts;
+  std::array<layout::header_layout<22>, cheader_labels.size()> cheader_layouts;
 
   for (int i = 0; i < cheader_labels.size(); ++i) {
     cheader_layouts[i].set_header(layout::lay(cheader_labels[i]));

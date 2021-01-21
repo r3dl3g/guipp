@@ -172,10 +172,14 @@ namespace gui {
         return;
       }
       if (new_selection != data.selection) {
-        close();
+        clog::trace() << "menu_data::set_selection(" << new_selection << ") from " << data.selection;
+        if (is_open()) {
+          close();
+        }
         data.selection = new_selection;
         data.hilite = new_selection;
         win->invalidate();
+        clog::trace() << "menu_data::set_selection send_client_message SELECTION_CHANGE_MESSAGE";
         send_client_message(win, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(src));
       }
     }
@@ -220,21 +224,29 @@ namespace gui {
         return;
       }
       if (data.hilite != new_hilite) {
-        close();
+        clog::trace() << "menu_data::set_hilite(" << new_hilite << ") from " << data.hilite;
+        if (is_open()) {
+          close();
+        }
         data.hilite = new_hilite;
         win->invalidate();
+        clog::trace() << "menu_data::set_hilite send_client_message HILITE_CHANGE_MESSAGE";
         send_client_message(win, detail::HILITE_CHANGE_MESSAGE, true);
       }
     }
 
     void menu_data::clear_hilite () {
+      clog::trace() << "menu_data::clear_hilite()";
       data.hilite = -1;
       win->invalidate();
+      clog::trace() << "menu_data::clear_hilite send_client_message HILITE_CHANGE_MESSAGE";
       send_client_message(win, detail::HILITE_CHANGE_MESSAGE, false);
     }
 
     void menu_data::close () {
+      clog::trace() << "menu_data::close()";
       if (data.close_caller) {
+        clog::trace() << "menu_data::close() -> close_caller()";
         data.close_caller();
       }
       data.selection = -1;
@@ -353,7 +365,11 @@ namespace gui {
         data.handle_mouse(false, pt);
       });
 
-      on_mouse_leave(util::bind_method(&data, &menu_data::clear_hilite));
+      //on_mouse_leave(util::bind_method(&data, &menu_data::clear_hilite));
+      on_mouse_leave([&] () {
+        clog::trace() << "main_menu::on_mouse_leave() -> clear_hilite()";
+        data.clear_hilite();
+      });
 
       on_set_focus([&] () {
         if (data.get_hilite() == -1) {
@@ -370,6 +386,7 @@ namespace gui {
       on_selection_changed([&] (event_source) {
         int idx = data.get_selection();
         if (idx > -1) {
+          clog::trace() << "main_menu::on_selection_changed() -> select(" << idx << ")";
           data[idx].select();
         }
       });
@@ -531,6 +548,7 @@ namespace gui {
       on<selection_changed_event>([&](event_source) {
         int idx = data.get_selection();
         if (idx > -1) {
+          clog::trace() << "popup_menu::on_selection_changed() -> select(" << idx << ")";
           if (!data[idx].is_sub_menu()) {
             data.handle_mouse(true, core::point::zero);
           }
@@ -649,6 +667,7 @@ namespace gui {
           close();
         }
       });
+      clog::trace() << "popup_menu::popup_at(" << pt << ") -> run_modal";
       create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
       run_modal(parent);
     }
@@ -670,8 +689,9 @@ namespace gui {
           parent_data.handle_mouse(btn, gpt);
         }
       });
+      clog::trace() << "popup_menu::popup_at(" << pt << ") none-modal";
       create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
-      run_modal(parent);
+      set_visible();
     }
 
     core::point popup_menu::sub_menu_position (int idx) const {

@@ -306,12 +306,12 @@ namespace gui {
           client.data.l[3] = l4;
           client.data.l[4] = l5;
 
-//          gui::os::event_result result = 0;
-//          win->handle_event(event, result);
+          gui::os::event_result result = 0;
+          win->handle_event(event, result);
           /* Send the data off to the other process */
-          XSendEvent(client.display, client.window, True, 0, &event);
+//          XSendEvent(client.display, client.window, True, 0, &event);
 
-          //        core::global::sync();
+//          core::global::sync();
         }
       }
 

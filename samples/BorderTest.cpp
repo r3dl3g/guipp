@@ -81,8 +81,13 @@ private:
 
   main_menu menu;
   popup_menu file_sub_menu;
+  popup_menu select_sub_menu;
+  popup_menu sub_sub_menu;
+  popup_menu sub_sub_menu3;
+  popup_menu sub_sub_menu4;
   popup_menu edit_sub_menu;
   popup_menu scale_sub_menu;
+  popup_menu help_sub_menu;
 
   typedef flat_button<silver, nero> tool_bar_button;
   tool_bar_button buttons[10];
@@ -252,15 +257,9 @@ void my_main_window::onCreated () {
     }, menu_state::disabled),
     main_menu_entry("Help", 'H', [&]() {
       labels[0].set_text("Help...");
-      popup_menu help_sub_menu;
-      help_sub_menu.data.add_entry(
-        menu_entry("About", 'A', [&]() { labels[0].set_text("about"); })
-      );
       help_sub_menu.popup(menu);
     })
   });
-  menu.create(top_view);
-  menu.set_visible();
 
   using namespace gui::core;
   file_sub_menu.data.add_entries({
@@ -270,45 +269,47 @@ void my_main_window::onCreated () {
     menu_entry("Close", 'C', [&]() { labels[0].set_text("close"); }, hot_key('I', state::shift)),
     sub_menu_entry("Select", 'S', [&]() {
       labels[0].set_text("select...");
-      popup_menu select_sub_menu;
-      select_sub_menu.data.add_entry(
-        menu_entry( "item 1", '1', [&]() { labels[0].set_text("item 1"); })
-      );
-      select_sub_menu.data.add_entries({
-        menu_entry("item 2", '2', [&]() { labels[0].set_text("item 2"); }),
-        sub_menu_entry("item 3", '3', [&]() {
-          labels[0].set_text("item 3...");
-          popup_menu sub_sub_menu;
-          sub_sub_menu.data.add_entries({
-            menu_entry("item 3-1", '1', [&]() { labels[0].set_text("item 3-1"); }),
-            menu_entry("item 3-2", '2', [&]() { labels[0].set_text("item 3-2"); }),
-            sub_menu_entry("item 3-3", '3', [&]() {
-              labels[0].set_text("item 3-3...");
-              popup_menu sub_sub_menu2;
-              sub_sub_menu2.data.add_entry(
-                menu_entry("item 3-3-1", '1', [&]() { labels[0].set_text("item 3-3-1"); })
-              );
-              sub_sub_menu2.popup(sub_sub_menu);
-            }),
-            menu_entry("item 3-4", '4', [&]() { labels[0].set_text("item 3-4"); })
-          });
-          sub_sub_menu.popup(select_sub_menu);
-        }),
-        sub_menu_entry("item 4", '4', [&]() {
-          labels[0].set_text("item 4...");
-          popup_menu sub_sub_menu;
-          sub_sub_menu.data.add_entry(
-            menu_entry("item 4-1", '1', [&]() { labels[0].set_text("item 4-1"); })
-          );
-          sub_sub_menu.popup(select_sub_menu);
-        })
-      });
       select_sub_menu.popup(file_sub_menu);
     }, true),
     menu_entry("Info", 'I', [&]() { labels[0].set_text("info"); }, hot_key('I', state::system)),
     menu_entry("Exit", 'x', util::bind_method(this, &my_main_window::quit), hot_key(keys::f4, state::alt), true)
   });
   file_sub_menu.data.register_hot_keys(this);
+
+  select_sub_menu.data.add_entries({
+    menu_entry( "item 1", '1', [&]() { labels[0].set_text("item 1"); }),
+    menu_entry("item 2", '2', [&]() { labels[0].set_text("item 2"); }),
+    sub_menu_entry("item 3", '3', [&]() {
+      labels[0].set_text("item 3...");
+      sub_sub_menu.popup(select_sub_menu);
+    }),
+    sub_menu_entry("item 4", '4', [&]() {
+      labels[0].set_text("item 4...");
+      sub_sub_menu4.popup(select_sub_menu);
+    })
+  });
+  sub_sub_menu.data.add_entries({
+    menu_entry("item 3-1", '1', [&]() { labels[0].set_text("item 3-1"); }),
+    menu_entry("item 3-2", '2', [&]() { labels[0].set_text("item 3-2"); }),
+    sub_menu_entry("item 3-3", '3', [&]() {
+      labels[0].set_text("item 3-3...");
+      sub_sub_menu3.popup(sub_sub_menu);
+    }),
+    menu_entry("item 3-4", '4', [&]() { labels[0].set_text("item 3-4"); })
+  });
+  sub_sub_menu3.data.add_entry(
+    menu_entry("item 3-3-1", '1', [&]() { labels[0].set_text("item 3-3-1"); })
+  );
+  sub_sub_menu4.data.add_entry(
+    menu_entry("item 4-1", '1', [&]() { labels[0].set_text("item 4-1"); })
+  );
+
+  help_sub_menu.data.add_entry(
+    menu_entry("About", 'A', [&]() { labels[0].set_text("about"); })
+  );
+
+  menu.create(top_view);
+  menu.set_visible();
 
   const float icn_sz = core::global::scale_from_native<float>(16);
   core::rectangle icon_rect(0, 0, icn_sz, icn_sz);

@@ -309,7 +309,7 @@ namespace gui {
           event_source::keyboard);
         break;
       case core::keys::enter:
-        super::notify_event(detail::SELECTION_COMMIT_MESSAGE);
+        super::notify_selection_commit();
         break;
       }
     }

@@ -35,12 +35,10 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace layout {
 
-    template<int H = 0>
-    class header_layout {
+    // --------------------------------------------------------------------------
+    class split_layout_base {
     public:
-      static constexpr int height = H;
-
-      void set_header_body (layout_function header, layout_function body) {
+      void set_header_and_body (layout_function header, layout_function body) {
         this->header = header;
         this->body = body;
       }
@@ -53,26 +51,89 @@ namespace gui {
         this->body = body;
       }
 
-      void layout (const gui::core::rectangle& r) {
-        if (header) {
-          header(r.with_height(height));
-        }
-        if (body) {
-          body(r.with_vertical(r.y() + height, r.height() - height));
-        }
-      }
-
     protected:
       layout_function header;
       layout_function body;
     };
 
-    template<int H>
-    struct is_layout<header_layout<H>> {
+    // --------------------------------------------------------------------------
+    template<alignment_t A = alignment_t::top, int S = 25>
+    class split_layout : public split_layout_base {};
+
+    // --------------------------------------------------------------------------
+    template<int S>
+    class split_layout<alignment_t::top, S> : public split_layout_base {
+    public:
+      static constexpr int size = S;
+
+      void layout (const gui::core::rectangle& r) {
+        if (header) {
+          header(r.with_height(size));
+        }
+        if (body) {
+          body(r.with_vertical(r.y() + size, r.height() - size));
+        }
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    template<int S>
+    class split_layout<alignment_t::bottom, S> : public split_layout_base {
+    public:
+      static constexpr int size = S;
+
+      void layout (const gui::core::rectangle& r) {
+        if (header) {
+          header(r.with_vertical(r.y2() - size, size));
+        }
+        if (body) {
+          body(r.with_height(r.height() - size));
+        }
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    template<int S>
+    class split_layout<alignment_t::left, S> : public split_layout_base {
+    public:
+      static constexpr int size = S;
+
+      void layout (const gui::core::rectangle& r) {
+        if (header) {
+          header(r.with_width(size));
+        }
+        if (body) {
+          body(r.with_horizontal(r.x() + size, r.width() - size));
+        }
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    template<int S>
+    class split_layout<alignment_t::right, S> : public split_layout_base {
+    public:
+      static constexpr int size = S;
+
+      void layout (const gui::core::rectangle& r) {
+        if (header) {
+          header(r.with_horizontal(r.x2() - size, size));
+        }
+        if (body) {
+          body(r.with_width(r.width() - size));
+        }
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    template<alignment_t A, int S>
+    struct is_layout<split_layout<A, S>> {
       enum {
         value = true
       };
     };
+
+    typedef split_layout<alignment_t::top, 25> header_layout;
+    typedef split_layout<alignment_t::bottom, 25> footer_layout;
 
     // --------------------------------------------------------------------------
   } // namespace layout

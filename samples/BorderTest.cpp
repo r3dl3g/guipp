@@ -105,10 +105,10 @@ private:
 
   group_window<attach, color::rgb_gray<224>::value> client_view;
 
-  top_tab_group<color::black, color::very_light_gray, 50, 80> hsegmented1;
-  bottom_tab_group<color::black, color::very_light_gray, 40, 70> hsegmented2;
-  left_tab_group<color::black, color::very_light_gray, 30, 100> vsegmented1;
-  right_tab_group<color::black, color::very_light_gray, 50, 80> vsegmented2;
+  top_tab_group<origin_t::start, color::black, color::very_light_gray, 50, 80> hsegmented1;
+  bottom_tab_group<origin_t::start, color::black, color::very_light_gray, 40, 70> hsegmented2;
+  left_tab_group<origin_t::start, color::black, color::very_light_gray, 30, 100> vsegmented1;
+  right_tab_group<origin_t::start, color::black, color::very_light_gray, 50, 80> vsegmented2;
 
   client_control<color::rgb_gray<0xda>::value> window1;
   rgbamap rgbas[2];

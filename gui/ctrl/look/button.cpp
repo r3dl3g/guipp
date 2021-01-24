@@ -123,28 +123,28 @@ namespace gui {
     const draw::graymap& get_tab_frame<alignment_t::top> (bool pressed) {
       static draw::graymap image(get_button_frame<false, false>().sub(1, 0, 7, 24));
       static draw::graymap image_pressed(get_button_frame<false, true>().sub(1, 0, 7, 24));
-      return !pressed ? image_pressed : image;
+      return pressed ? image_pressed : image;
     }
 
     template<>
     const draw::graymap& get_tab_frame<alignment_t::bottom> (bool pressed) {
       static draw::graymap image(get_button_frame<false, true>().sub(1, 4, 7, 24));
       static draw::graymap image_pressed(get_button_frame<false, false>().sub(1, 4, 7, 24));
-      return !pressed ? image_pressed : image;
+      return pressed ? image_pressed : image;
     }
 
     template<>
     const draw::graymap& get_tab_frame<alignment_t::left> (bool pressed) {
       static draw::graymap image(get_button_frame<true, false>().sub(0, 1, 24, 7));
       static draw::graymap image_pressed(get_button_frame<true, true>().sub(0, 1, 24, 7));
-      return !pressed ? image_pressed : image;
+      return pressed ? image_pressed : image;
     }
 
     template<>
     const draw::graymap& get_tab_frame<alignment_t::right> (bool pressed) {
       static draw::graymap image(get_button_frame<true, true>().sub(4, 1, 24, 7));
       static draw::graymap image_pressed(get_button_frame<true, false>().sub(4, 1, 24, 7));
-      return !pressed ? image_pressed : image;
+      return pressed ? image_pressed : image;
     }
 
     template<typename T>
@@ -395,12 +395,13 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void tab_button (const draw::graphics& g,
-                     const core::rectangle& r,
-                     const std::string& text,
-                     const core::button_state::is& state,
-                     os::color foreground,
-                     alignment_t a) {
+    template<>
+    void tab_button<look_and_feel_t::metal> (const draw::graphics& g,
+                                             const core::rectangle& r,
+                                             const std::string& text,
+                                             const core::button_state::is& state,
+                                             os::color foreground,
+                                             alignment_t a) {
       if (state.checked()) {
         switch (a) {
           case alignment_t::top:    g.copy(draw::frame_image(r, detail::get_tab_frame<alignment_t::top>(true), 3, 3, 3, 0), r.top_left());    break;

@@ -46,7 +46,7 @@ namespace gui {
 
     void button_base::set_hilited (bool on) {
       if (set_state().hilited(on)) {
-        notify_event(detail::HILITE_CHANGE_MESSAGE, on);
+        notify_hilite_changed(on);
         invalidate();
       }
     }

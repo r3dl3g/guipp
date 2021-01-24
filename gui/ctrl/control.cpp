@@ -27,8 +27,6 @@
 
 namespace gui {
 
-  namespace layout {}
-
   namespace ctrl {
 
     // --------------------------------------------------------------------------
@@ -131,7 +129,23 @@ namespace gui {
       on<content_changed_event>(std::move(f));
     }
 
-    void control::notify_content_changed () {
+    void control::notify_selection_changed (event_source src) {
+      notify_event(detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(src));
+    }
+
+    void control::notify_selection_commit () {
+      notify_event(detail::SELECTION_COMMIT_MESSAGE);
+    }
+
+    void control::notify_selection_cancel () {
+      notify_event(detail::SELECTION_CANCEL_MESSAGE);
+    }
+
+    void control::notify_hilite_changed (bool b) {
+      notify_event(detail::HILITE_CHANGE_MESSAGE, b);
+    }
+
+    void control::  notify_content_changed () {
       notify_event(detail::CONTENT_CHANGED_MESSAGE);
     }
 

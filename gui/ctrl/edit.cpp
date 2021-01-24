@@ -229,7 +229,7 @@ namespace gui {
         if (sel != data.selection) {
           data.selection = sel;
           invalidate();
-          notify_event(detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(event_source::logic));
+          notify_selection_changed(event_source::logic);
         }
       }
 
@@ -397,7 +397,7 @@ namespace gui {
           break;
         case core::keys::escape:
           set_selection(range(), event_source::keyboard);
-          notify_event(detail::SELECTION_CANCEL_MESSAGE);
+          notify_selection_cancel();
           break;
         case core::keys::clear:
           set_selection(range(0, data.text.size()), event_source::keyboard);
@@ -407,7 +407,7 @@ namespace gui {
         case core::keys::tab:
           break;
         case core::keys::enter:
-          notify_event(detail::SELECTION_COMMIT_MESSAGE);
+          notify_selection_commit();
           break;
         default: {
           if (ctrl) {

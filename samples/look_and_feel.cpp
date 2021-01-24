@@ -14,11 +14,13 @@
 #include <gui/ctrl/drop_down.h>
 #include <gui/ctrl/scroll_bar.h>
 #include <gui/ctrl/tree.h>
+#include <gui/ctrl/tab_group.h>
+#include <gui/ctrl/tab_view.h>
 
 
 const std::size_t COLUMNS = 4;
 
-typedef gui::layout::fixed_grid_lineup<120, 22, COLUMNS + 1, 2, 4> layout_t;
+typedef gui::layout::fixed_grid_lineup<120, 22, COLUMNS + 1, 10, 4> layout_t;
 typedef gui::win::group_window<layout_t, gui::color::very_very_light_gray> top_grid_t;
 
 template<typename T>
@@ -76,17 +78,23 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::win;
   using namespace gui::ctrl;
 
-
   typedef layout_main_window<layout::border::layouter<10, 10, 10, 10, layout::border::type_t::all_symmetric>> main_window_t;
-  typedef layout::vertical_lineup<236, 0, 8> center_layout_t;
+
+  typedef layout::vertical_lineup<236, 10, 8> center_layout_t;
   typedef layout::vertical_lineup<40, 0, 8> bottom_layout_t;
-  typedef layout::horizontal_adaption<0, 4, 0, 80, 200> center_grid_t;
+  typedef layout::horizontal_adaption<10, 4, 0, 80, 200> center_grid_t;
+  typedef group_window<center_grid_t, color::very_very_light_gray> page_t;
 
   main_window_t main;
-  center_layout_t center;
-  top_grid_t tgrid;
-  center_grid_t cgrid;
-  center_grid_t bgrid;
+  tab_view<alignment_t::top> tabs;
+  top_grid_t first_view;
+  page_t second_view;
+  page_t third_view;
+
+  tabs.add_page("First", first_view);
+  tabs.add_page("Second", second_view);
+  tabs.add_page("Third", third_view);
+  main.get_layout().set_center(layout::lay(tabs));
 
   std::array<label, 9> info;
 
@@ -110,11 +118,11 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   std::array<tree_view, 2> trees;
 
   std::array<label, 6> cheader_labels;
-  std::array<layout::header_layout<22>, cheader_labels.size()> cheader_layouts;
+  std::array<layout::header_layout, cheader_labels.size()> cheader_layouts;
 
   for (int i = 0; i < cheader_labels.size(); ++i) {
     cheader_layouts[i].set_header(layout::lay(cheader_labels[i]));
-    cgrid.add(layout::lay(cheader_layouts[i]));
+    second_view.get_layout().add(layout::lay(cheader_layouts[i]));
   }
 
   int i = 0;
@@ -135,10 +143,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   std::vector<std::string> edata;
   edata.insert(edata.end(), { "Eins", "Zwei", "Drei", "View", "Fünf", "Sechs", "Sieben", "Acht", "Neun", "Zehn", "Fuß" });
-
-  center.add(tgrid);
-  center.add(layout::lay(cgrid));
-  center.add(layout::lay(bgrid));
 
   vlist[0].set_data(ctrl::indirect_list_data<std::string>(edata));
   vlist[1].set_data(ctrl::indirect_list_data<std::string>(edata));
@@ -183,7 +187,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   for (int i = 0; i < bheader_labels.size(); ++i) {
     bheader_layouts[i].add(layout::lay(bheader_labels[i]));
-    bgrid.add(layout::lay(bheader_layouts[i]));
+    third_view.get_layout().add(layout::lay(bheader_layouts[i]));
   }
 
   hlist[0].on_selection_changed([&](event_source src){
@@ -239,57 +243,66 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     edits[3].set_text(edits[1].get_text());
   });
 
-  main.get_layout().set_center(layout::lay(center));
-
-  tgrid.on_create([&](){
-    add(tgrid, info[0], "label:");
-    add(tgrid, stdlabel, "stdlabel");
-    add(tgrid, leftlabel, "left label");
-    add(tgrid, centerlabel, "center label");
-    add(tgrid, rightlabel, "right label");
-
-    add(tgrid, info[1], "button:");
-    add(tgrid, buttons, "button");
-
-    add(tgrid, info[2], "radio button:");
-    add(tgrid, radios, "radio");
-
-    add(tgrid, info[3], "checkbox:");
-    add(tgrid, checks, "checkbox");
-
-    add(tgrid, info[4], "editline:");
-    add(tgrid, edits, "editline");
-
-    add(tgrid, info[5], "password:");
-    add(tgrid, passs, "password");
-
-    add(tgrid, info[6], "drop_down:");
-    add(tgrid, drop_downs, "drop_down");
-
-    add(tgrid, info[7], "progress_bar:");
-    add(tgrid, progress_bars, "0.0%");
-
-    add(tgrid, info[8], "scroll_bars:");
-    add(tgrid, scroll_bars, "scroll_bar");
+  main.on_create([&](){
+    tabs.create(main);
   });
 
-  main.on_create([&](){
-    tgrid.create(main);
-    for (auto& l : cheader_labels) {
-      l.create(main);
-    }
-    vlist[0].create(main);
-    vlist[1].create(main);
-    elist[0].create(main);
-    elist[1].create(main);
-    trees[0].create(main);
-    trees[1].create(main);
+  tabs.on_create([&](){
+    first_view.create(tabs);
+    second_view.create(tabs);
+    third_view.create(tabs);
+  });
 
-    for (auto& l : bheader_labels) {
-      l.create(main);
+  first_view.on_create([&](){
+    add(first_view, info[0], "label:");
+    add(first_view, stdlabel, "stdlabel");
+    add(first_view, leftlabel, "left label");
+    add(first_view, centerlabel, "center label");
+    add(first_view, rightlabel, "right label");
+
+    add(first_view, info[1], "button:");
+    add(first_view, buttons, "button");
+
+    add(first_view, info[2], "radio button:");
+    add(first_view, radios, "radio");
+
+    add(first_view, info[3], "checkbox:");
+    add(first_view, checks, "checkbox");
+
+    add(first_view, info[4], "editline:");
+    add(first_view, edits, "editline");
+
+    add(first_view, info[5], "password:");
+    add(first_view, passs, "password");
+
+    add(first_view, info[6], "drop_down:");
+    add(first_view, drop_downs, "drop_down");
+
+    add(first_view, info[7], "progress_bar:");
+    add(first_view, progress_bars, "0.0%");
+
+    add(first_view, info[8], "scroll_bars:");
+    add(first_view, scroll_bars, "scroll_bar");
+  });
+
+  second_view.on_create([&]() {
+    for (auto& l : cheader_labels) {
+      l.create(second_view);
     }
-    hlist[0].create(main);
-    hlist[1].create(main);
+    vlist[0].create(second_view);
+    vlist[1].create(second_view);
+    elist[0].create(second_view);
+    elist[1].create(second_view);
+    trees[0].create(second_view);
+    trees[1].create(second_view);
+  });
+
+  third_view.on_create([&]() {
+    for (auto& l : bheader_labels) {
+      l.create(third_view);
+    }
+    hlist[0].create(third_view);
+    hlist[1].create(third_view);
   });
 
   vlist[1].disable();

@@ -207,19 +207,30 @@ namespace gui {
                                                    const core::button_state::is& state,
                                                    float animation_step = 1.0F);
 
-    GUIPP_LOOK_EXPORT void tab_button (const draw::graphics& g,
-                                       const core::rectangle& r,
-                                       const std::string& text,
-                                       const core::button_state::is& state,
-                                       os::color foreground,
-                                       alignment_t a);
+    template<look_and_feel_t L = system_look_and_feel>
+    void tab_button (const draw::graphics& g,
+                     const core::rectangle& r,
+                     const std::string& text,
+                     const core::button_state::is& state,
+                     os::color foreground,
+                     alignment_t a) {
+      push_button(g, r, text, state);
+    }
+
+    template<>
+    GUIPP_LOOK_EXPORT void tab_button<look_and_feel_t::metal> (const draw::graphics& g,
+                                                               const core::rectangle& r,
+                                                               const std::string& text,
+                                                               const core::button_state::is& state,
+                                                               os::color foreground,
+                                                               alignment_t a);
 
     template<os::color foreground, alignment_t align>
     void aligned_tab_button (const draw::graphics& g,
                              const core::rectangle& r,
                              const std::string& text,
                              const core::button_state::is& state) {
-      tab_button(g, r, text, state, foreground, align);
+      tab_button<>(g, r, text, state, foreground, align);
     }
 
   } // namespace look

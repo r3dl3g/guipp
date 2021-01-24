@@ -207,7 +207,7 @@ namespace gui {
       if (data.selection != -1) {
         data.selection = -1;
         if (notify != event_source::logic) {
-          super::notify_event(detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
+          notify_selection_changed(notify);
           super::invalidate();
         }
       }
@@ -222,7 +222,7 @@ namespace gui {
       if (super::get_hilite() != new_hilite) {
         data.hilite = new_hilite;
         if (notify) {
-          super::notify_event(detail::HILITE_CHANGE_MESSAGE, new_hilite != -1);
+          super::notify_hilite_changed(new_hilite != -1);
           super::invalidate();
         }
       }
@@ -233,7 +233,7 @@ namespace gui {
       if (super::get_hilite() != -1) {
         data.hilite = -1;
         if (notify) {
-          super::notify_event(detail::HILITE_CHANGE_MESSAGE, false);
+          super::notify_hilite_changed(false);
           super::invalidate();
         }
       }
@@ -250,7 +250,7 @@ namespace gui {
         });
       }
       super::on_left_btn_dblclk([&] (os::key_state keys, const core::point & pt) {
-        super::notify_event(detail::SELECTION_COMMIT_MESSAGE);
+        super::notify_selection_commit();
       });
       super::on_mouse_leave([&] () {
         clear_hilite();
@@ -391,7 +391,7 @@ namespace gui {
         super::data.selection = new_selection;
         make_selection_visible();
         if (notify != event_source::logic) {
-          super::notify_event(detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
+          notify_selection_changed(notify);
           super::invalidate();
         }
       }
@@ -546,7 +546,7 @@ namespace gui {
                       event_source::keyboard);
         break;
       case core::keys::enter:
-        super::notify_event(detail::SELECTION_COMMIT_MESSAGE);
+        super::notify_selection_commit();
         break;
       }
     }

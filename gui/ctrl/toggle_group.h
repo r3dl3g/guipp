@@ -23,6 +23,7 @@
 // Library includes
 //
 #include <gui/layout/adaption_layout.h>
+#include <gui/layout/layout_container.h>
 #include <gui/ctrl/control.h>
 #include <gui/ctrl/separator.h>
 #include <gui/ctrl/button.h>
@@ -44,6 +45,7 @@ namespace gui {
       typedef B button_t;
       typedef std::shared_ptr<B> button_type;
 
+      toggle_group ();
       ~toggle_group ();
 
       void add_buttons (const std::initializer_list<std::string>& labels);
@@ -59,10 +61,16 @@ namespace gui {
       void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
+      void on_selection_changed (std::function<void(event_source)>&& f);
+
+      int get_selection_index () const;
+      void set_selection_index (int i);
+
     private:
       void uncheck_buttons (button_type except);
 
       std::vector<button_type> buttons;
+      int selection;
     };
 
     // --------------------------------------------------------------------------

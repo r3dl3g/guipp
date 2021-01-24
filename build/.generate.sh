@@ -1,6 +1,8 @@
 
 . ./.get_compiler_ver.sh
 
+out_base=~/Projekte/build/ibr/gui_lib
+
 generate () {
   prjdir=$PWD/..
 
@@ -9,7 +11,7 @@ generate () {
   type=$1
   shift
 
-  builddir=./$(compiler_ver $*)/$outdir
+  builddir=$out_base/$(compiler_ver $*)/$outdir
 
   mkdir -p $builddir
   pushd $builddir

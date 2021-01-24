@@ -24,6 +24,11 @@ namespace gui {
   namespace ctrl {
 
     template<orientation_t O, os::color FG, os::color BG, typename B, typename L>
+    toggle_group<O, FG, BG, B, L>::toggle_group ()
+      : selection(-1)
+    {}
+
+    template<orientation_t O, os::color FG, os::color BG, typename B, typename L>
     toggle_group<O, FG, BG, B, L>::~toggle_group () {
       buttons.clear();
     }
@@ -85,10 +90,33 @@ namespace gui {
 
     template<orientation_t O, os::color FG, os::color BG, typename B, typename L>
     void toggle_group<O, FG, BG, B, L>::uncheck_buttons (button_type except) {
+      selection = -1;
+      int i = 0;
       for (auto b : buttons) {
         if (b != except) {
           b->set_checked(false);
+        } else {
+          selection = i;
         }
+        ++i;
+      }
+      send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(event_source::logic));
+    }
+
+    template<orientation_t O, os::color FG, os::color BG, typename B, typename L>
+    void toggle_group<O, FG, BG, B, L>::on_selection_changed (selection_changed_event::function&& f) {
+      win::receiver::on<selection_changed_event>(std::move(f));
+    }
+
+    template<orientation_t O, os::color FG, os::color BG, typename B, typename L>
+    int toggle_group<O, FG, BG, B, L>::get_selection_index () const {
+      return selection;
+    }
+
+    template<orientation_t O, os::color FG, os::color BG, typename B, typename L>
+    void toggle_group<O, FG, BG, B, L>::set_selection_index (int i) {
+      if ((i >= 0) && (i < buttons.size())) {
+        uncheck_buttons(buttons[i]);
       }
     }
 

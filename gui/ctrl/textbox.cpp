@@ -41,7 +41,7 @@ namespace gui {
         data.cursor_pos.clear();
         data.selection.clear();
         notify_content_changed();
-        notify_selection_changed();
+        notify_selection_changed(event_source::logic);
         invalidate();
       }
 
@@ -101,7 +101,7 @@ namespace gui {
           data.cursor_pos = p;
         }
         if (old_pos != data.cursor_pos) {
-          notify_selection_changed();
+          notify_selection_changed(event_source::mouse);
           invalidate();
         }
       }
@@ -247,10 +247,6 @@ namespace gui {
       void textbox_base::notify_content_changed () {
         data.virtual_size.clear();
         super::notify_content_changed();
-      }
-
-      void textbox_base::notify_selection_changed () {
-        notify_event(detail::SELECTION_CHANGE_MESSAGE);
       }
 
       textbox_base::position textbox_base::find_prev_word (const textbox_base::position& pos) {

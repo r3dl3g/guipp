@@ -768,7 +768,7 @@ namespace gui {
         if (geometrie.hilite != new_hilite) {
           geometrie.hilite = new_hilite;
           redraw_all();
-          send_client_message(this, detail::HILITE_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
+          send_client_message(this, detail::HILITE_CHANGE_MESSAGE, true);
         }
       }
     }
@@ -821,7 +821,7 @@ namespace gui {
           if (geometrie.hilite != new_hilite) {
             geometrie.hilite = new_hilite;
             redraw_all();
-            send_client_message(this, detail::HILITE_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
+            send_client_message(this, detail::HILITE_CHANGE_MESSAGE, true);
           }
         }
       }
@@ -875,7 +875,7 @@ namespace gui {
           if (geometrie.hilite != new_hilite) {
             geometrie.hilite = new_hilite;
             redraw_all();
-            send_client_message(this, detail::HILITE_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
+            send_client_message(this, detail::HILITE_CHANGE_MESSAGE, true);
           }
         }
       }

@@ -84,7 +84,6 @@ namespace gui {
         void erase_line (int first);
 
         void notify_content_changed ();
-        void notify_selection_changed ();
 
         void enable_select_by_mouse (const text_origin_t origin_t);
 

@@ -78,6 +78,38 @@ namespace gui {
         });
       }
 
+      void list_base::on_selection_changed (selection_changed_event::function&& f) {
+        on<selection_changed_event>(std::move(f));
+      }
+
+      void list_base::on_selection_commit (selection_commit_event::function&& f) {
+        on<selection_commit_event>(std::move(f));
+      }
+
+      void list_base::on_hilite_changed (hilite_changed_event::function&& f) {
+        on<hilite_changed_event>(std::move(f));
+      }
+
+      void list_base::on_content_changed (content_changed_event::function&& f) {
+        on<content_changed_event>(std::move(f));
+      }
+
+      void list_base::notify_selection_changed (event_source src) {
+        notify_event(detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(src));
+      }
+
+      void list_base::notify_selection_commit () {
+        notify_event(detail::SELECTION_COMMIT_MESSAGE);
+      }
+
+      void list_base::notify_hilite_changed (bool b) {
+        notify_event(detail::HILITE_CHANGE_MESSAGE, b);
+      }
+
+      void list_base::notify_content_changed () {
+        notify_event(detail::CONTENT_CHANGED_MESSAGE);
+      }
+
     } // namespace detail
 
     // --------------------------------------------------------------------------

@@ -277,13 +277,6 @@ namespace gui {
       }
     }
 
-    void post_client_message (window* win, os::message_type message, long l1, long l2) {
-      send_client_message(win, message, l1, l2);
-//      if (win && win->is_valid()) {
-//        PostMessage(win->get_os_window(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
-//      }
-    }
-
 #endif // Win32
 #ifdef GUIPP_X11
     namespace x11 {
@@ -320,10 +313,6 @@ namespace gui {
         long l1 = (long)r.x << 16 | (long)r.y;
         long l2 = (long)r.width << 16 | (long)r.height;
         send_client_message(win, message, detail::get_os_window(*w), l1, l2);
-      }
-
-      void post_client_message (window* win, Atom message, long l1, long l2) {
-        x11::send_client_message(win, message, l1, l2);
       }
 
       namespace {
@@ -410,10 +399,6 @@ namespace gui {
       long l0 = (long)p.x << 16 | (long)p.y;
       long l1 = (long)s.cx << 16 | (long)s.cy;
       x11::send_client_message(win, message, l1, l0, l1);
-    }
-
-    void post_client_message (window* win, Atom message, long l1, long l2) {
-      x11::post_client_message(win, message, l1, l2);
     }
 
     // --------------------------------------------------------------------------
@@ -597,9 +582,6 @@ namespace gui {
       }
     }
 
-    void post_client_message (window* win, os::message_type message, long l1, long l2) {
-      send_client_message(win, message, l1, l2);
-    }
     // --------------------------------------------------------------------------
 #endif // GUIPP_QT
 

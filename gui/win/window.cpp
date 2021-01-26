@@ -122,6 +122,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     window::window ()
       : id(0)
+      , parent(nullptr)
     {
       init();
     }
@@ -138,29 +139,38 @@ namespace gui {
     window::window (const window& rhs)
       : id(0)
       , flags(rhs.flags)
+      , parent(nullptr)
     {
       init();
       if (rhs.is_valid()) {
-        container* parent = rhs.get_parent();
+        container* p = rhs.get_parent();
         create_internal(rhs.get_window_class(),
-                        parent ? detail::get_os_window(*parent) : get_desktop_window(),
+                        p ? detail::get_os_window(*p) : get_desktop_window(),
                         rhs.place());
+        set_parent(*p);
       }
     }
 
     window::window (window&& rhs) noexcept
       : id(0)
       , flags(std::move(rhs.flags))
+      , parent(nullptr)
     {
       init();
       std::swap(id, rhs.id);
+      if (rhs.parent) {
+        rhs.parent->remove_child(&rhs);
+        std::swap(parent, rhs.parent);
+        rhs.parent->add_child(this);
+      }
     }
 
     void window::create (const class_info& type,
-                         container& parent,
+                         container& p,
                          const core::rectangle& r) {
-      if (parent.is_valid()) {
-        create_internal(type, detail::get_os_window(parent), r);
+      if (p.is_valid()) {
+        create_internal(type, detail::get_os_window(p), r);
+        set_parent(p);
       }
     }
 
@@ -190,17 +200,14 @@ namespace gui {
     }
 
     core::point window::window_to_screen (const core::point& pt) const {
-      window* p = get_parent();
-      return p ? p->client_to_screen(pt) : pt;
+      return parent ? parent->client_to_screen(pt) : pt;
     }
 
     core::point window::screen_to_window (const core::point& pt) const {
-      window* p = get_parent();
-      return p ? p->screen_to_client(pt) : pt;
+      return parent ? parent->screen_to_client(pt) : pt;
     }
 
     container* window::get_root_window () const {
-      container* parent = get_parent();
       if (parent) {
         return parent->get_root_window();
       }
@@ -211,7 +218,6 @@ namespace gui {
       if (get_state().overlapped()) {
         return (overlapped_window*)this;
       }
-      container* parent = get_parent();
       if (parent) {
         return parent->get_overlapped_window();
       } else {
@@ -250,7 +256,6 @@ namespace gui {
     }
 
     void window::shift_focus (bool backward) {
-      container* parent = get_parent();
       if (parent) {
         parent->shift_focus(this, backward);
       }
@@ -285,6 +290,25 @@ namespace gui {
     void window::notify_event_double (os::message_type message, double d1) {
       long l1 = static_cast<long>(d1 * 1000000.0);
       send_client_message(this, message, l1, 0);
+    }
+
+    void window::set_parent (container& p) {
+      if (parent) {
+        parent->remove_child(this);
+        parent = nullptr;
+      }
+      if (is_valid() && p.is_valid()) {
+        parent = &p;
+        p.add_child(this);
+      }
+    }
+
+    container* window::get_parent () const {
+      return parent;
+    }
+
+    bool window::is_child_of (const container& p) const {
+      return (parent == &p);
     }
 
     // --------------------------------------------------------------------------
@@ -388,20 +412,6 @@ namespace gui {
 
     bool window::has_border () const {
       return is_valid() && (GetWindowLong(get_os_window(), GWL_STYLE) & (WS_BORDER | WS_DLGFRAME | WS_THICKFRAME) ? true : false);
-    }
-
-    void window::set_parent (const container& parent) {
-      if (is_valid() && parent.is_valid()) {
-        SetParent(get_os_window(), detail::get_os_window(parent));
-      }
-    }
-
-    container* window::get_parent () const {
-      return is_valid() ? (container*)detail::get_window(GetParent(get_os_window())) : nullptr;
-    }
-
-    bool window::is_child_of (const container& parent) const {
-      return is_valid() && parent.is_valid() && IsChild(detail::get_os_window(parent), get_os_window()) != FALSE;
     }
 
     void window::set_visible (bool s) {
@@ -706,78 +716,10 @@ namespace gui {
       return false;
     }
 
-    bool window::is_child () const {
-      Window root = 0;
-      Window parent = 0;
-      Window *children = 0;
-      unsigned int nchildren = 0;
-
-      x11::check_status(XQueryTree(core::global::get_instance(),
-                                   get_os_window(),
-                                   &root,
-                                   &parent,
-                                   &children,
-                                   &nchildren));
-      if (children) {
-        XFree(children);
-      }
-      return parent != root;
-    }
-
-    bool window::is_toplevel () const {
-      Window root = 0;
-      Window parent = 0;
-      Window *children = 0;
-      unsigned int nchildren = 0;
-
-      x11::check_status(XQueryTree(core::global::get_instance(),
-                                   get_os_window(),
-                                   &root,
-                                   &parent,
-                                   &children,
-                                   &nchildren));
-      if (children) {
-        XFree(children);
-      }
-      return parent == root;
-    }
-
-    bool window::is_popup () const {
-      return is_toplevel();
-    }
-
     bool window::has_border () const {
       XWindowAttributes a = {0};
       return (x11::check_status(XGetWindowAttributes(core::global::get_instance(), get_os_window(), &a)) &&
               (a.border_width > 0));
-    }
-
-    void window::set_parent (const container& parent) {
-      core::point pt = position();
-      x11::check_return(XReparentWindow(core::global::get_instance(), get_os_window(),
-                                        detail::get_os_window(parent), pt.x(), pt.y()));
-    }
-
-    container* window::get_parent () const {
-      Window root = 0;
-      Window parent = 0;
-      Window *children = 0;
-      unsigned int nchildren = 0;
-
-      x11::check_return(XQueryTree(core::global::get_instance(),
-                                   get_os_window(),
-                                   &root,
-                                   &parent,
-                                   &children,
-                                   &nchildren));
-      if (children) {
-        XFree(children);
-      }
-      return static_cast<container*>(detail::get_window(parent));
-    }
-
-    bool window::is_child_of (const container& parent) const {
-      return get_parent() == &parent;
     }
 
     bool is_window_visible (os::window id) {
@@ -1209,20 +1151,6 @@ namespace gui {
 
     bool window::has_border () const {
       return is_valid() && (get_os_window()->frameSize() != get_os_window()->size());
-    }
-
-    void window::set_parent (const container& parent) {
-      if (is_valid() && parent.is_valid()) {
-        get_os_window()->setParent(detail::get_os_window(parent));
-      }
-    }
-
-    container* window::get_parent () const {
-      return is_valid() ? (container*)detail::get_window(get_os_window()->get_parent()) : nullptr;
-    }
-
-    bool window::is_child_of (const container& parent) const {
-      return is_valid() && parent.is_valid() && (detail::get_os_window(parent) == get_os_window()->get_parent());
     }
 
     void window::set_visible (bool s) {

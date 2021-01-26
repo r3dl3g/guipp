@@ -59,16 +59,6 @@ namespace gui {
       return is_valid() && child.is_valid() && IsChild(get_os_window(), detail::get_os_window(child)) != FALSE;
     }
 
-    std::vector<window*> container::get_children () const {
-      std::vector<window*> list;
-      os::window id = GetWindow(get_os_window(), GW_CHILD);
-      while (id) {
-        list.push_back(detail::get_window(id));
-        id = GetWindow(id, GW_HWNDNEXT);
-      }
-      return list;
-    }
-
     void container::set_children_visible (bool show) {
       std::vector<window*> children = get_children();
       for (window* win : children) {
@@ -266,51 +256,12 @@ namespace gui {
       }
     }
 
-    container::window_list_t container::get_children () const {
-      window_list_t list;
-
-      if (is_valid()) {
-        Window root = 0;
-        Window parent = 0;
-        Window *children = 0;
-        unsigned int nchildren = 0;
-
-        if (x11::check_status(XQueryTree(core::global::get_instance(),
-                                         get_os_window(),
-                                         &root,
-                                         &parent,
-                                         &children,
-                                         &nchildren))) {
-          for (unsigned int n = 0; n < nchildren; ++n) {
-            window* sub = detail::get_window(children[n]);
-            if (sub) {
-              list.push_back(sub);
-            }
-          }
-        }
-        if (children) {
-          XFree(children);
-        }
-      }
-      return list;
-    }
-
 #endif // GUIPP_X11
 
 #ifdef GUIPP_QT
 
     bool container::is_parent_of (const window& child) const {
       return is_valid() && child.is_valid() && (get_os_window() == detail::get_os_window(child)->get_parent());
-    }
-
-    container::window_list_t container::get_children () const {
-      container::window_list_t list;
-      if (is_valid()) {
-        for (auto child :get_os_window()->children()) {
-          list.push_back(detail::get_window(static_cast<os::window>(child)));
-        }
-      }
-      return list;
     }
 
     void get_deep_children (os::window win, std::vector<os::window>& list) {
@@ -446,6 +397,18 @@ namespace gui {
         }
       }
       return false;
+    }
+
+    container::window_list_t container::get_children () const {
+      return container::window_list_t(children.begin(), children.end());
+    }
+
+    void container::add_child (window* w) {
+      children.insert(children.end(), w);
+    }
+
+    void container::remove_child (window* w) {
+      children.erase(w);
     }
 
     void container::take_focus (bool backward) {

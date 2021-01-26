@@ -20,20 +20,20 @@
 
 // --------------------------------------------------------------------------
 //
-// Library includes
-//
-#include <gui/core/window_state.h>
-#include <gui/win/window_class.h>
-#include <gui/win/receiver.h>
-
-
-// --------------------------------------------------------------------------
-//
 // Common includes
 //
 #include <cstddef>
 #include <memory>
 #include <bitset>
+
+
+// --------------------------------------------------------------------------
+//
+// Library includes
+//
+#include <gui/core/window_state.h>
+#include <gui/win/window_class.h>
+#include <gui/win/receiver.h>
 
 
 namespace gui {
@@ -63,7 +63,7 @@ namespace gui {
       void destroy ();
       void close ();
 
-      void set_parent (const container& parent);
+      void set_parent (container& parent);
       container* get_parent () const;
       container* get_root_window () const;
       overlapped_window* get_overlapped_window () const;
@@ -172,6 +172,8 @@ namespace gui {
       void init ();
 
       os::window id;
+      core::rectangle area;
+      container* parent;
 
     protected:
       gui::core::state_type flags;

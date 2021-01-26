@@ -18,6 +18,14 @@
 
 #pragma once
 
+
+// --------------------------------------------------------------------------
+//
+// Common includes
+//
+#include <set>
+
+
 // --------------------------------------------------------------------------
 //
 // Library includes
@@ -59,6 +67,9 @@ namespace gui {
       bool can_accept_focus () const override;
       void take_focus (bool backward = false) override;
 
+      void add_child (window*);
+      void remove_child (window*);
+
     protected:
       using window::create;
 
@@ -69,6 +80,8 @@ namespace gui {
       os::window get_os_window () const;
 
       void init ();
+
+      std::set<window*> children;
     };
 
     // --------------------------------------------------------------------------

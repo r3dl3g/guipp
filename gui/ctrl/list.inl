@@ -207,6 +207,7 @@ namespace gui {
       if (data.selection != -1) {
         data.selection = -1;
         if (notify != event_source::logic) {
+
           notify_selection_changed(notify);
           super::invalidate();
         }

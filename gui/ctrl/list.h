@@ -26,7 +26,7 @@
 #include <gui/core/orientation_traits.h>
 #include <gui/core/list_state.h>
 #include <gui/draw/brush.h>
-#include <gui/win/window_event_handler.h>
+#include <gui/win/container.h>
 #include <gui/ctrl/scroll_bar.h>
 #include <gui/ctrl/edit.h>
 #include <gui/ctrl/look/control.h>
@@ -204,9 +204,9 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class GUIPP_CTRL_EXPORT list_base : public control {
+      class GUIPP_CTRL_EXPORT list_base : public win::container {
       public:
-        typedef control super;
+        typedef win::container super;
         typedef core::size::type pos_t;
 
         explicit list_base (os::color background = color::white,
@@ -236,6 +236,16 @@ namespace gui {
                         const core::rectangle& place,
                         const draw::brush& background,
                         item_state state) const;
+
+        void on_selection_changed (std::function<void(event_source)>&& f);
+        void on_selection_commit (std::function<void()>&& f);
+        void on_hilite_changed (std::function<void(bool)>&& f);
+        void on_content_changed (std::function<void()>&& f);
+
+        void notify_selection_changed (event_source);
+        void notify_selection_commit ();
+        void notify_hilite_changed (bool);  // true if hilite is visible, false for no hilite
+        void notify_content_changed ();
 
       protected:
         struct data {

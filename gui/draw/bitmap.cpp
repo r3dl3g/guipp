@@ -355,7 +355,7 @@ namespace gui {
           bitmap_info bmi = rhs.get_info();
           create(bmi);
 #ifdef GUIPP_QT
-          *get_id() = *rhs.get_id();
+          *get_os_bitmap() = *rhs.get_os_bitmap();
 #else
           graphics(*this).copy_from((os::drawable)rhs, core::native_rect(bmi.size()));
 #endif
@@ -378,19 +378,19 @@ namespace gui {
 #ifdef GUIPP_QT
       return id;
 #else
-      return get_id();
+      return get_os_bitmap();
 #endif
     }
 
     void basic_map::clear () {
       if (is_valid()) {
-        free_bitmap(get_id());
-        set_id(0);
+        free_bitmap(get_os_bitmap());
+        set_os_bitmap(0);
       }
     }
 
     bitmap_info basic_map::get_info () const {
-      return bitmap_get_info(get_id());
+      return bitmap_get_info(get_os_bitmap());
     }
 
     core::native_size basic_map::native_size () const {
@@ -411,7 +411,7 @@ namespace gui {
         return;
       }
       clear();
-      set_id(create_bitmap(rhs));
+      set_os_bitmap(create_bitmap(rhs));
       if (!is_valid()) {
         throw std::runtime_error("create image failed");
       }
@@ -449,12 +449,12 @@ namespace gui {
         create(bmi.size());
         if (core::os::bitmap_bit_white) {
           const auto raw = rhs.get_data();
-          bitmap_put_data(get_id(), raw.raw_data().data(0, bmi.mem_size()), bmi);
+          bitmap_put_data(get_os_bitmap(), raw.raw_data().data(0, bmi.mem_size()), bmi);
         } else {
           bwmap data = rhs;
           data.invert();
           const auto raw = data.get_const_data();
-          bitmap_put_data(get_id(), raw.raw_data().data(0, bmi.mem_size()), bmi);
+          bitmap_put_data(get_os_bitmap(), raw.raw_data().data(0, bmi.mem_size()), bmi);
         }
       } else {
         clear();
@@ -464,7 +464,7 @@ namespace gui {
     bwmap bitmap::get () const {
       blob data;
       bitmap_info bmi;
-      bitmap_get_data(get_id(), data, bmi);
+      bitmap_get_data(get_os_bitmap(), data, bmi);
       bwmap bmp(std::move(data), std::move(bmi));
       if (!core::os::bitmap_bit_white) {
         bmp.invert();
@@ -482,13 +482,13 @@ namespace gui {
 #if GUIPP_WIN
       clear();
       HDC dc = GetDC(NULL);
-      set_id(CreateCompatibleBitmap(dc, w, h));
+      set_os_bitmap(CreateCompatibleBitmap(dc, w, h));
       ReleaseDC(NULL, dc);
 #elif GUIPP_X11
       pixel_format_t px_fmt = core::global::get_device_pixel_format();
       super::create({w, h, px_fmt});
 #elif GUIPP_QT
-      set_id(new  QPixmap(w, h));
+      set_os_bitmap(new  QPixmap(w, h));
 #endif //GUIPP_QT
       if (!is_valid()) {
         throw std::runtime_error("create pixmap failed");
@@ -504,9 +504,9 @@ namespace gui {
 
     void pixmap::invert () {
 #ifdef GUIPP_QT
-      QImage tmp = get_id()->toImage();
+      QImage tmp = get_os_bitmap()->toImage();
       tmp.invertPixels();
-      *(get_id()) = QPixmap::fromImage(std::move(tmp));
+      *(get_os_bitmap()) = QPixmap::fromImage(std::move(tmp));
 #else
       switch (pixel_format()) {
         case pixel_format_t::BW:   invert<pixel_format_t::BW>();   break;
@@ -524,13 +524,13 @@ namespace gui {
 
     void pixmap::put_raw (cbyteptr data, const draw::bitmap_info& bmi) {
       if (is_valid()) {
-        bitmap_put_data(get_id(), data, bmi);
+        bitmap_put_data(get_os_bitmap(), data, bmi);
       }
     }
 
     void pixmap::get_raw (blob& data, draw::bitmap_info& bmi) const {
       if (is_valid()) {
-        bitmap_get_data(get_id(), data, bmi);
+        bitmap_get_data(get_os_bitmap(), data, bmi);
       }
     }
 

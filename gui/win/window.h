@@ -49,7 +49,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace detail {
 
-      void set_id (window* w, os::window id);
+      void set_os_window (window* w, os::window id);
 
     }
 
@@ -157,11 +157,11 @@ namespace gui {
       void set_accept_focus (bool a);
 
     private:
-      friend void detail::set_id (window*, os::window);
-      friend os::window detail::get_window_id (const window&);
+      friend void detail::set_os_window (window*, os::window);
+      friend os::window detail::get_os_window (const window&);
 
-      os::window get_id () const;
-      void set_id (os::window);
+      os::window get_os_window () const;
+      void set_os_window (os::window);
 
     private:
       static os::window create_window (const class_info&,
@@ -196,12 +196,12 @@ namespace gui {
 namespace std {
 
   inline ostream& operator<< (ostream& out, const gui::win::window& t) {
-    out << "[" << gui::win::detail::get_window_id(t) << "] (" << typeid(t).name() << ')';
+    out << "[" << gui::win::detail::get_os_window(t) << "] (" << typeid(t).name() << ')';
     return out;
   }
 
   inline ostream& operator<< (ostream& out, const gui::win::window* t) {
-    out << "[" << gui::win::detail::get_window_id(*t) << "] (" << typeid(*t).name() << ')';
+    out << "[" << gui::win::detail::get_os_window(*t) << "] (" << typeid(*t).name() << ')';
     return out;
   }
 

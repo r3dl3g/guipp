@@ -34,18 +34,18 @@ namespace testing {
   pixmap_str pixmap2string (const gui::draw::pixmap& img) {
 #ifdef GUIPP_X11
     gui::core::native_size sz = img.native_size();
-    XImage* xim = XGetImage(gui::core::global::get_instance(), img.get_id(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
+    XImage* xim = XGetImage(gui::core::global::get_instance(), img.get_os_bitmap(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
     auto str = data2string(xim->data, xim->bits_per_pixel / 8, xim->bytes_per_line, xim->height);
     XDestroyImage(xim);
 #elif GUIPP_WIN
     BITMAP bmi;
-    GetObject(img.get_id(), sizeof (BITMAP), &bmi);
+    GetObject(img.get_os_bitmap(), sizeof (BITMAP), &bmi);
     gui::blob data;
     data.resize(bmi.bmHeight * bmi.bmWidthBytes);
-    GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
+    GetBitmapBits(img.get_os_bitmap(), (LONG)data.size(), data.data());
     auto str = data2string((const char*)data.data(), bmi.bmBitsPixel / 8, bmi.bmWidthBytes, bmi.bmHeight);
 #elif GUIPP_QT
-    auto pic = img.get_id()->toImage();
+    auto pic = img.get_os_bitmap()->toImage();
     auto str = data2string((const char*)pic.constBits(), pic.depth() / 8, pic.bytesPerLine(), pic.height());
 #endif
     return str;
@@ -121,22 +121,22 @@ namespace testing {
   colormap pixmap2colormap (const gui::draw::basic_map& map) {
 #ifdef GUIPP_X11
     gui::core::native_size sz = map.native_size();
-    XImage* xim = XGetImage(gui::core::global::get_instance(), map.get_id(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
+    XImage* xim = XGetImage(gui::core::global::get_instance(), map.get_os_bitmap(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
     auto result = data2colormap(xim->data, xim->bits_per_pixel, xim->bytes_per_line, xim->width, xim->height);
     XDestroyImage(xim);
     return result;
 #elif GUIPP_WIN
     BITMAP bmp;
-    GetObject(map.get_id(), sizeof (BITMAP), &bmp);
+    GetObject(map.get_os_bitmap(), sizeof (BITMAP), &bmp);
     gui::blob data;
     data.resize(bmp.bmWidthBytes * bmp.bmHeight);
-    int res = GetBitmapBits(map.get_id(), (LONG)data.size(), data.data());
+    int res = GetBitmapBits(map.get_os_bitmap(), (LONG)data.size(), data.data());
     if (res != data.size()) {
       std::cerr << "GetBitmapBits returned " << res << " expected:" << data.size() << std::endl;
     }
     return data2colormap((const char*)data.data(), bmp.bmBitsPixel, bmp.bmWidthBytes, bmp.bmWidth, bmp.bmHeight);
 #elif GUIPP_QT
-    QImage img = map.get_id()->toImage();
+    QImage img = map.get_os_bitmap()->toImage();
 //    if (img.depth() == 1) {
 //      img.invertPixels();
 //    }

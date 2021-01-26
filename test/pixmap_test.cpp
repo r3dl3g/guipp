@@ -228,13 +228,13 @@ void test_bitmap_black () {
   EXPECT_EQUAL(img.get_info(), bitmap_info(4, 4, IF_WIN32_ELSE(2, 4), pixel_format_t::BW));
 
 #ifdef GUIPP_QTxx
-  auto pic = img.get_id()->toImage();
+  auto pic = img.get_os_bitmap()->toImage();
   auto data = data2hex(pic.constBits(), pic.byteCount());
   EXPECT_EQUAL(data, "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00");
 #endif
 
 #ifdef GUIPP_QT
-  QImage qimg = img.get_id()->toImage();
+  QImage qimg = img.get_os_bitmap()->toImage();
   qimg.invertPixels();
   EXPECT_EQUAL(qimage2colormap(qimg),
                CM({{_,_,_,_},
@@ -474,20 +474,20 @@ void test_pixmap_draw () {
   EXPECT_EQUAL(img.get_info(), bitmap_info(6, 6, expected_pixelformat));
 
 #ifdef GUIPP_X11
-  XImage* xim = XGetImage(core::global::get_instance(), img.get_id(), 0, 0, 6, 6, AllPlanes, ZPixmap);
+  XImage* xim = XGetImage(core::global::get_instance(), img.get_os_bitmap(), 0, 0, 6, 6, AllPlanes, ZPixmap);
   const int height = xim->height;
   const int bytes_per_line = xim->bytes_per_line;
   const auto data = xim->data;
 #elif GUIPP_WIN
   BITMAP bmi;
-  GetObject(img.get_id(), sizeof (BITMAP), &bmi);
+  GetObject(img.get_os_bitmap(), sizeof (BITMAP), &bmi);
   blob data;
   data.resize(bmi.bmHeight * bmi.bmWidthBytes);
-  GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
+  GetBitmapBits(img.get_os_bitmap(), (LONG)data.size(), data.data());
   const int height = bmi.bmHeight;
   const int bytes_per_line = bmi.bmWidthBytes;
 #elif GUIPP_QT
-  auto pic = img.get_id()->toImage();
+  auto pic = img.get_os_bitmap()->toImage();
   auto data = pic.constBits();
   const int height = pic.height();
   const int bytes_per_line = pic.bytesPerLine();
@@ -605,19 +605,19 @@ void test_pixmap2bitmap () {
   }
 
 #ifdef GUIPP_X11
-  XImage* xim = XGetImage(core::global::get_instance(), img.get_id(), 0, 0, 2, 2, AllPlanes, ZPixmap);
+  XImage* xim = XGetImage(core::global::get_instance(), img.get_os_bitmap(), 0, 0, 2, 2, AllPlanes, ZPixmap);
   auto data = xim->data;
 #elif GUIPP_WIN
   BITMAP bmi;
-  GetObject(img.get_id(), sizeof (BITMAP), &bmi);
+  GetObject(img.get_os_bitmap(), sizeof (BITMAP), &bmi);
   blob data;
   data.resize(bmi.bmHeight * bmi.bmWidthBytes);
-  int result = GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
+  int result = GetBitmapBits(img.get_os_bitmap(), (LONG)data.size(), data.data());
   if (result != data.size()) {
     std::cerr << "GetBitmapBits returned " << result << " expected:" << data.size() << std::endl;
   }
 #elif GUIPP_QT
-  auto pic = img.get_id()->toImage();
+  auto pic = img.get_os_bitmap()->toImage();
   auto data = pic.constBits();
 #endif
 
@@ -661,7 +661,7 @@ void test_bitmap2pixmap () {
   pixmap pix = bw;
 
 #ifdef GUIPP_QT
-  EXPECT_EQUAL(qimage2colormap(pix.get_id()->toImage()),
+  EXPECT_EQUAL(qimage2colormap(pix.get_os_bitmap()->toImage()),
              CM({{_,W},
                  {W,_}}));
 #endif

@@ -44,7 +44,7 @@ namespace gui {
 
     void clipboard::set_text (window& win, const std::string& t) {
       text = t;
-      auto id = detail::get_window_id(win);
+      auto id = detail::get_os_window(win);
       if (OpenClipboard(id)) {
         const std::size_t len = text.size() + 1;
         HGLOBAL hmem = GlobalAlloc(GMEM_DDESHARE, len);
@@ -60,7 +60,7 @@ namespace gui {
     }
 
     void clipboard::get_text (window& win, std::function<clipboard::text_callback>&& cb) {
-      auto id = detail::get_window_id(win);
+      auto id = detail::get_os_window(win);
       if (OpenClipboard(id)) {
         HANDLE hmem = GetClipboardData(CF_UNICODETEXT);
         if (hmem) {
@@ -146,7 +146,7 @@ namespace gui {
 
     void clipboard::set_text (window& win, const std::string& t) {
       text = t;
-      XSetSelectionOwner(core::global::get_instance(), detail::CLIPBOARD, detail::get_window_id(win), CurrentTime);
+      XSetSelectionOwner(core::global::get_instance(), detail::CLIPBOARD, detail::get_os_window(win), CurrentTime);
     }
 
     void clipboard::get_text (window& win, std::function<clipboard::text_callback>&& cb) {
@@ -178,7 +178,7 @@ namespace gui {
                         detail::CLIPBOARD,
                         detail::UTF8_STRING,
                         detail::XSEL_DATA,
-                        detail::get_window_id(win), CurrentTime);
+                        detail::get_os_window(win), CurrentTime);
     }
 
 #endif // GUIPP_X11

@@ -99,7 +99,7 @@ namespace gui {
       own_gc = true;
       ReleaseDC(NULL, gdc);
 
-      SelectObject(gc, target.get_id());
+      SelectObject(gc, target.get_os_bitmap());
     }
 
     graphics::graphics (const graphics& rhs)
@@ -232,13 +232,13 @@ namespace gui {
       if (bmp.mask) {
         core::native_size sz = bmp.mask.native_size();
         HDC mask_dc = CreateCompatibleDC(gc);
-        SelectObject(mask_dc, bmp.mask.get_id());
+        SelectObject(mask_dc, bmp.mask.get_os_bitmap());
         BitBlt(gc, pt.x(), pt.y(), sz.width(), sz.height(), mask_dc, 0, 0, static_cast<int>(copy_mode::bit_and)); //DSna, https://docs.microsoft.com/en-us/windows/win32/gdi/ternary-raster-operations
         DeleteDC(mask_dc);
         if (bmp.image) {
           core::native_size sz = bmp.image.native_size();
           HDC img_dc = CreateCompatibleDC(gc);
-          SelectObject(img_dc, bmp.image.get_id());
+          SelectObject(img_dc, bmp.image.get_os_bitmap());
           BitBlt(gc, pt.x(), pt.y(), sz.width(), sz.height(), img_dc, 0, 0, static_cast<int>(copy_mode::bit_or));  // DSo
           DeleteDC(img_dc);
         }
@@ -503,7 +503,7 @@ namespace gui {
       auto display = core::global::get_instance();
       int res = 0;
       if (bmp.mask) {
-        XSetClipMask(display, gc, bmp.mask.get_id());
+        XSetClipMask(display, gc, bmp.mask.get_os_bitmap());
         XSetClipOrigin(display, gc, pt.x(), pt.y());
       }
       if (bmp.image) {
@@ -721,38 +721,38 @@ namespace gui {
 
     const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) const {
       if (bmp.mask && bmp.image) {
-//        QImage img = bmp.mask.get_id()->toImage();
+//        QImage img = bmp.mask.get_os_bitmap()->toImage();
 //        img.invertPixels();
 //        QBitmap mask = QBitmap::fromImage(img);
 //        gc->setClipRegion(QRegion(mask));
-        gc->setClipRegion(QRegion(*bmp.mask.get_id()));
-        gc->drawPixmap(pt.x(), pt.y(), *bmp.image.get_id());
+        gc->setClipRegion(QRegion(*bmp.mask.get_os_bitmap()));
+        gc->drawPixmap(pt.x(), pt.y(), *bmp.image.get_os_bitmap());
 //        restore_clipping();
 
 //        QPainter::CompositionMode old_mode = gc->compositionMode();
 //        gc->setCompositionMode(QPainter::RasterOp_NotSourceAndDestination);
-//        gc->drawPixmap(pt.x(), pt.y(), *bmp.mask.get_id());
+//        gc->drawPixmap(pt.x(), pt.y(), *bmp.mask.get_os_bitmap());
 //        gc->setCompositionMode(QPainter::RasterOp_SourceOrDestination);
-//        gc->drawPixmap(pt.x(), pt.y(), *bmp.image.get_id());
+//        gc->drawPixmap(pt.x(), pt.y(), *bmp.image.get_os_bitmap());
 //        gc->setCompositionMode(old_mode);
       } else if (bmp.image) {
-        gc->drawPixmap(pt.x(), pt.y(), *bmp.image.get_id());
+        gc->drawPixmap(pt.x(), pt.y(), *bmp.image.get_os_bitmap());
       } else if (bmp.mask) {
-        gc->drawPixmap(pt.x(), pt.y(), *bmp.mask.get_id());
+        gc->drawPixmap(pt.x(), pt.y(), *bmp.mask.get_os_bitmap());
       }
       return *this;
     }
 
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) const {
       if (bmp) {
-        gc->drawPixmap(pt.os(), *bmp.get_id(), src.os());
+        gc->drawPixmap(pt.os(), *bmp.get_os_bitmap(), src.os());
       }
       return *this;
     }
 
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_rect& src, const core::native_point& pt) const {
       if (bmp) {
-        gc->drawPixmap(pt.x(), pt.y(), *bmp.get_id(), src.x(), src.y(), src.width(), src.height());
+        gc->drawPixmap(pt.x(), pt.y(), *bmp.get_os_bitmap(), src.x(), src.y(), src.width(), src.height());
       }
       return *this;
     }

@@ -45,7 +45,7 @@ namespace gui {
       operator= (std::move(rhs));
     }
 
-    inline void basic_map::set_id (os::bitmap rhs) {
+    inline void basic_map::set_os_bitmap (os::bitmap rhs) {
       id = rhs;
     }
 
@@ -53,11 +53,11 @@ namespace gui {
       return is_valid();
     }
 
-    inline os::bitmap& basic_map::get_id () {
+    inline os::bitmap& basic_map::get_os_bitmap () {
       return id;
     }
 
-    inline const os::bitmap& basic_map::get_id () const {
+    inline const os::bitmap& basic_map::get_os_bitmap () const {
       return id;
     }
 

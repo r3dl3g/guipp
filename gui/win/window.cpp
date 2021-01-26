@@ -107,7 +107,7 @@ namespace gui {
     inline std::ostream& operator<< (std::ostream& out, const log_hierarchy& lh) {
       const window* w = lh.win;
       while (w) {
-        out << " -> " << detail::get_window_id(*w);
+        out << " -> " << detail::get_os_window(*w);
         w = w->get_parent();
       }
       return out;
@@ -143,7 +143,7 @@ namespace gui {
       if (rhs.is_valid()) {
         container* parent = rhs.get_parent();
         create_internal(rhs.get_window_class(),
-                        parent ? detail::get_window_id(*parent) : get_desktop_window(),
+                        parent ? detail::get_os_window(*parent) : get_desktop_window(),
                         rhs.place());
       }
     }
@@ -160,7 +160,7 @@ namespace gui {
                          container& parent,
                          const core::rectangle& r) {
       if (parent.is_valid()) {
-        create_internal(type, detail::get_window_id(parent), r);
+        create_internal(type, detail::get_os_window(parent), r);
       }
     }
 
@@ -168,7 +168,7 @@ namespace gui {
                                   os::window parent_id,
                                   const core::rectangle& r) {
 
-      if (get_id()) {
+      if (get_os_window()) {
         destroy();
       }
 
@@ -185,7 +185,7 @@ namespace gui {
 #ifdef GUIPP_QT
       return id;
 #else
-      return get_id();
+      return get_os_window();
 #endif
     }
 
@@ -268,7 +268,7 @@ namespace gui {
     void window::set_accept_focus (bool a) {
       if (is_valid()) {
 #ifdef GUIPP_QT
-        get_id()->setFocusPolicy(a ? Qt::WheelFocus : Qt::NoFocus);
+        get_os_window()->setFocusPolicy(a ? Qt::WheelFocus : Qt::NoFocus);
 #endif //GUIPP_QT
       }
       set_state().accept_focus(a);
@@ -337,15 +337,15 @@ namespace gui {
     }
 
     void window::destroy () {
-      if (get_id()) {
-        DestroyWindow(get_id());
+      if (get_os_window()) {
+        DestroyWindow(get_os_window());
         id = 0;
       }
     }
 
     void window::close () {
-      if (get_id()) {
-        CloseWindow(get_id());
+      if (get_os_window()) {
+        CloseWindow(get_os_window());
       }
     }
 
@@ -355,7 +355,7 @@ namespace gui {
           gui::os::style ws = get_window_class().get_style();
           if ((ws & WS_POPUP) != WS_POPUP) {
             // For WS_POPUP EnableWindow(, false) causes an empty window.
-            EnableWindow(get_id(), on);
+            EnableWindow(get_os_window(), on);
           }
           invalidate();
         }
@@ -363,96 +363,96 @@ namespace gui {
     }
 
     bool window::is_valid () const {
-      return (get_id() != 0) && (IsWindow(get_id()) != FALSE);
+      return (get_os_window() != 0) && (IsWindow(get_os_window()) != FALSE);
     }
 
     bool window::is_visible () const {
-      return is_valid() && IsWindowVisible(get_id());
+      return is_valid() && IsWindowVisible(get_os_window());
     }
 
     bool window::is_focused () const {
-      return is_valid() && (GetFocus() == get_id());
+      return is_valid() && (GetFocus() == get_os_window());
     }
 
     bool window::is_child () const {
-      return is_valid() && (GetWindowLong(get_id(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
+      return is_valid() && (GetWindowLong(get_os_window(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
     }
 
     bool window::is_popup () const {
-      return is_valid() && (GetWindowLong(get_id(), GWL_STYLE) & WS_POPUP) == WS_POPUP;
+      return is_valid() && (GetWindowLong(get_os_window(), GWL_STYLE) & WS_POPUP) == WS_POPUP;
     }
 
     bool window::is_toplevel () const {
-      return is_valid() && (GetWindowLong(get_id(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
+      return is_valid() && (GetWindowLong(get_os_window(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
     }
 
     bool window::has_border () const {
-      return is_valid() && (GetWindowLong(get_id(), GWL_STYLE) & (WS_BORDER | WS_DLGFRAME | WS_THICKFRAME) ? true : false);
+      return is_valid() && (GetWindowLong(get_os_window(), GWL_STYLE) & (WS_BORDER | WS_DLGFRAME | WS_THICKFRAME) ? true : false);
     }
 
     void window::set_parent (const container& parent) {
       if (is_valid() && parent.is_valid()) {
-        SetParent(get_id(), detail::get_window_id(parent));
+        SetParent(get_os_window(), detail::get_os_window(parent));
       }
     }
 
     container* window::get_parent () const {
-      return is_valid() ? (container*)detail::get_window(GetParent(get_id())) : nullptr;
+      return is_valid() ? (container*)detail::get_window(GetParent(get_os_window())) : nullptr;
     }
 
     bool window::is_child_of (const container& parent) const {
-      return is_valid() && parent.is_valid() && IsChild(detail::get_window_id(parent), get_id()) != FALSE;
+      return is_valid() && parent.is_valid() && IsChild(detail::get_os_window(parent), get_os_window()) != FALSE;
     }
 
     void window::set_visible (bool s) {
       if (is_valid()) {
-        ShowWindow(get_id(), s ? SW_SHOWNA : SW_HIDE);
+        ShowWindow(get_os_window(), s ? SW_SHOWNA : SW_HIDE);
       }
     }
 
     void window::take_focus (bool) {
       if (is_valid()) {
         set_state().focused(true);
-        SetFocus(get_id());
+        SetFocus(get_os_window());
         invalidate();
       }
     }
 
     void window::to_front () {
       if (is_valid()) {
-        SetWindowPos(get_id(), HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+        SetWindowPos(get_os_window(), HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
       }
     }
 
     void window::to_back () {
       if (is_valid()) {
-        SetWindowPos(get_id(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+        SetWindowPos(get_os_window(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
       }
     }
 
     void window::redraw () const {
       if (is_valid()) {
-        clog::trace() << "redraw: " << get_id();
-        RedrawWindow(get_id(), nullptr, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
+        clog::trace() << "redraw: " << get_os_window();
+        RedrawWindow(get_os_window(), nullptr, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
       }
     }
 
     void window::invalidate () const {
       if (is_valid()) {
-        clog::trace() << "invalidate: " << get_id();
-        InvalidateRect(get_id(), nullptr, TRUE);
+        clog::trace() << "invalidate: " << get_os_window();
+        InvalidateRect(get_os_window(), nullptr, TRUE);
       }
     }
 
     core::size window::size () const {
       RECT r;
-      GetWindowRect(get_id(), &r);
+      GetWindowRect(get_os_window(), &r);
       return core::size(r);
     }
 
     core::point window::position () const {
       RECT r;
-      GetWindowRect(get_id(), &r);
+      GetWindowRect(get_os_window(), &r);
       return screen_to_window(core::point(os::point {r.left, r.top}));
     }
 
@@ -463,31 +463,31 @@ namespace gui {
 
     core::rectangle window::absolute_place () const {
       RECT r;
-      GetWindowRect(get_id(), &r);
+      GetWindowRect(get_os_window(), &r);
       return core::rectangle(r);
     }
 
     core::point window::absolute_position () const {
       RECT r;
-      GetWindowRect(get_id(), &r);
+      GetWindowRect(get_os_window(), &r);
       return core::point(r);
     }
 
     core::size window::client_size () const {
       RECT r;
-      GetClientRect(get_id(), &r);
+      GetClientRect(get_os_window(), &r);
       return core::size(r);
     }
 
     core::rectangle window::client_area () const {
       RECT r;
-      GetClientRect(get_id(), &r);
+      GetClientRect(get_os_window(), &r);
       return core::rectangle(r);
     }
 
     void window::move (const core::point& pt, bool repaint) {
       if (is_valid()) {
-        SetWindowPos(get_id(), nullptr, pt.os_x(), pt.os_y(), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
+        SetWindowPos(get_os_window(), nullptr, pt.os_x(), pt.os_y(), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
         if (repaint) {
           invalidate();
         }
@@ -496,7 +496,7 @@ namespace gui {
 
     void window::resize (const core::size& sz, bool repaint) {
       if (is_valid()) {
-        SetWindowPos(get_id(), nullptr, 0, 0, sz.os_width(), sz.os_height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
+        SetWindowPos(get_os_window(), nullptr, 0, 0, sz.os_width(), sz.os_height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
         send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(sz));
         if (repaint) {
           invalidate();
@@ -506,44 +506,44 @@ namespace gui {
 
     void window::place (const core::rectangle& r, bool repaint) {
       if (is_valid()) {
-        MoveWindow(get_id(), r.os_x(), r.os_y(), r.os_width(), r.os_height(), repaint);
+        MoveWindow(get_os_window(), r.os_x(), r.os_y(), r.os_width(), r.os_height(), repaint);
         send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(r.size()));
       }
     }
 
     core::point window::client_to_screen (const core::point& pt) const {
       POINT Point = pt;
-      ClientToScreen(get_id(), &Point);
+      ClientToScreen(get_os_window(), &Point);
       return core::point(Point);
     }
 
     core::point window::screen_to_client (const core::point& pt) const {
       POINT Point = pt;
-      ScreenToClient(get_id(), &Point);
+      ScreenToClient(get_os_window(), &Point);
       return core::point(Point);
     }
 
     void window::set_cursor (const os::cursor& c) {
       if (is_valid()) {
-        SetClassLongPtr(get_id(), GCLP_HCURSOR, reinterpret_cast<LONG_PTR>(c));
+        SetClassLongPtr(get_os_window(), GCLP_HCURSOR, reinterpret_cast<LONG_PTR>(c));
       }
     }
 
     void window::capture_pointer () {
       if (is_valid()) {
-        clog::trace() << "capture_pointer:" << get_id();
-        hidden::capture_stack.push_back(get_id());
-        SetCapture(get_id());
+        clog::trace() << "capture_pointer:" << get_os_window();
+        hidden::capture_stack.push_back(get_os_window());
+        SetCapture(get_os_window());
         s_wheel_hook.enable();
       }
     }
 
     void window::uncapture_pointer () {
       if (!hidden::capture_stack.empty()) {
-        if (hidden::capture_stack.back() != get_id()) {
-          clog::fatal() << "uncapture_pointer:" << get_id() << " differs from stack back:(" << hidden::capture_stack.back() << ")";
+        if (hidden::capture_stack.back() != get_os_window()) {
+          clog::fatal() << "uncapture_pointer:" << get_os_window() << " differs from stack back:(" << hidden::capture_stack.back() << ")";
         } else {
-          clog::trace() << "uncapture_pointer:" << get_id();
+          clog::trace() << "uncapture_pointer:" << get_os_window();
         }
         ReleaseCapture();
         hidden::capture_stack.pop_back();
@@ -558,14 +558,14 @@ namespace gui {
 
 # ifdef WIN32_DEPRECATED
     os::style window::get_style (os::style mask) const {
-      LONG old_style = GetWindowLong(get_id(), GWL_STYLE);
+      LONG old_style = GetWindowLong(get_os_window(), GWL_STYLE);
       os::style new_style = old_style & mask;
       return new_style;
     }
 
     void window::set_style (os::style style, bool enable) {
       LONG new_style = enable ? get_style() | style : get_style(~style);
-      SetWindowLong(get_id(), GWL_STYLE, new_style);
+      SetWindowLong(get_os_window(), GWL_STYLE, new_style);
       redraw();
     }
 
@@ -663,11 +663,11 @@ namespace gui {
     }
 
     void window::destroy () {
-      if (get_id()) {
-        hidden::window_class_map.erase(get_id());
-        x11::validate_window(get_id());
-        x11::check_return(XDestroyWindow(core::global::get_instance(), get_id()));
-        detail::unset_window(get_id());
+      if (get_os_window()) {
+        hidden::window_class_map.erase(get_os_window());
+        x11::validate_window(get_os_window());
+        x11::check_return(XDestroyWindow(core::global::get_instance(), get_os_window()));
+        detail::unset_os_window(get_os_window());
         id = 0;
       }
     }
@@ -684,7 +684,7 @@ namespace gui {
             XSetWindowAttributes wa = {0};
             wa.cursor = on ? get_window_class().get_cursor()
                            : (os::cursor)win::cursor::arrow();
-            x11::check_return(XChangeWindowAttributes(core::global::get_instance(), get_id(), mask, &wa));
+            x11::check_return(XChangeWindowAttributes(core::global::get_instance(), get_os_window(), mask, &wa));
           }
           invalidate();
         }
@@ -692,7 +692,7 @@ namespace gui {
     }
 
     bool window::is_valid () const {
-      return (get_id() != 0) && (detail::get_window(get_id()) == this);
+      return (get_os_window() != 0) && (detail::get_window(get_os_window()) == this);
     }
 
     bool window::is_focused () const {
@@ -700,7 +700,7 @@ namespace gui {
       int revert_to = 0;
       if (is_valid()) {
         if (x11::check_return(XGetInputFocus(core::global::get_instance(), &focus, &revert_to))) {
-          return focus == get_id();
+          return focus == get_os_window();
         }
       }
       return false;
@@ -713,7 +713,7 @@ namespace gui {
       unsigned int nchildren = 0;
 
       x11::check_status(XQueryTree(core::global::get_instance(),
-                                   get_id(),
+                                   get_os_window(),
                                    &root,
                                    &parent,
                                    &children,
@@ -731,7 +731,7 @@ namespace gui {
       unsigned int nchildren = 0;
 
       x11::check_status(XQueryTree(core::global::get_instance(),
-                                   get_id(),
+                                   get_os_window(),
                                    &root,
                                    &parent,
                                    &children,
@@ -748,14 +748,14 @@ namespace gui {
 
     bool window::has_border () const {
       XWindowAttributes a = {0};
-      return (x11::check_status(XGetWindowAttributes(core::global::get_instance(), get_id(), &a)) &&
+      return (x11::check_status(XGetWindowAttributes(core::global::get_instance(), get_os_window(), &a)) &&
               (a.border_width > 0));
     }
 
     void window::set_parent (const container& parent) {
       core::point pt = position();
-      x11::check_return(XReparentWindow(core::global::get_instance(), get_id(),
-                                        detail::get_window_id(parent), pt.x(), pt.y()));
+      x11::check_return(XReparentWindow(core::global::get_instance(), get_os_window(),
+                                        detail::get_os_window(parent), pt.x(), pt.y()));
     }
 
     container* window::get_parent () const {
@@ -765,7 +765,7 @@ namespace gui {
       unsigned int nchildren = 0;
 
       x11::check_return(XQueryTree(core::global::get_instance(),
-                                   get_id(),
+                                   get_os_window(),
                                    &root,
                                    &parent,
                                    &children,
@@ -789,7 +789,7 @@ namespace gui {
     bool window::is_visible () const {
       if (is_valid()) {
 //        return get_state().visible();
-        return is_window_visible(get_id());
+        return is_window_visible(get_os_window());
       }
       return false;
     }
@@ -800,29 +800,29 @@ namespace gui {
         if (current != s) {
           if (s) {
             clog::trace() << "Show window:" << *this;
-            x11::check_return(XMapWindow(core::global::get_instance(), get_id()));
+            x11::check_return(XMapWindow(core::global::get_instance(), get_os_window()));
           } else {
             clog::trace() << "Hide window:" << *this;
-            x11::check_return(XUnmapWindow(core::global::get_instance(), get_id()));
+            x11::check_return(XUnmapWindow(core::global::get_instance(), get_os_window()));
           }
-          set_state().visible(is_window_visible(get_id()));
+          set_state().visible(is_window_visible(get_os_window()));
         }
       }
     }
 
     void window::take_focus (bool) {
       set_state().focused(true);
-      x11::check_return(XSetInputFocus(core::global::get_instance(), get_id(),
+      x11::check_return(XSetInputFocus(core::global::get_instance(), get_os_window(),
                                        RevertToParent, CurrentTime));
       invalidate();
     }
 
     void window::to_front () {
-      x11::check_return(XRaiseWindow(core::global::get_instance(), get_id()));
+      x11::check_return(XRaiseWindow(core::global::get_instance(), get_os_window()));
     }
 
     void window::to_back () {
-      x11::check_return(XLowerWindow(core::global::get_instance(), get_id()));
+      x11::check_return(XLowerWindow(core::global::get_instance(), get_os_window()));
     }
 
     void window::redraw () const {
@@ -838,7 +838,7 @@ namespace gui {
       e.serial = 0;
       e.send_event = true;
       e.display = core::global::get_instance();
-      e.window = get_id();
+      e.window = get_os_window();
       auto p = place();
       e.x = p.os_x();
       e.y = p.os_y();
@@ -854,8 +854,8 @@ namespace gui {
     }
 
     void window::invalidate () const {
-      if (get_id() && is_visible()) {
-        x11::invalidate_window(get_id());
+      if (get_os_window() && is_visible()) {
+        x11::invalidate_window(get_os_window());
       }
     }
 
@@ -865,7 +865,7 @@ namespace gui {
       unsigned int width = 0, height = 0;
       unsigned int border_width = 0;
       unsigned int depth = 0;
-      Window wid = get_id();
+      Window wid = get_os_window();
       if (wid && x11::check_status(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height,
                                                 &border_width, &depth))) {
@@ -880,7 +880,7 @@ namespace gui {
       unsigned int width = 0, height = 0;
       unsigned int border_width = 0;
       unsigned int depth = 0;
-      Window wid = get_id();
+      Window wid = get_os_window();
       if (wid && x11::check_return(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height,
                                                 &border_width, &depth))) {
@@ -895,7 +895,7 @@ namespace gui {
       unsigned int width = 0, height = 0;
       unsigned int border_width = 0;
       unsigned int depth = 0;
-      Window wid = get_id();
+      Window wid = get_os_window();
       if (wid && x11::check_return(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height,
                                                 &border_width, &depth))) {
@@ -924,7 +924,7 @@ namespace gui {
       if (position() != pt) {
         auto ox = pt.os_x();
         auto oy = pt.os_y();
-        x11::check_return(XMoveWindow(core::global::get_instance(), get_id(), ox, oy));
+        x11::check_return(XMoveWindow(core::global::get_instance(), get_os_window(), ox, oy));
         if (repaint) {
           invalidate();
         }
@@ -942,7 +942,7 @@ namespace gui {
             set_visible();
           }
           x11::check_return(XResizeWindow(core::global::get_instance(),
-                                          get_id(), sz.os_width(), sz.os_height()));
+                                          get_os_window(), sz.os_width(), sz.os_height()));
           send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(sz));
           if (repaint) {
             invalidate();
@@ -964,7 +964,7 @@ namespace gui {
         if (current != r) {
 
           x11::check_return(XMoveResizeWindow(core::global::get_instance(),
-                                              get_id(), r.os_x(), r.os_y(),
+                                              get_os_window(), r.os_x(), r.os_y(),
                                               r.os_width(), r.os_height()));
           if (current.size() != r.size()) {
             send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(r.size()));
@@ -981,7 +981,7 @@ namespace gui {
       Window child_return;
       auto display = core::global::get_instance();
       x11::check_return(XTranslateCoordinates(display,
-                                              get_id(),
+                                              get_os_window(),
                                               DefaultRootWindow(display),
                                               core::global::scale_to_native<int>(pt.x()),
                                               core::global::scale_to_native<int>(pt.y()),
@@ -997,7 +997,7 @@ namespace gui {
       auto display = core::global::get_instance();
       x11::check_return(XTranslateCoordinates(display,
                                               DefaultRootWindow(display),
-                                              get_id(),
+                                              get_os_window(),
                                               core::global::scale_to_native<int>(pt.x()),
                                               core::global::scale_to_native<int>(pt.y()),
                                               &x,
@@ -1007,14 +1007,14 @@ namespace gui {
     }
 
     void window::set_cursor (const os::cursor& c) {
-      XDefineCursor(core::global::get_instance(), get_id(), c);
+      XDefineCursor(core::global::get_instance(), get_os_window(), c);
     }
 
     void window::capture_pointer () {
 #ifndef NO_CAPTURE
-      clog::trace() << "capture_pointer:" << get_id();
-      hidden::capture_stack.push_back(get_id());
-      x11::check_return(XGrabPointer(core::global::get_instance(), get_id(),
+      clog::trace() << "capture_pointer:" << get_os_window();
+      hidden::capture_stack.push_back(get_os_window());
+      x11::check_return(XGrabPointer(core::global::get_instance(), get_os_window(),
                                      False,
                                      ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | LeaveWindowMask,
                                      GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
@@ -1024,10 +1024,10 @@ namespace gui {
     void window::uncapture_pointer () {
 #ifndef NO_CAPTURE
       if (!hidden::capture_stack.empty()) {
-        if (hidden::capture_stack.back() != get_id()) {
-          clog::fatal() << "uncapture_pointer:" << get_id() << " differs from stack back:(" << hidden::capture_stack.back() << ")";
+        if (hidden::capture_stack.back() != get_os_window()) {
+          clog::fatal() << "uncapture_pointer:" << get_os_window() << " differs from stack back:(" << hidden::capture_stack.back() << ")";
         } else {
-          clog::trace() << "uncapture_pointer:" << get_id();
+          clog::trace() << "uncapture_pointer:" << get_os_window();
         }
         x11::check_return(XUngrabPointer(core::global::get_instance(), CurrentTime));
         hidden::capture_stack.pop_back();
@@ -1092,7 +1092,7 @@ namespace gui {
                                     mask,
                                     &wa);
 
-      detail::set_window(id, data);
+      detail::set_os_window(id, data);
       data->id = id;
 
       x11::prepare_win_for_event(data, KeyReleaseMask);
@@ -1106,7 +1106,7 @@ namespace gui {
     }
 
     std::string window::get_class_name () const {
-      return hidden::window_class_map[get_id()];
+      return hidden::window_class_map[get_os_window()];
     }
 
     void window::notify_event (os::message_type message, long l1, long l2) {
@@ -1117,7 +1117,7 @@ namespace gui {
       client.serial = 0;
       client.send_event = True;
       client.display = core::global::get_instance();
-      client.window = get_id();
+      client.window = get_os_window();
       client.message_type = message;
       client.format = 32;
       client.data.l[0] = l1;
@@ -1177,63 +1177,63 @@ namespace gui {
     void window::enable (bool on) {
       if (set_state().enable(on)) {
         if (is_valid()) {
-          get_id()->setEnabled(on);
+          get_os_window()->setEnabled(on);
           invalidate();
         }
       }
     }
 
     bool window::is_valid () const {
-      return (get_id() != 0);
+      return (get_os_window() != 0);
     }
 
     bool window::is_visible () const {
-      return is_valid() && get_id()->isVisible();
+      return is_valid() && get_os_window()->isVisible();
     }
 
     bool window::is_focused () const {
-      return is_valid() && get_id()->hasFocus();
+      return is_valid() && get_os_window()->hasFocus();
     }
 
     bool window::is_child () const {
-      return is_valid() && !get_id()->isTopLevel();
+      return is_valid() && !get_os_window()->isTopLevel();
     }
 
     bool window::is_popup () const {
-      return is_valid() && (get_id()->isWindow() && (get_id()->windowType() == Qt::Popup));
+      return is_valid() && (get_os_window()->isWindow() && (get_os_window()->windowType() == Qt::Popup));
     }
 
     bool window::is_toplevel () const {
-      return is_valid() && get_id()->isTopLevel();
+      return is_valid() && get_os_window()->isTopLevel();
     }
 
     bool window::has_border () const {
-      return is_valid() && (get_id()->frameSize() != get_id()->size());
+      return is_valid() && (get_os_window()->frameSize() != get_os_window()->size());
     }
 
     void window::set_parent (const container& parent) {
       if (is_valid() && parent.is_valid()) {
-        get_id()->setParent(detail::get_window_id(parent));
+        get_os_window()->setParent(detail::get_os_window(parent));
       }
     }
 
     container* window::get_parent () const {
-      return is_valid() ? (container*)detail::get_window(get_id()->get_parent()) : nullptr;
+      return is_valid() ? (container*)detail::get_window(get_os_window()->get_parent()) : nullptr;
     }
 
     bool window::is_child_of (const container& parent) const {
-      return is_valid() && parent.is_valid() && (detail::get_window_id(parent) == get_id()->get_parent());
+      return is_valid() && parent.is_valid() && (detail::get_os_window(parent) == get_os_window()->get_parent());
     }
 
     void window::set_visible (bool s) {
       if (is_valid()) {
-        get_id()->setVisible(s);
+        get_os_window()->setVisible(s);
       }
     }
 
     void window::take_focus (bool) {
       if (is_valid()) {
-        auto win = get_id();
+        auto win = get_os_window();
         set_state().focused(true);
         win->setFocus();
         invalidate();
@@ -1242,42 +1242,42 @@ namespace gui {
 
     void window::to_front () {
       if (is_valid()) {
-        get_id()->stackUnder(get_id()->parentWidget());
+        get_os_window()->stackUnder(get_os_window()->parentWidget());
       }
     }
 
     void window::to_back () {
       if (is_valid()) {
-        get_id()->lower();
+        get_os_window()->lower();
       }
     }
 
     void window::redraw () const {
       if (is_valid()) {
-        clog::trace() << "redraw: " << get_id();
-        get_id()->repaint();
+        clog::trace() << "redraw: " << get_os_window();
+        get_os_window()->repaint();
       }
     }
 
     void window::invalidate () const {
       if (is_valid()) {
-        clog::trace() << "invalidate: " << get_id();
-        get_id()->update();
+        clog::trace() << "invalidate: " << get_os_window();
+        get_os_window()->update();
       }
     }
 
     core::size window::size () const {
-      return is_valid() ? core::size(get_id()->frameSize())
+      return is_valid() ? core::size(get_os_window()->frameSize())
                         : core::size::zero;
     }
 
     core::point window::position () const {
-      return is_valid() ? core::point(get_id()->pos())
+      return is_valid() ? core::point(get_os_window()->pos())
                         : core::point::zero;
     }
 
     core::rectangle window::place () const {
-      return is_valid() ? core::rectangle(get_id()->pos(), get_id()->frameSize())
+      return is_valid() ? core::rectangle(get_os_window()->pos(), get_os_window()->frameSize())
                         : core::rectangle::zero;
     }
 
@@ -1287,14 +1287,14 @@ namespace gui {
 
     core::point window::absolute_position () const {
       if (is_valid()) {
-        auto w = get_id();
+        auto w = get_os_window();
         return core::point(w->mapToGlobal(w->mapFromParent(w->pos())));
       }
       return core::point::zero;
     }
 
     core::size window::client_size () const {
-      return is_valid() ? core::size(get_id()->size())
+      return is_valid() ? core::size(get_os_window()->size())
                         : core::size::zero;
     }
 
@@ -1304,7 +1304,7 @@ namespace gui {
 
     void window::move (const core::point& pt, bool repaint) {
       if (is_valid()) {
-        get_id()->move(pt.os_x(), pt.os_y());
+        get_os_window()->move(pt.os_x(), pt.os_y());
         if (repaint) {
           invalidate();
         }
@@ -1313,7 +1313,7 @@ namespace gui {
 
     void window::resize (const core::size& sz, bool repaint) {
       if (is_valid()) {
-        get_id()->resize(sz.os_width(), sz.os_height());
+        get_os_window()->resize(sz.os_width(), sz.os_height());
         send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(sz));
         if (repaint) {
           invalidate();
@@ -1323,7 +1323,7 @@ namespace gui {
 
     void window::place (const core::rectangle& r, bool repaint) {
       if (is_valid()) {
-        get_id()->setGeometry(r.os());
+        get_os_window()->setGeometry(r.os());
         if (repaint) {
           invalidate();
         }
@@ -1332,27 +1332,27 @@ namespace gui {
     }
 
     core::point window::client_to_screen (const core::point& pt) const {
-      return is_valid() ? core::point(get_id()->mapToGlobal(pt.os()))
+      return is_valid() ? core::point(get_os_window()->mapToGlobal(pt.os()))
                         : core::point::zero;
     }
 
     core::point window::screen_to_client (const core::point& pt) const {
-      return is_valid() ? core::point(get_id()->mapFromGlobal(pt.os()))
+      return is_valid() ? core::point(get_os_window()->mapFromGlobal(pt.os()))
                         : core::point::zero;
     }
 
     void window::set_cursor (const os::cursor& c) {
       if (is_valid()) {
-        get_id()->setCursor(c);
+        get_os_window()->setCursor(c);
       }
     }
 
     void window::capture_pointer () {
 #ifndef NO_CAPTURE
       if (is_valid()) {
-        clog::trace() << "capture_pointer:" << get_id();
-        hidden::capture_stack.push_back(get_id());
-        get_id()->grabMouse();
+        clog::trace() << "capture_pointer:" << get_os_window();
+        hidden::capture_stack.push_back(get_os_window());
+        get_os_window()->grabMouse();
       }
 #endif // NO_CAPTURE
     }
@@ -1360,12 +1360,12 @@ namespace gui {
     void window::uncapture_pointer () {
 #ifndef NO_CAPTURE
       if (!hidden::capture_stack.empty()) {
-        if (hidden::capture_stack.back() != get_id()) {
-          clog::fatal() << "uncapture_pointer:" << get_id() << " differs from stack back:(" << hidden::capture_stack.back() << ")";
+        if (hidden::capture_stack.back() != get_os_window()) {
+          clog::fatal() << "uncapture_pointer:" << get_os_window() << " differs from stack back:(" << hidden::capture_stack.back() << ")";
         } else {
-          clog::trace() << "uncapture_pointer:" << get_id();
+          clog::trace() << "uncapture_pointer:" << get_os_window();
         }
-        get_id()->releaseMouse();
+        get_os_window()->releaseMouse();
         hidden::capture_stack.pop_back();
         if (!hidden::capture_stack.empty()) {
           clog::trace() << "re-capture_pointer:" << hidden::capture_stack.back();
@@ -1405,7 +1405,7 @@ namespace gui {
     }
 
     std::string window::get_class_name () const {
-      return hidden::window_class_map[get_id()];
+      return hidden::window_class_map[get_os_window()];
     }
 
     core::size window::screen_size () {
@@ -1524,7 +1524,7 @@ namespace gui {
 
       Widget::~Widget () {
         if (win) {
-          win::detail::set_id(win, nullptr);
+          win::detail::set_os_window(win, nullptr);
         }
       }
 

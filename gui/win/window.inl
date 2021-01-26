@@ -25,11 +25,11 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-    inline os::window window::get_id () const {
+    inline os::window window::get_os_window () const {
       return id;
     }
 
-    inline void window::set_id (os::window w) {
+    inline void window::set_os_window (os::window w) {
       id = w;
     }
 

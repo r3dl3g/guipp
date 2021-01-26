@@ -269,12 +269,12 @@ void test_bitmap_get_image_mask () {
     XSetClipMask(display, gc, None);
 #elif GUIPP_WIN
     HDC mask_dc = CreateCompatibleDC(gc);
-    SelectObject(mask_dc, mask.get_id());
+    SelectObject(mask_dc, mask.get_os_bitmap());
     BitBlt(gc, 0, 0, 20, 20, mask_dc, 0, 0, SRCAND);
     DeleteDC(mask_dc);
 #elif GUIPP_QT
-    gc.os()->setClipRegion(QRegion((QBitmap&)*mask.get_id()));
-    gc.os()->drawPixmap(0, 0, *pix.get_id());
+    gc.os()->setClipRegion(QRegion((QBitmap&)*mask.get_os_bitmap()));
+    gc.os()->drawPixmap(0, 0, *pix.get_os_bitmap());
 #endif // GUIPP_WIN
   }
 

@@ -56,12 +56,12 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     bool container::is_parent_of (const window& child) const {
-      return is_valid() && child.is_valid() && IsChild(get_id(), detail::get_window_id(child)) != FALSE;
+      return is_valid() && child.is_valid() && IsChild(get_os_window(), detail::get_os_window(child)) != FALSE;
     }
 
     std::vector<window*> container::get_children () const {
       std::vector<window*> list;
-      os::window id = GetWindow(get_id(), GW_CHILD);
+      os::window id = GetWindow(get_os_window(), GW_CHILD);
       while (id) {
         list.push_back(detail::get_window(id));
         id = GetWindow(id, GW_HWNDNEXT);
@@ -227,7 +227,7 @@ namespace gui {
         unsigned int nchildren = 0;
 
         if (x11::check_status(XQueryTree(core::global::get_instance(),
-                                         detail::get_window_id(win),
+                                         detail::get_os_window(win),
                                          &root,
                                          &parent,
                                          &children,
@@ -254,12 +254,12 @@ namespace gui {
 
     void container::set_children_visible (bool show) {
       if (show) {
-        x11::check_return(XMapSubwindows(core::global::get_instance(), get_id()));
+        x11::check_return(XMapSubwindows(core::global::get_instance(), get_os_window()));
         for(window* win : get_deep_children(*this)) {
           win->set_state().visible(true);
         }
       } else {
-        x11::check_return(XUnmapSubwindows(core::global::get_instance(), get_id()));
+        x11::check_return(XUnmapSubwindows(core::global::get_instance(), get_os_window()));
         for(window* win : get_deep_children(*this)) {
           win->set_state().visible(false);
         }
@@ -276,7 +276,7 @@ namespace gui {
         unsigned int nchildren = 0;
 
         if (x11::check_status(XQueryTree(core::global::get_instance(),
-                                         get_id(),
+                                         get_os_window(),
                                          &root,
                                          &parent,
                                          &children,
@@ -300,13 +300,13 @@ namespace gui {
 #ifdef GUIPP_QT
 
     bool container::is_parent_of (const window& child) const {
-      return is_valid() && child.is_valid() && (get_id() == detail::get_window_id(child)->get_parent());
+      return is_valid() && child.is_valid() && (get_os_window() == detail::get_os_window(child)->get_parent());
     }
 
     container::window_list_t container::get_children () const {
       container::window_list_t list;
       if (is_valid()) {
-        for (auto child :get_id()->children()) {
+        for (auto child :get_os_window()->children()) {
           list.push_back(detail::get_window(static_cast<os::window>(child)));
         }
       }
@@ -325,7 +325,7 @@ namespace gui {
 
     void container::set_children_visible (bool show) {
       std::vector<os::window> children;
-      get_deep_children(get_id(), children);
+      get_deep_children(get_os_window(), children);
       for (os::window child : children) {
         child->setVisible(show);
       }
@@ -347,8 +347,8 @@ namespace gui {
       init();
     }
 
-    os::window container::get_id () const {
-      return detail::get_window_id(*this);
+    os::window container::get_os_window () const {
+      return detail::get_os_window(*this);
     }
 
     void container::init () {
@@ -464,8 +464,8 @@ namespace gui {
 #endif
     }
 
-    os::window overlapped_window::get_id () const {
-      return detail::get_window_id(*this);
+    os::window overlapped_window::get_os_window () const {
+      return detail::get_os_window(*this);
     }
 
 #ifdef GUIPP_WIN
@@ -474,7 +474,7 @@ namespace gui {
                                     const core::rectangle& r) {
       auto rect = r.os();
       AdjustWindowRectEx(&rect, type.get_style(), FALSE, type.get_ex_style());
-      window::create_internal(type, detail::get_window_id(parent), core::rectangle(rect));
+      window::create_internal(type, detail::get_os_window(parent), core::rectangle(rect));
     }
 
     void overlapped_window::create (const class_info& type,
@@ -483,42 +483,42 @@ namespace gui {
     }
 
     void overlapped_window::set_title (const std::string& title) {
-      SendMessage(get_id(), WM_SETTEXT, 0, (LPARAM)title.c_str());
+      SendMessage(get_os_window(), WM_SETTEXT, 0, (LPARAM)title.c_str());
     }
 
     std::string overlapped_window::get_title () const {
       std::string s;
-      s.resize(SendMessage(get_id(), WM_GETTEXTLENGTH, 0, 0) + 1);
-      SendMessage(get_id(), WM_GETTEXT, (WPARAM)s.capacity(), (LPARAM)&s[0]);
+      s.resize(SendMessage(get_os_window(), WM_GETTEXTLENGTH, 0, 0) + 1);
+      SendMessage(get_os_window(), WM_GETTEXT, (WPARAM)s.capacity(), (LPARAM)&s[0]);
       return s;
     }
 
     bool overlapped_window::is_top_most () const {
-      return (GetWindowLong(get_id(), GWL_EXSTYLE) & WS_EX_TOPMOST) == WS_EX_TOPMOST;
+      return (GetWindowLong(get_os_window(), GWL_EXSTYLE) & WS_EX_TOPMOST) == WS_EX_TOPMOST;
     }
 
     bool overlapped_window::is_minimized () const {
-      return IsIconic(get_id()) != FALSE;
+      return IsIconic(get_os_window()) != FALSE;
     }
 
     bool overlapped_window::is_maximized () const {
-      return IsZoomed(get_id()) != FALSE;
+      return IsZoomed(get_os_window()) != FALSE;
     }
 
     void overlapped_window::minimize () {
-      ShowWindow(get_id(), SW_MINIMIZE);
+      ShowWindow(get_os_window(), SW_MINIMIZE);
     }
 
     void overlapped_window::maximize () {
-      ShowWindow(get_id(), SW_MAXIMIZE);
+      ShowWindow(get_os_window(), SW_MAXIMIZE);
     }
 
     void overlapped_window::restore () {
-      ShowWindow(get_id(), SW_RESTORE);
+      ShowWindow(get_os_window(), SW_RESTORE);
     }
 
     void overlapped_window::set_top_most (bool toplevel) {
-      SetWindowPos(get_id(),
+      SetWindowPos(get_os_window(),
                    toplevel ? HWND_TOPMOST : HWND_NOTOPMOST,
                    0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
     }
@@ -539,50 +539,50 @@ namespace gui {
       gui::os::instance display = core::global::get_instance();
       create_internal(cls, DefaultRootWindow(display), r);
       set_state().overlapped(true);
-      XSetTransientForHint(display, get_id(), detail::get_window_id(parent));
+      XSetTransientForHint(display, get_os_window(), detail::get_os_window(parent));
     }
 
     void overlapped_window::set_title (const std::string& title) {
-      x11::check_status(XStoreName(core::global::get_instance(), get_id(), title.c_str()));
+      x11::check_status(XStoreName(core::global::get_instance(), get_os_window(), title.c_str()));
     }
 
     std::string overlapped_window::get_title () const {
       char *window_name;
-      x11::check_status(XFetchName(core::global::get_instance(), get_id(), &window_name));
+      x11::check_status(XFetchName(core::global::get_instance(), get_os_window(), &window_name));
       return std::string(window_name);
     }
 
     bool overlapped_window::is_maximized () const {
-      return x11::query_net_wm_state(get_id(), x11::NET_WM_STATE_MAXIMIZED_HORZ, x11::NET_WM_STATE_MAXIMIZED_VERT);
+      return x11::query_net_wm_state(get_os_window(), x11::NET_WM_STATE_MAXIMIZED_HORZ, x11::NET_WM_STATE_MAXIMIZED_VERT);
     }
 
     bool overlapped_window::is_top_most () const {
-      return x11::query_net_wm_state(get_id(), x11::NET_WM_STATE_ABOVE);
+      return x11::query_net_wm_state(get_os_window(), x11::NET_WM_STATE_ABOVE);
     }
 
     bool overlapped_window::is_minimized () const {
-      return x11::query_net_wm_state(get_id(), x11::NET_WM_STATE_HIDDEN);
+      return x11::query_net_wm_state(get_os_window(), x11::NET_WM_STATE_HIDDEN);
     }
 
     void overlapped_window::minimize () {
-      XIconifyWindow(core::global::get_instance(), get_id(), core::global::x11::get_screen());
+      XIconifyWindow(core::global::get_instance(), get_os_window(), core::global::x11::get_screen());
     }
 
     void overlapped_window::maximize () {
-      x11::send_net_wm_state(get_id(), _NET_WM_STATE_ADD,
+      x11::send_net_wm_state(get_os_window(), _NET_WM_STATE_ADD,
                              x11::NET_WM_STATE_MAXIMIZED_HORZ,
                              x11::NET_WM_STATE_MAXIMIZED_VERT);
 
     }
 
     void overlapped_window::restore () {
-      x11::send_net_wm_state(get_id(), _NET_WM_STATE_REMOVE,
+      x11::send_net_wm_state(get_os_window(), _NET_WM_STATE_REMOVE,
                              x11::NET_WM_STATE_MAXIMIZED_HORZ,
                              x11::NET_WM_STATE_MAXIMIZED_VERT);
     }
 
     void overlapped_window::set_top_most (bool toplevel) {
-      x11::send_net_wm_state(get_id(),
+      x11::send_net_wm_state(get_os_window(),
                              toplevel ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE,
                              x11::NET_WM_STATE_ABOVE);
     }
@@ -624,50 +624,50 @@ namespace gui {
 
     void overlapped_window::set_title (const std::string& title) {
       if (is_valid()) {
-        get_id()->setWindowTitle(QString::fromStdString(title));
+        get_os_window()->setWindowTitle(QString::fromStdString(title));
       }
     }
 
     std::string overlapped_window::get_title () const {
       if (is_valid()) {
-        return get_id()->windowTitle().toStdString();
+        return get_os_window()->windowTitle().toStdString();
       }
       return {};
     }
 
     bool overlapped_window::is_top_most () const {
-      return is_valid() && ((get_id()->windowFlags() & Qt::WindowStaysOnTopHint) == Qt::WindowStaysOnTopHint);
+      return is_valid() && ((get_os_window()->windowFlags() & Qt::WindowStaysOnTopHint) == Qt::WindowStaysOnTopHint);
     }
 
     bool overlapped_window::is_minimized () const {
-      return is_valid() && get_id()->isMinimized();
+      return is_valid() && get_os_window()->isMinimized();
     }
 
     bool overlapped_window::is_maximized () const {
-      return is_valid() && get_id()->isMaximized();
+      return is_valid() && get_os_window()->isMaximized();
     }
 
     void overlapped_window::minimize () {
       if (is_valid()) {
-        get_id()->showMinimized();
+        get_os_window()->showMinimized();
       }
     }
 
     void overlapped_window::maximize () {
       if (is_valid()) {
-        get_id()->showMaximized();
+        get_os_window()->showMaximized();
       }
     }
 
     void overlapped_window::restore () {
       if (is_valid()) {
-        get_id()->showNormal();
+        get_os_window()->showNormal();
       }
     }
 
     void overlapped_window::set_top_most (bool toplevel) {
       if (is_valid()) {
-        get_id()->setWindowFlag(Qt::WindowStaysOnTopHint, toplevel);
+        get_os_window()->setWindowFlag(Qt::WindowStaysOnTopHint, toplevel);
       }
     }
 #endif // GUIPP_QT
@@ -718,7 +718,7 @@ namespace gui {
 
 #ifdef GUIPP_QT
 # ifndef GUIPP_BUILD_FOR_MOBILE
-      detail::get_window_id(*this)->setWindowModality(Qt::WindowModality::ApplicationModal);
+      detail::get_os_window(*this)->setWindowModality(Qt::WindowModality::ApplicationModal);
 # endif
 #else
       parent.disable();
@@ -783,7 +783,7 @@ namespace gui {
 #ifdef GUIPP_X11
       gui::os::instance display = core::global::get_instance();
 
-      os::window id = detail::get_window_id(*this);
+      os::window id = detail::get_os_window(*this);
 
       x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_NORMAL");
       x11::set_wm_protocols(display, id);
@@ -805,7 +805,7 @@ namespace gui {
 #ifdef GUIPP_X11
       gui::os::instance display = core::global::get_instance();
 
-      os::window id = detail::get_window_id(*this);
+      os::window id = detail::get_os_window(*this);
 
       x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU");
 
@@ -820,10 +820,10 @@ namespace gui {
       super::create(cls, parent, r);
 #ifdef GUIPP_X11
       gui::os::instance display = core::global::get_instance();
-      auto id = detail::get_window_id(*this);
+      auto id = detail::get_os_window(*this);
       x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DIALOG");
       x11::change_property(display, id, "_NET_WM_STATE", "_NET_WM_STATE_MODAL");
-      x11::change_property(display, id, "WM_CLIENT_LEADER", detail::get_window_id(parent));
+      x11::change_property(display, id, "WM_CLIENT_LEADER", detail::get_os_window(parent));
       x11::set_wm_protocols(display, id);
 #endif // GUIPP_X11
     }

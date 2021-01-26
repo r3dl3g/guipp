@@ -251,7 +251,7 @@ namespace gui {
     void send_client_message (window* win, os::message_type message, long l1, long l2) {
       if (win && win->is_valid()) {
         gui::os::event_result result;
-        core::event e{ detail::get_window_id(*win), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2) };
+        core::event e{ detail::get_os_window(*win), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2) };
         win->handle_event(e, result);
       }
     }
@@ -261,7 +261,7 @@ namespace gui {
         gui::os::event_result result;
         os::size s = sz;
         long l2 = (long)s.cy << 16 | (long)s.cx;
-        core::event e{ detail::get_window_id(*win), message, 0, static_cast<LPARAM>(l2)};
+        core::event e{ detail::get_os_window(*win), message, 0, static_cast<LPARAM>(l2)};
         win->handle_event(e, result);
       }
     }
@@ -270,7 +270,7 @@ namespace gui {
       if (win && win->is_valid()) {
         gui::os::event_result result;
         core::native_rect r = core::global::scale_to_native(wr);
-        auto id = detail::get_window_id(*win);
+        auto id = detail::get_os_window(*win);
         WINDOWPOS wp{id, NULL, r.x(), r.y(), static_cast<int>(r.width()), static_cast<int>(r.height()), 0};
         core::event e { id, message, 0, reinterpret_cast<LPARAM>(&wp)};
         win->handle_event(e, result);
@@ -280,7 +280,7 @@ namespace gui {
     void post_client_message (window* win, os::message_type message, long l1, long l2) {
       send_client_message(win, message, l1, l2);
 //      if (win && win->is_valid()) {
-//        PostMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
+//        PostMessage(win->get_os_window(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
 //      }
     }
 
@@ -297,7 +297,7 @@ namespace gui {
           client.serial = 0;
           client.send_event = True;
           client.display = core::global::get_instance();
-          client.window = detail::get_window_id(*win);
+          client.window = detail::get_os_window(*win);
           client.message_type = message;
           client.format = 32;
           client.data.l[0] = l1;
@@ -319,7 +319,7 @@ namespace gui {
         XRectangle r = rect;
         long l1 = (long)r.x << 16 | (long)r.y;
         long l2 = (long)r.width << 16 | (long)r.height;
-        send_client_message(win, message, detail::get_window_id(*w), l1, l2);
+        send_client_message(win, message, detail::get_os_window(*w), l1, l2);
       }
 
       void post_client_message (window* win, Atom message, long l1, long l2) {
@@ -331,7 +331,7 @@ namespace gui {
       }
 
       void prepare_win_for_event (const receiver* win, os::event_id mask) {
-        os::window id = win ? detail::get_window_id(*static_cast<const window*>(win)) : 0;
+        os::window id = win ? detail::get_os_window(*static_cast<const window*>(win)) : 0;
         if (id) {
           auto i = window_event_mask.find(static_cast<const window*>(win));
           if (i != window_event_mask.end()) {
@@ -581,7 +581,7 @@ namespace gui {
       if (win && win->is_valid()) {
         gui::os::event_result result;
         QClientEvent e(static_cast<QEvent::Type>(message), r);
-        win->handle_event(gui::core::event{detail::get_window_id(*win), &e}, result);
+        win->handle_event(gui::core::event{detail::get_os_window(*win), &e}, result);
       }
     }
 
@@ -593,7 +593,7 @@ namespace gui {
       if (win && win->is_valid()) {
         gui::os::event_result result;
         QClientEvent e(static_cast<QEvent::Type>(message), l1, l2);
-        win->handle_event(gui::core::event{detail::get_window_id(*win), &e}, result);
+        win->handle_event(gui::core::event{detail::get_os_window(*win), &e}, result);
       }
     }
 

@@ -23,6 +23,7 @@
 //
 #include <algorithm>
 #include <set>
+#include <thread>
 
 #ifdef GUIPP_WIN
 # include <windowsx.h>
@@ -76,14 +77,14 @@ namespace gui {
 
     namespace detail {
 
-      void set_id (window* w, os::window id) {
+      void set_os_window (window* w, os::window id) {
         if (w) {
-          w->set_id(id);
+          w->set_os_window(id);
         }
       }
 
-      os::window get_window_id (const window& win) {
-        return win.get_id();
+      os::window get_os_window (const window& win) {
+        return win.get_os_window();
       }
 
     } // namespace detail
@@ -97,11 +98,11 @@ namespace gui {
         return reinterpret_cast<window*>(GetWindowLongPtr(id, GWLP_USERDATA));
       }
 
-      void set_window (os::window id, window* win) {
+      void set_os_window (os::window id, window* win) {
         SetWindowLongPtr(id, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(win));
       }
 
-      void unset_window (os::window id) {
+      void unset_os_window (os::window id) {
         SetWindowLongPtr(id, GWLP_USERDATA, 0);
       }
 
@@ -119,7 +120,7 @@ namespace gui {
 
       void set_window_id (LONG_PTR lParam, os::window id) {
         window* w = reinterpret_cast<window*>(lParam);
-        set_id(w, id);
+        set_os_window(w, id);
       }
 
     } // namespace detail
@@ -210,11 +211,11 @@ namespace gui {
         return global_window_map[id];
       }
 
-      void set_window (os::window id, window* win) {
+      void set_os_window (os::window id, window* win) {
         global_window_map[id] = win;
       }
 
-      void unset_window (os::window id) {
+      void unset_os_window (os::window id) {
         clear_last_place(id);
         global_window_map.erase(id);
       }
@@ -247,7 +248,7 @@ namespace gui {
         return win;
       }
 
-      void set_window (os::window id, window* win) {
+      void set_os_window (os::window id, window* win) {
         const auto* data = (const unsigned char*)&win;
 #ifdef LOG_GET_WINDOW_PROPERTY
         clog::debug() << "set window " << id << ": "
@@ -260,7 +261,7 @@ namespace gui {
                         data, sizeof(win));
       }
 
-      void unset_window (os::window id) {
+      void unset_os_window (os::window id) {
         clear_last_place(id);
       }
 
@@ -334,17 +335,17 @@ namespace gui {
         if (core::shift_key_bit_mask::is_set(hk.get_modifiers())) {
           modifiers |= MOD_SHIFT;
         }
-        os::window root = win ? detail::get_window_id(*win) : NULL;
+        os::window root = win ? detail::get_os_window(*win) : NULL;
         RegisterHotKey(root, hk.get_key(), modifiers, hk.get_key());
 #elif GUIPP_X11
         auto dpy = core::global::get_instance();
-        os::window root = win ? detail::get_window_id(*win) : DefaultRootWindow(dpy);
+        os::window root = win ? detail::get_os_window(*win) : DefaultRootWindow(dpy);
         XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root, False, GrabModeAsync, GrabModeAsync);
         if (win && win->is_valid()) {
           x11::prepare_win_for_event(win, KeyPressMask);
         }
 #elif GUIPP_QT
-        os::window root = win ? detail::get_window_id(*win) : (os::window)QApplication::desktop();
+        os::window root = win ? detail::get_os_window(*win) : (os::window)QApplication::desktop();
 #endif
         detail::hot_keys.emplace(hk, std::make_pair(root, fn));
       }
@@ -467,7 +468,7 @@ namespace gui {
       }
       
       void register_utf8_window (const window& win) {
-        os::window id = detail::get_window_id(win);
+        os::window id = detail::get_os_window(win);
 
         if (!id) {
           return;
@@ -496,7 +497,7 @@ namespace gui {
       }
 
       void unregister_utf8_window (const window& win) {
-        os::window id = detail::get_window_id(win);
+        os::window id = detail::get_os_window(win);
 
         auto i = x11::s_window_ic_map.find(id);
         if (i != x11::s_window_ic_map.end()) {
@@ -558,7 +559,7 @@ namespace gui {
         POINT pt = {GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)};
         ClientToScreen(e.id, &pt);
         RECT r;
-        GetWindowRect(detail::get_window_id(w), &r);
+        GetWindowRect(detail::get_os_window(w), &r);
         return !PtInRect(&r, pt);
       }
       }
@@ -570,7 +571,7 @@ namespace gui {
       switch (e.type) {
       case ButtonPress:
       case ButtonRelease: {
-        if (e.xbutton.window == detail::get_window_id(w)) {
+        if (e.xbutton.window == detail::get_os_window(w)) {
           return false;
         }
         int x, y;
@@ -759,7 +760,7 @@ namespace gui {
 //      XEvent event;
 //      XClientMessageEvent& client = event.xclient;
 //      client.type = ClientMessage;
-//      client.window = win ? win->get_id() : 0;
+//      client.window = win ? win->get_os_window() : 0;
 //      client.serial = 0;
 //      client.send_event = True;
 //      client.display = core::global::get_instance();

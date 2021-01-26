@@ -43,8 +43,8 @@ namespace gui {
       bool is_valid () const;
       operator bool () const;
 
-      os::bitmap& get_id ();
-      const os::bitmap& get_id () const;
+      os::bitmap& get_os_bitmap ();
+      const os::bitmap& get_os_bitmap () const;
 
       bitmap_info get_info () const;
 
@@ -67,7 +67,7 @@ namespace gui {
 
       void create (const bitmap_info& bmi);
 
-      void set_id (os::bitmap);
+      void set_os_bitmap (os::bitmap);
 
     private:
       os::bitmap id;

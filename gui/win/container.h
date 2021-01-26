@@ -66,7 +66,7 @@ namespace gui {
       container (container&&) noexcept ;
 
     private:
-      os::window get_id () const;
+      os::window get_os_window () const;
 
       void init ();
     };
@@ -99,7 +99,7 @@ namespace gui {
                    const core::rectangle& = core::rectangle::def);
 
     private:
-      os::window get_id () const;
+      os::window get_os_window () const;
     };
 
     // --------------------------------------------------------------------------

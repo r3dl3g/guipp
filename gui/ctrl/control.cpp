@@ -145,7 +145,7 @@ namespace gui {
       notify_event(detail::HILITE_CHANGE_MESSAGE, b);
     }
 
-    void control::  notify_content_changed () {
+    void control::notify_content_changed () {
       notify_event(detail::CONTENT_CHANGED_MESSAGE);
     }
 

@@ -124,8 +124,13 @@ namespace gui {
     }
 
     template<typename T>
-    inline auto basic_point<T>::operator- (const self& pt) const -> size_t {
+    inline auto basic_point<T>::operator- (const self& pt) const -> self {
       return {type(x() - pt.x()), type(y() - pt.y())};
+    }
+
+    template<typename T>
+    inline auto basic_point<T>::diff (const self& pt) const -> size_t {
+      return {std::abs(x() - pt.x()), std::abs(y() - pt.y())};
     }
 
     template<typename T>

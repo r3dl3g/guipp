@@ -117,7 +117,7 @@ namespace gui {
     }
 
     const font& font::system () {
-      static font f((os::font)GetStockObject(SYSTEM_FONT));
+      static font f = font((os::font)GetStockObject(SYSTEM_FONT)).with_size(font_scale(f.size()));
       return f;
     }
 

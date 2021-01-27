@@ -50,9 +50,9 @@ namespace gui {
 
   namespace win {
 
-#ifdef GUIPP_X11
-
     namespace x11 {
+
+#ifdef GUIPP_X11
 
 # define XLIB_ERROR_CODE(a) case a: clog::fatal() << # a;break;
 
@@ -92,9 +92,9 @@ namespace gui {
         return false;
       }
 
-    } // namespace x11
-
 #endif // GUIPP_X11
+
+    } // namespace x11
 
     struct log_hierarchy {
       explicit log_hierarchy (window* win)
@@ -112,6 +112,76 @@ namespace gui {
       }
       return out;
     }
+
+    // --------------------------------------------------------------------------
+#ifdef GUIPP_WIN
+    inline void move_native (os::window w, const core::point& pt) {
+      SetWindowPos(w, nullptr, pt.os_x(), pt.os_y(), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
+    }
+
+    inline void resize_native (os::window w, const core::size& sz) {
+      SetWindowPos(w, nullptr, 0, 0, sz.os_width(), sz.os_height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
+    }
+
+    inline void place_native (os::window w, const core::rectangle& r) {
+      MoveWindow(w, r.os_x(), r.os_y(), r.os_width(), r.os_height(), false);
+    }
+
+    core::rectangle get_native_geometry (os::window w) {
+      RECT r;
+      GetWindowRect(w, &r);
+      return core::rectangle(r);
+    }
+#endif // GUIPP_WIN
+
+#ifdef GUIPP_X11
+    inline void move_native (os::window w, const core::point& pt) {
+      x11::check_return(XMoveWindow(core::global::get_instance(), w,
+                                    pt.os_x(), pt.os_y()));
+    }
+
+    inline void resize_native (os::window w, const core::size& sz) {
+      x11::check_return(XResizeWindow(core::global::get_instance(), w,
+                                      sz.os_width(), sz.os_height()));
+    }
+
+    inline void place_native (os::window w, const core::rectangle& r) {
+      x11::check_return(XMoveResizeWindow(core::global::get_instance(), w,
+                                          r.os_x(), r.os_y(), r.os_width(), r.os_height()));
+    }
+
+    core::rectangle get_native_geometry (os::window wid) {
+      Window root = 0;
+      int x = 0, y = 0;
+      unsigned int width = 0, height = 0;
+      unsigned int border_width = 0;
+      unsigned int depth = 0;
+      if (wid && x11::check_status(XGetGeometry(core::global::get_instance(), wid,
+                                                &root, &x, &y, &width, &height,
+                                                &border_width, &depth))) {
+        return core::global::scale_from_native(core::native_rect{x, y, width, height});
+      }
+      return core::rectangle::def;
+    }
+#endif // GUIPP_X11
+
+#ifdef GUIPP_QT
+    inline void move_native (os::window w, const core::point& pt) {
+      w->move(pt.os_x(), pt.os_y());
+    }
+
+    inline void resize_native (os::window w, const core::size& sz) {
+      w->resize(sz.os_width(), sz.os_height());
+    }
+
+    inline void place_native (os::window w, const core::rectangle& r) {
+      w->setGeometry(r.os());
+    }
+
+    core::rectangle get_native_geometry (os::window w) {
+      return core::rectangle(w->pos(), w->frameSize());
+    }
+#endif // GUIPP_QT
 
     // --------------------------------------------------------------------------
     namespace hidden {
@@ -256,7 +326,7 @@ namespace gui {
 
     bool window::handle_event (const core::event& e, gui::os::event_result& result) {
 
-      auto_quard active_handler(this, e.type);
+      auto_quard active_handler(this, IF_QT_ELSE(e.type(), e.type));
 
       if (!active_handler.insert()) {
         clog::warn() << "already in handle_event for window: " << this << " " << e;
@@ -322,6 +392,100 @@ namespace gui {
       return (parent == &p);
     }
 
+    window* window::get_current_focus_window () {
+      return global::get_current_focus_window();
+    }
+
+    bool window::is_focused () const {
+      return get_current_focus_window() == this;
+    }
+
+    core::size window::size () const {
+      return area.size();
+    }
+
+    core::point window::position () const {
+      return area.position();
+    }
+
+    core::rectangle window::place () const {
+      return area;
+    }
+
+    core::rectangle window::absolute_place () const {
+      return core::rectangle(absolute_position(), size());
+    }
+
+    core::point window::absolute_position () const {
+      return client_to_screen(core::point::zero);
+    }
+
+    core::size window::client_size () const {
+      return size();
+    }
+
+    core::rectangle window::client_area () const {
+      return core::rectangle(client_size());
+    }
+
+    void window::move (const core::point& pt, bool repaint) {
+      if (position() != pt) {
+        area.set_position(pt);
+        if (is_valid()) {
+          move_native(get_os_window(), pt);
+          if (repaint) {
+            invalidate();
+          }
+        }
+      }
+    }
+
+    void window::resize (const core::size& sz, bool repaint) {
+      if (sz.empty()) {
+        if (is_visible()) {
+          set_visible(false);
+        }
+      } else {
+        if (size() != sz) {
+          if (!is_visible()) {
+            set_visible();
+          }
+          area.set_size(sz);
+          if (is_valid()) {
+            resize_native(get_os_window(), sz);
+            if (repaint) {
+              invalidate();
+            }
+          }
+          send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(sz));
+        }
+      }
+    }
+
+    void window::place (const core::rectangle& r, bool repaint) {
+      if (r.empty()) {
+        if (is_visible()) {
+          set_visible(false);
+        }
+      } else {
+        if (!is_visible()) {
+          set_visible();
+        }
+        const auto current = place();
+        if (current != r) {
+          area = r;
+          if (is_valid()) {
+            place_native(get_os_window(), r);
+            if (repaint) {
+              invalidate();
+            }
+          }
+          if (current.size() != r.size()) {
+            send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(r.size()));
+          }
+        }
+      }
+    }
     // --------------------------------------------------------------------------
 
 #ifdef GUIPP_WIN
@@ -405,9 +569,9 @@ namespace gui {
       return is_valid() && IsWindowVisible(get_os_window());
     }
 
-    bool window::is_focused () const {
-      return is_valid() && (GetFocus() == get_os_window());
-    }
+//    bool window::is_focused () const {
+//      return is_valid() && (GetFocus() == get_os_window());
+//    }
 
     bool window::is_child () const {
       return is_valid() && (GetWindowLong(get_os_window(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
@@ -462,73 +626,6 @@ namespace gui {
       if (is_valid()) {
         clog::trace() << "invalidate: " << get_os_window();
         InvalidateRect(get_os_window(), nullptr, TRUE);
-      }
-    }
-
-    core::size window::size () const {
-      RECT r;
-      GetWindowRect(get_os_window(), &r);
-      return core::size(r);
-    }
-
-    core::point window::position () const {
-      RECT r;
-      GetWindowRect(get_os_window(), &r);
-      return screen_to_window(core::point(os::point {r.left, r.top}));
-    }
-
-    core::rectangle window::place () const {
-      const core::rectangle pl = absolute_place();
-      return core::rectangle(screen_to_window(pl.position()), pl.size());
-    }
-
-    core::rectangle window::absolute_place () const {
-      RECT r;
-      GetWindowRect(get_os_window(), &r);
-      return core::rectangle(r);
-    }
-
-    core::point window::absolute_position () const {
-      RECT r;
-      GetWindowRect(get_os_window(), &r);
-      return core::point(r);
-    }
-
-    core::size window::client_size () const {
-      RECT r;
-      GetClientRect(get_os_window(), &r);
-      return core::size(r);
-    }
-
-    core::rectangle window::client_area () const {
-      RECT r;
-      GetClientRect(get_os_window(), &r);
-      return core::rectangle(r);
-    }
-
-    void window::move (const core::point& pt, bool repaint) {
-      if (is_valid()) {
-        SetWindowPos(get_os_window(), nullptr, pt.os_x(), pt.os_y(), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
-        if (repaint) {
-          invalidate();
-        }
-      }
-    }
-
-    void window::resize (const core::size& sz, bool repaint) {
-      if (is_valid()) {
-        SetWindowPos(get_os_window(), nullptr, 0, 0, sz.os_width(), sz.os_height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
-        send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(sz));
-        if (repaint) {
-          invalidate();
-        }
-      }
-    }
-
-    void window::place (const core::rectangle& r, bool repaint) {
-      if (is_valid()) {
-        MoveWindow(get_os_window(), r.os_x(), r.os_y(), r.os_width(), r.os_height(), repaint);
-        send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(r.size()));
       }
     }
 
@@ -722,18 +819,6 @@ namespace gui {
       return (get_os_window() != 0) && (detail::get_window(get_os_window()) == this);
     }
 
-    window* window::get_current_focus_window () {
-      Window focus = 0;
-      int revert_to = 0;
-      if (x11::check_return(XGetInputFocus(core::global::get_instance(), &focus, &revert_to))) {
-        return detail::get_window(focus);
-      }
-    }
-
-    bool window::is_focused () const {
-      return get_current_focus_window() == this;
-    }
-
     bool window::has_border () const {
       XWindowAttributes a = {0};
       return (x11::check_status(XGetWindowAttributes(core::global::get_instance(), get_os_window(), &a)) &&
@@ -816,119 +901,6 @@ namespace gui {
     void window::invalidate () const {
       if (get_os_window() && is_visible()) {
         x11::invalidate_window(get_os_window());
-      }
-    }
-
-    core::rectangle get_native_geometry (os::window wid) {
-      Window root = 0;
-      int x = 0, y = 0;
-      unsigned int width = 0, height = 0;
-      unsigned int border_width = 0;
-      unsigned int depth = 0;
-      if (wid && x11::check_status(XGetGeometry(core::global::get_instance(), wid,
-                                                &root, &x, &y, &width, &height,
-                                                &border_width, &depth))) {
-        return core::global::scale_from_native(core::native_rect{x, y, width, height});
-      }
-      return core::rectangle::def;
-    }
-
-    void log_geometry (const std::string& name, const core::rectangle& nativ, const core::rectangle& stored, const window* win) {
-      if (stored != nativ) {
-        clog::debug() << "Geometriy differs in " << name << "(): stored=" << stored << ", nativ=" << nativ << ", window=" << *win;
-      }
-    }
-
-    core::size window::size () const {
-//      auto r = get_native_geometry(get_os_window());
-//      log_geometry("size", r, area, this);
-//      return r.size();
-      return area.size();
-    }
-
-    core::point window::position () const {
-//      auto r = get_native_geometry(get_os_window());
-//      log_geometry("position", r, area, this);
-//      return r.position();
-      return area.position();
-    }
-
-    core::rectangle window::place () const {
-//      auto r = get_native_geometry(get_os_window());
-//      log_geometry("place", r, area, this);
-//      return r;
-      return area;
-    }
-
-    core::rectangle window::absolute_place () const {
-      return core::rectangle(absolute_position(), size());
-    }
-
-    core::point window::absolute_position () const {
-      return client_to_screen(core::point::zero);
-    }
-
-    core::size window::client_size () const {
-      return size(); // - core::size(1, 1);
-    }
-
-    core::rectangle window::client_area () const {
-      return core::rectangle(client_size());
-    }
-
-    void window::move (const core::point& pt, bool repaint) {
-      if (position() != pt) {
-        area.set_position(pt);
-        x11::check_return(XMoveWindow(core::global::get_instance(), get_os_window(), pt.os_x(), pt.os_y()));
-        if (repaint) {
-          invalidate();
-        }
-      }
-    }
-
-    void window::resize (const core::size& sz, bool repaint) {
-      if (sz.empty()) {
-        if (is_visible()) {
-          set_visible(false);
-        }
-      } else {
-        if (size() != sz) {
-          if (!is_visible()) {
-            set_visible();
-          }
-          area.set_size(sz);
-          x11::check_return(XResizeWindow(core::global::get_instance(),
-                                          get_os_window(), sz.os_width(), sz.os_height()));
-          send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(sz));
-          if (repaint) {
-            invalidate();
-          }
-        }
-      }
-    }
-
-    void window::place (const core::rectangle& r, bool repaint) {
-      if (r.empty()) {
-        if (is_visible()) {
-          set_visible(false);
-        }
-      } else {
-        if (!is_visible()) {
-          set_visible();
-        }
-        const auto current = place();
-        if (current != r) {
-          area = r;
-          x11::check_return(XMoveResizeWindow(core::global::get_instance(),
-                                              get_os_window(), r.os_x(), r.os_y(),
-                                              r.os_width(), r.os_height()));
-          if (current.size() != r.size()) {
-            send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(r.size()));
-            if (repaint) {
-              invalidate();
-            }
-          }
-        }
       }
     }
 
@@ -1106,8 +1078,14 @@ namespace gui {
       std::map<os::window, std::string> window_class_map;
     }
 
-    void window::init ()
-    {}
+    void window::init () {
+      on_key_down<core::keys::tab>([&] () {
+        get_overlapped_window()->shift_focus(false);
+      });
+      on_key_down<core::keys::tab, core::state::shift>([&] () {
+        get_overlapped_window()->shift_focus(true);
+      });
+    }
 
     window::~window () {
       destroy();
@@ -1145,10 +1123,6 @@ namespace gui {
 
     bool window::is_visible () const {
       return is_valid() && get_os_window()->isVisible();
-    }
-
-    bool window::is_focused () const {
-      return is_valid() && get_os_window()->hasFocus();
     }
 
     bool window::is_child () const {
@@ -1205,71 +1179,6 @@ namespace gui {
       if (is_valid()) {
         clog::trace() << "invalidate: " << get_os_window();
         get_os_window()->update();
-      }
-    }
-
-    core::size window::size () const {
-      return is_valid() ? core::size(get_os_window()->frameSize())
-                        : core::size::zero;
-    }
-
-    core::point window::position () const {
-      return is_valid() ? core::point(get_os_window()->pos())
-                        : core::point::zero;
-    }
-
-    core::rectangle window::place () const {
-      return is_valid() ? core::rectangle(get_os_window()->pos(), get_os_window()->frameSize())
-                        : core::rectangle::zero;
-    }
-
-    core::rectangle window::absolute_place () const {
-      return core::rectangle(absolute_position(), size());
-    }
-
-    core::point window::absolute_position () const {
-      if (is_valid()) {
-        auto w = get_os_window();
-        return core::point(w->mapToGlobal(w->mapFromParent(w->pos())));
-      }
-      return core::point::zero;
-    }
-
-    core::size window::client_size () const {
-      return is_valid() ? core::size(get_os_window()->size())
-                        : core::size::zero;
-    }
-
-    core::rectangle window::client_area () const {
-      return core::rectangle(client_size());
-    }
-
-    void window::move (const core::point& pt, bool repaint) {
-      if (is_valid()) {
-        get_os_window()->move(pt.os_x(), pt.os_y());
-        if (repaint) {
-          invalidate();
-        }
-      }
-    }
-
-    void window::resize (const core::size& sz, bool repaint) {
-      if (is_valid()) {
-        get_os_window()->resize(sz.os_width(), sz.os_height());
-        send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(sz));
-        if (repaint) {
-          invalidate();
-        }
-      }
-    }
-
-    void window::place (const core::rectangle& r, bool repaint) {
-      if (is_valid()) {
-        get_os_window()->setGeometry(r.os());
-        if (repaint) {
-          invalidate();
-        }
-        send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(r.size()));
       }
     }
 

@@ -52,6 +52,7 @@ set(apps
     list_app
     tree_app
     filemanager
+    editor
     covid19
     WindowTest
     BorderTest

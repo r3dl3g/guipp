@@ -60,12 +60,7 @@ namespace gui {
       void set_children_visible (bool = true);
 
       window_list_t get_children () const;
-
-      void shift_focus (window*, bool backward = false);
-
-      void shift_focus (bool backward = false) override;
-      bool can_accept_focus () const override;
-      void take_focus (bool backward = false) override;
+      void collect_children (window_list_t&) const;
 
       void add_child (window*);
       void remove_child (window*);
@@ -110,6 +105,8 @@ namespace gui {
 
       void create (const class_info&,
                    const core::rectangle& = core::rectangle::def);
+
+      void shift_focus (bool backward = false);
 
     private:
       os::window get_os_window () const;

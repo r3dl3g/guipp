@@ -209,50 +209,16 @@ namespace gui {
       return child.get_parent() == this;
     }
 
-    void collect_children_deep (container::window_list_t& list, const window& win) {
-      if (win.is_valid()) {
-        Window root = 0;
-        Window parent = 0;
-        Window *children = 0;
-        unsigned int nchildren = 0;
-
-        if (x11::check_status(XQueryTree(core::global::get_instance(),
-                                         detail::get_os_window(win),
-                                         &root,
-                                         &parent,
-                                         &children,
-                                         &nchildren))) {
-          for (unsigned int n = 0; n < nchildren; ++n) {
-            window* sub = detail::get_window(children[n]);
-            if (sub) {
-              list.push_back(sub);
-              collect_children_deep(list, *sub);
-            }
-          }
-        }
-        if (children) {
-          XFree(children);
-        }
-      }
-    }
-
-    container::window_list_t get_deep_children (const window& win) {
-      container::window_list_t list;
-      collect_children_deep(list, win);
-      return list;
-    }
-
     void container::set_children_visible (bool show) {
+      container::window_list_t list;
+      collect_children(list);
       if (show) {
         x11::check_return(XMapSubwindows(core::global::get_instance(), get_os_window()));
-        for(window* win : get_deep_children(*this)) {
-          win->set_state().visible(true);
-        }
       } else {
         x11::check_return(XUnmapSubwindows(core::global::get_instance(), get_os_window()));
-        for(window* win : get_deep_children(*this)) {
-          win->set_state().visible(false);
-        }
+      }
+      for(window* win : list) {
+        win->set_visible(show);
       }
     }
 
@@ -327,80 +293,19 @@ namespace gui {
       return is_sub_window(child->get_parent());
     }
 
-    template<typename iterator>
-    iterator focus_next (iterator i, iterator end, bool backward) {
-      while (i != end) {
-        window* win = *i;
-        if (win->can_accept_focus()) {
-          win->take_focus(backward);
-          return i;
-        }
-        ++i;
-      }
-      return end;
-    }
-
-    template<typename iterator>
-    iterator iterate_focus (iterator begin, iterator end, window* current_focus, bool backward) {
-      auto i = std::find(begin, end, current_focus);
-      if (i != end) {
-        ++i;
-      } else {
-        i = begin;
-      }
-      i = focus_next(i, end, backward);
-      if (i != end) {
-        if (current_focus) {
-          current_focus->focus_lost();
-        }
-        return i;
-      }
-      return end;
-    }
-
-    void container::shift_focus (window* current_focus, bool backward) {
-      window_list_t children = get_children();
-      if (!children.empty()) {
-        if (backward) {
-          auto end = std::rend(children);
-          if (iterate_focus(std::rbegin(children), end, current_focus, backward) != end) {
-            return;
-          }
-        } else {
-          auto end = std::end(children);
-          if (iterate_focus(std::begin(children), end, current_focus, backward) != end) {
-            return;
-          }
-        }
-      }
-      auto parent = get_parent();
-      if (parent) {
-        parent->shift_focus(this, backward);
-      } else if (!children.empty() && (current_focus)) {
-        // restart from first with current_focus = nullptr
-        shift_focus(nullptr, backward);
-      }
-    }
-
-    void container::shift_focus (bool backward) {
-      window::shift_focus(backward);
-    }
-
-    bool container::can_accept_focus () const {
-      if (window::can_accept_focus()) {
-        return true;
-      }
-      window_list_t children = get_children();
-      for (const auto& c : children) {
-        if (c->can_accept_focus()) {
-          return true;
-        }
-      }
-      return false;
-    }
-
     container::window_list_t container::get_children () const {
       return container::window_list_t(children.begin(), children.end());
+    }
+
+    void container::collect_children (window_list_t& list) const {
+      for (window* win : children) {
+        const container* cont = dynamic_cast<const container*>(win);
+        if (cont) {
+          cont->collect_children(list);
+        } else {
+          list.push_back(win);
+        }
+      }
     }
 
     void container::add_child (window* w) {
@@ -409,10 +314,6 @@ namespace gui {
 
     void container::remove_child (window* w) {
       children.erase(w);
-    }
-
-    void container::take_focus (bool backward) {
-      shift_focus(nullptr, backward);
     }
 
     // --------------------------------------------------------------------------
@@ -429,10 +330,71 @@ namespace gui {
       on_move([&](const core::point& pt) {
         area.set_position(pt);
       });
+      on_key_down<core::keys::tab>([&] () {
+        shift_focus(false);
+      });
+      on_key_down<core::keys::tab, core::state::shift>([&] () {
+        shift_focus(true);
+      });
     }
 
     os::window overlapped_window::get_os_window () const {
       return detail::get_os_window(*this);
+    }
+
+    template<typename iterator>
+    iterator focus_next (iterator i, iterator end) {
+      while (i != end) {
+        window* win = *i;
+        if (win->can_accept_focus()) {
+          win->take_focus();
+          return i;
+        }
+        ++i;
+      }
+      return end;
+    }
+
+    template<typename iterator>
+    iterator iterate_focus (iterator begin, iterator end, window* current_focus) {
+      auto i = std::find(begin, end, current_focus);
+      if (i != end) {
+        ++i;
+      }
+      auto found = i;
+      if (i != end) {
+        found = focus_next(i, end);
+        if (found == end) {
+          found = focus_next(begin, i);
+        }
+      } else {
+        found = focus_next(begin, end);
+      }
+
+      if (found != end) {
+        if (current_focus) {
+          current_focus->focus_lost();
+        }
+      }
+      return found;
+    }
+
+    void overlapped_window::shift_focus (bool backward) {
+      window_list_t children;
+      collect_children(children);
+      if (!children.empty()) {
+        if (backward) {
+          auto end = std::rend(children);
+          if (iterate_focus(std::rbegin(children), end, get_current_focus_window()) != end) {
+            return;
+          }
+        } else {
+          auto end = std::end(children);
+          if (iterate_focus(std::begin(children), end, get_current_focus_window()) != end) {
+            return;
+          }
+        }
+      }
     }
 
 #ifdef GUIPP_WIN

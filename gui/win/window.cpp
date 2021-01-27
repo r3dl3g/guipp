@@ -229,25 +229,38 @@ namespace gui {
       }
     }
 
-    namespace {
-      std::set<std::pair<const window*, os::event_id>> active_handler;
-    }
+    struct GUIPP_WIN_EXPORT auto_quard : public std::pair<const window*, os::event_id> {
+      typedef std::pair<const window*, os::event_id> super;
+
+      auto_quard (const window* win, os::event_id id)
+        : super(win, id)
+      {}
+
+      ~auto_quard () {
+        if (iter.second) {
+          active_events.erase(iter.first);
+        }
+      }
+
+      bool insert () {
+        iter = active_events.insert(*this);
+        return iter.second;
+      }
+
+    private:
+      std::pair<std::set<auto_quard>::iterator, bool> iter;
+      static std::set<auto_quard> active_events;
+    };
+
+    std::set<auto_quard> auto_quard::active_events;
 
     bool window::handle_event (const core::event& e, gui::os::event_result& result) {
-      const auto keypair = std::make_pair(this, IF_QT_ELSE(e.type(), e.type));
-      if (active_handler.find(keypair) != active_handler.end()) {
+
+      auto_quard active_handler(this, e.type);
+
+      if (!active_handler.insert()) {
         clog::warn() << "already in handle_event for window: " << this << " " << e;
         return false;
-      }
-      active_handler.insert(keypair);
-      if (any_key_up_event::match(e)) {
-        os::key_symbol key = get_key_symbol(e);
-        if (key == core::keys::tab) {
-          os::key_state state = get_key_state(e);
-          shift_focus(core::shift_key_bit_mask::is_set(state));
-        }
-      } else if (lost_focus_event::match(e)) {
-        focus_lost();
       }
 
 //      clog::trace() << "handle_event: for window: " << this << " " << e;
@@ -255,14 +268,8 @@ namespace gui {
       if (is_enabled() || paint_event::match(e)) {
         res = events.handle_event(e, result);
       }
-      active_handler.erase(keypair);
-      return res;
-    }
 
-    void window::shift_focus (bool backward) {
-      if (parent) {
-        parent->shift_focus(this, backward);
-      }
+      return res;
     }
 
     void window::focus_lost () {
@@ -424,7 +431,7 @@ namespace gui {
       }
     }
 
-    void window::take_focus (bool) {
+    void window::take_focus () {
       if (is_valid()) {
         set_state().focused(true);
         SetFocus(get_os_window());
@@ -674,6 +681,12 @@ namespace gui {
       static int initialized = core::x11::init_messages();
       (void)initialized;
       x11::prepare_win_for_event(this, KeyPressMask);
+      on_key_down<core::keys::tab>([&] () {
+        get_overlapped_window()->shift_focus(false);
+      });
+      on_key_down<core::keys::tab, core::state::shift>([&] () {
+        get_overlapped_window()->shift_focus(true);
+      });
     }
 
     void window::destroy () {
@@ -709,15 +722,16 @@ namespace gui {
       return (get_os_window() != 0) && (detail::get_window(get_os_window()) == this);
     }
 
-    bool window::is_focused () const {
+    window* window::get_current_focus_window () {
       Window focus = 0;
       int revert_to = 0;
-      if (is_valid()) {
-        if (x11::check_return(XGetInputFocus(core::global::get_instance(), &focus, &revert_to))) {
-          return focus == get_os_window();
-        }
+      if (x11::check_return(XGetInputFocus(core::global::get_instance(), &focus, &revert_to))) {
+        return detail::get_window(focus);
       }
-      return false;
+    }
+
+    bool window::is_focused () const {
+      return get_current_focus_window() == this;
     }
 
     bool window::has_border () const {
@@ -756,7 +770,7 @@ namespace gui {
       }
     }
 
-    void window::take_focus (bool) {
+    void window::take_focus () {
       set_state().focused(true);
       x11::check_return(XSetInputFocus(core::global::get_instance(), get_os_window(),
                                        RevertToParent, CurrentTime));
@@ -1159,7 +1173,7 @@ namespace gui {
       }
     }
 
-    void window::take_focus (bool) {
+    void window::take_focus () {
       if (is_valid()) {
         auto win = get_os_window();
         set_state().focused(true);

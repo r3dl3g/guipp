@@ -78,24 +78,24 @@ namespace gui {
       core::window_state::is get_state () const;
       core::window_state::set set_state ();
 
-      bool is_visible () const;
-      void set_visible (bool s = true);
+      void set_visible (bool s = true); /// set window visible
+      bool is_visible () const;         /// window is visible
 
-      bool is_enabled () const;
-      void enable (bool on = true);
-      void disable ();
+      void enable (bool on = true);     /// enable of disable this window
+      void disable ();                  /// disable this window
+      bool is_enabled () const;         /// return if window is enabled
 
-      bool is_focus_accepting () const;
+      void set_disable_redraw (bool on = true); /// disable automatic redraw on any change
+      bool is_redraw_disabled () const;         /// return if automatic redraw is desabled
+
+      bool is_focus_accepting () const; /// window type is general able to accept focus (like edits)
       bool is_focused () const;
 
-      bool is_redraw_disabled () const;
-      void set_disable_redraw (bool on = true);
+      bool can_accept_focus () const;   /// this specific window will accept focus (is_focus_accepting and visible and enabled)
+      void take_focus ();               /// grabs the input focus
+      void focus_lost ();               /// focus was given an other window
 
-      virtual bool can_accept_focus () const;
-      virtual void shift_focus (bool backward = false);
-      virtual void take_focus (bool backward = false);
-
-      void focus_lost ();
+      static window* get_current_focus_window ();
 
       void to_front ();
       void to_back ();

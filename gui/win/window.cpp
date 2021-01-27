@@ -193,9 +193,16 @@ namespace gui {
                                      NULL,            // handle of menu or child-window identifier
                                      display,         // handle of application instance
                                      data);
+
       SetWindowLongPtr(id, GWLP_USERDATA, (LONG_PTR)data);
 
       return id;
+    }
+
+    void destroy_nativ_window (os::window w) {
+      if (w) {
+        DestroyWindow(w);
+      }
     }
 
 #endif // GUIPP_WIN
@@ -299,7 +306,18 @@ namespace gui {
       }
       hidden::window_class_map[id] = type.get_class_name();
 
+      send_client_message(data, core::x11::WM_CREATE_WINDOW);
+
       return id;
+    }
+
+    void destroy_nativ_window (os::window w) {
+      if (w) {
+        hidden::window_class_map.erase(w);
+        x11::validate_window(w);
+        x11::check_return(XDestroyWindow(core::global::get_instance(), w));
+        detail::unset_os_window(w);
+      }
     }
 
 #endif // GUIPP_X11
@@ -346,10 +364,18 @@ namespace gui {
 
       hidden::window_class_map[id] = type.get_class_name();
 
-      //type.get_ex_style(),
-      //type.get_style(),  // window style
+      send_client_message(this, core::qt::WM_CREATE_WINDOW);
 
       return id;
+    }
+
+    void destroy_nativ_window (os::window id) {
+      if (id) {
+//        send_client_message(this, core::qt::WM_DESTROY_WINDOW);
+        hidden::window_class_map.erase(id);
+        id->set_window(nullptr);
+        id->deleteLater();
+      }
     }
 
 #endif // GUIPP_QT
@@ -438,12 +464,11 @@ namespace gui {
 
       area = r;
       id = create_native_window(type, r, parent_id, this);
-#if defined(GUIPP_X11)
-      send_client_message(this, core::x11::WM_CREATE_WINDOW);
-#endif // GUIPP_X11
-#if defined(GUIPP_QT)
-      send_client_message(this, core::qt::WM_CREATE_WINDOW);
-#endif // GUIPP_X11
+    }
+
+    void window::destroy () {
+      destroy_nativ_window(get_os_window());
+      id = 0;
     }
 
     window::operator os::drawable() const {
@@ -709,13 +734,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void window::destroy () {
-      if (get_os_window()) {
-        DestroyWindow(get_os_window());
-        id = 0;
-      }
-    }
-
     void window::close () {
       if (get_os_window()) {
         CloseWindow(get_os_window());
@@ -886,16 +904,6 @@ namespace gui {
     // --------------------------------------------------------------------------
 
 #ifdef GUIPP_X11
-
-    void window::destroy () {
-      if (get_os_window()) {
-        hidden::window_class_map.erase(get_os_window());
-        x11::validate_window(get_os_window());
-        x11::check_return(XDestroyWindow(core::global::get_instance(), get_os_window()));
-        detail::unset_os_window(get_os_window());
-        id = 0;
-      }
-    }
 
     void window::close () {
       send_client_message(this, core::x11::WM_PROTOCOLS, core::x11::WM_DELETE_WINDOW);
@@ -1112,16 +1120,6 @@ namespace gui {
 
 #ifdef GUIPP_QT
     // --------------------------------------------------------------------------
-    void window::destroy () {
-      if (is_valid()) {
-//        send_client_message(this, core::qt::WM_DESTROY_WINDOW);
-        hidden::window_class_map.erase(id);
-        id->set_window(nullptr);
-        id->deleteLater();
-        id = nullptr;
-      }
-    }
-
     void window::close () {
       if (is_valid()) {
         send_client_message(this, QEvent::Close);

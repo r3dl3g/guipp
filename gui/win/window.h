@@ -172,10 +172,10 @@ namespace gui {
       void init ();
 
       os::window id;
-      core::rectangle area;
       container* parent;
 
     protected:
+      core::rectangle area;
       gui::core::state_type flags;
     };
 

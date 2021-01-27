@@ -122,6 +122,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     window::window ()
       : id(0)
+      , area(core::rectangle::def)
       , parent(nullptr)
     {
       init();
@@ -138,8 +139,9 @@ namespace gui {
 
     window::window (const window& rhs)
       : id(0)
-      , flags(rhs.flags)
+      , area(rhs.area)
       , parent(nullptr)
+      , flags(rhs.flags)
     {
       init();
       if (rhs.is_valid()) {
@@ -153,8 +155,9 @@ namespace gui {
 
     window::window (window&& rhs) noexcept
       : id(0)
-      , flags(std::move(rhs.flags))
+      , area(rhs.area)
       , parent(nullptr)
+      , flags(std::move(rhs.flags))
     {
       init();
       std::swap(id, rhs.id);
@@ -182,6 +185,7 @@ namespace gui {
         destroy();
       }
 
+      area = r;
       id = create_window(type, r, parent_id, this);
 #if defined(GUIPP_X11)
       send_client_message(this, core::x11::WM_CREATE_WINDOW);
@@ -801,49 +805,45 @@ namespace gui {
       }
     }
 
-    core::size window::size () const {
+    core::rectangle get_native_geometry (os::window wid) {
       Window root = 0;
       int x = 0, y = 0;
       unsigned int width = 0, height = 0;
       unsigned int border_width = 0;
       unsigned int depth = 0;
-      Window wid = get_os_window();
       if (wid && x11::check_status(XGetGeometry(core::global::get_instance(), wid,
-                                                &root, &x, &y, &width, &height,
-                                                &border_width, &depth))) {
-        return core::global::scale_from_native(core::native_size{width, height});
-      }
-      return core::size::zero;
-    }
-
-    core::point window::position () const {
-      Window root = 0;
-      int x = 0, y = 0;
-      unsigned int width = 0, height = 0;
-      unsigned int border_width = 0;
-      unsigned int depth = 0;
-      Window wid = get_os_window();
-      if (wid && x11::check_return(XGetGeometry(core::global::get_instance(), wid,
-                                                &root, &x, &y, &width, &height,
-                                                &border_width, &depth))) {
-        return core::global::scale_from_native(core::native_point{x, y});
-      }
-      return core::point::undefined;
-    }
-
-    core::rectangle window::place () const {
-      Window root = 0;
-      int x = 0, y = 0;
-      unsigned int width = 0, height = 0;
-      unsigned int border_width = 0;
-      unsigned int depth = 0;
-      Window wid = get_os_window();
-      if (wid && x11::check_return(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height,
                                                 &border_width, &depth))) {
         return core::global::scale_from_native(core::native_rect{x, y, width, height});
       }
       return core::rectangle::def;
+    }
+
+    void log_geometry (const std::string& name, const core::rectangle& nativ, const core::rectangle& stored, const window* win) {
+      if (stored != nativ) {
+        clog::debug() << "Geometriy differs in " << name << "(): stored=" << stored << ", nativ=" << nativ << ", window=" << *win;
+      }
+    }
+
+    core::size window::size () const {
+//      auto r = get_native_geometry(get_os_window());
+//      log_geometry("size", r, area, this);
+//      return r.size();
+      return area.size();
+    }
+
+    core::point window::position () const {
+//      auto r = get_native_geometry(get_os_window());
+//      log_geometry("position", r, area, this);
+//      return r.position();
+      return area.position();
+    }
+
+    core::rectangle window::place () const {
+//      auto r = get_native_geometry(get_os_window());
+//      log_geometry("place", r, area, this);
+//      return r;
+      return area;
     }
 
     core::rectangle window::absolute_place () const {
@@ -864,9 +864,8 @@ namespace gui {
 
     void window::move (const core::point& pt, bool repaint) {
       if (position() != pt) {
-        auto ox = pt.os_x();
-        auto oy = pt.os_y();
-        x11::check_return(XMoveWindow(core::global::get_instance(), get_os_window(), ox, oy));
+        area.set_position(pt);
+        x11::check_return(XMoveWindow(core::global::get_instance(), get_os_window(), pt.os_x(), pt.os_y()));
         if (repaint) {
           invalidate();
         }
@@ -883,6 +882,7 @@ namespace gui {
           if (!is_visible()) {
             set_visible();
           }
+          area.set_size(sz);
           x11::check_return(XResizeWindow(core::global::get_instance(),
                                           get_os_window(), sz.os_width(), sz.os_height()));
           send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(sz));
@@ -904,7 +904,7 @@ namespace gui {
         }
         const auto current = place();
         if (current != r) {
-
+          area = r;
           x11::check_return(XMoveResizeWindow(core::global::get_instance(),
                                               get_os_window(), r.os_x(), r.os_y(),
                                               r.os_width(), r.os_height()));

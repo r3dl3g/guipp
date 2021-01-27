@@ -420,11 +420,15 @@ namespace gui {
       on_set_focus([&] () {
         send_client_message(this, core::WM_LAYOUT_WINDOW, client_area());
       });
-#ifndef BUILD_FOR_ARM
       on_size([&] (const core::size& sz) {
+        area.set_size(sz);
+#ifndef BUILD_FOR_ARM
         send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(sz));
-      });
 #endif
+      });
+      on_move([&](const core::point& pt) {
+        area.set_position(pt);
+      });
     }
 
     os::window overlapped_window::get_os_window () const {

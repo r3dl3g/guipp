@@ -1,6 +1,7 @@
 
 #include <fstream>
 
+#include <gui/win/clipboard.h>
 #include <gui/ctrl/std_dialogs.h>
 #include <gui/ctrl/menu.h>
 #include <gui/ctrl/editbox.h>
@@ -18,7 +19,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::ctrl;
   using namespace gui::core;
 
-  typedef layout_main_window<border::layouter<20>> mainview_t;
+  typedef layout_main_window<border::layouter<24>> mainview_t;
   typedef virtual_view<editbox> clientview_t;
 
   mainview_t main;
@@ -45,7 +46,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     menu_entry("Open", 'o', [&]() {
       file_open_dialog::show(main, "Open File", "Open", "Cancel", [&] (container&, const sys_fs::path& name) {
         if (sys_fs::exists(name)) {
-          std::ifstream file(name);
+          std::ifstream file(name.string());
           client.view.set_text(std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()));
         }
       });
@@ -54,9 +55,18 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   });
 
   edit_sub_menu.data.add_entries({
-    menu_entry("Cut", 't', [](){}, hot_key('X', state::control), false),
-    menu_entry("Copy", 'C', [](){}, hot_key('C', state::control), false),
-    menu_entry("Paste", 'P', [](){}, hot_key('V', state::control), false),
+    menu_entry("Cut", 't', [&] () {
+      clipboard::get().set_text(main, client.view.get_selected_text());
+      client.view.replace_selection({});
+    }, hot_key('X', state::control), false),
+    menu_entry("Copy", 'C', [&] () {
+      clipboard::get().set_text(main, client.view.get_selected_text());
+    }, hot_key('C', state::control), false),
+    menu_entry("Paste", 'P', [&] () {
+      clipboard::get().get_text(main, [&] (const std::string& t) {
+        client.view.replace_selection(t);
+      });
+    }, hot_key('V', state::control), false),
   });
 
   help_sub_menu.data.add_entry(
@@ -65,13 +75,12 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     })
   );
 
+  main.get_layout().set_top(lay(menu));
+  main.get_layout().set_center(lay(client));
+
   main.on_create([&] () {
     menu.create(main);
-    menu.set_visible();
-
     client.create(main, main.client_area());
-    main.get_layout().set_top(lay(menu));
-    main.get_layout().set_center(lay(client));
     main.set_children_visible();
   });
 

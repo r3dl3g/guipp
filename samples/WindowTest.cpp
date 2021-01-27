@@ -1135,7 +1135,7 @@ void my_main_window::created_children () {
 
   get_layout().attach_fix<What::left, Where::x2, 2>(&editor, &vsplitter);
   get_layout().attach_fix<What::right, Where::width, -10>(&editor, this);
-  get_layout().attach_fix<What::top, Where::y, 320>(&editor, this);
+//  get_layout().attach_fix<What::top, Where::y, 320>(&editor, this);
   get_layout().attach_fix<What::bottom, Where::y2, -8>(&editor, &hsplitter);
 
   get_layout().attach_fix<What::left, Where::x2, 2>(&textbox, &vsplitter);

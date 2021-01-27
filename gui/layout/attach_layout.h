@@ -266,7 +266,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class attach {
+    class GUIPP_LAYOUT_EXPORT attach {
     public:
 
       template<What what, Where where, int offset = 0, typename T, typename S>

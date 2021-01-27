@@ -114,6 +114,12 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    namespace hidden {
+      std::map<std::string, class_info> window_class_info_map;
+      std::map<os::window, std::string> window_class_map;
+      std::vector<os::window> capture_stack;
+    }
+    // --------------------------------------------------------------------------
 #ifdef GUIPP_WIN
     inline void move_native (os::window w, const core::point& pt) {
       SetWindowPos(w, nullptr, pt.os_x(), pt.os_y(), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
@@ -127,11 +133,71 @@ namespace gui {
       MoveWindow(w, r.os_x(), r.os_y(), r.os_width(), r.os_height(), false);
     }
 
-    core::rectangle get_native_geometry (os::window w) {
+    inline core::rectangle get_native_geometry (os::window w) {
       RECT r;
       GetWindowRect(w, &r);
       return core::rectangle(r);
     }
+
+    inline void prepare_native_window(window*) {
+    }
+
+    inline void unprepare_native_window(window*) {
+    }
+
+    os::window create_native_window (const class_info& type,
+                                     const core::rectangle& r,
+                                     os::window parent_id,
+                                     window* data) {
+      auto display = core::global::get_instance();
+
+      os::brush back = ((type.get_background() > 0) && (type.get_background() < 20))
+                       ? reinterpret_cast<os::brush>(static_cast<LPARAM>(type.get_background()))
+                       : (color::extract<color::part::alpha>(type.get_background()) == 0xff)
+                       ? NULL : CreateSolidBrush(type.get_background());
+
+      std::string name = type.get_class_name().substr(0, 255);
+      WNDCLASS wc = {
+        /* Register the window class. */
+        type.get_class_style(),
+        win32::WindowEventProc,
+        0,
+        0,
+        display,
+        nullptr,
+        type.get_cursor(),
+        back,
+        nullptr,
+        name.c_str()
+      };
+
+      ATOM cls_id = RegisterClass(&wc);
+      if (cls_id) {
+        hidden::window_class_info_map[type.get_class_name()] = type;
+      } else {
+        auto error_no = GetLastError();
+        if (error_no != 1410) {
+          clog::trace() << getLastErrorText() << " class name length: " << name.length();
+        }
+      }
+
+      os::window id = CreateWindowEx(type.get_ex_style(),
+                                     name.c_str(),
+                                     nullptr,         // address of window text
+                                     type.get_style(),  // window style
+                                     r.os_x(),        // horizontal position of window
+                                     r.os_y(),        // vertical position of window
+                                     r.os_width(),    // window width
+                                     r.os_height(),   // window height
+                                     parent_id,       // handle of parent window
+                                     NULL,            // handle of menu or child-window identifier
+                                     display,         // handle of application instance
+                                     data);
+      SetWindowLongPtr(id, GWLP_USERDATA, (LONG_PTR)data);
+
+      return id;
+    }
+
 #endif // GUIPP_WIN
 
 #ifdef GUIPP_X11
@@ -163,6 +229,79 @@ namespace gui {
       }
       return core::rectangle::def;
     }
+
+    void prepare_native_window(window* w) {
+      static int initialized = core::x11::init_messages();
+      (void)initialized;
+      x11::prepare_win_for_event(w, KeyPressMask);
+    }
+
+    inline void unprepare_native_window(window* w) {
+      x11::unprepare_win(w);
+    }
+
+    os::window create_native_window (const class_info& type,
+                                     const core::rectangle& r,
+                                     os::window parent_id,
+                                     window* data) {
+      auto display = core::global::get_instance();
+      auto screen = core::global::x11::get_screen();
+
+      unsigned long mask = 0;
+      XSetWindowAttributes wa;
+
+      XVisualInfo vinfo;
+      XMatchVisualInfo(display, screen, 24, TrueColor, &vinfo);
+
+      if (type.get_background() == color::transparent) {
+        mask |= CWBackPixmap;
+        wa.background_pixmap = None;
+      } else {
+        wa.background_pixel = type.get_background();
+        wa.border_pixel = 0;
+        mask |= (CWBackPixel | CWBorderPixel);
+      }
+
+      auto visual = vinfo.visual;
+      auto depth = vinfo.depth;
+
+      if (type.get_cursor()) {
+        mask |= CWCursor;
+        wa.cursor = type.get_cursor();
+      }
+
+      mask |= (CWBitGravity | CWBackingStore | CWColormap);
+      wa.bit_gravity = ForgetGravity;
+      wa.backing_store = NotUseful;
+
+      mask |= CWColormap;
+      wa.colormap = XCreateColormap(display, DefaultRootWindow(display), visual, AllocNone);
+
+      os::window id = XCreateWindow(display,
+                                    parent_id,
+                                    r.os_x(),
+                                    r.os_y(),
+                                    std::max<gui::os::size_type>(r.os_width(), 1),
+                                    std::max<gui::os::size_type>(r.os_height(), 1),
+                                    0,
+                                    depth,
+                                    type.get_class_style(),
+                                    visual,
+                                    mask,
+                                    &wa);
+
+      detail::set_os_window(data, id);
+
+      x11::prepare_win_for_event(data, KeyReleaseMask);
+
+      if (0 == hidden::window_class_info_map.count(type.get_class_name())) {
+        hidden::window_class_info_map[type.get_class_name()] = type;
+      }
+      hidden::window_class_map[id] = type.get_class_name();
+
+      return id;
+    }
+
 #endif // GUIPP_X11
 
 #ifdef GUIPP_QT
@@ -178,16 +317,43 @@ namespace gui {
       w->setGeometry(r.os());
     }
 
-    core::rectangle get_native_geometry (os::window w) {
+    inline core::rectangle get_native_geometry (os::window w) {
       return core::rectangle(w->pos(), w->frameSize());
     }
+
+    inline void prepare_native_window(window*) {
+    }
+
+    inline void unprepare_native_window(window*) {
+    }
+
+    os::window create_native_window (const class_info& type,
+                                     const core::rectangle& r,
+                                     os::window parent_id,
+                                     window* data) {
+      os::window id = new os::qt::Widget(parent_id, type.get_style(), data);
+      Qt::WindowFlags style = id->windowFlags();
+      //clog::debug() << "Expected style: " << std::hex << type.get_style() << ", current style: " << std::hex << style;
+
+      id->setGeometry(r.os());
+      id->setCursor(type.get_cursor());
+
+      QPalette pal = id->palette();
+      pal.setColor(QPalette::Window, QColor(type.get_background()));
+      id->setAutoFillBackground(true);
+      id->setPalette(pal);
+      id->setFocusPolicy(data->can_accept_focus() ? Qt::WheelFocus : Qt::NoFocus);
+
+      hidden::window_class_map[id] = type.get_class_name();
+
+      //type.get_ex_style(),
+      //type.get_style(),  // window style
+
+      return id;
+    }
+
 #endif // GUIPP_QT
 
-    // --------------------------------------------------------------------------
-    namespace hidden {
-      std::map<std::string, class_info> window_class_info_map;
-      std::vector<os::window> capture_stack;
-    }
 
     // --------------------------------------------------------------------------
     window::window ()
@@ -238,6 +404,21 @@ namespace gui {
       }
     }
 
+    window::~window () {
+      destroy();
+      unprepare_native_window(this);
+    }
+
+    void window::init () {
+      prepare_native_window(this);
+      on_key_down<core::keys::tab>([&] () {
+        get_overlapped_window()->shift_focus(false);
+      });
+      on_key_down<core::keys::tab, core::state::shift>([&] () {
+        get_overlapped_window()->shift_focus(true);
+      });
+    }
+
     void window::create (const class_info& type,
                          container& p,
                          const core::rectangle& r) {
@@ -256,7 +437,7 @@ namespace gui {
       }
 
       area = r;
-      id = create_window(type, r, parent_id, this);
+      id = create_native_window(type, r, parent_id, this);
 #if defined(GUIPP_X11)
       send_client_message(this, core::x11::WM_CREATE_WINDOW);
 #endif // GUIPP_X11
@@ -528,13 +709,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void window::init ()
-    {}
-
-    window::~window () {
-      destroy();
-    }
-
     void window::destroy () {
       if (get_os_window()) {
         DestroyWindow(get_os_window());
@@ -689,59 +863,6 @@ namespace gui {
 
 # endif // WIN32_DEPRECATED
 
-    os::window window::create_window (const class_info& type,
-                                      const core::rectangle& r,
-                                      os::window parent_id,
-                                      window* data) {
-      auto display = core::global::get_instance();
-
-      os::brush back = ((type.get_background() > 0) && (type.get_background() < 20))
-                       ? reinterpret_cast<os::brush>(static_cast<LPARAM>(type.get_background()))
-                       : (color::extract<color::part::alpha>(type.get_background()) == 0xff)
-                       ? NULL : CreateSolidBrush(type.get_background());
-
-      std::string name = type.get_class_name().substr(0, 255);
-      WNDCLASS wc = {
-        /* Register the window class. */
-        type.get_class_style(),
-        win32::WindowEventProc,
-        0,
-        0,
-        display,
-        nullptr,
-        type.get_cursor(),
-        back,
-        nullptr,
-        name.c_str()
-      };
-
-      ATOM cls_id = RegisterClass(&wc);
-      if (cls_id) {
-        hidden::window_class_info_map[type.get_class_name()] = type;
-      } else {
-        auto error_no = GetLastError();
-        if (error_no != 1410) {
-          clog::trace() << getLastErrorText() << " class name length: " << name.length();
-        }
-      }
-      
-      os::window id = CreateWindowEx(type.get_ex_style(),
-                                     name.c_str(),
-                                     nullptr,         // address of window text
-                                     type.get_style(),  // window style
-                                     r.os_x(),        // horizontal position of window
-                                     r.os_y(),        // vertical position of window
-                                     r.os_width(),    // window width
-                                     r.os_height(),   // window height
-                                     parent_id,       // handle of parent window
-                                     NULL,            // handle of menu or child-window identifier
-                                     display,         // handle of application instance
-                                     data);
-      SetWindowLongPtr(id, GWLP_USERDATA, (LONG_PTR)data);
-
-      return id;
-    }
-
     void window::notify_event (os::message_type message, long l1, long l2) {
       send_client_message(this, message, l1, l2);
     }
@@ -765,26 +886,6 @@ namespace gui {
     // --------------------------------------------------------------------------
 
 #ifdef GUIPP_X11
-    namespace hidden {
-      std::map<os::window, std::string> window_class_map;
-    }
-
-    window::~window () {
-      destroy();
-      x11::unprepare_win(this);
-    }
-
-    void window::init () {
-      static int initialized = core::x11::init_messages();
-      (void)initialized;
-      x11::prepare_win_for_event(this, KeyPressMask);
-      on_key_down<core::keys::tab>([&] () {
-        get_overlapped_window()->shift_focus(false);
-      });
-      on_key_down<core::keys::tab, core::state::shift>([&] () {
-        get_overlapped_window()->shift_focus(true);
-      });
-    }
 
     void window::destroy () {
       if (get_os_window()) {
@@ -970,69 +1071,6 @@ namespace gui {
 #endif // NO_CAPTURE
     }
 
-    os::window window::create_window (const class_info& type,
-                                      const core::rectangle& r,
-                                      os::window parent_id,
-                                      window* data) {
-      auto display = core::global::get_instance();
-      auto screen = core::global::x11::get_screen();
-
-      unsigned long mask = 0;
-      XSetWindowAttributes wa;
-
-      XVisualInfo vinfo;
-      XMatchVisualInfo(display, screen, 24, TrueColor, &vinfo);
-
-      if (type.get_background() == color::transparent) {
-        mask |= CWBackPixmap;
-        wa.background_pixmap = None;
-      } else {
-        wa.background_pixel = type.get_background();
-        wa.border_pixel = 0;
-        mask |= (CWBackPixel | CWBorderPixel);
-      }
-
-      auto visual = vinfo.visual;
-      auto depth = vinfo.depth;
-
-      if (type.get_cursor()) {
-        mask |= CWCursor;
-        wa.cursor = type.get_cursor();
-      }
-
-      mask |= (CWBitGravity | CWBackingStore | CWColormap);
-      wa.bit_gravity = ForgetGravity;
-      wa.backing_store = NotUseful;
-
-      mask |= CWColormap;
-      wa.colormap = XCreateColormap(display, DefaultRootWindow(display), visual, AllocNone);
-
-      os::window id = XCreateWindow(display,
-                                    parent_id,
-                                    r.os_x(),
-                                    r.os_y(),
-                                    std::max<gui::os::size_type>(r.os_width(), 1),
-                                    std::max<gui::os::size_type>(r.os_height(), 1),
-                                    0,
-                                    depth,
-                                    type.get_class_style(),
-                                    visual,
-                                    mask,
-                                    &wa);
-
-      detail::set_os_window(id, data);
-      data->id = id;
-
-      x11::prepare_win_for_event(data, KeyReleaseMask);
-
-      if (0 == hidden::window_class_info_map.count(type.get_class_name())) {
-        hidden::window_class_info_map[type.get_class_name()] = type;
-      }
-      hidden::window_class_map[id] = type.get_class_name();
-
-      return id;
-    }
-
     std::string window::get_class_name () const {
       return hidden::window_class_map[get_os_window()];
     }
@@ -1074,23 +1112,6 @@ namespace gui {
 
 #ifdef GUIPP_QT
     // --------------------------------------------------------------------------
-    namespace hidden {
-      std::map<os::window, std::string> window_class_map;
-    }
-
-    void window::init () {
-      on_key_down<core::keys::tab>([&] () {
-        get_overlapped_window()->shift_focus(false);
-      });
-      on_key_down<core::keys::tab, core::state::shift>([&] () {
-        get_overlapped_window()->shift_focus(true);
-      });
-    }
-
-    window::~window () {
-      destroy();
-    }
-
     void window::destroy () {
       if (is_valid()) {
 //        send_client_message(this, core::qt::WM_DESTROY_WINDOW);
@@ -1224,31 +1245,6 @@ namespace gui {
         }
       }
 #endif // NO_CAPTURE
-    }
-
-    os::window window::create_window (const class_info& type,
-                                      const core::rectangle& r,
-                                      os::window parent_id,
-                                      window* data) {
-      os::window id = new os::qt::Widget(parent_id, type.get_style(), data);
-      Qt::WindowFlags style = id->windowFlags();
-      //clog::debug() << "Expected style: " << std::hex << type.get_style() << ", current style: " << std::hex << style;
-
-      id->setGeometry(r.os());
-      id->setCursor(type.get_cursor());
-
-      QPalette pal = id->palette();
-      pal.setColor(QPalette::Window, QColor(type.get_background()));
-      id->setAutoFillBackground(true);
-      id->setPalette(pal);
-      id->setFocusPolicy(data->can_accept_focus() ? Qt::WheelFocus : Qt::NoFocus);
-
-      hidden::window_class_map[id] = type.get_class_name();
-
-      //type.get_ex_style(),
-      //type.get_style(),  // window style
-
-      return id;
     }
 
     void window::notify_event (os::message_type message, long l1, long l2) {

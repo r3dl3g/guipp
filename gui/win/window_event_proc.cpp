@@ -77,12 +77,6 @@ namespace gui {
 
     namespace detail {
 
-      void set_os_window (window* w, os::window id) {
-        if (w) {
-          w->set_os_window(id);
-        }
-      }
-
       os::window get_os_window (const window& win) {
         return win.get_os_window();
       }
@@ -98,8 +92,11 @@ namespace gui {
         return reinterpret_cast<window*>(GetWindowLongPtr(id, GWLP_USERDATA));
       }
 
-      void set_os_window (os::window id, window* win) {
+      void set_os_window (window* win, os::window id) {
         SetWindowLongPtr(id, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(win));
+        if (win) {
+          win->set_os_window(id);
+        }
       }
 
       void unset_os_window (os::window id) {
@@ -211,8 +208,11 @@ namespace gui {
         return global_window_map[id];
       }
 
-      void set_os_window (os::window id, window* win) {
+      void set_os_window (window* win, os::window id) {
         global_window_map[id] = win;
+        if (win) {
+          win->set_os_window(id);
+        }
       }
 
       void unset_os_window (os::window id) {
@@ -248,7 +248,7 @@ namespace gui {
         return win;
       }
 
-      void set_os_window (os::window id, window* win) {
+      void set_os_window (window* win, os::window id) {
         const auto* data = (const unsigned char*)&win;
 #ifdef LOG_GET_WINDOW_PROPERTY
         clog::debug() << "set window " << id << ": "
@@ -259,6 +259,9 @@ namespace gui {
                         core::x11::GUI_LIB_WIN_PTR,
                         XA_CARDINAL, 8, PropModeReplace,
                         data, sizeof(win));
+        if (win) {
+          win->set_os_window(id);
+        }
       }
 
       void unset_os_window (os::window id) {
@@ -287,6 +290,12 @@ namespace gui {
 #elif GUIPP_QT
 
     namespace detail {
+
+      void set_os_window (window* win, os::window id) {
+        if (win) {
+          win->set_os_window(id);
+        }
+      }
 
       window* get_window (os::window id) {
         return id ? id->get_window() : nullptr;

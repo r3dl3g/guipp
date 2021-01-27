@@ -60,7 +60,6 @@ namespace gui {
       window ();
       virtual ~window ();
 
-      void destroy ();
       void close ();
 
       void set_parent (container& parent);
@@ -163,20 +162,18 @@ namespace gui {
       os::window get_os_window () const;
       void set_os_window (os::window);
 
-    private:
-      static os::window create_window (const class_info&,
-                                       const core::rectangle& r,
-                                       os::window parent_id,
-                                       window* data);
+    protected:
+      void destroy ();
 
+      core::rectangle area;
+      gui::core::state_type flags;
+
+    private:
       void init ();
 
       os::window id;
       container* parent;
 
-    protected:
-      core::rectangle area;
-      gui::core::state_type flags;
     };
 
     // --------------------------------------------------------------------------

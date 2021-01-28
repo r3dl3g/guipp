@@ -1,0 +1,265 @@
+/**
+ * @copyright (c) 2015-2021 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic window
+ *
+ * @file
+ */
+
+#ifdef GUIPP_QT
+
+// --------------------------------------------------------------------------
+//
+// Common includes
+//
+#include <map>
+
+#include <QtWidgets/QApplication>
+#include <QtGui/QScreen>
+
+// --------------------------------------------------------------------------
+//
+// Library includes
+//
+#include <logging/logger.h>
+#include <gui/win/native.h>
+#include <gui/win/window.h>
+
+
+namespace gui {
+
+  namespace win {
+
+    // --------------------------------------------------------------------------
+    namespace {
+      std::map<std::string, class_info> window_class_info_map;
+      std::map<os::window, std::string> window_class_map;
+    }
+
+    // --------------------------------------------------------------------------
+    namespace native {
+
+      std::string get_class_name (os::window id) {
+        return window_class_map[id];
+      }
+
+      const class_info& get_window_class (os::window id) {
+        return window_class_info_map[get_class_name(id)];
+      }
+
+      void move (os::window w, const core::point& pt) {
+        w->move(pt.os_x(), pt.os_y());
+      }
+
+      void resize (os::window w, const core::size& sz) {
+        w->resize(sz.os_width(), sz.os_height());
+      }
+
+      void place (os::window w, const core::rectangle& r) {
+        w->setGeometry(r.os());
+      }
+
+      core::rectangle get_geometry (os::window w) {
+        return core::rectangle(w->pos(), w->frameSize());
+      }
+
+      void prepare(window*) {
+      }
+
+      void unprepare(window*) {
+      }
+
+      os::window create (const class_info& type,
+                         const core::rectangle& r,
+                         os::window parent_id,
+                         window* data) {
+        os::window id = new os::qt::Widget(parent_id, type.get_style(), data);
+        Qt::WindowFlags style = id->windowFlags();
+        //clog::debug() << "Expected style: " << std::hex << type.get_style() << ", current style: " << std::hex << style;
+
+        id->setGeometry(r.os());
+        id->setCursor(type.get_cursor());
+
+        QPalette pal = id->palette();
+        pal.setColor(QPalette::Window, QColor(type.get_background()));
+        id->setAutoFillBackground(true);
+        id->setPalette(pal);
+        id->setFocusPolicy(data->can_accept_focus() ? Qt::WheelFocus : Qt::NoFocus);
+
+        if (0 == window_class_info_map.count(type.get_class_name())) {
+          window_class_info_map[type.get_class_name()] = type;
+        }
+        window_class_map[id] = type.get_class_name();
+
+        return id;
+      }
+
+      void notify_created(window* w) {
+        w->notify_event(core::qt::WM_CREATE_WINDOW);
+      }
+
+      void destroy (os::window id) {
+        if (id) {
+          // notify_event(core::qt::WM_DESTROY_WINDOW);
+          window_class_map.erase(id);
+          id->set_window(nullptr);
+          id->deleteLater();
+        }
+      }
+
+      void close (os::window id) {
+        if (id) {
+          id->close();
+        }
+      }
+
+      void notify_close (window& w) {
+        w.notify_event(QEvent::Close);
+      }
+
+      bool is_visible (os::window id) {
+        return id && id->isVisible();
+      }
+
+      void set_visible (os::window id, bool s) {
+        if (id) {
+          id->setVisible(s);
+        }
+      }
+
+      void enable (os::window id, bool s) {
+        if (id) {
+          id->setEnabled(s);
+        }
+      }
+
+      void to_front (os::window id) {
+        if (id) {
+          id->stackUnder(id->parentWidget());
+        }
+      }
+
+      void to_back (os::window id) {
+        if (id) {
+          id->lower();
+        }
+      }
+
+      void take_focus (os::window id) {
+        if (id) {
+          id->setFocus();
+        }
+      }
+
+      void set_cursor (os::window id, const os::cursor& c) {
+        if (id) {
+          id->setCursor(c);
+        }
+      }
+
+      void invalidate (os::window id, const core::rectangle& r) {
+        if (id) {
+          id->update(r.os());
+        }
+      }
+
+      void redraw (const window&, os::window id, const core::rectangle& r) {
+        if (id) {
+          id->repaint(r.os());
+        }
+      }
+
+      void prepare_accept_focus (os::window id, bool a) {
+        if (id) {
+          id->setFocusPolicy(a ? Qt::WheelFocus : Qt::NoFocus);
+        }
+      }
+
+      void prepare_capture_pointer () {
+      }
+
+      void unprepare_capture_pointer () {
+      }
+
+      void capture_pointer (os::window id) {
+        if (id) {
+          id->grabMouse();
+        }
+      }
+
+      void uncapture_pointer (os::window id) {
+        if (id) {
+          id->releaseMouse();
+        }
+      }
+
+      os::window get_desktop_window () {
+        return NULL;
+      }
+
+      core::size screen_size () {
+        return core::size(core::global::get_instance()->primaryScreen()->availableSize());
+      }
+
+      core::rectangle screen_area () {
+        return core::rectangle(core::global::get_instance()->primaryScreen()->availableGeometry());
+      }
+
+    } // namespace native
+
+  } // namespace win
+
+  namespace os {
+
+    namespace qt {
+
+      Widget::Widget (Widget* parent, os::style s, win::window* w)
+        : QWidget(parent, s)
+        , win(w)
+      {}
+
+      Widget::~Widget () {
+        if (win) {
+          win::detail::set_os_window(win, nullptr);
+        }
+      }
+
+      win::window* Widget::get_window () const {
+        return win;
+      }
+
+      void Widget::set_window (win::window* w) {
+        win = w;
+      }
+
+      Widget* Widget::get_parent () const {
+        return static_cast<Widget*>(parentWidget());
+      }
+
+      bool Widget::event (QEvent* e) {
+        gui::os::event_result result;
+        gui::core::event ev = {this, e};
+        clog::trace() << "Widget received event: " << ev;
+        if (win && win->handle_event(ev, result)) {
+          return true;
+        }
+        return QWidget::event(e);
+      }
+
+    } // namespace qt
+
+  } // namespace os
+
+} // namespace gui
+
+#endif // GUIPP_QT

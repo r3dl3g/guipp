@@ -52,21 +52,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 
-#ifdef GUIPP_WIN
-
-    // --------------------------------------------------------------------------
-    bool container::is_parent_of (const window& child) const {
-      return is_valid() && child.is_valid() && IsChild(get_os_window(), detail::get_os_window(child)) != FALSE;
-    }
-
-    void container::set_children_visible (bool show) {
-      std::vector<window*> children = get_children();
-      for (window* win : children) {
-        win->set_visible(show);
-      }
-    }
-
-#endif // GUIPP_WIN
+    namespace x11 {
 
 #ifdef GUIPP_X11
 
@@ -79,8 +65,6 @@ namespace gui {
 # ifndef _NET_WM_STATE_TOGGLE
 #  define _NET_WM_STATE_TOGGLE        2   /* toggle property  */
 # endif
-
-    namespace x11 {
 
       Atom ATOM_ATOM = 0;
       Atom NET_WM_STATE = 0;
@@ -202,53 +186,10 @@ namespace gui {
 
         XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureNotifyMask, &xev);
       }
-    }
-
-    // --------------------------------------------------------------------------
-    bool container::is_parent_of (const window& child) const {
-      return child.get_parent() == this;
-    }
-
-    void container::set_children_visible (bool show) {
-      container::window_list_t list;
-      collect_children(list);
-      if (show) {
-        x11::check_return(XMapSubwindows(core::global::get_instance(), get_os_window()));
-      } else {
-        x11::check_return(XUnmapSubwindows(core::global::get_instance(), get_os_window()));
-      }
-      for(window* win : list) {
-        win->set_visible(show);
-      }
-    }
 
 #endif // GUIPP_X11
 
-#ifdef GUIPP_QT
-
-    bool container::is_parent_of (const window& child) const {
-      return is_valid() && child.is_valid() && (get_os_window() == detail::get_os_window(child)->get_parent());
     }
-
-    void get_deep_children (os::window win, std::vector<os::window>& list) {
-      for (auto child : win->children()) {
-        os::window w = dynamic_cast<os::window>(child);
-        if (w) {
-          list.push_back(w);
-          get_deep_children(w, list);
-        }
-      }
-    }
-
-    void container::set_children_visible (bool show) {
-      std::vector<os::window> children;
-      get_deep_children(get_os_window(), children);
-      for (os::window child : children) {
-        child->setVisible(show);
-      }
-    }
-
-#endif // GUIPP_QT
 
     container::container () {
       init();
@@ -274,13 +215,17 @@ namespace gui {
       (void)initialized;
 #endif // GUIPP_X11
 
-      set_accept_focus(true);
+//      set_accept_focus(true);
 //      on_set_focus([&] () {
 //        shift_focus(core::shift_key_bit_mask::is_set(core::global::get_key_state()));
 //      });
       on_show([&] () {
         set_children_visible();
       });
+    }
+
+    bool container::is_parent_of (const window& child) const {
+      return child.get_parent() == this;
     }
 
     bool container::is_sub_window (const window* child) const {
@@ -291,6 +236,12 @@ namespace gui {
         return true;
       }
       return is_sub_window(child->get_parent());
+    }
+
+    void container::set_children_visible (bool show) {
+      for(window* win : children) {
+        win->set_visible(show);
+      }
     }
 
     container::window_list_t container::get_children () const {
@@ -319,12 +270,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     overlapped_window::overlapped_window () {
       on_set_focus([&] () {
-        send_client_message(this, core::WM_LAYOUT_WINDOW, client_area());
+        notify_event(core::WM_LAYOUT_WINDOW, client_area());
       });
       on_size([&] (const core::size& sz) {
         area.set_size(sz);
 #ifndef BUILD_FOR_ARM
-        send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(sz));
+        notify_event(core::WM_LAYOUT_WINDOW, core::rectangle(sz));
 #endif
       });
       on_move([&](const core::point& pt) {

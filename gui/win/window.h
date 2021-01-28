@@ -69,10 +69,6 @@ namespace gui {
       bool is_child_of (const container& parent) const;
 
       bool is_valid () const;
-      bool is_child () const;
-      bool is_popup () const;
-      bool is_toplevel () const;
-      bool has_border () const;
 
       core::window_state::is get_state () const;
       core::window_state::set set_state ();
@@ -128,9 +124,10 @@ namespace gui {
       void capture_pointer ();
       void uncapture_pointer ();
 
-      bool handle_event (const core::event&, gui::os::event_result&);
+      bool handle_event (const core::event&, gui::os::event_result&) const;
 
       void notify_event (os::message_type message, long l1 = 0, long l2 = 0);
+      void notify_event (os::message_type message, const core::rectangle&);
       void notify_event_double (os::message_type message, double d1);
 
       operator os::drawable() const;

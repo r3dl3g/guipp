@@ -22,6 +22,9 @@ if(NOT TARGET gui++-win)
       container.cpp
       cursor.cpp
       dbg_win_message.cpp
+      native_qt.cpp
+      native_win32.cpp
+      native_x11.cpp
       receiver.cpp
       window.cpp
       window_class.cpp

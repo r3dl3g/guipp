@@ -240,9 +240,9 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<template<typename U> class T>
-      class cell_view : public control {
+      class cell_view : public win::container {
       public:
-        typedef control super;
+        typedef win::container super;
         typedef no_erase_window_class<cell_view> clazz;
 
         template<typename U>
@@ -261,7 +261,7 @@ namespace gui {
         cell_view (const cell_view&) = delete;
         cell_view (cell_view&&) = delete;
 
-        using control::create;
+        using win::container::create;
         void create (win::container& parent,
                      const core::rectangle& place = core::rectangle::def);
 

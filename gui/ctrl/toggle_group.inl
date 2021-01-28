@@ -100,7 +100,7 @@ namespace gui {
         }
         ++i;
       }
-      send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(event_source::logic));
+      super::notify_event(detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(event_source::logic));
     }
 
     template<orientation_t O, os::color FG, os::color BG, typename B, typename L>

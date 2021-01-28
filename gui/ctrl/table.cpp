@@ -578,7 +578,7 @@ namespace gui {
 
       data.on_any_key_down(util::bind_method(this, &table_view::handle_key));
       data.on_left_btn_dblclk([&](os::key_state, const core::point &) {
-        send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+        notify_event(detail::SELECTION_COMMIT_MESSAGE);
       });
 
       data.on_wheel<orientation_t::horizontal>([&](const core::point::type delta, const core::point & pt){
@@ -627,7 +627,7 @@ namespace gui {
       if (table::is_valid(geometrie.selection)) {
         table::clear(geometrie.selection);
         if (notify != event_source::logic) {
-          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
+          notify_event(detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
           redraw_all();
         }
       }
@@ -646,7 +646,7 @@ namespace gui {
           make_selection_visible();
           redraw_all();
         }
-        send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
+        notify_event(detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
       }
     }
 
@@ -768,7 +768,7 @@ namespace gui {
         if (geometrie.hilite != new_hilite) {
           geometrie.hilite = new_hilite;
           redraw_all();
-          send_client_message(this, detail::HILITE_CHANGE_MESSAGE, true);
+          notify_event(detail::HILITE_CHANGE_MESSAGE, true);
         }
       }
     }
@@ -821,7 +821,7 @@ namespace gui {
           if (geometrie.hilite != new_hilite) {
             geometrie.hilite = new_hilite;
             redraw_all();
-            send_client_message(this, detail::HILITE_CHANGE_MESSAGE, true);
+            notify_event(detail::HILITE_CHANGE_MESSAGE, true);
           }
         }
       }
@@ -875,7 +875,7 @@ namespace gui {
           if (geometrie.hilite != new_hilite) {
             geometrie.hilite = new_hilite;
             redraw_all();
-            send_client_message(this, detail::HILITE_CHANGE_MESSAGE, true);
+            notify_event(detail::HILITE_CHANGE_MESSAGE, true);
           }
         }
       }
@@ -950,7 +950,7 @@ namespace gui {
         break;
       case core::keys::f2:
       case core::keys::enter:
-        send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+        notify_event(detail::SELECTION_COMMIT_MESSAGE);
         break;
       case core::keys::escape:
         clear_selection(event_source::keyboard);
@@ -1031,7 +1031,7 @@ namespace gui {
         auto pt = geometrie.position_of(cell);
         auto sz = geometrie.get_size(cell);
         if (!editor.is_valid()) {
-          editor.create(*reinterpret_cast<container*>(&data), core::rectangle(0, 0, 10, 10));
+          editor.create(data, core::rectangle(0, 0, 10, 10));
         }
         editor.place(core::rectangle(pt, sz));
         editor.set_text(data_source(cell));

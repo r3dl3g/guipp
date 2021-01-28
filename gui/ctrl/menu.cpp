@@ -179,8 +179,8 @@ namespace gui {
         data.selection = new_selection;
         data.hilite = new_selection;
         win->invalidate();
-        clog::trace() << "menu_data::set_selection send_client_message SELECTION_CHANGE_MESSAGE";
-        send_client_message(win, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(src));
+        clog::trace() << "menu_data::set_selection notify_event SELECTION_CHANGE_MESSAGE";
+        win->notify_event(detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(src));
       }
     }
 
@@ -230,8 +230,8 @@ namespace gui {
         }
         data.hilite = new_hilite;
         win->invalidate();
-        clog::trace() << "menu_data::set_hilite send_client_message HILITE_CHANGE_MESSAGE";
-        send_client_message(win, detail::HILITE_CHANGE_MESSAGE, true);
+        clog::trace() << "menu_data::set_hilite notify_event HILITE_CHANGE_MESSAGE";
+        win->notify_event(detail::HILITE_CHANGE_MESSAGE, true);
       }
     }
 
@@ -239,8 +239,8 @@ namespace gui {
       clog::trace() << "menu_data::clear_hilite()";
       data.hilite = -1;
       win->invalidate();
-      clog::trace() << "menu_data::clear_hilite send_client_message HILITE_CHANGE_MESSAGE";
-      send_client_message(win, detail::HILITE_CHANGE_MESSAGE, false);
+      clog::trace() << "menu_data::clear_hilite notify_event HILITE_CHANGE_MESSAGE";
+      win->notify_event(detail::HILITE_CHANGE_MESSAGE, false);
     }
 
     void menu_data::close () {

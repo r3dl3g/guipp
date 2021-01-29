@@ -305,7 +305,10 @@ void my_main_window::onCreated () {
   );
 
   help_sub_menu.data.add_entry(
-    menu_entry("About", 'A', [&]() { labels[0].set_text("about"); })
+    menu_entry("About", 'A', [&] () {
+      labels[0].set_text("about");
+      message_dialog::show(*this, "About", "BorderTest Version 0.0.1", "ok");
+    })
   );
 
   menu.create(top_view);

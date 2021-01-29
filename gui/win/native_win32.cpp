@@ -112,11 +112,9 @@ namespace gui {
         return core::rectangle(r);
       }
 
-      void prepare(window*) {
-      }
+      void prepare (window*) {}
 
-      void unprepare(window*) {
-      }
+      void unprepare (window*) {}
 
       os::window create (const class_info& type,
                          const core::rectangle& r,
@@ -172,8 +170,7 @@ namespace gui {
         return id;
       }
 
-      void notify_created(window*) {
-      }
+      void notify_created(window*) {}
 
       void destroy (os::window w) {
         if (w) {
@@ -187,8 +184,7 @@ namespace gui {
         }
       }
 
-      void notify_close (window& w) {
-      }
+      void notify_close (window& w) {}
 
       bool is_visible (os::window id) {
         return id && IsWindowVisible(id);
@@ -268,6 +264,63 @@ namespace gui {
       core::rectangle screen_area () {
         return core::rectangle(screen_size());
       }
+
+      core::rectangle adjust_overlapped_area (const core::rectangle& r, const class_info& type) {
+        auto rect = r.os();
+        AdjustWindowRectEx(&rect, type.get_style(), FALSE, type.get_ex_style());
+        return core::rectangle(rect);
+      }
+
+      void prepare_overlapped (os::window id, os::window pid) {
+      }
+
+      os::window get_overlapped_parent (os::window pid) {
+        return pid;
+      }
+
+      void set_title (os::window id, const std::string& title) {
+        SendMessage(id, WM_SETTEXT, 0, (LPARAM)title.c_str());
+      }
+
+      std::string get_title (os::window id) {
+        std::string s;
+        s.resize(SendMessage(id, WM_GETTEXTLENGTH, 0, 0) + 1);
+        SendMessage(id, WM_GETTEXT, (WPARAM)s.capacity(), (LPARAM)&s[0]);
+        return s;
+      }
+
+      bool is_maximized (os::window id) {
+        return IsZoomed(id) != FALSE;
+      }
+
+      bool is_minimized (os::window id) {
+        return IsIconic(id) != FALSE;
+      }
+
+      bool is_top_most (os::window id) {
+        return (GetWindowLong(id, GWL_EXSTYLE) & WS_EX_TOPMOST) == WS_EX_TOPMOST;
+      }
+
+      void minimize (os::window id) {
+        ShowWindow(id, SW_MINIMIZE);
+      }
+
+      void maximize (os::window id) {
+        ShowWindow(id, SW_MAXIMIZE);
+      }
+
+      void restore (os::window id) {
+        ShowWindow(id, SW_RESTORE);
+      }
+
+      void set_top_most (os::window id, bool on) {
+        SetWindowPos(id, on ? HWND_TOPMOST : HWND_NOTOPMOST,
+                     0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+      }
+
+      void prepare_main_window (os::window) {}
+      void prepare_popup_window (os::window) {}
+      void prepare_dialog_window (os::window, os::window) {}
 
     } // namespace native
 

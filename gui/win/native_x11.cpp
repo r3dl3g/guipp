@@ -79,6 +79,134 @@ namespace gui {
         return false;
       }
 
+# ifndef _NET_WM_STATE_REMOVE
+#  define _NET_WM_STATE_REMOVE        0   /* remove/unset property */
+# endif
+# ifndef _NET_WM_STATE_ADD
+#  define _NET_WM_STATE_ADD           1   /* add/set property */
+# endif
+# ifndef _NET_WM_STATE_TOGGLE
+#  define _NET_WM_STATE_TOGGLE        2   /* toggle property  */
+# endif
+
+      Atom ATOM_ATOM = 0;
+      Atom NET_WM_STATE = 0;
+      Atom NET_WM_STATE_MAXIMIZED_HORZ = 0;
+      Atom NET_WM_STATE_MAXIMIZED_VERT = 0;
+      Atom NET_WM_STATE_ABOVE = 0;
+      Atom NET_WM_STATE_HIDDEN = 0;
+      Atom WM_SIZE_HINTS = 0;
+
+      int init_for_net_wm_state () {
+        core::x11::init_atom(NET_WM_STATE, "_NET_WM_STATE");
+        core::x11::init_atom(NET_WM_STATE_MAXIMIZED_HORZ, "_NET_WM_STATE_MAXIMIZED_HORZ");
+        core::x11::init_atom(NET_WM_STATE_MAXIMIZED_VERT, "_NET_WM_STATE_MAXIMIZED_VERT");
+        core::x11::init_atom(NET_WM_STATE_ABOVE, "_NET_WM_STATE_ABOVE");
+        core::x11::init_atom(NET_WM_STATE_HIDDEN, "_NET_WM_STATE_HIDDEN");
+        core::x11::init_atom(ATOM_ATOM, "ATOM");
+        core::x11::init_atom(WM_SIZE_HINTS, "WM_SIZE_HINTS");
+        return 1;
+      }
+
+      // --------------------------------------------------------------------------
+      template<typename T>
+      void change_property (os::instance display, os::window id, const char* type, T value);
+
+      template<>
+      void change_property<const char*>(os::instance display, os::window id, const char* type, const char* value) {
+        Atom t = XInternAtom(display, type, False);
+        Atom v = XInternAtom(display, value, False);
+        XChangeProperty(display, id, t, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&v), 1);
+      }
+
+      template<>
+      void change_property<os::window>(os::instance display, os::window id, const char* type, os::window value) {
+        Atom t = XInternAtom(display, type, False);
+        XChangeProperty(display, id, t, XA_WINDOW, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
+      }
+
+      std::string get_property (os::instance display, os::window id, const char* name) {
+        Atom prop_name = XInternAtom(display, name, False);
+        Atom actual_type;
+        int actual_format;
+        unsigned long nitems, bytes_after;
+        unsigned char *data = 0;
+        std::string str;
+        if ((Success == XGetWindowProperty(display, id, prop_name, 0, 1024, false,
+                                           XA_ATOM, &actual_type, &actual_format,
+                                           &nitems, &bytes_after, &data))
+            && (nitems > 0)) {
+          if (actual_type == XA_ATOM) {
+            str = XGetAtomName(display, *(Atom*)data);
+          }
+          XFree(data);
+        }
+        return str;
+      }
+
+      void set_wm_protocols (os::instance display, os::window id) {
+        Atom protocols[] = {
+          core::x11::WM_TAKE_FOCUS,
+          core::x11::WM_DELETE_WINDOW,
+        };
+        XSetWMProtocols(display, id, protocols, 2);
+      }
+
+      bool query_net_wm_state (os::window id,
+                                 Atom a1,
+                                 Atom a2 = 0,
+                                 Atom a3 = 0) {
+        auto dpy = core::global::get_instance();
+
+        Atom actual_type_return;
+        int actual_format_return;
+        unsigned long nitems_return;
+        unsigned long bytes_after_return;
+        unsigned char *prop_return;
+
+        bool ret_a1 = a1 == 0;
+        bool ret_a2 = a2 == 0;
+        bool ret_a3 = a3 == 0;
+        if (Success == XGetWindowProperty(dpy, id, NET_WM_STATE,
+                                          0, 99, false, AnyPropertyType,
+                                          &actual_type_return,
+                                          &actual_format_return,
+                                          &nitems_return,
+                                          &bytes_after_return,
+                                          &prop_return)) {
+          if (actual_type_return == ATOM_ATOM) {
+            Atom* atoms = (Atom*)prop_return;
+            for (unsigned long i = 0; i < nitems_return; ++i) {
+              ret_a1 |= (atoms[i] == a1);
+              ret_a2 |= (atoms[i] == a2);
+              ret_a3 |= (atoms[i] == a3);
+            }
+          }
+        }
+        return ret_a1 && ret_a2 && ret_a3;
+      }
+
+      void send_net_wm_state (os::window id,
+                                long action,
+                                Atom a1,
+                                Atom a2 = 0,
+                                Atom a3 = 0) {
+        auto dpy = core::global::get_instance();
+
+        XEvent xev;
+        memset(&xev, 0, sizeof (xev));
+        xev.type = ClientMessage;
+        xev.xclient.window = id;
+        xev.xclient.message_type = NET_WM_STATE;
+        xev.xclient.format = 32;
+        xev.xclient.data.l[0] = action;
+        xev.xclient.data.l[1] = a1;
+        xev.xclient.data.l[2] = a2;
+        xev.xclient.data.l[3] = a3;
+
+        XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureNotifyMask, &xev);
+      }
+
     } // namespace x11
 
     // --------------------------------------------------------------------------
@@ -326,6 +454,104 @@ namespace gui {
       core::rectangle screen_area () {
         return core::rectangle(screen_size());
       }
+
+      core::rectangle adjust_overlapped_area (const core::rectangle& r, const class_info&) {
+        return r;
+      }
+
+      void prepare_overlapped (os::window id, os::window pid) {
+        static int initialized = x11::init_for_net_wm_state();
+        (void)initialized;
+
+        XSetTransientForHint(core::global::get_instance(), id, pid);
+      }
+
+      os::window get_overlapped_parent (os::window) {
+        return native::get_desktop_window();
+      }
+
+      void set_title (os::window id, const std::string& title) {
+        x11::check_status(XStoreName(core::global::get_instance(), id, title.c_str()));
+      }
+
+      std::string get_title (os::window id) {
+        char *window_name;
+        if (x11::check_status(XFetchName(core::global::get_instance(), id, &window_name))) {
+          std::string s(window_name);
+          XFree(window_name);
+          return s;
+        }
+        return {};
+      }
+
+      bool is_maximized (os::window id) {
+        return x11::query_net_wm_state(id, x11::NET_WM_STATE_MAXIMIZED_HORZ, x11::NET_WM_STATE_MAXIMIZED_VERT);
+      }
+
+      bool is_minimized (os::window id) {
+        return x11::query_net_wm_state(id, x11::NET_WM_STATE_HIDDEN);
+      }
+
+      bool is_top_most (os::window id) {
+        return x11::query_net_wm_state(id, x11::NET_WM_STATE_ABOVE);
+      }
+
+      void minimize (os::window id) {
+        XIconifyWindow(core::global::get_instance(), id, core::global::x11::get_screen());
+      }
+
+      void maximize (os::window id) {
+        x11::send_net_wm_state(id, _NET_WM_STATE_ADD,
+                               x11::NET_WM_STATE_MAXIMIZED_HORZ,
+                               x11::NET_WM_STATE_MAXIMIZED_VERT);
+      }
+
+      void restore (os::window id) {
+        x11::send_net_wm_state(id, _NET_WM_STATE_REMOVE,
+                               x11::NET_WM_STATE_MAXIMIZED_HORZ,
+                               x11::NET_WM_STATE_MAXIMIZED_VERT);
+      }
+
+      void set_top_most (os::window id, bool on) {
+        x11::send_net_wm_state(id,
+                               on ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE,
+                               x11::NET_WM_STATE_ABOVE);
+      }
+
+      void prepare_main_window (os::window id) {
+        gui::os::instance display = core::global::get_instance();
+
+        x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_NORMAL");
+        x11::set_wm_protocols(display, id);
+
+        XWMHints* hints = XGetWMHints(display, id);
+        if (!hints) {
+          hints = XAllocWMHints();
+        }
+        hints->flags |= InputHint;
+        hints->input = True;
+        XSetWMHints(display, id, hints);
+        XFree(hints);
+      }
+
+      void prepare_popup_window (os::window id) {
+        gui::os::instance display = core::global::get_instance();
+
+        x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU");
+
+        XSetWindowAttributes wa;
+        wa.override_redirect = 1;
+        XChangeWindowAttributes(display, id, CWOverrideRedirect, &wa);
+      }
+
+      void prepare_dialog_window (os::window id, os::window pid) {
+        gui::os::instance display = core::global::get_instance();
+        x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DIALOG");
+        x11::change_property(display, id, "_NET_WM_STATE", "_NET_WM_STATE_MODAL");
+        x11::change_property(display, id, "WM_CLIENT_LEADER", pid);
+        x11::set_wm_protocols(display, id);
+      }
+
 
     } // namespace native
 

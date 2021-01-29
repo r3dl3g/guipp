@@ -25,9 +25,6 @@
 #include <map>
 #include <cstring>
 
-#ifdef GUIPP_X11
-# include <X11/cursorfont.h>
-#endif // GUIPP_X11
 #ifdef GUIPP_QT
 # include <QtCore/QEventLoop>
 #endif // GUIPP_QT
@@ -41,6 +38,7 @@
 #include <gui/win/container.h>
 #include <gui/win/window_event_proc.h>
 #include <gui/win/window_event_handler.h>
+#include <gui/win/native.h>
 
 #if !defined(GUIPP_BUILD_FOR_MOBILE)
 # define USE_INPUT_EATER
@@ -51,145 +49,6 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-
-    namespace x11 {
-
-#ifdef GUIPP_X11
-
-# ifndef _NET_WM_STATE_REMOVE
-#  define _NET_WM_STATE_REMOVE        0   /* remove/unset property */
-# endif
-# ifndef _NET_WM_STATE_ADD
-#  define _NET_WM_STATE_ADD           1   /* add/set property */
-# endif
-# ifndef _NET_WM_STATE_TOGGLE
-#  define _NET_WM_STATE_TOGGLE        2   /* toggle property  */
-# endif
-
-      Atom ATOM_ATOM = 0;
-      Atom NET_WM_STATE = 0;
-      Atom NET_WM_STATE_MAXIMIZED_HORZ = 0;
-      Atom NET_WM_STATE_MAXIMIZED_VERT = 0;
-      Atom NET_WM_STATE_ABOVE = 0;
-      Atom NET_WM_STATE_HIDDEN = 0;
-      Atom WM_SIZE_HINTS = 0;
-
-      int init_for_net_wm_state () {
-        core::x11::init_atom(NET_WM_STATE, "_NET_WM_STATE");
-        core::x11::init_atom(NET_WM_STATE_MAXIMIZED_HORZ, "_NET_WM_STATE_MAXIMIZED_HORZ");
-        core::x11::init_atom(NET_WM_STATE_MAXIMIZED_VERT, "_NET_WM_STATE_MAXIMIZED_VERT");
-        core::x11::init_atom(NET_WM_STATE_ABOVE, "_NET_WM_STATE_ABOVE");
-        core::x11::init_atom(NET_WM_STATE_HIDDEN, "_NET_WM_STATE_HIDDEN");
-        core::x11::init_atom(ATOM_ATOM, "ATOM");
-        core::x11::init_atom(WM_SIZE_HINTS, "WM_SIZE_HINTS");
-        return 1;
-      }
-
-      bool check_return (int r);
-      bool check_status (Status s);
-
-      // --------------------------------------------------------------------------
-      template<typename T>
-      void change_property (os::instance display, os::window id, const char* type, T value);
-
-      template<>
-      void change_property<const char*>(os::instance display, os::window id, const char* type, const char* value) {
-        Atom t = XInternAtom(display, type, False);
-        Atom v = XInternAtom(display, value, False);
-        XChangeProperty(display, id, t, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&v), 1);
-      }
-
-      template<>
-      void change_property<os::window>(os::instance display, os::window id, const char* type, os::window value) {
-        Atom t = XInternAtom(display, type, False);
-        XChangeProperty(display, id, t, XA_WINDOW, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
-      }
-
-      std::string get_property (os::instance display, os::window id, const char* name) {
-        Atom prop_name = XInternAtom(display, name, False);
-        Atom actual_type;
-        int actual_format;
-        unsigned long nitems, bytes_after;
-        unsigned char *data = 0;
-        std::string str;
-        if ((Success == XGetWindowProperty(display, id, prop_name, 0, 1024, false,
-                                           XA_ATOM, &actual_type, &actual_format,
-                                           &nitems, &bytes_after, &data))
-            && (nitems > 0)) {
-          if (actual_type == XA_ATOM) {
-            str = XGetAtomName(display, *(Atom*)data);
-          }
-          XFree(data);
-        }
-        return str;
-      }
-
-      void set_wm_protocols (os::instance display, os::window id) {
-        Atom protocols[] = {
-          core::x11::WM_TAKE_FOCUS,
-          core::x11::WM_DELETE_WINDOW,
-        };
-        XSetWMProtocols(display, id, protocols, 2);
-      }
-
-      bool query_net_wm_state (os::window id,
-                                 Atom a1,
-                                 Atom a2 = 0,
-                                 Atom a3 = 0) {
-        auto dpy = core::global::get_instance();
-
-        Atom actual_type_return;
-        int actual_format_return;
-        unsigned long nitems_return;
-        unsigned long bytes_after_return;
-        unsigned char *prop_return;
-
-        bool ret_a1 = a1 == 0;
-        bool ret_a2 = a2 == 0;
-        bool ret_a3 = a3 == 0;
-        if (Success == XGetWindowProperty(dpy, id, NET_WM_STATE,
-                                          0, 99, false, AnyPropertyType,
-                                          &actual_type_return,
-                                          &actual_format_return,
-                                          &nitems_return,
-                                          &bytes_after_return,
-                                          &prop_return)) {
-          if (actual_type_return == ATOM_ATOM) {
-            Atom* atoms = (Atom*)prop_return;
-            for (unsigned long i = 0; i < nitems_return; ++i) {
-              ret_a1 |= (atoms[i] == a1);
-              ret_a2 |= (atoms[i] == a2);
-              ret_a3 |= (atoms[i] == a3);
-            }
-          }
-        }
-        return ret_a1 && ret_a2 && ret_a3;
-      }
-
-      void send_net_wm_state (os::window id,
-                                long action,
-                                Atom a1,
-                                Atom a2 = 0,
-                                Atom a3 = 0) {
-        auto dpy = core::global::get_instance();
-
-        XEvent xev;
-        memset(&xev, 0, sizeof (xev));
-        xev.type = ClientMessage;
-        xev.xclient.window = id;
-        xev.xclient.message_type = NET_WM_STATE;
-        xev.xclient.format = 32;
-        xev.xclient.data.l[0] = action;
-        xev.xclient.data.l[1] = a1;
-        xev.xclient.data.l[2] = a2;
-        xev.xclient.data.l[3] = a3;
-
-        XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureNotifyMask, &xev);
-      }
-
-#endif // GUIPP_X11
-
-    }
 
     container::container () {
       init();
@@ -210,11 +69,6 @@ namespace gui {
     }
 
     void container::init () {
-#ifdef GUIPP_X11
-      static int initialized = x11::init_for_net_wm_state();
-      (void)initialized;
-#endif // GUIPP_X11
-
 //      set_accept_focus(true);
 //      on_set_focus([&] () {
 //        shift_focus(core::shift_key_bit_mask::is_set(core::global::get_key_state()));
@@ -348,125 +202,59 @@ namespace gui {
       }
     }
 
-#ifdef GUIPP_WIN
-    void overlapped_window::create (const class_info& type,
-                                    container& parent,
+    void overlapped_window::create (const class_info& cls,
                                     const core::rectangle& r) {
-      auto rect = r.os();
-      AdjustWindowRectEx(&rect, type.get_style(), FALSE, type.get_ex_style());
-      window::create_internal(type, detail::get_os_window(parent), core::rectangle(rect));
+      set_state().overlapped(true);
+      create_internal(cls, native::get_desktop_window(), native::adjust_overlapped_area(r, cls));
     }
 
-    void overlapped_window::create (const class_info& type,
+    void overlapped_window::create (const class_info& cls,
+                                    container& parent,
                                     const core::rectangle& r) {
-      window::create_internal(type, GetDesktopWindow(), r);
+      set_state().overlapped(true);
+      create_internal(cls,
+                      native::get_overlapped_parent(detail::get_os_window(parent)),
+                      native::adjust_overlapped_area(r, cls));
+      native::prepare_overlapped(get_os_window(), detail::get_os_window(parent));
     }
 
     void overlapped_window::set_title (const std::string& title) {
-      SendMessage(get_os_window(), WM_SETTEXT, 0, (LPARAM)title.c_str());
+      native::set_title(get_os_window(), title);
     }
 
     std::string overlapped_window::get_title () const {
-      std::string s;
-      s.resize(SendMessage(get_os_window(), WM_GETTEXTLENGTH, 0, 0) + 1);
-      SendMessage(get_os_window(), WM_GETTEXT, (WPARAM)s.capacity(), (LPARAM)&s[0]);
-      return s;
-    }
-
-    bool overlapped_window::is_top_most () const {
-      return (GetWindowLong(get_os_window(), GWL_EXSTYLE) & WS_EX_TOPMOST) == WS_EX_TOPMOST;
+      return native::get_title(get_os_window());
     }
 
     bool overlapped_window::is_minimized () const {
-      return IsIconic(get_os_window()) != FALSE;
+      return native::is_minimized(get_os_window());
     }
 
     bool overlapped_window::is_maximized () const {
-      return IsZoomed(get_os_window()) != FALSE;
+      return native::is_maximized(get_os_window());
+    }
+
+    bool overlapped_window::is_top_most () const {
+      return native::is_top_most(get_os_window());
     }
 
     void overlapped_window::minimize () {
-      ShowWindow(get_os_window(), SW_MINIMIZE);
+      native::minimize(get_os_window());
     }
 
     void overlapped_window::maximize () {
-      ShowWindow(get_os_window(), SW_MAXIMIZE);
+      native::maximize(get_os_window());
     }
 
     void overlapped_window::restore () {
-      ShowWindow(get_os_window(), SW_RESTORE);
+      native::restore(get_os_window());
     }
 
     void overlapped_window::set_top_most (bool toplevel) {
-      SetWindowPos(get_os_window(),
-                   toplevel ? HWND_TOPMOST : HWND_NOTOPMOST,
-                   0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+      native::set_top_most(get_os_window(), toplevel);
     }
-
-#endif // GUIPP_WIN
 
 #ifdef GUIPP_X11
-
-    void overlapped_window::create (const class_info& cls,
-                                    const core::rectangle& r) {
-      create_internal(cls, DefaultRootWindow(core::global::get_instance()), r);
-      set_state().overlapped(true);
-    }
-
-    void overlapped_window::create (const class_info& cls,
-                                    container& parent,
-                                    const core::rectangle& r) {
-      gui::os::instance display = core::global::get_instance();
-      create_internal(cls, DefaultRootWindow(display), r);
-      set_state().overlapped(true);
-      XSetTransientForHint(display, get_os_window(), detail::get_os_window(parent));
-    }
-
-    void overlapped_window::set_title (const std::string& title) {
-      x11::check_status(XStoreName(core::global::get_instance(), get_os_window(), title.c_str()));
-    }
-
-    std::string overlapped_window::get_title () const {
-      char *window_name;
-      x11::check_status(XFetchName(core::global::get_instance(), get_os_window(), &window_name));
-      return std::string(window_name);
-    }
-
-    bool overlapped_window::is_maximized () const {
-      return x11::query_net_wm_state(get_os_window(), x11::NET_WM_STATE_MAXIMIZED_HORZ, x11::NET_WM_STATE_MAXIMIZED_VERT);
-    }
-
-    bool overlapped_window::is_top_most () const {
-      return x11::query_net_wm_state(get_os_window(), x11::NET_WM_STATE_ABOVE);
-    }
-
-    bool overlapped_window::is_minimized () const {
-      return x11::query_net_wm_state(get_os_window(), x11::NET_WM_STATE_HIDDEN);
-    }
-
-    void overlapped_window::minimize () {
-      XIconifyWindow(core::global::get_instance(), get_os_window(), core::global::x11::get_screen());
-    }
-
-    void overlapped_window::maximize () {
-      x11::send_net_wm_state(get_os_window(), _NET_WM_STATE_ADD,
-                             x11::NET_WM_STATE_MAXIMIZED_HORZ,
-                             x11::NET_WM_STATE_MAXIMIZED_VERT);
-
-    }
-
-    void overlapped_window::restore () {
-      x11::send_net_wm_state(get_os_window(), _NET_WM_STATE_REMOVE,
-                             x11::NET_WM_STATE_MAXIMIZED_HORZ,
-                             x11::NET_WM_STATE_MAXIMIZED_VERT);
-    }
-
-    void overlapped_window::set_top_most (bool toplevel) {
-      x11::send_net_wm_state(get_os_window(),
-                             toplevel ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE,
-                             x11::NET_WM_STATE_ABOVE);
-    }
-
     // --------------------------------------------------------------------------
     class input_only_window : public window {
       using clazz = window_class<input_only_window,
@@ -485,72 +273,6 @@ namespace gui {
     };
 
 #endif // GUIPP_X11
-
-#ifdef GUIPP_QT
-    void overlapped_window::create (const class_info& type,
-                                    container& parent,
-                                    const core::rectangle& r) {
-      if (parent.is_valid()) {
-        super::create(type, parent, r);
-      } else {
-        create(type, r);
-      }
-    }
-
-    void overlapped_window::create (const class_info& type,
-                                    const core::rectangle& r) {
-      window::create_internal(type, nullptr, r);
-    }
-
-    void overlapped_window::set_title (const std::string& title) {
-      if (is_valid()) {
-        get_os_window()->setWindowTitle(QString::fromStdString(title));
-      }
-    }
-
-    std::string overlapped_window::get_title () const {
-      if (is_valid()) {
-        return get_os_window()->windowTitle().toStdString();
-      }
-      return {};
-    }
-
-    bool overlapped_window::is_top_most () const {
-      return is_valid() && ((get_os_window()->windowFlags() & Qt::WindowStaysOnTopHint) == Qt::WindowStaysOnTopHint);
-    }
-
-    bool overlapped_window::is_minimized () const {
-      return is_valid() && get_os_window()->isMinimized();
-    }
-
-    bool overlapped_window::is_maximized () const {
-      return is_valid() && get_os_window()->isMaximized();
-    }
-
-    void overlapped_window::minimize () {
-      if (is_valid()) {
-        get_os_window()->showMinimized();
-      }
-    }
-
-    void overlapped_window::maximize () {
-      if (is_valid()) {
-        get_os_window()->showMaximized();
-      }
-    }
-
-    void overlapped_window::restore () {
-      if (is_valid()) {
-        get_os_window()->showNormal();
-      }
-    }
-
-    void overlapped_window::set_top_most (bool toplevel) {
-      if (is_valid()) {
-        get_os_window()->setWindowFlag(Qt::WindowStaysOnTopHint, toplevel);
-      }
-    }
-#endif // GUIPP_QT
 
     // --------------------------------------------------------------------------
     modal_window::modal_window ()
@@ -660,52 +382,19 @@ namespace gui {
     // --------------------------------------------------------------------------
     void main_window::create (const class_info& cls, const core::rectangle& r) {
       super::create(cls, r);
-#ifdef GUIPP_X11
-      gui::os::instance display = core::global::get_instance();
-
-      os::window id = detail::get_os_window(*this);
-
-      x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_NORMAL");
-      x11::set_wm_protocols(display, id);
-
-      XWMHints* hints = XGetWMHints(display, id);
-      if (!hints) {
-        hints = XAllocWMHints();
-      }
-      hints->flags |= InputHint;
-      hints->input = True;
-      XSetWMHints(display, id, hints);
-      XFree(hints);
-#endif // GUIPP_X11
+      native::prepare_main_window(detail::get_os_window(*this));
     }
 
     // --------------------------------------------------------------------------
     void popup_window::create (const class_info& cls, container& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
-#ifdef GUIPP_X11
-      gui::os::instance display = core::global::get_instance();
-
-      os::window id = detail::get_os_window(*this);
-
-      x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU");
-
-      XSetWindowAttributes wa;
-      wa.override_redirect = 1;
-      XChangeWindowAttributes(display, id, CWOverrideRedirect, &wa);
-#endif // GUIPP_X11
+      native::prepare_popup_window(detail::get_os_window(*this));
     }
 
     // --------------------------------------------------------------------------
     void dialog_window::create (const class_info& cls, container& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
-#ifdef GUIPP_X11
-      gui::os::instance display = core::global::get_instance();
-      auto id = detail::get_os_window(*this);
-      x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DIALOG");
-      x11::change_property(display, id, "_NET_WM_STATE", "_NET_WM_STATE_MODAL");
-      x11::change_property(display, id, "WM_CLIENT_LEADER", detail::get_os_window(parent));
-      x11::set_wm_protocols(display, id);
-#endif // GUIPP_X11
+      native::prepare_dialog_window(detail::get_os_window(*this), detail::get_os_window(parent));
     }
 
     // --------------------------------------------------------------------------

@@ -44,11 +44,11 @@ namespace gui {
       GUIPP_WIN_EXPORT std::string get_class_name (os::window id);
       GUIPP_WIN_EXPORT const class_info& get_window_class (os::window id);
 
-      GUIPP_WIN_EXPORT void move (os::window w, const core::point& pt);
-      GUIPP_WIN_EXPORT void resize (os::window w, const core::size& sz);
-      GUIPP_WIN_EXPORT void place (os::window w, const core::rectangle& r);
+      GUIPP_WIN_EXPORT void move (os::window id, const core::point& pt);
+      GUIPP_WIN_EXPORT void resize (os::window id, const core::size& sz);
+      GUIPP_WIN_EXPORT void place (os::window id, const core::rectangle& r);
 
-      GUIPP_WIN_EXPORT core::rectangle get_geometry (os::window wid);
+      GUIPP_WIN_EXPORT core::rectangle get_geometry (os::window id);
 
       GUIPP_WIN_EXPORT void prepare (window* w);
       GUIPP_WIN_EXPORT void unprepare (window* w);
@@ -88,6 +88,26 @@ namespace gui {
       GUIPP_WIN_EXPORT os::window get_desktop_window ();
       GUIPP_WIN_EXPORT core::size screen_size ();
       GUIPP_WIN_EXPORT core::rectangle screen_area ();
+
+      GUIPP_WIN_EXPORT core::rectangle adjust_overlapped_area (const core::rectangle& p, const class_info& type);
+      GUIPP_WIN_EXPORT void prepare_overlapped (os::window id, os::window pid);
+      GUIPP_WIN_EXPORT os::window get_overlapped_parent (os::window pid);
+
+      GUIPP_WIN_EXPORT void set_title (os::window id, const std::string& title);
+      GUIPP_WIN_EXPORT std::string get_title (os::window id);
+
+      GUIPP_WIN_EXPORT bool is_maximized (os::window id);
+      GUIPP_WIN_EXPORT bool is_minimized (os::window id);
+      GUIPP_WIN_EXPORT bool is_top_most (os::window id);
+
+      GUIPP_WIN_EXPORT void minimize (os::window id);
+      GUIPP_WIN_EXPORT void maximize (os::window id);
+      GUIPP_WIN_EXPORT void restore (os::window id);
+      GUIPP_WIN_EXPORT void set_top_most (os::window id, bool on);
+
+      GUIPP_WIN_EXPORT void prepare_main_window (os::window id);
+      GUIPP_WIN_EXPORT void prepare_popup_window (os::window id);
+      GUIPP_WIN_EXPORT void prepare_dialog_window (os::window id, os::window pid);
 
     } // namespace native
 

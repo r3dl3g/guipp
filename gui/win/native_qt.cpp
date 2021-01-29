@@ -73,11 +73,9 @@ namespace gui {
         return core::rectangle(w->pos(), w->frameSize());
       }
 
-      void prepare(window*) {
-      }
+      void prepare(window*) {}
 
-      void unprepare(window*) {
-      }
+      void unprepare(window*) {}
 
       os::window create (const class_info& type,
                          const core::rectangle& r,
@@ -185,11 +183,9 @@ namespace gui {
         }
       }
 
-      void prepare_capture_pointer () {
-      }
+      void prepare_capture_pointer () {}
 
-      void unprepare_capture_pointer () {
-      }
+      void unprepare_capture_pointer () {}
 
       void capture_pointer (os::window id) {
         if (id) {
@@ -214,6 +210,70 @@ namespace gui {
       core::rectangle screen_area () {
         return core::rectangle(core::global::get_instance()->primaryScreen()->availableGeometry());
       }
+
+      core::rectangle adjust_overlapped_area (const core::rectangle& r, const class_info&) {
+        return r;
+      }
+
+      void prepare_overlapped (os::window id, os::window pid) {
+      }
+
+      os::window get_overlapped_parent (os::window pid) {
+        return pid;
+      }
+
+      void set_title (os::window id, const std::string& title) {
+        if (id) {
+          id->setWindowTitle(QString::fromStdString(title));
+        }
+      }
+
+      std::string get_title (os::window id) {
+        if (id) {
+          return id->windowTitle().toStdString();
+        }
+        return {};
+      }
+
+      bool is_maximized (os::window id) {
+        return id && id->isMaximized();
+      }
+
+      bool is_minimized (os::window id) {
+        return id && id->isMinimized();
+      }
+
+      bool is_top_most (os::window id) {
+        return id && ((id->windowFlags() & Qt::WindowStaysOnTopHint) == Qt::WindowStaysOnTopHint);
+      }
+
+      void minimize (os::window id) {
+        if (id) {
+          id->showMinimized();
+        }
+      }
+
+      void maximize (os::window id) {
+        if (id) {
+          id->showMaximized();
+        }
+      }
+
+      void restore (os::window id) {
+        if (id) {
+          id->showNormal();
+        }
+      }
+
+      void set_top_most (os::window id, bool on) {
+        if (id) {
+          id->setWindowFlag(Qt::WindowStaysOnTopHint, on);
+        }
+      }
+
+      void prepare_main_window (os::window) {}
+      void prepare_popup_window (os::window) {}
+      void prepare_dialog_window (os::window, os::window) {}
 
     } // namespace native
 

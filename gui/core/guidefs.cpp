@@ -271,7 +271,32 @@ namespace gui {
           std::stringstream(xscale) >> scale;
           return scale;
         } else {
-          return 1.0;//(double)GetScaleFactorForDevice(DEVICE_PRIMARY) / 100.0;
+          HDC gdc = GetDC(NULL);
+          int xsz = GetDeviceCaps(gdc, HORZSIZE);
+          int ysz = GetDeviceCaps(gdc, VERTSIZE);
+          int xpx = GetDeviceCaps(gdc, HORZRES);
+          int ypx = GetDeviceCaps(gdc, VERTRES);
+          ReleaseDC(NULL, gdc);
+          return std::max(xpx * 25.4 / xsz, ypx * 25.4 / ysz) / 96.0;
+
+//          UINT uDpi = 96;
+
+//          // Determine the DPI to use, according to the DPI awareness mode
+//          DPI_AWARENESS dpiAwareness = GetAwarenessFromDpiAwarenessContext(GetThreadDpiAwarenessContext());
+//          switch (dpiAwareness) {
+//              // Scale the window to the system DPI
+//              case DPI_AWARENESS_SYSTEM_AWARE:
+//                uDpi = GetDpiForSystem();
+//                break;
+
+//              // Scale the window to the monitor DPI
+//              case DPI_AWARENESS_PER_MONITOR_AWARE:
+//                uDpi = GetDpiForWindow(hWnd);
+//                break;
+//          }
+
+//          return uDpi / 96;
+//          return 1.0;//(double)GetScaleFactorForDevice(DEVICE_PRIMARY) / 100.0;
         }
       }
 

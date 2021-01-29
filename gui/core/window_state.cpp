@@ -36,6 +36,10 @@ namespace gui {
       return state.test(f);
     }
 
+    bool window_state::is::created () const {
+      return test(flags::created);
+    }
+
     bool window_state::is::visible () const {
       return test(flags::is_visible);
     }
@@ -71,6 +75,10 @@ namespace gui {
         return true;
       }
       return false;
+    }
+
+    bool window_state::set::created (bool on) {
+      return set_flag(flags::created, on);
     }
 
     bool window_state::set::visible (bool on) {

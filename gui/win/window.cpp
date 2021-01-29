@@ -119,6 +119,7 @@ namespace gui {
 
       area = r;
       id = native::create(type, r, parent_id, this);
+      set_state().created(true);
       native::notify_created(this);
     }
 

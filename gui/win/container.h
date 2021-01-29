@@ -99,14 +99,15 @@ namespace gui {
 
       void set_top_most (bool toplevel);
 
+      void shift_focus (bool backward = false);
+
+    protected:
       void create (const class_info&,
                    container&,
                    const core::rectangle& = core::rectangle::def);
 
       void create (const class_info&,
                    const core::rectangle& = core::rectangle::def);
-
-      void shift_focus (bool backward = false);
 
     private:
       os::window get_os_window () const;

@@ -44,7 +44,8 @@ namespace gui {
     protected:
       struct flags {
         enum {
-          focus_accepting = 0,
+          created = 0,
+          focus_accepting,
           redraw_disabled,
           window_disabled,
           is_visible,
@@ -59,6 +60,7 @@ namespace gui {
 
         explicit is (const state_type& state);
 
+        bool created () const;
         bool enabled () const;
         bool visible () const;
         bool focused () const;
@@ -77,6 +79,7 @@ namespace gui {
 
         explicit set (state_type& state);
 
+        bool created (bool on);
         bool enable (bool on);
         bool visible (bool on);
         bool focused (bool on);

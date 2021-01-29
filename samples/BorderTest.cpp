@@ -541,7 +541,7 @@ void my_main_window::onCreated () {
 void my_main_window::quit () {
   labels[0].set_text("quit");
 
-  yes_no_dialog::ask(*this, "Question!", "Do you realy want to exit?", "Yes", "No", [&] (win::container&, bool yes) {
+  yes_no_dialog::ask(*this, "Question!", "Do you realy want to exit?", "Yes", "No", [&] (win::overlapped_window&, bool yes) {
     if (yes) {
       stop_thread();
       win::quit_main_loop();
@@ -555,7 +555,7 @@ void my_main_window::quit () {
 void my_main_window::open () {
   labels[0].set_text("open");
 
-  file_open_dialog::show(*this, "Open File", "Open", "Cancel", [&] (win::container&, const sys_fs::path& file) {
+  file_open_dialog::show(*this, "Open File", "Open", "Cancel", [&] (win::overlapped_window&, const sys_fs::path& file) {
     if (sys_fs::exists(file)) {
       gui::draw::basic_datamap img;
       gui::io::load_pnm(file.string(), img);
@@ -571,11 +571,11 @@ void my_main_window::open () {
 void my_main_window::save_as () {
   labels[0].set_text("save");
 
-  file_save_dialog::show(*this, "Save File", "new_file.h", "Name:", "Save", "Cancel", [&] (win::container& dlg, const sys_fs::path& file) {
+  file_save_dialog::show(*this, "Save File", "new_file.h", "Name:", "Save", "Cancel", [&] (win::overlapped_window& dlg, const sys_fs::path& file) {
     if (sys_fs::exists(file)) {
       yes_no_dialog::ask(dlg, "Question!",
                          ostreamfmt("File '" << file << "' already exists!\nDo you want to overwrite the exiting file?"),
-                         "Yes", "No", [&] (win::container&, bool yes) {
+                         "Yes", "No", [&] (win::overlapped_window&, bool yes) {
         if (yes) {
           gui::io::src::save_pnm_src(file.string(), grays[0], "src");
         }
@@ -614,12 +614,12 @@ public:
     content_view.get_layout().set_center(layout::lay(progress_view));
   }
 
-  void create (win::container& parent,
+  void create (win::overlapped_window& parent,
                const std::string& title,
                const std::string& message,
                const std::string& ok_label,
                const core::rectangle& rect) {
-      super::create(parent, title, rect, [&] (win::container&, int) {
+      super::create(parent, title, rect, [&] (win::overlapped_window&, int) {
       end_modal();
     }, {ok_label});
     progress_view.create(content_view, message, rect);
@@ -641,14 +641,14 @@ void wipe_disk (const sys_fs::path& file, progress_dialog& dlg, uintmax_t space,
       dlg.progress_view.set_value((float)((double)written / (double)space));
     }
   } catch (std::exception& ex) {
-    message_dialog::show(*(win::container*)win::global::get_application_main_window(), "BorderTest - Error", ex.what(), "Okay");
+    message_dialog::show(win::global::get_application_main_window(), "BorderTest - Error", ex.what(), "Okay");
   }
   dlg.end_modal();
 }
 
 void my_main_window::wipe_space () {
   sys_fs::current_path("C:\\");
-  dir_open_dialog::show(*this, "Choose target directory", "Wipe", "Cancel", [&] (win::container&, const sys_fs::path& dir) {
+  dir_open_dialog::show(*this, "Choose target directory", "Wipe", "Cancel", [&] (win::overlapped_window&, const sys_fs::path& dir) {
     sys_fs::path file = /*"C:\\";*/ dir;
     file /= "empty.tmp";
     win::run_on_main([&, file] () {
@@ -864,7 +864,7 @@ void my_main_window::test_rgb () {
 }
 
 void my_main_window::save_all_bin () {
-  ctrl::dir_open_dialog::show(*this, "Choose target directory", "Save", "Cancel", [&] (win::container&, const sys_fs::path& file) {
+  ctrl::dir_open_dialog::show(*this, "Choose target directory", "Save", "Cancel", [&] (win::overlapped_window&, const sys_fs::path& file) {
     sys_fs::current_path(file);
     std::ofstream("rgba0.b.ppm") << io::opnm<true, pixel_format_t::RGBA>(rgbas[0]);
     std::ofstream("rgba1.b.ppm") << io::opnm<true, pixel_format_t::RGBA>(rgbas[1]);

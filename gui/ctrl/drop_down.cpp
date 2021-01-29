@@ -212,10 +212,8 @@ namespace gui {
     drop_down_list::~drop_down_list () {
       auto parent = super::get_parent();
       if (parent) {
-        auto* root = parent->get_overlapped_window();
-        if (root) {
-          root->template unregister_event_handler<win::move_event>(me);
-        }
+        auto& root = parent->get_overlapped_window();
+        root.template unregister_event_handler<win::move_event>(me);
       }
     }
 
@@ -242,12 +240,9 @@ namespace gui {
           data.filter_id = 0;
         }
       });
-      data.popup.create(*super::get_parent(), place);
-
-      auto* root = super::get_parent()->get_overlapped_window();
-      if (root) {
-        root->template on<win::move_event>(me);
-      }
+      auto& root = super::get_parent()->get_overlapped_window();
+      data.popup.create(root, place);
+      root.template on<win::move_event>(me);
     }
 
     void drop_down_list::handle_move (const core::point&) {

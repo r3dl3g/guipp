@@ -399,7 +399,7 @@ namespace gui {
         return detail::get_window(GetFocus());
       }
 
-      window* get_application_main_window() {
+      overlapped_window& get_application_main_window () {
         GUITHREADINFO info;
         memset(&info, 0, sizeof(info));
         info.cbSize = sizeof(GUITHREADINFO);
@@ -412,9 +412,12 @@ namespace gui {
               parent = parent = GetParent(win);
             }
           }
-          return detail::get_window(win);
+          auto* w = detail::get_window(win);
+          if (w) {
+            return w->get_overlapped_window();
+          }
         }
-        return nullptr;
+        throw std::runtime_error("application_main_window could not be found!");
       }
 
       void register_utf8_window (const window&) {}
@@ -429,12 +432,15 @@ namespace gui {
         return detail::get_window(static_cast<os::window>(QApplication::focusWidget()));
       }
 
-      window* get_application_main_window() {
+      overlapped_window& get_application_main_window() {
         auto list = QApplication::topLevelWidgets();
         if (list.size() > 0) {
-          return detail::get_window(static_cast<os::window>(list.first()));
+          auto* win = detail::get_window(static_cast<os::window>(list.first()));
+          if (win) {
+            return win->get_overlapped_window();
+          }
         }
-        return nullptr;
+        throw std::runtime_error("application_main_window could not be found!");
       }
 
       void register_utf8_window (const window&) {}
@@ -457,7 +463,7 @@ namespace gui {
         return nullptr;
       }
 
-      window* get_application_main_window() {
+      overlapped_window& get_application_main_window() {
         auto display = core::global::get_instance();
 
         Window root = 0;
@@ -469,11 +475,11 @@ namespace gui {
           for (unsigned int i = 0; i < nchildren; ++i) {
             auto win = detail::get_window(children[i]);
             if (win) {
-              return win;
+              return win->get_overlapped_window();
             }
           }
         }
-        return nullptr;
+        throw std::runtime_error("application_main_window could not be found!");
       }
       
       void register_utf8_window (const window& win) {
@@ -765,17 +771,6 @@ namespace gui {
     void run_on_main (const std::function<void()>& action) {
 #ifdef GUIPP_X11
       x11::queued_actions.enqueue(action);
-//      auto* win = global::get_application_main_window();
-//      XEvent event;
-//      XClientMessageEvent& client = event.xclient;
-//      client.type = ClientMessage;
-//      client.window = win ? win->get_os_window() : 0;
-//      client.serial = 0;
-//      client.send_event = True;
-//      client.display = core::global::get_instance();
-//      client.message_type = 0;
-//      client.format = 0;
-//      XSendEvent(client.display, client.window, True, 0, &event);
 #endif // GUIPP_X11
 #ifdef GUIPP_WIN
       PostThreadMessage(util::robbery::get_native_thread_id(detail::main_thread_id),

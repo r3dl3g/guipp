@@ -64,8 +64,8 @@ namespace gui {
 
       void set_parent (container& parent);
       container* get_parent () const;
-      container* get_root_window () const;
-      overlapped_window* get_overlapped_window () const;
+      const window& get_root_window () const;
+      overlapped_window& get_overlapped_window () const;
       bool is_child_of (const container& parent) const;
 
       bool is_valid () const;

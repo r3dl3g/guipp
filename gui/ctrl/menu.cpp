@@ -668,8 +668,9 @@ namespace gui {
         }
       });
       clog::trace() << "popup_menu::popup_at(" << pt << ") -> run_modal";
-      create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
-      run_modal(parent);
+      auto& root = parent.get_overlapped_window();
+      create(root, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
+      run_modal(root);
     }
 
     void popup_menu::popup_at (container& parent, menu_data& parent_data, const core::point& pt) {
@@ -690,7 +691,8 @@ namespace gui {
         }
       });
       clog::trace() << "popup_menu::popup_at(" << pt << ") none-modal";
-      create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
+      auto& root = parent.get_overlapped_window();
+      create(root, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
       set_visible();
     }
 

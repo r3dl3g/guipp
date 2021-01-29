@@ -93,10 +93,10 @@ namespace gui {
     void window::init () {
       native::prepare(this);
       on_key_down<core::keys::tab>([&] () {
-        get_overlapped_window()->shift_focus(false);
+        get_overlapped_window().shift_focus(false);
       });
       on_key_down<core::keys::tab, core::state::shift>([&] () {
-        get_overlapped_window()->shift_focus(true);
+        get_overlapped_window().shift_focus(true);
       });
     }
 
@@ -145,21 +145,21 @@ namespace gui {
       return parent ? parent->screen_to_client(pt) : pt;
     }
 
-    container* window::get_root_window () const {
+    const window& window::get_root_window () const {
       if (parent) {
         return parent->get_root_window();
       }
-      return (container*)this;
+      return *this;
     }
 
-    overlapped_window* window::get_overlapped_window () const {
+    overlapped_window& window::get_overlapped_window () const {
       if (get_state().overlapped()) {
-        return (overlapped_window*)this;
+        return *(overlapped_window*)this;
       }
       if (parent) {
         return parent->get_overlapped_window();
       } else {
-        return (overlapped_window*)this;
+        return *(overlapped_window*)this;
       }
     }
 

@@ -72,8 +72,6 @@ namespace gui {
       container (container&&) noexcept ;
 
     private:
-      os::window get_os_window () const;
-
       void init ();
 
       std::set<window*> children;
@@ -103,7 +101,7 @@ namespace gui {
 
     protected:
       void create (const class_info&,
-                   container&,
+                   overlapped_window&,
                    const core::rectangle& = core::rectangle::def);
 
       void create (const class_info&,
@@ -129,8 +127,8 @@ namespace gui {
       modal_window (modal_window&&) noexcept ;
 
       void end_modal ();
-      void run_modal (window&);
-      void run_modal (window&, const std::vector<hot_key_action>& hot_keys);
+      void run_modal (overlapped_window&);
+      void run_modal (overlapped_window&, const std::vector<hot_key_action>& hot_keys);
 
     private:
       void init ();
@@ -160,10 +158,10 @@ namespace gui {
       typedef modal_window super;
       using clazz = cls::popup_window_class<popup_window>;
 
-      void create (container& parent, const core::rectangle& r = core::rectangle::def);
+      void create (overlapped_window& parent, const core::rectangle& r = core::rectangle::def);
 
     protected:
-      void create (const class_info& cls, container& parent, const core::rectangle& r = core::rectangle::def);
+      void create (const class_info& cls, overlapped_window& parent, const core::rectangle& r = core::rectangle::def);
 
     };
 
@@ -173,10 +171,10 @@ namespace gui {
       typedef modal_window super;
       using clazz = cls::dialog_window_class<dialog_window>;
 
-      void create (container& parent, const core::rectangle& r = core::rectangle::def);
+      void create (overlapped_window& parent, const core::rectangle& r = core::rectangle::def);
 
     protected:
-      void create (const class_info& cls, container& parent, const core::rectangle& r = core::rectangle::def);
+      void create (const class_info& cls, overlapped_window& parent, const core::rectangle& r = core::rectangle::def);
 
     };
 

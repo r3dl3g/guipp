@@ -45,6 +45,7 @@ namespace gui {
   namespace win {
 
     class window;
+    class overlapped_window;
 
 #ifdef GUIPP_WIN
     namespace win32 {
@@ -87,7 +88,7 @@ namespace gui {
       GUIPP_WIN_EXPORT void unregister_message_filter (int id);
 
       GUIPP_WIN_EXPORT window* get_current_focus_window ();
-      GUIPP_WIN_EXPORT window* get_application_main_window ();
+      GUIPP_WIN_EXPORT overlapped_window& get_application_main_window ();
 
       GUIPP_WIN_EXPORT std::thread::id get_current_thread_id ();
 

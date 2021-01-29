@@ -98,20 +98,20 @@ namespace gui {
       content_view.get_layout().set_center(layout::lay(message_view));
     }
 
-    void yes_no_dialog::create (win::container& parent,
+    void yes_no_dialog::create (win::overlapped_window& parent,
                                 const std::string& title,
                                 const std::string& message,
                                 const std::string& yes_label,
                                 const std::string& no_label,
                                 const core::rectangle& rect,
                                 std::function<yes_no_action> action) {
-      super::create(parent, title, rect, [action] (win::container& dlg, int i) {
+      super::create(parent, title, rect, [action] (win::overlapped_window& dlg, int i) {
         action(dlg, i == 1);
       }, {no_label, yes_label});
       message_view.create(content_view, message, rect);
     }
 
-    void yes_no_dialog::ask (win::container& parent,
+    void yes_no_dialog::ask (win::overlapped_window& parent,
                              const std::string& title,
                              const std::string& message,
                              const std::string& yes_label,
@@ -124,7 +124,7 @@ namespace gui {
       dialog.show(parent, action);
     }
 
-    void yes_no_dialog::show (win::container& parent,
+    void yes_no_dialog::show (win::overlapped_window& parent,
                               std::function<yes_no_action> action) {
       run_modal(parent, {
         win::hot_key_action{
@@ -147,18 +147,18 @@ namespace gui {
       content_view.get_layout().set_center(layout::lay(message_view));
     }
 
-    void message_dialog::create (win::container& parent,
+    void message_dialog::create (win::overlapped_window& parent,
                                 const std::string& title,
                                 const std::string& message,
                                 const std::string& ok_label,
                                 const core::rectangle& rect) {
-      super::create(parent, title, rect, [&] (win::container&, int) {
+      super::create(parent, title, rect, [&] (win::overlapped_window&, int) {
         end_modal();
       }, {ok_label});
       message_view.create(content_view, message, rect);
     }
 
-    void message_dialog::show (win::container& parent,
+    void message_dialog::show (win::overlapped_window& parent,
                                const std::string& title,
                                const std::string& message,
                                const std::string& ok_label) {
@@ -174,7 +174,7 @@ namespace gui {
       super::content_view.get_layout().add(layout::lay(edit));
     }
 
-    void input_dialog::create (win::container& parent,
+    void input_dialog::create (win::overlapped_window& parent,
                                const std::string& title,
                                const std::string& message,
                                const std::string& initial,
@@ -182,7 +182,7 @@ namespace gui {
                                const std::string& cancel_label,
                                const core::rectangle& rect,
                                std::function<input_action> action) {
-      super::create(parent, title, rect, [&, action] (win::container& dlg, int i) {
+      super::create(parent, title, rect, [&, action] (win::overlapped_window& dlg, int i) {
         if (i == 1) {
           action(dlg, edit.get_text());
         }
@@ -191,7 +191,7 @@ namespace gui {
       edit.create(super::content_view, initial);
     }
 
-    void input_dialog::ask (win::container& parent,
+    void input_dialog::ask (win::overlapped_window& parent,
                             const std::string& title,
                             const std::string& message,
                             const std::string& initial,
@@ -206,7 +206,7 @@ namespace gui {
     }
 
     //-----------------------------------------------------------------------------
-    void file_save_dialog::create (win::container& parent,
+    void file_save_dialog::create (win::overlapped_window& parent,
                                    const std::string& title,
                                    const std::string& default_name,
                                    const std::string& name_label,
@@ -218,7 +218,7 @@ namespace gui {
       auto& dir_tree = content_view.first;
       auto& files = content_view.second;
 
-      content_view.init([&, action] (win::container& dlg, const sys_fs::path& path) {
+      content_view.init([&, action] (win::overlapped_window& dlg, const sys_fs::path& path) {
         set_visible(false);
         end_modal();
         action(dlg, path);
@@ -232,7 +232,7 @@ namespace gui {
       top_view.get_layout().set_left(layout::lay(input_label));
       get_layout().set_top(layout::lay(top_view));
 
-      super::create(parent, title, rect, [&, action] (win::container& dlg, int btn) {
+      super::create(parent, title, rect, [&, action] (win::overlapped_window& dlg, int btn) {
         if (1 == btn) {
           int idx = dir_tree.get_selection();
           if (idx > -1) {
@@ -261,7 +261,7 @@ namespace gui {
       top_view.set_children_visible();
     }
 
-    void file_save_dialog::show (win::container& parent,
+    void file_save_dialog::show (win::overlapped_window& parent,
                                  const std::string& title,
                                  const std::string& default_name,
                                  const std::string& name_label,

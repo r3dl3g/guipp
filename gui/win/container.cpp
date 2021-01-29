@@ -62,10 +62,9 @@ namespace gui {
     container::container (container&& rhs) noexcept
       : super(std::move(rhs)) {
       init();
-    }
-
-    os::window container::get_os_window () const {
-      return detail::get_os_window(*this);
+      for(auto& w : rhs.children) {
+        w->set_parent(*this);
+      }
     }
 
     void container::init () {
@@ -209,7 +208,7 @@ namespace gui {
     }
 
     void overlapped_window::create (const class_info& cls,
-                                    container& parent,
+                                    overlapped_window& parent,
                                     const core::rectangle& r) {
       set_state().overlapped(true);
       create_internal(cls,
@@ -311,11 +310,11 @@ namespace gui {
 #endif // GUIPP_QT
     }
 
-    void modal_window::run_modal (window& parent) {
+    void modal_window::run_modal (overlapped_window& parent) {
       run_modal(parent, {});
     }
 
-    void modal_window::run_modal (window& parent, const std::vector<hot_key_action>& hot_keys) {
+    void modal_window::run_modal (overlapped_window& parent, const std::vector<hot_key_action>& hot_keys) {
       clog::debug() << *this << " Enter modal loop with hot keys";
 
 #ifdef GUIPP_QT
@@ -333,7 +332,7 @@ namespace gui {
 
 #ifdef GUIPP_X11
 #if defined(USE_INPUT_EATER)
-      input_only_window input_eater(*parent.get_overlapped_window());
+      input_only_window input_eater(parent.get_overlapped_window());
       input_eater.set_visible();
 #endif // USE_INPUT_EATER
 
@@ -386,13 +385,13 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void popup_window::create (const class_info& cls, container& parent, const core::rectangle& r) {
+    void popup_window::create (const class_info& cls, overlapped_window& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
       native::prepare_popup_window(detail::get_os_window(*this));
     }
 
     // --------------------------------------------------------------------------
-    void dialog_window::create (const class_info& cls, container& parent, const core::rectangle& r) {
+    void dialog_window::create (const class_info& cls, overlapped_window& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
       native::prepare_dialog_window(detail::get_os_window(*this), detail::get_os_window(parent));
     }

@@ -65,6 +65,9 @@ namespace gui {
       void add_child (window*);
       void remove_child (window*);
 
+      void to_front (window*);
+      void to_back (window*);
+
     protected:
       using window::create;
 
@@ -78,11 +81,31 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    namespace detail {
+
+      void set_os_window (overlapped_window* w, os::window id);
+      os::window get_os_window (const overlapped_window&);
+
+    }
+
+    // --------------------------------------------------------------------------
     class GUIPP_WIN_EXPORT overlapped_window : public container {
     public:
       typedef container super;
 
       overlapped_window ();
+      overlapped_window (const overlapped_window&);
+      overlapped_window (overlapped_window&&);
+      ~overlapped_window ();
+
+      void close ();
+      bool is_valid () const;
+
+      operator os::drawable() const;
+
+      void set_visible (bool s = true); /// set window visible
+      void enable (bool on = true);     /// enable of disable this window
+      void disable ();                  /// disable this window
 
       void set_title (const std::string&);
       std::string get_title () const;
@@ -97,7 +120,24 @@ namespace gui {
 
       void set_top_most (bool toplevel);
 
+      void to_front ();
+      void to_back ();
+
+      void invalidate (const core::rectangle&) const;
+      void invalidate () const;
+      void redraw (const core::rectangle&) const;
+
       void shift_focus (bool backward = false);
+
+      void set_focus_window (window* w);
+      window* get_focus_window () const;
+
+      void set_cursor (const os::cursor&);
+
+      void capture_pointer (window* w);
+      void uncapture_pointer (window* w);
+
+      bool handle_event (const core::event&, gui::os::event_result&) const override;
 
     protected:
       void create (const class_info&,
@@ -107,8 +147,31 @@ namespace gui {
       void create (const class_info&,
                    const core::rectangle& = core::rectangle::def);
 
+      void create_internal (const class_info&,
+                            os::window parent,
+                            const core::rectangle&);
+
+      void destroy ();
+
+      void set_accept_focus (bool a);
+
+      void move_native (const core::point&) override;
+      void resize_native (const core::size&) override;
+      void place_native (const core::rectangle&) override;
+
     private:
+      friend void detail::set_os_window (overlapped_window*, os::window);
+      friend os::window detail::get_os_window (const overlapped_window&);
+
       os::window get_os_window () const;
+      void set_os_window (os::window);
+
+    private:
+      void init ();
+      window* focus_window;
+      window* capture_window;
+
+      os::window id;
     };
 
     // --------------------------------------------------------------------------

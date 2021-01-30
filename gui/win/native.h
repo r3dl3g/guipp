@@ -38,11 +38,11 @@ namespace gui {
 
     class window;
     class class_info;
+    class overlapped_window;
 
     namespace native {
 
-      GUIPP_WIN_EXPORT std::string get_class_name (os::window id);
-      GUIPP_WIN_EXPORT const class_info& get_window_class (os::window id);
+      GUIPP_WIN_EXPORT const class_info& get_window_class (const char* class_name);
 
       GUIPP_WIN_EXPORT void move (os::window id, const core::point& pt);
       GUIPP_WIN_EXPORT void resize (os::window id, const core::size& sz);
@@ -50,13 +50,13 @@ namespace gui {
 
       GUIPP_WIN_EXPORT core::rectangle get_geometry (os::window id);
 
-      GUIPP_WIN_EXPORT void prepare (window* w);
-      GUIPP_WIN_EXPORT void unprepare (window* w);
+      GUIPP_WIN_EXPORT void prepare (overlapped_window& w);
+      GUIPP_WIN_EXPORT void unprepare (overlapped_window& w);
 
       GUIPP_WIN_EXPORT os::window create (const class_info& type,
                                           const core::rectangle& r,
                                           os::window parent_id,
-                                          window* data);
+                                          overlapped_window* data);
       GUIPP_WIN_EXPORT void notify_created (window* w);
       GUIPP_WIN_EXPORT void destroy (os::window w);
 
@@ -66,7 +66,7 @@ namespace gui {
       GUIPP_WIN_EXPORT bool is_visible (os::window id);
       GUIPP_WIN_EXPORT void set_visible (os::window id, bool s);
 
-      GUIPP_WIN_EXPORT void enable (os::window id, bool on);
+      GUIPP_WIN_EXPORT void enable (overlapped_window& w, bool on);
 
       GUIPP_WIN_EXPORT void to_front (os::window id);
       GUIPP_WIN_EXPORT void to_back (os::window id);

@@ -47,15 +47,9 @@ namespace gui {
     class overlapped_window;
 
     // --------------------------------------------------------------------------
-    namespace detail {
-
-      void set_os_window (window* w, os::window id);
-
-    }
-
-    // --------------------------------------------------------------------------
     class GUIPP_WIN_EXPORT window : public receiver {
     public:
+      typedef receiver super;
 
       window ();
       virtual ~window ();
@@ -90,7 +84,7 @@ namespace gui {
       void take_focus ();               /// grabs the input focus
       void focus_lost ();               /// focus was given an other window
 
-      static window* get_current_focus_window ();
+      window* get_current_focus_window () const;
 
       void to_front ();
       void to_back ();
@@ -116,21 +110,20 @@ namespace gui {
       core::point client_to_screen (const core::point&) const;
       core::point screen_to_client (const core::point&) const;
 
-      std::string get_class_name () const;
+      const char* get_class_name () const;
       const class_info& get_window_class () const;
 
       void set_cursor (const os::cursor&);
+      const os::cursor& get_cursor () const;
 
       void capture_pointer ();
       void uncapture_pointer ();
 
-      bool handle_event (const core::event&, gui::os::event_result&) const;
+      virtual bool handle_event (const core::event&, gui::os::event_result&) const;
 
       void notify_event (os::message_type message, long l1 = 0, long l2 = 0);
       void notify_event (os::message_type message, const core::rectangle&);
       void notify_event_double (os::message_type message, double d1);
-
-      operator os::drawable() const;
 
       static core::size screen_size ();
       static core::rectangle screen_area ();
@@ -147,29 +140,24 @@ namespace gui {
                    const core::rectangle& = core::rectangle::def);
 
       void create_internal (const class_info&,
-                            os::window parent,
                             const core::rectangle&);
 
       void set_accept_focus (bool a);
 
-    private:
-      friend void detail::set_os_window (window*, os::window);
-      friend os::window detail::get_os_window (const window&);
-
-      os::window get_os_window () const;
-      void set_os_window (os::window);
-
     protected:
-      void destroy ();
-
-      core::rectangle area;
       gui::core::state_type flags;
+      core::rectangle area;
+
+      virtual void move_native (const core::point&);
+      virtual void resize_native (const core::size&);
+      virtual void place_native (const core::rectangle&);
 
     private:
       void init ();
 
-      os::window id;
       container* parent;
+      os::cursor cursor;
+      const char* class_name;
 
     };
 
@@ -192,12 +180,12 @@ namespace gui {
 namespace std {
 
   inline ostream& operator<< (ostream& out, const gui::win::window& t) {
-    out << "[" << gui::win::detail::get_os_window(t) << "] (" << typeid(t).name() << ')';
+    out << "[" << &t << "] (" << typeid(t).name() << ')';
     return out;
   }
 
   inline ostream& operator<< (ostream& out, const gui::win::window* t) {
-    out << "[" << gui::win::detail::get_os_window(*t) << "] (" << typeid(*t).name() << ')';
+    out << "[" << t << "] (" << typeid(*t).name() << ')';
     return out;
   }
 

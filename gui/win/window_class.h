@@ -71,14 +71,14 @@ namespace gui {
       class_info ();
       class_info (const class_info&);
 
-      class_info (const std::string& cls_name,
+      class_info (const char* cls_name,
                   os::color background,
                   win::cursor_type cursor,
                   os::style style,
                   os::style ex_style,
                   os::style class_style);
 
-      const std::string& get_class_name () const;
+      const char* get_class_name () const;
       os::color get_background () const;
       os::cursor get_cursor () const;
       os::style get_class_style () const;
@@ -88,7 +88,7 @@ namespace gui {
       bool is_valid () const;
 
     protected:
-      std::string class_name;
+      const char* class_name;
       os::color background;
       win::cursor cursor;
       os::style class_style;

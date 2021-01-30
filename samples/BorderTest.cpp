@@ -676,7 +676,8 @@ void my_main_window::copy () {
   bws[0].create(sz);
 
   pixmap img(sz);
-  draw::graphics(img).copy_from(left_list, r);
+  // TODO: implement grap for window
+//  draw::graphics(img).copy_from(left_list, r);
   rgbas[0] = img;
   rgbs[0] = img;
   grays[0] = img;
@@ -727,7 +728,8 @@ void my_main_window::cut () {
   };
 
   pixmap img(sz);
-  draw::graphics(img).copy_from(left_list, r);
+  // TODO: implement grap for window
+//  draw::graphics(img).copy_from(left_list, r);
   rgbas[0] = img;
   rgbs[0] = img;
   grays[0] = img;

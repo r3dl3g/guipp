@@ -569,7 +569,7 @@ namespace gui {
       });
 
       on_show([&] () {
-        capture_pointer();
+        capture_pointer(this);
       });
 
 //      on_create([&](window*, const core::rectangle&){
@@ -711,7 +711,7 @@ namespace gui {
     void popup_menu::close () {
       set_state().disable_redraw();
       data.close();
-      uncapture_pointer();
+      uncapture_pointer(this);
       set_visible(false);
       destroy();
       end_modal();

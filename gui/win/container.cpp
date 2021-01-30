@@ -120,8 +120,43 @@ namespace gui {
       children.erase(w);
     }
 
+    void container::to_front (window* w) {
+      remove_child(w);
+      add_child(w);
+    }
+
+    void container::to_back (window* w) {
+      remove_child(w);
+      children.insert(children.begin(), w);
+    }
+
     // --------------------------------------------------------------------------
-    overlapped_window::overlapped_window () {
+    overlapped_window::overlapped_window ()
+      : id(0)
+    {
+      init();
+    }
+
+    overlapped_window::overlapped_window (const overlapped_window& rhs)
+      : super(rhs)
+      , id(0)
+    {
+      init();
+    }
+
+    overlapped_window::overlapped_window (overlapped_window&& rhs)
+      : super(std::move(rhs))
+      , id(std::move(rhs.id))
+    {
+      init();
+    }
+
+    void overlapped_window::init () {
+      focus_window = nullptr;
+      capture_window = nullptr;
+
+      native::prepare(*this);
+
       on_set_focus([&] () {
         notify_event(core::WM_LAYOUT_WINDOW, client_area());
       });
@@ -131,7 +166,7 @@ namespace gui {
         notify_event(core::WM_LAYOUT_WINDOW, core::rectangle(sz));
 #endif
       });
-      on_move([&](const core::point& pt) {
+      on_move([&] (const core::point& pt) {
         area.set_position(pt);
       });
       on_key_down<core::keys::tab>([&] () {
@@ -142,8 +177,23 @@ namespace gui {
       });
     }
 
-    os::window overlapped_window::get_os_window () const {
-      return detail::get_os_window(*this);
+    overlapped_window::~overlapped_window () {
+      destroy();
+      native::unprepare(*this);
+    }
+
+    void overlapped_window::destroy () {
+      native::destroy(get_os_window());
+      id = 0;
+    }
+
+    void overlapped_window::close () {
+      super::close();
+      native::close(get_os_window());
+    }
+
+    overlapped_window::operator os::drawable() const {
+      return id;
     }
 
     template<typename iterator>
@@ -203,18 +253,77 @@ namespace gui {
 
     void overlapped_window::create (const class_info& cls,
                                     const core::rectangle& r) {
-      set_state().overlapped(true);
       create_internal(cls, native::get_desktop_window(), native::adjust_overlapped_area(r, cls));
     }
 
     void overlapped_window::create (const class_info& cls,
                                     overlapped_window& parent,
                                     const core::rectangle& r) {
-      set_state().overlapped(true);
+      set_parent(parent);
       create_internal(cls,
                       native::get_overlapped_parent(detail::get_os_window(parent)),
                       native::adjust_overlapped_area(r, cls));
-      native::prepare_overlapped(get_os_window(), detail::get_os_window(parent));
+    }
+
+    void overlapped_window::create_internal (const class_info& type,
+                                             os::window parent_id,
+                                             const core::rectangle& r) {
+
+      if (get_os_window()) {
+        destroy();
+      }
+      set_state().overlapped(true);
+
+      id = native::create(type, r, parent_id, this);
+      native::prepare_overlapped(get_os_window(), parent_id);
+      super::create_internal(type, r);
+    }
+
+    bool overlapped_window::is_valid () const {
+      return (get_os_window() != 0) && super::is_valid();
+    }
+
+    void overlapped_window::set_accept_focus (bool a) {
+      native::prepare_accept_focus(get_os_window(), a);
+      super::set_accept_focus(a);
+    }
+
+    void overlapped_window::move_native (const core::point& pt) {
+      native::move(get_os_window(), pt);
+    }
+
+    void overlapped_window::resize_native (const core::size& sz) {
+      native::resize(get_os_window(), sz);
+    }
+
+    void overlapped_window::place_native (const core::rectangle& r) {
+      native::place(get_os_window(), r);
+    }
+
+    void overlapped_window::set_visible (bool s) {
+      if (is_valid()) {
+        native::set_visible(get_os_window(), s);
+        super::set_visible(s);
+      }
+    }
+
+    void overlapped_window::enable (bool on) {
+      if (is_valid()) {
+        native::enable(*this, on);
+        super::enable(on);
+      }
+    }
+
+    void overlapped_window::disable () {
+      enable(false);
+    }
+
+    void overlapped_window::to_front () {
+      return native::to_front(get_os_window());
+    }
+
+    void overlapped_window::to_back () {
+      return native::to_back(get_os_window());
     }
 
     void overlapped_window::set_title (const std::string& title) {
@@ -251,6 +360,98 @@ namespace gui {
 
     void overlapped_window::set_top_most (bool toplevel) {
       native::set_top_most(get_os_window(), toplevel);
+    }
+
+    void overlapped_window::invalidate () const {
+      invalidate(place());
+    }
+
+    void overlapped_window::invalidate (const core::rectangle& r) const {
+      if (is_valid() && is_visible()) {
+        clog::trace() << "invalidate: " << *this;
+        native::invalidate(get_os_window(), r);
+      }
+    }
+
+    void overlapped_window::redraw (const core::rectangle& r) const {
+      if (is_visible() && !get_state().redraw_disabled()) {
+        clog::trace() << "redraw: " << *this;
+        native::redraw(*this, get_os_window(), r);
+      }
+    }
+    void overlapped_window::set_focus_window (window* w) {
+      if (focus_window != w) {
+        if (focus_window) {
+          focus_window->focus_lost();
+        }
+        focus_window = w;
+        if (focus_window) {
+          native::take_focus(get_os_window());
+        }
+      }
+    }
+
+    window* overlapped_window::get_focus_window () const {
+      return focus_window;
+    }
+
+    void overlapped_window::set_cursor (const os::cursor& c) {
+      super::set_cursor(c);
+      native::set_cursor(get_os_window(), c);
+    }
+
+    namespace {
+      std::vector<window*> capture_stack;
+    }
+
+    void overlapped_window::capture_pointer (window* w) {
+#ifndef NO_CAPTURE
+      if (is_valid()) {
+        clog::trace() << "capture_pointer:" << *w;
+        if (capture_stack.empty()) {
+          native::prepare_capture_pointer();
+        }
+        capture_window = w;
+        capture_stack.push_back(w);
+        native::capture_pointer(get_os_window());
+      }
+#endif // NO_CAPTURE
+    }
+
+    void overlapped_window::uncapture_pointer (window* w) {
+#ifndef NO_CAPTURE
+      if (is_valid()) {
+        if (!capture_stack.empty()) {
+          if (capture_stack.back() != w) {
+            clog::fatal() << "uncapture_pointer:" << w << " differs from stack back:(" << capture_stack.back() << ")";
+          } else {
+            clog::trace() << "uncapture_pointer:" << w;
+          }
+          native::uncapture_pointer(get_os_window());
+          capture_stack.pop_back();
+          if (!capture_stack.empty()) {
+            clog::trace() << "re-capture_pointer:" << capture_stack.back();
+            capture_window = capture_stack.back();
+            native::capture_pointer(get_os_window());
+          } else {
+            native::unprepare_capture_pointer();
+            capture_window = nullptr;          }
+        } else {
+          clog::warn() << "uncapture_pointer with empty capture stack!";
+        }
+      }
+#endif // NO_CAPTURE
+    }
+
+    bool overlapped_window::handle_event (const core::event& e, gui::os::event_result& r) const {
+      bool ret = super::handle_event(e, r);
+      if (paint_event::match(e)) {
+        for (auto& w : get_children()) {
+          w->handle_event(e, r);
+        }
+
+      }
+      return ret;
     }
 
 #ifdef GUIPP_X11
@@ -303,7 +504,7 @@ namespace gui {
     void modal_window::end_modal () {
       is_modal = false;
 #ifdef GUIPP_X11
-      invalidate();
+      invalidate(client_area());
 #endif // GUIPP_X11
 #ifdef GUIPP_QT
       event_loop.exit();
@@ -326,7 +527,7 @@ namespace gui {
 #endif
       set_visible();
       to_front();
-      invalidate();
+      invalidate(client_area());
 
       is_modal = true;
 

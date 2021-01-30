@@ -34,16 +34,19 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     label.invalidate();
   });
 
+  main.on_create([&] () {
+    label.create(main, "I'm the Child", {10, 10, 200, 20});
+    drawing.create(main, {10, 40, 200, 200});
+    label.set_visible();
+  });
+
   main.get_layout().set_center(layout::lay(drawing));
   main.get_layout().set_top(layout::lay(label));
   main.create({50, 50, 800, 600});
-  label.create(main, "I'm the Child", {10, 10, 200, 20});
-  drawing.create(main, {10, 40, 200, 200});
 
   main.on_destroy(&quit_main_loop);
   main.set_title("One Child");
   main.set_visible();
-  label.set_visible();
 
   return run_main_loop();
 }

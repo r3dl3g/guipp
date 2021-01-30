@@ -29,7 +29,7 @@
 // Library includes
 //
 #include <gui/win/window_event_handler.h>
-#include <gui/win/window.h>
+#include <gui/win/container.h>
 
 #ifdef GUIPP_WIN
 # include <util/string_util.h>
@@ -251,7 +251,7 @@ namespace gui {
     void send_client_message (window* win, os::message_type message, long l1, long l2) {
       if (win && win->is_valid()) {
         gui::os::event_result result;
-        core::event e{ detail::get_os_window(*win), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2) };
+        core::event e{ NULL, message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2) };
         win->handle_event(e, result);
       }
     }
@@ -261,7 +261,7 @@ namespace gui {
         gui::os::event_result result;
         os::size s = sz;
         long l2 = (long)s.cy << 16 | (long)s.cx;
-        core::event e{ detail::get_os_window(*win), message, 0, static_cast<LPARAM>(l2)};
+        core::event e{ NULL, message, 0, static_cast<LPARAM>(l2)};
         win->handle_event(e, result);
       }
     }
@@ -270,9 +270,8 @@ namespace gui {
       if (win && win->is_valid()) {
         gui::os::event_result result;
         core::native_rect r = core::global::scale_to_native(wr);
-        auto id = detail::get_os_window(*win);
-        WINDOWPOS wp{id, NULL, r.x(), r.y(), static_cast<int>(r.width()), static_cast<int>(r.height()), 0};
-        core::event e { id, message, 0, reinterpret_cast<LPARAM>(&wp)};
+        WINDOWPOS wp{NULL, NULL, r.x(), r.y(), static_cast<int>(r.width()), static_cast<int>(r.height()), 0};
+        core::event e { NULL, message, 0, reinterpret_cast<LPARAM>(&wp)};
         win->handle_event(e, result);
       }
     }
@@ -290,7 +289,7 @@ namespace gui {
           client.serial = 0;
           client.send_event = True;
           client.display = core::global::get_instance();
-          client.window = detail::get_os_window(*win);
+          client.window = 0;
           client.message_type = message;
           client.format = 32;
           client.data.l[0] = l1;
@@ -308,36 +307,42 @@ namespace gui {
         }
       }
 
-      void send_client_message (window* win, Atom message, const window* w, const core::rectangle& rect) {
-        XRectangle r = rect;
-        long l1 = (long)r.x << 16 | (long)r.y;
-        long l2 = (long)r.width << 16 | (long)r.height;
-        send_client_message(win, message, detail::get_os_window(*w), l1, l2);
-      }
+//      void send_client_message (window* win, Atom message, const window* w, const core::rectangle& rect) {
+//        XRectangle r = rect;
+//        long l1 = (long)r.x << 16 | (long)r.y;
+//        long l2 = (long)r.width << 16 | (long)r.height;
+//        send_client_message(win, message, detail::get_os_window(*w), l1, l2);
+//      }
 
       namespace {
         std::map<const receiver*, os::event_id> window_event_mask;
       }
 
-      void prepare_win_for_event (const receiver* win, os::event_id mask) {
-        os::window id = win ? detail::get_os_window(*static_cast<const window*>(win)) : 0;
+      void prepare_win_for_event (const window& win, os::event_id mask) {
+        os::window id = 0;
+        const overlapped_window* o = dynamic_cast<const overlapped_window*>(&win);
+        if (o) {
+          id = detail::get_os_window(*o);
+        } else if (win.get_parent()) {
+          id = detail::get_os_window(win.get_overlapped_window());
+        }
         if (id) {
-          auto i = window_event_mask.find(static_cast<const window*>(win));
+          auto i = window_event_mask.find(&win);
           if (i != window_event_mask.end()) {
             i->second |= mask;
             XSelectInput(core::global::get_instance(), id, i->second);
           } else {
-            window_event_mask[win] = mask;
+            window_event_mask[&win] = mask;
             XSelectInput(core::global::get_instance(), id, mask);
           }
         } else {
-          os::event_id& old_mask = window_event_mask[win];
+          os::event_id& old_mask = window_event_mask[&win];
           old_mask |= mask;
         }
       }
 
-      void unprepare_win (const receiver* win) {
-        window_event_mask.erase(static_cast<const window*>(win));
+      void unprepare_win (const window& win) {
+        window_event_mask.erase(&win);
       }
 
     } // namespace x11
@@ -566,7 +571,7 @@ namespace gui {
       if (win && win->is_valid()) {
         gui::os::event_result result;
         QClientEvent e(static_cast<QEvent::Type>(message), r);
-        win->handle_event(gui::core::event{detail::get_os_window(*win), &e}, result);
+        win->handle_event(gui::core::event{nullptr, &e}, result);
       }
     }
 
@@ -578,7 +583,7 @@ namespace gui {
       if (win && win->is_valid()) {
         gui::os::event_result result;
         QClientEvent e(static_cast<QEvent::Type>(message), l1, l2);
-        win->handle_event(gui::core::event{detail::get_os_window(*win), &e}, result);
+        win->handle_event(gui::core::event{nullptr, &e}, result);
       }
     }
 

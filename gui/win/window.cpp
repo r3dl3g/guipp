@@ -41,57 +41,53 @@ namespace gui {
 
   namespace win {
 
-    namespace {
-      std::vector<os::window> capture_stack;
-    }
-
     // --------------------------------------------------------------------------
     window::window ()
-      : id(0)
-      , area(core::rectangle::def)
+      : area(core::rectangle::def)
       , parent(nullptr)
+      , class_name(nullptr)
+      , cursor(0)
     {
       init();
     }
 
     window::window (const window& rhs)
-      : id(0)
+      : super(rhs)
       , area(rhs.area)
       , parent(nullptr)
       , flags(rhs.flags)
+      , class_name(nullptr)
+      , cursor(0)
     {
       init();
       if (rhs.is_valid()) {
         container* p = rhs.get_parent();
-        create_internal(rhs.get_window_class(),
-                        p ? detail::get_os_window(*p) : native::get_desktop_window(),
-                        rhs.place());
-        set_parent(*p);
+        if (p) {
+          create(rhs.get_window_class(), *p, rhs.place());
+        }
       }
     }
 
     window::window (window&& rhs) noexcept
-      : id(0)
-      , area(rhs.area)
-      , parent(nullptr)
+      : super(std::move(rhs))
+      , area(std::move(rhs.area))
+      , parent(std::move(rhs.parent))
       , flags(std::move(rhs.flags))
+      , class_name(rhs.class_name)
+      , cursor(rhs.cursor)
     {
       init();
-      std::swap(id, rhs.id);
-      if (rhs.parent) {
-        rhs.parent->remove_child(&rhs);
-        std::swap(parent, rhs.parent);
-        rhs.parent->add_child(this);
+      if (parent) {
+        parent->remove_child(&rhs);
+        parent->add_child(this);
       }
     }
 
     window::~window () {
-      destroy();
-      native::unprepare(this);
+      set_state().created(false);
     }
 
     void window::init () {
-      native::prepare(this);
       on_key_down<core::keys::tab>([&] () {
         get_overlapped_window().shift_focus(false);
       });
@@ -104,37 +100,21 @@ namespace gui {
                          container& p,
                          const core::rectangle& r) {
       if (p.is_valid()) {
-        create_internal(type, detail::get_os_window(p), r);
         set_parent(p);
+        create_internal(type, r);
       }
     }
 
     void window::create_internal (const class_info& type,
-                                  os::window parent_id,
                                   const core::rectangle& r) {
-
-      if (get_os_window()) {
-        destroy();
-      }
-
+      class_name = type.get_class_name();
       area = r;
-      id = native::create(type, r, parent_id, this);
       set_state().created(true);
       native::notify_created(this);
     }
 
-    void window::destroy () {
-      native::destroy(get_os_window());
-      id = 0;
-    }
-
     void window::close () {
       native::notify_close(*this);
-      native::close(get_os_window());
-    }
-
-    window::operator os::drawable() const {
-      return id;
     }
 
     core::point window::window_to_screen (const core::point& pt) const {
@@ -153,13 +133,14 @@ namespace gui {
     }
 
     overlapped_window& window::get_overlapped_window () const {
-      if (get_state().overlapped()) {
-        return *(overlapped_window*)this;
+      const overlapped_window* o = dynamic_cast<const overlapped_window*>(this);
+      if (o) {
+        return *const_cast<overlapped_window*>(o);
       }
       if (parent) {
         return parent->get_overlapped_window();
       } else {
-        return *(overlapped_window*)this;
+        throw std::runtime_error("Window has no overlapped parent!");
       }
     }
 
@@ -216,7 +197,6 @@ namespace gui {
     }
 
     void window::set_accept_focus (bool a) {
-      native::prepare_accept_focus(get_os_window(), a);
       set_state().accept_focus(a);
     }
 
@@ -227,7 +207,7 @@ namespace gui {
     void window::take_focus () {
       if (is_valid()) {
         set_state().focused(true);
-        native::take_focus(get_os_window());
+        get_overlapped_window().set_focus_window(this);
         invalidate();
       }
     }
@@ -264,8 +244,8 @@ namespace gui {
       return (parent == &p);
     }
 
-    window* window::get_current_focus_window () {
-      return global::get_current_focus_window();
+    window* window::get_current_focus_window () const {
+      return get_overlapped_window().get_current_focus_window();
     }
 
     bool window::is_focused () const {
@@ -273,21 +253,17 @@ namespace gui {
     }
 
     bool window::is_valid () const {
-      return (get_os_window() != 0);
+      return get_state().created();
     }
 
     bool window::is_visible () const {
-//      return native::is_visible(get_os_window());
        return get_state().visible();
     }
 
     void window::set_visible (bool s) {
       if (is_valid()) {
-        if (set_state().visible(s)) {
-          native::set_visible(get_os_window(), s);
-          if (s) {
-            invalidate();
-          }
+        if (set_state().visible(s) && s) {
+          invalidate();
         }
       }
     }
@@ -295,37 +271,42 @@ namespace gui {
     void window::enable (bool on) {
       if (is_valid()) {
         if (set_state().enable(on)) {
-          native::enable(get_os_window(), on);
           invalidate();
         }
       }
     }
 
     void window::to_front () {
-      return native::to_front(get_os_window());
+      if (get_parent()) {
+        get_parent()->to_front(this);
+      }
     }
 
     void window::to_back () {
-      return native::to_back(get_os_window());
+      if (get_parent()) {
+        get_parent()->to_back(this);
+      }
     }
 
     void window::set_cursor (const os::cursor& c) {
-      if (is_valid()) {
-        native::set_cursor(get_os_window(), c);
-      }
+      cursor = c;
+    }
+
+    const os::cursor& window::get_cursor () const {
+      return cursor;
     }
 
     void window::invalidate () const {
       if (is_valid() && is_visible()) {
         clog::trace() << "invalidate: " << *this;
-        native::invalidate(get_os_window(), client_area());
+        get_overlapped_window().invalidate(client_area());
       }
     }
 
     void window::redraw () const {
       if (is_visible() && !get_state().redraw_disabled()) {
         clog::trace() << "redraw: " << *this;
-        native::redraw(*this, get_os_window(), client_area());
+        get_overlapped_window().redraw(client_area());
       }
     }
 
@@ -371,11 +352,15 @@ namespace gui {
       return pt - position();
     }
 
+    void window::move_native (const core::point&) {}
+    void window::resize_native (const core::size&) {}
+    void window::place_native (const core::rectangle&) {}
+
     void window::move (const core::point& pt, bool repaint) {
       if (position() != pt) {
         area.set_position(pt);
         if (is_valid()) {
-          native::move(get_os_window(), pt);
+          move_native(pt);
           if (repaint) {
             invalidate();
           }
@@ -395,7 +380,7 @@ namespace gui {
           }
           area.set_size(sz);
           if (is_valid()) {
-            native::resize(get_os_window(), sz);
+            resize_native(sz);
             if (repaint) {
               invalidate();
             }
@@ -418,7 +403,7 @@ namespace gui {
         if (current != r) {
           area = r;
           if (is_valid()) {
-            native::place(get_os_window(), r);
+            place_native(r);
             if (repaint) {
               invalidate();
             }
@@ -431,48 +416,19 @@ namespace gui {
     }
 
     void window::capture_pointer () {
-#ifndef NO_CAPTURE
-      if (is_valid()) {
-        auto id = get_os_window();
-        clog::trace() << "capture_pointer:" << id;
-        if (capture_stack.empty()) {
-          native::prepare_capture_pointer();
-        }
-        capture_stack.push_back(id);
-        native::capture_pointer(id);
-      }
-#endif // NO_CAPTURE
+      get_overlapped_window().capture_pointer(this);
     }
 
     void window::uncapture_pointer () {
-#ifndef NO_CAPTURE
-      if (is_valid()) {
-        if (!capture_stack.empty()) {
-          auto id = get_os_window();
-          if (capture_stack.back() != id) {
-            clog::fatal() << "uncapture_pointer:" << id << " differs from stack back:(" << capture_stack.back() << ")";
-          } else {
-            clog::trace() << "uncapture_pointer:" << id;
-          }
-          native::uncapture_pointer(id);
-          capture_stack.pop_back();
-          if (!capture_stack.empty()) {
-            clog::trace() << "re-capture_pointer:" << capture_stack.back();
-            native::capture_pointer(capture_stack.back());
-          } else {
-            native::unprepare_capture_pointer();
-          }
-        }
-      }
-#endif // NO_CAPTURE
+      get_overlapped_window().uncapture_pointer(this);
     }
 
-    std::string window::get_class_name () const {
-      return native::get_class_name(get_os_window());
+    const char* window::get_class_name () const {
+      return class_name;
     }
 
     const class_info& window::get_window_class () const {
-      return native::get_window_class(get_os_window());
+      return native::get_window_class(get_class_name());
     }
 
     core::size window::screen_size () {

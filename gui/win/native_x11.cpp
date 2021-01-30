@@ -32,7 +32,7 @@
 //
 #include <logging/logger.h>
 #include <gui/win/native.h>
-#include <gui/win/window.h>
+#include <gui/win/container.h>
 
 
 namespace gui {
@@ -211,18 +211,13 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace {
-      std::map<std::string, class_info> window_class_info_map;
-      std::map<os::window, std::string> window_class_map;
+      std::map<const char*, class_info> window_class_info_map;
     }
     // --------------------------------------------------------------------------
     namespace native {
 
-      std::string get_class_name (os::window id) {
-        return window_class_map[id];
-      }
-
-      const class_info& get_window_class (os::window id) {
-        return window_class_info_map[get_class_name(id)];
+      const class_info& get_window_class (const char* class_name) {
+        return window_class_info_map[class_name];
       }
 
       void move (os::window w, const core::point& pt) {
@@ -254,20 +249,20 @@ namespace gui {
         return core::rectangle::def;
       }
 
-      void prepare(window* w) {
+      void prepare (overlapped_window& w) {
         static int initialized = core::x11::init_messages();
         (void)initialized;
         x11::prepare_win_for_event(w, KeyPressMask);
       }
 
-      void unprepare(window* w) {
+      void unprepare (overlapped_window& w) {
         x11::unprepare_win(w);
       }
 
       os::window create (const class_info& type,
                          const core::rectangle& r,
                          os::window parent_id,
-                         window* data) {
+                         overlapped_window* data) {
         auto display = core::global::get_instance();
         auto screen = core::global::x11::get_screen();
 
@@ -316,12 +311,11 @@ namespace gui {
 
         detail::set_os_window(data, id);
 
-        x11::prepare_win_for_event(data, KeyReleaseMask);
+        x11::prepare_win_for_event(*data, KeyReleaseMask);
 
         if (0 == window_class_info_map.count(type.get_class_name())) {
           window_class_info_map[type.get_class_name()] = type;
         }
-        window_class_map[id] = type.get_class_name();
 
         return id;
       }
@@ -332,7 +326,6 @@ namespace gui {
 
       void destroy (os::window w) {
         if (w) {
-          window_class_map.erase(w);
           x11::validate_window(w);
           x11::check_return(XDestroyWindow(core::global::get_instance(), w));
           detail::unset_os_window(w);
@@ -367,13 +360,13 @@ namespace gui {
         }
       }
 
-      void enable (os::window id, bool on) {
-        auto curs = get_window_class(id).get_cursor();
+      void enable (overlapped_window& w, bool on) {
+        auto curs = w.get_window_class().get_cursor();
         if (curs) {
           unsigned long mask = CWCursor;
           XSetWindowAttributes wa = {0};
           wa.cursor = on ? curs : (os::cursor)win::cursor::arrow();
-          x11::check_return(XChangeWindowAttributes(core::global::get_instance(), id, mask, &wa));
+          x11::check_return(XChangeWindowAttributes(core::global::get_instance(), detail::get_os_window(w), mask, &wa));
         }
       }
 

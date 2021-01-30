@@ -23,6 +23,14 @@ namespace gui {
 
   namespace win {
 
+    inline os::window overlapped_window::get_os_window () const {
+      return id;
+    }
+
+    inline void overlapped_window::set_os_window (os::window w) {
+      id = w;
+    }
+
     inline void main_window::create (const core::rectangle& r) {
       create(clazz::get(), r);
     }

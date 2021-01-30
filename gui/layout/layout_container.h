@@ -54,6 +54,10 @@ namespace gui {
         layout_type& get_layout ();
         const layout_type& get_layout () const;
 
+      protected:
+        void create_internal (const class_info&,
+                              const core::rectangle&);
+
       private:
         void init ();
         layout_type layouter;

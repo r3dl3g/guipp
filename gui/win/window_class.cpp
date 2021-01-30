@@ -61,7 +61,7 @@ namespace gui {
       , ex_style(rhs.ex_style)
     {}
 
-    class_info::class_info (const std::string& cls_name,
+    class_info::class_info (const char* cls_name,
                             os::color background,
                             win::cursor_type cursor,
                             os::style style,
@@ -75,7 +75,7 @@ namespace gui {
       , ex_style(ex_style)
     {}
 
-    const std::string& class_info::get_class_name () const {
+    const char* class_info::get_class_name () const {
       return class_name;
     }
 
@@ -100,7 +100,7 @@ namespace gui {
     }
 
     bool class_info::is_valid () const {
-      return !class_name.empty();
+      return class_name != nullptr;
     }
 
   } // win

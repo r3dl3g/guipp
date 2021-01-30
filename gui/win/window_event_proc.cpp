@@ -41,7 +41,7 @@
 #include <logging/logger.h>
 #include <util/robbery.h>
 #include <util/blocking_queue.h>
-#include <gui/win/window.h>
+#include <gui/win/container.h>
 #include <gui/win/window_event_proc.h>
 #include <gui/win/dbg_win_message.h>
 
@@ -77,7 +77,7 @@ namespace gui {
 
     namespace detail {
 
-      os::window get_os_window (const window& win) {
+      os::window get_os_window (const overlapped_window& win) {
         return win.get_os_window();
       }
 
@@ -88,11 +88,11 @@ namespace gui {
 
       const os::event_id ACTION_MESSAGE = WM_USER + 0x101;
 
-      window* get_window (os::window id) {
-        return reinterpret_cast<window*>(GetWindowLongPtr(id, GWLP_USERDATA));
+      overlapped_window* get_window (os::window id) {
+        return reinterpret_cast<overlapped_window*>(GetWindowLongPtr(id, GWLP_USERDATA));
       }
 
-      void set_os_window (window* win, os::window id) {
+      void set_os_window (overlapped_window* win, os::window id) {
         SetWindowLongPtr(id, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(win));
         if (win) {
           win->set_os_window(id);
@@ -108,7 +108,7 @@ namespace gui {
       }
 
       bool handle_by_window (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, gui::os::event_result& resultValue) {
-        window* w = get_window(hwnd);
+        overlapped_window* w = get_window(hwnd);
         if (w && w->is_valid()) {
           return w->handle_event(core::event(hwnd, msg, wParam, lParam), resultValue);
         }
@@ -116,7 +116,7 @@ namespace gui {
       }
 
       void set_window_id (LONG_PTR lParam, os::window id) {
-        window* w = reinterpret_cast<window*>(lParam);
+        overlapped_window* w = reinterpret_cast<window*>(lParam);
         set_os_window(w, id);
       }
 
@@ -150,7 +150,7 @@ namespace gui {
         }
 
         gui::os::event_result result = 0;
-        window* w = detail::get_window(hwnd);
+        overlapped_window* w = detail::get_window(hwnd);
         if (w && w->is_valid()) {
           w->handle_event(core::event(hwnd, msg, wParam, lParam), result);
           if (result) {
@@ -221,13 +221,13 @@ namespace gui {
       }
 
 #else
-      window* get_window (os::window id) {
+      overlapped_window* get_window (os::window id) {
         Atom     actual_type = 0;
         int      actual_format = -1;
         unsigned long nitems = 0;
         unsigned long bytes = 0;
         unsigned char* data = nullptr;
-        window* win = nullptr;
+        overlapped_window* win = nullptr;
 
         const int status = XGetWindowProperty(core::global::get_instance(), id,
                                               core::x11::GUI_LIB_WIN_PTR,
@@ -240,7 +240,7 @@ namespace gui {
                    << (int)data[0] << ' ' << (int)data[1] << ' ' << (int)data[2] << ' ' << (int)data[3] << ' '
                    << (int)data[4] << ' ' << (int)data[5] << ' ' << (int)data[6] << ' ' << (int)data[7];
 #endif //LOG_GET_WINDOW_PROPERTY
-          win = *(window**)data;
+          win = *(overlapped_window**)data;
         }
         if (data) {
           XFree(data);
@@ -248,7 +248,7 @@ namespace gui {
         return win;
       }
 
-      void set_os_window (window* win, os::window id) {
+      void set_os_window (overlapped_window* win, os::window id) {
         const auto* data = (const unsigned char*)&win;
 #ifdef LOG_GET_WINDOW_PROPERTY
         clog::debug() << "set window " << id << ": "
@@ -291,13 +291,13 @@ namespace gui {
 
     namespace detail {
 
-      void set_os_window (window* win, os::window id) {
+      void set_os_window (overlapped_window* win, os::window id) {
         if (win) {
           win->set_os_window(id);
         }
       }
 
-      window* get_window (os::window id) {
+      overlapped_window* get_window (os::window id) {
         return id ? id->get_window() : nullptr;
       }
 
@@ -348,10 +348,10 @@ namespace gui {
         RegisterHotKey(root, hk.get_key(), modifiers, hk.get_key());
 #elif GUIPP_X11
         auto dpy = core::global::get_instance();
-        os::window root = win ? detail::get_os_window(*win) : DefaultRootWindow(dpy);
+        os::window root = win ? detail::get_os_window(win->get_overlapped_window()) : DefaultRootWindow(dpy);
         XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root, False, GrabModeAsync, GrabModeAsync);
         if (win && win->is_valid()) {
-          x11::prepare_win_for_event(win, KeyPressMask);
+          x11::prepare_win_for_event(*win, KeyPressMask);
         }
 #elif GUIPP_QT
         os::window root = win ? detail::get_os_window(*win) : (os::window)QApplication::desktop();
@@ -483,7 +483,7 @@ namespace gui {
       }
       
       void register_utf8_window (const window& win) {
-        os::window id = detail::get_os_window(win);
+        os::window id = detail::get_os_window(win.get_overlapped_window());
 
         if (!id) {
           return;
@@ -512,7 +512,7 @@ namespace gui {
       }
 
       void unregister_utf8_window (const window& win) {
-        os::window id = detail::get_os_window(win);
+        os::window id = detail::get_os_window(win.get_overlapped_window());
 
         auto i = x11::s_window_ic_map.find(id);
         if (i != x11::s_window_ic_map.end()) {
@@ -586,7 +586,7 @@ namespace gui {
       switch (e.type) {
       case ButtonPress:
       case ButtonRelease: {
-        if (e.xbutton.window == detail::get_os_window(w)) {
+        if (e.xbutton.window == detail::get_os_window(w.get_overlapped_window())) {
           return false;
         }
         int x, y;

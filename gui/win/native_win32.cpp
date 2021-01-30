@@ -41,7 +41,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace {
-      std::map<std::string, class_info> window_class_info_map;
+      std::map<const char*, class_info> window_class_info_map;
     }
 
     // --------------------------------------------------------------------------
@@ -84,14 +84,8 @@ namespace gui {
         }
       }
 
-      std::string get_class_name (os::window id) {
-        char class_name[256];
-        GetClassName(id, class_name, 256);
-        return std::string(class_name);
-      }
-
-      const class_info& get_window_class (os::window id) {
-        return window_class_info_map[get_class_name(id)];
+      const class_info& get_window_class (const char* class_name) {
+        return window_class_info_map[class_name];
       }
 
       void move (os::window w, const core::point& pt) {
@@ -112,9 +106,9 @@ namespace gui {
         return core::rectangle(r);
       }
 
-      void prepare (window*) {}
+      void prepare (overlapped_window&) {}
 
-      void unprepare (window*) {}
+      void unprepare (overlapped_window&) {}
 
       os::window create (const class_info& type,
                          const core::rectangle& r,

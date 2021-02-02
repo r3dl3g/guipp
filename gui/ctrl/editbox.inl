@@ -25,7 +25,7 @@ namespace gui {
 
     template<draw::frame::drawer frame, os::color foreground, os::color background>
     basic_editbox<frame, foreground, background>::basic_editbox () {
-      on_paint(draw::buffered_paint(this, &basic_editbox::handle_paint));
+      on_paint(draw::paint(this, &basic_editbox::handle_paint));
       enable_select_by_mouse();
     }
 

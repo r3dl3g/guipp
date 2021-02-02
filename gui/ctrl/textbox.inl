@@ -63,7 +63,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<text_origin_t align, draw::frame::drawer frame, os::color fg, os::color bg>
     inline basic_textbox<align, frame, fg, bg>::basic_textbox () {
-      on_paint(draw::buffered_paint(this, &basic_textbox::handle_paint));
+      on_paint(draw::paint(this, &basic_textbox::handle_paint));
       enable_select_by_mouse();
     }
 

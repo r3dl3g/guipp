@@ -61,9 +61,10 @@ namespace gui {
 
       template<>
       void basic_splitter<orientation_t::vertical>::init () {
-        on_mouse_move_abs([&](os::key_state keys,
+        on_mouse_move([&](os::key_state keys,
                           const core::point & p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && core::left_button_bit_mask::is_set(keys)) {
+//            clog::debug() << "splitter::mouse_move to:" << p;
             set_value(start_window_point.x() + p.x() - start_mouse_point.x());
           }
         });
@@ -124,9 +125,10 @@ namespace gui {
 
       template<>
       void basic_splitter<orientation_t::horizontal>::init () {
-        on_mouse_move_abs([&](os::key_state keys,
+        on_mouse_move([&](os::key_state keys,
                               const core::point & p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && core::left_button_bit_mask::is_set(keys)) {
+//            clog::debug() << "splitter::mouse_move to:" << p;
             set_value(start_window_point.y() + p.y() - start_mouse_point.y());
           }
         });
@@ -203,8 +205,9 @@ namespace gui {
 
         on_left_btn_down([&] (os::key_state, const core::point& pt) {
           capture_pointer();
-          start_mouse_point = client_to_screen(pt);
+          start_mouse_point = pt;//client_to_screen(pt);
           start_window_point = position();
+//          clog::debug() << "splitter::left_btn_down at:" << pt << " start_mouse_point:" << start_mouse_point << " start_window_point:" << start_window_point;
           take_focus();
         });
 

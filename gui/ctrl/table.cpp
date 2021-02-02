@@ -203,19 +203,20 @@ namespace gui {
                               const std::function<filter::selection_and_hilite>& selection_filter,
                               const std::function<filter::selection_and_hilite>& hilite_filter) {
           if (drawer) {
-            const core::size max_sz = place.size();
+            draw::clip clp(graph, place);
+            const core::point max_sz = place.x2y2();
             position cell(0, static_cast<position::type>(geometrie.heights.get_first_idx()));
-            core::point::type y = geometrie.heights.get_first_offset();
+            core::point::type y = place.y() + geometrie.heights.get_first_offset();
 
             std::set<position> painted_spawns;
 
-            while (y < max_sz.height()) {
+            while (y < max_sz.y()) {
               const core::size::type height = geometrie.heights.get_size(cell.y());
 
               cell.x(static_cast<int>(geometrie.widths.get_first_idx()));
-              core::point::type x = geometrie.widths.get_first_offset();
+              core::point::type x = place.x() + geometrie.widths.get_first_offset();
 
-              while (x < max_sz.width()) {
+              while (x < max_sz.x()) {
                 const core::size::type width = geometrie.widths.get_size(cell.x());
                 core::rectangle area(x, y, width, height);
                 const auto spwn = geometrie.spawns.get(cell);
@@ -269,14 +270,15 @@ namespace gui {
                                 const std::function<filter::selection_and_hilite>& selection_filter,
                                 const std::function<filter::selection_and_hilite>& hilite_filter) {
           if (drawer) {
-            const core::size max_sz = place.size();
+            draw::clip clp(graph, place);
+            const auto max_x = place.x2();
             position cell(static_cast<position::type>(geometrie.widths.get_first_idx()), 0);
-            core::point::type x = geometrie.widths.get_first_offset();
+            core::point::type x = place.x() + geometrie.widths.get_first_offset();
 
-            while (x < max_sz.width()) {
+            while (x < max_x) {
               const core::size::type width = geometrie.widths.get_size(cell.x());
               drawer(cell, graph,
-                     core::rectangle(x, 0, width, max_sz.height()),
+                     core::rectangle(x, place.y(), width, place.height()),
                      aligns.get(cell.x()),
                      foregrounds.get(cell.x()),
                      backgrounds.get(cell.x()),
@@ -298,15 +300,16 @@ namespace gui {
                              const std::function<filter::selection_and_hilite>& selection_filter,
                              const std::function<filter::selection_and_hilite>& hilite_filter) {
           if (drawer) {
-            const core::size max_sz = place.size();
+            draw::clip clp(graph, place);
+            const core::point::type max_y = place.y2();
             position cell(0, static_cast<position::type>(geometrie.heights.get_first_idx()));
-            core::point::type y = geometrie.heights.get_first_offset();
+            core::point::type y = place.y() + geometrie.heights.get_first_offset();
 
-            while (y < max_sz.height()) {
+            while (y < max_y) {
               const core::size::type height = geometrie.heights.get_size(cell.y());
 
               drawer(cell, graph,
-                     core::rectangle(0, y, max_sz.width(), height),
+                     core::rectangle(place.x(), y, place.width(), height),
                      aligns.get(cell.y()),
                      foregrounds.get(cell.y()),
                      backgrounds.get(cell.y()),
@@ -322,31 +325,21 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       std::function<cell_drawer> default_data_drawer (const std::function<data_source>& src) {
-        return [src] (const position &cell,
-                      const draw::graphics & graph,
-                      const core::rectangle & place,
-                      const text_origin_t align,
-                      const os::color & foreground,
-                      const os::color & background,
+        return [src] (const position &cell, const draw::graphics& graph, const core::rectangle& place,
+                      const text_origin_t align, const os::color& foreground, const os::color& background,
                       item_state state) {
-          gui::look::text_cell<std::string, draw::frame::lines>(src(cell), graph, place,
-                                                                align, foreground, background,
-                                                                state);
+          gui::look::text_cell<std::string, draw::frame::lines>(src(cell), graph, place, align,
+                                                                foreground, background, state);
         };
       }
 
       // --------------------------------------------------------------------------
       std::function<cell_drawer> default_header_drawer (const std::function<data_source>& src) {
-        return [src] (const position &cell,
-                      const draw::graphics & graph,
-                      const core::rectangle & place,
-                      const text_origin_t align,
-                      const os::color & foreground,
-                      const os::color & background,
+        return [src] (const position &cell, const draw::graphics& graph, const core::rectangle& place,
+                      const text_origin_t align, const os::color& foreground, const os::color& background,
                       item_state state) {
-          gui::look::text_cell<std::string, draw::frame::raised_relief>(src(cell), graph, place,
-                                                                        align, foreground, background,
-                                                                        state);
+          gui::look::text_cell<std::string, draw::frame::raised_relief>(src(cell), graph, place, align,
+                                                                        foreground, background, state);
         };
       }
 
@@ -392,7 +385,7 @@ namespace gui {
 
       void data_view::init () {
         set_accept_focus(true);
-        super::on_paint(draw::buffered_paint([&](const draw::graphics & graph){
+        super::on_paint(draw::paint([&](const draw::graphics & graph){
           paint::draw_table_data(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
         }));
       }
@@ -423,7 +416,7 @@ namespace gui {
       }
 
       void column_view::init () {
-        super::on_paint(draw::buffered_paint([&](const draw::graphics & graph) {
+        super::on_paint(draw::paint([&](const draw::graphics & graph) {
           paint::draw_table_column(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
         }));
       }
@@ -454,7 +447,7 @@ namespace gui {
       }
 
       void row_view::init () {
-        super::on_paint(draw::buffered_paint([&](const draw::graphics & graph){
+        super::on_paint(draw::paint([&](const draw::graphics & graph){
           paint::draw_table_row(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
         }));
       }
@@ -605,6 +598,9 @@ namespace gui {
       rows.on_left_btn_down(util::bind_method(this, &table_view::handle_row_left_btn_down));
       rows.on_left_btn_up(util::bind_method(this, &table_view::handle_row_left_btn_up));
 
+      on_layout([&] (const core::rectangle& r) {
+        edge.move(r.top_left());
+      });
     }
 
     core::point table_view::get_scroll_pos () const {
@@ -738,7 +734,7 @@ namespace gui {
 
     void table_view::handle_left_btn_up (os::key_state keys, const core::point& pt) {
       if (enable_selection_ && !moved && (last_mouse_point != core::point::undefined)) {
-        auto new_selection = data.get_index_at_point(pt);
+        auto new_selection = data.get_index_at_point(pt - data.client_position());
         const auto spawn = geometrie.spawns.get(new_selection);
         if (spawn.is_hidden()) {
           new_selection.move({spawn.x, spawn.y});
@@ -764,7 +760,7 @@ namespace gui {
         }
         last_mouse_point = pt;
       } else if (enable_hilite_) {
-        const auto new_hilite = data.get_index_at_point(pt);
+        const auto new_hilite = data.get_index_at_point(pt - data.client_position());
         if (geometrie.hilite != new_hilite) {
           geometrie.hilite = new_hilite;
           redraw_all();
@@ -777,7 +773,7 @@ namespace gui {
       last_mouse_point = pt;
       moved = false;
       if (enable_h_size) {
-        down_idx.x(geometrie.widths.split_idx_at(pt.x(), 2.0F));
+        down_idx.x(geometrie.widths.split_idx_at(pt.x() - columns.client_position().x(), 2.0F));
       }
       columns.set_cursor(down_idx.x() > -1 ? win::cursor::size_h() : win::cursor::move());
       columns.capture_pointer();
@@ -785,7 +781,7 @@ namespace gui {
 
     void table_view::handle_column_left_btn_up (os::key_state keys, const core::point& pt) {
       if (enable_selection_ && !moved && (last_mouse_point != core::point::undefined)) {
-        const auto new_selection = columns.get_index_at_point(pt);
+        const auto new_selection = columns.get_index_at_point(pt - columns.client_position());
         if (get_selection() != new_selection) {
           set_selection(new_selection, event_source::mouse);
         } else if (core::control_key_bit_mask::is_set(keys)) {
@@ -814,10 +810,11 @@ namespace gui {
         }
         last_mouse_point = pt;
       } else {
-        const int idx = enable_h_size ? geometrie.widths.split_idx_at(pt.x(), 2.0F) : -1;
+        core::point cpt = pt - columns.client_position();
+        const int idx = enable_h_size ? geometrie.widths.split_idx_at(cpt.x(), 2.0F) : -1;
         columns.set_cursor(idx > -1 ? win::cursor::size_h() : win::cursor::arrow());
         if (enable_hilite_ && (idx < 0)) {
-          const auto new_hilite = columns.get_index_at_point(pt);
+          const auto new_hilite = columns.get_index_at_point(cpt);
           if (geometrie.hilite != new_hilite) {
             geometrie.hilite = new_hilite;
             redraw_all();
@@ -831,7 +828,7 @@ namespace gui {
       last_mouse_point = pt;
       moved = false;
       if (enable_v_size) {
-        down_idx.y(geometrie.heights.split_idx_at(pt.y(), 2.0F));
+        down_idx.y(geometrie.heights.split_idx_at(pt.y() - rows.client_position().y(), 2.0F));
       }
       rows.set_cursor(down_idx.y() > -1 ? win::cursor::size_v() : win::cursor::move());
       rows.capture_pointer();
@@ -839,7 +836,7 @@ namespace gui {
 
     void table_view::handle_row_left_btn_up (os::key_state keys, const core::point& pt) {
       if (enable_selection_ && !moved && (last_mouse_point != core::point::undefined)) {
-        const auto new_selection = rows.get_index_at_point(pt);
+        const auto new_selection = rows.get_index_at_point(pt - rows.client_position());
         if (get_selection() != new_selection) {
           set_selection(new_selection, event_source::mouse);
         } else if (core::control_key_bit_mask::is_set(keys)) {
@@ -868,10 +865,11 @@ namespace gui {
         }
         last_mouse_point = pt;
       } else {
-        const int idx = enable_v_size ? geometrie.heights.split_idx_at(pt.y(), 2.0F) : -1;
+        core::point rpt = pt - rows.client_position();
+        const int idx = enable_v_size ? geometrie.heights.split_idx_at(rpt.y(), 2.0F) : -1;
         rows.set_cursor(idx > -1 ? win::cursor::size_v() : win::cursor::arrow());
         if (enable_hilite_ && (idx < 0)) {
-          const auto new_hilite = rows.get_index_at_point(pt);
+          const auto new_hilite = rows.get_index_at_point(rpt);
           if (geometrie.hilite != new_hilite) {
             geometrie.hilite = new_hilite;
             redraw_all();
@@ -1006,12 +1004,12 @@ namespace gui {
 
       vscroll.on_scroll([&] (core::point::type) {
         if (editor.is_visible()) {
-          editor.move(geometrie.position_of(get_selection()));
+          editor.move(geometrie.position_of(get_selection()) + data.client_position());
         }
       });
       hscroll.on_scroll([&] (core::point::type) {
         if (editor.is_visible()) {
-          editor.move(geometrie.position_of(get_selection()));
+          editor.move(geometrie.position_of(get_selection()) + data.client_position());
         }
       });
 
@@ -1033,7 +1031,7 @@ namespace gui {
         if (!editor.is_valid()) {
           editor.create(data, core::rectangle(0, 0, 10, 10));
         }
-        editor.place(core::rectangle(pt, sz));
+        editor.place(core::rectangle(pt + data.client_position(), sz));
         editor.set_text(data_source(cell));
         editor.set_cursor_pos(editor.get_text_length());
         editor.set_visible();

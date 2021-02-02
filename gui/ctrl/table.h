@@ -368,10 +368,10 @@ namespace gui {
                                                           const core::point& current_max);
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT table_view : public win::group_window<gui::layout::dynamic_border_layout<layout::dynamic_border_layout_type::bottom_right_maximize>,
+    class GUIPP_CTRL_EXPORT table_view : public win::group_window<gui::layout::dynamic_border_layout<layout::border_layout_type::bottom_right_maximize>,
         color::very_very_light_gray, float, float, float, float> {
     public:
-      typedef group_window<gui::layout::dynamic_border_layout<layout::dynamic_border_layout_type::bottom_right_maximize>,
+      typedef group_window<gui::layout::dynamic_border_layout<layout::border_layout_type::bottom_right_maximize>,
       color::very_very_light_gray, float, float, float, float> super;
 
       typedef basic_label<text_origin_t::center,
@@ -409,7 +409,7 @@ namespace gui {
       void make_selection_visible ();
 
       void handle_created ();
-      void handle_layout (const core::rectangle& sz);
+      void handle_layout (const core::rectangle& r);
 
       void handle_left_btn_down (os::key_state, const core::point& pt);
       void handle_left_btn_up (os::key_state keys, const core::point& pt);

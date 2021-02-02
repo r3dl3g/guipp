@@ -103,14 +103,14 @@ private:
   typedef ctrl::sorted_file_tree file_tree;
   ctrl::horizontal_split_view<simple_tree, file_tree> right_view;
 
-  group_window<attach, color::rgb_gray<224>::value> client_view;
+  group_window<attach, color::rgb<0, 0, 224>::value> client_view;
 
   top_tab_group<origin_t::start, color::black, color::very_light_gray, 50, 80> hsegmented1;
   bottom_tab_group<origin_t::start, color::black, color::very_light_gray, 40, 70> hsegmented2;
   left_tab_group<origin_t::start, color::black, color::very_light_gray, 30, 100> vsegmented1;
   right_tab_group<origin_t::start, color::black, color::very_light_gray, 50, 80> vsegmented2;
 
-  client_control<color::rgb_gray<0xda>::value> window1;
+  client_control<color::very_very_light_gray> window1;
   rgbamap rgbas[2];
   rgbmap rgbs[2];
   graymap grays[2];
@@ -170,15 +170,13 @@ my_main_window::my_main_window ()
   , left_list(50, color::rgb_gray<224>::value)
   , right_view(simple_tree(20, color::very_light_gray), file_tree(20, color::very_light_gray))
 {
-  on_create(util::bind_method(this, &my_main_window::onCreated));
-
   on_destroy(&win::quit_main_loop);
-
-  on_close(util::bind_method(this, &my_main_window::quit));
+  on_create([&] () { onCreated(); });
+  on_close([&] () { quit(); });
 
   window1.on_paint(draw::paint([&](const graphics& graph){
     core::rectangle place = window1.client_area();
-    frame::raised_relief(graph, place);
+    frame::sunken_relief(graph, place);
 
     core::point::type x = 1;
     for (int i = 0; i < 2; ++i) {
@@ -243,7 +241,7 @@ void my_main_window::onCreated () {
     main_menu_entry("File", 'F', [&]() {
       labels[0].set_text("File...");
       file_sub_menu.popup(menu);
-    }), 
+    }),
     main_menu_entry("Edit", 'E', [&]() {
       labels[0].set_text("Edit...");
       edit_sub_menu.popup(menu);
@@ -455,7 +453,7 @@ void my_main_window::onCreated () {
     labels[0].set_text(ostreamfmt("list item " << left_list.get_hilite() << " commited"));
   });
 
-  client_view.create(*this);
+  client_view.create(*this, core::rectangle(100, 40, 100, 100));
 
   window1.on_right_btn_up([&](gui::os::key_state, const core::point& pt){
     edit_sub_menu.popup_at(window1.window_to_screen(pt), window1);
@@ -532,10 +530,7 @@ void my_main_window::onCreated () {
                                                 layout::lay(status_bar),
                                                 layout::lay(left_list),
                                                 layout::lay(right_view));
-  set_children_visible();
 }
-
-//-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 void my_main_window::quit () {
@@ -591,7 +586,7 @@ void my_main_window::save_as () {
 struct finally {
   const sys_fs::path& file;
   std::ofstream& stream;
-  
+
   finally (const sys_fs::path& file, std::ofstream& stream)
     : file(file)
     , stream(stream)
@@ -694,8 +689,8 @@ void my_main_window::settings () {
     graphics g(img);
     double scale = 500.0 / sz.width();
     for (int x = 0; x < sz.width(); ++x) {
-        os::color rgb = io::optics::wave_length_to_rgb(static_cast<double>(330.0 + x * scale));
-        g.draw_lines({core::point{(float)x, r.y()}, core::point{(float)x, r.y2()}}, draw::pen(rgb));
+      os::color rgb = io::optics::wave_length_to_rgb(static_cast<double>(330.0 + x * scale));
+      g.draw_lines({core::point{(float)x, r.y()}, core::point{(float)x, r.y2()}}, draw::pen(rgb));
     }
     wave_color = img;
     window1.invalidate();
@@ -904,10 +899,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 //  gui::core::global::set_scale_factor(1.0);
   my_main_window main;
 
-  const core::rectangle r = core::rectangle(50, 50, 800, 600);
-  main.create(r);
+  main.create({50, 50, 800, 600});
   main.set_title("Border Test");
-
   main.set_visible();
 
   return win::run_main_loop();

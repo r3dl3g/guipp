@@ -275,7 +275,7 @@ namespace gui {
       template<What what, int relativ, int offset = 0, typename T, typename S>
       void attach_relative (T target, S source);
 
-      void layout (const core::rectangle& sz) const;
+      void layout (const core::rectangle& r) const;
 
     private:
       std::vector<std::unique_ptr<attachment>> attachments;

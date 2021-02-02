@@ -181,7 +181,7 @@ namespace gui {
       // union
       self& operator|= (const self& rhs);
       self operator| (const self& rhs) const;
-      self Union (const self& rhs) const;
+      self Union (const self& rhs) const;   /// lowercase union is a reserved word
 
     private:
       point_t pos;

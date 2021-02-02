@@ -502,17 +502,32 @@ namespace gui {
     const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) const {
       auto display = core::global::get_instance();
       int res = 0;
+      // If previous clipping intersect with this region, to much of the image is drawn.
+      // -> restrict the copy or fill area to the intersection rectangle withthe previous clipping rectangle.
+      core::native_rect clip;
       if (bmp.mask) {
+        if (!clipping_stack.empty()) {
+          clip = core::global::scale_to_native(clipping_stack.back());
+        }
         XSetClipMask(display, gc, bmp.mask.get_os_bitmap());
         XSetClipOrigin(display, gc, pt.x(), pt.y());
       }
+
       if (bmp.image) {
-        auto sz = bmp.image.native_size();
-        res = XCopyArea(get_instance(), bmp.image, target, gc, 0, 0, sz.width(), sz.height(), pt.x(), pt.y());
+        core::native_rect src(pt, bmp.image.native_size());
+        if (!clip.empty()) {
+          src &= clip;
+        }
+        res = XCopyArea(get_instance(), bmp.image, target, gc, src.x() - pt.x(), src.y() - pt.x(), src.width(), src.height(), src.x(), src.y());
       } else {
-        auto sz = bmp.mask.native_size();
         Use<brush> br(gc, color::black);
-        XFillRectangle(display, target, gc, pt.x(), pt.y(), sz.width(), sz.height());
+
+        core::native_rect src(pt, bmp.mask.native_size());
+        if (!clip.empty()) {
+          src &= clip;
+        }
+
+        XFillRectangle(display, target, gc, src.x(), src.y(), src.width(), src.height());
       }
 
       if (bmp.mask) {
@@ -920,7 +935,7 @@ namespace gui {
       : p(std::move(f))
     {}
 
-//#define NOT_IMAGE_CACHE
+#define NOT_IMAGE_CACHE
 
     void buffered_paint::operator() (os::window id, os::graphics g) {
       if (p) {

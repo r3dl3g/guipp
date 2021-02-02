@@ -155,7 +155,7 @@ namespace gui {
       public:
         typedef ctrl::vertical_list list_type;
 
-        void layout (const core::rectangle& sz) const;
+        void layout (const core::rectangle& r) const;
         void set_header_and_list (win::window* header, list_type* list);
 
       protected:

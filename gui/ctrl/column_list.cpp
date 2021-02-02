@@ -211,8 +211,8 @@ namespace gui {
       }
     }
 
-    void weight_column_list_layout::layout (const core::rectangle& sz) {
-      clog::trace() << "weight_column_list_layout::layout(" << sz << ")";
+    void weight_column_list_layout::layout (const core::rectangle& r) {
+      clog::trace() << "weight_column_list_layout::layout(" << r << ")";
       auto count = get_column_count();
 
       float full_weight = 0.0F;
@@ -227,7 +227,7 @@ namespace gui {
         full_weight = 1.0F;
       }
 
-      core::size::type available_width = sz.width();
+      core::size::type available_width = r.width();
       column_size_type space = available_width - full_width;
 
 

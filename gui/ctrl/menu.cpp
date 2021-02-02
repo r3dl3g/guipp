@@ -359,7 +359,7 @@ namespace gui {
       set_accept_focus(true);
       data.set_mouse_function(util::bind_method(this, &main_menu::handle_mouse));
 
-      on_paint(draw::buffered_paint(this, &main_menu::paint));
+      on_paint(draw::paint(this, &main_menu::paint));
 
       on_mouse_move_abs([&] (os::key_state, const core::point & pt) {
         data.handle_mouse(false, pt);
@@ -653,7 +653,7 @@ namespace gui {
     }
 
     void popup_menu::popup_at (const core::point& pt, control& parent) {
-      popup_at(pt + parent.position(), *parent.get_parent());
+      popup_at(parent.client_to_screen(pt), *parent.get_parent());
     }
 
     void popup_menu::popup_at (const core::point& pt, container& parent) {
@@ -669,7 +669,7 @@ namespace gui {
       });
       clog::trace() << "popup_menu::popup_at(" << pt << ") -> run_modal";
       auto& root = parent.get_overlapped_window();
-      create(root, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
+      create(root, core::rectangle(parent.client_to_screen(pt), core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
       run_modal(root);
     }
 

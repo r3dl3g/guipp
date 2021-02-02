@@ -70,10 +70,10 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      inline void base_column_list_layout::layout (const core::rectangle& sz) const {
-        clog::trace() << "base_column_list_layout::layout(" << sz << ")";
-        data.header->resize(core::size(sz.width(), 20), false);
-        data.list->resize(sz.size() - core::size(0, 20), false);
+      inline void base_column_list_layout::layout (const core::rectangle& r) const {
+        clog::trace() << "base_column_list_layout::layout(" << r << ")";
+        data.header->place(r.with_height(20), false);
+        data.list->place(r.with_vertical(r.y() + 20, r.height() - 20), false);
       }
 
       inline void base_column_list_layout::set_header_and_list (win::window* header, list_type* list) {
@@ -210,7 +210,7 @@ namespace gui {
         }
         return false;
       }), static_cast<os::event_id>(mouse_move_event::mask | left_btn_down_event::mask | left_btn_up_event::mask));
-      super::on_paint(draw::buffered_paint(this, &column_list_header::paint));
+      super::on_paint(draw::paint(this, &column_list_header::paint));
     }
 
     template<typename Layout, os::color background>
@@ -305,9 +305,9 @@ namespace gui {
     }
 
     template<typename Layout, os::color background>
-    inline void column_list_header<Layout, background>::layout (const core::rectangle& sz) {
-      clog::trace() << "column_list_header::layout(" << sz << ")";
-      layouter.layout(sz);
+    inline void column_list_header<Layout, background>::layout (const core::rectangle& r) {
+      clog::trace() << "column_list_header::layout(" << r << ")";
+      layouter.layout(r);
     }
 
     // --------------------------------------------------------------------------
@@ -356,8 +356,8 @@ namespace gui {
       void base_column_list<Layout>::init () {
         super::get_layout().set_header_and_list(&header, &list);
         get_column_layout().set_list(&list);
-        super::on_layout([&] (const core::rectangle& sz) {
-          header.layout(sz);
+        super::on_layout([&] (const core::rectangle& r) {
+          header.layout(r);
         });
       }
 

@@ -27,6 +27,8 @@ namespace gui {
     namespace border {
 
       // --------------------------------------------------------------------------
+      // all_symmetric
+      // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI>
       struct border_geometrie<TO, BO, LE, RI, type_t::all_symmetric> {
         static left_width get_top (const core::rectangle& r) {
@@ -46,6 +48,8 @@ namespace gui {
         }
       };
 
+      // --------------------------------------------------------------------------
+      // top_bottom_maximize
       // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI>
       struct border_geometrie<TO, BO, LE, RI, type_t::top_bottom_maximize> {
@@ -67,6 +71,8 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
+      // left_right_maximize
+      // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI>
       struct border_geometrie<TO, BO, LE, RI, type_t::left_right_maximize> {
         static left_width get_top (const core::rectangle& r) {
@@ -86,6 +92,8 @@ namespace gui {
         }
       };
 
+      // --------------------------------------------------------------------------
+      // bottom_max_top_min
       // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI>
       struct border_geometrie<TO, BO, LE, RI, type_t::bottom_max_top_min> {
@@ -107,6 +115,8 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
+      // top_max_bottom_min
+      // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI>
       struct border_geometrie<TO, BO, LE, RI, type_t::top_max_bottom_min> {
         static left_width get_top (const core::rectangle& r) {
@@ -126,6 +136,8 @@ namespace gui {
         }
       };
 
+      // --------------------------------------------------------------------------
+      // left_max_right_min
       // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI>
       struct border_geometrie<TO, BO, LE, RI, type_t::left_max_right_min> {
@@ -147,6 +159,8 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
+      // right_max_left_min
+      // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI>
       struct border_geometrie<TO, BO, LE, RI, type_t::right_max_left_min> {
         static left_width get_top (const core::rectangle& r) {
@@ -163,6 +177,50 @@ namespace gui {
 
         static top_height get_right (const core::rectangle& r) {
           return {r.y(), r.height()};
+        }
+      };
+
+      // --------------------------------------------------------------------------
+      // top_left_maximize
+      // --------------------------------------------------------------------------
+      template<int TO, int BO, int LE, int RI>
+      struct border_geometrie<TO, BO, LE, RI, type_t::top_left_maximize> {
+        static left_width get_top (const core::rectangle& r) {
+          return {r.x() + LE, r.width() - LE};
+        }
+
+        static left_width get_bottom (const core::rectangle& r) {
+          return {r.x() + LE, r.width() - (LE + RI)};
+        }
+
+        static top_height get_left (const core::rectangle& r) {
+          return {r.y() + TO, r.height() - TO};
+        }
+
+        static top_height get_right (const core::rectangle& r) {
+          return {r.y() + TO, r.height() - (TO + BO)};
+        }
+      };
+
+      // --------------------------------------------------------------------------
+      // bottom_right_maximize
+      // --------------------------------------------------------------------------
+      template<int TO, int BO, int LE, int RI>
+      struct border_geometrie<TO, BO, LE, RI, type_t::bottom_right_maximize> {
+        static left_width get_top (const core::rectangle& r) {
+          return {r.x() + LE, r.width() - (LE + RI)};
+        }
+
+        static left_width get_bottom (const core::rectangle& r) {
+          return {r.x(), r.width() - RI};
+        }
+
+        static top_height get_left (const core::rectangle& r) {
+          return {r.y() + TO, r.height() - (TO + BO)};
+        }
+
+        static top_height get_right (const core::rectangle& r) {
+          return {r.y(), r.height() - BO};
         }
       };
 

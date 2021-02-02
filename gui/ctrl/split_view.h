@@ -63,7 +63,7 @@ namespace gui {
       double get_split_pos (const core::point&, const core::size&) const;
       void set_split_pos (double);
 
-      void layout (const core::rectangle& sz) const;
+      void layout (const core::rectangle& r) const;
 
     private:
       First* first;

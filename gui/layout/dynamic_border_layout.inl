@@ -134,159 +134,252 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
+      // all_symmetric
+      // --------------------------------------------------------------------------
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::all_symmetric>::
-      get_top_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(r.x(), r.width());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::all_symmetric>::
+      get_top_position (const core::rectangle& inner, const core::rectangle&) -> points {
+        return detail::make_points(inner.x(), inner.width());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::all_symmetric>::
-      get_bottom_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(r.x(), r.width());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::all_symmetric>::
+      get_bottom_position (const core::rectangle& inner, const core::rectangle&) -> points {
+        return detail::make_points(inner.x(), inner.width());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::all_symmetric>::
-      get_left_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(r.y(), r.height());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::all_symmetric>::
+      get_left_position (const core::rectangle& inner, const core::rectangle&) -> points {
+        return detail::make_points(inner.y(), inner.height());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::all_symmetric>::
-      get_right_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(r.y(), r.height());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::all_symmetric>::
+      get_right_position (const core::rectangle& inner, const core::rectangle&) -> points {
+        return detail::make_points(inner.y(), inner.height());
       }
 
       // --------------------------------------------------------------------------
+      // top_bottom_maximize
+      // --------------------------------------------------------------------------
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::top_bottom_maximize>::
-      get_top_position (const core::rectangle&, const core::rectangle& sz) -> points {
-        return detail::make_points(0, sz.width());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::top_bottom_maximize>::
+      get_top_position (const core::rectangle&, const core::rectangle& outer) -> points {
+        return detail::make_points(outer.x(), outer.width());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::top_bottom_maximize>::
-      get_bottom_position (const core::rectangle&, const core::rectangle& sz) -> points {
-        return detail::make_points(0, sz.width());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::top_bottom_maximize>::
+      get_bottom_position (const core::rectangle&, const core::rectangle& outer) -> points {
+        return detail::make_points(outer.x(), outer.width());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::top_bottom_maximize>::
-      get_left_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(r.y(), r.height());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::top_bottom_maximize>::
+      get_left_position (const core::rectangle& inner, const core::rectangle&) -> points {
+        return detail::make_points(inner.y(), inner.height());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::top_bottom_maximize>::
-      get_right_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(r.y(), r.height());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::top_bottom_maximize>::
+      get_right_position (const core::rectangle& inner, const core::rectangle&) -> points {
+        return detail::make_points(inner.y(), inner.height());
       }
 
       // --------------------------------------------------------------------------
+      // left_right_maximize
+      // --------------------------------------------------------------------------
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::left_right_maximize>::
-      get_top_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(r.x(), r.width());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::left_right_maximize>::
+      get_top_position (const core::rectangle& inner, const core::rectangle&) -> points {
+        return detail::make_points(inner.x(), inner.width());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::left_right_maximize>::
-      get_bottom_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(r.x(), r.width());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::left_right_maximize>::
+      get_bottom_position (const core::rectangle& inner, const core::rectangle&) -> points {
+        return detail::make_points(inner.x(), inner.width());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::left_right_maximize>::
-      get_left_position (const core::rectangle&, const core::rectangle& sz) -> points {
-        return detail::make_points(0, sz.height());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::left_right_maximize>::
+      get_left_position (const core::rectangle&, const core::rectangle& outer) -> points {
+        return detail::make_points(outer.y(), outer.height());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::left_right_maximize>::
-      get_right_position (const core::rectangle&, const core::rectangle& sz) -> points {
-        return detail::make_points(0, sz.height());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::left_right_maximize>::
+      get_right_position (const core::rectangle&, const core::rectangle& outer) -> points {
+        return detail::make_points(outer.y(), outer.height());
       }
 
       // --------------------------------------------------------------------------
+      // bottom_max_top_min
+      // --------------------------------------------------------------------------
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::top_left_maximize>::
-      get_top_position (const core::rectangle& r, const core::rectangle& sz) -> points {
-        return detail::make_points(r.x(), sz.width() - r.x());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::bottom_max_top_min>::
+      get_top_position (const core::rectangle& inner, const core::rectangle&) -> points {
+        return detail::make_points(inner.x(), inner.width());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::top_left_maximize>::
-      get_bottom_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(r.x(), r.width());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::bottom_max_top_min>::
+      get_bottom_position (const core::rectangle&, const core::rectangle& outer) -> points {
+        return detail::make_points(outer.x(), outer.width());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::top_left_maximize>::
-      get_left_position (const core::rectangle& r, const core::rectangle& sz) -> points {
-        return detail::make_points(r.y(), sz.height() - r.y());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::bottom_max_top_min>::
+      get_left_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(outer.y(), inner.y2() - outer.y());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::top_left_maximize>::
-      get_right_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(r.y(), r.height());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::bottom_max_top_min>::
+      get_right_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(outer.y(), inner.y2() - outer.y());
       }
 
       // --------------------------------------------------------------------------
+      // top_max_bottom_min
+      // --------------------------------------------------------------------------
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::bottom_right_maximize>::
-      get_top_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(r.x(), r.width());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::top_max_bottom_min>::
+      get_top_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(outer.x(), outer.width());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::bottom_right_maximize>::
-      get_bottom_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(0, r.width() + r.x());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::top_max_bottom_min>::
+      get_bottom_position (const core::rectangle& inner, const core::rectangle&) -> points {
+        return detail::make_points(inner.x(), inner.width());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::bottom_right_maximize>::
-      get_left_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(r.y(), r.height());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::top_max_bottom_min>::
+      get_left_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(inner.y(), outer.y2() - inner.y());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::bottom_right_maximize>::
-      get_right_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(0, r.height() + r.y());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::top_max_bottom_min>::
+      get_right_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(inner.y(), outer.y2() - inner.y());
       }
 
       // --------------------------------------------------------------------------
+      // left_max_right_min
+      // --------------------------------------------------------------------------
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::bottom_max_top_min>::
-      get_top_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(r.x(), r.width());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::left_max_right_min>::
+      get_top_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(inner.x(), outer.x2() - inner.x());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::bottom_max_top_min>::
-      get_bottom_position (const core::rectangle& /*r*/, const core::rectangle& sz) -> points {
-        return detail::make_points(0, sz.width());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::left_max_right_min>::
+      get_bottom_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(inner.x(), outer.x2() - inner.x());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::bottom_max_top_min>::
-      get_left_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(0, r.height() + r.y());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::left_max_right_min>::
+      get_left_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(outer.y(), outer.height());
       }
 
       template<>
-      inline auto dynamic_border_layout_geometrie<dynamic_border_layout_type::bottom_max_top_min>::
-      get_right_position (const core::rectangle& r, const core::rectangle&) -> points {
-        return detail::make_points(0, r.height() + r.y());
+      inline auto dynamic_border_layout_geometrie<border_layout_type::left_max_right_min>::
+      get_right_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(inner.y(), inner.height());
+      }
+
+      // --------------------------------------------------------------------------
+      // right_max_left_min
+      // --------------------------------------------------------------------------
+      template<>
+      inline auto dynamic_border_layout_geometrie<border_layout_type::right_max_left_min>::
+      get_top_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(outer.x(), inner.x2() - outer.x());
+      }
+
+      template<>
+      inline auto dynamic_border_layout_geometrie<border_layout_type::right_max_left_min>::
+      get_bottom_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(outer.x(), inner.x2() - outer.x());
+      }
+
+      template<>
+      inline auto dynamic_border_layout_geometrie<border_layout_type::right_max_left_min>::
+      get_left_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(inner.y(), inner.height());
+      }
+
+      template<>
+      inline auto dynamic_border_layout_geometrie<border_layout_type::right_max_left_min>::
+      get_right_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(outer.y(), outer.height());
+      }
+
+      // --------------------------------------------------------------------------
+      // top_left_maximize
+      // --------------------------------------------------------------------------
+      template<>
+      inline auto dynamic_border_layout_geometrie<border_layout_type::top_left_maximize>::
+      get_top_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(inner.x(), outer.x2() - inner.x());
+      }
+
+      template<>
+      inline auto dynamic_border_layout_geometrie<border_layout_type::top_left_maximize>::
+      get_bottom_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(inner.x(), inner.width());
+      }
+
+      template<>
+      inline auto dynamic_border_layout_geometrie<border_layout_type::top_left_maximize>::
+      get_left_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(inner.y(), outer.y2() - inner.y());
+      }
+
+      template<>
+      inline auto dynamic_border_layout_geometrie<border_layout_type::top_left_maximize>::
+      get_right_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(inner.y(), inner.height());
+      }
+
+      // --------------------------------------------------------------------------
+      // bottom_right_maximize
+      // --------------------------------------------------------------------------
+      template<>
+      inline auto dynamic_border_layout_geometrie<border_layout_type::bottom_right_maximize>::
+      get_top_position (const core::rectangle& inner, const core::rectangle&) -> points {
+        return detail::make_points(inner.x(), inner.width());
+      }
+
+      template<>
+      inline auto dynamic_border_layout_geometrie<border_layout_type::bottom_right_maximize>::
+      get_bottom_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(outer.x(), inner.x2() - outer.x());
+      }
+
+      template<>
+      inline auto dynamic_border_layout_geometrie<border_layout_type::bottom_right_maximize>::
+      get_left_position (const core::rectangle& inner, const core::rectangle&) -> points {
+        return detail::make_points(inner.y(), inner.height());
+      }
+
+      template<>
+      inline auto dynamic_border_layout_geometrie<border_layout_type::bottom_right_maximize>::
+      get_right_position (const core::rectangle& inner, const core::rectangle& outer) -> points {
+        return detail::make_points(outer.y(), inner.y2() - outer.y());
       }
 
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<dynamic_border_layout_type type>
+    template<border_layout_type type>
     dynamic_border_layout<type>::dynamic_border_layout (win::container*,
                                         float top_height,
                                         float bottom_height,
@@ -295,7 +388,7 @@ namespace gui {
       : super(top_height, bottom_height, left_width, right_width)
     {}
 
-    template<dynamic_border_layout_type type>
+    template<border_layout_type type>
     dynamic_border_layout<type>::dynamic_border_layout (float top_height,
                                         float bottom_height,
                                         float left_width,
@@ -303,31 +396,31 @@ namespace gui {
       : super(top_height, bottom_height, left_width, right_width)
     {}
 
-    template<dynamic_border_layout_type type>
-    void dynamic_border_layout<type>::layout (const core::rectangle& sz) {
-      clog::trace() << "dynamic_border_layout::layout(" << sz << ")";
+    template<border_layout_type type>
+    void dynamic_border_layout<type>::layout (const core::rectangle& r) {
+      clog::trace() << "dynamic_border_layout::layout(" << r << ")";
       core::size top_left(super::get_left_width(), super::get_top_height());
       core::size bottom_right(super::get_right_width(), super::get_bottom_height());
-      core::size size = sz.size() - top_left - bottom_right;
-      core::rectangle r = core::rectangle(sz.top_left() + top_left, size);
+      core::size size = r.size() - top_left - bottom_right;
+      core::rectangle r_center = core::rectangle(r.top_left() + top_left, size);
       if (super::get_top()) {
-        const typename geometrie::points pt = geometrie::get_top_position(r, sz);
-        super::get_top()(core::rectangle(pt.first, 0, pt.second, top_left.height()));
+        const typename geometrie::points pt = geometrie::get_top_position(r_center, r);
+        super::get_top()(core::rectangle(pt.first, r.y(), pt.second, top_left.height()));
       }
       if (super::get_bottom()) {
-        const typename geometrie::points pt = geometrie::get_bottom_position(r, sz);
-        super::get_bottom()(core::rectangle(pt.first, r.y2(), pt.second, bottom_right.height()));
+        const typename geometrie::points pt = geometrie::get_bottom_position(r_center, r);
+        super::get_bottom()(core::rectangle(pt.first, r_center.y2(), pt.second, bottom_right.height()));
       }
       if (super::get_left()) {
-        const typename geometrie::points pt = geometrie::get_left_position(r, sz);
-        super::get_left()(core::rectangle(0, pt.first, top_left.width(), pt.second));
+        const typename geometrie::points pt = geometrie::get_left_position(r_center, r);
+        super::get_left()(core::rectangle(r.x(), pt.first, top_left.width(), pt.second));
       }
       if (super::get_right()) {
-        const typename geometrie::points pt = geometrie::get_right_position(r, sz);
-        super::get_right()(core::rectangle(r.x2(), pt.first, bottom_right.width(), pt.second));
+        const typename geometrie::points pt = geometrie::get_right_position(r_center, r);
+        super::get_right()(core::rectangle(r_center.x2(), pt.first, bottom_right.width(), pt.second));
       }
       if (super::get_center()) {
-        super::get_center()(r);
+        super::get_center()(r_center);
       }
     }
 

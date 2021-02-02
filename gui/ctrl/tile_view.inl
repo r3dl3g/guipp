@@ -111,31 +111,32 @@ namespace gui {
     }
 
     template<orientation_t V>
-    int tile_list_traits<V>::get_index_at_point (const core::size& list_size,
+    int tile_list_traits<V>::get_index_at_point (const core::rectangle& list_area,
                                                  const core::point& pt,
                                                  dim_type scroll_pos,
                                                  size_t count) const {
-      const auto per_line = static_cast<int>(get_items_per_line(list_size));
+      const auto per_line = static_cast<int>(get_items_per_line(list_area.size()));
       const auto line = static_cast<int>((super::get_1(pt) + scroll_pos - get_line_border()) / get_line_size());
       const auto offs = static_cast<int>((super::get_2(pt) - get_item_border()) / (get_item_dimension() + get_item_spacing()));
       const auto idx = (line * per_line) + offs;
-      return (idx < count) && get_place_of_index(list_size, idx, scroll_pos).is_inside(pt) ? idx : -1;
+      return (idx < count) && get_place_of_index(list_area, idx, scroll_pos).is_inside(pt) ? idx : -1;
     }
 
     template<orientation_t V>
-    core::rectangle tile_list_traits<V>::get_place_of_index (const core::size& list_size,
+    core::rectangle tile_list_traits<V>::get_place_of_index (const core::rectangle& list_area,
                                                              int idx,
                                                              dim_type scroll_pos) const {
-      const auto per_line = get_items_per_line(list_size);
+      const auto per_line = get_items_per_line(list_area.size());
       const auto line = per_line > 0 ? static_cast<std::size_t>(idx) / per_line : 0;
       const auto offs = idx - (line * per_line);
 
       const auto lsz = get_line_size();
       const auto isz = get_item_dimension();
+      const auto pos = list_area.position();
 
       core::rectangle place;
-      super::set_1(place, lsz * line - scroll_pos + get_line_border(), lsz - get_line_spacing());
-      super::set_2(place, (isz + get_item_spacing()) * offs + get_item_border(), isz);
+      super::set_1(place, super::get_1(pos) + lsz * line - scroll_pos + get_line_border(), lsz - get_line_spacing());
+      super::set_2(place, super::get_2(pos) + (isz + get_item_spacing()) * offs + get_item_border(), isz);
       return place;
     }
 
@@ -190,23 +191,26 @@ namespace gui {
 
     template<orientation_t V>
     core::rectangle basic_tile_view<V>::get_full_place_of_index (int idx) {
-      const auto per_line = super::traits.get_items_per_line(super::content_size());
+      const core::rectangle list_area = super::content_area();
+
+      const auto per_line = super::traits.get_items_per_line(list_area.size());
       const auto line = per_line > 0 ? static_cast<std::size_t>(idx) / per_line : 0;
       const auto offs = idx - (line * per_line);
 
       const auto lsz = super::traits.get_line_size();
       const auto isz = super::traits.get_item_dimension() + super::traits.get_item_spacing();
+      const auto pos = list_area.position();
 
       core::rectangle place;
-      super::traits.set_1(place, lsz * line - super::get_scroll_pos() + super::traits.get_line_border(), lsz + 1);
-      super::traits.set_2(place, isz * offs + super::traits.get_item_border(), isz + 1);
+      super::traits.set_1(place, super::traits.get_1(pos) + lsz * line - super::get_scroll_pos() + super::traits.get_line_border(), lsz + 1);
+      super::traits.set_2(place, super::traits.get_2(pos) + isz * offs + super::traits.get_item_border(), isz + 1);
       return place;
     }
 
     template<orientation_t V>
     void basic_tile_view<V>::paint (const draw::graphics& graph) {
-      const auto list_size = super::content_size();
-      const core::rectangle area(list_size);
+      const core::rectangle area = super::content_area();
+      draw::clip clp(graph, area);
 
       draw::brush back_brush(super::get_background());
 
@@ -215,50 +219,62 @@ namespace gui {
       if ((last < 1) || (lsz < 1)) {
         graph.fill(draw::rectangle(area), back_brush);
       } else {
-        const auto list_sz = super::traits.get_1(list_size);
+        const auto list_max = super::traits.get_1(area.x2y2());
         const auto isp = super::traits.get_item_spacing();
         const auto lsp = super::traits.get_line_spacing();
         const auto scp = super::get_scroll_pos();
         const auto lb = super::traits.get_line_border();
-        const int per_line = static_cast<int>(super::traits.get_items_per_line(list_size));
+        const int per_line = static_cast<int>(super::traits.get_items_per_line(area.size()));
 
         const int first_line = static_cast<int>((scp - lb + lsp) / lsz);
 
         int idx = first_line * per_line;
-        core::rectangle place = super::traits.get_place_of_index(list_size, idx, scp);
+        core::rectangle place = super::traits.get_place_of_index(area, idx, scp);
 
         const auto start = super::traits.get_1(place.top_left());
 
-        for (; (idx < last) && (super::traits.get_1(place.top_left()) < list_sz); ++idx) {
+        for (; (idx < last) && (super::traits.get_1(place.top_left()) < list_max); ++idx) {
           super::draw_item(idx, graph, place, back_brush, super::get_item_state(idx));
           if (isp > 0) {
+            // fill space after each item in fill direction
             super::traits.set_2(place, super::traits.get_2(place.x2y2()), isp);
             graph.fill(draw::rectangle(place), back_brush);
           }
-          place = super::traits.get_place_of_index(list_size, idx + 1, scp);
+          place = super::traits.get_place_of_index(area, idx + 1, scp);
         }
 
         const int last_line = core::div_ceil(idx, per_line);
 
+        // draw "empty items" until space is filled up
         place = get_full_place_of_index(idx);
-        for (; super::traits.get_1(place.top_left()) < list_sz; ++idx) {
+        for (; super::traits.get_1(place.top_left()) < list_max; ++idx) {
           graph.fill(draw::rectangle(place), back_brush);
           place = get_full_place_of_index(idx + 1);
         }
 
-        const auto ib = super::traits.get_item_border();
+        // fill space between lines
+
+        // item begin position
+        const auto ib = super::traits.get_2(area.top_left()) + super::traits.get_item_border();
+
+        // item size
         const auto isz = super::traits.get_item_dimension();
+
+        // line width
+        const auto lw = (isz + isp) * per_line;
+
         if (lsp > 0) {
-          const auto lw = (isz + isp) * per_line;
+          // offset of each line
+          const auto offs = super::traits.get_1(area.top_left()) - scp + lb + lsz - lsp;
           for (int line = first_line; line < last_line; ++line) {
-            super::traits.set_1(place, lsz * line - scp + lb + lsz - lsp, lsp);
+            super::traits.set_1(place, lsz * line + offs, lsp);
             super::traits.set_2(place, ib, lw);
             graph.fill(draw::rectangle(place), back_brush);
           }
         }
 
-        const auto width = (isz + isp) * per_line + ib;
-        const auto max_width = super::traits.get_2(area.x2y2());
+        const auto width = lw + ib;
+        const auto max_width = super::traits.get_2(area.bottom_right());
         if (max_width > width) {
           core::rectangle space = area;
           super::traits.set_2(space, width, max_width - width);
@@ -266,14 +282,17 @@ namespace gui {
         }
 
         if (ib > 0) {
+          // top/left
+          const auto tl = super::traits.get_2(area.top_left());
           core::rectangle space = area;
-          super::traits.set_2(space, super::traits.get_1(area.top_left()), ib);
+          super::traits.set_2(space, tl, ib - tl);
           graph.fill(draw::rectangle(space), back_brush);
         }
 
         if (start > 0) {
+          const auto tl = super::traits.get_1(area.top_left());
           core::rectangle space = area;
-          super::traits.set_1(space, super::traits.get_2(area.top_left()), start);
+          super::traits.set_1(space, tl, start - tl);
           graph.fill(draw::rectangle(space), back_brush);
         }
       }
@@ -316,7 +335,7 @@ namespace gui {
 
     template<orientation_t V>
     void basic_tile_view<V>::init () {
-      super::on_paint(draw::buffered_paint(this, &basic_tile_view::paint));
+      super::on_paint(draw::paint(this, &basic_tile_view::paint));
       super::on_any_key_down(util::bind_method(this, &basic_tile_view::handle_key));
     }
 

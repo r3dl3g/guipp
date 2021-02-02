@@ -43,14 +43,18 @@ set(apps
     hello_world
     pnm2src
     one_child
-    new_border_layout
+    border_layout_app
+    dynamic_border_layout_app
     attach_all_layout
+    weighted_layout_app
     look_and_feel
     diagrams
     dialogs
     split_view
     list_app
     tree_app
+    tiles_app
+    table_app
     filemanager
     editor
     covid19

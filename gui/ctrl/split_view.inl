@@ -132,16 +132,16 @@ namespace gui {
     }
 
     template<orientation_t O, typename F, typename S>
-    void split_view<O, F, S>::layout (const core::rectangle& sz) const {
-      clog::trace() << "split_view::layout(" << sz << ") split_pos: " << split_pos;
+    void split_view<O, F, S>::layout (const core::rectangle& r) const {
+      clog::trace() << "split_view::layout(" << r << ") split_pos: " << split_pos;
       if (first) {
-        first->place(traits::get_first_place(sz, split_pos), IF_WIN32_ELSE(true, false));
+        first->place(traits::get_first_place(r, split_pos), IF_WIN32_ELSE(true, false));
       }
       if (second) {
-        second->place(traits::get_second_place(sz, split_pos), IF_WIN32_ELSE(true, false));
+        second->place(traits::get_second_place(r, split_pos), IF_WIN32_ELSE(true, false));
       }
       if (splitter) {
-        splitter->place(traits::get_splitter_place(sz, split_pos), IF_WIN32_ELSE(true, false));
+        splitter->place(traits::get_splitter_place(r, split_pos), IF_WIN32_ELSE(true, false));
       }
     }
 

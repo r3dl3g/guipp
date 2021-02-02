@@ -4,6 +4,7 @@
 #include <gui/layout/border_layout.h>
 #include <gui/ctrl/label.h>
 #include <gui/draw/pen.h>
+#include <gui/draw/brush.h>
 
 
 // --------------------------------------------------------------------------
@@ -14,16 +15,16 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   layout_main_window<gui::layout::border::layouter<40, 10, 10, 10>> main;
 
-  using my_label = basic_label<text_origin_t::vcenter_left,
-                               draw::frame::sunken_relief,
+  using my_label = basic_label<text_origin_t::center,
+                               draw::frame::raised_relief,
                                color::red,
-                               color::gray>;
+                               color::light_gray>;
 
   my_label label;
   client_window<color::white> drawing;
 
   drawing.on_paint(draw::paint([&] (const draw::graphics& g) {
-    g.frame(draw::rectangle(drawing.client_area().shrinked({5, 5})), color::black);
+    g.draw(draw::rectangle(drawing.client_area()/*.shrinked({5, 5})*/), color::white, color::black);
     g.frame(draw::pie(drawing.client_area().shrinked({10, 10}), -45, 45), color::blue);
     g.frame(draw::arc(drawing.client_area().shrinked({15, 15}), -45, 45), color::green);
     g.frame(draw::pie(drawing.client_area().center(), 70, 45, 315), color::red);

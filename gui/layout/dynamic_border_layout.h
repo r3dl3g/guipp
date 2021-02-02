@@ -40,13 +40,16 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    enum class dynamic_border_layout_type {
+    enum class border_layout_type {
       all_symmetric,
       top_bottom_maximize,
       left_right_maximize,
+      bottom_max_top_min,
+      top_max_bottom_min,
+      left_max_right_min,
+      right_max_left_min,
       top_left_maximize,
       bottom_right_maximize,
-      bottom_max_top_min
     };
 
     // --------------------------------------------------------------------------
@@ -114,7 +117,7 @@ namespace gui {
       std::pair<core::point::type, core::point::type> make_points (const T1& t1, const T2& t2);
 
       // --------------------------------------------------------------------------
-      template<dynamic_border_layout_type T>
+      template<border_layout_type T>
       struct dynamic_border_layout_geometrie {
         typedef std::pair<core::point::type, core::point::type> points;
         static points get_top_position (const core::rectangle&, const core::rectangle&);
@@ -127,27 +130,27 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<dynamic_border_layout_type type = dynamic_border_layout_type::top_bottom_maximize>
+    template<border_layout_type type = border_layout_type::top_bottom_maximize>
     class dynamic_border_layout : public detail::dynamic_border_layout_base {
     public:
       typedef detail::dynamic_border_layout_base super;
       typedef detail::dynamic_border_layout_geometrie<type> geometrie;
 
       dynamic_border_layout (win::container*,
-                     float top_height,
-                     float bottom_height,
-                     float left_width,
-                     float right_width);
+                             float top_height,
+                             float bottom_height,
+                             float left_width,
+                             float right_width);
 
       dynamic_border_layout (float top_height,
-                     float bottom_height,
-                     float left_width,
-                     float right_width);
+                             float bottom_height,
+                             float left_width,
+                             float right_width);
 
-      void layout (const core::rectangle& sz);
+      void layout (const core::rectangle& r);
     };
 
-    template<dynamic_border_layout_type T>
+    template<border_layout_type T>
     struct is_layout<dynamic_border_layout<T>> {
       enum {
         value = true

@@ -43,34 +43,34 @@ namespace gui {
       this->edge = edge;
     }
 
-    core::rectangle scroll_view_base::get_vscroll_area (const core::rectangle& sz, bool hscroll_bar_enabled) {
-      core::rectangle r(sz);
-      r.x(r.x2() - ctrl::scroll_bar::get_scroll_bar_width());
-      r.width(static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width()));
+    core::rectangle scroll_view_base::get_vscroll_area (const core::rectangle& r, bool hscroll_bar_enabled) {
+      core::rectangle r2(r);
+      r2.x(r2.x2() - ctrl::scroll_bar::get_scroll_bar_width());
+      r2.width(static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width()));
       if (hscroll_bar_enabled) {
-        r.height(r.height() - ctrl::scroll_bar::get_scroll_bar_width());
+        r2.height(r2.height() - ctrl::scroll_bar::get_scroll_bar_width());
       }
-      return r;
+      return r2;
     }
 
-    core::rectangle scroll_view_base::get_hscroll_area (const core::rectangle& sz, bool vscroll_bar_enabled) {
-      core::rectangle r(sz);
-      r.y(r.y2() - ctrl::scroll_bar::get_scroll_bar_width());
-      r.height(static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width()));
+    core::rectangle scroll_view_base::get_hscroll_area (const core::rectangle& r, bool vscroll_bar_enabled) {
+      core::rectangle r2(r);
+      r2.y(r2.y2() - ctrl::scroll_bar::get_scroll_bar_width());
+      r2.height(static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width()));
       if (vscroll_bar_enabled) {
-        r.width(r.width() - ctrl::scroll_bar::get_scroll_bar_width());
+        r2.width(r2.width() - ctrl::scroll_bar::get_scroll_bar_width());
       }
-      return r;
+      return r2;
     }
 
-    core::rectangle scroll_view_base::get_client_area (const core::rectangle& sz) {
-      return core::rectangle(sz - core::size {static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width()),
-                                              static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width())});
+    core::rectangle scroll_view_base::get_client_area (const core::rectangle& r) {
+      return core::rectangle(r - core::size {static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width()),
+                                             static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width())});
     }
 
-    core::rectangle scroll_view_base::get_edge_area (const core::rectangle& sz) {
-      return core::rectangle(sz.x2() - ctrl::scroll_bar::get_scroll_bar_width(),
-                             sz.y2() - ctrl::scroll_bar::get_scroll_bar_width(),
+    core::rectangle scroll_view_base::get_edge_area (const core::rectangle& r) {
+      return core::rectangle(r.x2() - ctrl::scroll_bar::get_scroll_bar_width(),
+                             r.y2() - ctrl::scroll_bar::get_scroll_bar_width(),
                              static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width()),
                              static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width()));
     }

@@ -334,6 +334,7 @@ namespace gui {
       core::size content_size () const;
 
       core::rectangle content_area (const core::size& sz) const;
+      core::rectangle content_area () const;
 
       void adjust_scroll_bar ();
       void set_scroll_pos (pos_t pos);
@@ -354,14 +355,14 @@ namespace gui {
     protected:
       pos_t get_list_size () const;
 
-      core::rectangle get_scroll_bar_area (const core::size&) const;
-      void adjust_scroll_bar (const core::size&);
+      core::rectangle get_scroll_bar_area (const core::rectangle&) const;
+      void adjust_scroll_bar (const core::rectangle&);
 
       scroll_bar_type scrollbar;
       traits_type traits;
 
     private:
-      void create_scroll_bar (const core::size&);
+      void create_scroll_bar (const core::rectangle&);
 
       void init ();
 
@@ -379,12 +380,12 @@ namespace gui {
 
       size_type get_offset_of_index (const core::size& list_size, int idx) const;
 
-      int get_index_at_point (const core::size& list_size,
+      int get_index_at_point (const core::rectangle& list_size,
                               const core::point& pt,
                               size_type scroll_pos,
                               size_t /*count*/) const;
 
-      core::rectangle get_place_of_index (const core::size& list_size,
+      core::rectangle get_place_of_index (const core::rectangle& list_size,
                                           int idx,
                                           size_type scroll_pos) const;
 

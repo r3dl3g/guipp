@@ -28,6 +28,7 @@
 // Library includes
 //
 #include <util/bind_method.h>
+#include <util/variadic_util.h>
 #include <gui/core/event.h>
 
 
@@ -51,12 +52,17 @@ namespace gui {
     using param_getter = T (*)(const event&);
 
     // --------------------------------------------------------------------------
-    template<typename ... Types>
+    template<typename ... T>
     struct params {
-      template<param_getter<Types>... Getter>
+
+      template<param_getter<T>... F>
       struct getter {
-        using callback = void(Types...);
+
+        using callback = void(T...);
         typedef std::function<callback> function;
+
+        template<std::size_t N>
+        using type = typename util::variadic_element<N, T...>::type;
 
         getter (const function& f)
           : f(f)
@@ -67,7 +73,7 @@ namespace gui {
         {}
 
         template<class C>
-        getter (C* t, void(C::*method)(Types...))
+        getter (C* t, void(C::*method)(T...))
           : f(util::bind_method(t, method))
         {}
 
@@ -76,16 +82,25 @@ namespace gui {
         }
 
         void operator() (const event& e) {
-          f(Getter(e) ...);
+          f(F(e) ...);
         }
 
-        template<typename T, typename F>
-        static void call (const event& e, T* t, F f) {
-          (t->*f)(Getter(e) ...);
+        template<typename C, typename Fkt>
+        static void call (const event& e, C* t, Fkt f) {
+          (t->*f)(F(e) ...);
         }
 
         static void call_fn (const event& e, function f) {
-          f(Getter(e) ...);
+          f(F(e) ...);
+        }
+
+        static std::tuple<T...> get_params (const event& e) {
+          return std::make_tuple(F(e) ...);
+        }
+
+        template<std::size_t N>
+        static typename util::variadic_element<N, T...>::type get_param (const event& e) {
+          return std::get<N>(get_params(e));
         }
 
       protected:
@@ -153,13 +168,13 @@ namespace gui {
       bool operator() (const event& e, gui::os::event_result& result) {
         if (matcher(e) && caller) {
 #ifdef GUIPP_WIN
-        if (e.type != WM_MOUSEMOVE) {
+          if (e.type != WM_MOUSEMOVE) {
 #endif // GUIPP_WIN
 #ifdef GUIPP_X11
-        if (e.type != MotionNotify) {
+          if (e.type != MotionNotify) {
 #endif // GUIPP_X11
 #ifdef GUIPP_QT
-        if (e.type() != QEvent::Type::MouseMove) {
+          if (e.type() != QEvent::Type::MouseMove) {
 #endif // GUIPP_QT
             clog::trace() << "Call " << e;
           }

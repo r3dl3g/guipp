@@ -180,7 +180,9 @@ namespace gui {
       }
 
       edit_base::~edit_base () {
-        win::global::unregister_utf8_window(*this);
+        if (is_valid()) {
+          win::global::unregister_utf8_window(*this);
+        }
       }
 
       void edit_base::create (win::container& parent,

@@ -51,12 +51,12 @@ namespace gui {
 
       dim_type get_offset_of_index(const core::size& list_size, int idx) const;
 
-      int get_index_at_point (const core::size& list_size,
+      int get_index_at_point (const core::rectangle& list_size,
                               const core::point& pt,
                               dim_type scroll_pos,
                               size_t count) const;
 
-      core::rectangle get_place_of_index (const core::size& list_size,
+      core::rectangle get_place_of_index (const core::rectangle& list_size,
                                           int idx,
                                           dim_type scroll_pos) const;
 

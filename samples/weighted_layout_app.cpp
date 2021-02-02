@@ -6,9 +6,7 @@
 #include <gui/layout/lineup_layout.h>
 #include <gui/layout/grid_layout.h>
 #include <gui/layout/weighted_layout.h>
-#include <gui/ctrl/split_view.h>
 #include <gui/ctrl/label.h>
-#include <gui/ctrl/textbox.h>
 
 
 using namespace gui;
@@ -27,7 +25,7 @@ template<border::type_t T>
 struct layout_group {
 
   label_t top, bottom, left, right, center;
-  border::layouter<50, 50, 150, 150, T> layouter;
+  border::layouter<25, 25, 100, 100, T> layouter;
 
   void create (container& main) {
     top.create(main);
@@ -61,21 +59,13 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   label_t left_labels[5];
   grid_adaption<2, 4, 5, 10> left({lay(left_labels[0]), lay(left_labels[1]), lay(left_labels[2]), lay(left_labels[3]), lay(left_labels[4])});
 
-  layout_group<border::type_t::top_bottom_maximize> center0;
-  layout_group<border::type_t::left_right_maximize> center1;
-  layout_group<border::type_t::bottom_max_top_min> center2;
-  layout_group<border::type_t::top_max_bottom_min> center3;
-  layout_group<border::type_t::left_max_right_min> center4;
-  layout_group<border::type_t::right_max_left_min> center5;
-
   label_t h_labels[4];
   label_t v_labels[4];
 
-  horizontal_weighted<> center6;
-  vertical_weighted<> center7;
+  horizontal_weighted<> center0;
+  vertical_weighted<> center1;
 
-  grid_adaption<2, 4, 5, 5> center({lay(center0.layouter), lay(center1.layouter), lay(center2.layouter), lay(center3.layouter),
-                                    lay(center4.layouter), lay(center5.layouter), lay(center6), lay(center7)});
+  grid_adaption<1, 2, 5, 5> center({lay(center0), lay(center1)});
 
   main.get_layout().set_center(lay(center));
   main.get_layout().set_top(lay(top));
@@ -109,15 +99,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
       l.create(main);
       l.set_text(ostreamfmt("V " << ++i));
     }
-    center6.add({{lay(h_labels[0]), 100, 0.0F}, {lay(h_labels[1]), 0, 1.0F}, {lay(h_labels[2]), 100, 0.0F}, {lay(h_labels[3]), 20, 0.5F}});
-    center7.add({{lay(v_labels[0]), 20, 0.0F}, {lay(v_labels[1]), 0, 1.0F}, {lay(v_labels[2]), 20, 0.0F}, {lay(v_labels[3]), 10, 0.5F}});
-
-    center0.create(main);
-    center1.create(main);
-    center2.create(main);
-    center3.create(main);
-    center4.create(main);
-    center5.create(main);
+    center0.add({{lay(h_labels[0]), 100, 0.0F}, {lay(h_labels[1]), 0, 1.0F}, {lay(h_labels[2]), 100, 0.0F}, {lay(h_labels[3]), 20, 0.5F}});
+    center1.add({{lay(v_labels[0]), 20, 0.0F}, {lay(v_labels[1]), 0, 1.0F}, {lay(v_labels[2]), 20, 0.0F}, {lay(v_labels[3]), 10, 0.5F}});
   });
   main.on_lost_focus([&] () {
     main.set_title("Lost focus");
@@ -128,7 +111,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   main.create({50, 50, 800, 600});
   main.on_destroy(&quit_main_loop);
-  main.set_title("Hello New Border Layout");
+  main.set_title("Hello weight Layout");
   main.set_visible();
 
   return run_main_loop();

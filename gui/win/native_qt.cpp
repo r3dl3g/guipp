@@ -70,8 +70,6 @@ namespace gui {
 
       void prepare(overlapped_window&) {}
 
-      void unprepare(overlapped_window&) {}
-
       os::window create (const class_info& type,
                          const core::rectangle& r,
                          os::window parent_id,

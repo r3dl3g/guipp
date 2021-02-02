@@ -314,35 +314,11 @@ namespace gui {
 //        send_client_message(win, message, detail::get_os_window(*w), l1, l2);
 //      }
 
-      namespace {
-        std::map<const receiver*, os::event_id> window_event_mask;
-      }
-
-      void prepare_win_for_event (const window& win, os::event_id mask) {
-        os::window id = 0;
-        const overlapped_window* o = dynamic_cast<const overlapped_window*>(&win);
-        if (o) {
-          id = detail::get_os_window(*o);
-        } else if (win.get_parent()) {
-          id = detail::get_os_window(win.get_overlapped_window());
-        }
+      void prepare_win_for_event (const overlapped_window& win) {
+        os::window id = detail::get_os_window(win);
         if (id) {
-          auto i = window_event_mask.find(&win);
-          if (i != window_event_mask.end()) {
-            i->second |= mask;
-            XSelectInput(core::global::get_instance(), id, i->second);
-          } else {
-            window_event_mask[&win] = mask;
-            XSelectInput(core::global::get_instance(), id, mask);
-          }
-        } else {
-          os::event_id& old_mask = window_event_mask[&win];
-          old_mask |= mask;
+          XSelectInput(core::global::get_instance(), id, win.get_event_mask());
         }
-      }
-
-      void unprepare_win (const window& win) {
-        window_event_mask.erase(&win);
       }
 
     } // namespace x11

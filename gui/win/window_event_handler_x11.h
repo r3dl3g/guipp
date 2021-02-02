@@ -35,10 +35,7 @@ namespace gui {
       GUIPP_WIN_EXPORT void send_client_message (window* win, Atom message,
                                                  long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0);
 
-//      GUIPP_WIN_EXPORT void send_client_message (window* win, Atom message, const window* w, const core::rectangle& r);
-
-      GUIPP_WIN_EXPORT void prepare_win_for_event (const window& win, os::event_id mask);
-      GUIPP_WIN_EXPORT void unprepare_win (const window& win);
+      GUIPP_WIN_EXPORT void prepare_win_for_event (const overlapped_window& win);
 
     } // namespace x11
 

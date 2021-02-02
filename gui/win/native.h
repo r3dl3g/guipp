@@ -51,7 +51,6 @@ namespace gui {
       GUIPP_WIN_EXPORT core::rectangle get_geometry (os::window id);
 
       GUIPP_WIN_EXPORT void prepare (overlapped_window& w);
-      GUIPP_WIN_EXPORT void unprepare (overlapped_window& w);
 
       GUIPP_WIN_EXPORT os::window create (const class_info& type,
                                           const core::rectangle& r,
@@ -108,6 +107,8 @@ namespace gui {
       GUIPP_WIN_EXPORT void prepare_main_window (os::window id);
       GUIPP_WIN_EXPORT void prepare_popup_window (os::window id);
       GUIPP_WIN_EXPORT void prepare_dialog_window (os::window id, os::window pid);
+
+      GUIPP_WIN_EXPORT void erase (os::window id, os::graphics gc, const os::rectangle& r, os::color c);
 
     } // namespace native
 

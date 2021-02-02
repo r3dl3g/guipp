@@ -348,11 +348,13 @@ namespace gui {
         RegisterHotKey(root, hk.get_key(), modifiers, hk.get_key());
 #elif GUIPP_X11
         auto dpy = core::global::get_instance();
-        os::window root = win ? detail::get_os_window(win->get_overlapped_window()) : DefaultRootWindow(dpy);
-        XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root, False, GrabModeAsync, GrabModeAsync);
+        os::window root = DefaultRootWindow(dpy);
         if (win && win->is_valid()) {
-          x11::prepare_win_for_event(*win, KeyPressMask);
+          auto& o = win->get_overlapped_window();
+          o.add_event_mask(KeyPressMask);
+          root = detail::get_os_window(o);
         }
+        XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root, False, GrabModeAsync, GrabModeAsync);
 #elif GUIPP_QT
         os::window root = win ? detail::get_os_window(*win) : (os::window)QApplication::desktop();
 #endif

@@ -42,6 +42,9 @@ namespace gui {
     public:
       typedef core::event_container::event_handler_function event_handler_function;
 
+      receiver ();
+      virtual ~receiver ();
+
       typedef void(notification_fn)();
       typedef void(mouse_fn)(os::key_state, core::point);
       typedef void(wheel_fn)(core::point::type, core::point);
@@ -124,13 +127,17 @@ namespace gui {
       template<typename H>
       void on (const typename H::function& f);
 
-      void register_event_handler (event_handler_function&& f, os::event_id mask);
+      virtual void register_event_handler (event_handler_function&& f, os::event_id mask);
 
       template<typename H>
       void unregister_event_handler (const typename H::function& f);
 
+      os::event_id get_event_mask () const;
+      virtual void add_event_mask (os::event_id mask);
+
     protected:
       core::event_container events;
+      os::event_id event_mask;
     };
 
   } // namespace win

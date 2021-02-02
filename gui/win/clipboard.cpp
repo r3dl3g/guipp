@@ -150,7 +150,7 @@ namespace gui {
     }
 
     void clipboard::get_text (window& win, std::function<clipboard::text_callback>&& cb) {
-      x11::prepare_win_for_event(win, PropertyChangeMask);
+      win.add_event_mask(PropertyChangeMask);
       if (filter_id) {
         global::unregister_message_filter(filter_id);
         filter_id = 0;

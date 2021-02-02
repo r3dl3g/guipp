@@ -29,14 +29,25 @@ namespace gui {
 
   namespace win {
 
+    receiver::receiver ()
+      : event_mask(0)
+    {}
+
+    receiver::~receiver ()
+    {}
+
     void receiver::register_event_handler (event_handler_function&& f,
                                            os::event_id mask) {
       events.register_event_handler(std::move(f));
-#ifdef GUIPP_X11
-      x11::prepare_win_for_event(*static_cast<window*>(this), mask);
-#else
-      (void)mask;
-#endif // GUIPP_X11
+      add_event_mask(mask);
+    }
+
+    os::event_id receiver::get_event_mask () const {
+      return event_mask;
+    }
+
+    void receiver::add_event_mask (os::event_id mask) {
+      event_mask |= mask;
     }
 
     void receiver::on_create (create_event::function&& f) {

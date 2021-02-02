@@ -68,6 +68,9 @@ namespace gui {
       void to_front (window*);
       void to_back (window*);
 
+      bool handle_event (const core::event&, gui::os::event_result&) const override;
+      os::event_id collect_event_mask () const override;
+
     protected:
       using window::create;
 
@@ -127,10 +130,13 @@ namespace gui {
       void invalidate () const;
       void redraw (const core::rectangle&) const;
 
+      core::point client_position () const override;
+      core::rectangle client_area () const override;
+
       void shift_focus (bool backward = false);
 
       void set_focus_window (window* w);
-      window* get_focus_window () const;
+      window* get_current_focus_window () const override;
 
       void set_cursor (const os::cursor&);
 
@@ -138,6 +144,7 @@ namespace gui {
       void uncapture_pointer (window* w);
 
       bool handle_event (const core::event&, gui::os::event_result&) const override;
+      void add_event_mask (os::event_id mask) override;
 
     protected:
       void create (const class_info&,

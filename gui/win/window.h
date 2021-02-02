@@ -84,7 +84,7 @@ namespace gui {
       void take_focus ();               /// grabs the input focus
       void focus_lost ();               /// focus was given an other window
 
-      window* get_current_focus_window () const;
+      virtual window* get_current_focus_window () const;
 
       void to_front ();
       void to_back ();
@@ -94,11 +94,14 @@ namespace gui {
 
       core::size size () const;
       core::point position () const;
-      core::rectangle absolute_place () const;
       core::rectangle place () const;
+
+      core::rectangle absolute_place () const;
       core::point absolute_position () const;
+
       core::size client_size () const;
-      core::rectangle client_area () const;
+      virtual core::point client_position () const;
+      virtual core::rectangle client_area () const;
 
       void move (const core::point&, bool repaint = false);
       void resize (const core::size&, bool repaint = true);
@@ -131,6 +134,9 @@ namespace gui {
       window& operator= (const window&) = delete;
       window& operator= (window&&) = delete;
 
+      void add_event_mask (os::event_id mask) override;
+      virtual os::event_id collect_event_mask () const;
+
     protected:
       window (const window&);
       window (window&&) noexcept;
@@ -151,6 +157,8 @@ namespace gui {
       virtual void move_native (const core::point&);
       virtual void resize_native (const core::size&);
       virtual void place_native (const core::rectangle&);
+
+      bool has_overlapped_window () const;
 
     private:
       void init ();
@@ -184,10 +192,10 @@ namespace std {
     return out;
   }
 
-  inline ostream& operator<< (ostream& out, const gui::win::window* t) {
-    out << "[" << t << "] (" << typeid(*t).name() << ')';
-    return out;
-  }
+//  inline ostream& operator<< (ostream& out, const gui::win::window* t) {
+//    out << "[" << t << "] (" << typeid(*t).name() << ')';
+//    return out;
+//  }
 
 } // namespace std
 

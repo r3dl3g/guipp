@@ -252,11 +252,6 @@ namespace gui {
       void prepare (overlapped_window& w) {
         static int initialized = core::x11::init_messages();
         (void)initialized;
-        x11::prepare_win_for_event(w, KeyPressMask);
-      }
-
-      void unprepare (overlapped_window& w) {
-        x11::unprepare_win(w);
       }
 
       os::window create (const class_info& type,
@@ -310,8 +305,6 @@ namespace gui {
                                       &wa);
 
         detail::set_os_window(data, id);
-
-        x11::prepare_win_for_event(*data, KeyReleaseMask);
 
         if (0 == window_class_info_map.count(type.get_class_name())) {
           window_class_info_map[type.get_class_name()] = type;
@@ -545,6 +538,13 @@ namespace gui {
         x11::set_wm_protocols(display, id);
       }
 
+      void erase (os::window id, os::graphics gc, const os::rectangle& r, os::color c) {
+        gui::os::instance display = core::global::get_instance();
+        XSetForeground(display, gc, c);
+        XSetBackground(display, gc, c);
+        XFillRectangle(display, id, gc, r.x, r.y, r.width, r.height);
+        XDrawRectangle(display, id, gc, r.x, r.y, r.width, r.height);
+      }
 
     } // namespace native
 

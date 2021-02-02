@@ -52,8 +52,7 @@ namespace gui {
     }
 
     window::window (const window& rhs)
-      : super(rhs)
-      , area(rhs.area)
+      : area(rhs.area)
       , parent(nullptr)
       , flags(rhs.flags)
       , class_name(nullptr)
@@ -69,8 +68,7 @@ namespace gui {
     }
 
     window::window (window&& rhs) noexcept
-      : super(std::move(rhs))
-      , area(std::move(rhs.area))
+      : area(std::move(rhs.area))
       , parent(std::move(rhs.parent))
       , flags(std::move(rhs.flags))
       , class_name(rhs.class_name)
@@ -101,7 +99,8 @@ namespace gui {
                          const core::rectangle& r) {
       if (p.is_valid()) {
         set_parent(p);
-        create_internal(type, r);
+        create_internal(type, r + p.position());
+        p.add_event_mask(get_event_mask());
       }
     }
 
@@ -142,6 +141,28 @@ namespace gui {
       } else {
         throw std::runtime_error("Window has no overlapped parent!");
       }
+    }
+
+    bool window::has_overlapped_window () const {
+      if (dynamic_cast<const overlapped_window*>(this)) {
+        return true;
+      }
+      if (parent) {
+        return parent->has_overlapped_window();
+      } else {
+        return false;
+      }
+    }
+
+    void window::add_event_mask (os::event_id mask) {
+      super::add_event_mask(mask);
+      if (is_valid()) {
+        get_overlapped_window().add_event_mask(get_event_mask());
+      }
+    }
+
+    os::event_id window::collect_event_mask () const {
+      return get_event_mask();
     }
 
     struct GUIPP_WIN_EXPORT auto_quard : public std::pair<const window*, os::event_id> {
@@ -230,10 +251,8 @@ namespace gui {
         parent->remove_child(this);
         parent = nullptr;
       }
-      if (is_valid() && p.is_valid()) {
-        parent = &p;
-        p.add_child(this);
-      }
+      parent = &p;
+      p.add_child(this);
     }
 
     container* window::get_parent () const {
@@ -253,7 +272,7 @@ namespace gui {
     }
 
     bool window::is_valid () const {
-      return get_state().created();
+      return get_state().created() && has_overlapped_window();
     }
 
     bool window::is_visible () const {
@@ -269,8 +288,8 @@ namespace gui {
     }
 
     void window::enable (bool on) {
-      if (is_valid()) {
-        if (set_state().enable(on)) {
+      if (set_state().enable(on)) {
+        if (is_valid()) {
           invalidate();
         }
       }
@@ -327,7 +346,15 @@ namespace gui {
     }
 
     core::point window::absolute_position () const {
-      return client_to_screen(core::point::zero);
+      if (dynamic_cast<const overlapped_window*>(this)) {
+        return position();
+      } else {
+        return position() + get_overlapped_window().position();
+      }
+    }
+
+    core::point window::client_position () const {
+      return area.position();
     }
 
     core::size window::client_size () const {
@@ -335,21 +362,15 @@ namespace gui {
     }
 
     core::rectangle window::client_area () const {
-      return core::rectangle(client_size());
+      return area;
     }
 
     core::point window::client_to_screen (const core::point& pt) const {
-      if (parent) {
-        return parent->client_to_screen(pt + position());
-      }
-      return pt + position();
+      return pt + absolute_position();
     }
 
     core::point window::screen_to_client (const core::point& pt) const {
-      if (parent) {
-        return parent->screen_to_client(pt - position());
-      }
-      return pt - position();
+      return pt - absolute_position();
     }
 
     void window::move_native (const core::point&) {}
@@ -385,7 +406,7 @@ namespace gui {
               invalidate();
             }
           }
-          notify_event(core::WM_LAYOUT_WINDOW, core::rectangle(sz));
+          notify_event(core::WM_LAYOUT_WINDOW, client_area());
         }
       }
     }
@@ -409,7 +430,7 @@ namespace gui {
             }
           }
           if (current.size() != r.size()) {
-            notify_event(core::WM_LAYOUT_WINDOW, core::rectangle(r.size()));
+            notify_event(core::WM_LAYOUT_WINDOW, client_area());
           }
         }
       }

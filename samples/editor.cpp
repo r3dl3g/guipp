@@ -53,6 +53,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     }, hot_key(keys::o, state::control), true),
     menu_entry("Exit", 'x', &gui::win::quit_main_loop, hot_key(keys::f4, state::alt), true)
   });
+  file_sub_menu.data.register_hot_keys(&main);
 
   edit_sub_menu.data.add_entries({
     menu_entry("Cut", 't', [&] () {
@@ -68,6 +69,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
       });
     }, hot_key('V', state::control), false),
   });
+  edit_sub_menu.data.register_hot_keys(&main);
 
   help_sub_menu.data.add_entry(
     menu_entry("About", 'A', [&]() {

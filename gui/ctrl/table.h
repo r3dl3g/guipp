@@ -491,6 +491,8 @@ namespace gui {
                                        const std::function<table::data_target>& data_target);
 
     protected:
+      void move_editor (core::point::type);
+
       edit editor;
       std::function<table::data_source> data_source;
       std::function<table::data_target> data_target;

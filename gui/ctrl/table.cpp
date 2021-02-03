@@ -1002,21 +1002,24 @@ namespace gui {
       editor.on_selection_cancel(util::bind_method(this, &table_edit::cancel_edit));
       editor.on_selection_commit(util::bind_method(this, &table_edit::commit_edit));
 
-      vscroll.on_scroll([&] (core::point::type) {
-        if (editor.is_visible()) {
-          editor.move(geometrie.position_of(get_selection()) + data.client_position());
-        }
-      });
-      hscroll.on_scroll([&] (core::point::type) {
-        if (editor.is_visible()) {
-          editor.move(geometrie.position_of(get_selection()) + data.client_position());
-        }
-      });
+      vscroll.on_scroll(util::bind_method(this, &table_edit::move_editor));
+      hscroll.on_scroll(util::bind_method(this, &table_edit::move_editor));
 
       on_selection_changed([&] (event_source) {
         commit_edit();
       });
 
+    }
+
+    void table_edit::move_editor (core::point::type) {
+      if (editor.is_visible()) {
+        const auto pos = geometrie.position_of(get_selection()) + data.client_position();
+        if (data.client_area().is_inside(pos)) {
+          editor.move(pos);
+        } else {
+          editor.set_visible(false);
+        }
+      }
     }
 
     void table_edit::enter_edit () {

@@ -546,12 +546,36 @@ namespace gui {
         x11::set_wm_protocols(display, id);
       }
 
-      void erase (os::window id, os::graphics gc, const os::rectangle& r, os::color c) {
+      void erase (os::window id, os::graphics gc, const core::native_rect& r, os::color c) {
         gui::os::instance display = core::global::get_instance();
         XSetForeground(display, gc, c);
         XSetBackground(display, gc, c);
-        XFillRectangle(display, id, gc, r.x, r.y, r.width, r.height);
-        XDrawRectangle(display, id, gc, r.x, r.y, r.width, r.height);
+        XFillRectangle(display, id, gc, r.x(), r.y(), r.width(), r.height());
+        XDrawRectangle(display, id, gc, r.x(), r.y(), r.width(), r.height());
+      }
+
+      os::bitmap create_surface (const core::native_size& size, os::window id) {
+        return XCreatePixmap(core::global::get_instance(), id, size.width(), size.height(),
+                             core::global::get_device_depth());
+      }
+
+      void delete_surface (os::bitmap id) {
+        XFreePixmap(core::global::get_instance(), id);
+      }
+
+      os::graphics create_graphics_context (os::bitmap id) {
+        return XCreateGC(core::global::get_instance(), id, 0, 0);
+      }
+
+      void delete_graphics_context (os::graphics id) {
+        XFreeGC(core::global::get_instance(), id);
+      }
+
+      void copy_surface (os::drawable src, os::drawable target, os::graphics context,
+                         const core::native_point& from, const core::native_point& to,
+                         const core::native_size& size) {
+        XCopyArea(core::global::get_instance(), src, target, context, from.x(), from.y(),
+                  size.width(), size.height(), to.x(), to.y());
       }
 
     } // namespace native

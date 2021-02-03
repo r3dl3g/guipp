@@ -266,6 +266,32 @@ namespace gui {
       void prepare_popup_window (os::window) {}
       void prepare_dialog_window (os::window, os::window) {}
 
+      void erase (os::window id, os::graphics gc, const core::native_rect& r, os::color c) {
+        g.os()->fillRect(r.x(), r.y(), r.width(), r.height(), c);
+      }
+
+      os::bitmap create_surface (const core::native_size& size, os::window id) {
+        return new QPixmap(size.width(), size.height());
+      }
+
+      void delete_surface (os::bitmap id) {
+        delete id;
+      }
+
+      os::graphics create_graphics_context (os::bitmap id) {
+        return new QPainter(id);
+      }
+
+      void delete_graphics_context (os::graphics id) {
+        delete id;
+      }
+
+      void copy_surface (os::drawable src, os::drawable target, os::graphics context,
+                         const core::native_point& from, const core::native_point& to,
+                         const core::native_size& size) {
+        context->drawPixmap(to.x(), to.y(), src, from.x(), from.y(), size.width(), size.height());
+      }
+
     } // namespace native
 
   } // namespace win

@@ -91,6 +91,8 @@ namespace gui {
 
     }
 
+    class private_surface;
+
     // --------------------------------------------------------------------------
     class GUIPP_WIN_EXPORT overlapped_window : public container {
     public:
@@ -168,6 +170,8 @@ namespace gui {
       void resize_native (const core::size&) override;
       void place_native (const core::rectangle&) override;
 
+      private_surface& get_surface () const;
+
     private:
       friend void detail::set_os_window (overlapped_window*, os::window);
       friend os::window detail::get_os_window (const overlapped_window&);
@@ -181,6 +185,7 @@ namespace gui {
       window* capture_window;
 
       os::window id;
+      mutable std::unique_ptr<private_surface> surface;
     };
 
     // --------------------------------------------------------------------------

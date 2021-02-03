@@ -56,17 +56,17 @@ namespace gui {
         auto state = set_state();
         state.moved(false);
         state.scroll_bar_enabled(true);
-        bool grab_focus = get_state().grab_focus();
+
 #ifdef GUIPP_X11
         static int initialized = detail::init_control_messages();
         (void)initialized;
 #endif // GUIPP_X11
 
         set_accept_focus(true);
-        on_left_btn_down([&, grab_focus] (os::key_state, const core::point & pt) {
+        on_left_btn_down([&] (os::key_state, const core::point & pt) {
           data.last_mouse_point = pt;
           set_state().moved(false);
-          if (grab_focus) {
+          if (get_state().grab_focus()) {
             take_focus();
           }
         });

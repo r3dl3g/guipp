@@ -353,7 +353,7 @@ namespace gui {
     }
 
     bool overlapped_window::handle_event (const core::event& e, gui::os::event_result& r) const {
-      if (mouse_move_event::match(e) && capture_window) {
+      if (mouse_move_event::match(e) && capture_window && (capture_window != this)) {
         return capture_window->handle_event(e, r);
       } else if ((any_key_down_event::match(e) || any_key_up_event::match(e)) && focus_window) {
         focus_window->handle_event(e, r);

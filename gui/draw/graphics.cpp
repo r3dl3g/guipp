@@ -919,9 +919,9 @@ namespace gui {
       : p(std::move(f))
     {}
 
-    void paint::operator() (os::window id, os::graphics g) {
+    void paint::operator() (os::surface s) {
       if (p) {
-        draw::graphics graph(id, g);
+        draw::graphics graph(s.id, s.g);
         p(graph);
       }
     }
@@ -937,9 +937,9 @@ namespace gui {
 
 #define NOT_IMAGE_CACHE
 
-    void buffered_paint::operator() (os::window id, os::graphics g) {
+    void buffered_paint::operator() (os::surface s) {
       if (p) {
-        draw::graphics graph(id, g);
+        draw::graphics graph(s.id, s.g);
 #if !defined(BUILD_FOR_ARM) && !defined(NOT_IMAGE_CACHE) && !defined(GUIPP_QT)
         const auto area = graph.area();
         draw::pixmap buffer(area.size());

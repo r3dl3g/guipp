@@ -52,6 +52,14 @@
 
 namespace gui {
 
+  namespace os {
+
+    struct GUIPP_CORE_EXPORT surface {
+      os::drawable id;
+      os::graphics g;
+    };
+
+  }
   typedef uint8_t byte;
   typedef byte* byteptr;
   typedef const byte* cbyteptr;

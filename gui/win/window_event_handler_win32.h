@@ -132,17 +132,20 @@ namespace gui {
       function callback;
     };
     // --------------------------------------------------------------------------
-    struct GUIPP_WIN_EXPORT os_paint_getter :
-      core::params<os::window, os::graphics>::getter<get_param<0, os::window>, get_param<0, os::graphics>> {
+    inline os::surface get_surface (const core::event&) {
+      return {0, 0};
+    }
+    // --------------------------------------------------------------------------
+    struct GUIPP_WIN_EXPORT os_paint_getter : core::params<os::surface>::getter<get_surface> {
 
-      typedef core::params<os::window, os::graphics>::getter<get_param<0, os::window>, get_param<0, os::graphics>> super;
+      typedef core::params<os::surface>::getter<getsurface> super;
 
       os_paint_getter (const function cb)
         : super(cb)
       {}
 
       template<class T>
-      os_paint_getter (T* t, void(T::*callback_)(os::window, os::graphics &))
+      os_paint_getter (T* t, void(T::*callback_)(os::surface))
         : super(util::bind_method(t, callback_))
       {}
 

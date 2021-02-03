@@ -73,11 +73,13 @@ namespace gui {
                    const core::point& offset,
                    const bool is_focused,
                    const bool is_enabled) {
-      const auto height = area.height();
+      draw::clip clp(graph, area);
+
+      const auto height = area.y2();
       const auto row_sz = static_cast<core::size::type>(fnt.line_height());
       const auto last = lines.size();
       const auto first = static_cast<int>(offset.y() / row_sz);
-      core::rectangle r(area.x() - offset.x(), row_sz * first - offset.y(), area.width() + offset.x(), row_sz);
+      core::rectangle r(area.x() - offset.x(), area.y() + row_sz * first - offset.y(), area.width() + offset.x(), row_sz);
       const auto needed_height = last * row_sz;
       const auto diff = area.height() - needed_height;
       if (diff > 0) {

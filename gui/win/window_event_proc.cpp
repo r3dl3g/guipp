@@ -700,9 +700,9 @@ namespace gui {
         // Wait for next XEvent or a timer out
         const int num_ready_fds = select(x11_fd + 1, &in_fds, nullptr, nullptr, &timeout);
 
-//        clog::debug() << "select returned: " << num_ready_fds;
-
-        if (num_ready_fds > 0) while (XPending(display) && running) {
+        if (num_ready_fds < 0) {
+          clog::debug() << "select returned: " << num_ready_fds;
+        } else if (num_ready_fds > 0) while (XPending(display) && running) {
 
           XNextEvent(display, &e);
 

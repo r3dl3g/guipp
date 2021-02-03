@@ -257,12 +257,14 @@ namespace gui {
       os::window create (const class_info& type,
                          const core::rectangle& r,
                          os::window parent_id,
-                         overlapped_window* data) {
+                         overlapped_window& data) {
         auto display = core::global::get_instance();
         auto screen = core::global::x11::get_screen();
 
-        unsigned long mask = 0;
         XSetWindowAttributes wa;
+
+        unsigned long mask = CWEventMask;
+        wa.event_mask = data.get_event_mask();
 
         XVisualInfo vinfo;
         XMatchVisualInfo(display, screen, 24, TrueColor, &vinfo);
@@ -304,7 +306,7 @@ namespace gui {
                                       mask,
                                       &wa);
 
-        detail::set_os_window(data, id);
+        detail::set_os_window(&data, id);
 
         if (0 == window_class_info_map.count(type.get_class_name())) {
           window_class_info_map[type.get_class_name()] = type;
@@ -402,7 +404,7 @@ namespace gui {
 
         w.handle_event(event, result);
 
-        core::global::sync();
+//        core::global::sync();
       }
 
       void prepare_accept_focus (os::window, bool) {
@@ -525,9 +527,9 @@ namespace gui {
 
         x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU");
 
-        XSetWindowAttributes wa;
-        wa.override_redirect = 1;
-        XChangeWindowAttributes(display, id, CWOverrideRedirect, &wa);
+        XSetWindowAttributes swa;
+        swa.override_redirect = 1;
+        XChangeWindowAttributes(display, id, CWOverrideRedirect, &swa);
       }
 
       void prepare_dialog_window (os::window id, os::window pid) {

@@ -143,10 +143,26 @@ namespace gui {
     GUIPP_WIN_EXPORT void clear_last_place (os::window);
 
     // --------------------------------------------------------------------------
+    template<typename T>
+    bool match_send_event (const core::event& e);
+
+    /// if send_event is 0, x and y contains some kind of realtive coordinates
+    template<>
+    inline bool match_send_event<core::size> (const core::event& e) {
+      return 0 == e.xconfigure.send_event;
+    }
+
+    /// if send_event is 1, x and y contains some correct coordinates
+    template<>
+    inline bool match_send_event<core::point> (const core::event& e) {
+      return 1 == e.xconfigure.send_event;
+    }
+
+    // --------------------------------------------------------------------------
     template<typename T, os::event_id E, typename C>
     bool move_size_matcher (const core::event& e) {
       os::event_id t = e.type;
-      if (t == E) {
+      if ((t == E) && (match_send_event<T>(e))) {
         const C& c = event_type_cast<C>(e);
         return (get_last_place<T>(c.window) != get<T, C>::param(e));
       }

@@ -82,6 +82,10 @@ namespace gui {
     }
 
     window::~window () {
+      if (parent) {
+        parent->remove_child(this);
+        parent = nullptr;
+      }
       set_state().created(false);
     }
 

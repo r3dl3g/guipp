@@ -80,26 +80,26 @@ namespace gui {
 
       //clog::debug() << "Space:" << space << ", Required:" << required;
 
-      bool show_h = hscroll && ((required.x() < space.x()) || (required.x2() > space.x2()));
+      bool show_h = hscroll && ((required.x() < 0) || (required.width() > space.width()));
       if (show_h) {
         space.height(space.height() - ctrl::scroll_bar::get_scroll_bar_width());
       }
 
-      bool show_v = vscroll && ((required.y() < space.y()) || (required.y2() > space.y2()));
+      bool show_v = vscroll && ((required.y() < 0) || (required.height() > space.height()));
       if (show_v) {
         space.width(space.width() - ctrl::scroll_bar::get_scroll_bar_width());
 
         if (!show_h) {
           // re-check h
-          show_h = hscroll && ((required.x() < space.x()) || (required.x2() > space.x2()));
+          show_h = hscroll && ((required.x() < space.x()) || (required.width() > space.width()));
           if (show_h) {
             space.height(space.height() - ctrl::scroll_bar::get_scroll_bar_width());
           }
         }
 
         core::point::type ypos = vscroll->get_value();
-        core::point::type ymin = std::min(core::point::type(required.y() - space.y()), core::point::type(0)) + ypos;
-        core::point::type ymax = std::max(core::point::type(required.y2() - space.y2()), core::point::type(0)) + ypos;
+        core::point::type ymin = std::min(core::point::type(required.y()), core::point::type(0)) + ypos;
+        core::point::type ymax = std::max(core::point::type(required.height() - space.height()), core::point::type(0)) + ypos;
         core::point::type st = std::min(ymax - ymin, space.height());
 
 //        clog::debug() << *vscroll << " Y:{ min:" << ymin << ", pos:" << ypos << ", max:" << ymax << ", step:" << st << " }";
@@ -109,8 +109,8 @@ namespace gui {
 
       if (show_h) {
         core::point::type xpos = hscroll->get_value();
-        core::point::type xmin = std::min(core::point::type(required.x() - space.x()), core::point::type(0)) + xpos;
-        core::point::type xmax = std::max(core::point::type(required.x2() - space.x2()), core::point::type(0)) + xpos;
+        core::point::type xmin = std::min(core::point::type(required.x()), core::point::type(0)) + xpos;
+        core::point::type xmax = std::max(core::point::type(required.width() - space.width()), core::point::type(0)) + xpos;
         core::point::type st = std::min(xmax - xmin, space.width());
 
 //        clog::debug() << *vscroll << " X:{ min:" << xmin << ", pos:" << xpos << ", max:" << xmax << ", step:" << st << " }";
@@ -139,14 +139,14 @@ namespace gui {
         auto area = get_vscroll_area(new_size, show_h);
         vscroll->place(area);
         vscroll->to_front();
-        available.width(area.x());
+        available.x2(area.x());
       }
 
       if (show_h) {
         auto area = get_hscroll_area(new_size, show_v);
         hscroll->place(area);
         hscroll->to_front();
-        available.height(area.y());
+        available.y2(area.y());
       }
 
       return available;

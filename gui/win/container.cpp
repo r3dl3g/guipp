@@ -211,7 +211,7 @@ namespace gui {
       on_size([&] (const core::size& sz) {
         area.set_size(sz);
 #ifndef BUILD_FOR_ARM
-        notify_event(core::WM_LAYOUT_WINDOW, core::rectangle(sz));
+        notify_event(core::WM_LAYOUT_WINDOW, client_area());
 #endif
       });
       on_move([&] (const core::point& pt) {
@@ -329,10 +329,10 @@ namespace gui {
       }
       set_state().overlapped(true);
 
-      id = native::create(type, r, parent_id, this);
-      add_event_mask(collect_event_mask());
-      native::prepare_overlapped(get_os_window(), parent_id);
+      collect_event_mask();
+      id = native::create(type, r, parent_id, *this);
       super::create_internal(type, r);
+      native::prepare_overlapped(get_os_window(), parent_id);
     }
 
     void overlapped_window::add_event_mask (os::event_id mask) {

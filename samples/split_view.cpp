@@ -1,7 +1,7 @@
 
 #include <gui/win/container.h>
 #include <gui/layout/layout_container.h>
-#include <gui/layout/adaption_layout.h>
+#include <gui/layout/border_layout.h>
 #include <gui/ctrl/split_view.h>
 #include <gui/ctrl/label.h>
 
@@ -19,11 +19,11 @@ int gui_main(const std::vector<std::string>& /*args*/) {
                               color::black,
                               color::very_light_gray>;
 
-  layout_main_window<vertical_adaption<>> main;
+  layout_main_window<border::layouter</*50, 50, 50, 50*/>> main;
   typedef horizontal_split_view<label_t, label_t> labels;
   vertical_split_view<label_t, labels> client;
 
-  main.get_layout().add(lay(client));
+  main.get_layout().set_center(lay(client));
   main.on_create([&] () {
     client.create(main, main.client_area());
     client.set_split_pos(0.5);
@@ -31,12 +31,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     client.second.set_split_pos(0.5);
     client.second.first.set_text([&] () { return ostreamfmt(client.second.first << " Top (" << client.second.first.place() << ")"); });
     client.second.second.set_text([&] () { return ostreamfmt(client.second.second << " Bottom (" << client.second.second.place() << ")"); });
-  });
-  main.on_lost_focus([&] () {
-    main.set_title("Lost focus");
-  });
-  main.on_set_focus([&] () {
-    main.set_title("Got focus");
   });
 
   main.create({50, 50, 800, 600});

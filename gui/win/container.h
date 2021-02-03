@@ -62,8 +62,8 @@ namespace gui {
       window_list_t get_children () const;
       void collect_children (window_list_t&) const;
 
-      void add_child (window*);
-      void remove_child (window*);
+      virtual void add_child (window*);
+      virtual void remove_child (window*);
 
       void to_front (window*);
       void to_back (window*);
@@ -145,6 +145,8 @@ namespace gui {
 
       bool handle_event (const core::event&, gui::os::event_result&) const override;
       void add_event_mask (os::event_id mask) override;
+
+      void remove_child (window*) override;
 
     protected:
       void create (const class_info&,

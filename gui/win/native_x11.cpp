@@ -410,6 +410,8 @@ namespace gui {
       void prepare_accept_focus (os::window, bool) {
       }
 
+#define NO_CAPTURE
+
       void prepare_capture_pointer () {
       }
 
@@ -417,14 +419,18 @@ namespace gui {
       }
 
       void capture_pointer (os::window id) {
+#ifndef NO_CAPTURE
         x11::check_return(XGrabPointer(core::global::get_instance(), id,
                                        False,
                                        ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | LeaveWindowMask,
                                        GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
+#endif // NO_CAPTURE
       }
 
       void uncapture_pointer (os::window id) {
+#ifndef NO_CAPTURE
         x11::check_return(XUngrabPointer(core::global::get_instance(), CurrentTime));
+#endif // NO_CAPTURE
       }
 
       os::window get_desktop_window () {

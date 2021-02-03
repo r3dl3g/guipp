@@ -1044,7 +1044,7 @@ namespace gui {
 
     void table_edit::commit_edit () {
       if (data_target && editor.is_visible()) {
-        auto pos = editor.position();
+        auto pos = editor.position() - data.client_position();
         auto cell = geometrie.index_at(pos);
         data_target(cell, editor.get_text());
       }

@@ -103,7 +103,7 @@ namespace gui {
                          const core::rectangle& r) {
       if (p.is_valid()) {
         set_parent(p);
-        create_internal(type, r + p.position());
+        create_internal(type, r + p.client_position());
         p.add_event_mask(get_event_mask());
       }
     }

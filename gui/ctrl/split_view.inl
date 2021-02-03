@@ -185,9 +185,10 @@ namespace gui {
       super::create(clazz::get(), parent, place);
       set_split_pos(split_pos);
 
-      splitter.create(*this, layout_type::traits::get_splitter_place(place, split_pos));
-      first.create(*this, layout_type::traits::get_first_place(place, split_pos));
-      second.create(*this, layout_type::traits::get_second_place(place, split_pos));
+      const auto area = super::client_area();
+      splitter.create(*this, layout_type::traits::get_splitter_place(area, split_pos));
+      first.create(*this, layout_type::traits::get_first_place(area, split_pos));
+      second.create(*this, layout_type::traits::get_second_place(area, split_pos));
       splitter.set_visible();
       first.set_visible();
       second.set_visible();

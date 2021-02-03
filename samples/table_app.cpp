@@ -13,10 +13,10 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::ctrl;
   using namespace gui::core;
 
-  layout_main_window<gui::layout::border::layouter<40, 20, 30, 10>> main;
+  layout_main_window<gui::layout::border::layouter<24>> main;
 
   table_edit table_view;
-  table::data::matrix<std::string> table_data({});
+  table::data::matrix<std::string> table_data("Test");
 
   table_view.set_scroll_maximum({2000, 2000});
   table_view.set_data_source_and_target(

@@ -342,10 +342,22 @@ namespace gui {
       }
     }
 
+    void overlapped_window::remove_child (window* w) {
+      if (w == capture_window) {
+        uncapture_pointer(w);
+      }
+      if (w == focus_window) {
+        focus_window = nullptr;
+      }
+      super::remove_child(w);
+    }
+
     bool overlapped_window::handle_event (const core::event& e, gui::os::event_result& r) const {
       if (mouse_move_event::match(e) && capture_window) {
         return capture_window->handle_event(e, r);
-      }
+      } else if ((any_key_down_event::match(e) || any_key_up_event::match(e)) && focus_window) {
+        focus_window->handle_event(e, r);
+      } else {
 //      if (paint_event::match(e)) {
 
 //        auto gc = paint_event::Caller::get_param<1>(e);
@@ -370,8 +382,8 @@ namespace gui {
 
 //        return ret;
 //      } else {
-//      }
-      return super::handle_event(e, r);
+        return super::handle_event(e, r);
+      }
     }
 
     bool overlapped_window::is_valid () const {
@@ -504,10 +516,7 @@ namespace gui {
       native::set_cursor(get_os_window(), c);
     }
 
-#define NO_CAPTURE
-
     void overlapped_window::capture_pointer (window* w) {
-#ifndef NO_CAPTURE
       if (is_valid()) {
         clog::trace() << "capture_pointer:" << *w;
         if (capture_stack.empty()) {
@@ -517,11 +526,9 @@ namespace gui {
         capture_stack.push_back(w);
         native::capture_pointer(get_os_window());
       }
-#endif // NO_CAPTURE
     }
 
     void overlapped_window::uncapture_pointer (window* w) {
-#ifndef NO_CAPTURE
       if (is_valid()) {
         if (!capture_stack.empty()) {
           if (capture_stack.back() != w) {
@@ -543,7 +550,6 @@ namespace gui {
           clog::warn() << "uncapture_pointer with empty capture stack!";
         }
       }
-#endif // NO_CAPTURE
     }
 
 #ifdef GUIPP_X11

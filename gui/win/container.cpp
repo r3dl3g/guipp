@@ -337,9 +337,11 @@ namespace gui {
     // --------------------------------------------------------------------------
     void overlapped_window::add_event_mask (os::event_id mask) {
       receiver::add_event_mask(mask);
+#ifdef GUIPP_X11
       if (is_valid()) {
         x11::prepare_win_for_event(*this);
       }
+#endif
     }
     // --------------------------------------------------------------------------
     void overlapped_window::remove_child (window* w) {
@@ -403,14 +405,15 @@ namespace gui {
       } else if ((any_key_down_event::match(e) || any_key_up_event::match(e)) && focus_window) {
         focus_window->handle_event(e, r);
       } else if (paint_event::match(e)) {
+        os::surface s = paint_event::Caller::get_param<0>(e);
 
         private_surface& surface = get_surface();
         native::erase(surface.target, surface.gc, core::native_rect(surface.size), get_window_class().get_background());
         os::surface my_surface = {surface.target, surface.gc};
-        x11::provide_surface_for_event(&my_surface, e);
+        provide_surface_for_event(&my_surface, e);
         bool ret = super::handle_event(e, r);
-        x11::reject_surface_for_event(e);
-        native::copy_surface(surface.target, get_os_window(), surface.gc, core::native_point::zero, core::native_point::zero, surface.size);
+        reject_surface_for_event(e);
+        native::copy_surface(surface.target, get_os_window(), s.g, core::native_point::zero, core::native_point::zero, surface.size);
         core::global::sync();
 
         return ret;

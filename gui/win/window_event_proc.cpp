@@ -356,7 +356,11 @@ namespace gui {
         }
         XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root, False, GrabModeAsync, GrabModeAsync);
 #elif GUIPP_QT
-        os::window root = win ? detail::get_os_window(*win) : (os::window)QApplication::desktop();
+        os::window root = (os::window)QApplication::desktop();
+        if (win && win->is_valid()) {
+          auto& o = win->get_overlapped_window();
+          root = detail::get_os_window(o);
+        }
 #endif
         detail::hot_keys.emplace(hk, std::make_pair(root, fn));
       }

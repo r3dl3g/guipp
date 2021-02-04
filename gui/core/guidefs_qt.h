@@ -40,7 +40,7 @@ namespace gui {
 
   namespace win {
 
-    class window;
+    class overlapped_window;
 
   } // namespace win
 
@@ -52,11 +52,11 @@ namespace gui {
 
       class Widget : public QWidget {
       public:
-        Widget (Widget* parent, os::style s, win::window* w);
+        Widget (Widget* parent, os::style s, win::overlapped_window* w);
         ~Widget ();
 
-        void set_window (win::window*);
-        win::window* get_window () const;
+        void set_window (win::overlapped_window*);
+        win::overlapped_window* get_window () const;
 
         Widget* get_parent () const;
 
@@ -64,7 +64,7 @@ namespace gui {
         bool event (QEvent* e) override;
 
       private:
-        win::window* win;
+        win::overlapped_window* win;
       };
 
     } // namespace qt

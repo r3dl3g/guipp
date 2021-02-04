@@ -321,29 +321,6 @@ namespace gui {
         }
       }
 
-      namespace {
-//        typedef std::map<const core::event*, os::surface*> surface_map;
-//        surface_map surfaces;
-
-        os::surface* shared_surface = nullptr;
-      }
-
-      void provide_surface_for_event (os::surface* s, const core::event& e) {
-        shared_surface = s;
-//        surfaces[&e] = s;
-      }
-
-      void reject_surface_for_event (const core::event& e) {
-        shared_surface = nullptr;
-//        surfaces.erase(&e);
-      }
-
-      os::surface* get_surface_for_event (const core::event& e) {
-//        auto i = surfaces.find(&e);
-//        return i != surfaces.end() ? i->second : nullptr;
-        return shared_surface;
-      }
-
     } // namespace x11
 
     // --------------------------------------------------------------------------
@@ -387,7 +364,7 @@ namespace gui {
     }
 
     os::surface get_surface (const core::event& e) {
-      os::surface* s = x11::get_surface_for_event(e);
+      os::surface* s = get_surface_for_event(e);
       if (s) {
         return *s;
       }
@@ -574,6 +551,10 @@ namespace gui {
     }
 
     os::surface get_surface (const core::event& e) {
+      os::surface* s = get_surface_for_event(e);
+      if (s) {
+        return *s;
+      }
       return {get_draw_window(e), get_graphics(e)};
     }
 
@@ -600,6 +581,29 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 #endif // GUIPP_QT
+
+    namespace {
+//        typedef std::map<const core::event*, os::surface*> surface_map;
+//        surface_map surfaces;
+
+      os::surface* shared_surface = nullptr;
+    }
+
+    void provide_surface_for_event (os::surface* s, const core::event& e) {
+      shared_surface = s;
+//        surfaces[&e] = s;
+    }
+
+    void reject_surface_for_event (const core::event& e) {
+      shared_surface = nullptr;
+//        surfaces.erase(&e);
+    }
+
+    os::surface* get_surface_for_event (const core::event& e) {
+//        auto i = surfaces.find(&e);
+//        return i != surfaces.end() ? i->second : nullptr;
+      return shared_surface;
+    }
 
   } // win
 

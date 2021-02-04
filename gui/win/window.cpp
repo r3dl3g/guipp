@@ -46,7 +46,7 @@ namespace gui {
       : area(core::rectangle::def)
       , parent(nullptr)
       , class_name(nullptr)
-      , cursor(0)
+      , cursor({})
     {
       init();
     }
@@ -56,7 +56,7 @@ namespace gui {
       , parent(nullptr)
       , flags(rhs.flags)
       , class_name(nullptr)
-      , cursor(0)
+      , cursor({})
     {
       init();
       if (rhs.is_valid()) {

@@ -37,11 +37,6 @@ namespace gui {
 
       GUIPP_WIN_EXPORT void prepare_win_for_event (const overlapped_window& win);
 
-      GUIPP_WIN_EXPORT void provide_surface_for_event (os::surface*, const core::event&);
-      GUIPP_WIN_EXPORT void reject_surface_for_event (const core::event&);
-
-      GUIPP_WIN_EXPORT os::surface* get_surface_for_event (const core::event&);
-
     } // namespace x11
 
     // --------------------------------------------------------------------------

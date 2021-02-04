@@ -26,6 +26,8 @@
 
 #include <QtWidgets/QApplication>
 #include <QtGui/QScreen>
+#include <QtGui/QPainter>
+#include <QtGui/QBitmap>
 
 // --------------------------------------------------------------------------
 //
@@ -33,7 +35,7 @@
 //
 #include <logging/logger.h>
 #include <gui/win/native.h>
-#include <gui/win/window.h>
+#include <gui/win/container.h>
 
 
 namespace gui {
@@ -73,8 +75,8 @@ namespace gui {
       os::window create (const class_info& type,
                          const core::rectangle& r,
                          os::window parent_id,
-                         window* data) {
-        os::window id = new os::qt::Widget(parent_id, type.get_style(), data);
+                         overlapped_window& data) {
+        os::window id = new os::qt::Widget(parent_id, type.get_style(), &data);
         Qt::WindowFlags style = id->windowFlags();
         //clog::debug() << "Expected style: " << std::hex << type.get_style() << ", current style: " << std::hex << style;
 
@@ -85,7 +87,7 @@ namespace gui {
         pal.setColor(QPalette::Window, QColor(type.get_background()));
         id->setAutoFillBackground(true);
         id->setPalette(pal);
-        id->setFocusPolicy(data->can_accept_focus() ? Qt::WheelFocus : Qt::NoFocus);
+        id->setFocusPolicy(data.can_accept_focus() ? Qt::WheelFocus : Qt::NoFocus);
 
         if (0 == window_class_info_map.count(type.get_class_name())) {
           window_class_info_map[type.get_class_name()] = type;
@@ -126,9 +128,9 @@ namespace gui {
         }
       }
 
-      void enable (os::window id, bool s) {
-        if (id) {
-          id->setEnabled(s);
+      void enable (overlapped_window& w, bool s) {
+        if (w.is_valid()) {
+          detail::get_os_window(w)->setEnabled(s);
         }
       }
 
@@ -266,8 +268,8 @@ namespace gui {
       void prepare_popup_window (os::window) {}
       void prepare_dialog_window (os::window, os::window) {}
 
-      void erase (os::window id, os::graphics gc, const core::native_rect& r, os::color c) {
-        g.os()->fillRect(r.x(), r.y(), r.width(), r.height(), c);
+      void erase (os::bitmap id, os::graphics gc, const core::native_rect& r, os::color c) {
+        gc->fillRect(r.x(), r.y(), r.width(), r.height(), c);
       }
 
       os::bitmap create_surface (const core::native_size& size, os::window id) {
@@ -286,10 +288,11 @@ namespace gui {
         delete id;
       }
 
-      void copy_surface (os::drawable src, os::drawable target, os::graphics context,
+      void copy_surface (os::bitmap src, os::drawable target, os::graphics,
                          const core::native_point& from, const core::native_point& to,
                          const core::native_size& size) {
-        context->drawPixmap(to.x(), to.y(), src, from.x(), from.y(), size.width(), size.height());
+        QPainter p(target);
+        p.drawPixmap(to.x(), to.y(), *src, from.x(), from.y(), size.width(), size.height());
       }
 
     } // namespace native
@@ -300,7 +303,7 @@ namespace gui {
 
     namespace qt {
 
-      Widget::Widget (Widget* parent, os::style s, win::window* w)
+      Widget::Widget (Widget* parent, os::style s, win::overlapped_window* w)
         : QWidget(parent, s)
         , win(w)
       {}
@@ -311,11 +314,11 @@ namespace gui {
         }
       }
 
-      win::window* Widget::get_window () const {
+      win::overlapped_window* Widget::get_window () const {
         return win;
       }
 
-      void Widget::set_window (win::window* w) {
+      void Widget::set_window (win::overlapped_window* w) {
         win = w;
       }
 

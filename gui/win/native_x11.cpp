@@ -546,7 +546,7 @@ namespace gui {
         x11::set_wm_protocols(display, id);
       }
 
-      void erase (os::window id, os::graphics gc, const core::native_rect& r, os::color c) {
+      void erase (os::bitmap id, os::graphics gc, const core::native_rect& r, os::color c) {
         gui::os::instance display = core::global::get_instance();
         XSetForeground(display, gc, c);
         XSetBackground(display, gc, c);
@@ -571,7 +571,7 @@ namespace gui {
         XFreeGC(core::global::get_instance(), id);
       }
 
-      void copy_surface (os::drawable src, os::drawable target, os::graphics context,
+      void copy_surface (os::bitmap src, os::drawable target, os::graphics context,
                          const core::native_point& from, const core::native_point& to,
                          const core::native_size& size) {
         XCopyArea(core::global::get_instance(), src, target, context, from.x(), from.y(),

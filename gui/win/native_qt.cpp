@@ -316,7 +316,7 @@ namespace gui {
       bool Widget::event (QEvent* e) {
         gui::os::event_result result;
         gui::core::event ev = {this, e};
-        clog::trace() << "Widget received event: " << ev;
+//        clog::info() << "Widget received event: " << ev;
         if (win && win->handle_event(ev, result)) {
           return true;
         }

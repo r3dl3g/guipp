@@ -140,7 +140,6 @@ namespace gui {
     bool container::handle_event (const core::event& e, gui::os::event_result& r) const {
       bool ret = super::handle_event(e, r);
       if (paint_event::match(e)) {
-//        clog::info() << "container::handle_event paint, children count: " << children.size();
         for (auto& w : children) {
           auto state = w->get_state();
           if (state.created() && state.visible() && !state.overlapped()) {
@@ -460,15 +459,11 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     bool overlapped_window::handle_event (const core::event& e, gui::os::event_result& r) const {
-//      if (!win::is_none_client_event(e) && !win::is_frequent_event(e) ) {
-//        clog::info() << "Message: " << e << IF_WIN32_ELSE(" (" << std::hex << e.wParam << ", " << e.lParam << ")", "");
-//      }
       if (mouse_move_event::match(e) && capture_window && (capture_window != this)) {
         return capture_window->handle_event(e, r);
       } else if ((any_key_down_event::match(e) || any_key_up_event::match(e)) && focus_window) {
         focus_window->handle_event(e, r);
       } else if (paint_event::match(e)) {
-//        clog::info() << "overlapped_window::handle_event paint";
 
         private_surface& surface = get_surface();
         surface.begin(*this);
@@ -481,7 +476,7 @@ namespace gui {
 
         core::global::sync();
 
-        return ret;
+        return true;
       } else {
         return super::handle_event(e, r);
       }

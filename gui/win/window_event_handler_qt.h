@@ -260,7 +260,7 @@ namespace gui {
                                              core::params<core::rectangle>::
                                              getter<get_client_data_rect>>;
 
-    using paint_event = core::event_handler<QEvent::Expose, 0,
+    using paint_event = core::event_handler<QEvent::UpdateRequest, 0,
                                             core::params<os::surface>::
                                             getter<get_surface>>;
 

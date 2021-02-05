@@ -323,7 +323,7 @@ namespace gui {
       }
 
       os::backstore create_surface (const core::native_size& size, os::window id) {
-        auto dc = GetDC(id);
+        auto dc = GetDC(NULL);
         auto bmp = CreateCompatibleBitmap(dc, size.width(), size.height());
         ReleaseDC(NULL, dc);
         return bmp;
@@ -336,8 +336,8 @@ namespace gui {
       os::graphics create_graphics_context (os::backstore id) {
         auto dc = GetDC(NULL);
         auto ndc = CreateCompatibleDC(dc);
-        ReleaseDC(NULL, dc);
         SelectObject(ndc, id);
+        ReleaseDC(NULL, dc);
         return ndc;
       }
 
@@ -348,10 +348,14 @@ namespace gui {
       void copy_surface (os::bitmap src, os::drawable target, os::graphics context,
                          const core::native_point& from, const core::native_point& to,
                          const core::native_size& size) {
-        auto sdc = CreateCompatibleDC(context);
-        SelectObject(sdc, src);
+        auto dc = GetDC(NULL);
+        auto sdc = CreateCompatibleDC(dc);
+        auto old = SelectObject(sdc, src);
+        SelectObject(context, target);
         BitBlt(context, to.x(), to.y(), size.width(), size.height(), sdc, from.x(), from.y(), SRCCOPY);
+        SelectObject(sdc, old);
         DeleteDC(sdc);
+        ReleaseDC(NULL, dc);
       }
 
     } // namespace native

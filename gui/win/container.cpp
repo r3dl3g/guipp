@@ -180,7 +180,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     // TODO: In Qt we need a QBackingStore in an overlapped_window.
     // target must be an own object type instead just os::bitmap. F.e. os::raster.
-    struct private_surface {
+    class private_surface {
+    public:
       private_surface ()
         : pixel_store(0)
         , gc(0)
@@ -233,10 +234,9 @@ namespace gui {
         pixel_store->flush(QRegion(0, 0, size.width(), size.height()), detail::get_os_window(w));
 #else
         auto id = detail::get_os_window(w);
-
         PAINTSTRUCT ps;
-        os::graphics gc = BeginPaint(id, &ps);
-        native::copy_surface(pixel_store, id, gc, core::native_point::zero, core::native_point::zero, size);
+        os::graphics pgc = BeginPaint(id, &ps);
+        BitBlt(pgc, 0, 0, size.width(), size.height(), gc, 0, 0, SRCCOPY);
         EndPaint(id, &ps);
 #endif
       }

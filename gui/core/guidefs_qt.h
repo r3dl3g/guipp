@@ -27,7 +27,9 @@
 // Common includes
 //
 #include <QtGui/QtEvents>
-#include <QtWidgets/QWidget>
+#include <QtGui/QWindow>
+#include <QtGui/QFontInfo>
+#include <QtGui/QGuiApplication>
 
 // --------------------------------------------------------------------------
 //
@@ -50,8 +52,10 @@ namespace gui {
 
     namespace qt {
 
-      class Widget : public QWidget {
+      class Widget : public QWindow {
       public:
+        typedef QWindow super;
+
         Widget (Widget* parent, os::style s, win::overlapped_window* w);
         ~Widget ();
 
@@ -69,13 +73,14 @@ namespace gui {
 
     } // namespace qt
 
-    typedef QApplication* instance;
+    typedef QGuiApplication* instance;
     typedef qt::Widget* window;
     typedef QPaintDevice* drawable;
     typedef QPainter* graphics;
 
     typedef QRgb color;
 
+    typedef QBackingStore* backstore;
     typedef QPixmap* bitmap;
     typedef QIcon icon;
     typedef QCursor cursor;

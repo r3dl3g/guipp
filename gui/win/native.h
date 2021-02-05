@@ -111,10 +111,10 @@ namespace gui {
       GUIPP_WIN_EXPORT void erase (os::bitmap id, os::graphics gc,
                                    const core::native_rect& r, os::color c);
 
-      GUIPP_WIN_EXPORT os::bitmap create_surface (const core::native_size& size, os::window id);
-      GUIPP_WIN_EXPORT void delete_surface (os::bitmap);
+      GUIPP_WIN_EXPORT os::backstore create_surface (const core::native_size& size, os::window id);
+      GUIPP_WIN_EXPORT void delete_surface (os::backstore);
 
-      GUIPP_WIN_EXPORT os::graphics create_graphics_context (os::bitmap);
+      GUIPP_WIN_EXPORT os::graphics create_graphics_context (os::backstore);
       GUIPP_WIN_EXPORT void delete_graphics_context (os::graphics);
 
       GUIPP_WIN_EXPORT void copy_surface (os::bitmap src, os::drawable target,

@@ -554,16 +554,16 @@ namespace gui {
         XDrawRectangle(display, id, gc, r.x(), r.y(), r.width(), r.height());
       }
 
-      os::bitmap create_surface (const core::native_size& size, os::window id) {
+      os::backstore create_surface (const core::native_size& size, os::window id) {
         return XCreatePixmap(core::global::get_instance(), id, size.width(), size.height(),
                              core::global::get_device_depth());
       }
 
-      void delete_surface (os::bitmap id) {
+      void delete_surface (os::backstore id) {
         XFreePixmap(core::global::get_instance(), id);
       }
 
-      os::graphics create_graphics_context (os::bitmap id) {
+      os::graphics create_graphics_context (os::backstore id) {
         return XCreateGC(core::global::get_instance(), id, 0, 0);
       }
 

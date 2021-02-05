@@ -30,7 +30,7 @@
 //
 #include <logging/logger.h>
 #include <gui/win/native.h>
-#include <gui/win/window.h>
+#include <gui/win/container.h>
 
 #define NO_CAPTURExx
 
@@ -111,7 +111,7 @@ namespace gui {
       os::window create (const class_info& type,
                          const core::rectangle& r,
                          os::window parent_id,
-                         win::window* data) {
+                         win::overlapped_window& data) {
         auto display = core::global::get_instance();
 
         os::brush back = ((type.get_background() > 0) && (type.get_background() < 20))
@@ -119,7 +119,7 @@ namespace gui {
                          : (color::extract<color::part::alpha>(type.get_background()) == 0xff)
                            ? NULL : CreateSolidBrush(type.get_background());
 
-        std::string name = type.get_class_name().substr(0, 255);
+        std::string name(type.get_class_name(), 0, 255);
         WNDCLASS wc = {
           /* Register the window class. */
           type.get_class_style(),
@@ -155,14 +155,14 @@ namespace gui {
                                        parent_id,       // handle of parent window
                                        NULL,            // handle of menu or child-window identifier
                                        display,         // handle of application instance
-                                       data);
+                                       &data);
 
-        SetWindowLongPtr(id, GWLP_USERDATA, (LONG_PTR)data);
+//        SetWindowLongPtr(id, GWLP_USERDATA, (LONG_PTR)(&data));
 
         return id;
       }
 
-      void notify_created(window*) {}
+      void notify_created (window*) {}
 
       void destroy (os::window w) {
         if (w) {
@@ -188,11 +188,11 @@ namespace gui {
         }
       }
 
-      void enable (os::window id, bool on) {
-        gui::os::style ws = get_window_class(id).get_style();
+      void enable (overlapped_window& w, bool on) {
+        gui::os::style ws = w.get_window_class().get_style();
         if ((ws & WS_POPUP) != WS_POPUP) {
           // For WS_POPUP EnableWindow(, false) causes an empty window.
-          EnableWindow(id, on);
+          EnableWindow(detail::get_os_window(w), on);
         }
       }
 
@@ -313,6 +313,46 @@ namespace gui {
       void prepare_main_window (os::window) {}
       void prepare_popup_window (os::window) {}
       void prepare_dialog_window (os::window, os::window) {}
+
+      void erase (os::bitmap id, os::graphics gc, const core::native_rect& r, os::color c) {
+        auto brush = CreateSolidBrush(c);
+        auto old = SelectObject(gc, brush);
+        Rectangle(gc, r.x(), r.y(), r.x2(), r.y2());
+        SelectObject(gc, old);
+        DeleteObject(brush);
+      }
+
+      os::backstore create_surface (const core::native_size& size, os::window id) {
+        auto dc = GetDC(id);
+        auto bmp = CreateCompatibleBitmap(dc, size.width(), size.height());
+        ReleaseDC(NULL, dc);
+        return bmp;
+      }
+
+      void delete_surface (os::backstore id) {
+        DeleteObject(id);
+      }
+
+      os::graphics create_graphics_context (os::backstore id) {
+        auto dc = GetDC(NULL);
+        auto ndc = CreateCompatibleDC(dc);
+        ReleaseDC(NULL, dc);
+        SelectObject(ndc, id);
+        return ndc;
+      }
+
+      void delete_graphics_context (os::graphics id) {
+        DeleteDC(id);
+      }
+
+      void copy_surface (os::bitmap src, os::drawable target, os::graphics context,
+                         const core::native_point& from, const core::native_point& to,
+                         const core::native_size& size) {
+        auto sdc = CreateCompatibleDC(context);
+        SelectObject(sdc, src);
+        BitBlt(context, to.x(), to.y(), size.width(), size.height(), sdc, from.x(), from.y(), SRCCOPY);
+        DeleteDC(sdc);
+      }
 
     } // namespace native
 

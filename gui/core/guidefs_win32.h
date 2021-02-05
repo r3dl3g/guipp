@@ -65,6 +65,7 @@ namespace gui {
     typedef COLORREF color;
     typedef UINT style;
 
+    typedef HBITMAP backstore;
     typedef HBITMAP bitmap;
     typedef HICON icon;
     typedef HCURSOR cursor;

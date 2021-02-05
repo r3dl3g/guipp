@@ -30,7 +30,7 @@
 #elif GUIPP_X11
 # include <unistd.h>
 #elif GUIPP_QT
-# include <QtWidgets/QApplication>
+# include <QtGui/QGuiApplication>
 # include <QtCore/QEventLoop>
 #endif
 
@@ -116,7 +116,7 @@ namespace gui {
       }
 
       void set_window_id (LONG_PTR lParam, os::window id) {
-        overlapped_window* w = reinterpret_cast<window*>(lParam);
+        overlapped_window* w = reinterpret_cast<overlapped_window*>(lParam);
         set_os_window(w, id);
       }
 
@@ -127,12 +127,12 @@ namespace gui {
       LRESULT CALLBACK WindowEventProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         switch (msg) {
         case WM_INITDIALOG:
-          SetWindowLongPtr(hwnd, GWLP_USERDATA, lParam);
+//          SetWindowLongPtr(hwnd, GWLP_USERDATA, lParam);
           detail::set_window_id(lParam, hwnd);
           break;
         case WM_CREATE: {
           CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
-          SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)cs->lpCreateParams);
+//          clog::trace() << "WM_CREATE: " << " (" << std::hex << wParam << ", " << lParam << ") CreateParams: " << cs->lpCreateParams;
           detail::set_window_id((LONG_PTR)cs->lpCreateParams, hwnd);
           break;
         }
@@ -151,10 +151,13 @@ namespace gui {
 
         gui::os::event_result result = 0;
         overlapped_window* w = detail::get_window(hwnd);
-        if (w && w->is_valid()) {
-          w->handle_event(core::event(hwnd, msg, wParam, lParam), result);
-          if (result) {
-            return result;
+        if (w) {
+//          clog::trace() << "window state:" << w->get_state();
+          if (w->is_valid()) {
+            w->handle_event(core::event(hwnd, msg, wParam, lParam), result);
+            if (result) {
+              return result;
+            }
           }
         }
         return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -344,7 +347,11 @@ namespace gui {
         if (core::shift_key_bit_mask::is_set(hk.get_modifiers())) {
           modifiers |= MOD_SHIFT;
         }
-        os::window root = win ? detail::get_os_window(*win) : NULL;
+        os::window root = NULL;
+        if (win && win->is_valid()) {
+          auto& o = win->get_overlapped_window();
+          root = detail::get_os_window(o);
+        }
         RegisterHotKey(root, hk.get_key(), modifiers, hk.get_key());
 #elif GUIPP_X11
         auto dpy = core::global::get_instance();
@@ -356,7 +363,7 @@ namespace gui {
         }
         XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root, False, GrabModeAsync, GrabModeAsync);
 #elif GUIPP_QT
-        os::window root = (os::window)QApplication::desktop();
+        os::window root = (os::window)QGuiApplication::topLevelWindows().first();
         if (win && win->is_valid()) {
           auto& o = win->get_overlapped_window();
           root = detail::get_os_window(o);
@@ -435,11 +442,11 @@ namespace gui {
 #ifdef GUIPP_QT
 
       window* get_current_focus_window () {
-        return detail::get_window(static_cast<os::window>(QApplication::focusWidget()));
+        return detail::get_window(static_cast<os::window>(QGuiApplication::focusWindow()));
       }
 
       overlapped_window& get_application_main_window() {
-        auto list = QApplication::topLevelWidgets();
+        auto list = QGuiApplication::topLevelWindows();
         if (list.size() > 0) {
           auto* win = detail::get_window(static_cast<os::window>(list.first()));
           if (win) {
@@ -580,7 +587,7 @@ namespace gui {
         POINT pt = {GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)};
         ClientToScreen(e.id, &pt);
         RECT r;
-        GetWindowRect(detail::get_os_window(w), &r);
+        GetWindowRect(detail::get_os_window(w.get_overlapped_window()), &r);
         return !PtInRect(&r, pt);
       }
       }

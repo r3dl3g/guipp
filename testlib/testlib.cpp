@@ -25,7 +25,7 @@ namespace testing {
     char buffer[1] = { 0 };
     char* argv[1] = { buffer };// = {params.args[0].c_str()};
     int argc = 0;
-    static QApplication qapplication(argc, argv);
+    static QGuiApplication qapplication(argc, argv);
     gui::core::global::init(&qapplication);
 #endif // GUIPP_QT
   }

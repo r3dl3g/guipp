@@ -55,6 +55,7 @@ namespace gui {
     typedef unsigned long color;
     typedef unsigned int style;
 
+    typedef Pixmap backstore;
     typedef Pixmap bitmap;
     typedef Pixmap icon;
     typedef Cursor cursor;

@@ -212,21 +212,20 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void os_paint_getter::operator() (const core::event& e) {
-      if (f) {
-        PAINTSTRUCT ps;
-        os::graphics id = BeginPaint(e.id, &ps);
-        f(os::surface{e.id, id});
-        EndPaint(e.id, &ps);
+    os::surface get_surface (const core::event& e) {
+      os::surface* s = get_surface_for_event(e);
+      if (s) {
+        return *s;
       }
+      return {e.id, 0};
     }
 
     // --------------------------------------------------------------------------
     void pos_changing_getter::operator() (const core::event& e) {
-      if (f) {
+      if (callback) {
         LPWINDOWPOS p = reinterpret_cast<LPWINDOWPOS>(e.lParam);
         core::rectangle r = get_rect<WINDOWPOS>(e);
-        f(r);
+        callback(r);
         p->x = r.os_x();
         p->y = r.os_y();
         p->cx = r.os_width();
@@ -555,7 +554,7 @@ namespace gui {
       if (s) {
         return *s;
       }
-      return {get_draw_window(e), get_graphics(e)};
+      return os::surface{*detail::get_window(get_draw_window(e)), get_graphics(e)};
     }
 
     // --------------------------------------------------------------------------

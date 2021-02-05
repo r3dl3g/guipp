@@ -78,14 +78,14 @@ int main (int argc, char* argv[]) {
 #endif // GUIPP_X11
 #ifdef GUIPP_QT
 # ifdef GUIPP_QT_HIDPI
-  if (QApplication::testAttribute(Qt::AA_EnableHighDpiScaling)) {
+  if (QGuiApplication::testAttribute(Qt::AA_EnableHighDpiScaling)) {
     clog::info() << "Qt HighDpiScaling is enabled";
   } else {
     clog::info() << "Qt enable HighDpiScaling";
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
   }
 # endif // GUIPP_QT_HIDPI
-  QApplication qapplication(argc, argv);
+  QGuiApplication qapplication(argc, argv);
   gui::core::global::init(&qapplication);
 #endif // GUIPP_QT
 

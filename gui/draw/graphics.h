@@ -176,22 +176,6 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT buffered_paint {
-      typedef std::function<void (const draw::graphics&)> painter;
-
-      explicit buffered_paint (const painter& f);
-      explicit buffered_paint (painter&& f);
-
-      template<typename T, typename F>
-      buffered_paint (T* t, F f);
-
-      void operator() (os::surface);
-
-    private:
-      painter p;
-    };
-
-    // --------------------------------------------------------------------------
     struct GUIPP_DRAW_EXPORT clip {
       clip (const graphics& g, const core::rectangle& r);
       ~clip ();

@@ -215,8 +215,6 @@ namespace gui {
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT os::window get_draw_window (const core::event&);
     // --------------------------------------------------------------------------
-    GUIPP_WIN_EXPORT os::surface get_surface (const core::event&);
-    // --------------------------------------------------------------------------
     template<os::message_type& M>
     inline bool client_message_matcher (const core::event& e) {
       return (e.type == ClientMessage) && (e.xclient.message_type == M);

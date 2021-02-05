@@ -460,15 +460,15 @@ namespace gui {
           std::stringstream(xscale) >> scale;
           return scale;
         } else {
-          QDesktopWidget* d = QApplication::desktop();
-          auto r = (double)d->logicalDpiX() / 96.0;
+          QScreen* d = QGuiApplication::primaryScreen();
+          auto r = (double)d->logicalDotsPerInchX() / 96.0;
           clog::info()  << "Display "
-                           "W:" << d->width() << ", H:" << d->height()
-                        << ", MM-W:" << d->widthMM() << ", MM-H:" << d->heightMM()
-                        << ", LogDPI-X:" << d->logicalDpiX() << ", LogDPI-Y:" << d->logicalDpiY()
-                        << ", PhysDPI-X:" << d->physicalDpiX() << ", PhysDPI-Y:" << d->physicalDpiY()
-                        << ", Pixel Ratio:" << d->devicePixelRatioF()
-                        << ", Pixel Ratio Scale:" << d->devicePixelRatioFScale();
+                           "W:" << d->size().width() << ", H:" << d->size().height()
+                        << ", MM-W:" << d->physicalSize().width() << ", MM-H:" << d->physicalSize().height()
+                        << ", LogDPI-X:" << d->logicalDotsPerInchX() << ", LogDPI-Y:" << d->logicalDotsPerInchY()
+                        << ", PhysDPI-X:" << d->physicalDotsPerInchX() << ", PhysDPI-Y:" << d->physicalDotsPerInchY()
+                        << ", Pixel Ratio:" << d->devicePixelRatio();
+//                        << ", Pixel Ratio Scale:" << d->devicePixelRatioFScale();
           return r;
         }
       }

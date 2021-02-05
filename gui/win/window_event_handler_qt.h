@@ -123,8 +123,6 @@ namespace gui {
     GUIPP_WIN_EXPORT os::graphics get_graphics (const core::event&);
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT os::window get_draw_window (const core::event&);
-    // --------------------------------------------------------------------------
-    GUIPP_WIN_EXPORT os::surface get_surface (const core::event&);
 
     // --------------------------------------------------------------------------
     using create_event = core::event_handler<core::qt::WM_CREATE_WINDOW>;
@@ -262,7 +260,7 @@ namespace gui {
                                              core::params<core::rectangle>::
                                              getter<get_client_data_rect>>;
 
-    using paint_event = core::event_handler<QEvent::Paint, 0,
+    using paint_event = core::event_handler<QEvent::Expose, 0,
                                             core::params<os::surface>::
                                             getter<get_surface>>;
 

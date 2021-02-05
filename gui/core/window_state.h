@@ -100,6 +100,8 @@ namespace gui {
 
     };
 
+    std::ostream& operator<< (std::ostream& out, const window_state::is&);
+
     // --------------------------------------------------------------------------
   } // namespace core
 

@@ -660,13 +660,13 @@ namespace gui {
     }
 
     os::color graphics::get_pixel (const core::native_point& pt) const {
-      QWidget* w = dynamic_cast<QWidget*>(target);
+      QWindow* w = dynamic_cast<QWindow*>(target);
       if (w) {
         QPixmap px;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
         px = w->grab({pt.x(), pt.y(), 1, 1});
 #else
-        px.grabWidget(w, pt.x(), pt.y(), 1, 1);
+        px.grabWindow(w->winId(), pt.x(), pt.y(), 1, 1);
 #endif
         return px.toImage().pixel(0, 0);
       } else {
@@ -715,9 +715,10 @@ namespace gui {
                                          const core::native_rect& r,
                                          const core::native_point& pt,
                                          const copy_mode mode) const {
-      QWidget* w = dynamic_cast<QWidget*>(d);
+      QWindow* w = dynamic_cast<QWindow*>(d);
       if (w) {
-        QPixmap pix = w->grab(r.os());
+        QPixmap pix;
+        pix.grabWindow(w->winId(), r.os_x(), r.os_y(), r.os_width(), r.os_height());
         const QPainter::CompositionMode oldMode = gc->compositionMode();
         gc->setCompositionMode(static_cast<QPainter::CompositionMode>(mode));
         gc->drawPixmap(pt.x(), pt.y(), pix);
@@ -923,32 +924,6 @@ namespace gui {
       if (p) {
         draw::graphics graph(s.id, s.g);
         p(graph);
-      }
-    }
-
-    // --------------------------------------------------------------------------
-    buffered_paint::buffered_paint (const painter& f)
-      : p(f)
-    {}
-
-    buffered_paint::buffered_paint (painter&& f)
-      : p(std::move(f))
-    {}
-
-#define NOT_IMAGE_CACHE
-
-    void buffered_paint::operator() (os::surface s) {
-      if (p) {
-        draw::graphics graph(s.id, s.g);
-#if !defined(BUILD_FOR_ARM) && !defined(NOT_IMAGE_CACHE) && !defined(GUIPP_QT)
-        const auto area = graph.area();
-        draw::pixmap buffer(area.size());
-        draw::graphics buffer_graph(buffer);
-        p(buffer_graph);
-        graph.copy_from(buffer_graph);
-#else
-        p(graph);
-#endif
       }
     }
 

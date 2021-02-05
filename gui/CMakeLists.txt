@@ -68,21 +68,21 @@ if(NOT TARGET gui++)
 
   if (GUIPP_USE_QT)
     DebugPrint("GUIPP: build with Qt5!")
-    find_package(Qt5Widgets REQUIRED)
+    find_package(Qt5Gui REQUIRED)
 
-    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${Qt5Widgets_LIBRARIES})
-    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_QT ${Qt5Widgets_DEFINITIONS})
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${Qt5Gui_LIBRARIES})
+    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_QT ${Qt5Gui_DEFINITIONS})
     if (APPLE)
       set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -fPIC)
     elseif (UNIX)
       set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -lstdc++fs -fPIC)
     endif()
-    set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
+    set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS})
     # /usr/local/src/qt-everywhere-opensource-src-5.9.5/qtbase/include
 
-    DebugPrint("GUIPP: Qt5Widgets_DEFINITIONS: " ${Qt5Widgets_DEFINITIONS})
-    DebugPrint("GUIPP: Qt5Widgets_INCLUDE_DIRS: " ${Qt5Widgets_INCLUDE_DIRS})
-    DebugPrint("GUIPP: Qt5Widgets_LIBRARIES: " ${Qt5Widgets_LIBRARIES})
+    DebugPrint("GUIPP: Qt5Gui_DEFINITIONS: " ${Qt5Gui_DEFINITIONS})
+    DebugPrint("GUIPP: Qt5Gui_INCLUDE_DIRS: " ${Qt5Gui_INCLUDE_DIRS})
+    DebugPrint("GUIPP: Qt5Gui_LIBRARIES: " ${Qt5Gui_LIBRARIES})
 
   elseif (APPLE)
     DebugPrint("GUIPP: build for Apple!")

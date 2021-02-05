@@ -36,6 +36,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   });
 
   main.on_create([&] () {
+    clog::info() << "main.on_create";
     label.create(main, "I'm the Child", {10, 10, 200, 20});
     drawing.create(main, {10, 40, 200, 200});
     label.set_visible();

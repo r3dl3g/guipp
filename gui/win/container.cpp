@@ -27,6 +27,8 @@
 
 #ifdef GUIPP_QT
 # include <QtCore/QEventLoop>
+# include <QtGui/QBackingStore>
+# include <QtGui/QPainter>
 #endif // GUIPP_QT
 
 
@@ -39,6 +41,7 @@
 #include <gui/win/window_event_proc.h>
 #include <gui/win/window_event_handler.h>
 #include <gui/win/native.h>
+#include <gui/win/dbg_win_message.h>
 
 #if !defined(GUIPP_BUILD_FOR_MOBILE)
 # define USE_INPUT_EATER
@@ -137,6 +140,7 @@ namespace gui {
     bool container::handle_event (const core::event& e, gui::os::event_result& r) const {
       bool ret = super::handle_event(e, r);
       if (paint_event::match(e)) {
+//        clog::info() << "container::handle_event paint, children count: " << children.size();
         for (auto& w : children) {
           auto state = w->get_state();
           if (state.created() && state.visible() && !state.overlapped()) {
@@ -173,6 +177,93 @@ namespace gui {
       return mask;
     }
 
+    // --------------------------------------------------------------------------
+    // TODO: In Qt we need a QBackingStore in an overlapped_window.
+    // target must be an own object type instead just os::bitmap. F.e. os::raster.
+    struct private_surface {
+      private_surface ()
+        : pixel_store(0)
+        , gc(0)
+      {}
+
+      void prepare (const core::native_size& sz, os::window id) {
+        if (sz != size) {
+          create(sz, id);
+        }
+      }
+
+      ~private_surface () {
+        destroy();
+      }
+
+      os::surface get_surface () {
+#ifdef GUIPP_X11
+        return {pixel_store, gc};
+#elif GUIPP_QT
+        return {pixel_store->paintDevice(), gc};
+#else
+        return {pixel_store, gc};
+#endif
+      }
+
+      const core::native_size& get_size () const {
+        return size;
+      }
+
+      void begin (const win::overlapped_window& w) {
+#ifdef GUIPP_X11
+        native::erase(pixel_store, gc, core::native_rect(size), w.get_window_class().get_background());
+#elif GUIPP_QT
+        pixel_store->beginPaint(QRegion(0, 0, size.width(), size.height()));
+        gc->begin(pixel_store->paintDevice());
+#else
+        native::erase(pixel_store, gc, core::native_rect(size), w.get_window_class().get_background());
+#endif
+      }
+
+      void end (const win::overlapped_window& w, os::surface& s) {
+#ifdef GUIPP_X11
+        auto display = core::global::get_instance();
+        auto id = detail::get_os_window(w);
+        XSetWindowBackgroundPixmap(display, id, pixel_store);
+        XClearWindow(display, id);
+#elif GUIPP_QT
+        gc->end();
+        pixel_store->endPaint();
+        pixel_store->flush(QRegion(0, 0, size.width(), size.height()), detail::get_os_window(w));
+#else
+        auto id = detail::get_os_window(w);
+
+        PAINTSTRUCT ps;
+        os::graphics gc = BeginPaint(id, &ps);
+        native::copy_surface(pixel_store, id, gc, core::native_point::zero, core::native_point::zero, size);
+        EndPaint(id, &ps);
+#endif
+      }
+
+    private:
+      void create (const core::native_size& sz, os::window id) {
+        destroy();
+        size = sz;
+        pixel_store = native::create_surface(size, id);
+        gc = native::create_graphics_context(pixel_store);
+      }
+
+      void destroy () {
+        if (gc) {
+          native::delete_graphics_context(gc);
+          gc = 0;
+        }
+        if (pixel_store) {
+          native::delete_surface(pixel_store);
+          pixel_store = 0;
+        }
+      }
+
+      core::native_size size;
+      os::backstore pixel_store;
+      os::graphics gc;
+    };
     // --------------------------------------------------------------------------
     namespace {
       std::vector<window*> capture_stack;
@@ -248,7 +339,11 @@ namespace gui {
     }
    // --------------------------------------------------------------------------
     overlapped_window::operator os::drawable() const {
+#ifdef GUIPP_QT
+      return get_surface().get_surface().id;
+#else
       return id;
+#endif
     }
     // --------------------------------------------------------------------------
     template<typename iterator>
@@ -330,6 +425,7 @@ namespace gui {
       set_state().overlapped(true);
 
       collect_event_mask();
+      set_state().created(true);
       id = native::create(type, r, parent_id, *this);
       super::create_internal(type, r);
       native::prepare_overlapped(get_os_window(), parent_id);
@@ -353,67 +449,36 @@ namespace gui {
       }
       super::remove_child(w);
     }
-
-    // --------------------------------------------------------------------------
-    struct private_surface {
-      private_surface ()
-        : target(0)
-        , gc(0)
-      {}
-
-      void create (const core::native_size& sz, os::window id) {
-        destroy();
-        size = sz;
-        target = native::create_surface(size, id);
-        gc = native::create_graphics_context(target);
-      }
-
-      ~private_surface () {
-        destroy();
-      }
-
-      void destroy () {
-        if (gc) {
-          native::delete_graphics_context(gc);
-          gc = 0;
-        }
-        if (target) {
-          native::delete_surface(target);
-          target = 0;
-        }
-      }
-
-      core::native_size size;
-      os::bitmap target;
-      os::graphics gc;
-    };
     // --------------------------------------------------------------------------
     private_surface& overlapped_window::get_surface () const {
       auto size = core::global::scale_to_native(client_size());
       if (!surface) {
         surface = std::make_unique<private_surface>();
       }
-      if (surface->size != size) {
-        surface->create(size, get_os_window());
-      }
+      surface->prepare(size, get_os_window());
       return *(surface.get());
     }
     // --------------------------------------------------------------------------
     bool overlapped_window::handle_event (const core::event& e, gui::os::event_result& r) const {
+//      if (!win::is_none_client_event(e) && !win::is_frequent_event(e) ) {
+//        clog::info() << "Message: " << e << IF_WIN32_ELSE(" (" << std::hex << e.wParam << ", " << e.lParam << ")", "");
+//      }
       if (mouse_move_event::match(e) && capture_window && (capture_window != this)) {
         return capture_window->handle_event(e, r);
       } else if ((any_key_down_event::match(e) || any_key_up_event::match(e)) && focus_window) {
         focus_window->handle_event(e, r);
       } else if (paint_event::match(e)) {
-        os::surface s = paint_event::Caller::get_param<0>(e);
+//        clog::info() << "overlapped_window::handle_event paint";
 
         private_surface& surface = get_surface();
-        native::erase(surface.target, surface.gc, core::native_rect(surface.size), get_window_class().get_background());
-        os::surface my_surface = {surface.target, surface.gc};
+        surface.begin(*this);
+        os::surface my_surface = surface.get_surface();
         provide_surface_for_event(&my_surface, e);
         bool ret = super::handle_event(e, r);
         reject_surface_for_event(e);
-        native::copy_surface(surface.target, get_os_window(), s.g, core::native_point::zero, core::native_point::zero, surface.size);
+        os::surface s = paint_event::Caller::get_param<0>(e);
+        surface.end(*this, s);
+
         core::global::sync();
 
         return ret;
@@ -654,7 +719,7 @@ namespace gui {
 
 #ifdef GUIPP_QT
 # ifndef GUIPP_BUILD_FOR_MOBILE
-      detail::get_os_window(*this)->setWindowModality(Qt::WindowModality::ApplicationModal);
+      detail::get_os_window(*this)->setModality(Qt::WindowModality::ApplicationModal);
 # endif
 #else
       parent.disable();

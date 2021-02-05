@@ -28,6 +28,7 @@
 #endif // GUIPP_X11
 #ifdef GUIPP_QT
 # include <QtGui/QFontDatabase>
+# include <QtGui/QFontMetrics>
 #endif // GUIPP_QT
 
 

@@ -16,6 +16,8 @@
  * @file
  */
 
+#include <ostream>
+
 // --------------------------------------------------------------------------
 //
 // Library includes
@@ -103,6 +105,19 @@ namespace gui {
 
     bool window_state::set::enable (bool on) {
       return set_flag(flags::window_disabled, !on);
+    }
+
+    // --------------------------------------------------------------------------
+    std::ostream& operator<< (std::ostream& out, const window_state::is& s) {
+      if (s.created()) out << " created,";
+      if (s.enabled()) out << " enabled,";
+      if (s.visible()) out << " visible,";
+      if (s.focused()) out << " focused,";
+      if (s.focus_accepting()) out << " focus_accepting,";
+      if (s.redraw_disabled()) out << " redraw_disabled,";
+      if (s.overlapped()) out << " overlapped";
+
+      return out;
     }
 
   } // namespace core

@@ -77,12 +77,6 @@ namespace gui {
     {}
 
     // --------------------------------------------------------------------------
-    template<typename T, typename F>
-    inline buffered_paint::buffered_paint (T* t, F f)
-      : p(util::bind_method(t, f))
-    {}
-
-    // --------------------------------------------------------------------------
     inline clip::clip (const graphics& g, const core::rectangle& r)
       : g(g) {
       g.push_clipping(r);

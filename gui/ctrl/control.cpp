@@ -85,16 +85,6 @@ namespace gui {
 
   namespace ctrl {
 
-    // --------------------------------------------------------------------------
-    void paint_caller::operator() (const core::event& e) {
-      if (f) {
-        PAINTSTRUCT ps;
-        os::graphics id = BeginPaint(e.id, &ps);
-        f(draw::graphics(e.id, id));
-        EndPaint(e.id, &ps);
-      }
-    }
-
 #endif // GUIPP_WIN
 
 #ifdef GUIPP_QT

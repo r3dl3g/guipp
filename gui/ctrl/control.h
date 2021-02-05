@@ -136,26 +136,6 @@ namespace gui {
   } // namespace win
 
   namespace ctrl {
-    // --------------------------------------------------------------------------
-    struct GUIPP_CTRL_EXPORT paint_caller : core::params<draw::graphics>::getter<win::get_param<0, draw::graphics> > {
-      typedef core::params<draw::graphics>::getter<win::get_param<0, draw::graphics> > super;
-      typedef super::function function;
-
-      paint_caller (const function cb)
-        : super(cb)
-      {}
-
-      template<class T>
-      paint_caller (T* t, void(T::*callback_)(const draw::graphics &))
-        : super(util::bind_method(t, callback_))
-      {}
-
-      void operator() (const core::event& e);
-    };
-
-    // --------------------------------------------------------------------------
-    using paint_event = core::event_handler<WM_PAINT, 0, paint_caller>;
-
 
     using selection_changed_event = core::event_handler<detail::SELECTION_CHANGE_MESSAGE, 0,
                                                         core::params<event_source>::

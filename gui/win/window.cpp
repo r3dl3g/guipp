@@ -46,7 +46,7 @@ namespace gui {
       : area(core::rectangle::def)
       , parent(nullptr)
       , class_name(nullptr)
-      , cursor({})
+      , cursor()
     {
       init();
     }
@@ -56,7 +56,7 @@ namespace gui {
       , parent(nullptr)
       , flags(rhs.flags)
       , class_name(nullptr)
-      , cursor({})
+      , cursor()
     {
       init();
       if (rhs.is_valid()) {
@@ -203,8 +203,12 @@ namespace gui {
         return false;
       }
 
-      //      clog::trace() << "handle_event: for window: " << this << " " << e;
+//      clog::trace() << "handle_event: for window: " << this << " " << e;
       bool res = false;
+//      if (paint_event::match(e)) {
+//        clog::info() << "window::handle_event paint";
+//      }
+
       if (is_enabled() || paint_event::match(e)) {
         res = events.handle_event(e, result);
       }

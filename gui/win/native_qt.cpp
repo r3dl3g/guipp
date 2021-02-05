@@ -24,10 +24,11 @@
 //
 #include <map>
 
-#include <QtWidgets/QApplication>
+#include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
 #include <QtGui/QPainter>
 #include <QtGui/QBitmap>
+#include <QtGui/QBackingStore>
 
 // --------------------------------------------------------------------------
 //
@@ -55,7 +56,7 @@ namespace gui {
       }
 
       void move (os::window w, const core::point& pt) {
-        w->move(pt.os_x(), pt.os_y());
+        w->setPosition(pt.os_x(), pt.os_y());
       }
 
       void resize (os::window w, const core::size& sz) {
@@ -67,7 +68,7 @@ namespace gui {
       }
 
       core::rectangle get_geometry (os::window w) {
-        return core::rectangle(w->pos(), w->frameSize());
+        return core::rectangle(w->position(), w->size());
       }
 
       void prepare(overlapped_window&) {}
@@ -77,17 +78,11 @@ namespace gui {
                          os::window parent_id,
                          overlapped_window& data) {
         os::window id = new os::qt::Widget(parent_id, type.get_style(), &data);
-        Qt::WindowFlags style = id->windowFlags();
+        Qt::WindowFlags style = id->flags();
         //clog::debug() << "Expected style: " << std::hex << type.get_style() << ", current style: " << std::hex << style;
 
         id->setGeometry(r.os());
         id->setCursor(type.get_cursor());
-
-        QPalette pal = id->palette();
-        pal.setColor(QPalette::Window, QColor(type.get_background()));
-        id->setAutoFillBackground(true);
-        id->setPalette(pal);
-        id->setFocusPolicy(data.can_accept_focus() ? Qt::WheelFocus : Qt::NoFocus);
 
         if (0 == window_class_info_map.count(type.get_class_name())) {
           window_class_info_map[type.get_class_name()] = type;
@@ -128,15 +123,12 @@ namespace gui {
         }
       }
 
-      void enable (overlapped_window& w, bool s) {
-        if (w.is_valid()) {
-          detail::get_os_window(w)->setEnabled(s);
-        }
+      void enable (overlapped_window&, bool) {
       }
 
       void to_front (os::window id) {
         if (id) {
-          id->stackUnder(id->parentWidget());
+          id->raise();
         }
       }
 
@@ -146,10 +138,7 @@ namespace gui {
         }
       }
 
-      void take_focus (os::window id) {
-        if (id) {
-          id->setFocus();
-        }
+      void take_focus (os::window) {
       }
 
       void set_cursor (os::window id, const os::cursor& c) {
@@ -160,21 +149,17 @@ namespace gui {
 
       void invalidate (os::window id, const core::rectangle& r) {
         if (id) {
-          id->update(r.os());
+          id->requestUpdate();
         }
       }
 
       void redraw (const window&, os::window id, const core::rectangle& r) {
         if (id) {
-          id->repaint(r.os());
+          id->requestUpdate();
         }
       }
 
-      void prepare_accept_focus (os::window id, bool a) {
-        if (id) {
-          id->setFocusPolicy(a ? Qt::WheelFocus : Qt::NoFocus);
-        }
-      }
+      void prepare_accept_focus (os::window, bool) {}
 
       void prepare_capture_pointer () {}
 
@@ -182,13 +167,13 @@ namespace gui {
 
       void capture_pointer (os::window id) {
         if (id) {
-          id->grabMouse();
+          id->setMouseGrabEnabled(true);
         }
       }
 
       void uncapture_pointer (os::window id) {
         if (id) {
-          id->releaseMouse();
+          id->setMouseGrabEnabled(false);
         }
       }
 
@@ -217,27 +202,27 @@ namespace gui {
 
       void set_title (os::window id, const std::string& title) {
         if (id) {
-          id->setWindowTitle(QString::fromStdString(title));
+          id->setTitle(QString::fromStdString(title));
         }
       }
 
       std::string get_title (os::window id) {
         if (id) {
-          return id->windowTitle().toStdString();
+          return id->title().toStdString();
         }
         return {};
       }
 
       bool is_maximized (os::window id) {
-        return id && id->isMaximized();
+        return id && (id->visibility() == QWindow::Maximized);
       }
 
       bool is_minimized (os::window id) {
-        return id && id->isMinimized();
+        return id && (id->visibility() == QWindow::Minimized);
       }
 
       bool is_top_most (os::window id) {
-        return id && ((id->windowFlags() & Qt::WindowStaysOnTopHint) == Qt::WindowStaysOnTopHint);
+        return id && id->isTopLevel();
       }
 
       void minimize (os::window id) {
@@ -260,7 +245,7 @@ namespace gui {
 
       void set_top_most (os::window id, bool on) {
         if (id) {
-          id->setWindowFlag(Qt::WindowStaysOnTopHint, on);
+          id->setFlag(Qt::WindowStaysOnTopHint, on);
         }
       }
 
@@ -272,16 +257,18 @@ namespace gui {
         gc->fillRect(r.x(), r.y(), r.width(), r.height(), c);
       }
 
-      os::bitmap create_surface (const core::native_size& size, os::window id) {
-        return new QPixmap(size.width(), size.height());
+      os::backstore create_surface (const core::native_size& size, os::window id) {
+        auto bs = new QBackingStore(id);
+        bs->resize(QSize(size.width(), size.height()));
+        return bs;
       }
 
-      void delete_surface (os::bitmap id) {
+      void delete_surface (os::backstore id) {
         delete id;
       }
 
-      os::graphics create_graphics_context (os::bitmap id) {
-        return new QPainter(id);
+      os::graphics create_graphics_context (os::backstore id) {
+        return new QPainter();
       }
 
       void delete_graphics_context (os::graphics id) {
@@ -304,7 +291,7 @@ namespace gui {
     namespace qt {
 
       Widget::Widget (Widget* parent, os::style s, win::overlapped_window* w)
-        : QWidget(parent, s)
+        : super(parent)
         , win(w)
       {}
 
@@ -323,7 +310,7 @@ namespace gui {
       }
 
       Widget* Widget::get_parent () const {
-        return static_cast<Widget*>(parentWidget());
+        return static_cast<Widget*>(parent());
       }
 
       bool Widget::event (QEvent* e) {
@@ -333,7 +320,7 @@ namespace gui {
         if (win && win->handle_event(ev, result)) {
           return true;
         }
-        return QWidget::event(e);
+        return super::event(e);
       }
 
     } // namespace qt

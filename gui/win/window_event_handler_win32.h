@@ -95,19 +95,22 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    struct GUIPP_WIN_EXPORT pos_changing_getter : core::params<core::rectangle>::getter<get_param<1, core::rectangle>> {
-      typedef core::params<core::rectangle>::getter<get_param<1, core::rectangle>> super;
+    struct GUIPP_WIN_EXPORT pos_changing_getter {
+      typedef std::function<void (core::rectangle&)> function;
 
       pos_changing_getter (const function cb)
-        : super(cb)
+        : callback(cb)
       {}
 
       template<class T>
       pos_changing_getter (T* win, void(T::*changingfn)(core::rectangle &))
-        : super(win, changingfn)
+        : callback(win, changingfn)
       {}
 
       void operator() (const core::event& e);
+
+    private:
+      function callback;
     };
     // --------------------------------------------------------------------------
     struct GUIPP_WIN_EXPORT minmax_getter {
@@ -131,27 +134,6 @@ namespace gui {
     private:
       function callback;
     };
-    // --------------------------------------------------------------------------
-    inline os::surface get_surface (const core::event&) {
-      return {0, 0};
-    }
-    // --------------------------------------------------------------------------
-    struct GUIPP_WIN_EXPORT os_paint_getter : core::params<os::surface>::getter<get_surface> {
-
-      typedef core::params<os::surface>::getter<getsurface> super;
-
-      os_paint_getter (const function cb)
-        : super(cb)
-      {}
-
-      template<class T>
-      os_paint_getter (T* t, void(T::*callback_)(os::surface))
-        : super(util::bind_method(t, callback_))
-      {}
-
-      void operator() (const core::event& e);
-    };
-
     // --------------------------------------------------------------------------
     using create_event = core::event_handler<WM_CREATE, 0, core::params<>::getter<>>;
 
@@ -305,7 +287,8 @@ namespace gui {
                                              core::params<core::rectangle>::
                                              getter<get_param<1, core::rectangle>>>;
 
-    using paint_event = core::event_handler<WM_PAINT, 0, os_paint_getter>;
+    using paint_event = core::event_handler<WM_PAINT, 0, core::params<os::surface>::
+                                                         getter<get_surface>>;
 
     // --------------------------------------------------------------------------
 

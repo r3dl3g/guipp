@@ -386,7 +386,8 @@ namespace gui {
     void window::place_native (const core::rectangle&) {}
 
     void window::move (const core::point& pt, bool repaint) {
-      if (position() != pt) {
+      const auto previous = position();
+      if (previous != pt) {
         area.set_position(pt);
         if (is_valid()) {
           move_native(pt);
@@ -394,12 +395,13 @@ namespace gui {
             invalidate();
           }
         }
-        native::notify_move(*this, pt);
+        native::notify_move(*this, pt, previous);
       }
     }
 
     void window::resize (const core::size& sz, bool repaint) {
-      if (size() != sz) {
+      const auto previous = size();
+      if (previous != sz) {
         area.set_size(sz);
         if (sz.empty()) {
           if (is_visible()) {
@@ -416,7 +418,7 @@ namespace gui {
             }
           }
         }
-        native::notify_resize(*this, sz);
+        native::notify_resize(*this, sz, previous);
         notify_event(core::WM_LAYOUT_WINDOW, client_area());
       }
     }
@@ -441,10 +443,10 @@ namespace gui {
           }
         }
         if (previous.position() != area.position()) {
-          native::notify_move(*this, area.position());
+          native::notify_move(*this, area.position(), previous.position());
         }
         if (previous.size() != area.size()) {
-          native::notify_resize(*this, area.size());
+          native::notify_resize(*this, area.size(), previous.size());
           notify_event(core::WM_LAYOUT_WINDOW, client_area());
         }
       }

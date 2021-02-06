@@ -67,6 +67,20 @@ namespace gui {
         w->setGeometry(r.os());
       }
 
+      void notify_move (window& w, const core::point& pt, const core::point& old) {
+        QMoveEvent qe(pt.os(), old.os());
+        gui::os::event_result result = 0;
+        gui::core::event e{0, &qe};
+        w.handle_event(e, result);
+      }
+
+      void notify_resize (window& w, const core::size& sz, const core::size& old) {
+        QResizeEvent qe(sz.os(), old.os());
+        gui::os::event_result result = 0;
+        gui::core::event e{0, &qe};
+        w.handle_event(e, result);
+      }
+
       core::rectangle get_geometry (os::window w) {
         return core::rectangle(w->position(), w->size());
       }

@@ -754,8 +754,6 @@ covid19main::covid19main ()
     height.create(*this);
 
     charts.create(*this);
-    table.create(*this);
-    table.set_visible(false);
 
     get_layout().set_left(layout::lay(selection));
     get_layout().set_bottom(layout::lay(button_layout));
@@ -933,6 +931,9 @@ void covid19main::showChart (chart_t t) {
 // --------------------------------------------------------------------------
 void covid19main::showTable () {
   charts.set_visible(false);
+  if (!table.is_valid()) {
+    table.create(*this);
+  }
   table.set_visible(true);
   get_layout().set_center(layout::lay(table));
   layout();
@@ -1138,21 +1139,28 @@ void covid19main::draw_uncached (std::size_t idx_,
 }
 // --------------------------------------------------------------------------
 std::vector<std::string> covid19_cases_header = {
- "dateRep","day","month","year","cases","deaths","countriesAndTerritories","geoId","countryterritoryCode",
-  "popData2019","continentExp","Cumulative_number_for_14_days_of_COVID-19_cases_per_100000"
+ "dateRep", "day", "month", "year", "cases", "deaths", "countriesAndTerritories", "geoId", "countryterritoryCode",
+ "popData2019", "continentExp", "Cumulative_number_for_14_days_of_COVID-19_cases_per_100000"
 };
 typedef csv::tuple_reader<csv::skip, int, int, int, int, int, std::string, csv::skip, csv::skip, std::size_t, std::string, csv::skip> covid19_cases_reader;
 // --------------------------------------------------------------------------
+std::vector<std::string> covid19_tests_header = {
+//  0          1               2                                              3            4             5             6               7                  8
+    "country", "country_code", "year_week",                                   "new_cases", "tests_done", "population", "testing_rate", "positivity_rate", "testing_data_source"
+};
+typedef csv::tuple_reader<std::string, csv::skip, std::string, int, int, csv::skip, csv::skip, csv::skip, csv::skip> covid19_tests_reader;
+// --------------------------------------------------------------------------
 std::vector<std::string> covid19_cases_header_new = {
- "dateRep","year_week","cases_weekly","deaths_weekly","countriesAndTerritories","geoId","countryterritoryCode",
-  "popData2019","continentExp","notification_rate_per_100000_population_14-days"
+ "dateRep", "year_week", "cases_weekly", "deaths_weekly", "countriesAndTerritories", "geoId", "countryterritoryCode",
+ "popData2019", "continentExp", "notification_rate_per_100000_population_14-days"
 };
 typedef csv::tuple_reader<csv::skip, std::string, int, int, std::string, csv::skip, csv::skip, std::size_t, std::string, csv::skip> covid19_cases_reader_new;
 // --------------------------------------------------------------------------
-std::vector<std::string> covid19_tests_header = {
-  "country","country_code","year_week","new_cases","tests_done","population","testing_rate","positivity_rate","testing_data_source"
+std::vector<std::string> covid19_tests_header_new2 = {
+//  0          1               2            3        4         5              6            7             8             9               10                 11
+    "country", "country_code", "year_week", "level", "region", "region_name", "new_cases", "tests_done", "population", "testing_rate", "positivity_rate", "testing_data_source"
 };
-typedef csv::tuple_reader<std::string, csv::skip, std::string, int, int, csv::skip, csv::skip, csv::skip, csv::skip> covid19_tests_reader;
+typedef csv::tuple_reader<std::string, csv::skip, std::string, std::string, csv::skip, csv::skip, int, int, csv::skip, csv::skip, csv::skip, csv::skip> covid19_tests_reader_new2;
 // --------------------------------------------------------------------------
 struct timed_progress {
   typedef std::chrono::system_clock clock;
@@ -1185,7 +1193,7 @@ struct timed_progress {
   const std::chrono::milliseconds step;
 };
 // --------------------------------------------------------------------------
-void covid19main::load_tests_data (std::istream& in, const double file_size, bool /*new_struct*/) {
+void covid19main::load_tests_data (std::istream& in, const double file_size, bool new_struct) {
   timed_progress prgrs(progress, client_size(), file_size);
   util::time::chronometer stopwatch;
   country_data::country_map_t& country_map = full_data.country_map;
@@ -1197,21 +1205,42 @@ void covid19main::load_tests_data (std::istream& in, const double file_size, boo
     cntry.tests_per_week.clear();
   }
 
-  covid19_tests_reader::read_csv(in, ',', false, [&] (const covid19_tests_reader::tuple& t) {
-    const auto &n = std::get<0>(t);
-    auto& cntry = country_map[n];
+  if (new_struct) {
+    covid19_tests_reader_new2::read_csv(in, ',', false, [&] (const covid19_tests_reader_new2::tuple& t) {
+      const auto &n = std::get<0>(t);
+      auto& cntry = country_map[n];
 
-    const std::string year_week = std::get<2>(t);
-    auto idx = year_week.find("-W");
-    if (idx != std::string::npos) {
-      auto year = util::string::convert::to<int>(year_week.substr(0, idx));
-      auto week = util::string::convert::to<int>(year_week.substr(idx + 2));
-      const auto x = time::first_day_of_week(year, week);
+      const std::string& year_week = std::get<2>(t);
+      const std::string& level = std::get<3>(t);
+      if (level != "national") return;
 
-      cntry.cases_per_week.push_back({x, static_cast<double>(std::get<3>(t))});
-      cntry.tests_per_week.push_back({x, static_cast<double>(std::get<4>(t))});
-    }
-  });
+      auto idx = year_week.find("-W");
+      if (idx != std::string::npos) {
+        auto year = util::string::convert::to<int>(year_week.substr(0, idx));
+        auto week = util::string::convert::to<int>(year_week.substr(idx + 2));
+        const auto x = time::first_day_of_week(year, week);
+
+        cntry.cases_per_week.push_back({x, static_cast<double>(std::get<6>(t))});
+        cntry.tests_per_week.push_back({x, static_cast<double>(std::get<7>(t))});
+      }
+    });
+  } else {
+    covid19_tests_reader::read_csv(in, ',', false, [&] (const covid19_tests_reader::tuple& t) {
+      const auto &n = std::get<0>(t);
+      auto& cntry = country_map[n];
+
+      const std::string& year_week = std::get<2>(t);
+      auto idx = year_week.find("-W");
+      if (idx != std::string::npos) {
+        auto year = util::string::convert::to<int>(year_week.substr(0, idx));
+        auto week = util::string::convert::to<int>(year_week.substr(idx + 2));
+        const auto x = time::first_day_of_week(year, week);
+
+        cntry.cases_per_week.push_back({x, static_cast<double>(std::get<3>(t))});
+        cntry.tests_per_week.push_back({x, static_cast<double>(std::get<4>(t))});
+      }
+    });
+  }
 
   clog::info() << "Duration for parsing: " << stopwatch;
   std::size_t count = x_range.size() / (60*60*24) + 1;
@@ -1378,6 +1407,22 @@ void covid19main::load_cases_data (std::istream& in, const double file_size, boo
   select_country(0);
 }
 // --------------------------------------------------------------------------
+namespace std {
+  template <typename T>
+  ostream& operator<< (ostream& out, const vector<T>& v) {
+    bool first = true;
+    for (const auto& t: v) {
+      if (first) {
+        first = false;
+      } else {
+        out << ", ";
+      }
+      out << t;
+    }
+    return out;
+  }
+}
+// --------------------------------------------------------------------------
 void covid19main::load_data (const std::vector<std::string>& args) {
   using namespace util;
 
@@ -1404,15 +1449,16 @@ void covid19main::load_data (const std::vector<std::string>& args) {
         load_cases_data(in, file_size);
       } else if (header == covid19_cases_header_new) {
         load_cases_data(in, file_size, true);
-      } else if (header == covid19_tests_header) {
+      } else if ((header == covid19_tests_header) || (header == covid19_tests_header_new2)) {
         if (full_data.country_map.empty()) {
           win::run_on_main([&] () {
             ctrl::message_dialog::show(*this, "Warning!", "You have to load cases data first!", "Ok");
           });
         } else {
-          load_tests_data(in, file_size);
+          load_tests_data(in, file_size, header == covid19_tests_header_new2);
         }
       } else {
+        clog::warn() << "Found unknown header:" << header;
         win::run_on_main([&] () {
           ctrl::message_dialog::show(*this, "Warning!", "Type of csv file could not be recognized", "Ok");
         });

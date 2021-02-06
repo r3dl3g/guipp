@@ -235,7 +235,7 @@ namespace gui {
                                             r.os_x(), r.os_y(), r.os_width(), r.os_height()));
       }
 
-      void notify_move (window& win, const core::point& pt) {
+      void notify_move (window& win, const core::point& pt, const core::point&) {
         if (win.is_valid()) {
           XEvent event;
           XConfigureEvent& client = event.xconfigure;
@@ -259,7 +259,7 @@ namespace gui {
         }
       }
 
-      void notify_resize (window& win, const core::size& sz) {
+      void notify_resize (window& win, const core::size& sz, const core::size&) {
         if (win.is_valid()) {
           XEvent event;
           XConfigureEvent& client = event.xconfigure;

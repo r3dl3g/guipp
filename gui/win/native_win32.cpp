@@ -100,6 +100,18 @@ namespace gui {
         MoveWindow(w, r.os_x(), r.os_y(), r.os_width(), r.os_height(), false);
       }
 
+      void notify_move (window& w, const core::point& pt, const core::point&) {
+        gui::os::event_result result = 0;
+        gui::core::event e{0, WM_MOVE, 0, MAKELPARAM(pt.os_x(), pt.os_y())};
+        w.handle_event(e, result);
+      }
+
+      void notify_resize (window& w, const core::size& sz, const core::size&) {
+        gui::os::event_result result = 0;
+        gui::core::event e{0, WM_SIZE, 0, MAKELPARAM(sz.os_width(), sz.os_height())};
+        w.handle_event(e, result);
+      }
+
       core::rectangle get_geometry (os::window w) {
         RECT r;
         GetWindowRect(w, &r);

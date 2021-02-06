@@ -175,11 +175,11 @@ namespace gui {
     }
 
     void edit_list::enter_edit () {
-      if (data.enable_edit&& data.data_source) {
+      if (data.enable_edit && data.data_source) {
         auto cell = super::get_selection();
         auto area = super::get_place_of_index(cell);
         if (!data.editor.is_valid()) {
-          data.editor.create(*reinterpret_cast<win::container*>(this), area);
+          data.editor.create(*this, area);
         }
         data.editor.place(area);
         data.editor.set_text(data.data_source(cell));
@@ -190,7 +190,7 @@ namespace gui {
     }
 
     void edit_list::commit_edit () {
-      if (data.data_target&& data.editor.is_visible()) {
+      if (data.data_target && data.editor.is_visible()) {
         auto pos = data.editor.position();
         auto cell = super::get_index_at_point(pos);
         data.data_target(cell, data.editor.get_text());

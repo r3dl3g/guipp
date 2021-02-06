@@ -36,7 +36,7 @@ namespace gui {
 
     void progress_bar (const draw::graphics& graph,
                        const core::rectangle& area,
-                       const std::string& text,
+                       const std::string& txt,
                        os::color foreground,
                        os::color background,
                        const text_origin_t& origin,
@@ -44,8 +44,10 @@ namespace gui {
                        core::size::type bar_pos) {
       using namespace gui::draw;
       graph.fill(draw::rectangle(area.with_width(bar_pos)), bar_color);
-      graph.fill(draw::rectangle({bar_pos, area.y(), area.x2() - bar_pos, area.height()}), background);
-      graph.text(draw::text_box(text, area, origin), font::system(), foreground);
+      graph.fill(draw::rectangle({area.x() + bar_pos, area.y(), area.x2() - bar_pos, area.height()}), background);
+      if (!txt.empty()) {
+        graph.text(draw::text_box(txt, area, origin), font::system(), foreground);
+      }
 #ifdef SHOW_TEXT_AREA
       graph.text(draw::bounding_box(text, area, origin), font::system(), color::black);
       graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));

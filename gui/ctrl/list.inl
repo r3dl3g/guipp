@@ -115,8 +115,8 @@ namespace gui {
                                                                       int idx,
                                                                       size_type scroll_pos) const {
       core::rectangle place;
-      super::set_1(place, item_size * idx - scroll_pos, item_size);
-      super::set_2(place, 0, super::get_2(list_size.size()));
+      super::set_1(place, super::get_1(list_size.position()) + item_size * idx - scroll_pos, item_size);
+      super::set_2(place, super::get_2(list_size.position()), super::get_2(list_size.size()));
       return place;
     }
 

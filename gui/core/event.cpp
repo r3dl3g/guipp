@@ -37,10 +37,10 @@ namespace gui {
 
 #ifdef GUIPP_X11
     Atom WM_LAYOUT_WINDOW = 0;
+    Atom WM_CREATE_WINDOW = 0;
 
     namespace x11 {
 
-      Atom WM_CREATE_WINDOW = 0;
       Atom WM_DELETE_WINDOW = 0;
       Atom WM_PROTOCOLS = 0;
       Atom WM_TAKE_FOCUS = 0;

@@ -42,6 +42,7 @@ if(NOT TARGET gui++-win)
       cursor.h
       cursor.inl
       dbg_win_message.h
+      native.h
       receiver.h
       receiver.inl
       window.h

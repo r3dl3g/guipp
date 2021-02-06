@@ -135,7 +135,7 @@ namespace gui {
       function callback;
     };
     // --------------------------------------------------------------------------
-    using create_event = core::event_handler<WM_CREATE, 0, core::params<>::getter<>>;
+    using create_event = core::event_handler<core::WM_CREATE_WINDOW>;
 
     using close_event = core::event_handler<WM_CLOSE, 0, core::params<>::getter<>, 1>;
 

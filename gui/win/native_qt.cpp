@@ -91,10 +91,6 @@ namespace gui {
         return id;
       }
 
-      void notify_created(window* w) {
-        w->notify_event(core::qt::WM_CREATE_WINDOW);
-      }
-
       void destroy (os::window id) {
         if (id) {
           // notify_event(core::qt::WM_DESTROY_WINDOW);

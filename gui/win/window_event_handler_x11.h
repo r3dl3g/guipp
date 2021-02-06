@@ -268,7 +268,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     using create_event = core::event_handler<ClientMessage, 0, core::params<>::getter<>, 0,
-                                             event::functor<client_message_matcher<core::x11::WM_CREATE_WINDOW>>>;
+                                             event::functor<client_message_matcher<core::WM_CREATE_WINDOW>>>;
 
     using close_event = core::event_handler<ClientMessage, 0,
                                             core::params<>::getter<>, 1,

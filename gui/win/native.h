@@ -56,7 +56,6 @@ namespace gui {
                                           const core::rectangle& r,
                                           os::window parent_id,
                                           overlapped_window& data);
-      GUIPP_WIN_EXPORT void notify_created (window* w);
       GUIPP_WIN_EXPORT void destroy (os::window w);
 
       GUIPP_WIN_EXPORT void close (os::window id);

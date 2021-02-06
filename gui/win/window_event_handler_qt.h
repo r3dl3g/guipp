@@ -125,7 +125,7 @@ namespace gui {
     GUIPP_WIN_EXPORT os::window get_draw_window (const core::event&);
 
     // --------------------------------------------------------------------------
-    using create_event = core::event_handler<core::qt::WM_CREATE_WINDOW>;
+    using create_event = core::event_handler<core::WM_CREATE_WINDOW>;
 
     using close_event = core::event_handler<QEvent::Close, 0,
                                             core::params<>::getter<>, 1>;

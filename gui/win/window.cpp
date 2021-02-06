@@ -113,7 +113,7 @@ namespace gui {
       class_name = type.get_class_name();
       area = r;
       set_state().created(true);
-      native::notify_created(this);
+      notify_event(core::WM_CREATE_WINDOW);
     }
 
     void window::close () {

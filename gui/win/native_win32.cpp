@@ -162,8 +162,6 @@ namespace gui {
         return id;
       }
 
-      void notify_created (window*) {}
-
       void destroy (os::window w) {
         if (w) {
           DestroyWindow(w);

@@ -315,10 +315,6 @@ namespace gui {
         return id;
       }
 
-      void notify_created(window* w) {
-        w->notify_event(core::x11::WM_CREATE_WINDOW);
-      }
-
       void destroy (os::window w) {
         if (w) {
           x11::validate_window(w);

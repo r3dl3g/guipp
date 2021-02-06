@@ -394,52 +394,58 @@ namespace gui {
             invalidate();
           }
         }
+        native::notify_move(*this, pt);
       }
     }
 
     void window::resize (const core::size& sz, bool repaint) {
-      if (sz.empty()) {
-        if (is_visible()) {
-          set_visible(false);
-        }
-      } else {
-        if (size() != sz) {
+      if (size() != sz) {
+        area.set_size(sz);
+        if (sz.empty()) {
+          if (is_visible()) {
+            set_visible(false);
+          }
+        } else {
           if (!is_visible()) {
             set_visible();
           }
-          area.set_size(sz);
           if (is_valid()) {
             resize_native(sz);
             if (repaint) {
               invalidate();
             }
           }
-          notify_event(core::WM_LAYOUT_WINDOW, client_area());
         }
+        native::notify_resize(*this, sz);
+        notify_event(core::WM_LAYOUT_WINDOW, client_area());
       }
     }
 
     void window::place (const core::rectangle& r, bool repaint) {
-      if (r.empty()) {
-        if (is_visible()) {
-          set_visible(false);
-        }
-      } else {
-        if (!is_visible()) {
-          set_visible();
-        }
-        const auto current = place();
-        if (current != r) {
-          area = r;
+      const auto previous = place();
+      if (previous != r) {
+        area = r;
+        if (r.empty()) {
+          if (is_visible()) {
+            set_visible(false);
+          }
+        } else {
+          if (!is_visible()) {
+            set_visible();
+          }
           if (is_valid()) {
-            place_native(r);
+            place_native(area);
             if (repaint) {
               invalidate();
             }
           }
-          if (current.size() != r.size()) {
-            notify_event(core::WM_LAYOUT_WINDOW, client_area());
-          }
+        }
+        if (previous.position() != area.position()) {
+          native::notify_move(*this, area.position());
+        }
+        if (previous.size() != area.size()) {
+          native::notify_resize(*this, area.size());
+          notify_event(core::WM_LAYOUT_WINDOW, client_area());
         }
       }
     }

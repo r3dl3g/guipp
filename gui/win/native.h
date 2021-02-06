@@ -48,6 +48,9 @@ namespace gui {
       GUIPP_WIN_EXPORT void resize (os::window id, const core::size& sz);
       GUIPP_WIN_EXPORT void place (os::window id, const core::rectangle& r);
 
+      GUIPP_WIN_EXPORT void notify_move (window& w, const core::point& pt);
+      GUIPP_WIN_EXPORT void notify_resize (window& w, const core::size& sz);
+
       GUIPP_WIN_EXPORT core::rectangle get_geometry (os::window id);
 
       GUIPP_WIN_EXPORT void prepare (overlapped_window& w);

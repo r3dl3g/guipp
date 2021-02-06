@@ -235,6 +235,54 @@ namespace gui {
                                             r.os_x(), r.os_y(), r.os_width(), r.os_height()));
       }
 
+      void notify_move (window& win, const core::point& pt) {
+        if (win.is_valid()) {
+          XEvent event;
+          XConfigureEvent& client = event.xconfigure;
+
+          client.type = ConfigureNotify;
+          client.serial = 0;
+          client.send_event = 1;
+          client.display = core::global::get_instance();
+          client.event = 0;
+          client.window = 0;
+          client.x = pt.os_x();
+          client.y = pt.os_y();
+          client.width = 0;
+          client.height = 0;
+          client.border_width = 0;
+          client.above = 0;
+          client.override_redirect = 0;
+
+          gui::os::event_result result = 0;
+          win.handle_event(event, result);
+        }
+      }
+
+      void notify_resize (window& win, const core::size& sz) {
+        if (win.is_valid()) {
+          XEvent event;
+          XConfigureEvent& client = event.xconfigure;
+
+          client.type = ConfigureNotify;
+          client.serial = 0;
+          client.send_event = 0;
+          client.display = core::global::get_instance();
+          client.event = 0;
+          client.window = 0;
+          client.x = 0;
+          client.y = 0;
+          client.width = sz.os_width();
+          client.height = sz.os_height();
+          client.border_width = 0;
+          client.above = 0;
+          client.override_redirect = 0;
+
+          gui::os::event_result result = 0;
+          win.handle_event(event, result);
+        }
+      }
+
       core::rectangle get_geometry (os::window wid) {
         Window root = 0;
         int x = 0, y = 0;

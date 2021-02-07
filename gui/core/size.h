@@ -30,7 +30,8 @@
 //
 // Library includes
 //
-#include "guidefs.h"
+#include <gui/core/guidefs.h>
+#include "coordinate_system.h"
 
 
 namespace gui {
@@ -38,7 +39,7 @@ namespace gui {
   namespace core {
 
     // --------------------------------------------------------------------------
-    template<typename T>
+    template<typename T, coordinate_system C = core::coordinate_system::independent>
     struct basic_size {
       typedef T type;
       typedef basic_size self;
@@ -59,6 +60,15 @@ namespace gui {
       operator gui::os::point() const;
 
       gui::os::size os () const;
+
+      type width () const;
+      type height () const;
+
+      gui::os::size_type os_width () const;
+      gui::os::size_type os_height () const;
+
+      void width (type w);
+      void height (type h);
 
       bool empty () const;
       void clear (type v = 0);
@@ -84,27 +94,18 @@ namespace gui {
 
       self operator- () const;
 
-      type width () const;
-      type height () const;
-
-      gui::os::size_type os_width () const;
-      gui::os::size_type os_height () const;
-
-      void width (type w);
-      void height (type h);
-
     private:
       type w;
       type h;
     };
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    std::ostream& operator<< (std::ostream& out, const basic_size<T>&);
+    template<typename T, coordinate_system C>
+    std::ostream& operator<< (std::ostream& out, const basic_size<T, C>&);
 
     // --------------------------------------------------------------------------
-    typedef basic_size<float> size;
-    typedef basic_size<uint32_t> native_size;
+    typedef basic_size<float, coordinate_system::local> size;
+    typedef basic_size<uint32_t, coordinate_system::surface> native_size;
 
     // --------------------------------------------------------------------------
   } // namespace core

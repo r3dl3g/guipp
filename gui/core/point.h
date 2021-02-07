@@ -35,11 +35,11 @@ namespace gui {
   namespace core {
 
     // --------------------------------------------------------------------------
-    template<typename T>
+    template<typename T, coordinate_system C = core::coordinate_system::independent>
     struct basic_point {
       typedef T type;
       typedef basic_point self;
-      typedef basic_size<T> size_t;
+      typedef basic_size<T, C> size_t;
 
       static const self zero;
       static const self end;
@@ -63,6 +63,9 @@ namespace gui {
 
       void x (type v);
       void y (type v);
+
+      bool is_valid () const;
+      void clear ();
 
       bool operator== (const self& rhs) const;
       bool operator!= (const self& rhs) const;
@@ -98,21 +101,18 @@ namespace gui {
       self dy (type y) const;
       self dxy (type x, type y) const;
 
-      bool is_valid () const;
-      void clear ();
-
     private:
       type x_;
       type y_;
     };
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    std::ostream& operator<< (std::ostream& out, const basic_point<T>&);
+    template<typename T, coordinate_system C>
+    std::ostream& operator<< (std::ostream& out, const basic_point<T, C>&);
 
     // --------------------------------------------------------------------------
-    typedef basic_point<float> point;
-    typedef basic_point<int32_t> native_point;
+    typedef basic_point<float, coordinate_system::local> point;
+    typedef basic_point<int32_t, coordinate_system::surface> native_point;
 
     // --------------------------------------------------------------------------
   } // namespace core

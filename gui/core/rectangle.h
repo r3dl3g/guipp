@@ -35,13 +35,13 @@ namespace gui {
   namespace core {
 
     // --------------------------------------------------------------------------
-    template<typename T, typename S>
+    template<typename T, typename S, coordinate_system C = core::coordinate_system::independent>
     struct basic_rectangle {
       typedef T point_type;
       typedef S size_type;
       typedef basic_rectangle self;
-      typedef basic_point<T> point_t;
-      typedef basic_size<S> size_t;
+      typedef basic_point<T, C> point_t;
+      typedef basic_size<S, C> size_t;
 
       static const self zero;
       static const self def;
@@ -189,12 +189,12 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename T, typename S>
-    std::ostream& operator<< (std::ostream& out, const basic_rectangle<T, S>&);
+    template<typename T, typename S, coordinate_system C>
+    std::ostream& operator<< (std::ostream& out, const basic_rectangle<T, S, C>&);
 
     // --------------------------------------------------------------------------
-    typedef basic_rectangle<float, float> rectangle;
-    typedef basic_rectangle<int32_t, uint32_t> native_rect;
+    typedef basic_rectangle<float, float, coordinate_system::local> rectangle;
+    typedef basic_rectangle<int32_t, uint32_t, coordinate_system::surface> native_rect;
 
     // --------------------------------------------------------------------------
   } // namespace core

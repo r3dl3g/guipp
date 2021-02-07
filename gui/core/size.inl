@@ -35,209 +35,241 @@ namespace gui {
 
   namespace core {
 
-    template<typename T>
-    const basic_size<T> basic_size<T>::zero;
+    namespace convert {
 
-    template<typename T>
-    const basic_size<T> basic_size<T>::one(T(1));
+      template<typename T, coordinate_system C>
+      struct size {
+        static gui::os::size_type to_os (const T&);
+        static T from_os (const gui::os::size_type&);
+      };
 
-    template<typename T>
-    const basic_size<T> basic_size<T>::two(T(2));
+      template<typename T>
+      struct size<T, coordinate_system::local> {
+        static inline gui::os::size_type to_os (const T& v) {
+          return global::scale_to_native<T, gui::os::size_type>(v);
+        }
+
+        static inline T from_os (const gui::os::size_type& v) {
+          return global::scale_from_native<T, gui::os::size_type>(v);
+        }
+      };
+
+      template<typename T>
+      struct size<T, coordinate_system::surface> {
+        static inline gui::os::size_type to_os (const T& v) {
+          return static_cast<gui::os::size_type>(v);
+        }
+
+        static inline T from_os (const gui::os::size_type& v) {
+          return static_cast<T>(v);
+        }
+      };
+
+    }
+
+    template<typename T, coordinate_system C>
+    const basic_size<T, C> basic_size<T, C>::zero;
+
+    template<typename T, coordinate_system C>
+    const basic_size<T, C> basic_size<T, C>::one(T(1));
+
+    template<typename T, coordinate_system C>
+    const basic_size<T, C> basic_size<T, C>::two(T(2));
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    inline basic_size<T>::basic_size ()
+    template<typename T, coordinate_system C>
+    inline basic_size<T, C>::basic_size ()
       : w(0)
       , h(0)
     {}
 
-    template<typename T>
-    inline basic_size<T>::basic_size (type i)
+    template<typename T, coordinate_system C>
+    inline basic_size<T, C>::basic_size (type i)
       : w(i)
       , h(i)
     {}
 
-    template<typename T>
-    inline basic_size<T>::basic_size (type width, type height)
+    template<typename T, coordinate_system C>
+    inline basic_size<T, C>::basic_size (type width, type height)
       : w(width)
       , h(height)
     {}
 
-    template<typename T>
-    inline auto basic_size<T>::width() const -> type {
+    template<typename T, coordinate_system C>
+    inline auto basic_size<T, C>::width() const -> type {
       return w;
     }
 
-    template<typename T>
-    inline auto basic_size<T>::height() const -> type {
+    template<typename T, coordinate_system C>
+    inline auto basic_size<T, C>::height() const -> type {
       return h;
     }
 
-    template<typename T>
-    inline gui::os::size_type basic_size<T>::os_width () const {
-      return global::scale_to_native<gui::os::size_type, T>(w);
+    template<typename T, coordinate_system C>
+    inline gui::os::size_type basic_size<T, C>::os_width () const {
+      return convert::size<T, C>::to_os(w);
     }
 
-    template<typename T>
-    inline gui::os::size_type basic_size<T>::os_height () const {
-      return global::scale_to_native<gui::os::size_type, T>(h);
+    template<typename T, coordinate_system C>
+    inline gui::os::size_type basic_size<T, C>::os_height () const {
+      return convert::size<T, C>::to_os(h);
     }
 
-    template<typename T>
-    inline void basic_size<T>::width (type new_w) {
+    template<typename T, coordinate_system C>
+    inline void basic_size<T, C>::width (type new_w) {
       w = new_w;
     }
 
-    template<typename T>
-    inline void basic_size<T>::height (type new_h) {
+    template<typename T, coordinate_system C>
+    inline void basic_size<T, C>::height (type new_h) {
       h = new_h;
     }
 
-    template<typename T>
-    inline basic_size<T>::basic_size (const gui::os::size& s)
-      : w(global::scale_from_native<T>(IF_QT_ELSE(s.width(), s.cx)))
-      , h(global::scale_from_native<T>(IF_QT_ELSE(s.height(), s.cy)))
+    template<typename T, coordinate_system C>
+    inline basic_size<T, C>::basic_size (const gui::os::size& s)
+      : w(convert::size<T, C>::from_os(IF_QT_ELSE(s.width(), s.cx)))
+      , h(convert::size<T, C>::from_os(IF_QT_ELSE(s.height(), s.cy)))
     {}
 
-    template<typename T>
-    inline basic_size<T>::basic_size (const gui::os::point& pt)
-      : w(global::scale_from_native<T>(IF_QT_ELSE(pt.x(), pt.x)))
-      , h(global::scale_from_native<T>(IF_QT_ELSE(pt.y(), pt.y)))
+    template<typename T, coordinate_system C>
+    inline basic_size<T, C>::basic_size (const gui::os::point& pt)
+      : w(convert::size<T, C>::from_os(IF_QT_ELSE(pt.x(), pt.x)))
+      , h(convert::size<T, C>::from_os(IF_QT_ELSE(pt.y(), pt.y)))
     {}
 
-    template<typename T>
-    inline basic_size<T>::basic_size (const gui::os::rectangle& r)
+    template<typename T, coordinate_system C>
+    inline basic_size<T, C>::basic_size (const gui::os::rectangle& r)
 #ifdef GUIPP_WIN
-      : w(global::scale_from_native<T>(r.right - r.left))
-      , h(global::scale_from_native<T>(r.bottom - r.top))
+      : w(convert::size<T, C>::from_os(r.right - r.left))
+      , h(convert::size<T, C>::from_os(r.bottom - r.top))
 #elif GUIPP_X11
-      : w(global::scale_from_native<T>(r.width))
-      , h(global::scale_from_native<T>(r.height))
+      : w(convert::size<T, C>::from_os(r.width))
+      , h(convert::size<T, C>::from_os(r.height))
 #elif GUIPP_QT
-      : w(global::scale_from_native<T>(r.width()))
-      , h(global::scale_from_native<T>(r.height()))
+      : w(convert::size<T, C>::from_os(r.width()))
+      , h(convert::size<T, C>::from_os(r.height()))
 #else
-# error Unknown target system: basic_size<T>::basic_size (const gui::os::rectangle& r)
+# error Unknown target system: basic_size<T, C>::basic_size (const gui::os::rectangle& r)
 #endif // GUIPP_QT
     {}
 
-    template<typename T>
-    inline void basic_size<T>::clear (type v) {
+    template<typename T, coordinate_system C>
+    inline void basic_size<T, C>::clear (type v) {
       w = h = v;
     }
 
-    template<typename T>
-    inline bool basic_size<T>::empty () const {
+    template<typename T, coordinate_system C>
+    inline bool basic_size<T, C>::empty () const {
       return (w <= type(0)) || (h <= type(0));
     }
 
-    template<typename T>
-    inline bool basic_size<T>::operator== (const self& rhs) const {
+    template<typename T, coordinate_system C>
+    inline bool basic_size<T, C>::operator== (const self& rhs) const {
       return (w == rhs.w) && (h == rhs.h);
     }
 
-    template<typename T>
-    inline auto basic_size<T>::operator= (const self& rhs) -> self& {
+    template<typename T, coordinate_system C>
+    inline auto basic_size<T, C>::operator= (const self& rhs) -> self& {
       w = rhs.w;
       h = rhs.h;
       return *this;
     }
 
-    template<typename T>
-    inline bool basic_size<T>::operator!= (const self& rhs) const {
+    template<typename T, coordinate_system C>
+    inline bool basic_size<T, C>::operator!= (const self& rhs) const {
       return !operator== (rhs);
     }
 
-    template<typename T>
-    inline bool basic_size<T>::operator< (const self& rhs) const {
+    template<typename T, coordinate_system C>
+    inline bool basic_size<T, C>::operator< (const self& rhs) const {
       return (w < rhs.w) || (h < rhs.h);
     }
 
-    template<typename T>
-    inline bool basic_size<T>::operator<= (const self& rhs) const {
+    template<typename T, coordinate_system C>
+    inline bool basic_size<T, C>::operator<= (const self& rhs) const {
       return (w <= rhs.w) || (h <= rhs.h);
     }
 
-    template<typename T>
-    inline bool basic_size<T>::operator> (const self& rhs) const {
+    template<typename T, coordinate_system C>
+    inline bool basic_size<T, C>::operator> (const self& rhs) const {
       return (w > rhs.w) && (h > rhs.h);
     }
 
-    template<typename T>
-    inline bool basic_size<T>::operator>= (const self& rhs) const {
+    template<typename T, coordinate_system C>
+    inline bool basic_size<T, C>::operator>= (const self& rhs) const {
       return (w >= rhs.w) && (h >= rhs.h);
     }
 
-    template<typename T>
-    inline auto basic_size<T>::operator+ (const self& rhs) const -> self {
+    template<typename T, coordinate_system C>
+    inline auto basic_size<T, C>::operator+ (const self& rhs) const -> self {
       return {type(width() + rhs.width()), type(height() + rhs.height())};
     }
 
-    template<typename T>
-    inline auto basic_size<T>::operator- (const self& rhs) const -> self {
+    template<typename T, coordinate_system C>
+    inline auto basic_size<T, C>::operator- (const self& rhs) const -> self {
       return {type(width() - rhs.width()), type(height() - rhs.height())};
     }
 
-    template<typename T>
-    inline auto basic_size<T>::operator* (double f) const -> self {
+    template<typename T, coordinate_system C>
+    inline auto basic_size<T, C>::operator* (double f) const -> self {
       return {type(width() * f), type(height() * f)};
     }
 
-    template<typename T>
-    inline auto basic_size<T>::operator/ (double f) const -> self {
+    template<typename T, coordinate_system C>
+    inline auto basic_size<T, C>::operator/ (double f) const -> self {
       return {type(width() / f), type(height() / f)};
     }
 
-    template<typename T>
-    inline auto basic_size<T>::operator+= (const self& s) -> self& {
+    template<typename T, coordinate_system C>
+    inline auto basic_size<T, C>::operator+= (const self& s) -> self& {
       w += s.w;
       h += s.h;
       return *this;
     }
 
-    template<typename T>
-    inline auto basic_size<T>::operator-= (const self& s) -> self& {
+    template<typename T, coordinate_system C>
+    inline auto basic_size<T, C>::operator-= (const self& s) -> self& {
       w -= s.w;
       h -= s.h;
       return *this;
     }
 
-    template<typename T>
-    inline auto basic_size<T>::operator*= (double f) -> self& {
+    template<typename T, coordinate_system C>
+    inline auto basic_size<T, C>::operator*= (double f) -> self& {
       w = type(w * f);
       h = type(h * f);
       return *this;
     }
 
-    template<typename T>
-    inline auto basic_size<T>::operator/= (double f) -> self& {
+    template<typename T, coordinate_system C>
+    inline auto basic_size<T, C>::operator/= (double f) -> self& {
       w = type(w / f);
       h = type(h / f);
       return *this;
     }
 
-    template<typename T>
-    inline auto basic_size<T>::operator- () const -> self {
+    template<typename T, coordinate_system C>
+    inline auto basic_size<T, C>::operator- () const -> self {
       return {-width(), -height()};
     }
 
-    template<typename T>
-    inline basic_size<T>::operator gui::os::size() const {
+    template<typename T, coordinate_system C>
+    inline basic_size<T, C>::operator gui::os::size() const {
       return os();
     }
 
-    template<typename T>
-    inline gui::os::size basic_size<T>::os () const {
+    template<typename T, coordinate_system C>
+    inline gui::os::size basic_size<T, C>::os () const {
       return {os_width(), os_height()};
     }
 
-    template<typename T>
-    inline basic_size<T>::operator gui::os::point() const {
+    template<typename T, coordinate_system C>
+    inline basic_size<T, C>::operator gui::os::point() const {
       return {static_cast<gui::os::point_type>(os_width()), static_cast<gui::os::point_type>(os_height())};
     }
 
-    template<typename T>
-    std::ostream& operator<< (std::ostream& out, const basic_size<T>& sz) {
+    template<typename T, coordinate_system C>
+    std::ostream& operator<< (std::ostream& out, const basic_size<T, C>& sz) {
       out << sz.width() << ", " << sz.height();
       return out;
     }

@@ -24,10 +24,10 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   client_window<color::white> drawing;
 
   drawing.on_paint(draw::paint([&] (const draw::graphics& g) {
-    g.draw(draw::rectangle(drawing.client_area()/*.shrinked({5, 5})*/), color::white, color::black);
-    g.frame(draw::pie(drawing.client_area().shrinked({10, 10}), -45, 45), color::blue);
-    g.frame(draw::arc(drawing.client_area().shrinked({15, 15}), -45, 45), color::green);
-    g.frame(draw::pie(drawing.client_area().center(), 70, 45, 315), color::red);
+    g.draw(draw::rectangle(drawing.surface_area()/*.shrinked({5, 5})*/), color::white, color::black);
+    g.frame(draw::pie(drawing.surface_area().shrinked({10, 10}), -45, 45), color::blue);
+    g.frame(draw::arc(drawing.surface_area().shrinked({15, 15}), -45, 45), color::green);
+    g.frame(draw::pie(drawing.surface_area().center(), 70, 45, 315), color::red);
   }));
 
   drawing.on_left_btn_dblclk([&] (os::key_state, const core::point&) {

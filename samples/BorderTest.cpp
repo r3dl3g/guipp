@@ -175,7 +175,7 @@ my_main_window::my_main_window ()
   on_close([&] () { quit(); });
 
   window1.on_paint(draw::paint([&](const graphics& graph){
-    core::rectangle place = window1.client_area();
+    core::rectangle place = window1.surface_area();
     frame::sunken_relief(graph, place);
 
     core::point::type x = 1;
@@ -662,7 +662,7 @@ void my_main_window::wipe_space () {
 
 void my_main_window::copy () {
   labels[0].set_text("copy");
-  core::rectangle r = left_list.client_area();
+  core::rectangle r = left_list.surface_area();
   core::size sz = r.size();
 
   rgbas[0].create(sz);
@@ -682,7 +682,7 @@ void my_main_window::copy () {
 }
 
 void my_main_window::settings () {
-    core::rectangle r = window1.client_area();
+    core::rectangle r = window1.surface_area();
     core::size sz = r.size();
 
     pixmap img(sz);
@@ -710,7 +710,7 @@ void my_main_window::settings () {
 void my_main_window::cut () {
   labels[0].set_text("cut");
 
-  core::rectangle r = left_list.client_area();
+  core::rectangle r = left_list.surface_area();
   core::size sz = r.size();
 
   auto drawer = [&](core::size& sz) -> pixmap {

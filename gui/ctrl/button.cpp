@@ -86,7 +86,7 @@ namespace gui {
       btn.on_left_btn_up([&] (os::key_state, const core::point & pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
-          if (btn.client_area().is_inside(pos)) {
+          if (btn.surface_area().is_inside(pos)) {
             btn.notify_event(detail::BN_CLICKED_MESSAGE);
           }
         }
@@ -105,7 +105,7 @@ namespace gui {
       btn.on_left_btn_up([&] (os::key_state, const core::point & pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
-          if (btn.client_area().is_inside(pos)) {
+          if (btn.surface_area().is_inside(pos)) {
             btn.set_checked(!btn.is_checked());
             btn.notify_event(detail::BN_CLICKED_MESSAGE);
           }
@@ -126,7 +126,7 @@ namespace gui {
       btn.on_left_btn_up([&] (os::key_state, const core::point & pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
-          if (!btn.is_checked() && btn.client_area().is_inside(pos)) {
+          if (!btn.is_checked() && btn.surface_area().is_inside(pos)) {
             btn.set_checked(true);
             btn.notify_event(detail::BN_CLICKED_MESSAGE);
           }
@@ -185,7 +185,7 @@ namespace gui {
       btn.on_left_btn_up([&] (os::key_state, const core::point & pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
-          if (btn.client_area().is_inside(pos)) {
+          if (btn.surface_area().is_inside(pos)) {
             btn.set_checked(!btn.is_checked());
             btn.notify_event(detail::BN_CLICKED_MESSAGE);
           }
@@ -206,7 +206,7 @@ namespace gui {
       btn.on_left_btn_up([&] (os::key_state, const core::point & pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
-          if (!btn.is_checked() && btn.client_area().is_inside(pos)) {
+          if (!btn.is_checked() && btn.surface_area().is_inside(pos)) {
             btn.set_checked(true);
             btn.notify_event(detail::BN_CLICKED_MESSAGE);
           }

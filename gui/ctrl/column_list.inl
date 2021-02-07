@@ -217,7 +217,7 @@ namespace gui {
     void column_list_header<Layout, background>::paint (const draw::graphics& g) {
       using namespace draw;
 
-      core::rectangle area = this->client_area();
+      core::rectangle area = this->surface_area();
       core::rectangle r = area;
       draw::brush back_brush(background);
 

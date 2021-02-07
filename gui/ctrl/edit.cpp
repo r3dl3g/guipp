@@ -448,7 +448,7 @@ namespace gui {
         on_left_btn_down([&](os::key_state state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;
-          set_cursor_pos(get_position_at_point(pt - client_position()), core::shift_key_bit_mask::is_set(state));
+          set_cursor_pos(get_position_at_point(surface_to_client(pt)), core::shift_key_bit_mask::is_set(state));
         });
         on_left_btn_up([&](os::key_state, const core::point&) {
           data.last_mouse_point = core::point::undefined;
@@ -456,7 +456,7 @@ namespace gui {
         on_left_btn_dblclk([&](os::key_state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;
-          pos_t p = get_position_at_point(pt - client_position());
+          pos_t p = get_position_at_point(surface_to_client(pt));
           set_cursor_pos(p);
           pos_t l = util::string::find_left_space(data.text, p);
           pos_t r = util::string::find_right_space(data.text, p);
@@ -464,7 +464,7 @@ namespace gui {
         });
         on_mouse_move([&](os::key_state keys, const core::point& pt) {
           if ((data.last_mouse_point != core::point::undefined) && core::left_button_bit_mask::is_set(keys)) {
-            set_cursor_pos(get_position_at_point(pt - client_position()), true);
+            set_cursor_pos(get_position_at_point(surface_to_client(pt)), true);
           }
         });
       }

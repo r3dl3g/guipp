@@ -76,7 +76,7 @@ namespace gui {
 //        shift_focus(core::shift_key_bit_mask::is_set(core::global::get_key_state()));
 //      });
 //      on_paint([&] (os::window id, os::graphics gc) {
-//        native::erase(id, gc, client_area().os(), get_window_class().get_background());
+//        native::erase(id, gc, surface_area().os(), get_window_class().get_background());
 //      });
       on_show([&] () {
         set_children_visible();
@@ -150,7 +150,7 @@ namespace gui {
         core::point pt = mouse_move_event::Caller::get_param<1>(e);
         for (auto& w : children) {
           auto state = w->get_state();
-          if (state.created() && state.visible() && state.enabled() && !state.overlapped() && w->place().is_inside(pt)) {
+          if (state.created() && state.visible() && state.enabled() && !state.overlapped() && w->surface_area().is_inside(pt)) {
             w->handle_event(e, r);
           }
         }
@@ -158,7 +158,7 @@ namespace gui {
         core::point pt = btn_down_event::Caller::get_param<1>(e);
         for (auto& w : children) {
           auto state = w->get_state();
-          if (state.created() && state.visible() && state.enabled() && !state.overlapped() && w->place().is_inside(pt)) {
+          if (state.created() && state.visible() && state.enabled() && !state.overlapped() && w->surface_area().is_inside(pt)) {
             w->handle_event(e, r);
           }
         }
@@ -583,12 +583,12 @@ namespace gui {
       }
     }
     // --------------------------------------------------------------------------
-    core::point overlapped_window::client_position () const {
+    core::point overlapped_window::surface_offset () const {
       return core::point::zero;
     }
     // --------------------------------------------------------------------------
-    core::rectangle overlapped_window::client_area () const {
-      return core::rectangle(client_size());
+    core::size overlapped_window::client_size () const {
+      return super::client_size();
     }
     // --------------------------------------------------------------------------
     void overlapped_window::set_focus_window (window* w) {

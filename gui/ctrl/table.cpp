@@ -386,7 +386,7 @@ namespace gui {
       void data_view::init () {
         set_accept_focus(true);
         super::on_paint(draw::paint([&](const draw::graphics & graph){
-          paint::draw_table_data(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+          paint::draw_table_data(graph, surface_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
         }));
       }
 
@@ -417,7 +417,7 @@ namespace gui {
 
       void column_view::init () {
         super::on_paint(draw::paint([&](const draw::graphics & graph) {
-          paint::draw_table_column(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+          paint::draw_table_column(graph, surface_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
         }));
       }
 
@@ -448,7 +448,7 @@ namespace gui {
 
       void row_view::init () {
         super::on_paint(draw::paint([&](const draw::graphics & graph){
-          paint::draw_table_row(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+          paint::draw_table_row(graph, surface_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
         }));
       }
 
@@ -734,7 +734,7 @@ namespace gui {
 
     void table_view::handle_left_btn_up (os::key_state keys, const core::point& pt) {
       if (enable_selection_ && !moved && (last_mouse_point != core::point::undefined)) {
-        auto new_selection = data.get_index_at_point(pt - data.client_position());
+        auto new_selection = data.get_index_at_point(data.surface_to_client(pt));
         const auto spawn = geometrie.spawns.get(new_selection);
         if (spawn.is_hidden()) {
           new_selection.move({spawn.x, spawn.y});
@@ -751,7 +751,7 @@ namespace gui {
     }
 
     void table_view::handle_mouse_move (os::key_state keys, const core::point& pt) {
-      const core::rectangle r = data.client_area();
+      const core::rectangle r = data.surface_area();
       if (core::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if (last_mouse_point != core::point::undefined) {
           auto delta = last_mouse_point - pt;
@@ -760,7 +760,7 @@ namespace gui {
         }
         last_mouse_point = pt;
       } else if (enable_hilite_) {
-        const auto new_hilite = data.get_index_at_point(pt - data.client_position());
+        const auto new_hilite = data.get_index_at_point(data.surface_to_client(pt));
         if (geometrie.hilite != new_hilite) {
           geometrie.hilite = new_hilite;
           redraw_all();
@@ -773,7 +773,7 @@ namespace gui {
       last_mouse_point = pt;
       moved = false;
       if (enable_h_size) {
-        down_idx.x(geometrie.widths.split_idx_at(pt.x() - columns.client_position().x(), 2.0F));
+        down_idx.x(geometrie.widths.split_idx_at(pt.x() - columns.surface_offset().x(), 2.0F));
       }
       columns.set_cursor(down_idx.x() > -1 ? win::cursor::size_h() : win::cursor::move());
       columns.capture_pointer();
@@ -781,7 +781,7 @@ namespace gui {
 
     void table_view::handle_column_left_btn_up (os::key_state keys, const core::point& pt) {
       if (enable_selection_ && !moved && (last_mouse_point != core::point::undefined)) {
-        const auto new_selection = columns.get_index_at_point(pt - columns.client_position());
+        const auto new_selection = columns.get_index_at_point(columns.surface_to_client(pt));
         if (get_selection() != new_selection) {
           set_selection(new_selection, event_source::mouse);
         } else if (core::control_key_bit_mask::is_set(keys)) {
@@ -810,7 +810,7 @@ namespace gui {
         }
         last_mouse_point = pt;
       } else {
-        core::point cpt = pt - columns.client_position();
+        core::point cpt = columns.surface_to_client(pt);
         const int idx = enable_h_size ? geometrie.widths.split_idx_at(cpt.x(), 2.0F) : -1;
         columns.set_cursor(idx > -1 ? win::cursor::size_h() : win::cursor::arrow());
         if (enable_hilite_ && (idx < 0)) {
@@ -828,7 +828,7 @@ namespace gui {
       last_mouse_point = pt;
       moved = false;
       if (enable_v_size) {
-        down_idx.y(geometrie.heights.split_idx_at(pt.y() - rows.client_position().y(), 2.0F));
+        down_idx.y(geometrie.heights.split_idx_at(pt.y() - rows.surface_offset().y(), 2.0F));
       }
       rows.set_cursor(down_idx.y() > -1 ? win::cursor::size_v() : win::cursor::move());
       rows.capture_pointer();
@@ -836,7 +836,7 @@ namespace gui {
 
     void table_view::handle_row_left_btn_up (os::key_state keys, const core::point& pt) {
       if (enable_selection_ && !moved && (last_mouse_point != core::point::undefined)) {
-        const auto new_selection = rows.get_index_at_point(pt - rows.client_position());
+        const auto new_selection = rows.get_index_at_point(rows.surface_to_client(pt));
         if (get_selection() != new_selection) {
           set_selection(new_selection, event_source::mouse);
         } else if (core::control_key_bit_mask::is_set(keys)) {
@@ -865,7 +865,7 @@ namespace gui {
         }
         last_mouse_point = pt;
       } else {
-        core::point rpt = pt - rows.client_position();
+        core::point rpt = rows.surface_to_client(pt);
         const int idx = enable_v_size ? geometrie.heights.split_idx_at(rpt.y(), 2.0F) : -1;
         rows.set_cursor(idx > -1 ? win::cursor::size_v() : win::cursor::arrow());
         if (enable_hilite_ && (idx < 0)) {
@@ -994,7 +994,7 @@ namespace gui {
       on_selection_commit(util::bind_method(this, &table_edit::enter_edit));
 
       editor.on_btn_down([&](os::key_state, const core::point & pt) {
-        if (!editor.client_area().is_inside(pt)) {
+        if (!editor.surface_area().is_inside(pt)) {
           commit_edit();
         }
       });
@@ -1013,7 +1013,7 @@ namespace gui {
 
     void table_edit::move_editor (core::point::type) {
       if (editor.is_visible()) {
-        const auto pos = geometrie.position_of(get_selection()) + data.client_position();
+        const auto pos = geometrie.position_of(get_selection());
         if (data.client_area().is_inside(pos)) {
           editor.move(pos);
         } else {
@@ -1034,7 +1034,7 @@ namespace gui {
         if (!editor.is_valid()) {
           editor.create(data, core::rectangle(0, 0, 10, 10));
         }
-        editor.place(core::rectangle(pt + data.client_position(), sz));
+        editor.place(core::rectangle(pt, sz));
         editor.set_text(data_source(cell));
         editor.set_cursor_pos(editor.get_text_length());
         editor.set_visible();
@@ -1044,7 +1044,7 @@ namespace gui {
 
     void table_edit::commit_edit () {
       if (data_target && editor.is_visible()) {
-        auto pos = editor.position() - data.client_position();
+        auto pos = editor.position();
         auto cell = geometrie.index_at(pos);
         data_target(cell, editor.get_text());
       }

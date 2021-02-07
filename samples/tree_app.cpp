@@ -13,7 +13,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::ctrl;
   using namespace gui::core;
 
-  layout_main_window<gui::layout::border::layouter<3, 3, 3, 3>> main;
+  layout_main_window<gui::layout::border::layouter<25, 25, 25, 25>> main;
   sorted_dir_tree client;
 
   main.on_create([&] () {

@@ -1242,7 +1242,7 @@ ctrl::paint_function my_main_window::create_paint2 () {
     //clog::debug() << "win::look 2";
     using namespace draw;
 
-    graph.fill(rectangle(window2.client_area()), color::light_gray);
+    graph.fill(rectangle(window2.surface_area()), color::light_gray);
 
     graph.draw_pixel(core::native_point(3, 3), color::gray);
     graph.draw_pixel(core::native_point(6, 6), color::gray);

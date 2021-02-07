@@ -103,7 +103,7 @@ namespace gui {
                          const core::rectangle& r) {
       if (p.is_valid()) {
         set_parent(p);
-        create_internal(type, r + p.client_position());
+        create_internal(type, r + p.surface_offset());
         p.add_event_mask(get_event_mask());
       }
     }
@@ -118,14 +118,6 @@ namespace gui {
 
     void window::close () {
       native::notify_close(*this);
-    }
-
-    core::point window::window_to_screen (const core::point& pt) const {
-      return parent ? parent->client_to_screen(pt) : pt;
-    }
-
-    core::point window::screen_to_window (const core::point& pt) const {
-      return parent ? parent->screen_to_client(pt) : pt;
     }
 
     const window& window::get_root_window () const {
@@ -341,8 +333,28 @@ namespace gui {
       return area.size();
     }
 
+    core::size window::client_size () const {
+      return area.size();
+    }
+
     core::point window::position () const {
       return area.position();
+    }
+
+    core::point window::absolute_position () const {
+      if (dynamic_cast<const overlapped_window*>(this)) {
+        return position();
+      } else {
+        return surface_offset() + get_overlapped_window().position();
+      }
+    }
+
+    core::point window::surface_offset () const {
+      return area.position() + (parent ? parent->surface_offset() : core::point::zero);
+    }
+
+    core::rectangle window::surface_area () const {
+      return core::rectangle(surface_offset(), client_size());
     }
 
     core::rectangle window::place () const {
@@ -353,24 +365,16 @@ namespace gui {
       return core::rectangle(absolute_position(), size());
     }
 
-    core::point window::absolute_position () const {
-      if (dynamic_cast<const overlapped_window*>(this)) {
-        return position();
-      } else {
-        return position() + get_overlapped_window().position();
-      }
-    }
-
-    core::point window::client_position () const {
-      return area.position();
-    }
-
-    core::size window::client_size () const {
-      return size();
-    }
-
     core::rectangle window::client_area () const {
-      return area;
+      return core::rectangle(client_size());
+    }
+
+    core::point window::window_to_screen (const core::point& pt) const {
+      return parent ? parent->client_to_screen(pt) : pt;
+    }
+
+    core::point window::screen_to_window (const core::point& pt) const {
+      return parent ? parent->screen_to_client(pt) : pt;
     }
 
     core::point window::client_to_screen (const core::point& pt) const {
@@ -379,6 +383,18 @@ namespace gui {
 
     core::point window::screen_to_client (const core::point& pt) const {
       return pt - absolute_position();
+    }
+
+    core::point window::client_to_surface (const core::point& pt) const {
+      return pt + surface_offset();
+    }
+
+    core::point window::surface_to_client (const core::point& pt) const {
+      return pt - surface_offset();
+    }
+
+    core::point window::surface_to_screen (const core::point& pt) const {
+      return pt - surface_offset() + absolute_position();
     }
 
     void window::move_native (const core::point&) {}

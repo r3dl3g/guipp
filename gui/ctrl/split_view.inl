@@ -208,8 +208,7 @@ namespace gui {
     template<orientation_t O, typename F, typename S>
     void split_view<O, F, S>::init () {
       splitter.on_slide([&] (int) {
-        super::get_layout().set_split_pos(get_split_pos());
-        super::layout(super::client_area());
+        set_split_pos(get_split_pos());
       });
       super::on_layout([&] (const core::rectangle& r) {
         super::get_layout().layout(r);

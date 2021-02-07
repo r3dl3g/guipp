@@ -127,6 +127,9 @@ namespace gui {
       core::rectangle area () const;
       core::native_rect native_area () const;
 
+      core::native_point offset () const;
+      void set_offset (const core::native_point& o);
+
       os::graphics os () const;
       operator os::graphics () const;
       operator os::drawable() const;
@@ -154,6 +157,7 @@ namespace gui {
 
       os::graphics gc;
       os::drawable target;
+      core::native_point offs;
       bool own_gc;
       bool ref_gc;
       mutable clipping_stack_t clipping_stack;

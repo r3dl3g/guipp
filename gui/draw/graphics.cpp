@@ -297,6 +297,17 @@ namespace gui {
       SelectClipRgn(gc, NULL);
     }
 
+    core::native_point graphics::offset () const {
+      POINT pt;
+      GetViewportOrgEx(gc, &pt);
+      return {pt.x, pt.y};
+    }
+
+    void graphics::set_offset (const core::native_point& o) {
+      SetViewportOrgEx(gc, o.x(), o.y(), NULL);
+    }
+
+
 #endif // GUIPP_WIN
 
 #ifdef GUIPP_X11
@@ -418,6 +429,14 @@ namespace gui {
         }
       }
       return *this;
+    }
+
+    core::native_point graphics::offset () const {
+      return offs;
+    }
+
+    void graphics::set_offset (const core::native_point& o) {
+      offs = o;
     }
 
     const graphics& graphics::draw_pixel (const core::native_point& pt,

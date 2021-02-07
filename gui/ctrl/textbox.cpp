@@ -279,7 +279,7 @@ namespace gui {
         on_left_btn_down([&, origin](os::key_state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;
-          set_cursor_pos(get_position_at_point(pt - client_position(), origin));
+          set_cursor_pos(get_position_at_point(surface_to_client(pt), origin));
         });
         on_left_btn_up([&](os::key_state, const core::point&) {
           data.last_mouse_point = core::point::undefined;
@@ -287,7 +287,7 @@ namespace gui {
         on_left_btn_dblclk([&, origin](os::key_state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;
-          const auto p = get_position_at_point(pt - client_position(), origin);
+          const auto p = get_position_at_point(surface_to_client(pt), origin);
           const auto l = find_prev_word(p);
           const auto r = find_next_word(p);
           set_cursor_pos(p);
@@ -295,7 +295,7 @@ namespace gui {
         });
         on_mouse_move([&, origin](os::key_state keys, const core::point& pt) {
           if ((data.last_mouse_point != core::point::undefined) && core::left_button_bit_mask::is_set(keys)) {
-            set_cursor_pos(get_position_at_point(pt - client_position(), origin), true);
+            set_cursor_pos(get_position_at_point(surface_to_client(pt), origin), true);
           }
         });
         on_key_down<core::keys::c, core::state::control>([&]() {

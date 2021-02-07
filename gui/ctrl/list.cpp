@@ -145,8 +145,8 @@ namespace gui {
     void edit_list::init () {
       super::on_selection_commit(util::bind_method(this, &edit_list::enter_edit));
 
-      data.editor.on_btn_down([&](os::key_state, const core::point & pt) {
-        if (!data.editor.client_area().is_inside(pt)) {
+      data.editor.on_btn_down([&](os::key_state, const core::point& pt) {
+        if (!data.editor.surface_area().is_inside(pt)) {
           commit_edit();
         }
       });

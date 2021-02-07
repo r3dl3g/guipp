@@ -44,7 +44,7 @@ namespace gui {
                        core::size::type bar_pos) {
       using namespace gui::draw;
       graph.fill(draw::rectangle(area.with_width(bar_pos)), bar_color);
-      graph.fill(draw::rectangle({area.x() + bar_pos, area.y(), area.x2() - bar_pos, area.height()}), background);
+      graph.fill(draw::rectangle(core::point{area.x() + bar_pos, area.y()}, area.x2y2()), background);
       if (!txt.empty()) {
         graph.text(draw::text_box(txt, area, origin), font::system(), foreground);
       }

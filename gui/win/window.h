@@ -93,15 +93,16 @@ namespace gui {
       void redraw () const;
 
       core::size size () const;
+      virtual core::size client_size () const;
+
       core::point position () const;
-      core::rectangle place () const;
-
-      core::rectangle absolute_place () const;
       core::point absolute_position () const;
+      virtual core::point surface_offset () const;
+      core::rectangle surface_area () const;
 
-      core::size client_size () const;
-      virtual core::point client_position () const;
-      virtual core::rectangle client_area () const;
+      core::rectangle place () const;
+      core::rectangle absolute_place () const;
+      core::rectangle client_area () const;
 
       void move (const core::point&, bool repaint = false);
       void resize (const core::size&, bool repaint = true);
@@ -112,6 +113,10 @@ namespace gui {
 
       core::point client_to_screen (const core::point&) const;
       core::point screen_to_client (const core::point&) const;
+
+      core::point client_to_surface (const core::point&) const;
+      core::point surface_to_client (const core::point&) const;
+      core::point surface_to_screen (const core::point&) const;
 
       const char* get_class_name () const;
       const class_info& get_window_class () const;

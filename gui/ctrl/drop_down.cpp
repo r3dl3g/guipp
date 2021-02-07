@@ -100,7 +100,7 @@ namespace gui {
     }
 
     void drop_down_list::paint (const draw::graphics& graph) {
-      core::rectangle area = super::client_area();
+      core::rectangle area = super::surface_area();
       look::drop_down(graph, area, get_state());
       look::drop_down_button(graph,
                              layout::drop_down::button_place(area),

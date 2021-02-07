@@ -352,7 +352,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     clog::trace() << "Received on_paint, clear white";
     graph.clear(color::white);
 
-    auto area = main.client_area();
+    auto area = main.surface_area();
     graph.fill(draw::rectangle(area), color::very_very_light_gray);
     clog::trace() << "Draw graphs in area:" << area;
 

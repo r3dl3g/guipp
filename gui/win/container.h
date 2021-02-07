@@ -72,6 +72,7 @@ namespace gui {
       os::event_id collect_event_mask () const override;
 
     protected:
+
       using window::create;
 
       container (const container&);
@@ -132,8 +133,8 @@ namespace gui {
       void invalidate () const;
       void redraw (const core::rectangle&) const;
 
-      core::point client_position () const override;
-      core::rectangle client_area () const override;
+      core::size client_size () const override;
+      core::point surface_offset () const override;
 
       void shift_focus (bool backward = false);
 

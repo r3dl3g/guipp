@@ -178,7 +178,7 @@ namespace gui {
     template<orientation_t V, typename T>
     void basic_list<V, T>::create_scroll_bar (const core::rectangle& r) {
       if (!scrollbar.is_valid()) {
-        scrollbar.create(*reinterpret_cast<win::container*>(this), get_scroll_bar_area(r));
+        scrollbar.create(*this, get_scroll_bar_area(r));
       }
     }
 
@@ -445,7 +445,7 @@ namespace gui {
 
     template<orientation_t V, typename T>
     void basic_list<V, T>::handle_mouse_move (os::key_state keys, const core::point& pt) {
-      const core::rectangle r = content_area();
+      const core::rectangle r = surface_area();
       if (core::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if ((super::get_last_mouse_point() != core::point::undefined) &&
             (super::get_last_mouse_point() != pt)) {
@@ -456,14 +456,14 @@ namespace gui {
         }
         super::data.last_mouse_point = pt;
       } else {
-        set_hilite(get_index_at_point(pt));
+        set_hilite(get_index_at_point(super::surface_to_client(pt)));
       }
     }
 
     template<orientation_t V, typename T>
     void basic_list<V, T>::handle_left_btn_up (os::key_state keys, const core::point& pt) {
       if (!super::is_moved() && (super::get_last_mouse_point() != core::point::undefined)) {
-        const int new_selection = get_index_at_point(pt);
+        const int new_selection = get_index_at_point(super::surface_to_client(pt));
         if (new_selection != super::get_selection()) {
           if ((new_selection < 0) || core::control_key_bit_mask::is_set(keys)) {
             clear_selection(event_source::mouse);
@@ -497,7 +497,7 @@ namespace gui {
 
     template<orientation_t V>
     void linear_list<V>::paint (const draw::graphics& graph) {
-      const core::rectangle area = super::content_area();
+      const core::rectangle area = super::surface_area();
       core::rectangle place = area;
       draw::clip clp(graph, area);
 

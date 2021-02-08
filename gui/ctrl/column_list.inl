@@ -58,11 +58,11 @@ namespace gui {
       }
 
       inline text_origin_t column_list_layout::get_column_align (std::size_t i) const {
-        return aligns[i];
+        return (i < aligns.size()) ? aligns[i] : text_origin_t::top_left;
       }
 
       inline column_size_type column_list_layout::get_column_width (std::size_t i) const {
-        return widths[i];
+        return (i < widths.size()) ? widths[i] : 0;
       }
 
       inline void column_list_layout::set_list (list_type* l) {

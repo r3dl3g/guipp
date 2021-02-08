@@ -166,6 +166,8 @@ namespace gui {
     bool container::handle_event (const core::event& e, gui::os::event_result& r) const {
       bool ret = super::handle_event(e, r);
       if (paint_event::match(e)) {
+        // ToDo: clip graphics output region to childs surface area
+        // ToDo Problem: clips are stored in stack in draw::graphics.
         for (auto& w : children) {
           auto state = w->get_state();
           if (state.created() && state.visible() && !state.overlapped()) {

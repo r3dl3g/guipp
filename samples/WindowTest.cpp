@@ -850,6 +850,7 @@ void my_main_window::created_children () {
 
   window1.create(scroll_view, core::rectangle(10, 10, 100, 280));
   window2.create(scroll_view, core::rectangle(120, 10, 200, 280));
+  scroll_view.set_children_visible();
 
   hseparator.create(main, core::rectangle(330, 10, 300, 2));
   vseparator.create(main, core::rectangle(310, 20, 2, 300));
@@ -1160,7 +1161,11 @@ ctrl::paint_function my_main_window::create_paint1 () {
 
     using namespace draw;
 
-    graph.fill(rectangle(graph.area()), color::light_gray);
+    auto area = window2.surface_area();
+    auto pos = area.top_left();
+    clip clp(graph, area);
+
+    graph.fill(rectangle(area), color::light_gray);
 
     graph.frame(polygon(calc_star(10, 10, 40, 40)), color::blue);
     graph.fill(polygon(calc_star(60, 10, 40, 40)), color::dark_green);
@@ -1242,7 +1247,11 @@ ctrl::paint_function my_main_window::create_paint2 () {
     //clog::debug() << "win::look 2";
     using namespace draw;
 
-    graph.fill(rectangle(window2.surface_area()), color::light_gray);
+    auto area = window2.surface_area();
+    auto pos = area.top_left();
+    clip clp(graph, area);
+
+    graph.fill(rectangle(area), color::light_gray);
 
     graph.draw_pixel(core::native_point(3, 3), color::gray);
     graph.draw_pixel(core::native_point(6, 6), color::gray);

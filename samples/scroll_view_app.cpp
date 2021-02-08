@@ -45,15 +45,12 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     at_drag = true;
     last_pos = p;
     window1.capture_pointer();
-//    clog::debug() << "Window1 Mouse down at " << p;
   });
   window1.on_left_btn_up([&](gui::os::key_state, const core::point& p) {
     window1.uncapture_pointer();
     at_drag = false;
-//    clog::debug() << "Window1 Mouse up at " << p;
   });
   window1.on_mouse_move([&] (gui::os::key_state, const core::point& p) {
-//    clog::debug() << "Window1 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
       auto delta = p - last_pos;
       last_pos = p;
@@ -64,7 +61,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   window1.on_paint(draw::paint(paint1));
   window1.on_left_btn_dblclk([&] (gui::os::key_state, const core::point& p) {
-//    clog::debug() << "Window2 Double Click up at " << p;
     if (at_paint1) {
       at_paint1 = false;
       window1.unregister_event_handler<win::paint_event>(draw::paint(paint1));
@@ -79,7 +75,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   window1.on_wheel<orientation_t::horizontal>([&] (core::point::type delta,
                                                    const core::point& p) {
-//    clog::debug() << "Wheel-X: " << delta << " at " << p;
     if (window1.place().is_inside(p)) {
       end_angle += angle(delta);
       window1.invalidate();
@@ -87,7 +82,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   });
   window1.on_wheel<orientation_t::vertical>([&] (core::point::type delta,
                                                  const core::point& p) {
-//    clog::debug() << "Wheel-Y: " << delta << " at " << p;
     if (window1.place().is_inside(p)) {
       start_angle += angle(delta);
       window1.invalidate();
@@ -102,8 +96,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     scroll_view.invalidate();
   });
   window2.on_left_btn_dblclk([&] (gui::os::key_state, const core::point& p) {
-//    clog::debug() << "Window2 Double Click up at " << p;
-//    window1.set_visible(!window1.is_visible());
     draw_invert = !draw_invert;
     scroll_view.invalidate();
   });

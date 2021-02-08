@@ -51,6 +51,7 @@ set(apps
     diagrams
     dialogs
     split_view
+    split_view_app
     scroll_view_app
     list_app
     tree_app

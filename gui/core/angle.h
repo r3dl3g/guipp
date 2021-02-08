@@ -49,6 +49,9 @@ namespace gui {
       angle operator+ (const angle&) const;
       angle operator- (const angle&) const;
 
+      void operator+= (const angle&);
+      void operator-= (const angle&);
+
       bool operator< (const angle&) const;
       bool operator== (const angle&) const;
 

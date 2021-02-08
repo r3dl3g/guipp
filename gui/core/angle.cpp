@@ -75,6 +75,14 @@ namespace gui {
       return {degrees - rhs.degrees};
     }
 
+    void angle::operator+= (const angle& rhs) {
+      degrees += rhs.degrees;
+    }
+
+    void angle::operator-= (const angle& rhs) {
+      degrees -= rhs.degrees;
+    }
+
     bool angle::operator< (const angle& rhs) const {
       return degrees < rhs.degrees;
     }

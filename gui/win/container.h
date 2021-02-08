@@ -81,7 +81,7 @@ namespace gui {
     private:
       void init ();
 
-      std::set<window*> children;
+      window_list_t children;
     };
 
     // --------------------------------------------------------------------------

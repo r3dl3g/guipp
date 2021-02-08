@@ -281,7 +281,7 @@ namespace gui {
 
     void window::set_visible (bool s) {
       if (is_valid()) {
-        if (set_state().visible(s) && s) {
+        if (set_state().visible(s)) {
           invalidate();
         }
       }

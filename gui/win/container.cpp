@@ -104,7 +104,7 @@ namespace gui {
     }
 
     container::window_list_t container::get_children () const {
-      return container::window_list_t(children.begin(), children.end());
+      return children;
     }
 
     void container::collect_children (window_list_t& list) const {
@@ -119,23 +119,49 @@ namespace gui {
     }
 
     void container::add_child (window* w) {
-      children.insert(children.end(), w);
-      invalidate();
+      auto i = std::find(children.begin(), children.end(), w);
+      if (i == children.end()) {
+        children.push_back(w);
+        invalidate();
+      }
     }
 
     void container::remove_child (window* w) {
-      children.erase(w);
+      auto i = std::find(children.begin(), children.end(), w);
+      if (i != children.end()) {
+        children.erase(i);
+      }
     }
 
     void container::to_front (window* w) {
       remove_child(w);
-      add_child(w);
+      children.push_back(w);
+      invalidate();
     }
 
     void container::to_back (window* w) {
       remove_child(w);
       children.insert(children.begin(), w);
+      invalidate();
     }
+
+    template<typename T>
+    struct reverse {
+      explicit reverse (T& iterable)
+        : iterable{iterable}
+      {}
+
+      inline auto begin() const {
+        return std::rbegin(iterable);
+      }
+
+      inline auto end() const {
+        return std::rend(iterable);
+      }
+
+    private:
+      T& iterable;
+    };
 
     bool container::handle_event (const core::event& e, gui::os::event_result& r) const {
       bool ret = super::handle_event(e, r);
@@ -148,18 +174,18 @@ namespace gui {
         }
       } else if (mouse_move_event::match(e)) {
         core::point pt = mouse_move_event::Caller::get_param<1>(e);
-        for (auto& w : children) {
+        for (auto& w : reverse(children)) {
           auto state = w->get_state();
           if (state.created() && state.visible() && state.enabled() && !state.overlapped() && w->surface_area().is_inside(pt)) {
-            w->handle_event(e, r);
+            if (w->handle_event(e, r)) break;
           }
         }
       } else if (btn_down_event::match(e) || btn_up_event::match(e)) {
         core::point pt = btn_down_event::Caller::get_param<1>(e);
-        for (auto& w : children) {
+        for (auto& w : reverse(children)) {
           auto state = w->get_state();
           if (state.created() && state.visible() && state.enabled() && !state.overlapped() && w->surface_area().is_inside(pt)) {
-            w->handle_event(e, r);
+            if (w->handle_event(e, r)) break;
           }
         }
       }

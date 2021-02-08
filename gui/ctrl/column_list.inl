@@ -72,13 +72,21 @@ namespace gui {
       // --------------------------------------------------------------------------
       inline void base_column_list_layout::layout (const core::rectangle& r) const {
         clog::trace() << "base_column_list_layout::layout(" << r << ")";
-        data.header->place(r.with_height(20), false);
-        data.list->place(r.with_vertical(r.y() + 20, r.height() - 20), false);
+        data.header->place(header_pos(r), false);
+        data.list->place(list_pos(r), false);
       }
 
       inline void base_column_list_layout::set_header_and_list (win::window* header, list_type* list) {
         data.list = list;
         data.header = header;
+      }
+
+      inline core::rectangle base_column_list_layout::header_pos (const core::rectangle& r) const {
+        return core::rectangle(0, 0, r.width(), 20);
+      }
+
+      inline core::rectangle base_column_list_layout::list_pos (const core::rectangle& r) const {
+        return core::rectangle(0, 20, r.width(), r.height() - 20);
       }
 
       inline base_column_list_layout::data::data ()
@@ -346,9 +354,9 @@ namespace gui {
       void base_column_list<Layout>::create (win::container& parent,
                                              const core::rectangle& place) {
         super::create(clazz::get(), parent, place);
-        header.create(*this, core::rectangle(0, 0, place.width(), 20));
+        header.create(*this, super::get_layout().header_pos(place));
         header.set_visible();
-        list.create(*this, core::rectangle(0, 20, place.width(), place.height() - 20));
+        list.create(*this, super::get_layout().list_pos(place));
         list.set_visible();
       }
 

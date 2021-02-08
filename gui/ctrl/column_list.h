@@ -158,6 +158,9 @@ namespace gui {
         void layout (const core::rectangle& r) const;
         void set_header_and_list (win::window* header, list_type* list);
 
+        core::rectangle header_pos (const core::rectangle& r) const;
+        core::rectangle list_pos (const core::rectangle& r) const;
+
       protected:
         struct data {
           data ();

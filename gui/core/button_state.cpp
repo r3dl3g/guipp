@@ -33,15 +33,15 @@ namespace gui {
     {}
 
     bool button_state::is::hilited () const {
-      return test(flags::button_hilited);
+      return flags.button_hilited;
     }
 
     bool button_state::is::pushed () const {
-      return test(flags::button_pushed);
+      return flags.button_pushed;
     }
 
     bool button_state::is::checked () const {
-      return test(flags::button_checked);
+      return flags.button_checked;
     }
 
     // --------------------------------------------------------------------------
@@ -49,16 +49,26 @@ namespace gui {
       : super::set(state)
     {}
 
-    bool button_state::set::hilited (bool h) {
-      return set_flag(flags::button_hilited, h);
+    bool button_state::set::hilited (bool on) {
+      return (flags.button_hilited == on ? false : flags.button_hilited = on, true);
     }
 
-    bool button_state::set::pushed (bool h) {
-      return set_flag(flags::button_pushed, h);
+    bool button_state::set::pushed (bool on) {
+      return (flags.button_pushed == on ? false : flags.button_pushed = on, true);
     }
 
-    bool button_state::set::checked (bool f) {
-      return set_flag(flags::button_checked, f);
+    bool button_state::set::checked (bool on) {
+      return (flags.button_checked == on ? false : flags.button_checked = on, true);
+    }
+
+    // --------------------------------------------------------------------------
+    std::ostream& operator<< (std::ostream& out, const button_state::is& s) {
+      out << static_cast<const window_state::is&>(s);
+      if (s.pushed()) out << " pushed,";
+      if (s.hilited()) out << " hilited,";
+      if (s.checked()) out << " checked,";
+
+      return out;
     }
 
   } // core

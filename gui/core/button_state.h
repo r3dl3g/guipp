@@ -53,20 +53,9 @@ namespace gui {
 
       };
 
-    protected:
-      friend struct is;
-      friend struct set;
-
-      struct flags : public window_state::flags {
-        enum {
-          button_hilited = last_window_state_enum,
-          button_pushed,
-          button_checked,
-          last_button_state_enum
-        };
-      };
-
     };
+
+    std::ostream& operator<< (std::ostream& out, const button_state::is&);
 
   } // namespace core
 

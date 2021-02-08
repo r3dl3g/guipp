@@ -53,20 +53,9 @@ namespace gui {
 
       };
 
-    protected:
-      friend struct is;
-      friend struct set;
-
-      struct flags : public window_state::flags {
-        enum {
-          mouse_moved = last_window_state_enum,
-          scroll_bar_enabled,
-          grab_focus,
-          last_list_state_enum
-        };
-      };
-
     };
+
+    std::ostream& operator<< (std::ostream& out, const list_state::is&);
 
   } // namespace core
 

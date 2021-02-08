@@ -33,15 +33,15 @@ namespace gui {
     {}
 
     bool list_state::is::moved () const {
-      return test(flags::mouse_moved);
+      return flags.mouse_moved;
     }
 
     bool list_state::is::scroll_bar_enabled () const {
-      return test(flags::scroll_bar_enabled);
+      return flags.scroll_bar_enabled;
     }
 
     bool list_state::is::grab_focus () const {
-      return test(flags::grab_focus);
+      return flags.grab_focus;
     }
 
     // --------------------------------------------------------------------------
@@ -49,16 +49,26 @@ namespace gui {
       : super::set(state)
     {}
 
-    bool list_state::set::moved (bool h) {
-      return set_flag(flags::mouse_moved, h);
+    bool list_state::set::moved (bool on) {
+      return (flags.mouse_moved == on ? false : flags.mouse_moved = on, true);
     }
 
-    bool list_state::set::scroll_bar_enabled (bool h) {
-      return set_flag(flags::scroll_bar_enabled, h);
+    bool list_state::set::scroll_bar_enabled (bool on) {
+      return (flags.scroll_bar_enabled == on ? false : flags.scroll_bar_enabled = on, true);
     }
 
-    bool list_state::set::grab_focus (bool f) {
-      return set_flag(flags::grab_focus, f);
+    bool list_state::set::grab_focus (bool on) {
+      return (flags.grab_focus == on ? false : flags.grab_focus = on, true);
+    }
+
+    // --------------------------------------------------------------------------
+    std::ostream& operator<< (std::ostream& out, const list_state::is& s) {
+      out << static_cast<const window_state::is&>(s);
+      if (s.moved()) out << " moved,";
+      if (s.scroll_bar_enabled()) out << " scroll_bar_enabled,";
+      if (s.grab_focus()) out << " grab_focus,";
+
+      return out;
     }
 
   } // namespace core

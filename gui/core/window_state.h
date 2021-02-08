@@ -22,7 +22,8 @@
 //
 // Common includes
 //
-#include <bitset>
+#include <ostream>
+#include <cstring>
 
 
 // --------------------------------------------------------------------------
@@ -37,24 +38,29 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace core {
 
-    typedef std::bitset<sizeof(unsigned long) * 8> state_type;
+    union state_type {
+      struct {
+        bool created:1;
+        bool focus_accepting:1;
+        bool redraw_disabled:1;
+        bool window_disabled:1;
+        bool is_visible:1;
+        bool is_focused:1;
+        bool is_overlapped:1;
+        bool button_hilited:1;
+        bool button_pushed:1;
+        bool button_checked:1;
+        bool mouse_moved:1;
+        bool scroll_bar_enabled:1;
+        bool grab_focus:1;
+      };
+      unsigned short flags;
+
+      state_type ();
+    };
 
     // --------------------------------------------------------------------------
     struct GUIPP_CORE_EXPORT window_state {
-    protected:
-      struct flags {
-        enum {
-          created = 0,
-          focus_accepting,
-          redraw_disabled,
-          window_disabled,
-          is_visible,
-          is_focused,
-          is_overlapped,
-          last_window_state_enum
-        };
-      };
-
     public:
       struct GUIPP_CORE_EXPORT is {
 
@@ -69,10 +75,7 @@ namespace gui {
         bool overlapped () const;
 
       protected:
-        bool test (unsigned long) const;
-
-      private:
-        const state_type& state;
+        const state_type& flags;
       };
 
       struct GUIPP_CORE_EXPORT set {
@@ -88,15 +91,8 @@ namespace gui {
         bool overlapped (bool on);
 
       protected:
-        bool set_flag (unsigned long, bool a);
-
-      private:
-        state_type& state;
+        state_type& flags;
       };
-
-    protected:
-      friend struct is;
-      friend struct set;
 
     };
 

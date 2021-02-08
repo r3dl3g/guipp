@@ -29,82 +29,74 @@ namespace gui {
 
   namespace core {
 
-    // --------------------------------------------------------------------------
-    window_state::is::is (const state_type& state)
-      :state(state)
+    state_type::state_type ()
+      : flags(0)
     {}
 
-    bool window_state::is::test (unsigned long f) const {
-      return state.test(f);
-    }
+    // --------------------------------------------------------------------------
+    window_state::is::is (const state_type& state)
+      :flags(state)
+    {}
 
     bool window_state::is::created () const {
-      return test(flags::created);
+      return flags.created;
     }
 
     bool window_state::is::visible () const {
-      return test(flags::is_visible);
+      return flags.is_visible;
     }
 
     bool window_state::is::focused () const {
-      return test(flags::is_focused);
+      return flags.is_focused;
     }
 
     bool window_state::is::focus_accepting () const {
-      return test(flags::focus_accepting);
+      return flags.focus_accepting;
     }
 
     bool window_state::is::redraw_disabled () const {
-      return test(flags::redraw_disabled);
+      return flags.redraw_disabled;
     }
 
     bool window_state::is::enabled () const {
-      return !test(flags::window_disabled);
+      return !flags.window_disabled;
     }
 
     bool window_state::is::overlapped () const {
-      return test(flags::is_overlapped);
+      return flags.is_overlapped;
     }
 
     // --------------------------------------------------------------------------
     window_state::set::set (state_type& state)
-      :state(state)
+      :flags(state)
     {}
 
-    bool window_state::set::set_flag (unsigned long bit, bool ona) {
-      if (state.test(bit) != ona) {
-        state.set(bit, ona);
-        return true;
-      }
-      return false;
-    }
-
     bool window_state::set::created (bool on) {
-      return set_flag(flags::created, on);
+      return (flags.created == on ? false : flags.created = on, true);
     }
 
     bool window_state::set::visible (bool on) {
-      return set_flag(flags::is_visible, on);
+      return (flags.is_visible == on ? false : flags.is_visible = on, true);
     }
 
     bool window_state::set::focused (bool on) {
-      return set_flag(flags::is_focused, on);
+      return (flags.is_focused == on ? false : flags.is_focused = on, true);
     }
 
     bool window_state::set::accept_focus (bool on) {
-      return set_flag(flags::focus_accepting, on);
+      return (flags.focus_accepting == on ? false : flags.focus_accepting = on, true);
     }
 
     bool window_state::set::disable_redraw (bool on) {
-      return set_flag(flags::redraw_disabled, on);
+      return (flags.redraw_disabled == on ? false : flags.redraw_disabled = on, true);
     }
 
     bool window_state::set::overlapped (bool on) {
-      return set_flag(flags::is_overlapped, on);
+      return (flags.is_overlapped == on ? false : flags.is_overlapped = on, true);
     }
 
     bool window_state::set::enable (bool on) {
-      return set_flag(flags::window_disabled, !on);
+      return (flags.window_disabled == !on ? false : flags.window_disabled = !on, true);
     }
 
     // --------------------------------------------------------------------------
@@ -115,7 +107,7 @@ namespace gui {
       if (s.focused()) out << " focused,";
       if (s.focus_accepting()) out << " focus_accepting,";
       if (s.redraw_disabled()) out << " redraw_disabled,";
-      if (s.overlapped()) out << " overlapped";
+      if (s.overlapped()) out << " overlapped,";
 
       return out;
     }

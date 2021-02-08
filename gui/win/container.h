@@ -133,6 +133,7 @@ namespace gui {
       void invalidate () const;
       void redraw (const core::rectangle&) const;
 
+      core::point position () const override;
       core::size client_size () const override;
       core::point surface_offset () const override;
 

@@ -283,18 +283,15 @@ namespace gui {
         }
       }
 
-      core::rectangle get_geometry (os::window wid) {
-        Window root = 0;
+      core::point get_geometry (os::window wid) {
+        auto display = core::global::get_instance();
+        Window root = DefaultRootWindow(display);
+        Window child;
         int x = 0, y = 0;
-        unsigned int width = 0, height = 0;
-        unsigned int border_width = 0;
-        unsigned int depth = 0;
-        if (wid && x11::check_status(XGetGeometry(core::global::get_instance(), wid,
-                                                  &root, &x, &y, &width, &height,
-                                                  &border_width, &depth))) {
-          return core::global::scale_from_native(core::native_rect{x, y, width, height});
+        if (wid && x11::check_status(XTranslateCoordinates(display, wid, root, 0, 0,&x, &y, &child))) {
+          return core::global::scale_from_native(core::native_point{x, y});
         }
-        return core::rectangle::def;
+        return core::point::zero;
       }
 
       void prepare (overlapped_window& w) {

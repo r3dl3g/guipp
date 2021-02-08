@@ -95,7 +95,7 @@ namespace gui {
       core::size size () const;
       virtual core::size client_size () const;
 
-      core::point position () const;
+      virtual core::point position () const;
       core::point absolute_position () const;
       virtual core::point surface_offset () const;
       core::rectangle surface_area () const;

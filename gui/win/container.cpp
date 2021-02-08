@@ -611,6 +611,10 @@ namespace gui {
       }
     }
     // --------------------------------------------------------------------------
+    core::point overlapped_window::position () const {
+      return native::get_geometry(get_os_window());
+    }
+    // --------------------------------------------------------------------------
     core::point overlapped_window::surface_offset () const {
       return core::point::zero;
     }

@@ -112,10 +112,10 @@ namespace gui {
         w.handle_event(e, result);
       }
 
-      core::rectangle get_geometry (os::window w) {
+      core::point get_geometry (os::window w) {
         RECT r;
         GetWindowRect(w, &r);
-        return core::rectangle(r);
+        return core::point(POINT{r.x, r.y});
       }
 
       void prepare (overlapped_window&) {}

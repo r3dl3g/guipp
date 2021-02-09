@@ -642,6 +642,7 @@ namespace gui {
       if (btn) {
         if (!data.is_open() || (idx != data.get_hilite())) {
           data.set_selection(idx, event_source::mouse);
+          close();
         }
       } else {
         if ((idx > -1) && (idx < data.size()) && data[idx].is_sub_menu()) {
@@ -652,11 +653,7 @@ namespace gui {
       }
     }
 
-    void popup_menu::popup_at (const core::point& pt, control& parent) {
-      popup_at(parent.surface_to_screen(pt), *parent.get_parent());
-    }
-
-    void popup_menu::popup_at (const core::point& pt, container& parent) {
+    void popup_menu::popup_at (const core::point& pt, window& parent) {
       set_state().disable_redraw(false);
       data.init();
       data.set_hilite(0);
@@ -669,7 +666,7 @@ namespace gui {
       });
       clog::trace() << "popup_menu::popup_at(" << pt << ") -> run_modal";
       auto& root = parent.get_overlapped_window();
-      create(root, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
+      create(root, core::rectangle(pt - parent.surface_offset() + parent.position(), core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
       run_modal(root);
     }
 

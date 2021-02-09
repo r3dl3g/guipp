@@ -290,8 +290,7 @@ namespace gui {
 
       void popup_at (const core::point& pt, popup_menu& parent);
       void popup_at (const core::point& pt, main_menu& parent);
-      void popup_at (const core::point& pt, win::container& parent);
-      void popup_at (const core::point& pt, control& parent);
+      void popup_at (const core::point& pt, win::window& parent);
 
       menu_data data;
 

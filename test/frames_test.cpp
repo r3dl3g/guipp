@@ -26,7 +26,7 @@ struct framer {
     : sz(sz)
   {}
 
-  void operator() (const graphics& g, const core::point& pt) const {
+  void operator() (graphics& g, const core::point& pt) const {
     F(g, core::rectangle(pt, sz));
   }
 

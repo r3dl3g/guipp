@@ -132,15 +132,15 @@ namespace gui {
     }
 
     template<arc_type T>
-    void draw_arc (const graphics& g, const arc_coords& c, const pen& p);
+    void draw_arc (graphics& g, const arc_coords& c, const pen& p);
 
     template<arc_type T>
-    void fill_arc (const graphics& g, const arc_coords& c, const brush& b);
+    void fill_arc (graphics& g, const arc_coords& c, const brush& b);
 
     // --------------------------------------------------------------------------
 #ifdef GUIPP_WIN
     // --------------------------------------------------------------------------
-    void line::operator() (const graphics& g, const pen& p) const {
+    void line::operator() (graphics& g, const pen& p) const {
       const auto pw = p.os_size();
       const auto off = p.os_size() / 2;
       const auto x = from.os_x() + off;
@@ -174,7 +174,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void rectangle::operator() (const graphics& g,
+    void rectangle::operator() (graphics& g,
                                 const brush& b,
                                 const pen& p) const {
       const os::rectangle r = rect.os();
@@ -198,7 +198,7 @@ namespace gui {
       }
     }
 
-    void rectangle::operator() (const graphics& g,
+    void rectangle::operator() (graphics& g,
                                 const pen& p) const {
       const os::rectangle r = rect.os();
       const auto pw = p.os_size();
@@ -221,13 +221,13 @@ namespace gui {
       }
     }
 
-    void rectangle::operator() (const graphics& g,
+    void rectangle::operator() (graphics& g,
                                 const brush& b) const {
       operator()(g, b, b.color());
     }
 
     // --------------------------------------------------------------------------
-    void ellipse::operator() (const graphics& g,
+    void ellipse::operator() (graphics& g,
                               const brush& b,
                               const pen& p) const {
       const os::rectangle r = rect.os();
@@ -257,7 +257,7 @@ namespace gui {
       }
     }
 
-    void ellipse::operator() (const graphics& g,
+    void ellipse::operator() (graphics& g,
                               const pen& p) const {
       const os::rectangle r = rect.os();
       const auto pw = p.os_size();
@@ -284,13 +284,13 @@ namespace gui {
 
     }
 
-    void ellipse::operator() (const graphics& g,
+    void ellipse::operator() (graphics& g,
                               const brush& b) const {
       operator()(g, b, b.color());
     }
 
     // --------------------------------------------------------------------------
-    void round_rectangle::operator() (const graphics& g,
+    void round_rectangle::operator() (graphics& g,
                                       const pen& p) const {
       Use<pen> pn(g, p);
       Use<brush> br(g, brush::invisible);
@@ -303,7 +303,7 @@ namespace gui {
                 (radius.os_height() * 2));
     }
 
-    void round_rectangle::operator() (const graphics& g,
+    void round_rectangle::operator() (graphics& g,
                                       const brush& b) const {
       Use<brush> br(g, b);
       pen p(b.color());
@@ -317,7 +317,7 @@ namespace gui {
                 (radius.os_height() * 2));
     }
 
-    void round_rectangle::operator() (const graphics& g,
+    void round_rectangle::operator() (graphics& g,
                                       const brush& b,
                                       const pen& p) const {
       Use<brush> br(g, b);
@@ -332,7 +332,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void draw_full_arc (const graphics& g, const arc_coords& c) {
+    void draw_full_arc (graphics& g, const arc_coords& c) {
       if ((c.w < 3) || (c.h < 3)) {
         Rectangle(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1);
       } else {
@@ -341,38 +341,38 @@ namespace gui {
     }
 
     template<arc_type T>
-    void draw_empty_arc (const graphics& g, const arc_coords&, os::color);
+    void draw_empty_arc (graphics& g, const arc_coords&, os::color);
 
     template<>
-    void draw_empty_arc<arc_type::pie> (const graphics& g, const arc_coords& c, os::color) {
+    void draw_empty_arc<arc_type::pie> (graphics& g, const arc_coords& c, os::color) {
       auto pt = c.calc_points0();
       MoveToEx(g, os::get_x(pt[1]), os::get_y(pt[1]), nullptr);
       LineTo(g, os::get_x(pt[0]), os::get_y(pt[0]));
     }
 
     template<>
-    void draw_empty_arc<arc_type::arc> (const graphics& g, const arc_coords& c, os::color col) {
+    void draw_empty_arc<arc_type::arc> (graphics& g, const arc_coords& c, os::color col) {
       auto pt = c.calc_points0();
       SetPixel(g, os::get_x(pt[1]), os::get_y(pt[1]), col);
     }
 
     template<arc_type T>
-    void draw_angle_arc (const graphics& g, const arc_coords&);
+    void draw_angle_arc (graphics& g, const arc_coords&);
 
     template<>
-    void draw_angle_arc<arc_type::pie> (const graphics& g, const arc_coords& c) {
+    void draw_angle_arc<arc_type::pie> (graphics& g, const arc_coords& c) {
       auto pt = c.calc_points();
       Pie(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1, pt[0].x, pt[0].y, pt[2].x, pt[2].y);
     }
 
     template<>
-    void draw_angle_arc<arc_type::arc> (const graphics& g, const arc_coords& c) {
+    void draw_angle_arc<arc_type::arc> (graphics& g, const arc_coords& c) {
       auto pt = c.calc_points();
       Arc(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1, pt[0].x, pt[0].y, pt[2].x, pt[2].y);
     }
 
     template<arc_type T>
-    void draw_arc (const graphics& g, const arc_coords& c, const pen& p) {
+    void draw_arc (graphics& g, const arc_coords& c, const pen& p) {
       Use<pen> pn(g, p);
       if (c.full()) {
         draw_full_arc(g, c);
@@ -384,7 +384,7 @@ namespace gui {
     }
 
     template<arc_type T>
-    void fill_arc (const graphics& g, const arc_coords& c, const brush& b) {
+    void fill_arc (graphics& g, const arc_coords& c, const brush& b) {
       Use<brush> br(g, b);
       if (c.full()) {
         draw_full_arc(g, c);
@@ -396,7 +396,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void polyline::operator() (const graphics& g,
+    void polyline::operator() (graphics& g,
                               const brush& b,
                               const pen& p) const {
       Use<brush> br(g, b);
@@ -404,14 +404,14 @@ namespace gui {
       Polyline(g, (const POINT*)points.data(), (int)points.size());
     }
 
-    void polyline::operator() (const graphics& g,
+    void polyline::operator() (graphics& g,
                               const pen& p) const {
       Use<pen> pn(g, p);
       Use<brush> br(g, brush::invisible);
       Polyline(g, (const POINT*)points.data(), (int)points.size());
     }
 
-    void polyline::operator() (const graphics& g,
+    void polyline::operator() (graphics& g,
                               const brush& b) const {
       Use<brush> br(g, b);
       pen p(b.color());
@@ -420,7 +420,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void polygon::operator() (const graphics& g,
+    void polygon::operator() (graphics& g,
                                const brush& b,
                                const pen& p) const {
       Use<brush> br(g, b);
@@ -428,14 +428,14 @@ namespace gui {
       Polygon(g, (const POINT*)points.data(), (int)points.size());
     }
 
-    void polygon::operator() (const graphics& g,
+    void polygon::operator() (graphics& g,
                                const pen& p) const {
       Use<pen> pn(g, p);
       Use<brush> br(g, brush::invisible);
       Polygon(g, (const POINT*)points.data(), (int)points.size());
     }
 
-    void polygon::operator() (const graphics& g,
+    void polygon::operator() (graphics& g,
                                const brush& b) const {
       Use<brush> br(g, b);
       pen p(b.color());
@@ -444,7 +444,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void text_box::operator() (const graphics& g,
+    void text_box::operator() (graphics& g,
                                const font& f,
                                os::color c) const {
       Use<font> fn(g, f);
@@ -468,7 +468,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void bounding_box::operator() (const graphics& g,
+    void bounding_box::operator() (graphics& g,
                                    const font& f,
                                    os::color) const {
       Use<font> fn(g, f);
@@ -493,7 +493,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void text::operator() (const graphics& g,
+    void text::operator() (graphics& g,
                            const font& f,
                            os::color c) const {
       Use<font> fn(g, f);
@@ -644,7 +644,7 @@ namespace gui {
 #endif // GUIPP_USE_XFT
 
     // --------------------------------------------------------------------------
-    void line::operator() (const graphics& g, const pen& p) const {
+    void line::operator() (graphics& g, const pen& p) const {
       gui::os::instance display = get_instance();
       const short pw = p.os_size();
       const short off = pw / 2;
@@ -665,7 +665,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void rectangle::operator() (const graphics& g,
+    void rectangle::operator() (graphics& g,
                                 const brush& b,
                                 const pen& p) const {
       gui::os::instance display = get_instance();
@@ -688,7 +688,7 @@ namespace gui {
       }
     }
 
-    void rectangle::operator() (const graphics& g,
+    void rectangle::operator() (graphics& g,
                                 const pen& p) const {
       const auto pw = p.os_size();
       const auto off = pw / 2;
@@ -705,7 +705,7 @@ namespace gui {
       }
     }
 
-    void rectangle::operator() (const graphics& g,
+    void rectangle::operator() (graphics& g,
                                 const brush& b) const {
       operator ()(g, b, b.color());
     }
@@ -715,7 +715,7 @@ namespace gui {
     static const short int degree_360 = 360 * 64;
 
     // --------------------------------------------------------------------------
-    void ellipse::operator() (const graphics& g,
+    void ellipse::operator() (graphics& g,
                               const brush& b,
                               const pen& p) const {
       gui::os::instance display = get_instance();
@@ -742,7 +742,7 @@ namespace gui {
       }
     }
 
-    void ellipse::operator() (const graphics& g,
+    void ellipse::operator() (graphics& g,
                               const pen& p) const {
       gui::os::instance display = get_instance();
       const auto pw = p.os_size();
@@ -764,13 +764,13 @@ namespace gui {
       }
     }
 
-    void ellipse::operator() (const graphics& g,
+    void ellipse::operator() (graphics& g,
                               const brush& b) const {
       operator ()(g, b, b.color());
     }
 
     // --------------------------------------------------------------------------
-    void round_rectangle::operator() (const graphics& g,
+    void round_rectangle::operator() (graphics& g,
                                       const pen& p) const {
       Use<pen> pn(g, p);
       gui::os::instance display = get_instance();
@@ -785,7 +785,7 @@ namespace gui {
       XDrawSegments(display, g, g, segments.data(), (int)segments.size());
     }
 
-    void round_rectangle::operator() (const graphics& g,
+    void round_rectangle::operator() (graphics& g,
                                       const brush& b) const {
       Use<brush> br(g, b);
       gui::os::instance display = get_instance();
@@ -804,7 +804,7 @@ namespace gui {
       XFillRectangles(display, g, g, rects.data(), (int)rects.size());
     }
 
-    void round_rectangle::operator() (const graphics& g,
+    void round_rectangle::operator() (graphics& g,
                                       const brush& b,
                                       const pen& p) const {
       Use<brush> br(g, b);
@@ -828,7 +828,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void draw_arc<arc_type::arc> (const graphics& g, const arc_coords& c, const pen& p) {
+    void draw_arc<arc_type::arc> (graphics& g, const arc_coords& c, const pen& p) {
       Use<pen> pn(g, p);
 
       gui::os::instance display = get_instance();
@@ -838,7 +838,7 @@ namespace gui {
     }
 
     template<>
-    void draw_arc<arc_type::pie> (const graphics& g, const arc_coords& c, const pen& p) {
+    void draw_arc<arc_type::pie> (graphics& g, const arc_coords& c, const pen& p) {
       Use<pen> pn(g, p);
 
       gui::os::instance display = get_instance();
@@ -855,14 +855,14 @@ namespace gui {
     }
 
     template<arc_type T>
-    void fill_arc (const graphics& g, const arc_coords& c, const brush& b) {
+    void fill_arc (graphics& g, const arc_coords& c, const brush& b) {
       Use<brush> br(g, b);
       XSetArcMode(get_instance(), g, ArcPieSlice);
       XFillArc(get_instance(), g, g, c.x, c.y, c.w, c.h, c.start, c.end - c.start);
     }
 
     // --------------------------------------------------------------------------
-    void polyline::operator() (const graphics& g,
+    void polyline::operator() (graphics& g,
                                const brush& b,
                                const pen& p) const {
       Use<brush> br(g, b);
@@ -877,13 +877,13 @@ namespace gui {
       XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
     }
 
-    void polyline::operator() (const graphics& g,
+    void polyline::operator() (graphics& g,
                                const pen& p) const {
       Use<pen> pn(g, p);
       XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
     }
 
-    void polyline::operator() (const graphics& g,
+    void polyline::operator() (graphics& g,
                                const brush& b) const {
       Use<brush> br(g, b);
       XFillPolygon(get_instance(),
@@ -899,7 +899,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void polygon::operator() (const graphics& g,
+    void polygon::operator() (graphics& g,
                               const brush& b,
                               const pen& p) const {
       Use<brush> br(g, b);
@@ -914,13 +914,13 @@ namespace gui {
       XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
     }
 
-    void polygon::operator() (const graphics& g,
+    void polygon::operator() (graphics& g,
                               const pen& p) const {
       Use<pen> pn(g, p);
       XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
     }
 
-    void polygon::operator() (const graphics& g,
+    void polygon::operator() (graphics& g,
                               const brush& b) const {
       Use<brush> br(g, b);
       XFillPolygon(get_instance(),
@@ -936,7 +936,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void text_box::operator() (const graphics& g,
+    void text_box::operator() (graphics& g,
                                const font& f,
                                os::color c) const {
       gui::os::instance display = get_instance();
@@ -1017,7 +1017,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void bounding_box::operator() (const graphics& g,
+    void bounding_box::operator() (graphics& g,
                                    const font& f,
                                    os::color c) const {
       gui::os::instance display = get_instance();
@@ -1089,7 +1089,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void text::operator() (const graphics& g,
+    void text::operator() (graphics& g,
                            const font& f,
                            os::color c) const {
       gui::os::instance display = get_instance();
@@ -1162,7 +1162,7 @@ namespace gui {
 
 #ifdef GUIPP_QT
 
-    void line::operator() (const graphics& g, const pen& p) const {
+    void line::operator() (graphics& g, const pen& p) const {
 
       const auto pw = p.os_size();
 
@@ -1212,7 +1212,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void rectangle::operator() (const graphics& g,
+    void rectangle::operator() (graphics& g,
                                 const brush& b,
                                 const pen& p) const {
       const auto pw = p.os_size();
@@ -1230,7 +1230,7 @@ namespace gui {
       }
     }
 
-    void rectangle::operator() (const graphics& g,
+    void rectangle::operator() (graphics& g,
                                 const pen& p) const {
       const auto pw = p.os_size();
       const auto off = pw / 2;
@@ -1246,13 +1246,13 @@ namespace gui {
       }
     }
 
-    void rectangle::operator() (const graphics& g,
+    void rectangle::operator() (graphics& g,
                                 const brush& b) const {
       operator()(g, b, b.color());
     }
 
     // --------------------------------------------------------------------------
-    void ellipse::operator() (const graphics& g,
+    void ellipse::operator() (graphics& g,
                               const brush& b,
                               const pen& p) const {
       Use<pen> upn(g, p);
@@ -1264,28 +1264,28 @@ namespace gui {
       g.os()->drawEllipse(r.x() + off, r.y() + off, r.width() + off2, r.height() + off2);
     }
 
-    void ellipse::operator() (const graphics& g,
+    void ellipse::operator() (graphics& g,
                               const pen& p) const {
       operator()(g, brush::invisible, p);
     }
 
-    void ellipse::operator() (const graphics& g,
+    void ellipse::operator() (graphics& g,
                               const brush& b) const {
       operator()(g, b, b.color());
     }
 
     // --------------------------------------------------------------------------
-    void round_rectangle::operator() (const graphics& g,
+    void round_rectangle::operator() (graphics& g,
                                       const pen& p) const {
       operator()(g, brush::invisible, p);
     }
 
-    void round_rectangle::operator() (const graphics& g,
+    void round_rectangle::operator() (graphics& g,
                                       const brush& b) const {
       operator()(g, b, b.color());
     }
 
-    void round_rectangle::operator() (const graphics& g,
+    void round_rectangle::operator() (graphics& g,
                                       const brush& b,
                                       const pen& p) const {
       Use<brush> br(g, b);
@@ -1305,7 +1305,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void draw_arc<arc_type::pie> (const graphics& g, const arc_coords& c, const pen& p) {
+    void draw_arc<arc_type::pie> (graphics& g, const arc_coords& c, const pen& p) {
       Use<pen> pn(g, p);
 
       QRectF r(c.x, c.y, c.w, c.h);
@@ -1317,7 +1317,7 @@ namespace gui {
     }
 
     template<>
-    void draw_arc<arc_type::arc> (const graphics& g, const arc_coords& c, const pen& p) {
+    void draw_arc<arc_type::arc> (graphics& g, const arc_coords& c, const pen& p) {
       Use<pen> pn(g, p);
 
       QRectF r(c.x, c.y, c.w, c.h);
@@ -1329,7 +1329,7 @@ namespace gui {
     }
 
     template<arc_type T>
-    void fill_arc (const graphics& g, const arc_coords& c, const brush& b) {
+    void fill_arc (graphics& g, const arc_coords& c, const brush& b) {
       Use<brush> br(g, b);
 
       QRectF r(c.x, c.y, c.w, c.h);
@@ -1341,7 +1341,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void polyline::operator() (const graphics& g,
+    void polyline::operator() (graphics& g,
                               const brush& b,
                               const pen& p) const {
       Use<brush> br(g, b);
@@ -1349,18 +1349,18 @@ namespace gui {
       g.os()->drawPolyline(points.data(), (int)points.size());
     }
 
-    void polyline::operator() (const graphics& g,
+    void polyline::operator() (graphics& g,
                               const pen& p) const {
       operator()(g, brush::invisible, p);
     }
 
-    void polyline::operator() (const graphics& g,
+    void polyline::operator() (graphics& g,
                               const brush& b) const {
       operator()(g, b, b.color());
     }
 
     // --------------------------------------------------------------------------
-    void polygon::operator() (const graphics& g,
+    void polygon::operator() (graphics& g,
                                const brush& b,
                                const pen& p) const {
       Use<brush> br(g, b);
@@ -1368,18 +1368,18 @@ namespace gui {
       g.os()->drawPolygon(points.data(), (int)points.size());
     }
 
-    void polygon::operator() (const graphics& g,
+    void polygon::operator() (graphics& g,
                                const pen& p) const {
       operator()(g, brush::invisible, p);
     }
 
-    void polygon::operator() (const graphics& g,
+    void polygon::operator() (graphics& g,
                                const brush& b) const {
       operator()(g, b, b.color());
     }
 
     // --------------------------------------------------------------------------
-    void text_box::operator() (const graphics& g,
+    void text_box::operator() (graphics& g,
                                const font& f,
                                os::color c) const {
       Use<font> fn(g, f);
@@ -1389,14 +1389,14 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void bounding_box::operator() (const graphics& g,
+    void bounding_box::operator() (graphics& g,
                                    const font& f,
                                    os::color) const {
       rect = core::rectangle(QFontMetrics(f).boundingRect(rect.os(), static_cast<int>(origin), QString::fromStdString(str)));
     }
 
     // --------------------------------------------------------------------------
-    void text::operator() (const graphics& g,
+    void text::operator() (graphics& g,
                            const font& f,
                            os::color c) const {
       Use<font> fn(g, f);
@@ -1432,20 +1432,20 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void arc_or_pie<arc_type::arc>::operator() (const graphics& g,
+    void arc_or_pie<arc_type::arc>::operator() (graphics& g,
                                                 const pen& p) const {
       Use<brush> br(g, brush::invisible);
       draw_arc<arc_type::arc>(g, arc_coords(rect, start_angle, end_angle), p);
     }
 
     template<>
-    void arc_or_pie<arc_type::arc>::operator() (const graphics& g,
+    void arc_or_pie<arc_type::arc>::operator() (graphics& g,
                                                 const brush& b) const {
       arc_or_pie<arc_type::arc>::operator()(g, pen(b.color()));
     }
 
     template<>
-    void arc_or_pie<arc_type::arc>::operator() (const graphics& g,
+    void arc_or_pie<arc_type::arc>::operator() (graphics& g,
                                                 const brush&,
                                                 const pen& p) const {
       arc_or_pie<arc_type::arc>::operator()(g, p);
@@ -1453,14 +1453,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void arc_or_pie<arc_type::pie>::operator() (const graphics& g,
+    void arc_or_pie<arc_type::pie>::operator() (graphics& g,
                                                 const pen& p) const {
       Use<brush> br(g, brush::invisible);
       draw_arc<arc_type::pie>(g, arc_coords(rect, start_angle, end_angle), p);
     }
 
     template<>
-    void arc_or_pie<arc_type::pie>::operator() (const graphics& g,
+    void arc_or_pie<arc_type::pie>::operator() (graphics& g,
                                                 const brush& b) const {
       arc_coords c(rect, start_angle, end_angle);
       pen pn(b.color());
@@ -1471,7 +1471,7 @@ namespace gui {
     }
 
     template<>
-    void arc_or_pie<arc_type::pie>::operator() (const graphics& g,
+    void arc_or_pie<arc_type::pie>::operator() (graphics& g,
                                                 const brush& b,
                                                 const pen& p) const {
       arc_coords c(rect, start_angle, end_angle);
@@ -1600,7 +1600,7 @@ namespace gui {
     }
 
     template<pixel_format_t T>
-    void draw_image_frame (const graphics& g,
+    void draw_image_frame (graphics& g,
                            const core::point& pt,
                            const core::rectangle rect,
                            const datamap<T>& img,
@@ -1622,22 +1622,22 @@ namespace gui {
     }
 
     template<>
-    void image_frame<pixel_format_t::BW>::operator() (const graphics& g, const core::point& pt) const {
+    void image_frame<pixel_format_t::BW>::operator() (graphics& g, const core::point& pt) const {
       draw_image_frame(g, pt, rect, img, frame);
     }
 
     template<>
-    void image_frame<pixel_format_t::GRAY>::operator() (const graphics& g, const core::point& pt) const {
+    void image_frame<pixel_format_t::GRAY>::operator() (graphics& g, const core::point& pt) const {
       draw_image_frame(g, pt, rect, img, frame);
     }
 
     template<>
-    void image_frame<pixel_format_t::RGB>::operator() (const graphics& g, const core::point& pt) const {
+    void image_frame<pixel_format_t::RGB>::operator() (graphics& g, const core::point& pt) const {
       draw_image_frame(g, pt, rect, img, frame);
     }
 
     template<>
-    void image_frame<pixel_format_t::RGBA>::operator() (const graphics& g, const core::point& pt) const {
+    void image_frame<pixel_format_t::RGBA>::operator() (graphics& g, const core::point& pt) const {
       draw_image_frame(g, pt, rect, img, frame);
     }
 

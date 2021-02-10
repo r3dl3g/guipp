@@ -32,7 +32,7 @@
 // Library includes
 //
 #include <util/bind_method.h>
-#include <gui/core/gui_types.h>
+#include <gui/core/context.h>
 #include <gui/core/color.h>
 #include <gui/draw/draw_fwd.h>
 #include <gui++-draw-export.h>
@@ -42,11 +42,11 @@ namespace gui {
 
   namespace draw {
 
-    typedef void (drawable) (const graphics&, const brush&, const pen&);
-    typedef void (frameable) (const graphics&, const pen&);
-    typedef void (fillable) (const graphics&, const brush&);
-    typedef void (textable) (const graphics&, const font& font, os::color color);
-    typedef void (copyable) (const graphics&, const core::point&);
+    typedef void (drawable) (graphics&, const brush&, const pen&);
+    typedef void (frameable) (graphics&, const pen&);
+    typedef void (fillable) (graphics&, const brush&);
+    typedef void (textable) (graphics&, const font& font, os::color color);
+    typedef void (copyable) (graphics&, const core::point&);
 
     enum class copy_mode : uint32_t {
       bit_copy =                IF_WIN32_X11_QT_ELSE(SRCCOPY,      GXcopy,         QPainter::CompositionMode_Source,              0),
@@ -66,62 +66,57 @@ namespace gui {
     // --------------------------------------------------------------------------
     class GUIPP_DRAW_EXPORT graphics {
     public:
-      typedef std::vector<core::rectangle> clipping_stack_t;
-
-      graphics (os::drawable target, os::graphics gc);
+      graphics (core::context* ctx);
       explicit graphics (draw::basic_map& target);
-      graphics (const graphics&);
       ~graphics ();
 
-      graphics& operator= (const graphics&);
-
-      const graphics& clear (os::color color) const;
-      const graphics& draw_pixel (const core::native_point& pt,
-                                  os::color color) const;
+      graphics& clear (os::color color);
+      graphics& draw_pixel (const core::native_point& pt,
+                                  os::color color);
 
       os::color get_pixel (const core::native_point&) const;
 
-      const graphics& draw_lines (const std::vector<core::point>& points,
-                                  const pen& pen) const;
+      graphics& draw_lines (const std::vector<core::point>& points,
+                                  const pen& pen);
 
       template<typename F> //frameable
-      const graphics& frame (F, const pen& pen) const;
+      graphics& frame (F, const pen& pen);
 
       template<typename F> //fillable
-      const graphics& fill (F, const brush& brush) const;
+      graphics& fill (F, const brush& brush);
 
       template<typename F> //drawable
-      const graphics& draw (F, const brush& brush, const pen& pen) const;
+      graphics& draw (F, const brush& brush, const pen& pen);
 
       template<typename F> //textable
-      const graphics& text (F, const font& font, os::color color) const;
+      graphics& text (F, const font& font, os::color color);
 
       template<typename F> //copyable
-      const graphics& copy (F, const core::point&) const;
+      graphics& copy (F, const core::point&);
 
-      const graphics& copy_from (const graphics&, const core::point& dest) const;
+      graphics& copy_from (graphics&, const core::point& dest);
 
-      const graphics& copy_from (const draw::pixmap&, const core::point& dest) const;
-      const graphics& copy_from (const draw::pixmap&, const core::rectangle& src, const core::point& dest) const;
-      const graphics& copy_from (const draw::masked_bitmap&, const core::point& dest) const;
+      graphics& copy_from (const draw::pixmap&, const core::point& dest);
+      graphics& copy_from (const draw::pixmap&, const core::rectangle& src, const core::point& dest);
+      graphics& copy_from (const draw::masked_bitmap&, const core::point& dest);
 
-      const graphics& copy_from (const graphics&, const core::native_point& dest = core::native_point::zero) const;
-      const graphics& copy_from (const graphics&, const core::native_rect& src, const core::native_point& dest = core::native_point::zero) const;
+      graphics& copy_from (graphics&, const core::native_point& dest = core::native_point::zero);
+      graphics& copy_from (graphics&, const core::native_rect& src, const core::native_point& dest = core::native_point::zero);
 
-      const graphics& copy_from (const draw::pixmap&, const core::native_point& dest = core::native_point::zero) const;
-      const graphics& copy_from (const draw::pixmap&, const core::native_rect& src, const core::native_point& dest) const;
-      const graphics& copy_from (const draw::masked_bitmap&, const core::native_point& dest = core::native_point::zero) const;
+      graphics& copy_from (const draw::pixmap&, const core::native_point& dest = core::native_point::zero);
+      graphics& copy_from (const draw::pixmap&, const core::native_rect& src, const core::native_point& dest);
+      graphics& copy_from (const draw::masked_bitmap&, const core::native_point& dest = core::native_point::zero);
 
-      const graphics& copy_from (os::drawable, const core::rectangle& src,
+      graphics& copy_from (os::drawable, const core::rectangle& src,
                                  const core::point& dest = core::point::zero,
-                                 const copy_mode = copy_mode::bit_copy) const;
+                                 const copy_mode = copy_mode::bit_copy);
 
-      const graphics& copy_from (os::drawable, const core::native_rect& src,
+      graphics& copy_from (os::drawable, const core::native_rect& src,
                                  const core::native_point& dest = core::native_point::zero,
-                                 const copy_mode = copy_mode::bit_copy) const;
+                                 const copy_mode = copy_mode::bit_copy);
 
-      void invert (const core::rectangle&) const;
-      void flush () const;
+      void invert (const core::rectangle&);
+      void flush ();
 
       int depth () const;
       core::rectangle area () const;
@@ -132,7 +127,13 @@ namespace gui {
 
       os::graphics os () const;
       operator os::graphics () const;
-      operator os::drawable() const;
+      operator os::drawable () const;
+
+      os::graphics gc () const;
+      os::drawable target () const;
+
+      const core::context& context () const;
+      core::context& context ();
 
 #ifdef GUIPP_USE_XFT
       operator XftDraw* () const;
@@ -144,28 +145,18 @@ namespace gui {
 #endif // GUIPP_USE_XFT
 
 
-      friend struct clip;
-      void push_clipping (const core::rectangle&) const;
-      void pop_clipping () const;
-
-      void set_clip_rect (const core::rectangle&) const;
-      void restore_clipping () const;
-      void clear_clip_rect () const;
 
     private:
       void destroy ();
 
-      os::graphics gc;
-      os::drawable target;
+      core::context* ctx;
       core::native_point offs;
-      bool own_gc;
-      bool ref_gc;
-      mutable clipping_stack_t clipping_stack;
+      bool own_gctx;
     };
 
     // --------------------------------------------------------------------------
     struct GUIPP_DRAW_EXPORT paint {
-      typedef std::function<void (const draw::graphics&)> painter;
+      typedef std::function<void (draw::graphics&)> painter;
 
       explicit paint (const painter& f);
       explicit paint (painter&& f);
@@ -173,21 +164,15 @@ namespace gui {
       template<typename T, typename F>
       paint (T* t, F f);
 
-      void operator() (os::surface);
+      void operator() (core::context*);
 
     private:
       painter p;
     };
 
     // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT clip {
-      clip (const graphics& g, const core::rectangle& r);
-      ~clip ();
-
-      void operator= (clip&) = delete;
-
-    private:
-      const graphics& g;
+    struct GUIPP_DRAW_EXPORT clip : public core::clip {
+      clip (graphics& g, const core::rectangle& r);
     };
 
   } // draw

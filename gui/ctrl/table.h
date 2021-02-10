@@ -42,7 +42,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       typedef void (cell_drawer)(const position&,        // position
-                                 const draw::graphics&,  // graph
+                                 draw::graphics&,  // graph
                                  const core::rectangle&, // place
                                  const text_origin_t,      // align
                                  const os::color&,       // foreground
@@ -207,7 +207,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       namespace paint {
 
-        GUIPP_CTRL_EXPORT void draw_table_data (const draw::graphics& graph,
+        GUIPP_CTRL_EXPORT void draw_table_data (draw::graphics& graph,
                                                 const core::rectangle& place,
                                                 const metric& geometrie,
                                                 const data::matrix<text_origin_t>& aligns,
@@ -217,7 +217,7 @@ namespace gui {
                                                 const std::function<filter::selection_and_hilite>& selection_filter,
                                                 const std::function<filter::selection_and_hilite>& hilite_filter);
 
-        GUIPP_CTRL_EXPORT void draw_table_column (const draw::graphics& graph,
+        GUIPP_CTRL_EXPORT void draw_table_column (draw::graphics& graph,
                                                   const core::rectangle& place,
                                                   const metric& geometrie,
                                                   const data::vector<text_origin_t>& aligns,
@@ -227,7 +227,7 @@ namespace gui {
                                                   const std::function<filter::selection_and_hilite>& selection_filter,
                                                   const std::function<filter::selection_and_hilite>& hilite_filter);
 
-        GUIPP_CTRL_EXPORT void draw_table_row (const draw::graphics& graph,
+        GUIPP_CTRL_EXPORT void draw_table_row (draw::graphics& graph,
                                                const core::rectangle& place,
                                                const metric& geometrie,
                                                const data::vector<text_origin_t>& aligns,

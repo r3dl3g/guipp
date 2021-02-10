@@ -35,14 +35,14 @@ namespace gui {
   namespace look {
 
     // --------------------------------------------------------------------------
-    GUIPP_LOOK_EXPORT void draw_menu_label (const draw::graphics& g,
+    GUIPP_LOOK_EXPORT void draw_menu_label (draw::graphics& g,
                                             const core::rectangle& r,
                                             const std::string& label,
                                             char menu_key,
                                             os::color color);
 
     // --------------------------------------------------------------------------
-    GUIPP_LOOK_EXPORT void menu_item (const draw::graphics& g,
+    GUIPP_LOOK_EXPORT void menu_item (draw::graphics& g,
                                       const core::rectangle& r,
                                       const draw::brush& background,
                                       core::point::type text_pos,
@@ -56,7 +56,7 @@ namespace gui {
                                       ctrl::item_state state);
 
     // --------------------------------------------------------------------------
-    GUIPP_LOOK_EXPORT void main_menu_item (const draw::graphics& g,
+    GUIPP_LOOK_EXPORT void main_menu_item (draw::graphics& g,
                                            const core::rectangle& r,
                                            const draw::brush& background,
                                            const std::string& label,

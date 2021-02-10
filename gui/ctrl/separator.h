@@ -71,7 +71,7 @@ namespace gui {
       basic_separator ();
 
     private:
-      void paint (const draw::graphics& graph);
+      void paint (draw::graphics& graph);
 
     };
 

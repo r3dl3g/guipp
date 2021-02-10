@@ -79,7 +79,7 @@ namespace gui {
       }
 
       inline void list_base::draw_item (std::size_t idx,
-                                        const draw::graphics& g,
+                                        draw::graphics& g,
                                         const core::rectangle& place,
                                         const draw::brush& background,
                                         item_state state) const {
@@ -496,7 +496,7 @@ namespace gui {
     }
 
     template<orientation_t V>
-    void linear_list<V>::paint (const draw::graphics& graph) {
+    void linear_list<V>::paint (draw::graphics& graph) {
       const core::rectangle area = super::surface_area();
       core::rectangle place = area;
       draw::clip clp(graph, area);

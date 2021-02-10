@@ -172,7 +172,7 @@ namespace gui {
       void resize_native (const core::size&) override;
       void place_native (const core::rectangle&) override;
 
-      private_surface& get_surface () const;
+      private_surface& get_context () const;
 
     private:
       friend void detail::set_os_window (overlapped_window*, os::window);

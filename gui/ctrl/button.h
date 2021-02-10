@@ -77,21 +77,21 @@ namespace gui {
 #endif // GUIPP_QT
 
     // --------------------------------------------------------------------------
-    typedef void (button_drawer) (const draw::graphics&,
+    typedef void (button_drawer) (draw::graphics&,
                                   const core::rectangle&,
                                   const core::button_state::is&);
     // --------------------------------------------------------------------------
-    typedef void (text_button_drawer) (const draw::graphics&,
+    typedef void (text_button_drawer) (draw::graphics&,
                                        const core::rectangle&,
                                        const std::string&,
                                        const core::button_state::is&);
     // --------------------------------------------------------------------------
-    typedef void (animated_button_drawer) (const draw::graphics&,
+    typedef void (animated_button_drawer) (draw::graphics&,
                                            const core::rectangle&,
                                            const core::button_state::is&,
                                            float); // animation_step
     // --------------------------------------------------------------------------
-    typedef void (animated_text_button_drawer) (const draw::graphics&,
+    typedef void (animated_text_button_drawer) (draw::graphics&,
                                                 const core::rectangle&,
                                                 const std::string&,
                                                 const core::button_state::is&,
@@ -132,7 +132,7 @@ namespace gui {
       static void init (button_base&);
 
       template<text_button_drawer& D>
-      void draw (const draw::graphics& g,
+      void draw (draw::graphics& g,
                  const core::rectangle& r,
                  const std::string& t,
                  const core::button_state::is& s) {
@@ -140,7 +140,7 @@ namespace gui {
       }
 
       template<button_drawer& D>
-      void draw (const draw::graphics& g,
+      void draw (draw::graphics& g,
                  const core::rectangle& r,
                  const core::button_state::is& s) {
         D(g, r, s);
@@ -153,7 +153,7 @@ namespace gui {
       void init (button_base&);
 
       template<text_button_drawer& D>
-      void draw (const draw::graphics& g,
+      void draw (draw::graphics& g,
                  const core::rectangle& r,
                  const std::string& t,
                  const core::button_state::is& s) {
@@ -161,7 +161,7 @@ namespace gui {
       }
 
       template<button_drawer& D>
-      void draw (const draw::graphics& g,
+      void draw (draw::graphics& g,
                  const core::rectangle& r,
                  const core::button_state::is& s) {
         D(g, r, s);
@@ -175,7 +175,7 @@ namespace gui {
       ~basic_animated_button_traits ();
 
       template<animated_text_button_drawer& D>
-      void draw (const draw::graphics& g,
+      void draw (draw::graphics& g,
                  const core::rectangle& r,
                  const std::string& t,
                  const core::button_state::is& s) {
@@ -183,7 +183,7 @@ namespace gui {
       }
 
       template<animated_button_drawer& D>
-      void draw (const draw::graphics& g,
+      void draw (draw::graphics& g,
                  const core::rectangle& r,
                  const core::button_state::is& s) {
         D(g, r, s, animation_step);

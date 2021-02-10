@@ -70,7 +70,7 @@ namespace gui {
 
       void enable_select_by_mouse ();
 
-      void handle_paint (const draw::graphics& graph);
+      void handle_paint (draw::graphics& graph);
 
     };
 

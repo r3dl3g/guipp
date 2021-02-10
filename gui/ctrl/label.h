@@ -91,7 +91,7 @@ namespace gui {
       basic_label (const basic_label& rhs);
       basic_label (basic_label&& rhs) noexcept;
 
-      void paint (const draw::graphics& graph);
+      void paint (draw::graphics& graph);
 
     private:
       void init ();

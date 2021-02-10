@@ -35,7 +35,7 @@ namespace gui {
 
   namespace look {
 
-    void draw_menu_label (const draw::graphics& g,
+    void draw_menu_label (draw::graphics& g,
                           const core::rectangle& r,
                           const std::string& l,
                           char k,
@@ -72,7 +72,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void main_menu_item (const draw::graphics& g,
+    void main_menu_item (draw::graphics& g,
                          const core::rectangle& r,
                          const draw::brush& background,
                          const std::string& label,
@@ -83,7 +83,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void menu_item (const draw::graphics& g,
+    void menu_item (draw::graphics& g,
                     const core::rectangle& r,
                     const draw::brush& background,
                     core::point::type text_pos,

@@ -25,7 +25,7 @@ namespace gui {
 
     template<typename T>
     inline void default_tile_item_drawer (const T& t,
-                                          const draw::graphics& g,
+                                          draw::graphics& g,
                                           const core::rectangle& place,
                                           const draw::brush& background,
                                           item_state state) {
@@ -208,7 +208,7 @@ namespace gui {
     }
 
     template<orientation_t V>
-    void basic_tile_view<V>::paint (const draw::graphics& graph) {
+    void basic_tile_view<V>::paint (draw::graphics& graph) {
       const core::rectangle area = super::surface_area();
       draw::clip clp(graph, area);
 

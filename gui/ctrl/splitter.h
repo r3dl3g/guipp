@@ -127,7 +127,7 @@ namespace gui {
       basic_framed_splitter (basic_framed_splitter&& rhs) noexcept ;
 
     private:
-      void paint (const draw::graphics& g);
+      void paint (draw::graphics& g);
 
       void init ();
     };

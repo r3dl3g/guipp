@@ -425,8 +425,8 @@ namespace gui {
                                              event::functor<client_message_matcher<core::WM_LAYOUT_WINDOW>>>;
 
     using paint_event = core::event_handler<ClientMessage, 0,
-                                            core::params<os::surface>::
-                                            getter<get_surface>,
+                                            core::params<core::context*>::
+                                            getter<get_context>,
                                             0,
                                             event::functor<client_message_matcher<core::WM_PAINT_WINDOW>>>;
 

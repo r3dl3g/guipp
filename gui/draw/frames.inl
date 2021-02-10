@@ -25,11 +25,11 @@ namespace gui {
 
     namespace frame {
 
-      inline core::rectangle no_frame (const draw::graphics&, const core::rectangle& r) {
+      inline core::rectangle no_frame (draw::graphics&, const core::rectangle& r) {
         return r;
       }
 
-      inline core::rectangle relief (const draw::graphics& g, const core::rectangle& r, bool sunken) {
+      inline core::rectangle relief (draw::graphics& g, const core::rectangle& r, bool sunken) {
         if (sunken) {
           return sunken_relief(g, r);
         } else {
@@ -37,7 +37,7 @@ namespace gui {
         }
       }
 
-      inline core::rectangle deep_relief (const draw::graphics& g, const core::rectangle& r, bool sunken) {
+      inline core::rectangle deep_relief (draw::graphics& g, const core::rectangle& r, bool sunken) {
         if (sunken) {
           return sunken_deep_relief(g, r);
         } else {

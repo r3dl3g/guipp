@@ -227,7 +227,7 @@ namespace gui {
     }
 
     template<orientation_t H>
-    void basic_scroll_bar<H>::handle_paint (const draw::graphics& g) {
+    void basic_scroll_bar<H>::handle_paint (draw::graphics& g) {
       auto geo = get_geometry();
       look::scrollbar<>(g,
                         super::get_selection(),

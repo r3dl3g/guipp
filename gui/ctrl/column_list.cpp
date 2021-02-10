@@ -244,7 +244,7 @@ namespace gui {
   namespace ctrl {
 
     void default_header_cell_drawer (std::size_t i,
-                                     const draw::graphics& g,
+                                     draw::graphics& g,
                                      const core::rectangle& r,
                                      const draw::brush& background) {
       using namespace draw;

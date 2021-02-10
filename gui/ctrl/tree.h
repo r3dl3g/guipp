@@ -40,7 +40,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename I>
-      void tree_node_drawer (const draw::graphics& g,
+      void tree_node_drawer (draw::graphics& g,
                              const core::rectangle& r,
                              const draw::brush& b,
                              const typename I::type& t,
@@ -131,7 +131,7 @@ namespace gui {
           std::size_t size () const override;
 
           void draw_at (std::size_t idx,
-                        const draw::graphics& g,
+                        draw::graphics& g,
                         const core::rectangle& place,
                         const draw::brush& background,
                         item_state state) const override;

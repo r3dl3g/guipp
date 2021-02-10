@@ -25,7 +25,7 @@ namespace gui {
 
     template<typename T, draw::frame::drawer F>
     inline void text_cell (const T& t,
-                           const draw::graphics& graph,
+                           draw::graphics& graph,
                            const core::rectangle& place,
                            const text_origin_t& align,
                            const os::color& foreground,

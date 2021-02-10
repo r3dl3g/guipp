@@ -430,7 +430,7 @@ namespace gui {
       namespace paint {
 
         template<typename T, orientation_t V, scaling S>
-        void draw_axis (const graphics& g,
+        void draw_axis (graphics& g,
                         const core::point& pos,
                         const pen& p,
                         const scaler<T, S>& sc) {
@@ -444,7 +444,7 @@ namespace gui {
         }
 
         template<typename T, orientation_t V, scaling S>
-        void draw_sub_ticks (const graphics& g,
+        void draw_sub_ticks (graphics& g,
                              os::color color,
                              const scaler<T, S>& sc,
                              T min, T step, T max,
@@ -490,7 +490,7 @@ namespace gui {
       {}
 
       template<typename T, orientation_t V, scaling S, origin_t O>
-      void scale<T, V, S, O>::operator() (const graphics& g, const font& font, os::color color) const {
+      void scale<T, V, S, O>::operator() (graphics& g, const font& font, os::color color) const {
 
         core::point p0, p1, p2;
         const T d2 = static_cast<T>(traits::get_2(pos));
@@ -533,7 +533,7 @@ namespace gui {
       {}
 
       template<typename X, typename Y, scaling SX, scaling SY>
-      void wall<X, Y, SX, SY>::operator() (const graphics& g, const brush& b, const pen& p) const {
+      void wall<X, Y, SX, SY>::operator() (graphics& g, const brush& b, const pen& p) const {
         g.fill(draw::rectangle(core::point(static_cast<float>(sx.get_target().begin()), static_cast<float>(sy.get_target().begin())),
                                core::point(static_cast<float>(sx.get_target().end()), static_cast<float>(sy.get_target().end()))), b);
       }
@@ -549,7 +549,7 @@ namespace gui {
       {}
 
       template<typename X, typename Y, scaling SX, scaling SY>
-      void headline<X, Y, SX, SY>::operator() (const graphics& g, const font& f, os::color color) const {
+      void headline<X, Y, SX, SY>::operator() (graphics& g, const font& f, os::color color) const {
         core::point p(static_cast<float>(sx.get_target().begin()), static_cast<float>(sy.get_target().end()));
         g.text(draw::text(text, p, text_origin_t::bottom_left), f, color);
       }
@@ -565,7 +565,7 @@ namespace gui {
       {}
 
       template<typename X, typename Y, scaling SX, scaling SY>
-      void legend<X, Y, SX, SY>::operator() (const graphics& g, const font& f, os::color color) const {
+      void legend<X, Y, SX, SY>::operator() (graphics& g, const font& f, os::color color) const {
         core::point p(static_cast<float>(sx.get_target().begin()),
                       static_cast<float>(sy.get_target().begin() + scale_dim<X, orientation_t::horizontal>::main_tick_length * 2));
         bool first = true;
@@ -592,7 +592,7 @@ namespace gui {
       {}
 
       template<typename T, orientation_t V, scaling S>
-      void axis<T, V, S>::operator() (const graphics& g, const pen& p) const {
+      void axis<T, V, S>::operator() (graphics& g, const pen& p) const {
         paint::draw_axis<T, V, S>(g, pos, p, sc);
       }
 
@@ -605,7 +605,7 @@ namespace gui {
       {}
 
       template<typename X, typename Y, scaling SX, scaling SY>
-      void xy_axis<X, Y, SX, SY>::operator() (const graphics& g, const pen& p) const {
+      void xy_axis<X, Y, SX, SY>::operator() (graphics& g, const pen& p) const {
         core::point pos(static_cast<float>(sx.get_target().begin()),
                         static_cast<float>(sy.get_target().begin()));
         paint::draw_axis<X, orientation_t::horizontal, SX>(g, pos, p, sx);
@@ -642,7 +642,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      void line_graph<X, Y, C, SX, SY>::operator() (const graphics& g, const pen& p) const {
+      void line_graph<X, Y, C, SX, SY>::operator() (graphics& g, const pen& p) const {
         clip clp(g, super::get_graph_area());
         std::vector<core::point> pts;
         calc_points(pts);
@@ -651,7 +651,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      void line_graph<X, Y, C, SX, SY>::operator() (const graphics& g, const brush& b) const {
+      void line_graph<X, Y, C, SX, SY>::operator() (graphics& g, const brush& b) const {
         clip clp(g, super::get_graph_area());
 
         std::vector<core::point> pts;
@@ -694,7 +694,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      void cascade<X, Y, C, SX, SY>::operator() (const graphics& g, const pen& p) const {
+      void cascade<X, Y, C, SX, SY>::operator() (graphics& g, const pen& p) const {
         clip clp(g, super::get_graph_area());
         std::vector<core::point> pts;
         calc_points(pts);
@@ -703,7 +703,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      void cascade<X, Y, C, SX, SY>::operator() (const graphics& g, const brush& b) const {
+      void cascade<X, Y, C, SX, SY>::operator() (graphics& g, const brush& b) const {
         clip clp(g, super::get_graph_area());
         std::vector<core::point> pts;
         calc_points(pts);
@@ -741,7 +741,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      void bar_graph<X, Y, C, SX, SY>::operator() (const graphics& g, const brush& b) const {
+      void bar_graph<X, Y, C, SX, SY>::operator() (graphics& g, const brush& b) const {
         clip clp(g, super::get_graph_area());
         const auto sz = super::points.size();
         const float w = std::max(1.0F, static_cast<float>((super::sx.get_target().end() - super::sx.get_target().begin()) / (sz * 2) - space));
@@ -766,7 +766,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      void points_graph<X, Y, C, SX, SY>::operator() (const graphics& g, const brush& b) const {
+      void points_graph<X, Y, C, SX, SY>::operator() (graphics& g, const brush& b) const {
         if (drawer) {
           clip clp(g, super::get_graph_area());
           const auto sz = super::points.size();
@@ -806,12 +806,12 @@ namespace gui {
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
-      void chart<X, Y, SX, SY>::fill_area (const graphics& graph) const {
+      void chart<X, Y, SX, SY>::fill_area (graphics& graph) const {
         graph.draw(wall<X, Y, SX, SY>(scale_x, scale_y), wall_back, wall_back);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
-      void chart<X, Y, SX, SY>::draw_xscale (const graphics& graph, X main, X sub, typename scale_x_type::formatter fmt) const {
+      void chart<X, Y, SX, SY>::draw_xscale (graphics& graph, X main, X sub, typename scale_x_type::formatter fmt) const {
         graph.text(scale_x_type(p0, scale_x, main, sub,
                                 static_cast<X>(scale_y.get_target().size()),
                                 static_cast<X>(scale_y.get_target().size()),
@@ -822,7 +822,7 @@ namespace gui {
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
-      void chart<X, Y, SX, SY>::draw_yscale (const graphics& graph, Y main, Y sub, typename scale_y_type::formatter fmt) const {
+      void chart<X, Y, SX, SY>::draw_yscale (graphics& graph, Y main, Y sub, typename scale_y_type::formatter fmt) const {
         graph.text(scale_y_type(p0, scale_y, main, sub,
                                 static_cast<Y>(scale_x.get_target().size()),
                                 static_cast<Y>(scale_x.get_target().size()),
@@ -833,22 +833,22 @@ namespace gui {
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
-      void chart<X, Y, SX, SY>::draw_axis (const graphics& graph) const {
+      void chart<X, Y, SX, SY>::draw_axis (graphics& graph) const {
         graph.frame(xy_axis<X, Y, SX, SY>(scale_x, scale_y), color::black);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
-      void chart<X, Y, SX, SY>::draw_title (const graphics& graph, const std::string& title) const {
+      void chart<X, Y, SX, SY>::draw_title (graphics& graph, const std::string& title) const {
         graph.text(headline<X, Y, SX, SY>(scale_x, scale_y, title), font::system_bold(), color::black);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
-      void chart<X, Y, SX, SY>::draw_legend (const graphics& graph, const std::vector<legend_label>& labels) const {
+      void chart<X, Y, SX, SY>::draw_legend (graphics& graph, const std::vector<legend_label>& labels) const {
         graph.text(legend<X, Y, SX, SY>(scale_x, scale_y, labels), font::system(), color::black);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
-      void chart<X, Y, SX, SY>::draw_background (const graphics& graph, X xmain, X xsub, Y ymain, Y ysub) const {
+      void chart<X, Y, SX, SY>::draw_background (graphics& graph, X xmain, X xsub, Y ymain, Y ysub) const {
         fill_area(graph);
         draw_xscale(graph, xmain, xsub);
         draw_yscale(graph, ymain, ysub);
@@ -857,55 +857,55 @@ namespace gui {
 
       template<typename X, typename Y, scaling SX, scaling SY>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_line_graph (const graphics& graph, C data, os::color color, Y zero) const {
+      void chart<X, Y, SX, SY>::draw_line_graph (graphics& graph, C data, os::color color, Y zero) const {
         graph.frame(line_graph<X, Y, C, SX, SY>(scale_x, scale_y, data, zero), color);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_area_graph (const graphics& graph, C data, os::color color, Y zero) const {
+      void chart<X, Y, SX, SY>::draw_area_graph (graphics& graph, C data, os::color color, Y zero) const {
         graph.fill(line_graph<X, Y, C, SX, SY>(scale_x, scale_y, data, zero), color);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_cascade_graph (const graphics& graph, C data, os::color color, Y zero) const {
+      void chart<X, Y, SX, SY>::draw_cascade_graph (graphics& graph, C data, os::color color, Y zero) const {
         graph.frame(cascade<X, Y, C, SX, SY>(scale_x, scale_y, data, zero), color);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_cascade_area_graph (const graphics& graph, C data, os::color color, Y zero) const {
+      void chart<X, Y, SX, SY>::draw_cascade_area_graph (graphics& graph, C data, os::color color, Y zero) const {
         graph.fill(cascade<X, Y, C, SX, SY>(scale_x, scale_y, data, zero), color);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_bar_graph (const graphics& graph, C data, os::color color, Y space) const {
+      void chart<X, Y, SX, SY>::draw_bar_graph (graphics& graph, C data, os::color color, Y space) const {
         graph.fill(bar_graph<X, Y, C, SX, SY>(scale_x, scale_y, data, space), color);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_point_graph (const graphics& graph, C data, os::color color, float radius) const {
+      void chart<X, Y, SX, SY>::draw_point_graph (graphics& graph, C data, os::color color, float radius) const {
         graph.fill(points_graph<X, Y, C, SX, SY>(scale_x, scale_y, data, circle(radius)), color);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_diamond_graph (const graphics& graph, C data, os::color color, float radius) const {
+      void chart<X, Y, SX, SY>::draw_diamond_graph (graphics& graph, C data, os::color color, float radius) const {
         graph.fill(points_graph<X, Y, C, SX, SY>(scale_x, scale_y, data, diamond(radius)), color);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_cross_graph (const graphics& graph, C data, os::color color, float radius) const {
+      void chart<X, Y, SX, SY>::draw_cross_graph (graphics& graph, C data, os::color color, float radius) const {
         graph.fill(points_graph<X, Y, C, SX, SY>(scale_x, scale_y, data, cross(radius)), color);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_square_graph (const graphics& graph, C data, os::color color, float radius) const {
+      void chart<X, Y, SX, SY>::draw_square_graph (graphics& graph, C data, os::color color, float radius) const {
         graph.fill(points_graph<X, Y, C, SX, SY>(scale_x, scale_y, data, square(radius)), color);
       }
 

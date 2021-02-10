@@ -181,7 +181,7 @@ namespace gui {
 
     template<class T, typename U, U D>
     void basic_text_button<T, U, D>::init () {
-      super::on_paint(draw::paint([&](const draw::graphics & graph) {
+      super::on_paint(draw::paint([&](draw::graphics&  graph) {
         auto r = super::surface_area();
         auto t = get_text();
         auto s = super::get_state();
@@ -222,7 +222,7 @@ namespace gui {
 
     template<class T>
     void custom_button<T>::init () {
-      super::on_paint(draw::paint([&] (const draw::graphics & graph) {
+      super::on_paint(draw::paint([&] (draw::graphics&  graph) {
         if (drawer) {
           drawer(graph, super::surface_area(), super::get_state());
         }

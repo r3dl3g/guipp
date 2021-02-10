@@ -94,7 +94,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void text_item (const draw::graphics& g,
+    void text_item (draw::graphics& g,
                     const core::rectangle& place,
                     const draw::brush& background,
                     const std::string& text,

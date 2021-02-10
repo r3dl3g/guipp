@@ -104,22 +104,22 @@ namespace gui {
     {}
 
     template<>
-    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::arc>::operator() (const graphics&, const brush&, const pen&) const;
+    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::arc>::operator() (graphics&, const brush&, const pen&) const;
 
     template<>
-    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::arc>::operator() (const graphics&, const pen&) const;
+    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::arc>::operator() (graphics&, const pen&) const;
 
     template<>
-    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::arc>::operator() (const graphics&, const brush&) const;
+    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::arc>::operator() (graphics&, const brush&) const;
 
     template<>
-    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::pie>::operator() (const graphics&, const brush&, const pen&) const;
+    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::pie>::operator() (graphics&, const brush&, const pen&) const;
 
     template<>
-    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::pie>::operator() (const graphics&, const pen&) const;
+    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::pie>::operator() (graphics&, const pen&) const;
 
     template<>
-    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::pie>::operator() (const graphics&, const brush&) const;
+    GUIPP_DRAW_EXPORT void arc_or_pie<arc_type::pie>::operator() (graphics&, const brush&) const;
 
     // --------------------------------------------------------------------------
     inline text_box::text_box (const std::string& str,
@@ -159,7 +159,7 @@ namespace gui {
     {}
 
     template<typename I>
-    inline void image<I>::operator() (const graphics& g, const brush& b) const {
+    inline void image<I>::operator() (graphics& g, const brush& b) const {
       g.fill(draw::rectangle(rect), b);
 
       auto sz = img.scaled_size();
@@ -188,16 +188,16 @@ namespace gui {
     {}
 
     template<>
-    GUIPP_DRAW_EXPORT void image_frame<pixel_format_t::BW>::operator() (const graphics& g, const core::point& pt) const;
+    GUIPP_DRAW_EXPORT void image_frame<pixel_format_t::BW>::operator() (graphics& g, const core::point& pt) const;
 
     template<>
-    GUIPP_DRAW_EXPORT void image_frame<pixel_format_t::GRAY>::operator() (const graphics& g, const core::point& pt) const;
+    GUIPP_DRAW_EXPORT void image_frame<pixel_format_t::GRAY>::operator() (graphics& g, const core::point& pt) const;
 
     template<>
-    GUIPP_DRAW_EXPORT void image_frame<pixel_format_t::RGB>::operator() (const graphics& g, const core::point& pt) const;
+    GUIPP_DRAW_EXPORT void image_frame<pixel_format_t::RGB>::operator() (graphics& g, const core::point& pt) const;
 
     template<>
-    GUIPP_DRAW_EXPORT void image_frame<pixel_format_t::RGBA>::operator() (const graphics& g, const core::point& pt) const;
+    GUIPP_DRAW_EXPORT void image_frame<pixel_format_t::RGBA>::operator() (graphics& g, const core::point& pt) const;
 
     // --------------------------------------------------------------------------
     template<pixel_format_t T>

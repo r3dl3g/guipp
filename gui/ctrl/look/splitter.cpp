@@ -30,7 +30,7 @@ namespace gui {
 
   namespace look {
 
-    void splitter (const draw::graphics& graph,
+    void splitter (draw::graphics& graph,
                  const core::rectangle& area,
                  bool focused,
                  draw::frame::drawer frame) {

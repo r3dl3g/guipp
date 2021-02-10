@@ -48,72 +48,72 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace look {
 
-    GUIPP_LOOK_EXPORT void drop_down_item (const draw::graphics& g,
+    GUIPP_LOOK_EXPORT void drop_down_item (draw::graphics& g,
                                            const core::rectangle& r,
                                            const draw::brush& background,
                                            const std::string& label,
                                            const ctrl::item_state& state);
 
     template<look_and_feel_t L = system_look_and_feel>
-    void drop_down_button_t (const draw::graphics&,
+    void drop_down_button_t (draw::graphics&,
                              const core::rectangle&,
                              const core::button_state::is&,
                              bool);
 
     template<>
-    GUIPP_LOOK_EXPORT void drop_down_button_t<look_and_feel_t::metal> (const draw::graphics&,
+    GUIPP_LOOK_EXPORT void drop_down_button_t<look_and_feel_t::metal> (draw::graphics&,
                                                                        const core::rectangle&,
                                                                        const core::button_state::is&,
                                                                        bool);
 
     template<>
-    GUIPP_LOOK_EXPORT void drop_down_button_t<look_and_feel_t::w95> (const draw::graphics&,
+    GUIPP_LOOK_EXPORT void drop_down_button_t<look_and_feel_t::w95> (draw::graphics&,
                                                                      const core::rectangle&,
                                                                      const core::button_state::is&,
                                                                      bool);
 
     template<>
-    GUIPP_LOOK_EXPORT void drop_down_button_t<look_and_feel_t::w10> (const draw::graphics&,
+    GUIPP_LOOK_EXPORT void drop_down_button_t<look_and_feel_t::w10> (draw::graphics&,
                                                                      const core::rectangle&,
                                                                      const core::button_state::is&,
                                                                      bool);
 
     template<>
-    GUIPP_LOOK_EXPORT void drop_down_button_t<look_and_feel_t::osx> (const draw::graphics&,
+    GUIPP_LOOK_EXPORT void drop_down_button_t<look_and_feel_t::osx> (draw::graphics&,
                                                                      const core::rectangle&,
                                                                      const core::button_state::is&,
                                                                      bool);
 
-    GUIPP_LOOK_EXPORT void drop_down_button (const draw::graphics& graph,
+    GUIPP_LOOK_EXPORT void drop_down_button (draw::graphics& graph,
                                              const core::rectangle& r,
                                              const core::button_state::is& state,
                                              bool is_open);
 
 
     template<look_and_feel_t L = system_look_and_feel>
-    void drop_down_t (const draw::graphics&, const core::rectangle&, const core::button_state::is&);
+    void drop_down_t (draw::graphics&, const core::rectangle&, const core::button_state::is&);
 
     template<>
-    GUIPP_LOOK_EXPORT void drop_down_t<look_and_feel_t::metal> (const draw::graphics&,
+    GUIPP_LOOK_EXPORT void drop_down_t<look_and_feel_t::metal> (draw::graphics&,
                                                                 const core::rectangle&,
                                                                 const core::button_state::is&);
 
     template<>
-    GUIPP_LOOK_EXPORT void drop_down_t<look_and_feel_t::w95> (const draw::graphics&,
+    GUIPP_LOOK_EXPORT void drop_down_t<look_and_feel_t::w95> (draw::graphics&,
                                                               const core::rectangle&,
                                                               const core::button_state::is&);
 
     template<>
-    GUIPP_LOOK_EXPORT void drop_down_t<look_and_feel_t::w10> (const draw::graphics&,
+    GUIPP_LOOK_EXPORT void drop_down_t<look_and_feel_t::w10> (draw::graphics&,
                                                               const core::rectangle&,
                                                               const core::button_state::is&);
 
     template<>
-    GUIPP_LOOK_EXPORT void drop_down_t<look_and_feel_t::osx> (const draw::graphics&,
+    GUIPP_LOOK_EXPORT void drop_down_t<look_and_feel_t::osx> (draw::graphics&,
                                                               const core::rectangle&,
                                                               const core::button_state::is&);
 
-    GUIPP_LOOK_EXPORT void drop_down (const draw::graphics& graph,
+    GUIPP_LOOK_EXPORT void drop_down (draw::graphics& graph,
                                       const core::rectangle& area,
                                       const core::button_state::is& state);
 

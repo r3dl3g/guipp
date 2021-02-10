@@ -84,7 +84,7 @@ namespace gui {
       basic_progress_bar (const basic_progress_bar& rhs);
       basic_progress_bar (basic_progress_bar&& rhs) noexcept ;
 
-      void paint (const draw::graphics& graph);
+      void paint (draw::graphics& graph);
 
     private:
       void init ();

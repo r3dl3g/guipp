@@ -319,7 +319,7 @@ namespace gui {
 
       template<typename I>
       void basic_tree<I>::tree_data::draw_at (std::size_t idx,
-                                              const draw::graphics& g,
+                                              draw::graphics& g,
                                               const core::rectangle& r,
                                               const draw::brush& b,
                                               item_state state) const {

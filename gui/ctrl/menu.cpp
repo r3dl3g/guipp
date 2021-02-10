@@ -497,7 +497,7 @@ namespace gui {
       return (r + core::point(pos, size().height()));
     }
 
-    void main_menu::paint (const draw::graphics& g) {
+    void main_menu::paint (draw::graphics& g) {
       draw::brush back_brush(color::menuColor());
       const core::rectangle area = surface_area();
       core::rectangle r = area;
@@ -714,7 +714,7 @@ namespace gui {
       end_modal();
     }
 
-    void popup_menu::paint (const draw::graphics& g) {
+    void popup_menu::paint (draw::graphics& g) {
       draw::brush back_brush(color::menuColor());
       const core::rectangle area = surface_area();
       draw::frame::raised_relief(g, area);

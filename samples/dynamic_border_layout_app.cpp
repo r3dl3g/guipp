@@ -107,7 +107,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     center7.create(main);
     center8.create(main);
   });
-  main.on_paint(draw::paint([&] (const draw::graphics& gc) {
+  main.on_paint(draw::paint([&] (draw::graphics& gc) {
     gc.clear(color::very_very_light_gray);
   }));
 

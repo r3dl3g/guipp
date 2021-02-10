@@ -136,7 +136,7 @@ namespace gui {
       basic_edit (const basic_edit& rhs);
       basic_edit (basic_edit&& rhs) noexcept ;
 
-      void paint (const draw::graphics& graph);
+      void paint (draw::graphics& graph);
 
     private:
       void init ();
@@ -162,7 +162,7 @@ namespace gui {
       basic_pass (const basic_pass& rhs);
       basic_pass (basic_pass&& rhs) noexcept ;
 
-      void paint (const draw::graphics& graph);
+      void paint (draw::graphics& graph);
 
       virtual std::string get_selected_text () const;
 

@@ -47,7 +47,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void scrollbar<look_and_feel_t::metal> (const draw::graphics &g,
+    void scrollbar<look_and_feel_t::metal> (draw::graphics& g,
                                             ctrl::scrollbar_item select,
                                             ctrl::scrollbar_item hilite,
                                             bool is_enabled,
@@ -100,7 +100,7 @@ namespace gui {
     }
 
     template<>
-    void scrollbar<look_and_feel_t::w95> (const draw::graphics &g,
+    void scrollbar<look_and_feel_t::w95> (draw::graphics& g,
                                           ctrl::scrollbar_item select,
                                           ctrl::scrollbar_item hilite,
                                           bool is_enabled,
@@ -171,7 +171,7 @@ namespace gui {
     }
 
     template<>
-    void scrollbar<look_and_feel_t::w10> (const draw::graphics &g,
+    void scrollbar<look_and_feel_t::w10> (draw::graphics& g,
                                           ctrl::scrollbar_item select,
                                           ctrl::scrollbar_item hilite,
                                           bool is_enabled,
@@ -204,7 +204,7 @@ namespace gui {
     }
 
     template<>
-    void scrollbar<look_and_feel_t::osx> (const draw::graphics &g,
+    void scrollbar<look_and_feel_t::osx> (draw::graphics& g,
                                           ctrl::scrollbar_item select,
                                           ctrl::scrollbar_item /*hilite*/,
                                           bool /*is_enabled*/,

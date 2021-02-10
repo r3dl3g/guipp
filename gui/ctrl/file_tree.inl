@@ -131,7 +131,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     inline void file_item_drawer (const fs::file_info& path,
-                                  const draw::graphics& g,
+                                  draw::graphics& g,
                                   const core::rectangle& r,
                                   const draw::brush& b,
                                   item_state state) {
@@ -258,7 +258,7 @@ namespace gui {
 
     template<typename T>
     void file_column_list<T>::init_file_list_header (column_list_header<layout::weight_column_list_layout>& header) {
-      header.set_cell_drawer([&] (std::size_t i, const draw::graphics& g, const core::rectangle& r, const draw::brush& background) {
+      header.set_cell_drawer([&] (std::size_t i, draw::graphics& g, const core::rectangle& r, const draw::brush& background) {
         static std::string title[] = {"", "Name", "Size", "Changed"};
         g.fill(draw::rectangle(r), background);
         draw::frame::raised_relief(g, r);

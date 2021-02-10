@@ -68,7 +68,7 @@ namespace gui {
     }
 
     template<text_origin_t align, draw::frame::drawer frame, os::color fg, os::color bg>
-    inline void basic_textbox<align, frame, fg, bg>::handle_paint (const draw::graphics& graph) {
+    inline void basic_textbox<align, frame, fg, bg>::handle_paint (draw::graphics& graph) {
       const auto area = surface_area();
       gui::look::text_box(graph, area, data.lines, data.font,
                           fg, bg, align,

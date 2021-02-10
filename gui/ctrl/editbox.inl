@@ -30,7 +30,7 @@ namespace gui {
     }
 
     template<draw::frame::drawer frame, os::color foreground, os::color background>
-    void basic_editbox<frame, foreground, background>::handle_paint (const draw::graphics& graph) {
+    void basic_editbox<frame, foreground, background>::handle_paint (draw::graphics& graph) {
       const auto area = surface_area();
       gui::look::text_box(graph, area, data.lines, data.font,
                           foreground, background, text_origin_t::vcenter_left,

@@ -99,7 +99,7 @@ namespace gui {
       data.items.on_selection_changed(util::bind_method(this, &drop_down_list::handle_selection_changed));
     }
 
-    void drop_down_list::paint (const draw::graphics& graph) {
+    void drop_down_list::paint (draw::graphics& graph) {
       core::rectangle area = super::surface_area();
       look::drop_down(graph, area, get_state());
       look::drop_down_button(graph,

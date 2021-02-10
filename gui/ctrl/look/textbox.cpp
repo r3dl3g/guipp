@@ -61,7 +61,7 @@ namespace gui {
 
     } // namespace detail
 
-    void text_box (const draw::graphics& graph,
+    void text_box (draw::graphics& graph,
                    const core::rectangle& area,
                    const std::vector<std::string>& lines,
                    const draw::font& fnt,

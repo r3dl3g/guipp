@@ -37,6 +37,7 @@
 # include <util/string_util.h>
 #endif // GUIPP_WIN
 
+#include <gui/core/native.h>
 #include <gui/draw/graphics.h>
 #include <gui/draw/bitmap.h>
 #include <gui/draw/drawers.h>
@@ -85,14 +86,12 @@ namespace gui {
       : gc(gc)
       , target(target)
       , own_gc(false)
-      , ref_gc(false)
     {}
 
     graphics::graphics (draw::basic_map& target)
       : gc(0)
       , target(target)
       , own_gc(false)
-      , ref_gc(false)
     {
       HDC gdc = GetDC(NULL);
       gc = CreateCompatibleDC(gdc);
@@ -102,11 +101,10 @@ namespace gui {
       SelectObject(gc, target.get_os_bitmap());
     }
 
-    graphics::graphics (const graphics& rhs)
+    graphics::graphics (graphics& rhs)
       : gc(0)
       , target(0)
       , own_gc(false)
-      , ref_gc(false)
     {
       operator= (rhs);
     }
@@ -119,25 +117,19 @@ namespace gui {
       if (gc) {
         if (own_gc) {
           DeleteDC(gc);
-        } else if (ref_gc) {
-          ReleaseDC((HWND)target, gc);
         }
       }
       gc = 0;
       own_gc = false;
-      ref_gc = false;
     }
 
-    graphics& graphics::operator= (const graphics& rhs) {
+    graphics& graphics::operator= (graphics& rhs) {
       if (&rhs != this) {
         destroy();
         target = rhs.target;
         own_gc = rhs.own_gc;
-        ref_gc = rhs.ref_gc;
         if (own_gc) {
           gc = CreateCompatibleDC(rhs.gc);
-        } else if (ref_gc) {
-          gc = GetDC((HWND)target);
         } else {
           gc = rhs.gc;
         }
@@ -145,8 +137,8 @@ namespace gui {
       return *this;
     }
 
-    const graphics& graphics::draw_pixel (const core::native_point& pt,
-                                          os::color c) const {
+    graphics& graphics::draw_pixel (const core::native_point& pt,
+                                          os::color c) {
       SetPixel(gc, pt.x(), pt.y(), c);
       return *this;
     }
@@ -155,8 +147,8 @@ namespace gui {
       return GetPixel(gc, pt.x(), pt.y());
     }
 
-    const graphics& graphics::draw_lines (const std::vector<core::point>& points,
-                                          const pen& p) const {
+    graphics& graphics::draw_lines (const std::vector<core::point>& points,
+                                          const pen& p) {
       Use<pen> pn(gc, p);
       const auto off = p.os_size() / 2;
       bool first = true;
@@ -171,7 +163,7 @@ namespace gui {
       return *this;
     }
 
-    const graphics& graphics::copy_from (const graphics& src, const core::native_rect& r, const core::native_point& pt) const {
+    graphics& graphics::copy_from (graphics& src, const core::native_rect& r, const core::native_point& pt) {
       if (!BitBlt(gc, pt.x(), pt.y(), r.width(), r.height(),
                   src, r.x(), r.y(), SRCCOPY)) {
         throw std::runtime_error("graphics::copy_from failed");
@@ -179,10 +171,10 @@ namespace gui {
       return *this;
     }
 
-    const graphics& graphics::copy_from (os::drawable w,
+    graphics& graphics::copy_from (os::drawable w,
                                          const core::native_rect& r,
                                          const core::native_point& pt,
-                                         const copy_mode mode) const {
+                                         const copy_mode mode) {
       HDC source_gc = GetDC((HWND)w);
       if (!source_gc) {
         source_gc = CreateCompatibleDC(gc);
@@ -204,9 +196,9 @@ namespace gui {
     }
 
     /*
-    const graphics& graphics::stretch_from (os::drawable w,
+    graphics& graphics::stretch_from (os::drawable w,
                                             const core::rectangle& src,
-                                            const core::rectangle& dst) const {
+                                            const core::rectangle& dst) {
       HDC source_gc = GetDC((HWND)w);
       if (!source_gc) {
         source_gc = CreateCompatibleDC(gc);
@@ -228,7 +220,7 @@ namespace gui {
     }
     */
 
-    const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) const {
+    graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) {
       if (bmp.mask) {
         core::native_size sz = bmp.mask.native_size();
         HDC mask_dc = CreateCompatibleDC(gc);
@@ -250,12 +242,12 @@ namespace gui {
       return *this;
     }
 
-    void graphics::invert (const core::rectangle& r) const {
+    void graphics::invert (const core::rectangle& r) {
       RECT rect = r;
       InvertRect(gc, &rect);
     }
 
-    void graphics::flush () const {
+    void graphics::flush () {
       GdiFlush();
     }
 
@@ -285,16 +277,6 @@ namespace gui {
         }
       }
       return r;
-    }
-
-    void graphics::set_clip_rect (const core::rectangle& rect) const {
-      SelectClipRgn(gc, NULL);
-      os::rectangle r = rect.os();
-      IntersectClipRect(gc, r.left, r.top, r.right, r.bottom);
-    }
-
-    void graphics::clear_clip_rect () const {
-      SelectClipRgn(gc, NULL);
     }
 
     core::native_point graphics::offset () const {
@@ -336,69 +318,26 @@ namespace gui {
       };
     }
 
-#ifdef GUIPP_USE_XFT
-    XftDraw* get_xft_draw (os::drawable target) {
-      static XftDraw* s_xft = nullptr;
-
-      if (!s_xft) {
-        auto display = get_instance();
-        auto screen = x11::get_screen();
-        auto visual = x11::get_visual();
-        auto colormap = DefaultColormap(display, screen);
-
-//        XVisualInfo vinfo;
-//        XMatchVisualInfo(display, screen, 32, TrueColor, &vinfo);
-
-//        auto visual = vinfo.visual;
-//        auto colormap = XCreateColormap(display, target, visual, AllocNone);
-
-        s_xft = XftDrawCreate(display, target, visual, colormap);
-      } else {
-        XftDrawChange(s_xft, target);
-      }
-      return s_xft;
-    }
-#endif // GUIPP_USE_XFT
-
     // --------------------------------------------------------------------------
-    graphics::graphics (os::drawable target, os::graphics gc)
-      : gc(gc)
-      , target(target)
-      , own_gc(false)
-      , ref_gc(false)
+    graphics::graphics (core::context* ctx)
+      : ctx(ctx)
+      , own_gctx(false)
     {
-#ifdef GUIPP_USE_XFT
-      get_xft();
-#endif // GUIPP_USE_XFT
-      clear_clip_rect();
     }
 
     graphics::graphics (draw::basic_map& target)
-      : gc(0)
-      , target(target)
-      , own_gc(false)
-      , ref_gc(false)
+      : ctx(0)
+      , own_gctx(true)
     {
-      gc = XCreateGC(get_instance(), target, 0, 0);
-      own_gc = true;
-#ifdef GUIPP_USE_XFT
-      get_xft();
-#endif // GUIPP_USE_XFT
-      clear_clip_rect();
+      ctx = new core::context(target);
     }
 
-    graphics::graphics (const graphics& rhs)
-      : gc(0)
-      , target(0)
-      , own_gc(false)
-      , ref_gc(false)
-    {
-#ifdef GUIPP_USE_XFT
-      get_xft();
-#endif // GUIPP_USE_XFT
-      operator= (rhs);
-      clear_clip_rect();
-    }
+//    graphics::graphics (graphics& rhs)
+//      : ctx(0)
+//      , own_gctx(false)
+//    {
+//      operator= (rhs);
+//    }
 
     graphics::~graphics () {
       flush();
@@ -406,30 +345,27 @@ namespace gui {
     }
 
     void graphics::destroy () {
-      if (gc) {
-        if (own_gc) {
-          XFreeGC(get_instance(), gc);
+      if (ctx) {
+        if (own_gctx) {
+          delete ctx;
         }
       }
-      gc = 0;
-      own_gc = false;
-      ref_gc = false;
+      ctx = 0;
+      own_gctx = false;
     }
 
-    graphics& graphics::operator= (const graphics& rhs) {
-      if (&rhs != this) {
-        destroy();
-        target = rhs.target;
-        own_gc = rhs.own_gc;
-        ref_gc = rhs.ref_gc;
-        if (own_gc) {
-          gc = XCreateGC(get_instance(), target, 0, 0);
-        } else {
-          gc = rhs.gc;
-        }
-      }
-      return *this;
-    }
+//    graphics& graphics::operator= (graphics& rhs) {
+//      if (&rhs != this) {
+//        destroy();
+//        own_gctx = rhs.own_gctx;
+//        if (own_gctx) {
+//          ctx = new core::context(rhs.ctx);
+//        } else {
+//          ctx = rhs.ctx;
+//        }
+//      }
+//      return *this;
+//    }
 
     core::native_point graphics::offset () const {
       return offs;
@@ -439,15 +375,15 @@ namespace gui {
       offs = o;
     }
 
-    const graphics& graphics::draw_pixel (const core::native_point& pt,
-                                          os::color c) const {
-      Use<pen> pn(gc, pen(c));
-      XDrawPoint(get_instance(), target, gc, pt.x(), pt.y());
+    graphics& graphics::draw_pixel (const core::native_point& pt,
+                                          os::color c) {
+      Use<pen> pn(gc(), pen(c));
+      XDrawPoint(get_instance(), target(), gc(), pt.x(), pt.y());
       return *this;
     }
 
     os::color graphics::get_pixel (const core::native_point& pt) const {
-      XImage* im = XGetImage(get_instance(), target, pt.x(), pt.y(), 1, 1, AllPlanes, ZPixmap);
+      XImage* im = XGetImage(get_instance(), target(), pt.x(), pt.y(), 1, 1, AllPlanes, ZPixmap);
       os::color c = color::black;
       if (im) {
         if (im->bits_per_pixel == 1) {
@@ -464,10 +400,10 @@ namespace gui {
       return { (short)(pt.x + i), (short)(pt.y + i) };
     }
 
-    const graphics& graphics::draw_lines (const std::vector<core::point>& pts,
-                                          const pen& p) const {
+    graphics& graphics::draw_lines (const std::vector<core::point>& pts,
+                                          const pen& p) {
 
-      Use<pen> pn(gc, p);
+      Use<pen> pn(gc(), p);
       const short off = p.os_size() / 2;
 
       std::vector<os::point> points;
@@ -475,14 +411,14 @@ namespace gui {
       for (const core::point& pt : pts) {
         points.push_back(pt.os() + off);
       }
-      XDrawLines(get_instance(), target, gc,
+      XDrawLines(get_instance(), target(), gc(),
                  points.data(), (int)points.size(),
                  CoordModeOrigin);
       return *this;
     }
 
-    const graphics& graphics::copy_from (const graphics& src, const core::native_rect& r, const core::native_point& pt) const {
-      int res = XCopyArea(get_instance(), src, target, gc, r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y());
+    graphics& graphics::copy_from (graphics& src, const core::native_rect& r, const core::native_point& pt) {
+      int res = XCopyArea(get_instance(), src, target(), gc(), r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y());
       if (!res) {
         throw std::runtime_error("graphics::copy_from failed");
       }
@@ -490,46 +426,46 @@ namespace gui {
     }
 
 
-    const graphics& graphics::copy_from (os::drawable w,
+    graphics& graphics::copy_from (os::drawable w,
                                          const core::native_rect& r,
                                          const core::native_point& pt,
-                                         const copy_mode mode) const {
+                                         const copy_mode mode) {
       const int dd = get_drawable_depth(w);
       const int md = depth();
       if (dd == md) {
         auto display = core::global::get_instance();
         XGCValues values = { static_cast<int>(static_cast<uint32_t>(mode)) }; // .function =
         values.graphics_exposures = False;
-        XChangeGC(display, gc, GCFunction|GCGraphicsExposures, &values);
-        /*int res =*/ XCopyArea(get_instance(), w, target, gc, r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y());
+        XChangeGC(display, gc(), GCFunction|GCGraphicsExposures, &values);
+        /*int res =*/ XCopyArea(get_instance(), w, target(), gc(), r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y());
         values = { GXcopy }; // .function =
-        XChangeGC(display, gc, GCFunction, &values);
+        XChangeGC(display, gc(), GCFunction, &values);
       } else if (1 == dd) {
         auto display = core::global::get_instance();
         XGCValues values = { static_cast<int>(static_cast<uint32_t>(mode)) }; // .function =
         values.graphics_exposures = False;
-        XChangeGC(display, gc, GCFunction|GCGraphicsExposures, &values);
-        /*int res =*/ XCopyPlane(get_instance(), w, target, gc, r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y(), 1);
+        XChangeGC(display, gc(), GCFunction|GCGraphicsExposures, &values);
+        /*int res =*/ XCopyPlane(get_instance(), w, target(), gc(), r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y(), 1);
         values = { GXcopy }; // .function =
-        XChangeGC(display, gc, GCFunction, &values);
+        XChangeGC(display, gc(), GCFunction, &values);
       } else {
         throw std::runtime_error(ostreamfmt("incompatible drawable (" << dd << ") in graphics::copy_from (" << md << " expected)"));
       }
       return *this;
     }
 
-    const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) const {
+    graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) {
       auto display = core::global::get_instance();
       int res = 0;
       // If previous clipping intersect with this region, to much of the image is drawn.
       // -> restrict the copy or fill area to the intersection rectangle withthe previous clipping rectangle.
       core::native_rect clip;
       if (bmp.mask) {
-        if (!clipping_stack.empty()) {
-          clip = core::global::scale_to_native(clipping_stack.back());
+        if (!ctx->clipping().empty()) {
+          clip = core::global::scale_to_native(ctx->clipping().back());
         }
-        XSetClipMask(display, gc, bmp.mask.get_os_bitmap());
-        XSetClipOrigin(display, gc, pt.x(), pt.y());
+        XSetClipMask(display, gc(), bmp.mask.get_os_bitmap());
+        XSetClipOrigin(display, gc(), pt.x(), pt.y());
       }
 
       if (bmp.image) {
@@ -537,65 +473,50 @@ namespace gui {
         if (!clip.empty()) {
           src &= clip;
         }
-        res = XCopyArea(get_instance(), bmp.image, target, gc, src.x() - pt.x(), src.y() - pt.x(), src.width(), src.height(), src.x(), src.y());
+        res = XCopyArea(get_instance(), bmp.image, target(), gc(), src.x() - pt.x(), src.y() - pt.x(), src.width(), src.height(), src.x(), src.y());
       } else {
-        Use<brush> br(gc, color::black);
+        Use<brush> br(gc(), color::black);
 
         core::native_rect src(pt, bmp.mask.native_size());
         if (!clip.empty()) {
           src &= clip;
         }
 
-        XFillRectangle(display, target, gc, src.x(), src.y(), src.width(), src.height());
+        XFillRectangle(display, target(), gc(), src.x(), src.y(), src.width(), src.height());
       }
 
       if (bmp.mask) {
-        restore_clipping();
+        ctx->restore_clipping();
       }
       return *this;
     }
 
-    void graphics::invert (const core::rectangle& r) const {
+    void graphics::invert (const core::rectangle& r) {
       auto display = core::global::get_instance();
 
       XGCValues values = { GXinvert, 0 };  // .function =
       values.graphics_exposures = False;
-      XChangeGC(display, gc, GCFunction, &values);
-      XFillRectangle(display, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height());
+      XChangeGC(display, gc(), GCFunction, &values);
+      XFillRectangle(display, target(), gc(), r.os_x(), r.os_y(), r.os_width(), r.os_height());
       values = { GXcopy, 0 }; // .function =
-      XChangeGC(display, gc, GCFunction, &values);
+      XChangeGC(display, gc(), GCFunction, &values);
     }
 
-    void graphics::flush () const {
-      XFlushGC(get_instance(), gc);
+    void graphics::flush () {
+      XFlushGC(get_instance(), gc());
     }
 
     int graphics::depth () const {
-      return get_drawable_depth(target);
+      return get_drawable_depth(target());
     }
 
     core::native_rect graphics::native_area () const {
-      return get_drawable_area(target);
-    }
-
-    void graphics::set_clip_rect (const core::rectangle& rect) const {
-      os::rectangle r = rect.os();
-      XSetClipRectangles(get_instance(), gc, 0, 0, &r, 1, Unsorted);
-#ifdef GUIPP_USE_XFT
-      XftDrawSetClipRectangles(get_xft(), 0, 0, &r, 1);
-#endif // GUIPP_USE_XFT
-    }
-
-    void graphics::clear_clip_rect () const {
-      XSetClipMask(get_instance(), gc, None);
-#ifdef GUIPP_USE_XFT
-      XftDrawSetClip(get_xft(), None);
-#endif // GUIPP_USE_XFT
+      return get_drawable_area(target());
     }
 
 #ifdef GUIPP_USE_XFT
     XftDraw* graphics::get_xft () const {
-      return get_xft_draw(target);
+      return core::native::x11::get_xft_draw(*ctx);
     }
 
     graphics::operator XftDraw* () const {
@@ -611,7 +532,6 @@ namespace gui {
       : target(t)
       , gc(g)
       , own_gc(false)
-      , ref_gc(false)
     {
       if (!gc) {
         gc = new QPainter(target);
@@ -624,7 +544,6 @@ namespace gui {
       : target(t)
       , gc(nullptr)
       , own_gc(false)
-      , ref_gc(false)
     {
       gc = new QPainter(target);
       own_gc = true;
@@ -634,11 +553,10 @@ namespace gui {
       }
     }
 
-    graphics::graphics (const graphics& rhs)
+    graphics::graphics (graphics& rhs)
       : gc(rhs.gc)
       , target(rhs.target)
       , own_gc(false)
-      , ref_gc(false)
     {
       clear_clip_rect();
     }
@@ -653,15 +571,13 @@ namespace gui {
         gc = nullptr;
       }
       own_gc = false;
-      ref_gc = false;
     }
 
-    graphics& graphics::operator= (const graphics& rhs) {
+    graphics& graphics::operator= (graphics& rhs) {
       if (&rhs != this) {
         destroy();
         target = rhs.target;
         own_gc = rhs.own_gc;
-        ref_gc = rhs.ref_gc;
         if (own_gc) {
           gc = new QPainter(target);
         } else {
@@ -671,8 +587,8 @@ namespace gui {
       return *this;
     }
 
-    const graphics& graphics::draw_pixel (const core::native_point& pt,
-                                          os::color c) const {
+    graphics& graphics::draw_pixel (const core::native_point& pt,
+                                          os::color c) {
       gc->setPen(c);
       gc->drawPoint(pt.x(), pt.y());
       return *this;
@@ -705,8 +621,8 @@ namespace gui {
       return { (pt.x() + i), (pt.y() + i) };
     }
 
-    const graphics& graphics::draw_lines (const std::vector<core::point>& points,
-                                          const pen& p) const {
+    graphics& graphics::draw_lines (const std::vector<core::point>& points,
+                                          const pen& p) {
       Use<pen> pn(gc, p);
       QVector<os::point> pointPairs;
       const auto off = p.os_size() / 2;
@@ -726,14 +642,14 @@ namespace gui {
       return *this;
     }
 
-    const graphics& graphics::copy_from (const graphics& src, const core::native_rect& r, const core::native_point& pt) const {
+    graphics& graphics::copy_from (graphics& src, const core::native_rect& r, const core::native_point& pt) {
       return copy_from(src.target, r, pt);
     }
 
-    const graphics& graphics::copy_from (os::drawable d,
+    graphics& graphics::copy_from (os::drawable d,
                                          const core::native_rect& r,
                                          const core::native_point& pt,
-                                         const copy_mode mode) const {
+                                         const copy_mode mode) {
       QWindow* w = dynamic_cast<QWindow*>(d);
       if (w) {
         QPixmap pix;
@@ -754,7 +670,7 @@ namespace gui {
       return *this;
     }
 
-    const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) const {
+    graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) {
       if (bmp.mask && bmp.image) {
 //        QImage img = bmp.mask.get_os_bitmap()->toImage();
 //        img.invertPixels();
@@ -778,28 +694,28 @@ namespace gui {
       return *this;
     }
 
-    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) const {
+    graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) {
       if (bmp) {
         gc->drawPixmap(pt.os(), *bmp.get_os_bitmap(), src.os());
       }
       return *this;
     }
 
-    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_rect& src, const core::native_point& pt) const {
+    graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_rect& src, const core::native_point& pt) {
       if (bmp) {
         gc->drawPixmap(pt.x(), pt.y(), *bmp.get_os_bitmap(), src.x(), src.y(), src.width(), src.height());
       }
       return *this;
     }
 
-    void graphics::invert (const core::rectangle& r) const {
+    void graphics::invert (const core::rectangle& r) {
       const QPainter::CompositionMode oldMode = gc->compositionMode();
       gc->setCompositionMode(QPainter::RasterOp_NotDestination);
       gc->fillRect(r.os(), Qt::white);
       gc->setCompositionMode(oldMode);
     }
 
-    void graphics::flush () const {
+    void graphics::flush () {
     }
 
     int graphics::depth () const {
@@ -814,41 +730,10 @@ namespace gui {
                                static_cast<core::native_rect::size_type>(vp.height()));
     }
 
-    void graphics::set_clip_rect (const core::rectangle& rect) const {
-      gc->setClipRect(rect.os());
-    }
-
-    void graphics::clear_clip_rect () const {
-      gc->setClipping(false);
-    }
 #endif // GUIPP_QT
     // --------------------------------------------------------------------------
 
-    void graphics::push_clipping (const core::rectangle& rect) const {
-      if (clipping_stack.empty()) {
-        clipping_stack.push_back(rect);
-      } else {
-        clipping_stack.push_back(clipping_stack.back() & rect);
-      }
-      set_clip_rect(clipping_stack.back());
-    }
-
-    void graphics::pop_clipping () const {
-      if (!clipping_stack.empty()) {
-        clipping_stack.pop_back();
-      }
-      restore_clipping();
-    }
-
-    void graphics::restore_clipping () const {
-      if (clipping_stack.empty()) {
-        clear_clip_rect();
-      } else {
-        set_clip_rect(clipping_stack.back());
-      }
-    }
-
-    const graphics& graphics::clear (os::color color) const {
+    graphics& graphics::clear (os::color color) {
 #ifdef GUIPP_QT
       gc->fillRect(native_area(), color);
       return *this;
@@ -861,35 +746,35 @@ namespace gui {
       return core::global::scale_from_native(native_area());
     }
 
-    const graphics& graphics::copy_from (const graphics& src, const core::point& pt) const {
+    graphics& graphics::copy_from (graphics& src, const core::point& pt) {
       return copy_from(src, src.native_area(), core::global::scale_to_native(pt));
     }
 
-    const graphics& graphics::copy_from (const graphics& src, const core::native_point& pt) const {
+    graphics& graphics::copy_from (graphics& src, const core::native_point& pt) {
       return copy_from(src, src.native_area(), pt);
     }
 
-    const graphics& graphics::copy_from (os::drawable w,
+    graphics& graphics::copy_from (os::drawable w,
                                          const core::rectangle& r,
                                          const core::point& pt,
-                                         const copy_mode mode) const {
+                                         const copy_mode mode) {
       return copy_from(w, core::global::scale_to_native(r), core::global::scale_to_native(pt), mode);
     }
 
-    const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::point& pt) const {
+    graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::point& pt) {
       return copy_from(bmp, core::global::scale_to_native(pt));
     }
 
-    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_point& pt) const {
+    graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_point& pt) {
       return copy_from(bmp, core::native_rect(bmp.native_size()), pt);
     }
 
-    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::point& pt) const {
+    graphics& graphics::copy_from (const draw::pixmap& bmp, const core::point& pt) {
       return copy_from(bmp, core::global::scale_to_native(pt));
     }
 
 #ifndef GUIPP_QT
-    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) const {
+    graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) {
       if (bmp) {
         if (bmp.get_info().bits_per_pixel() == depth()) {
           return copy_from(static_cast<const os::drawable&>(bmp), src, pt);
@@ -909,7 +794,7 @@ namespace gui {
       return *this;
     }
 
-    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_rect& src, const core::native_point& pt) const {
+    graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_rect& src, const core::native_point& pt) {
       if (bmp) {
         if (bmp.get_info().bits_per_pixel() == depth()) {
           return copy_from(static_cast<const os::drawable&>(bmp), src, pt);
@@ -939,9 +824,9 @@ namespace gui {
       : p(std::move(f))
     {}
 
-    void paint::operator() (os::surface s) {
+    void paint::operator() (core::context* s) {
       if (p) {
-        draw::graphics graph(s.id, s.g);
+        draw::graphics graph(s);
         p(graph);
       }
     }

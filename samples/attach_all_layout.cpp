@@ -22,7 +22,7 @@ struct drawing {
     win = &w;
   }
 
-  void paint (const gui::draw::graphics& g) {
+  void paint (gui::draw::graphics& g) {
     g.fill(gui::draw::rectangle(area), gui::color::light_gray);
     g.text(gui::draw::text_box(text(), area, gui::text_origin_t::center),
                gui::draw::font::system(),
@@ -103,7 +103,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     fourth.create(main);
     fifth.create(main);
   });
-  main.on_paint(gui::draw::paint([&] (const gui::draw::graphics& g) {
+  main.on_paint(gui::draw::paint([&] (gui::draw::graphics& g) {
     fourth.paint(g);
     fifth.paint(g);
   }));

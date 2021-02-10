@@ -178,7 +178,7 @@ namespace gui {
   namespace ctrl {
 
     GUIPP_CTRL_EXPORT void default_header_cell_drawer (std::size_t i,
-                                                       const draw::graphics& g,
+                                                       draw::graphics& g,
                                                        const core::rectangle& r,
                                                        const draw::brush& background);
 
@@ -190,7 +190,7 @@ namespace gui {
       typedef Layout layout_type;
       typedef no_erase_window_class<column_list_header> clazz;
       typedef void (cell_draw)(std::size_t,            // idx
-                               const draw::graphics&,  // gc
+                               draw::graphics&,  // gc
                                const core::rectangle&, // place
                                const draw::brush&);    // background
 
@@ -198,7 +198,7 @@ namespace gui {
       column_list_header (const column_list_header& rhs);
       column_list_header (column_list_header&& rhs) noexcept ;
 
-      void paint (const draw::graphics& g);
+      void paint (draw::graphics& g);
 
       void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
@@ -268,7 +268,7 @@ namespace gui {
     template<typename T,
              draw::frame::drawer F = draw::frame::no_frame>
     void cell_drawer (const T& t,
-                      const draw::graphics& graph,
+                      draw::graphics& graph,
                       const core::rectangle& place,
                       const draw::brush& background,
                       item_state state,
@@ -277,7 +277,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T>
     using cell_drawer_t = void (*)(const T& t,
-                                   const draw::graphics& g,
+                                   draw::graphics& g,
                                    const core::rectangle& place,
                                    const draw::brush& background,
                                    item_state state,
@@ -313,7 +313,7 @@ namespace gui {
       static void draw_cell (const row_type& row,
                              const drawer_type& drawer,
                              const layout_type& layout,
-                             const draw::graphics& g,
+                             draw::graphics& g,
                              const core::rectangle& place,
                              core::point::type x,
                              const draw::brush& background,
@@ -323,7 +323,7 @@ namespace gui {
       static void draw_cell (const row_type& row,
                              const drawer_type& drawer,
                              const layout_type& layout,
-                             const draw::graphics& g,
+                             draw::graphics& g,
                              const core::rectangle& r,
                              core::point::type x,
                              const draw::brush& background,
@@ -332,7 +332,7 @@ namespace gui {
       static void draw_row (const row_type& row,
                             const drawer_type& drawer,
                             const layout_type& layout,
-                            const draw::graphics& g,
+                            draw::graphics& g,
                             const core::rectangle& place,
                             const draw::brush& background,
                             item_state state);
@@ -394,7 +394,7 @@ namespace gui {
       virtual row_type at (std::size_t) const = 0;
 
       void draw_at (std::size_t idx,
-                    const draw::graphics& g,
+                    draw::graphics& g,
                     const core::rectangle& place,
                     const draw::brush& background,
                     item_state state) const override {
@@ -483,7 +483,7 @@ namespace gui {
       typedef row_type (get_row_data_t)(std::size_t idy);
       typedef void (draw_row_data_t)(const row_type&,        // r
                                      const layout_type&,     // l
-                                     const draw::graphics&,  // g
+                                     draw::graphics&,  // g
                                      const core::rectangle&, // place
                                      const draw::brush&,     // background
                                      item_state);            // state

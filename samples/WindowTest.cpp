@@ -84,10 +84,10 @@ struct htile_drawer : public ctrl::list_data {
   }
 
   void draw_at (std::size_t idx,
-                    const draw::graphics& g,
-                    const core::rectangle& place,
-                    const draw::brush& background,
-                    ctrl::item_state state) const override {
+                draw::graphics& g,
+                const core::rectangle& place,
+                const draw::brush& background,
+                ctrl::item_state state) const override {
     using namespace draw;
 
     gui::look::text_cell<std::size_t, F>(idx, g, place, text_origin_t::center, color::black, background.color(), state);
@@ -102,10 +102,10 @@ struct vtile_drawer  : public ctrl::list_data {
   }
 
   void draw_at(std::size_t idx,
-                  const draw::graphics& g,
-                  const core::rectangle& place,
-                  const draw::brush& background,
-                  ctrl::item_state state) const override {
+               draw::graphics& g,
+               const core::rectangle& place,
+               const draw::brush& background,
+               ctrl::item_state state) const override {
     using namespace draw;
 
     std::string s = util::string::utf16_to_utf8(std::wstring(1, std::wstring::value_type(idx + 32)));
@@ -128,7 +128,7 @@ namespace gui {
   namespace ctrl {
     template<>
     void default_drop_down_drawer<os::color> (const os::color& c,
-                                              const draw::graphics& graph,
+                                              draw::graphics& graph,
                                               const core::rectangle& place,
                                               const draw::brush&,
                                               item_state state) {
@@ -596,7 +596,7 @@ my_main_window::my_main_window ()
   });
 
   list1.set_data(ctrl::draw_list_data([] (std::size_t idx,
-                                          const draw::graphics& g,
+                                          draw::graphics& g,
                                           const core::rectangle& place,
                                           const draw::brush& background,
                                           ctrl::item_state state) {
@@ -909,7 +909,7 @@ void my_main_window::created_children () {
     }
 
     my_column_list_drawer ()
-      : super([] (const int& v, const draw::graphics& g, const core::rectangle& r,
+      : super([] (const int& v, draw::graphics& g, const core::rectangle& r,
                   const draw::brush&, ctrl::item_state state, text_origin_t) {
         gui::look::text_item(g, r, color::buttonColor(), ostreamfmt(v), state, text_origin_t::center);
         draw::frame::raised_relief(g, r);
@@ -919,7 +919,7 @@ void my_main_window::created_children () {
       ctrl::cell_drawer<float, draw::frame::sunken_relief>,
       ctrl::cell_drawer<int, draw::frame::sunken_relief>,
 
-      [] (const bool& v, const draw::graphics& g, const core::rectangle& r,
+      [] (const bool& v, draw::graphics& g, const core::rectangle& r,
           const draw::brush& b, ctrl::item_state state, text_origin_t align) {
         std::string text = v ? IF_MSC_ELSE(u8"\x2660", u8"♠") : IF_MSC_ELSE(u8"\x2665", u8"♥");
         gui::look::text_item(g, r, b, text, state, align);
@@ -930,7 +930,7 @@ void my_main_window::created_children () {
 
 
   column_list.create(main, core::rectangle(580, 50, 140, 250));
-  column_list.header.set_cell_drawer([] (std::size_t i, const draw::graphics& g,
+  column_list.header.set_cell_drawer([] (std::size_t i, draw::graphics& g,
                                          const core::rectangle& r, const draw::brush& background) {
     using namespace draw;
     g.fill(rectangle(r), background);
@@ -1051,7 +1051,7 @@ void my_main_window::created_children () {
   sel_last_plus.create(edit_btn_group, "l+");
   edit_btn_group.get_layout().add({&cur_minus, &cur_plus, &sel_first_minus, &sel_first_plus, &sel_last_minus, &sel_last_plus});
 
-  custom_button.set_drawer([] (const draw::graphics& g,
+  custom_button.set_drawer([] (draw::graphics& g,
                                const core::rectangle& r,
                                const core::button_state::is& s) {
     gui::look::flat_button(g, r, "Custom", s);
@@ -1156,7 +1156,7 @@ void my_main_window::created_children () {
 }
 
 ctrl::paint_function my_main_window::create_paint1 () {
-  return [&](const draw::graphics& graph) {
+  return [&](draw::graphics& graph) {
     //clog::debug() << "win::look 1";
 
     using namespace draw;
@@ -1197,7 +1197,7 @@ ctrl::paint_function my_main_window::create_paint1 () {
     graph.fill(pie(pt, 2, 0, 360), color::blue);
     graph.text(text("Hello World 6!", pt), font::sans_serif().with_size(18), color::blue);
 
-    auto draw_text_box = [](const draw::graphics& g,
+    auto draw_text_box = [](draw::graphics& g,
                             const std::string& t,
                             core::rectangle r,
                             text_origin_t o) {
@@ -1208,7 +1208,7 @@ ctrl::paint_function my_main_window::create_paint1 () {
       g.text(text_box(t, r, o), font::system(), color::red);
     };
 
-    auto draw_text = [](const draw::graphics& g,
+    auto draw_text = [](draw::graphics& g,
       const std::string& t,
       const core::point& p,
       text_origin_t o) {
@@ -1243,7 +1243,7 @@ ctrl::paint_function my_main_window::create_paint1 () {
 }
 
 ctrl::paint_function my_main_window::create_paint2 () {
-  return [&](const draw::graphics& graph) {
+  return [&](draw::graphics& graph) {
     //clog::debug() << "win::look 2";
     using namespace draw;
 

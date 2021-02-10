@@ -111,7 +111,7 @@ namespace gui {
 
     template<orientation_t O,
              draw::frame::drawer F>
-    void basic_framed_splitter<O, F>::paint (const draw::graphics& g) {
+    void basic_framed_splitter<O, F>::paint (draw::graphics& g) {
       look::splitter(g, super::surface_area(), super::is_focused(), F);
     }
 

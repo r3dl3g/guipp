@@ -364,13 +364,13 @@ struct covid19main : public main_type {
   void load_cases_data (std::istream& in, const double file_size, bool new_struct = false);
 
   void draw_uncached (std::size_t idx,
-                      const draw::graphics&,
+                      draw::graphics&,
                       const core::rectangle& place,
                       const draw::brush& background,
                       item_state state) const;
 
   void draw_at (std::size_t idx,
-                const draw::graphics&,
+                draw::graphics&,
                 const core::rectangle& place,
                 const draw::brush& background,
                 item_state state);
@@ -427,7 +427,7 @@ struct covid19data : public list_data {
   }
 
   void draw_at (std::size_t idx,
-                const draw::graphics& graph,
+                draw::graphics& graph,
                 const core::rectangle& place,
                 const draw::brush& background,
                 item_state state) const override {
@@ -516,7 +516,7 @@ gui::core::range<double> default_range_builder (gui::core::range<double> ymima) 
 }
 // --------------------------------------------------------------------------
 template<diagram::scaling S>
-void drawChart (const graphics& graph,
+void drawChart (graphics& graph,
                 const core::rectangle& area,
                 const std::string& title,
                 typename diagram::scale<double, orientation_t::vertical, S>::formatter fmt,
@@ -540,7 +540,7 @@ std::vector<diagram::legend_label> build_legend_labels ( std::initializer_list<s
   return legends;
 }
 // --------------------------------------------------------------------------
-void drawEmptyChart (const graphics& graph,
+void drawEmptyChart (graphics& graph,
                      const core::rectangle& area,
                      const std::string& title,
                      diagram::scale<double, orientation_t::vertical>::formatter fmt,
@@ -557,7 +557,7 @@ void drawEmptyChart (const graphics& graph,
 }
 // --------------------------------------------------------------------------
 template<>
-void drawChart<diagram::scaling::linear> (const graphics& graph,
+void drawChart<diagram::scaling::linear> (graphics& graph,
                                           const core::rectangle& area,
                                           const std::string& title,
                                           diagram::scale<double, orientation_t::vertical, diagram::scaling::linear>::formatter fmt,
@@ -592,7 +592,7 @@ void drawChart<diagram::scaling::linear> (const graphics& graph,
 }
 // --------------------------------------------------------------------------
 template<>
-void drawChart<diagram::scaling::log> (const graphics& graph,
+void drawChart<diagram::scaling::log> (graphics& graph,
                                        const core::rectangle& area,
                                        const std::string& title,
                                        diagram::scale<double, orientation_t::vertical, diagram::scaling::log>::formatter fmt,
@@ -624,7 +624,7 @@ void drawChart<diagram::scaling::log> (const graphics& graph,
 }
 // --------------------------------------------------------------------------
 template<>
-void drawChart<diagram::scaling::symlog> (const graphics& graph,
+void drawChart<diagram::scaling::symlog> (graphics& graph,
                                           const core::rectangle& area,
                                           const std::string& title,
                                           diagram::scale<double, orientation_t::vertical, diagram::scaling::symlog>::formatter fmt,
@@ -655,7 +655,7 @@ void drawChart<diagram::scaling::symlog> (const graphics& graph,
   d.draw_legend(graph, build_legend_labels(legends));
 }
 // --------------------------------------------------------------------------
-void drawTestsChart (const graphics& graph,
+void drawTestsChart (graphics& graph,
                      const core::rectangle& area,
                      const std::string& title,
                      std::initializer_list<population_data_ref> cs,
@@ -968,7 +968,7 @@ std::size_t covid19main::chart_count () const {
 }
 // --------------------------------------------------------------------------
 void covid19main::draw_at (std::size_t idx,
-                           const draw::graphics& graph,
+                           draw::graphics& graph,
                            const core::rectangle& area,
                            const draw::brush& background,
                            item_state state) {
@@ -1002,7 +1002,7 @@ void covid19main::draw_at (std::size_t idx,
 }
 // --------------------------------------------------------------------------
 void covid19main::draw_uncached (std::size_t idx_,
-                                 const draw::graphics& graph,
+                                 draw::graphics& graph,
                                  const core::rectangle& area,
                                  const draw::brush& background,
                                  item_state /*state*/) const {

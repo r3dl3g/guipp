@@ -212,8 +212,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    os::surface get_surface (const core::event& e) {
-      return {(os::drawable)e.wParam, (os::graphics)e.lParam};
+    core::context* get_context (const core::event& e) {
+      return (core::context*)e.wParam;
     }
 
     // --------------------------------------------------------------------------
@@ -285,8 +285,8 @@ namespace gui {
 //      return e.xany.window;
 //    }
 
-    os::surface get_surface (const core::event& e) {
-      return {get_client_data<0, os::drawable>(e), get_client_data<1, os::graphics>(e)};
+    core::context* get_context (const core::event& e) {
+      return get_client_data<0, core::context*>(e);
     }
 
     // --------------------------------------------------------------------------
@@ -441,9 +441,8 @@ namespace gui {
 //      return e.id;
 //    }
 
-    os::surface get_surface (const core::event& e) {
-      auto& ce = e.cast<QClientEvent>();
-      return {(os::drawable)ce.l1(), (os::graphics)ce.l2()};
+    core::context* get_context (const core::event& e) {
+      return (core::context*)e.cast<QClientEvent>().l1();
     }
 
     // --------------------------------------------------------------------------

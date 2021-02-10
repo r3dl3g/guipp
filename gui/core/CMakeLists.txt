@@ -20,11 +20,15 @@ if(NOT TARGET gui++-core)
       bits.cpp
       button_state.cpp
       color.cpp
+      context.cpp
       event.cpp
       event_container.cpp
       guidefs.cpp
       keys.cpp
       list_state.cpp
+      native_qt.cpp
+      native_win32.cpp
+      native_x11.cpp
       window_state.cpp
   )
   file(GLOB INCLUDE_FILES "*.h" "*.inl")

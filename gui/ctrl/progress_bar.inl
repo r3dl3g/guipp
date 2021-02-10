@@ -69,7 +69,7 @@ namespace gui {
     }
 
     template<text_origin_t align, draw::frame::drawer frame, os::color foreground, os::color background, os::color bar_color>
-    inline void basic_progress_bar<align, frame, foreground, background, bar_color>::paint (const draw::graphics& graph) {
+    inline void basic_progress_bar<align, frame, foreground, background, bar_color>::paint (draw::graphics& graph) {
       gui::core::rectangle place = frame(graph, surface_area());
       auto pos = (get_value() - get_min()) / (get_max() - get_min()) * place.width();
       gui::look::progress_bar(graph, surface_area(), get_text(), foreground, background, align, bar_color, pos);

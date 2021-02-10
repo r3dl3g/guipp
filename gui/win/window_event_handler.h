@@ -31,7 +31,7 @@
 //
 #include <logging/logger.h>
 #include <gui/core/event_handler.h>
-#include <gui/core/gui_types.h>
+#include <gui/core/context.h>
 #include <gui/win/window_event_proc.h>
 
 
@@ -60,7 +60,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    GUIPP_WIN_EXPORT os::surface get_surface (const core::event&);
+    GUIPP_WIN_EXPORT core::context* get_context (const core::event&);
 
     // --------------------------------------------------------------------------
   } // namespace win

@@ -193,7 +193,7 @@ namespace gui {
           return item_state(hilite_filter(cell, geometrie), selection_filter(cell, geometrie), disabled);
         }
 
-        void draw_table_data (const draw::graphics& graph,
+        void draw_table_data (draw::graphics& graph,
                               const core::rectangle& place,
                               const metric& geometrie,
                               const data::matrix<text_origin_t>& aligns,
@@ -260,7 +260,7 @@ namespace gui {
           }
         }
 
-        void draw_table_column (const draw::graphics& graph,
+        void draw_table_column (draw::graphics& graph,
                                 const core::rectangle& place,
                                 const metric& geometrie,
                                 const data::vector<text_origin_t>& aligns,
@@ -290,7 +290,7 @@ namespace gui {
           }
         }
 
-        void draw_table_row (const draw::graphics& graph,
+        void draw_table_row (draw::graphics& graph,
                              const core::rectangle& place,
                              const metric& geometrie,
                              const data::vector<text_origin_t>& aligns,
@@ -325,7 +325,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       std::function<cell_drawer> default_data_drawer (const std::function<data_source>& src) {
-        return [src] (const position &cell, const draw::graphics& graph, const core::rectangle& place,
+        return [src] (const position &cell, draw::graphics& graph, const core::rectangle& place,
                       const text_origin_t align, const os::color& foreground, const os::color& background,
                       item_state state) {
           gui::look::text_cell<std::string, draw::frame::lines>(src(cell), graph, place, align,
@@ -335,7 +335,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       std::function<cell_drawer> default_header_drawer (const std::function<data_source>& src) {
-        return [src] (const position &cell, const draw::graphics& graph, const core::rectangle& place,
+        return [src] (const position &cell, draw::graphics& graph, const core::rectangle& place,
                       const text_origin_t align, const os::color& foreground, const os::color& background,
                       item_state state) {
           gui::look::text_cell<std::string, draw::frame::raised_relief>(src(cell), graph, place, align,
@@ -385,7 +385,7 @@ namespace gui {
 
       void data_view::init () {
         set_accept_focus(true);
-        super::on_paint(draw::paint([&](const draw::graphics & graph){
+        super::on_paint(draw::paint([&](draw::graphics&  graph){
           paint::draw_table_data(graph, surface_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
         }));
       }
@@ -416,7 +416,7 @@ namespace gui {
       }
 
       void column_view::init () {
-        super::on_paint(draw::paint([&](const draw::graphics & graph) {
+        super::on_paint(draw::paint([&](draw::graphics&  graph) {
           paint::draw_table_column(graph, surface_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
         }));
       }
@@ -447,7 +447,7 @@ namespace gui {
       }
 
       void row_view::init () {
-        super::on_paint(draw::paint([&](const draw::graphics & graph){
+        super::on_paint(draw::paint([&](draw::graphics&  graph){
           paint::draw_table_row(graph, surface_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
         }));
       }

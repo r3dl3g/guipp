@@ -40,7 +40,7 @@ namespace gui {
 
   namespace look {
 
-    void edit_line (const draw::graphics& graph,
+    void edit_line (draw::graphics& graph,
                     const core::rectangle& area,
                     const std::string& text,
                     const draw::font& fnt,

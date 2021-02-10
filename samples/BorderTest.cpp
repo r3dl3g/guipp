@@ -174,7 +174,7 @@ my_main_window::my_main_window ()
   on_create([&] () { onCreated(); });
   on_close([&] () { quit(); });
 
-  window1.on_paint(draw::paint([&](const graphics& graph){
+  window1.on_paint(draw::paint([&](graphics& graph){
     core::rectangle place = window1.surface_area();
     frame::sunken_relief(graph, place);
 
@@ -426,7 +426,7 @@ void my_main_window::onCreated () {
     }
 
     void draw_at (std::size_t idx,
-                  const draw::graphics& g,
+                  draw::graphics& g,
                   const core::rectangle& place,
                   const draw::brush&,
                   item_state state) const override {

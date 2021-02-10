@@ -261,8 +261,8 @@ namespace gui {
                                              getter<get_client_data_rect>>;
 
     using paint_event = core::event_handler<core::WM_PAINT_WINDOW, 0,
-                                            core::params<os::surface>::
-                                            getter<get_surface>>;
+                                            core::params<core::context*>::
+                                            getter<get_context>>;
 
     using expose_event = core::event_handler<QEvent::UpdateRequest>;
 

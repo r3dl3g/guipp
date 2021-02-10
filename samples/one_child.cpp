@@ -23,7 +23,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   my_label label;
   client_window<color::white> drawing;
 
-  drawing.on_paint(draw::paint([&] (const draw::graphics& g) {
+  drawing.on_paint(draw::paint([&] (draw::graphics& g) {
     g.draw(draw::rectangle(drawing.surface_area()/*.shrinked({5, 5})*/), color::white, color::black);
     g.frame(draw::pie(drawing.surface_area().shrinked({10, 10}), -45, 45), color::blue);
     g.frame(draw::arc(drawing.surface_area().shrinked({15, 15}), -45, 45), color::green);

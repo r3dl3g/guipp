@@ -33,7 +33,7 @@ namespace gui {
 
   namespace look {
 
-    void label (const draw::graphics& graph,
+    void label (draw::graphics& graph,
                 const core::rectangle& area,
                 const std::string& text,
                 os::color foreground,

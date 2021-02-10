@@ -265,8 +265,8 @@ namespace gui {
 
     };
 
-    GUIPP_CTRL_EXPORT void draw_arrow_up (const draw::graphics& g, const core::rectangle& r, os::color col);
-    GUIPP_CTRL_EXPORT void draw_arrow_down (const draw::graphics& g, const core::rectangle& r, os::color col);
+    GUIPP_CTRL_EXPORT void draw_arrow_up (draw::graphics& g, const core::rectangle& r, os::color col);
+    GUIPP_CTRL_EXPORT void draw_arrow_down (draw::graphics& g, const core::rectangle& r, os::color col);
 
   } // ctrl
 

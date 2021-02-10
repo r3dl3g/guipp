@@ -45,7 +45,7 @@ namespace gui {
     os::color get_background_color (ctrl::item_state state,
                                     os::color def_color);
 
-    GUIPP_LOOK_EXPORT void text_item (const draw::graphics&,
+    GUIPP_LOOK_EXPORT void text_item (draw::graphics&,
                                       const core::rectangle& place,
                                       const draw::brush& background,
                                       const std::string& text,

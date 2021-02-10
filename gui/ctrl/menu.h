@@ -244,7 +244,7 @@ namespace gui {
       void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
-      void paint (const draw::graphics& g);
+      void paint (draw::graphics& g);
       bool handle_key (os::key_symbol);
       void handle_mouse (bool, const core::point&);
 
@@ -275,7 +275,7 @@ namespace gui {
 
       void close ();
 
-      void paint (const draw::graphics& g);
+      void paint (draw::graphics& g);
       bool handle_key (os::key_symbol);
       void handle_mouse (bool, const core::point&);
 

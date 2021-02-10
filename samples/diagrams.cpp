@@ -76,7 +76,7 @@ font& font_serif () {
 }
 
 // --------------------------------------------------------------------------
-void draw_graph_1 (const graphics& graph, const core::rectangle& area) {
+void draw_graph_1 (graphics& graph, const core::rectangle& area) {
   clog::trace() << "Draw graph 1 in area:" << area;
 
   graph.frame(draw::rectangle(area), color::black);
@@ -123,7 +123,7 @@ void draw_graph_1 (const graphics& graph, const core::rectangle& area) {
   graph.frame(xy_axis<double, double>(xscale, yscale), color::black);
 }
 // --------------------------------------------------------------------------
-void draw_graph_2 (const graphics& graph, const core::rectangle& area) {
+void draw_graph_2 (graphics& graph, const core::rectangle& area) {
   clog::trace() << "Draw graph 2 in area:" << area;
 
   graph.frame(draw::rectangle(area), color::black);
@@ -147,7 +147,7 @@ void draw_graph_2 (const graphics& graph, const core::rectangle& area) {
   graph.frame(xy_axis<double, double, scaling::linear, scaling::log>(xscale, yscale), color::black);
 }
 // --------------------------------------------------------------------------
-void draw_graph_3 (const graphics& graph, const core::rectangle& area) {
+void draw_graph_3 (graphics& graph, const core::rectangle& area) {
   clog::trace() << "Draw graph 3 in area:" << area;
 
   core::point p0(area.x() + 50, area.y2() - 25);
@@ -169,7 +169,7 @@ void draw_graph_3 (const graphics& graph, const core::rectangle& area) {
   graph.frame(xy_axis<double, double, scaling::log>(xscale, yscale), color::black);
 }
 // --------------------------------------------------------------------------
-void draw_graph_4 (const graphics& graph, const core::rectangle& area) {
+void draw_graph_4 (graphics& graph, const core::rectangle& area) {
   clog::trace() << "Draw graph 4 in area:" << area;
 
   graph.frame(draw::rectangle(area), color::black);
@@ -192,7 +192,7 @@ void draw_graph_4 (const graphics& graph, const core::rectangle& area) {
   graph.frame(xy_axis<double, double, scaling::log, scaling::log>(xscale, yscale), color::black);
 }
 // --------------------------------------------------------------------------
-void draw_graph_5 (const graphics& graph, const core::rectangle& area) {
+void draw_graph_5 (graphics& graph, const core::rectangle& area) {
   clog::trace() << "Draw graph 5 in area:" << area;
 
   graph.frame(draw::rectangle(area), color::black);
@@ -239,7 +239,7 @@ void draw_graph_5 (const graphics& graph, const core::rectangle& area) {
   graph.frame(xy_axis<float, float>(xscale, yscale), color::black);
 }
 // --------------------------------------------------------------------------
-void draw_graph_6 (const graphics& graph, const core::rectangle& area) {
+void draw_graph_6 (graphics& graph, const core::rectangle& area) {
   clog::trace() << "Draw graph 6 in area:" << area;
 
   graph.frame(draw::rectangle(area), color::black);
@@ -264,7 +264,7 @@ void draw_graph_6 (const graphics& graph, const core::rectangle& area) {
   graph.frame(axis<double, orientation_t::vertical, scaling::log>(p0, yscale), color::black);
 }
 // --------------------------------------------------------------------------
-void draw_graph_7 (const graphics& graph, const core::rectangle& area) {
+void draw_graph_7 (graphics& graph, const core::rectangle& area) {
   clog::trace() << "Draw graph 7 in area:" << area;
 
   chart<double, double> d(area, {0, 6.5}, {-1.2, 1.2});
@@ -274,7 +274,7 @@ void draw_graph_7 (const graphics& graph, const core::rectangle& area) {
   d.draw_cross_graph(graph, sinus_data(-1), color::green, 2);
 }
 // --------------------------------------------------------------------------
-void draw_graph_8 (const graphics& graph, const core::rectangle& area) {
+void draw_graph_8 (graphics& graph, const core::rectangle& area) {
   clog::trace() << "Draw graph 8 in area:" << area;
 
   chart<double, double> d(area, {0, 6.5}, {-1.2, 1.2});
@@ -286,7 +286,7 @@ void draw_graph_8 (const graphics& graph, const core::rectangle& area) {
   d.draw_axis(graph);
 }
 // --------------------------------------------------------------------------
-void draw_graph_9 (const graphics& graph, const core::rectangle& area) {
+void draw_graph_9 (graphics& graph, const core::rectangle& area) {
   clog::trace() << "Draw graph 9 in area:" << area;
 
   chart<int, double, scaling::linear, scaling::log> d(area, {0, 100}, {0.01, 10000.0});
@@ -296,7 +296,7 @@ void draw_graph_9 (const graphics& graph, const core::rectangle& area) {
   d.draw_axis(graph);
 }
 // --------------------------------------------------------------------------
-void draw_graph_10 (const graphics& graph, const core::rectangle& area) {
+void draw_graph_10 (graphics& graph, const core::rectangle& area) {
   clog::trace() << "Draw graph 10 in area:" << area;
 
   chart<int, double, scaling::linear, scaling::symlog> d(area, {-100, 100}, {0.01, 10000.0});
@@ -313,7 +313,7 @@ void draw_graph_10 (const graphics& graph, const core::rectangle& area) {
   d.draw_axis(graph);
 }
 // --------------------------------------------------------------------------
-void draw_graph_11 (const graphics& graph, const core::rectangle& area) {
+void draw_graph_11 (graphics& graph, const core::rectangle& area) {
   clog::trace() << "Draw graph 11 in area:" << area;
 
   chart<double, double, scaling::symlog, scaling::symlog> d(area, {0.01, 100}, {0.01, 1000.0});
@@ -326,7 +326,7 @@ void draw_graph_11 (const graphics& graph, const core::rectangle& area) {
   d.draw_axis(graph);
 }
 // --------------------------------------------------------------------------
-void draw_graph_12 (const graphics& graph, const core::rectangle& area) {
+void draw_graph_12 (graphics& graph, const core::rectangle& area) {
   clog::trace() << "Draw graph 12 in area:" << area;
 
   chart<double, double, scaling::symlog, scaling::linear> d(area, {0.01, 100}, {-1000.0, 1000.0});
@@ -348,7 +348,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     clog::trace() << "Resized to " << sz << " -> initiate redraw";
     main.invalidate();
   });
-  main.on_paint(draw::paint([&](const graphics& graph) {
+  main.on_paint(draw::paint([&](graphics& graph) {
     clog::trace() << "Received on_paint, clear white";
     graph.clear(color::white);
 

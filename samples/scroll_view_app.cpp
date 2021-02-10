@@ -37,7 +37,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   main.get_layout().set_center(lay(scroll_view));
 
-  scroll_view.on_paint(draw::paint([&] (const draw::graphics& graph) {
+  scroll_view.on_paint(draw::paint([&] (draw::graphics& graph) {
     graph.fill(draw::rectangle(scroll_view.surface_area()), color::cyan);
   }));
   window1.on_left_btn_down([&](gui::os::key_state, const core::point& p) {
@@ -88,7 +88,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     }
   });
 
-  window2.on_paint(draw::paint([&] (const draw::graphics& graph) {
+  window2.on_paint(draw::paint([&] (draw::graphics& graph) {
     graph.fill(draw::rectangle(window2.surface_area()), color::gray);
   }));
   window2.on_left_btn_down([&] (gui::os::key_state, const core::point& p) {
@@ -138,7 +138,7 @@ std::vector<core::point> calc_star (const core::point& pt) {
 }
 
 ctrl::paint_function create_paint1 (const win::window& win, const bool& draw_invert) {
-  return [&] (const draw::graphics& graph) {
+  return [&] (draw::graphics& graph) {
 
     using namespace gui;
     using namespace gui::draw;
@@ -179,7 +179,7 @@ ctrl::paint_function create_paint1 (const win::window& win, const bool& draw_inv
     graph.fill(pie(pt, 2, 0, 360), color::blue);
     graph.text(text("Hello World 6!", pt), font::sans_serif().with_size(18), color::blue);
 
-    auto draw_text_box = [](const draw::graphics& g,
+    auto draw_text_box = [](draw::graphics& g,
                             const std::string& t,
                             core::rectangle r,
                             text_origin_t o) {
@@ -190,7 +190,7 @@ ctrl::paint_function create_paint1 (const win::window& win, const bool& draw_inv
       g.text(text_box(t, r, o), font::system(), color::red);
     };
 
-    auto draw_text = [](const draw::graphics& g,
+    auto draw_text = [](draw::graphics& g,
       const std::string& t,
       const core::point& p,
       text_origin_t o) {
@@ -225,7 +225,7 @@ ctrl::paint_function create_paint1 (const win::window& win, const bool& draw_inv
 }
 
 ctrl::paint_function create_paint2 (const win::window& win, const bool& draw_invert, const core::angle& start, const core::angle& end) {
-  return [&](const draw::graphics& graph) {
+  return [&](draw::graphics& graph) {
 
     using namespace gui;
     using namespace gui::draw;

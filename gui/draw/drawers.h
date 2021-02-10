@@ -44,7 +44,7 @@ namespace gui {
       line (const core::point& from,
             const core::point& to);
 
-      void operator() (const graphics&, const pen&) const;
+      void operator() (graphics&, const pen&) const;
 
     private:
       core::point from;
@@ -59,9 +59,9 @@ namespace gui {
       rectangle (const core::point& pos1,
                  const core::point& pos2);
 
-      void operator() (const graphics&, const brush&, const pen&) const;
-      void operator() (const graphics&, const pen&) const;
-      void operator() (const graphics&, const brush&) const;
+      void operator() (graphics&, const brush&, const pen&) const;
+      void operator() (graphics&, const pen&) const;
+      void operator() (graphics&, const brush&) const;
 
     private:
       const core::rectangle rect;
@@ -75,9 +75,9 @@ namespace gui {
       ellipse (const core::point& pos1,
                const core::point& pos2);
 
-      void operator() (const graphics&, const brush&, const pen&) const;
-      void operator() (const graphics&, const pen&) const;
-      void operator() (const graphics&, const brush&) const;
+      void operator() (graphics&, const brush&, const pen&) const;
+      void operator() (graphics&, const pen&) const;
+      void operator() (graphics&, const brush&) const;
 
     private:
       const core::rectangle rect;
@@ -88,9 +88,9 @@ namespace gui {
       round_rectangle (const core::rectangle& rect, const core::size& radius);
       round_rectangle (const core::rectangle& rect, core::size::type radius);
 
-      void operator() (const graphics&, const brush&, const pen&) const;
-      void operator() (const graphics&, const pen&) const;
-      void operator() (const graphics&, const brush&) const;
+      void operator() (graphics&, const brush&, const pen&) const;
+      void operator() (graphics&, const pen&) const;
+      void operator() (graphics&, const brush&) const;
 
     private:
       const core::rectangle rect;
@@ -118,9 +118,9 @@ namespace gui {
                   const core::angle& start_angle,
                   const core::angle& end_angle);
 
-      void operator() (const graphics&, const brush&, const pen&) const;
-      void operator() (const graphics&, const pen&) const;
-      void operator() (const graphics&, const brush&) const;
+      void operator() (graphics&, const brush&, const pen&) const;
+      void operator() (graphics&, const pen&) const;
+      void operator() (graphics&, const brush&) const;
 
     private:
       const core::rectangle rect;
@@ -137,9 +137,9 @@ namespace gui {
       explicit polyline (const std::vector<core::point>& pts);
       polyline (std::initializer_list<core::point> pts);
 
-      void operator() (const graphics&, const brush&, const pen&) const;
-      void operator() (const graphics&, const pen&) const;
-      void operator() (const graphics&, const brush&) const;
+      void operator() (graphics&, const brush&, const pen&) const;
+      void operator() (graphics&, const pen&) const;
+      void operator() (graphics&, const brush&) const;
 
     protected:
       std::vector<os::point> points;
@@ -150,9 +150,9 @@ namespace gui {
       explicit polygon (const std::vector<core::point>& pts);
       polygon (std::initializer_list<core::point> pts);
 
-      void operator() (const graphics&, const brush&, const pen&) const;
-      void operator() (const graphics&, const pen&) const;
-      void operator() (const graphics&, const brush&) const;
+      void operator() (graphics&, const brush&, const pen&) const;
+      void operator() (graphics&, const pen&) const;
+      void operator() (graphics&, const brush&) const;
 
     protected:
       std::vector<os::point> points;
@@ -164,7 +164,7 @@ namespace gui {
                 const core::rectangle& rect,
                 text_origin_t origin = text_origin_t::top_left);
 
-      void operator() (const graphics&, const font& font, os::color color) const;
+      void operator() (graphics&, const font& font, os::color color) const;
 
     private:
       const std::string str;
@@ -178,7 +178,7 @@ namespace gui {
                     core::rectangle& rect,
                     text_origin_t origin = text_origin_t::top_left);
 
-      void operator() (const graphics&, const font& font, os::color color) const;
+      void operator() (graphics&, const font& font, os::color color) const;
 
       // Not implemented!
       void operator= (const bounding_box&) = delete;
@@ -195,7 +195,7 @@ namespace gui {
             const core::point& pos,
             text_origin_t origin = text_origin_t::top_left);
 
-      void operator() (const graphics&, const font& font, os::color color) const;
+      void operator() (graphics&, const font& font, os::color color) const;
 
     private:
       const std::string str;
@@ -210,7 +210,7 @@ namespace gui {
              const core::rectangle& rect,
              text_origin_t origin = text_origin_t::center);
 
-      void operator() (const graphics& g, const brush& b) const;
+      void operator() (graphics& g, const brush& b) const;
 
     private:
       const I& img;
@@ -226,7 +226,7 @@ namespace gui {
     struct image_frame {
       image_frame (const core::rectangle& r, const datamap<T>& img, const core::native_rect& frame);
 
-      void operator() (const graphics&, const core::point&) const;
+      void operator() (graphics&, const core::point&) const;
 
       void operator= (image_frame&) = delete;
 

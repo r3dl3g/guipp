@@ -32,7 +32,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T>
     void default_tile_item_drawer (const T& t,
-                                   const draw::graphics& g,
+                                   draw::graphics& g,
                                    const core::rectangle& place,
                                    const draw::brush& background,
                                    item_state state);
@@ -98,7 +98,7 @@ namespace gui {
 
       std::size_t get_line_count () const;
 
-      void paint (const draw::graphics& graph);
+      void paint (draw::graphics& graph);
 
       void handle_key (os::key_state,
                        os::key_symbol key,

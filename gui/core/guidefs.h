@@ -52,14 +52,6 @@
 
 namespace gui {
 
-  namespace os {
-
-    struct GUIPP_CORE_EXPORT surface {
-      os::drawable id;
-      os::graphics g;
-    };
-
-  }
   typedef uint8_t byte;
   typedef byte* byteptr;
   typedef const byte* cbyteptr;
@@ -249,6 +241,7 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace core {
 
+    // --------------------------------------------------------------------------
     namespace global {
 
       GUIPP_CORE_EXPORT void init (gui::os::instance instance);

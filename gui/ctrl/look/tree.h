@@ -52,12 +52,12 @@ namespace gui {
   namespace look {
 
     // --------------------------------------------------------------------------
-    GUIPP_LOOK_EXPORT void tree_button (const draw::graphics& graph,
+    GUIPP_LOOK_EXPORT void tree_button (draw::graphics& graph,
                                         const core::rectangle& area,
                                         bool is_open,
                                         bool is_disabled);
 
-    GUIPP_LOOK_EXPORT void tree_node (const draw::graphics& graph,
+    GUIPP_LOOK_EXPORT void tree_node (draw::graphics& graph,
                                       const core::rectangle& area,
                                       const draw::brush& background,
                                       std::size_t depth,

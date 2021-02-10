@@ -33,34 +33,34 @@ namespace gui {
 
     namespace frame {
 
-      typedef core::rectangle (drawer)(const draw::graphics&, const core::rectangle&);
+      typedef core::rectangle (drawer)(draw::graphics&, const core::rectangle&);
 
-      core::rectangle no_frame (const draw::graphics&, const core::rectangle&);
+      core::rectangle no_frame (draw::graphics&, const core::rectangle&);
 
-      GUIPP_DRAW_EXPORT core::rectangle black (const draw::graphics&, const core::rectangle&);
-      GUIPP_DRAW_EXPORT core::rectangle white (const draw::graphics&, const core::rectangle&);
+      GUIPP_DRAW_EXPORT core::rectangle black (draw::graphics&, const core::rectangle&);
+      GUIPP_DRAW_EXPORT core::rectangle white (draw::graphics&, const core::rectangle&);
 
-      GUIPP_DRAW_EXPORT core::rectangle dots (const draw::graphics&, const core::rectangle&);
+      GUIPP_DRAW_EXPORT core::rectangle dots (draw::graphics&, const core::rectangle&);
 
-      GUIPP_DRAW_EXPORT core::rectangle lines (const draw::graphics&, const core::rectangle&);
-      GUIPP_DRAW_EXPORT core::rectangle vline (const draw::graphics&, const core::rectangle&);
-      GUIPP_DRAW_EXPORT core::rectangle hline (const draw::graphics&, const core::rectangle&);
+      GUIPP_DRAW_EXPORT core::rectangle lines (draw::graphics&, const core::rectangle&);
+      GUIPP_DRAW_EXPORT core::rectangle vline (draw::graphics&, const core::rectangle&);
+      GUIPP_DRAW_EXPORT core::rectangle hline (draw::graphics&, const core::rectangle&);
 
-      GUIPP_DRAW_EXPORT core::rectangle vraise (const draw::graphics&, const core::rectangle&);
-      GUIPP_DRAW_EXPORT core::rectangle hraise (const draw::graphics&, const core::rectangle&);
+      GUIPP_DRAW_EXPORT core::rectangle vraise (draw::graphics&, const core::rectangle&);
+      GUIPP_DRAW_EXPORT core::rectangle hraise (draw::graphics&, const core::rectangle&);
 
-      GUIPP_DRAW_EXPORT core::rectangle vgroove (const draw::graphics&, const core::rectangle&);
-      GUIPP_DRAW_EXPORT core::rectangle hgroove (const draw::graphics&, const core::rectangle&);
+      GUIPP_DRAW_EXPORT core::rectangle vgroove (draw::graphics&, const core::rectangle&);
+      GUIPP_DRAW_EXPORT core::rectangle hgroove (draw::graphics&, const core::rectangle&);
 
-      GUIPP_DRAW_EXPORT core::rectangle raised_relief (const draw::graphics&, const core::rectangle&);
-      GUIPP_DRAW_EXPORT core::rectangle sunken_relief (const draw::graphics&, const core::rectangle&);
+      GUIPP_DRAW_EXPORT core::rectangle raised_relief (draw::graphics&, const core::rectangle&);
+      GUIPP_DRAW_EXPORT core::rectangle sunken_relief (draw::graphics&, const core::rectangle&);
 
-      core::rectangle relief (const draw::graphics& g, const core::rectangle& r, bool sunken);
+      core::rectangle relief (draw::graphics& g, const core::rectangle& r, bool sunken);
 
-      GUIPP_DRAW_EXPORT core::rectangle raised_deep_relief (const draw::graphics&, const core::rectangle&);
-      GUIPP_DRAW_EXPORT core::rectangle sunken_deep_relief (const draw::graphics&, const core::rectangle&);
+      GUIPP_DRAW_EXPORT core::rectangle raised_deep_relief (draw::graphics&, const core::rectangle&);
+      GUIPP_DRAW_EXPORT core::rectangle sunken_deep_relief (draw::graphics&, const core::rectangle&);
 
-      core::rectangle deep_relief (const draw::graphics& g, const core::rectangle& r, bool sunken);
+      core::rectangle deep_relief (draw::graphics& g, const core::rectangle& r, bool sunken);
 
     } // frame
 

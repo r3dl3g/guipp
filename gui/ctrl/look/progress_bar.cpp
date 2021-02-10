@@ -34,7 +34,7 @@ namespace gui {
 
   namespace look {
 
-    void progress_bar (const draw::graphics& graph,
+    void progress_bar (draw::graphics& graph,
                        const core::rectangle& area,
                        const std::string& txt,
                        os::color foreground,

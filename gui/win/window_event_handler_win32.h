@@ -288,8 +288,8 @@ namespace gui {
                                              getter<get_param<1, core::rectangle>>>;
 
     using paint_event = core::event_handler<core::WM_PAINT_WINDOW, 0,
-                                            core::params<os::surface>::
-                                            getter<get_surface>>;
+                                            core::params<core::context*>::
+                                            getter<get_context>>;
 
     using expose_event = core::event_handler<WM_PAINT>;
     // --------------------------------------------------------------------------

@@ -192,13 +192,13 @@ namespace gui {
       namespace paint {
 
         template<typename T, orientation_t V, scaling S>
-        void draw_axis (const graphics& g,
+        void draw_axis (graphics& g,
                         const core::point& pos,
                         os::color color,
                         const scaler<T, S>&);
 
         template<typename T, orientation_t V, scaling S>
-        void draw_sub_ticks (const graphics& g,
+        void draw_sub_ticks (graphics& g,
                              os::color color,
                              const scaler<T, S>&,
                              T min, T step, T max, T sub_1, T sub_2);
@@ -224,7 +224,7 @@ namespace gui {
                os::color sub_color = color::very_very_light_gray,
                formatter fmt = default_formatter<T>);
 
-        void operator() (const graphics&, const font&, os::color) const;
+        void operator() (graphics&, const font&, os::color) const;
 
       private:
         const core::point pos;
@@ -244,7 +244,7 @@ namespace gui {
         wall (const scaler<X, SX>& sx,
               const scaler<Y, SY>& sy);
 
-        void operator() (const graphics&, const brush&, const pen&) const;
+        void operator() (graphics&, const brush&, const pen&) const;
 
       private:
         const scaler<X, SX>& sx;
@@ -258,7 +258,7 @@ namespace gui {
                   const scaler<Y, SY>& sy,
                   const std::string&);
 
-        void operator() (const graphics&, const font&, os::color) const;
+        void operator() (graphics&, const font&, os::color) const;
 
       private:
         const scaler<X, SX>& sx;
@@ -273,7 +273,7 @@ namespace gui {
                 const scaler<Y, SY>& sy,
                 const std::vector<legend_label>& labels);
 
-        void operator() (const graphics&, const font&, os::color) const;
+        void operator() (graphics&, const font&, os::color) const;
 
       private:
         const scaler<X, SX>& sx;
@@ -287,7 +287,7 @@ namespace gui {
         axis (const core::point& pos,
               const scaler<T, S>& sc);
 
-        void operator() (const graphics&, const pen&) const;
+        void operator() (graphics&, const pen&) const;
 
       private:
         const core::point pos;
@@ -301,7 +301,7 @@ namespace gui {
         xy_axis (const scaler<X, SX>& sx,
                  const scaler<Y, SY>& sy);
 
-        void operator() (const graphics&, const pen&) const;
+        void operator() (graphics&, const pen&) const;
 
       private:
         const scaler<X, SX>& sx;
@@ -339,8 +339,8 @@ namespace gui {
                     typename super::point2d_data,
                     Y zero = Y(0));
 
-        void operator() (const graphics&, const pen&) const;
-        void operator() (const graphics&, const brush&) const;
+        void operator() (graphics&, const pen&) const;
+        void operator() (graphics&, const brush&) const;
 
       private:
         void calc_points (std::vector<core::point>&) const;
@@ -360,8 +360,8 @@ namespace gui {
                  typename super::point2d_data,
                  Y zero = Y(0));
 
-        void operator() (const graphics&, const pen&) const;
-        void operator() (const graphics&, const brush&) const;
+        void operator() (graphics&, const pen&) const;
+        void operator() (graphics&, const brush&) const;
 
       private:
         void calc_points (std::vector<core::point>&) const;
@@ -381,7 +381,7 @@ namespace gui {
                    typename super::point2d_data,
                    X space = X(0));
 
-        void operator() (const graphics&, const brush&) const;
+        void operator() (graphics&, const brush&) const;
 
       private:
         const X space;
@@ -391,7 +391,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       struct GUIPP_DRAW_EXPORT circle {
         explicit circle (float radius);
-        void operator() (const graphics&, const brush&, const core::point&) const;
+        void operator() (graphics&, const brush&, const core::point&) const;
       private:
         float radius;
       };
@@ -399,7 +399,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       struct GUIPP_DRAW_EXPORT diamond {
         explicit diamond (float radius);
-        void operator() (const graphics&, const brush&, const core::point&) const;
+        void operator() (graphics&, const brush&, const core::point&) const;
       private:
         float radius;
       };
@@ -407,7 +407,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       struct GUIPP_DRAW_EXPORT cross {
         explicit cross (float radius);
-        void operator() (const graphics&, const brush&, const core::point&) const;
+        void operator() (graphics&, const brush&, const core::point&) const;
       private:
         float radius;
       };
@@ -415,7 +415,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       struct GUIPP_DRAW_EXPORT square {
         explicit square (float radius);
-        void operator() (const graphics&, const brush&, const core::point&) const;
+        void operator() (graphics&, const brush&, const core::point&) const;
       private:
         float radius;
       };
@@ -427,7 +427,7 @@ namespace gui {
       struct points_graph : public graph_base<X, Y, C, SX, SY> {
         typedef graph_base<X, Y, C, SX, SY> super;
 
-        typedef void (draw_fn) (const graphics&, const brush&, const core::point&);
+        typedef void (draw_fn) (graphics&, const brush&, const core::point&);
         typedef std::function<draw_fn> point_drawer;
 
         points_graph (const scaler<X, SX>& sx,
@@ -435,7 +435,7 @@ namespace gui {
                       typename super::point2d_data,
                       point_drawer drawer);
 
-        void operator() (const graphics&, const brush&) const;
+        void operator() (graphics&, const brush&) const;
 
       private:
         point_drawer drawer;
@@ -456,41 +456,41 @@ namespace gui {
 
         chart (const core::rectangle& area, core::range<X> range_x, core::range<Y> range_y);
 
-        void fill_area (const graphics& graph) const;
-        void draw_xscale (const graphics& graph, X main, X sub, typename scale_x_type::formatter fmt = default_formatter<X>) const;
-        void draw_yscale (const graphics& graph, Y main, Y sub, typename scale_y_type::formatter fmt = default_formatter<Y>) const;
-        void draw_axis (const graphics& graph) const;
-        void draw_title (const graphics& graph, const std::string& title) const;
-        void draw_legend (const graphics& graph, const std::vector<legend_label>& labels) const;
+        void fill_area (graphics& graph) const;
+        void draw_xscale (graphics& graph, X main, X sub, typename scale_x_type::formatter fmt = default_formatter<X>) const;
+        void draw_yscale (graphics& graph, Y main, Y sub, typename scale_y_type::formatter fmt = default_formatter<Y>) const;
+        void draw_axis (graphics& graph) const;
+        void draw_title (graphics& graph, const std::string& title) const;
+        void draw_legend (graphics& graph, const std::vector<legend_label>& labels) const;
 
-        void draw_background (const graphics& graph, X xmain, X xsub, Y ymain, Y ysub) const;
-
-        template<typename C>
-        void draw_line_graph (const graphics& graph, C data, os::color color, Y zero = Y(0)) const;
+        void draw_background (graphics& graph, X xmain, X xsub, Y ymain, Y ysub) const;
 
         template<typename C>
-        void draw_area_graph (const graphics& graph, C data, os::color color, Y zero = Y(0)) const;
+        void draw_line_graph (graphics& graph, C data, os::color color, Y zero = Y(0)) const;
 
         template<typename C>
-        void draw_cascade_graph (const graphics& graph, C data, os::color color, Y zero = Y(0)) const;
+        void draw_area_graph (graphics& graph, C data, os::color color, Y zero = Y(0)) const;
 
         template<typename C>
-        void draw_cascade_area_graph (const graphics& graph, C data, os::color color, Y zero = Y(0)) const;
+        void draw_cascade_graph (graphics& graph, C data, os::color color, Y zero = Y(0)) const;
 
         template<typename C>
-        void draw_bar_graph (const graphics& graph, C data, os::color color, Y space = Y(0)) const;
+        void draw_cascade_area_graph (graphics& graph, C data, os::color color, Y zero = Y(0)) const;
 
         template<typename C>
-        void draw_point_graph (const graphics& graph, C data, os::color color, float radius) const;
+        void draw_bar_graph (graphics& graph, C data, os::color color, Y space = Y(0)) const;
 
         template<typename C>
-        void draw_diamond_graph (const graphics& graph, C data, os::color color, float radius) const;
+        void draw_point_graph (graphics& graph, C data, os::color color, float radius) const;
 
         template<typename C>
-        void draw_cross_graph (const graphics& graph, C data, os::color color, float radius) const;
+        void draw_diamond_graph (graphics& graph, C data, os::color color, float radius) const;
 
         template<typename C>
-        void draw_square_graph (const graphics& graph, C data, os::color color, float radius) const;
+        void draw_cross_graph (graphics& graph, C data, os::color color, float radius) const;
+
+        template<typename C>
+        void draw_square_graph (graphics& graph, C data, os::color color, float radius) const;
 
         const scaler_x_type& get_scale_x() const;
         const scaler_y_type& get_scale_y() const;

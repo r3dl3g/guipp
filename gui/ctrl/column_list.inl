@@ -222,7 +222,7 @@ namespace gui {
     }
 
     template<typename Layout, os::color background>
-    void column_list_header<Layout, background>::paint (const draw::graphics& g) {
+    void column_list_header<Layout, background>::paint (draw::graphics& g) {
       using namespace draw;
 
       core::rectangle area = this->surface_area();
@@ -259,7 +259,7 @@ namespace gui {
     void column_list_header<L, B>::set_labels (std::initializer_list<std::string> args) {
       std::vector<std::string> labels(args);
       set_cell_drawer([labels] (std::size_t i,
-                                const draw::graphics& g,
+                                draw::graphics& g,
                                 const core::rectangle& r,
                                 const draw::brush& background) {
         using namespace draw;
@@ -375,7 +375,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T, draw::frame::drawer F>
     void cell_drawer (const T& t,
-                      const draw::graphics& graph,
+                      draw::graphics& graph,
                       const core::rectangle& place,
                       const draw::brush& background,
                       item_state state,
@@ -392,7 +392,7 @@ namespace gui {
     void column_list_row_drawer_t<A ...>::draw_cell (const row_type&,
                                                      const drawer_type&,
                                                      const layout_type&,
-                                                     const draw::graphics& g,
+                                                     draw::graphics& g,
                                                      const core::rectangle& place,
                                                      core::point::type x,
                                                      const draw::brush& background,
@@ -407,7 +407,7 @@ namespace gui {
     void column_list_row_drawer_t<A ...>::draw_cell (const row_type& row,
                                                      const drawer_type& drawer,
                                                      const layout_type& layout,
-                                                     const draw::graphics& g,
+                                                     draw::graphics& g,
                                                      const core::rectangle& r,
                                                      core::point::type x,
                                                      const draw::brush& background,
@@ -426,7 +426,7 @@ namespace gui {
     void column_list_row_drawer_t<A ...>::draw_row (const row_type& row,
                                                     const drawer_type& drawer,
                                                     const layout_type& layout,
-                                                    const draw::graphics& g,
+                                                    draw::graphics& g,
                                                     const core::rectangle& place,
                                                     const draw::brush& background,
                                                     item_state state) {

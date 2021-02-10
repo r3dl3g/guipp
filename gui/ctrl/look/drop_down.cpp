@@ -64,7 +64,7 @@ namespace gui {
 
   namespace look {
 
-    void drop_down_item (const draw::graphics& g,
+    void drop_down_item (draw::graphics& g,
                          const core::rectangle& r,
                          const draw::brush& b,
                          const std::string& t,
@@ -85,7 +85,7 @@ namespace gui {
     }
 
     template<>
-    void drop_down_button_t<look_and_feel_t::metal> (const draw::graphics& graph,
+    void drop_down_button_t<look_and_feel_t::metal> (draw::graphics& graph,
                                                      const core::rectangle& area,
                                                      const core::button_state::is& state,
                                                      bool is_open) {
@@ -93,7 +93,7 @@ namespace gui {
     }
 
     template<>
-    void drop_down_button_t<look_and_feel_t::w95> (const draw::graphics& graph,
+    void drop_down_button_t<look_and_feel_t::w95> (draw::graphics& graph,
                                                    const core::rectangle& area,
                                                    const core::button_state::is& state,
                                                    bool is_open) {
@@ -102,7 +102,7 @@ namespace gui {
     }
 
     template<>
-    void drop_down_button_t<look_and_feel_t::w10> (const draw::graphics& graph,
+    void drop_down_button_t<look_and_feel_t::w10> (draw::graphics& graph,
                                                    const core::rectangle& r,
                                                    const core::button_state::is& state,
                                                    bool is_open) {
@@ -110,7 +110,7 @@ namespace gui {
     }
 
     template<>
-    void drop_down_button_t<look_and_feel_t::osx> (const draw::graphics& graph,
+    void drop_down_button_t<look_and_feel_t::osx> (draw::graphics& graph,
                                                    const core::rectangle& area,
                                                    const core::button_state::is& state,
                                                    bool) {
@@ -118,7 +118,7 @@ namespace gui {
       graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_right), color::buttonColor());
     }
 
-    void drop_down_button (const draw::graphics& graph,
+    void drop_down_button (draw::graphics& graph,
                            const core::rectangle& area,
                            const core::button_state::is& state,
                            bool is_open) {
@@ -126,14 +126,14 @@ namespace gui {
     }
 
     template<>
-    void drop_down_t<look_and_feel_t::metal> (const draw::graphics& graph,
+    void drop_down_t<look_and_feel_t::metal> (draw::graphics& graph,
                                               const core::rectangle& r,
                                               const core::button_state::is& state) {
       button_frame<look_and_feel_t::metal>(graph, r, state);
     }
 
     template<>
-    void drop_down_t<look_and_feel_t::w95> (const draw::graphics& graph,
+    void drop_down_t<look_and_feel_t::w95> (draw::graphics& graph,
                                             const core::rectangle& area,
                                             const core::button_state::is& state) {
       draw::frame::sunken_deep_relief(graph, area);
@@ -143,13 +143,13 @@ namespace gui {
     }
 
     template<>
-    void drop_down_t<look_and_feel_t::w10> (const draw::graphics& graph,
+    void drop_down_t<look_and_feel_t::w10> (draw::graphics& graph,
                                             const core::rectangle& area,
                                             const core::button_state::is& state) {
       button_frame<look_and_feel_t::w10>(graph, area, state);
     }
 
-    void drop_down_frame (const draw::graphics& graph,
+    void drop_down_frame (draw::graphics& graph,
                           const core::rectangle& r,
                           bool pushed, bool hilite, bool focused) {
       if (pushed && hilite) {
@@ -162,13 +162,13 @@ namespace gui {
     }
 
     template<>
-    void drop_down_t<look_and_feel_t::osx> (const draw::graphics& graph,
+    void drop_down_t<look_and_feel_t::osx> (draw::graphics& graph,
                                             const core::rectangle& r,
                                             const core::button_state::is& state) {
       drop_down_frame(graph, r, state.pushed(), state.hilited(), state.focused());
     }
 
-    void drop_down (const draw::graphics& graph,
+    void drop_down (draw::graphics& graph,
                     const core::rectangle& area,
                     const core::button_state::is& state) {
       drop_down_t<>(graph, area, state);

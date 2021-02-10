@@ -33,7 +33,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void image::paint (const graphics& graph) {
+    void image::paint (graphics& graph) {
       graph.clear(color::dark_gray);
       if (img.is_valid()) {
         graph.copy_from(img);

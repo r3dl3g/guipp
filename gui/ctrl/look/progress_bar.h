@@ -33,7 +33,7 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace look {
 
-    GUIPP_LOOK_EXPORT void progress_bar (const draw::graphics& graph,
+    GUIPP_LOOK_EXPORT void progress_bar (draw::graphics& graph,
                                          const core::rectangle& area,
                                          const std::string& text,
                                          os::color foreground,

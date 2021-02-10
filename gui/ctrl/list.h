@@ -39,7 +39,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T>
     using list_item_drawer = void (*)(const T&,
-                                      const draw::graphics&,
+                                      draw::graphics&,
                                       const core::rectangle&,
                                       const draw::brush&,
                                       item_state);
@@ -47,7 +47,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T, text_origin_t O = text_origin_t::vcenter_left>
     void default_list_item_drawer (const T& t,
-                                   const draw::graphics& g,
+                                   draw::graphics& g,
                                    const core::rectangle& place,
                                    const draw::brush& background,
                                    item_state state) {
@@ -56,7 +56,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     typedef void (list_index_drawer) (std::size_t,
-                                      const draw::graphics&,
+                                      draw::graphics&,
                                       const core::rectangle&,
                                       const draw::brush&,
                                       item_state);
@@ -67,7 +67,7 @@ namespace gui {
       virtual std::size_t size () const = 0;
 
       virtual void draw_at (std::size_t idx,
-                            const draw::graphics&,
+                            draw::graphics&,
                             const core::rectangle& place,
                             const draw::brush& background,
                             item_state state) const = 0;
@@ -89,7 +89,7 @@ namespace gui {
       virtual T at (std::size_t) const = 0;
 
       void draw_at (std::size_t idx,
-                    const draw::graphics& g,
+                    draw::graphics& g,
                     const core::rectangle& place,
                     const draw::brush& background,
                     item_state state) const override {
@@ -186,7 +186,7 @@ namespace gui {
       }
 
       void draw_at (std::size_t idx,
-                    const draw::graphics& g,
+                    draw::graphics& g,
                     const core::rectangle& place,
                     const draw::brush& background,
                     item_state state) const override {
@@ -232,7 +232,7 @@ namespace gui {
         void set_background (os::color background);
 
         void draw_item (std::size_t idx,
-                        const draw::graphics&,
+                        draw::graphics&,
                         const core::rectangle& place,
                         const draw::brush& background,
                         item_state state) const;
@@ -420,7 +420,7 @@ namespace gui {
 
       linear_list (linear_list&& rhs) noexcept ;
 
-      void paint (const draw::graphics& graph);
+      void paint (draw::graphics& graph);
 
       void handle_key (os::key_state,
                        os::key_symbol key,

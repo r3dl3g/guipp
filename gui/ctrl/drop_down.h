@@ -48,14 +48,14 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T>
     using drop_down_drawer = void (*)(const T&,
-                                      const draw::graphics&,
+                                      draw::graphics&,
                                       const core::rectangle&,
                                       const draw::brush&,
                                       item_state);
 
     template<typename T>
     void default_drop_down_drawer (const T& t,
-                                   const draw::graphics& g,
+                                   draw::graphics& g,
                                    const core::rectangle& r,
                                    const draw::brush& b,
                                    item_state state) {
@@ -80,7 +80,7 @@ namespace gui {
 
       void init ();
 
-      void paint (const draw::graphics& graph);
+      void paint (draw::graphics& graph);
 
       void handle_key (os::key_state state,
                        os::key_symbol key,

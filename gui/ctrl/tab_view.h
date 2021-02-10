@@ -117,7 +117,7 @@ namespace gui {
             pages[0].get().set_visible(true);
           }
         });
-        super::on_paint(draw::paint([&] (const draw::graphics & graph) {
+        super::on_paint(draw::paint([&] (draw::graphics&  graph) {
           graph.clear(background);
         }));
       }

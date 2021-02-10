@@ -349,7 +349,7 @@ namespace gui {
       file_list_row_data::file_list_row_data (const std::vector<fs::file_info>& dir,
                                               const vertical_list& list)
         : super(
-          [] (const gui::tree::tree_icon* const& img, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t) {
+          [] (const gui::tree::tree_icon* const& img, draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t) {
             if (img) {
               g.fill(draw::image<gui::tree::tree_icon>(*img, r), s.is_selected() ? color::highLightColor() : b);
             } else {
@@ -357,11 +357,11 @@ namespace gui {
             }
             draw::frame::lines(g, r);
           },
-          [] (const fs::file_info& path, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t align) {
+          [] (const fs::file_info& path, draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t align) {
             look::text_item(g, r, b, path.filename(), s, align);
             draw::frame::lines(g, r);
           },
-          [] (const fs::file_info& path, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t align) {
+          [] (const fs::file_info& path, draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t align) {
             if (path.is_directory()) {
               look::text_item(g, r, b, std::string(), s, align);
             } else {
@@ -369,7 +369,7 @@ namespace gui {
             }
             draw::frame::lines(g, r);
           },
-          [] (const sys_fs::file_time_type& tp, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t align) {
+          [] (const sys_fs::file_time_type& tp, draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t align) {
             look::text_item(g, r, b, util::time::format_datetime(tp), s, align);
             draw::frame::lines(g, r);
           }
@@ -441,11 +441,11 @@ namespace gui {
       }
     }
 
-    void draw_arrow_up (const draw::graphics& g, const core::rectangle& r, os::color col) {
+    void draw_arrow_up (draw::graphics& g, const core::rectangle& r, os::color col) {
       g.fill(draw::polygon({{r.center_x(), r.y()}, r.bottom_right(), r.bottom_left()}), col);
     }
 
-    void draw_arrow_down (const draw::graphics& g, const core::rectangle& r, os::color col) {
+    void draw_arrow_down (draw::graphics& g, const core::rectangle& r, os::color col) {
       g.fill(draw::polygon({r.top_left(), r.top_right(), {r.center_x(), r.bottom()}}), col);
     }
 

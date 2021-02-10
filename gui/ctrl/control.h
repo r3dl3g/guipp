@@ -153,7 +153,7 @@ namespace gui {
 #endif //GUIPP_WIN
 
     // --------------------------------------------------------------------------
-    using paint_function = std::function<void(draw::graphics)>;
+    using paint_function = std::function<void(draw::graphics&)>;
 
 #ifdef GUIPP_X11
     // --------------------------------------------------------------------------

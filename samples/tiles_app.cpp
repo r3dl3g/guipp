@@ -18,7 +18,7 @@ struct tile_drawer : public list_data {
 
   std::size_t size () const override { return S; }
 
-  void draw_at (std::size_t idx, const graphics& g, const core::rectangle& r, const brush& b, item_state s) const override {
+  void draw_at (std::size_t idx, graphics& g, const core::rectangle& r, const brush& b, item_state s) const override {
     look::text_cell<std::size_t, F>(idx, g, r, text_origin_t::center, color::black, b.color(), s);
   }
 };

@@ -24,48 +24,64 @@ namespace gui {
   namespace draw {
 
     inline os::graphics graphics::os () const {
-      return gc;
+      return gc();
+    }
+
+    inline os::graphics graphics::gc () const {
+      return ctx->graphics();
+    }
+
+    inline os::drawable graphics::target () const {
+      return ctx->drawable();
     }
 
     inline graphics::operator os::graphics () const {
-      return gc;
+      return gc();
     }
 
     inline graphics::operator os::drawable() const {
-      return target;
+      return target();
+    }
+
+    inline const core::context& graphics::context () const {
+      return *ctx;
+    }
+
+    inline core::context& graphics::context () {
+      return *ctx;
     }
 
     template<typename F>
-    inline const graphics& graphics::frame (F drawer, const pen& p) const {
+    inline graphics& graphics::frame (F drawer, const pen& p) {
       drawer(*this, p);
       return *this;
     }
 
     template<typename F>
-    inline const graphics& graphics::fill (F drawer, const brush& b) const {
+    inline graphics& graphics::fill (F drawer, const brush& b) {
       drawer(*this, b);
       return *this;
     }
 
     template<typename F>
-    inline const graphics& graphics::draw (F drawer,
+    inline graphics& graphics::draw (F drawer,
                                            const brush& b,
-                                           const pen& p) const {
+                                           const pen& p) {
       drawer(*this, b, p);
       return *this;
     }
 
     template<typename F>
-    inline const graphics& graphics::text (F drawer,
+    inline graphics& graphics::text (F drawer,
                                            const font& f,
-                                           os::color c) const {
+                                           os::color c) {
       drawer(*this, f, c);
       return *this;
     }
 
     template<typename F>
-    inline const graphics& graphics::copy (F drawer,
-                                           const core::point& pt) const {
+    inline graphics& graphics::copy (F drawer,
+                                           const core::point& pt) {
       drawer(*this, pt);
       return *this;
     }
@@ -77,14 +93,9 @@ namespace gui {
     {}
 
     // --------------------------------------------------------------------------
-    inline clip::clip (const graphics& g, const core::rectangle& r)
-      : g(g) {
-      g.push_clipping(r);
-    }
-
-    inline clip::~clip () {
-      g.pop_clipping();
-    }
+    inline clip::clip (graphics& g, const core::rectangle& r)
+      : core::clip(g.context(), r)
+    {}
 
   } // draw
 

@@ -148,7 +148,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    using scrollbar_drawer = void (*)(const draw::graphics &,
+    using scrollbar_drawer = void (*)(draw::graphics& ,
                                       scrollbar_item,
                                       scrollbar_item,
                                       bool,
@@ -203,7 +203,7 @@ namespace gui {
       void handle_left_btn_up (os::key_state, const core::point&);
       void handle_mouse_move (os::key_state, const core::point&);
       void handle_any_key_up (os::key_state, os::key_symbol key);
-      void handle_paint (const draw::graphics&);
+      void handle_paint (draw::graphics&);
 
     protected:
       struct geometry {

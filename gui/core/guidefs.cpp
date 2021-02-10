@@ -49,6 +49,7 @@
 
 namespace gui {
 
+  // --------------------------------------------------------------------------
   pixel_format_t get_pixel_format (int pixel_format, core::byte_order_t byte_order_t) {
     switch (pixel_format) {
       case 1: return pixel_format_t::BW;
@@ -67,6 +68,7 @@ namespace gui {
     return pixel_format_t::Undefined;
   }
 
+  // --------------------------------------------------------------------------
   core::byte_order_t get_pixel_format_byte_order (pixel_format_t px_fmt) {
     switch (px_fmt) {
       case pixel_format_t::RGB:
@@ -83,8 +85,10 @@ namespace gui {
     }
   }
 
+  // --------------------------------------------------------------------------
   namespace core {
 
+    // --------------------------------------------------------------------------
     namespace global {
 
       double calc_scale_factor ();

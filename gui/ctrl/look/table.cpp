@@ -39,7 +39,7 @@ namespace gui {
 
     template<>
     void text_cell<std::string, draw::frame::no_frame>(const std::string& t,
-                                                       const draw::graphics& graph,
+                                                       draw::graphics& graph,
                                                        const core::rectangle& place,
                                                        const text_origin_t& align,
                                                        const os::color& foreground,

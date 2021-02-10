@@ -37,7 +37,7 @@ namespace gui {
     template<typename T,
              draw::frame::drawer F = draw::frame::sunken_relief>
     void text_cell (const T& t,
-                    const draw::graphics& graph,
+                    draw::graphics& graph,
                     const core::rectangle& place,
                     const text_origin_t& align,
                     const os::color& foreground,
@@ -46,7 +46,7 @@ namespace gui {
 
     template<>
     GUIPP_LOOK_EXPORT void text_cell<std::string, draw::frame::no_frame>(const std::string& t,
-                                                                         const draw::graphics& graph,
+                                                                         draw::graphics& graph,
                                                                          const core::rectangle& place,
                                                                          const text_origin_t& align,
                                                                          const os::color& foreground,

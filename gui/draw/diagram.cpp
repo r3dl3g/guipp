@@ -43,7 +43,7 @@ namespace gui {
         : radius(radius)
       {}
 
-      void circle::operator() (const graphics& g, const brush& b, const core::point& pt) const {
+      void circle::operator() (graphics& g, const brush& b, const core::point& pt) const {
         g.fill(draw::pie(pt, radius, 0, 360), b);
       }
 
@@ -52,7 +52,7 @@ namespace gui {
         : radius(radius)
       {}
 
-      void diamond::operator() (const graphics& g, const brush& b, const core::point& pt) const {
+      void diamond::operator() (graphics& g, const brush& b, const core::point& pt) const {
         g.fill(draw::polygon({ pt.dx(-radius), pt.dy(-radius), pt.dx(radius), pt.dy(radius) }), b);
       }
 
@@ -61,7 +61,7 @@ namespace gui {
         : radius(radius)
       {}
 
-      void cross::operator() (const graphics& g, const brush& b, const core::point& pt) const {
+      void cross::operator() (graphics& g, const brush& b, const core::point& pt) const {
         g.frame(draw::line(pt.dxy(-radius, -radius), pt.dxy(radius, radius)), b.color());
         g.frame(draw::line(pt.dxy(-radius, radius), pt.dxy(radius, -radius)), b.color());
       }
@@ -71,7 +71,7 @@ namespace gui {
         : radius(radius)
       {}
 
-      void square::operator() (const graphics& g, const brush& b, const core::point& pt) const {
+      void square::operator() (graphics& g, const brush& b, const core::point& pt) const {
         g.fill(draw::rectangle(pt.dxy(-radius, -radius), pt.dxy(radius, radius)), b);
       }
 

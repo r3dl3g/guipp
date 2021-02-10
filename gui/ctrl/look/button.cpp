@@ -233,7 +233,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void button_frame<look_and_feel_t::w95> (const draw::graphics& graph,
+    void button_frame<look_and_feel_t::w95> (draw::graphics& graph,
                                              const core::rectangle& r,
                                              bool enabled, bool pushed, bool hilited, bool focused) {
       core::rectangle area = r;
@@ -289,7 +289,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void button_frame<look_and_feel_t::w10> (const draw::graphics& graph,
+    void button_frame<look_and_feel_t::w10> (draw::graphics& graph,
                                              const core::rectangle& r,
                                              bool enabled, bool pushed, bool hilited, bool focused) {
       graph.draw(draw::rectangle(r),
@@ -299,7 +299,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void button_frame<look_and_feel_t::metal> (const draw::graphics& graph,
+    void button_frame<look_and_feel_t::metal> (draw::graphics& graph,
                                                const core::rectangle& r,
                                                bool enabled, bool pushed, bool hilited, bool focused) {
       if (enabled && hilited) {
@@ -320,7 +320,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void button_frame<look_and_feel_t::osx> (const draw::graphics& graph,
+    void button_frame<look_and_feel_t::osx> (draw::graphics& graph,
                                              const core::rectangle& r,
                                              bool enabled, bool pushed, bool hilite, bool focused) {
       if (!enabled) {
@@ -335,7 +335,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void simple_frame (const draw::graphics& graph,
+    void simple_frame (draw::graphics& graph,
                        const core::rectangle& r,
                        bool hilite,
                        uint32_t horizontal,
@@ -346,7 +346,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void flat_button (const draw::graphics& g,
+    void flat_button (draw::graphics& g,
                       const core::rectangle& r,
                       const std::string& text,
                       const core::button_state::is& state,
@@ -384,7 +384,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void push_button (const draw::graphics& graph,
+    void push_button (draw::graphics& graph,
                       const core::rectangle& r,
                       const std::string& text,
                       const core::button_state::is& state) {
@@ -396,7 +396,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void tab_button<look_and_feel_t::metal> (const draw::graphics& g,
+    void tab_button<look_and_feel_t::metal> (draw::graphics& g,
                                              const core::rectangle& r,
                                              const std::string& text,
                                              const core::button_state::is& state,
@@ -441,7 +441,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void switch_button (const draw::graphics& graph,
+    void switch_button (draw::graphics& graph,
                         const core::rectangle& rect,
                         const std::string& text,
                         const core::button_state::is& state) {
@@ -449,7 +449,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void animated_switch_button (const draw::graphics& graph,
+    void animated_switch_button (draw::graphics& graph,
                                  const core::rectangle& rect,
                                  const std::string& text,
                                  const core::button_state::is& state,
@@ -480,7 +480,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void radio_button_t<look_and_feel_t::w95> (const draw::graphics& graph,
+    void radio_button_t<look_and_feel_t::w95> (draw::graphics& graph,
                                                const core::rectangle& rec,
                                                const std::string& text,
                                                const core::button_state::is& state) {
@@ -520,7 +520,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void radio_button_t<look_and_feel_t::w10> (const draw::graphics& graph,
+    void radio_button_t<look_and_feel_t::w10> (draw::graphics& graph,
                                                const core::rectangle& rec,
                                                const std::string& text,
                                                const core::button_state::is& state) {
@@ -545,7 +545,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void radio_button_t<look_and_feel_t::metal> (const draw::graphics& graph,
+    void radio_button_t<look_and_feel_t::metal> (draw::graphics& graph,
                                                  const core::rectangle& rec,
                                                  const std::string& text,
                                                  const core::button_state::is& state) {
@@ -559,7 +559,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void radio_button_t<look_and_feel_t::osx> (const draw::graphics& graph,
+    void radio_button_t<look_and_feel_t::osx> (draw::graphics& graph,
                                                const core::rectangle& rec,
                                                const std::string& text,
                                                const core::button_state::is& state) {
@@ -572,7 +572,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void radio_button (const draw::graphics& graph,
+    void radio_button (draw::graphics& graph,
                        const core::rectangle& rec,
                        const std::string& text,
                        const core::button_state::is& state) {
@@ -581,7 +581,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void check_box_t<look_and_feel_t::w95> (const draw::graphics& graph,
+    void check_box_t<look_and_feel_t::w95> (draw::graphics& graph,
                                             const core::rectangle& rec,
                                             const std::string& text,
                                             const core::button_state::is& state) {
@@ -615,7 +615,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void check_box_t<look_and_feel_t::w10> (const draw::graphics& graph,
+    void check_box_t<look_and_feel_t::w10> (draw::graphics& graph,
                                             const core::rectangle& rec,
                                             const std::string& text,
                                             const core::button_state::is& state) {
@@ -639,7 +639,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void check_box_t<look_and_feel_t::metal> (const draw::graphics& graph,
+    void check_box_t<look_and_feel_t::metal> (draw::graphics& graph,
                                               const core::rectangle& rec,
                                               const std::string& text,
                                               const core::button_state::is& state) {
@@ -653,7 +653,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void check_box_t<look_and_feel_t::osx> (const draw::graphics& graph,
+    void check_box_t<look_and_feel_t::osx> (draw::graphics& graph,
                                             const core::rectangle& rec,
                                             const std::string& text,
                                             const core::button_state::is& state) {
@@ -666,7 +666,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void check_box (const draw::graphics& graph,
+    void check_box (draw::graphics& graph,
                     const core::rectangle& rec,
                     const std::string& text,
                     const core::button_state::is& state) {

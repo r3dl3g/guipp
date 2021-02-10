@@ -164,22 +164,28 @@ namespace gui {
     };
 
     bool container::handle_event (const core::event& e, gui::os::event_result& r) {
-      bool ret = super::handle_event(e, r);
       if (paint_event::match(e)) {
         // ToDo: clip graphics output region to childs surface area
         // ToDo Problem: clips are stored in stack in draw::graphics.
+        core::context* cntxt = paint_event::Caller::get_param<0>(e);
+        core::clip clp(*cntxt, surface_area());
+        bool ret = super::handle_event(e, r);
         for (auto& w : children) {
           auto state = w->get_state();
           if (state.created() && state.visible() && !state.overlapped()) {
-            w->handle_event(e, r);
+            core::clip clp2(*cntxt, w->surface_area());
+            ret |= w->handle_event(e, r);
           }
         }
+        return ret;
       } else if (mouse_move_event::match(e)) {
         core::point pt = mouse_move_event::Caller::get_param<1>(e);
         for (auto& w : reverse(children)) {
           auto state = w->get_state();
           if (state.created() && state.visible() && state.enabled() && !state.overlapped() && w->surface_area().is_inside(pt)) {
-            if (w->handle_event(e, r)) break;
+            if (w->handle_event(e, r)) {
+              return true;
+            }
           }
         }
       } else if (btn_down_event::match(e) || btn_up_event::match(e)) {
@@ -191,7 +197,7 @@ namespace gui {
           }
         }
       }
-      return ret;
+      return super::handle_event(e, r);;
     }
 
     os::event_id container::collect_event_mask () const {
@@ -224,7 +230,7 @@ namespace gui {
         destroy();
       }
 
-      os::surface get_surface () {
+      core::context get_context () {
 #ifdef GUIPP_X11
         return {pixel_store, gc};
 #elif GUIPP_QT
@@ -367,7 +373,7 @@ namespace gui {
    // --------------------------------------------------------------------------
     overlapped_window::operator os::drawable() const {
 #ifdef GUIPP_QT
-      return get_surface().get_surface().id;
+      return get_context().get_context().id;
 #else
       return id;
 #endif
@@ -477,7 +483,7 @@ namespace gui {
       super::remove_child(w);
     }
     // --------------------------------------------------------------------------
-    private_surface& overlapped_window::get_surface () const {
+    private_surface& overlapped_window::get_context () const {
       auto size = core::global::scale_to_native(client_size());
       if (!surface) {
         surface = std::make_unique<private_surface>();
@@ -493,10 +499,10 @@ namespace gui {
         focus_window->handle_event(e, r);
       } else if (expose_event::match(e)) {
 
-        private_surface& surface = get_surface();
+        private_surface& surface = get_context();
         surface.begin(*this);
-        os::surface my_surface = surface.get_surface();
-        notify_event(core::WM_PAINT_WINDOW, reinterpret_cast<std::uintptr_t>(my_surface.id), reinterpret_cast<std::uintptr_t>(my_surface.g));
+        auto cntxt = surface.get_context();
+        notify_event(core::WM_PAINT_WINDOW, reinterpret_cast<std::uintptr_t>(&cntxt));
         surface.end(*this);
 
         core::global::sync();

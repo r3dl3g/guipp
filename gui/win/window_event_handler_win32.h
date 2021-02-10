@@ -287,9 +287,11 @@ namespace gui {
                                              core::params<core::rectangle>::
                                              getter<get_param<1, core::rectangle>>>;
 
-    using paint_event = core::event_handler<WM_PAINT, 0, core::params<os::surface>::
-                                                         getter<get_surface>>;
+    using paint_event = core::event_handler<core::WM_PAINT_WINDOW, 0,
+                                            core::params<os::surface>::
+                                            getter<get_surface>>;
 
+    using expose_event = core::event_handler<WM_PAINT>;
     // --------------------------------------------------------------------------
 
   } // namespace win

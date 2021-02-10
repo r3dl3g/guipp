@@ -163,7 +163,7 @@ namespace gui {
       T& iterable;
     };
 
-    bool container::handle_event (const core::event& e, gui::os::event_result& r) const {
+    bool container::handle_event (const core::event& e, gui::os::event_result& r) {
       bool ret = super::handle_event(e, r);
       if (paint_event::match(e)) {
         // ToDo: clip graphics output region to childs surface area
@@ -462,7 +462,7 @@ namespace gui {
       receiver::add_event_mask(mask);
 #ifdef GUIPP_X11
       if (is_valid()) {
-        x11::prepare_win_for_event(*this);
+        native::prepare_win_for_event(*this);
       }
 #endif
     }
@@ -486,19 +486,17 @@ namespace gui {
       return *(surface.get());
     }
     // --------------------------------------------------------------------------
-    bool overlapped_window::handle_event (const core::event& e, gui::os::event_result& r) const {
+    bool overlapped_window::handle_event (const core::event& e, gui::os::event_result& r) {
       if (mouse_move_event::match(e) && capture_window && (capture_window != this)) {
         return capture_window->handle_event(e, r);
       } else if ((any_key_down_event::match(e) || any_key_up_event::match(e)) && focus_window) {
         focus_window->handle_event(e, r);
-      } else if (paint_event::match(e)) {
+      } else if (expose_event::match(e)) {
 
         private_surface& surface = get_surface();
         surface.begin(*this);
         os::surface my_surface = surface.get_surface();
-        provide_surface_for_event(&my_surface, e);
-        bool ret = super::handle_event(e, r);
-        reject_surface_for_event(e);
+        notify_event(core::WM_PAINT_WINDOW, reinterpret_cast<std::uintptr_t>(my_surface.id), reinterpret_cast<std::uintptr_t>(my_surface.g));
         os::surface s = paint_event::Caller::get_param<0>(e);
         surface.end(*this, s);
 
@@ -604,7 +602,7 @@ namespace gui {
       }
     }
     // --------------------------------------------------------------------------
-    void overlapped_window::redraw (const core::rectangle& r) const {
+    void overlapped_window::redraw (const core::rectangle& r) {
       if (is_visible() && !get_state().redraw_disabled()) {
         clog::trace() << "redraw: " << *this;
         native::redraw(*this, get_os_window(), r);

@@ -115,7 +115,7 @@ namespace gui {
       core::point get_geometry (os::window w) {
         RECT r;
         GetWindowRect(w, &r);
-        return core::point(POINT{r.x, r.y});
+        return core::point(r);
       }
 
       void prepare (overlapped_window&) {}
@@ -186,7 +186,9 @@ namespace gui {
         }
       }
 
-      void notify_close (window& w) {}
+      void notify_close (window&) {}
+
+      void prepare_win_for_event (const overlapped_window&) {}
 
       bool is_visible (os::window id) {
         return id && IsWindowVisible(id);
@@ -231,7 +233,7 @@ namespace gui {
         InvalidateRect(id, nullptr/*&rect*/, TRUE);
       }
 
-      void redraw (const window&, os::window id, const core::rectangle& r) {
+      void redraw (window&, os::window id, const core::rectangle& r) {
 //        RECT rect = r.os();
         RedrawWindow(id, nullptr/*&rect*/, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
       }
@@ -366,6 +368,34 @@ namespace gui {
         SelectObject(sdc, old);
         DeleteDC(sdc);
         ReleaseDC(NULL, dc);
+      }
+
+      void send_client_message (window* win, os::message_type message, long l1, long l2) {
+        if (win && win->is_valid()) {
+          gui::os::event_result result;
+          core::event e{ NULL, message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2) };
+          win->handle_event(e, result);
+        }
+      }
+
+      void send_client_message (window* win, os::message_type message, const core::size& sz) {
+        if (win && win->is_valid()) {
+          gui::os::event_result result;
+          os::size s = sz;
+          long l2 = (long)s.cy << 16 | (long)s.cx;
+          core::event e{ NULL, message, 0, static_cast<LPARAM>(l2)};
+          win->handle_event(e, result);
+        }
+      }
+
+      void send_client_message (window* win, os::message_type message, const core::rectangle& wr) {
+        if (win && win->is_valid()) {
+          gui::os::event_result result;
+          core::native_rect r = core::global::scale_to_native(wr);
+          WINDOWPOS wp{NULL, NULL, r.x(), r.y(), static_cast<int>(r.width()), static_cast<int>(r.height()), 0};
+          core::event e { NULL, message, 0, reinterpret_cast<LPARAM>(&wp)};
+          win->handle_event(e, result);
+        }
       }
 
     } // namespace native

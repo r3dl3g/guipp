@@ -64,7 +64,7 @@ namespace gui {
 
       void unregister_event_handler (const event_handler_function&);
 
-      bool handle_event (const event& e, gui::os::event_result& result) const;
+      bool handle_event (const event& e, gui::os::event_result& result);
 
     private:
 

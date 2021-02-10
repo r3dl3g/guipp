@@ -30,16 +30,6 @@ namespace gui {
     class overlapped_window;
 
     // --------------------------------------------------------------------------
-    namespace x11 {
-
-      GUIPP_WIN_EXPORT void send_client_message (window* win, Atom message,
-                                                 long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0);
-
-      GUIPP_WIN_EXPORT void prepare_win_for_event (const overlapped_window& win);
-
-    } // namespace x11
-
-    // --------------------------------------------------------------------------
     template<os::event_id id, os::event_id btn>
     bool event_button_matcher (const core::event& e) {
       return (e.type == id) && (e.xbutton.button == btn);
@@ -211,9 +201,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT window* get_current_focus_window (const core::event&);
     // --------------------------------------------------------------------------
-    GUIPP_WIN_EXPORT os::graphics get_graphics (const core::event&);
+//    GUIPP_WIN_EXPORT os::graphics get_graphics (const core::event&);
     // --------------------------------------------------------------------------
-    GUIPP_WIN_EXPORT os::window get_draw_window (const core::event&);
+//    GUIPP_WIN_EXPORT os::window get_draw_window (const core::event&);
     // --------------------------------------------------------------------------
     template<os::message_type& M>
     inline bool client_message_matcher (const core::event& e) {
@@ -405,38 +395,42 @@ namespace gui {
     using lost_focus_event = core::event_handler<FocusOut, FocusChangeMask>;
 
     using mouse_enter_event = core::event_handler<EnterNotify, EnterWindowMask,
-                                            core::params<>::getter<>,
-                                            0,
-                                            event::functor<mode_matcher<NotifyNormal, EnterNotify, XCrossingEvent>>>;
+                                                  core::params<>::getter<>,
+                                                  0,
+                                                  event::functor<mode_matcher<NotifyNormal, EnterNotify, XCrossingEvent>>>;
     using mouse_leave_event = core::event_handler<LeaveNotify, LeaveWindowMask,
-                                            core::params<>::getter<>,
-                                            0,
-                                            event::functor<mode_matcher<NotifyNormal, LeaveNotify, XCrossingEvent>>>;
+                                                  core::params<>::getter<>,
+                                                  0,
+                                                  event::functor<mode_matcher<NotifyNormal, LeaveNotify, XCrossingEvent>>>;
 
     using move_event = core::event_handler<ConfigureNotify, StructureNotifyMask,
-                                     core::params<core::point>::
-                                     getter<get<core::point, XConfigureEvent>::param>,
-                                     0,
-                                     event::functor<move_size_matcher<core::point,
-                                                                      ConfigureNotify,
-                                                                      XConfigureEvent>>>;
+                                           core::params<core::point>::
+                                           getter<get<core::point, XConfigureEvent>::param>,
+                                           0,
+                                           event::functor<move_size_matcher<core::point,
+                                                                            ConfigureNotify,
+                                                                            XConfigureEvent>>>;
     using size_event = core::event_handler<ConfigureNotify, StructureNotifyMask,
-                                     core::params<core::size>::
-                                     getter<get<core::size, XConfigureEvent>::param>,
-                                     0,
-                                     event::functor<move_size_matcher<core::size,
-                                                                      ConfigureNotify,
-                                                                      XConfigureEvent>>>;
+                                           core::params<core::size>::
+                                           getter<get<core::size, XConfigureEvent>::param>,
+                                           0,
+                                           event::functor<move_size_matcher<core::size,
+                                                                            ConfigureNotify,
+                                                                            XConfigureEvent>>>;
 
     using layout_event = core::event_handler<ClientMessage, 0,
-                                       core::params<core::rectangle>::
-                                       getter<get_client_data_rect>,
-                                       0,
-                                       event::functor<client_message_matcher<core::WM_LAYOUT_WINDOW>>>;
+                                             core::params<core::rectangle>::
+                                             getter<get_client_data_rect>,
+                                             0,
+                                             event::functor<client_message_matcher<core::WM_LAYOUT_WINDOW>>>;
 
-    using paint_event = core::event_handler<Expose, ExposureMask,
-                                         core::params<os::surface>::
-                                         getter<get_surface>>;
+    using paint_event = core::event_handler<ClientMessage, 0,
+                                            core::params<os::surface>::
+                                            getter<get_surface>,
+                                            0,
+                                            event::functor<client_message_matcher<core::WM_PAINT_WINDOW>>>;
+
+    using expose_event = core::event_handler<Expose, ExposureMask>;
 
     // --------------------------------------------------------------------------
 

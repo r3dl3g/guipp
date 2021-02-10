@@ -60,16 +60,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, long l1 = 0, long l2 = 0);
-    GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const core::size& sz);
-    GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const core::rectangle& wr);
-
-    // --------------------------------------------------------------------------
-    GUIPP_WIN_EXPORT void provide_surface_for_event (os::surface*, const core::event&);
-    GUIPP_WIN_EXPORT void reject_surface_for_event (const core::event&);
-    GUIPP_WIN_EXPORT os::surface* get_surface_for_event (const core::event&);
-
-    // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT os::surface get_surface (const core::event&);
 
     // --------------------------------------------------------------------------

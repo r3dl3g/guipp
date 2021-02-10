@@ -186,7 +186,7 @@ namespace gui {
 
     std::set<auto_quard> auto_quard::active_events;
 
-    bool window::handle_event (const core::event& e, gui::os::event_result& result) const {
+    bool window::handle_event (const core::event& e, gui::os::event_result& result) {
 
       auto_quard active_handler(this, IF_QT_ELSE(e.type(), e.type));
 
@@ -239,11 +239,11 @@ namespace gui {
     }
 
     void window::notify_event (os::message_type message, long l1, long l2) {
-      send_client_message(this, message, l1, l2);
+      native::send_client_message(this, message, l1, l2);
     }
 
     void window::notify_event (os::message_type message, const core::rectangle& r) {
-      send_client_message(this, message, r);
+      native::send_client_message(this, message, r);
     }
 
     void window::set_parent (container& p) {

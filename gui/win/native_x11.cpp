@@ -375,6 +375,13 @@ namespace gui {
         w.notify_event(core::x11::WM_PROTOCOLS, core::x11::WM_DELETE_WINDOW);
       }
 
+      void prepare_win_for_event (const overlapped_window& win) {
+        os::window id = detail::get_os_window(win);
+        if (id) {
+          XSelectInput(core::global::get_instance(), id, win.get_event_mask());
+        }
+      }
+
       bool is_visible (os::window id) {
         if (id) {
           XWindowAttributes a = {0};
@@ -427,7 +434,7 @@ namespace gui {
         x11::invalidate_window(id, p);
       }
 
-      void redraw (const window& w, os::window id, const core::rectangle& p) {
+      void redraw (window& w, os::window id, const core::rectangle& p) {
         XEvent event;
 
         XExposeEvent& e = event.xexpose;
@@ -444,8 +451,6 @@ namespace gui {
         gui::os::event_result result;
 
         w.handle_event(event, result);
-
-//        core::global::sync();
       }
 
       void prepare_accept_focus (os::window, bool) {
@@ -618,6 +623,46 @@ namespace gui {
         XCopyArea(core::global::get_instance(), src, target, context, from.x(), from.y(),
                   size.width(), size.height(), to.x(), to.y());
       }
+
+      // --------------------------------------------------------------------------
+      void send_client_message_ (window* win, Atom message, long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0) {
+        if (win && win->is_valid()) {
+          XEvent event;
+          XClientMessageEvent& client = event.xclient;
+
+          client.type = ClientMessage;
+          client.serial = 0;
+          client.send_event = True;
+          client.display = core::global::get_instance();
+          client.window = 0;
+          client.message_type = message;
+          client.format = 32;
+          client.data.l[0] = l1;
+          client.data.l[1] = l2;
+          client.data.l[2] = l3;
+          client.data.l[3] = l4;
+          client.data.l[4] = l5;
+
+          gui::os::event_result result = 0;
+          win->handle_event(event, result);
+        }
+      }
+
+      // --------------------------------------------------------------------------
+      void send_client_message (window* win, os::message_type message, long l1, long l2) {
+        send_client_message_(win, message, l1, l2);
+      }
+
+      void send_client_message (window* win, os::message_type message, const core::size& sz) {
+        os::size s = sz.os();
+        send_client_message_(win, message, s.cx, s.cy);
+      }
+
+      void send_client_message (window* win, os::message_type message, const core::rectangle& wr) {
+        os::rectangle r = wr.os();
+        send_client_message_(win, message, r.x, r.y, r.width, r.height);
+      }
+
 
     } // namespace native
 

@@ -64,6 +64,8 @@ namespace gui {
       GUIPP_WIN_EXPORT void close (os::window id);
       GUIPP_WIN_EXPORT void notify_close (window& w);
 
+      GUIPP_WIN_EXPORT void prepare_win_for_event (const overlapped_window& win);
+
       GUIPP_WIN_EXPORT bool is_visible (os::window id);
       GUIPP_WIN_EXPORT void set_visible (os::window id, bool s);
 
@@ -76,7 +78,7 @@ namespace gui {
       GUIPP_WIN_EXPORT void set_cursor (os::window id, const os::cursor& c);
 
       GUIPP_WIN_EXPORT void invalidate (os::window id, const core::rectangle& p);
-      GUIPP_WIN_EXPORT void redraw (const window& w, os::window id, const core::rectangle& p);
+      GUIPP_WIN_EXPORT void redraw (window& w, os::window id, const core::rectangle& p);
 
       GUIPP_WIN_EXPORT void prepare_accept_focus (os::window, bool);
 
@@ -124,6 +126,10 @@ namespace gui {
                                           const core::native_point& from,
                                           const core::native_point& to,
                                           const core::native_size& size);
+
+      GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, long l1 = 0, long l2 = 0);
+      GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const core::size& sz);
+      GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const core::rectangle& wr);
 
     } // namespace native
 

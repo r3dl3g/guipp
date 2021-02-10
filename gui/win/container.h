@@ -68,7 +68,7 @@ namespace gui {
       void to_front (window*);
       void to_back (window*);
 
-      bool handle_event (const core::event&, gui::os::event_result&) const override;
+      bool handle_event (const core::event&, gui::os::event_result&) override;
       os::event_id collect_event_mask () const override;
 
     protected:
@@ -131,7 +131,7 @@ namespace gui {
 
       void invalidate (const core::rectangle&) const;
       void invalidate () const;
-      void redraw (const core::rectangle&) const;
+      void redraw (const core::rectangle&);
 
       core::point position () const override;
       core::size client_size () const override;
@@ -147,7 +147,7 @@ namespace gui {
       void capture_pointer (window* w);
       void uncapture_pointer (window* w);
 
-      bool handle_event (const core::event&, gui::os::event_result&) const override;
+      bool handle_event (const core::event&, gui::os::event_result&) override;
       void add_event_mask (os::event_id mask) override;
 
       void remove_child (window*) override;

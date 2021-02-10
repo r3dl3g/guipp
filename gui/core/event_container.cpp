@@ -54,7 +54,7 @@ namespace gui {
       }
     }
 
-    bool event_container::handle_event (const event& ev, gui::os::event_result& resultValue) const {
+    bool event_container::handle_event (const event& ev, gui::os::event_result& resultValue) {
 
       bool result = false;
 

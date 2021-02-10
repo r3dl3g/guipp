@@ -38,6 +38,7 @@ namespace gui {
 #ifdef GUIPP_X11
     Atom WM_LAYOUT_WINDOW = 0;
     Atom WM_CREATE_WINDOW = 0;
+    Atom WM_PAINT_WINDOW = 0;
 
     namespace x11 {
 
@@ -52,6 +53,7 @@ namespace gui {
         init_atom(WM_PROTOCOLS, "WM_PROTOCOLS");
         init_atom(WM_TAKE_FOCUS, "WM_TAKE_FOCUS");
         init_atom(WM_LAYOUT_WINDOW, "WM_LAYOUT_WINDOW");
+        init_atom(WM_PAINT_WINDOW, "WM_PAINT_WINDOW");
         init_atom(GUI_LIB_WIN_PTR, "GUI_LIB_WIN_PTR");
         return 1;
       }

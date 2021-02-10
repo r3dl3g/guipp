@@ -43,6 +43,7 @@ namespace gui {
 
     const gui::os::event_id WM_CREATE_WINDOW = WM_USER + 0x100;
     const gui::os::event_id WM_LAYOUT_WINDOW = WM_USER + 0x101;
+    const gui::os::event_id WM_PAINT_WINDOW = WM_USER + 0x102;
 #endif //GUIPP_WIN
 
 #ifdef GUIPP_X11
@@ -51,6 +52,7 @@ namespace gui {
 
     extern Atom WM_LAYOUT_WINDOW;
     extern Atom WM_CREATE_WINDOW;
+    extern Atom WM_PAINT_WINDOW;
 
     namespace x11 {
 
@@ -88,10 +90,11 @@ namespace gui {
 
     const gui::os::event_id WM_LAYOUT_WINDOW = QEvent::User + 0x100;
     const gui::os::event_id WM_CREATE_WINDOW = QEvent::User + 0x101;
+    const gui::os::event_id WM_PAINT_WINDOW = QEvent::User + 0x102;
 
     namespace qt {
 
-      const gui::os::event_id WM_DESTROY_WINDOW = QEvent::User + 0x102;
+      const gui::os::event_id WM_DESTROY_WINDOW = QEvent::User + 0x103;
 
     } // namespace qt
 

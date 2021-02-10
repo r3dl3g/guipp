@@ -123,6 +123,8 @@ namespace gui {
         w.notify_event(QEvent::Close);
       }
 
+      void prepare_win_for_event (const overlapped_window&) {}
+
       bool is_visible (os::window id) {
         return id && id->isVisible();
       }
@@ -163,7 +165,7 @@ namespace gui {
         }
       }
 
-      void redraw (const window&, os::window id, const core::rectangle& r) {
+      void redraw (window&, os::window id, const core::rectangle& r) {
         if (id) {
           id->requestUpdate();
         }
@@ -290,6 +292,26 @@ namespace gui {
                          const core::native_size& size) {
         QPainter p(target);
         p.drawPixmap(to.x(), to.y(), *src, from.x(), from.y(), size.width(), size.height());
+      }
+
+      void send_client_message (window* win, os::message_type message, const core::rectangle& r) {
+        if (win && win->is_valid()) {
+          gui::os::event_result result;
+          QClientEvent e(static_cast<QEvent::Type>(message), r);
+          win->handle_event(gui::core::event{nullptr, &e}, result);
+        }
+      }
+
+      void send_client_message (window* win, os::message_type message, const core::size& sz) {
+        send_client_message(win, message, core::rectangle(sz));
+      }
+
+      void send_client_message (window* win, os::message_type message, long l1, long l2) {
+        if (win && win->is_valid()) {
+          gui::os::event_result result;
+          QClientEvent e(static_cast<QEvent::Type>(message), l1, l2);
+          win->handle_event(gui::core::event{nullptr, &e}, result);
+        }
       }
 
     } // namespace native

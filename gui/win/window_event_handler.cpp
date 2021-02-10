@@ -213,11 +213,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     os::surface get_surface (const core::event& e) {
-      os::surface* s = get_surface_for_event(e);
-      if (s) {
-        return *s;
-      }
-      return {e.id, 0};
+      return {(os::drawable)e.wParam, (os::graphics)e.lParam};
     }
 
     // --------------------------------------------------------------------------
@@ -247,81 +243,8 @@ namespace gui {
       }
     }
 
-    void send_client_message (window* win, os::message_type message, long l1, long l2) {
-      if (win && win->is_valid()) {
-        gui::os::event_result result;
-        core::event e{ NULL, message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2) };
-        win->handle_event(e, result);
-      }
-    }
-
-    void send_client_message (window* win, os::message_type message, const core::size& sz) {
-      if (win && win->is_valid()) {
-        gui::os::event_result result;
-        os::size s = sz;
-        long l2 = (long)s.cy << 16 | (long)s.cx;
-        core::event e{ NULL, message, 0, static_cast<LPARAM>(l2)};
-        win->handle_event(e, result);
-      }
-    }
-
-    void send_client_message (window* win, os::message_type message, const core::rectangle& wr) {
-      if (win && win->is_valid()) {
-        gui::os::event_result result;
-        core::native_rect r = core::global::scale_to_native(wr);
-        WINDOWPOS wp{NULL, NULL, r.x(), r.y(), static_cast<int>(r.width()), static_cast<int>(r.height()), 0};
-        core::event e { NULL, message, 0, reinterpret_cast<LPARAM>(&wp)};
-        win->handle_event(e, result);
-      }
-    }
-
 #endif // Win32
 #ifdef GUIPP_X11
-    namespace x11 {
-      // --------------------------------------------------------------------------
-      void send_client_message (window* win, Atom message, long l1, long l2, long l3, long l4, long l5) {
-        if (win && win->is_valid()) {
-          XEvent event;
-          XClientMessageEvent& client = event.xclient;
-
-          client.type = ClientMessage;
-          client.serial = 0;
-          client.send_event = True;
-          client.display = core::global::get_instance();
-          client.window = 0;
-          client.message_type = message;
-          client.format = 32;
-          client.data.l[0] = l1;
-          client.data.l[1] = l2;
-          client.data.l[2] = l3;
-          client.data.l[3] = l4;
-          client.data.l[4] = l5;
-
-          gui::os::event_result result = 0;
-          win->handle_event(event, result);
-          /* Send the data off to the other process */
-//          XSendEvent(client.display, client.window, True, 0, &event);
-
-//          core::global::sync();
-        }
-      }
-
-//      void send_client_message (window* win, Atom message, const window* w, const core::rectangle& rect) {
-//        XRectangle r = rect;
-//        long l1 = (long)r.x << 16 | (long)r.y;
-//        long l2 = (long)r.width << 16 | (long)r.height;
-//        send_client_message(win, message, detail::get_os_window(*w), l1, l2);
-//      }
-
-      void prepare_win_for_event (const overlapped_window& win) {
-        os::window id = detail::get_os_window(win);
-        if (id) {
-          XSelectInput(core::global::get_instance(), id, win.get_event_mask());
-        }
-      }
-
-    } // namespace x11
-
     // --------------------------------------------------------------------------
     os::key_state get_key_state (const core::event& e) {
       return static_cast<os::key_state>(get_event_state<XKeyEvent>(e));
@@ -353,61 +276,30 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    os::graphics get_graphics (const core::event& e) {
-      return DefaultGCOfScreen(DefaultScreenOfDisplay(e.xany.display));
-    }
+//    os::graphics get_graphics (const core::event& e) {
+//      return DefaultGCOfScreen(DefaultScreenOfDisplay(e.xany.display));
+//    }
 
     // --------------------------------------------------------------------------
-    os::window get_draw_window (const core::event& e) {
-      return e.xany.window;
-    }
+//    os::window get_draw_window (const core::event& e) {
+//      return e.xany.window;
+//    }
 
     os::surface get_surface (const core::event& e) {
-      os::surface* s = get_surface_for_event(e);
-      if (s) {
-        return *s;
-      }
-      return {get_draw_window(e), get_graphics(e)};
-    }
-
-    // --------------------------------------------------------------------------
-    void send_client_message (window* win, os::message_type message, long l1, long l2) {
-      x11::send_client_message(win, message, l1, l2);
-    }
-
-    void send_client_message (window* win, os::message_type message, const core::size& sz) {
-      os::size s = sz.os();
-      long l0 = (long)s.cx << 16 | (long)s.cy;
-      x11::send_client_message(win, message, l0);
-    }
-
-    void send_client_message (window* win, os::message_type message, const core::rectangle& wr) {
-      os::size s = wr.size().os();
-      os::point p = wr.position().os();
-      long l0 = (long)p.x << 16 | (long)p.y;
-      long l1 = (long)s.cx << 16 | (long)s.cy;
-      x11::send_client_message(win, message, l1, l0, l1);
+      return {get_client_data<0, os::drawable>(e), get_client_data<1, os::graphics>(e)};
     }
 
     // --------------------------------------------------------------------------
     core::rectangle get_client_data_rect (const core::event& e) {
-      long p = e.xclient.data.l[1];
-      long s = e.xclient.data.l[2];
-      short x = p >> 16;
-      short y = p & 0xffff;
-      unsigned short w = s >> 16;
-      unsigned short h = s & 0xffff;
-      os::rectangle r = {x, y, w, h};
-      return core::rectangle(r);
+      auto& l = e.xclient.data.l;
+      return core::rectangle(os::rectangle{static_cast<short>(l[0]), static_cast<short>(l[1]),
+                                           static_cast<unsigned short>(l[2]), static_cast<unsigned short>(l[3])});
     }
 
     // --------------------------------------------------------------------------
     core::size get_client_data_size (const core::event& e) {
-      long s = e.xclient.data.l[0];
-      unsigned short w = s >> 16;
-      unsigned short h = s & 0xffff;
-      os::size sz = {w, h};
-      return core::size(sz);
+      auto& l = e.xclient.data.l;
+      return core::size(os::size{static_cast<unsigned short>(l[0]), static_cast<unsigned short>(l[1])});
     }
 
     // --------------------------------------------------------------------------
@@ -541,68 +433,21 @@ namespace gui {
       return e.cast<QClientEvent>().rect();
     }
 
-    os::graphics get_graphics (const core::event& e) {
-      return nullptr;//get_draw_window(e)->painter();
-    }
+//    os::graphics get_graphics (const core::event& e) {
+//      return nullptr;//get_draw_window(e)->painter();
+//    }
 
-    os::window get_draw_window (const core::event& e) {
-      return e.id;
-    }
+//    os::window get_draw_window (const core::event& e) {
+//      return e.id;
+//    }
 
     os::surface get_surface (const core::event& e) {
-      os::surface* s = get_surface_for_event(e);
-      if (s) {
-        return *s;
-      }
-      return os::surface{*detail::get_window(get_draw_window(e)), get_graphics(e)};
-    }
-
-    // --------------------------------------------------------------------------
-    void send_client_message (window* win, os::message_type message, const core::rectangle& r) {
-      if (win && win->is_valid()) {
-        gui::os::event_result result;
-        QClientEvent e(static_cast<QEvent::Type>(message), r);
-        win->handle_event(gui::core::event{nullptr, &e}, result);
-      }
-    }
-
-    void send_client_message (window* win, os::message_type message, const core::size& sz) {
-      send_client_message(win, message, core::rectangle(sz));
-    }
-
-    void send_client_message (window* win, os::message_type message, long l1, long l2) {
-      if (win && win->is_valid()) {
-        gui::os::event_result result;
-        QClientEvent e(static_cast<QEvent::Type>(message), l1, l2);
-        win->handle_event(gui::core::event{nullptr, &e}, result);
-      }
+      auto& ce = e.cast<QClientEvent>();
+      return {(os::drawable)ce.l1(), (os::graphics)ce.l2()};
     }
 
     // --------------------------------------------------------------------------
 #endif // GUIPP_QT
-
-    namespace {
-//        typedef std::map<const core::event*, os::surface*> surface_map;
-//        surface_map surfaces;
-
-      os::surface* shared_surface = nullptr;
-    }
-
-    void provide_surface_for_event (os::surface* s, const core::event& e) {
-      shared_surface = s;
-//        surfaces[&e] = s;
-    }
-
-    void reject_surface_for_event (const core::event& e) {
-      shared_surface = nullptr;
-//        surfaces.erase(&e);
-    }
-
-    os::surface* get_surface_for_event (const core::event& e) {
-//        auto i = surfaces.find(&e);
-//        return i != surfaces.end() ? i->second : nullptr;
-      return shared_surface;
-    }
 
   } // win
 

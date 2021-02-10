@@ -249,7 +249,7 @@ namespace gui {
 #endif
       }
 
-      void end (const win::overlapped_window& w, os::surface& s) {
+      void end (const win::overlapped_window& w) {
 #ifdef GUIPP_X11
         auto display = core::global::get_instance();
         auto id = detail::get_os_window(w);
@@ -497,8 +497,7 @@ namespace gui {
         surface.begin(*this);
         os::surface my_surface = surface.get_surface();
         notify_event(core::WM_PAINT_WINDOW, reinterpret_cast<std::uintptr_t>(my_surface.id), reinterpret_cast<std::uintptr_t>(my_surface.g));
-        os::surface s = paint_event::Caller::get_param<0>(e);
-        surface.end(*this, s);
+        surface.end(*this);
 
         core::global::sync();
 

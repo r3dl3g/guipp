@@ -53,6 +53,7 @@ namespace gui {
       typedef std::vector<window*> window_list_t;
 
       container ();
+      ~container ();
 
       bool is_parent_of (const window& child) const;
       bool is_sub_window (const window* child) const;
@@ -88,11 +89,10 @@ namespace gui {
     namespace detail {
 
       void set_os_window (overlapped_window* w, os::window id);
-      os::window get_os_window (const overlapped_window&);
 
     }
 
-    class private_surface;
+    class overlapped_context;
 
     // --------------------------------------------------------------------------
     class GUIPP_WIN_EXPORT overlapped_window : public container {
@@ -152,6 +152,8 @@ namespace gui {
 
       void remove_child (window*) override;
 
+      os::window get_os_window () const;
+
     protected:
       void create (const class_info&,
                    overlapped_window&,
@@ -172,13 +174,10 @@ namespace gui {
       void resize_native (const core::size&) override;
       void place_native (const core::rectangle&) override;
 
-      private_surface& get_context () const;
+      overlapped_context& get_context () const;
 
     private:
       friend void detail::set_os_window (overlapped_window*, os::window);
-      friend os::window detail::get_os_window (const overlapped_window&);
-
-      os::window get_os_window () const;
       void set_os_window (os::window);
 
     private:
@@ -187,7 +186,7 @@ namespace gui {
       window* capture_window;
 
       os::window id;
-      mutable std::unique_ptr<private_surface> surface;
+      mutable std::unique_ptr<overlapped_context> surface;
     };
 
     // --------------------------------------------------------------------------

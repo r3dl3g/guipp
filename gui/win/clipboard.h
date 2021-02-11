@@ -18,16 +18,21 @@
 
 #pragma once
 
+#include <string>
+#include <functional>
+
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <gui/win/window.h>
+#include <gui++-win-export.h>
 
 
 namespace gui {
 
   namespace win {
+
+    class window;
 
     class GUIPP_WIN_EXPORT clipboard {
     public:

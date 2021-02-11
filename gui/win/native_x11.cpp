@@ -376,7 +376,7 @@ namespace gui {
       }
 
       void prepare_win_for_event (const overlapped_window& win) {
-        os::window id = detail::get_os_window(win);
+        os::window id = win.get_os_window();
         if (id) {
           XSelectInput(core::global::get_instance(), id, win.get_event_mask());
         }
@@ -409,7 +409,7 @@ namespace gui {
           unsigned long mask = CWCursor;
           XSetWindowAttributes wa = {0};
           wa.cursor = on ? curs : (os::cursor)win::cursor::arrow();
-          x11::check_return(XChangeWindowAttributes(core::global::get_instance(), detail::get_os_window(w), mask, &wa));
+          x11::check_return(XChangeWindowAttributes(core::global::get_instance(), w.get_os_window(), mask, &wa));
         }
       }
 

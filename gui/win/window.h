@@ -156,6 +156,10 @@ namespace gui {
       void set_accept_focus (bool a);
 
     protected:
+      friend class container;
+      void remove_parent ();
+
+    protected:
       gui::core::state_type flags;
       core::rectangle area;
 

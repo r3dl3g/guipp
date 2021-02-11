@@ -70,6 +70,12 @@ namespace gui {
       }
     }
 
+    container::~container () {
+      for(window* win : children) {
+        win->remove_parent();
+      }
+    }
+
     void container::init () {
 //      set_accept_focus(true);
 //      on_set_focus([&] () {
@@ -211,29 +217,19 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    // TODO: In Qt we need a QBackingStore in an overlapped_window.
-    // target must be an own object type instead just os::bitmap. F.e. os::raster.
-    class private_surface {
+    class overlapped_context {
     public:
-      private_surface ()
+      overlapped_context ()
         : pixel_store(0)
         , gc(0)
       {}
 
-      void prepare (const core::native_size& sz, os::window id) {
-        if (sz != size) {
-          create(sz, id);
-        }
-      }
-
-      ~private_surface () {
+      ~overlapped_context () {
         destroy();
       }
 
       core::context get_context () {
-#ifdef GUIPP_X11
-        return {pixel_store, gc};
-#elif GUIPP_QT
+#ifdef GUIPP_QT
         return {pixel_store->paintDevice(), gc};
 #else
         return {pixel_store, gc};
@@ -245,9 +241,12 @@ namespace gui {
       }
 
       void begin (const win::overlapped_window& w) {
-#ifdef GUIPP_X11
-        native::erase(pixel_store, gc, core::native_rect(size), w.get_window_class().get_background());
-#elif GUIPP_QT
+        auto id = w.get_os_window();
+        auto sz = core::global::scale_to_native(w.client_size());
+        if (sz != size) {
+          create(sz, id);
+        }
+#ifdef GUIPP_QT
         pixel_store->beginPaint(QRegion(0, 0, size.width(), size.height()));
         gc->begin(pixel_store->paintDevice());
 #else
@@ -258,15 +257,16 @@ namespace gui {
       void end (const win::overlapped_window& w) {
 #ifdef GUIPP_X11
         auto display = core::global::get_instance();
-        auto id = detail::get_os_window(w);
+        auto id = w.get_os_window();
         XSetWindowBackgroundPixmap(display, id, pixel_store);
         XClearWindow(display, id);
+//        XFlush(display);
 #elif GUIPP_QT
         gc->end();
         pixel_store->endPaint();
-        pixel_store->flush(QRegion(0, 0, size.width(), size.height()), detail::get_os_window(w));
-#else
-        auto id = detail::get_os_window(w);
+        pixel_store->flush(QRegion(0, 0, size.width(), size.height()), w.get_os_window());
+#elif GUIPP_WIN
+        auto id = w.get_os_window();
         PAINTSTRUCT ps;
         os::graphics pgc = BeginPaint(id, &ps);
         BitBlt(pgc, 0, 0, size.width(), size.height(), gc, 0, 0, SRCCOPY);
@@ -444,7 +444,7 @@ namespace gui {
                                     const core::rectangle& r) {
       set_parent(parent);
       create_internal(cls,
-                      native::get_overlapped_parent(detail::get_os_window(parent)),
+                      native::get_overlapped_parent(parent.get_os_window()),
                       native::adjust_overlapped_area(r, cls));
     }
     // --------------------------------------------------------------------------
@@ -483,12 +483,10 @@ namespace gui {
       super::remove_child(w);
     }
     // --------------------------------------------------------------------------
-    private_surface& overlapped_window::get_context () const {
-      auto size = core::global::scale_to_native(client_size());
+    overlapped_context& overlapped_window::get_context () const {
       if (!surface) {
-        surface = std::make_unique<private_surface>();
+        surface = std::make_unique<overlapped_context>();
       }
-      surface->prepare(size, get_os_window());
       return *(surface.get());
     }
     // --------------------------------------------------------------------------
@@ -499,7 +497,7 @@ namespace gui {
         focus_window->handle_event(e, r);
       } else if (expose_event::match(e)) {
 
-        private_surface& surface = get_context();
+        overlapped_context& surface = get_context();
         surface.begin(*this);
         auto cntxt = surface.get_context();
         notify_event(core::WM_PAINT_WINDOW, reinterpret_cast<std::uintptr_t>(&cntxt));
@@ -749,7 +747,7 @@ namespace gui {
 
 #ifdef GUIPP_QT
 # ifndef GUIPP_BUILD_FOR_MOBILE
-      detail::get_os_window(*this)->setModality(Qt::WindowModality::ApplicationModal);
+      get_os_window()->setModality(Qt::WindowModality::ApplicationModal);
 # endif
 #else
       parent.disable();
@@ -811,19 +809,19 @@ namespace gui {
     // --------------------------------------------------------------------------
     void main_window::create (const class_info& cls, const core::rectangle& r) {
       super::create(cls, r);
-      native::prepare_main_window(detail::get_os_window(*this));
+      native::prepare_main_window(get_os_window());
     }
 
     // --------------------------------------------------------------------------
     void popup_window::create (const class_info& cls, overlapped_window& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
-      native::prepare_popup_window(detail::get_os_window(*this));
+      native::prepare_popup_window(get_os_window());
     }
 
     // --------------------------------------------------------------------------
     void dialog_window::create (const class_info& cls, overlapped_window& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
-      native::prepare_dialog_window(detail::get_os_window(*this), detail::get_os_window(parent));
+      native::prepare_dialog_window(get_os_window(), parent.get_os_window());
     }
 
     // --------------------------------------------------------------------------

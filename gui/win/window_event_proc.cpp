@@ -75,14 +75,6 @@ namespace gui {
 
   namespace win {
 
-    namespace detail {
-
-      os::window get_os_window (const overlapped_window& win) {
-        return win.get_os_window();
-      }
-
-    } // namespace detail
-
 #ifdef GUIPP_WIN
     namespace detail {
 
@@ -350,7 +342,7 @@ namespace gui {
         os::window root = NULL;
         if (win && win->is_valid()) {
           auto& o = win->get_overlapped_window();
-          root = detail::get_os_window(o);
+          root = o.get_os_window();
         }
         RegisterHotKey(root, hk.get_key(), modifiers, hk.get_key());
 #elif GUIPP_X11
@@ -359,14 +351,13 @@ namespace gui {
         if (win && win->is_valid()) {
           auto& o = win->get_overlapped_window();
           o.add_event_mask(KeyPressMask);
-          root = detail::get_os_window(o);
+          root = o.get_os_window();
         }
         XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root, False, GrabModeAsync, GrabModeAsync);
 #elif GUIPP_QT
         os::window root = (os::window)QGuiApplication::topLevelWindows().first();
         if (win && win->is_valid()) {
-          auto& o = win->get_overlapped_window();
-          root = detail::get_os_window(o);
+          root = win->get_overlapped_window().get_os_window();
         }
 #endif
         detail::hot_keys.emplace(hk, std::make_pair(root, fn));
@@ -496,7 +487,7 @@ namespace gui {
       }
       
       void register_utf8_window (const window& win) {
-        os::window id = detail::get_os_window(win.get_overlapped_window());
+        os::window id = win.get_overlapped_window().get_os_window();
 
         if (!id) {
           return;
@@ -525,7 +516,7 @@ namespace gui {
       }
 
       void unregister_utf8_window (const window& win) {
-        os::window id = detail::get_os_window(win.get_overlapped_window());
+        os::window id = win.get_overlapped_window().get_os_window();
 
         auto i = x11::s_window_ic_map.find(id);
         if (i != x11::s_window_ic_map.end()) {
@@ -587,7 +578,7 @@ namespace gui {
         POINT pt = {GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)};
         ClientToScreen(e.id, &pt);
         RECT r;
-        GetWindowRect(detail::get_os_window(w.get_overlapped_window()), &r);
+        GetWindowRect(w.get_overlapped_window().get_os_window(), &r);
         return !PtInRect(&r, pt);
       }
       }
@@ -599,7 +590,7 @@ namespace gui {
       switch (e.type) {
       case ButtonPress:
       case ButtonRelease: {
-        if (e.xbutton.window == detail::get_os_window(w.get_overlapped_window())) {
+        if (e.xbutton.window == w.get_overlapped_window().get_os_window()) {
           return false;
         }
         int x, y;
@@ -707,7 +698,7 @@ namespace gui {
         FD_SET(x11_fd, &in_fds);
 
         // Define our timeout. Ten milliseconds sounds good.
-        timeval timeout {.tv_sec = 0, .tv_usec = 10000 };
+        timeval timeout {.tv_sec = 0, .tv_usec = 50000 };
         // Wait for next XEvent or a timer out
         const int num_ready_fds = select(x11_fd + 1, &in_fds, nullptr, nullptr, &timeout);
 
@@ -747,6 +738,8 @@ namespace gui {
           }
         }
         x11::s_invalidated_windows.clear();
+
+//        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
       }
       return resultValue;

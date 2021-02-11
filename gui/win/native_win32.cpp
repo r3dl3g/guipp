@@ -204,7 +204,7 @@ namespace gui {
         gui::os::style ws = w.get_window_class().get_style();
         if ((ws & WS_POPUP) != WS_POPUP) {
           // For WS_POPUP EnableWindow(, false) causes an empty window.
-          EnableWindow(detail::get_os_window(w), on);
+          EnableWindow(w.get_os_window(), on);
         }
       }
 

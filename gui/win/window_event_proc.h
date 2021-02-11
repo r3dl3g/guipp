@@ -68,7 +68,6 @@ namespace gui {
     namespace detail {
 
       GUIPP_WIN_EXPORT overlapped_window* get_window (os::window id);
-      GUIPP_WIN_EXPORT os::window get_os_window (const overlapped_window& win);
       GUIPP_WIN_EXPORT void set_os_window (overlapped_window* win, os::window id);
       GUIPP_WIN_EXPORT void unset_os_window (os::window id);
 

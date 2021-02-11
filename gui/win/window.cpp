@@ -255,6 +255,12 @@ namespace gui {
       p.add_child(this);
     }
 
+    void window::remove_parent () {
+      // just set to null, no remove_child. This method will only be called,
+      // if the parent is destroyed before the child!
+      parent = nullptr;
+    }
+
     container* window::get_parent () const {
       return parent;
     }

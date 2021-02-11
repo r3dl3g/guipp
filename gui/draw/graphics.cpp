@@ -82,31 +82,18 @@ namespace gui {
 
 #ifdef GUIPP_WIN
     // --------------------------------------------------------------------------
-    graphics::graphics (os::drawable target, os::graphics gc)
-      : gc(gc)
-      , target(target)
-      , own_gc(false)
+    graphics::graphics (core::context* ctx)
+      : ctx(ctx)
+      , own_gctx(false)
     {}
 
     graphics::graphics (draw::basic_map& target)
-      : gc(0)
-      , target(target)
-      , own_gc(false)
+      : ctx(0)
+      , own_gctx(true)
     {
-      HDC gdc = GetDC(NULL);
-      gc = CreateCompatibleDC(gdc);
-      own_gc = true;
-      ReleaseDC(NULL, gdc);
+      ctx = new core::context(target);
 
-      SelectObject(gc, target.get_os_bitmap());
-    }
-
-    graphics::graphics (graphics& rhs)
-      : gc(0)
-      , target(0)
-      , own_gc(false)
-    {
-      operator= (rhs);
+      SelectObject(gc(), target.get_os_bitmap());
     }
 
     graphics::~graphics () {
@@ -114,57 +101,43 @@ namespace gui {
     }
 
     void graphics::destroy () {
-      if (gc) {
-        if (own_gc) {
-          DeleteDC(gc);
+      if (ctx) {
+        if (own_gctx) {
+          delete ctx;
         }
+        ctx = 0;
       }
-      gc = 0;
-      own_gc = false;
-    }
-
-    graphics& graphics::operator= (graphics& rhs) {
-      if (&rhs != this) {
-        destroy();
-        target = rhs.target;
-        own_gc = rhs.own_gc;
-        if (own_gc) {
-          gc = CreateCompatibleDC(rhs.gc);
-        } else {
-          gc = rhs.gc;
-        }
-      }
-      return *this;
+      own_gctx = false;
     }
 
     graphics& graphics::draw_pixel (const core::native_point& pt,
                                           os::color c) {
-      SetPixel(gc, pt.x(), pt.y(), c);
+      SetPixel(gc(), pt.x(), pt.y(), c);
       return *this;
     }
 
     os::color graphics::get_pixel (const core::native_point& pt) const {
-      return GetPixel(gc, pt.x(), pt.y());
+      return GetPixel(gc(), pt.x(), pt.y());
     }
 
     graphics& graphics::draw_lines (const std::vector<core::point>& points,
                                           const pen& p) {
-      Use<pen> pn(gc, p);
+      Use<pen> pn(gc(), p);
       const auto off = p.os_size() / 2;
       bool first = true;
       for (const core::point& pt : points) {
         if (first) {
           first = false;
-          MoveToEx(gc, pt.os_x() + off, pt.os_y() + off, nullptr);
+          MoveToEx(gc(), pt.os_x() + off, pt.os_y() + off, nullptr);
         } else {
-          LineTo(gc, pt.os_x() + off, pt.os_y() + off);
+          LineTo(gc(), pt.os_x() + off, pt.os_y() + off);
         }
       }
       return *this;
     }
 
     graphics& graphics::copy_from (graphics& src, const core::native_rect& r, const core::native_point& pt) {
-      if (!BitBlt(gc, pt.x(), pt.y(), r.width(), r.height(),
+      if (!BitBlt(gc(), pt.x(), pt.y(), r.width(), r.height(),
                   src, r.x(), r.y(), SRCCOPY)) {
         throw std::runtime_error("graphics::copy_from failed");
       }
@@ -177,16 +150,16 @@ namespace gui {
                                          const copy_mode mode) {
       HDC source_gc = GetDC((HWND)w);
       if (!source_gc) {
-        source_gc = CreateCompatibleDC(gc);
+        source_gc = CreateCompatibleDC(gc());
         HGDIOBJ old = SelectObject(source_gc, w);
-        if (!BitBlt(gc, pt.x(), pt.y(), r.width(), r.height(),
+        if (!BitBlt(gc(), pt.x(), pt.y(), r.width(), r.height(),
                     source_gc, r.x(), r.y(), static_cast<uint32_t>(mode))) {
           throw std::runtime_error("graphics::copy_from failed");
         }
         SelectObject(source_gc, old);
         DeleteDC(source_gc);
       } else {
-        if (!BitBlt(gc, pt.x(), pt.y(), r.width(), r.height(),
+        if (!BitBlt(gc(), pt.x(), pt.y(), r.width(), r.height(),
                     source_gc, r.x(), r.y(), static_cast<uint32_t>(mode))) {
           throw std::runtime_error("graphics::copy_from failed");
         }
@@ -201,16 +174,16 @@ namespace gui {
                                             const core::rectangle& dst) {
       HDC source_gc = GetDC((HWND)w);
       if (!source_gc) {
-        source_gc = CreateCompatibleDC(gc);
+        source_gc = CreateCompatibleDC(gc());
         HGDIOBJ old = SelectObject(source_gc, w);
-        if (!StretchBlt(gc, dst.os_x(), dst.os_y(), dst.os_width(), dst.os_height(),
+        if (!StretchBlt(gc(), dst.os_x(), dst.os_y(), dst.os_width(), dst.os_height(),
                         source_gc, src.os_x(), src.os_y(), src.os_width(), src.os_height(), SRCCOPY)) {
           throw std::runtime_error("graphics::stretch_from failed");
         }
         SelectObject(source_gc, old);
         DeleteDC(source_gc);
       } else {
-        if (!StretchBlt(gc, dst.os_x(), dst.os_y(), dst.os_width(), dst.os_height(),
+        if (!StretchBlt(gc(), dst.os_x(), dst.os_y(), dst.os_width(), dst.os_height(),
                         source_gc, src.os_x(), src.os_y(), src.os_width(), src.os_height(), SRCCOPY)) {
           throw std::runtime_error("graphics::stretch_from failed");
         }
@@ -223,15 +196,15 @@ namespace gui {
     graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) {
       if (bmp.mask) {
         core::native_size sz = bmp.mask.native_size();
-        HDC mask_dc = CreateCompatibleDC(gc);
+        HDC mask_dc = CreateCompatibleDC(gc());
         SelectObject(mask_dc, bmp.mask.get_os_bitmap());
-        BitBlt(gc, pt.x(), pt.y(), sz.width(), sz.height(), mask_dc, 0, 0, static_cast<int>(copy_mode::bit_and)); //DSna, https://docs.microsoft.com/en-us/windows/win32/gdi/ternary-raster-operations
+        BitBlt(gc(), pt.x(), pt.y(), sz.width(), sz.height(), mask_dc, 0, 0, static_cast<int>(copy_mode::bit_and)); //DSna, https://docs.microsoft.com/en-us/windows/win32/gdi/ternary-raster-operations
         DeleteDC(mask_dc);
         if (bmp.image) {
           core::native_size sz = bmp.image.native_size();
-          HDC img_dc = CreateCompatibleDC(gc);
+          HDC img_dc = CreateCompatibleDC(gc());
           SelectObject(img_dc, bmp.image.get_os_bitmap());
-          BitBlt(gc, pt.x(), pt.y(), sz.width(), sz.height(), img_dc, 0, 0, static_cast<int>(copy_mode::bit_or));  // DSo
+          BitBlt(gc(), pt.x(), pt.y(), sz.width(), sz.height(), img_dc, 0, 0, static_cast<int>(copy_mode::bit_or));  // DSo
           DeleteDC(img_dc);
         }
 
@@ -244,7 +217,7 @@ namespace gui {
 
     void graphics::invert (const core::rectangle& r) {
       RECT rect = r;
-      InvertRect(gc, &rect);
+      InvertRect(gc(), &rect);
     }
 
     void graphics::flush () {
@@ -252,19 +225,19 @@ namespace gui {
     }
 
     int graphics::depth () const {
-      return GetDeviceCaps(gc, BITSPIXEL);
+      return GetDeviceCaps(gc(), BITSPIXEL);
     }
 
     core::native_rect graphics::native_area () const {
       core::native_rect r = {0, 0, 0, 0};
-      os::window id = WindowFromDC(gc);
+      os::window id = WindowFromDC(gc());
       if (id) {
         RECT s;
         GetWindowRect(id, &s);
         r.width(std::abs(s.right - s.left));
         r.height(std::abs(s.bottom - s.top));
       } else {
-        HGDIOBJ hBmp = GetCurrentObject(gc, OBJ_BITMAP);
+        HGDIOBJ hBmp = GetCurrentObject(gc(), OBJ_BITMAP);
         if (hBmp) {
           BITMAP bmp;
           memset(&bmp, 0, sizeof (BITMAP));
@@ -272,8 +245,8 @@ namespace gui {
           r.width(bmp.bmWidth);
           r.height(bmp.bmHeight);
         } else {
-          r.width(GetDeviceCaps(gc, HORZRES));
-          r.height(GetDeviceCaps(gc, VERTRES));
+          r.width(GetDeviceCaps(gc(), HORZRES));
+          r.height(GetDeviceCaps(gc(), VERTRES));
         }
       }
       return r;
@@ -281,12 +254,12 @@ namespace gui {
 
     core::native_point graphics::offset () const {
       POINT pt;
-      GetViewportOrgEx(gc, &pt);
+      GetViewportOrgEx(gc(), &pt);
       return {pt.x, pt.y};
     }
 
     void graphics::set_offset (const core::native_point& o) {
-      SetViewportOrgEx(gc, o.x(), o.y(), NULL);
+      SetViewportOrgEx(gc(), o.x(), o.y(), NULL);
     }
 
 

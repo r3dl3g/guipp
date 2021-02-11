@@ -71,12 +71,6 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    draw::graphics get_param<0, draw::graphics> (const core::event& e) {
-      return draw::graphics(e.id, (os::graphics)e.wParam);
-    }
-
-    // --------------------------------------------------------------------------
-    template<>
     ctrl::event_source get_param<0, ctrl::event_source> (const core::event& e) {
       return ctrl::event_source(e.wParam);
     }

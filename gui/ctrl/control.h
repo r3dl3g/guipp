@@ -129,10 +129,6 @@ namespace gui {
     template<>
     GUIPP_CTRL_EXPORT ctrl::event_source get_param<0, ctrl::event_source>(const core::event& e);
 
-    // --------------------------------------------------------------------------
-    template<>
-    GUIPP_CTRL_EXPORT draw::graphics get_param<0, draw::graphics>(const core::event& e);
-
   } // namespace win
 
   namespace ctrl {

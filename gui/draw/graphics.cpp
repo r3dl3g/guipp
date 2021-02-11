@@ -322,8 +322,7 @@ namespace gui {
     graphics::graphics (core::context* ctx)
       : ctx(ctx)
       , own_gctx(false)
-    {
-    }
+    {}
 
     graphics::graphics (draw::basic_map& target)
       : ctx(0)
@@ -331,13 +330,6 @@ namespace gui {
     {
       ctx = new core::context(target);
     }
-
-//    graphics::graphics (graphics& rhs)
-//      : ctx(0)
-//      , own_gctx(false)
-//    {
-//      operator= (rhs);
-//    }
 
     graphics::~graphics () {
       flush();
@@ -349,23 +341,10 @@ namespace gui {
         if (own_gctx) {
           delete ctx;
         }
+        ctx = 0;
       }
-      ctx = 0;
       own_gctx = false;
     }
-
-//    graphics& graphics::operator= (graphics& rhs) {
-//      if (&rhs != this) {
-//        destroy();
-//        own_gctx = rhs.own_gctx;
-//        if (own_gctx) {
-//          ctx = new core::context(rhs.ctx);
-//        } else {
-//          ctx = rhs.ctx;
-//        }
-//      }
-//      return *this;
-//    }
 
     core::native_point graphics::offset () const {
       return offs;
@@ -528,37 +507,19 @@ namespace gui {
 
 #ifdef GUIPP_QT
     // --------------------------------------------------------------------------
-    graphics::graphics (os::drawable t, os::graphics g)
-      : target(t)
-      , gc(g)
-      , own_gc(false)
-    {
-      if (!gc) {
-        gc = new QPainter(target);
-        own_gc = true;
-      }
-      clear_clip_rect();
-    }
+    graphics::graphics (core::context* ctx)
+      : ctx(ctx)
+      , own_gctx(false)
+    {}
 
-    graphics::graphics (draw::basic_map& t)
-      : target(t)
-      , gc(nullptr)
-      , own_gc(false)
+    graphics::graphics (draw::basic_map& target)
+      : ctx(0)
+      , own_gctx(true)
     {
-      gc = new QPainter(target);
-      own_gc = true;
-      clear_clip_rect();
+      ctx = new core::context(target);
       if (depth() == 1) {
-        gc->setCompositionMode(QPainter::RasterOp_NotSource);
+        gc()->setCompositionMode(QPainter::RasterOp_NotSource);
       }
-    }
-
-    graphics::graphics (graphics& rhs)
-      : gc(rhs.gc)
-      , target(rhs.target)
-      , own_gc(false)
-    {
-      clear_clip_rect();
     }
 
     graphics::~graphics () {
@@ -566,36 +527,24 @@ namespace gui {
     }
 
     void graphics::destroy () {
-      if (own_gc) {
-        delete gc;
-        gc = nullptr;
-      }
-      own_gc = false;
-    }
-
-    graphics& graphics::operator= (graphics& rhs) {
-      if (&rhs != this) {
-        destroy();
-        target = rhs.target;
-        own_gc = rhs.own_gc;
-        if (own_gc) {
-          gc = new QPainter(target);
-        } else {
-          gc = rhs.gc;
+      if (ctx) {
+        if (own_gctx) {
+          delete ctx;
         }
+        ctx = 0;
       }
-      return *this;
+      own_gctx = false;
     }
 
     graphics& graphics::draw_pixel (const core::native_point& pt,
                                           os::color c) {
-      gc->setPen(c);
-      gc->drawPoint(pt.x(), pt.y());
+      gc()->setPen(c);
+      gc()->drawPoint(pt.x(), pt.y());
       return *this;
     }
 
     os::color graphics::get_pixel (const core::native_point& pt) const {
-      QWindow* w = dynamic_cast<QWindow*>(target);
+      QWindow* w = dynamic_cast<QWindow*>(target());
       if (w) {
         QPixmap px;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
@@ -605,7 +554,7 @@ namespace gui {
 #endif
         return px.toImage().pixel(0, 0);
       } else {
-        QPixmap* p = dynamic_cast<QPixmap*>(target);
+        QPixmap* p = dynamic_cast<QPixmap*>(target());
         if (p) {
           if (p->depth() == 1) {
             return p->toImage().pixelIndex(pt.x(), pt.y()) ? color::white : color::black;
@@ -623,7 +572,7 @@ namespace gui {
 
     graphics& graphics::draw_lines (const std::vector<core::point>& points,
                                           const pen& p) {
-      Use<pen> pn(gc, p);
+      Use<pen> pn(gc(), p);
       QVector<os::point> pointPairs;
       const auto off = p.os_size() / 2;
       bool first = true;
@@ -638,12 +587,12 @@ namespace gui {
           pointPairs.push_back(last);
         }
       }
-      gc->drawLines(pointPairs);
+      gc()->drawLines(pointPairs);
       return *this;
     }
 
     graphics& graphics::copy_from (graphics& src, const core::native_rect& r, const core::native_point& pt) {
-      return copy_from(src.target, r, pt);
+      return copy_from(src.target(), r, pt);
     }
 
     graphics& graphics::copy_from (os::drawable d,
@@ -654,17 +603,17 @@ namespace gui {
       if (w) {
         QPixmap pix;
         pix.grabWindow(w->winId(), r.os_x(), r.os_y(), r.os_width(), r.os_height());
-        const QPainter::CompositionMode oldMode = gc->compositionMode();
-        gc->setCompositionMode(static_cast<QPainter::CompositionMode>(mode));
-        gc->drawPixmap(pt.x(), pt.y(), pix);
-        gc->setCompositionMode(oldMode);
+        const QPainter::CompositionMode oldMode = gc()->compositionMode();
+        gc()->setCompositionMode(static_cast<QPainter::CompositionMode>(mode));
+        gc()->drawPixmap(pt.x(), pt.y(), pix);
+        gc()->setCompositionMode(oldMode);
       } else {
         QPixmap* p = dynamic_cast<QPixmap*>(d);
         if (p) {
-          const QPainter::CompositionMode oldMode = gc->compositionMode();
-          gc->setCompositionMode(static_cast<QPainter::CompositionMode>(mode));
-          gc->drawPixmap(pt.x(), pt.y(), *p);
-          gc->setCompositionMode(oldMode);
+          const QPainter::CompositionMode oldMode = gc()->compositionMode();
+          gc()->setCompositionMode(static_cast<QPainter::CompositionMode>(mode));
+          gc()->drawPixmap(pt.x(), pt.y(), *p);
+          gc()->setCompositionMode(oldMode);
         }
       }
       return *this;
@@ -675,55 +624,55 @@ namespace gui {
 //        QImage img = bmp.mask.get_os_bitmap()->toImage();
 //        img.invertPixels();
 //        QBitmap mask = QBitmap::fromImage(img);
-//        gc->setClipRegion(QRegion(mask));
-        gc->setClipRegion(QRegion(*bmp.mask.get_os_bitmap()));
-        gc->drawPixmap(pt.x(), pt.y(), *bmp.image.get_os_bitmap());
+//        gc()->setClipRegion(QRegion(mask));
+        gc()->setClipRegion(QRegion(*bmp.mask.get_os_bitmap()));
+        gc()->drawPixmap(pt.x(), pt.y(), *bmp.image.get_os_bitmap());
 //        restore_clipping();
 
-//        QPainter::CompositionMode old_mode = gc->compositionMode();
-//        gc->setCompositionMode(QPainter::RasterOp_NotSourceAndDestination);
-//        gc->drawPixmap(pt.x(), pt.y(), *bmp.mask.get_os_bitmap());
-//        gc->setCompositionMode(QPainter::RasterOp_SourceOrDestination);
-//        gc->drawPixmap(pt.x(), pt.y(), *bmp.image.get_os_bitmap());
-//        gc->setCompositionMode(old_mode);
+//        QPainter::CompositionMode old_mode = gc()->compositionMode();
+//        gc()->setCompositionMode(QPainter::RasterOp_NotSourceAndDestination);
+//        gc()->drawPixmap(pt.x(), pt.y(), *bmp.mask.get_os_bitmap());
+//        gc()->setCompositionMode(QPainter::RasterOp_SourceOrDestination);
+//        gc()->drawPixmap(pt.x(), pt.y(), *bmp.image.get_os_bitmap());
+//        gc()->setCompositionMode(old_mode);
       } else if (bmp.image) {
-        gc->drawPixmap(pt.x(), pt.y(), *bmp.image.get_os_bitmap());
+        gc()->drawPixmap(pt.x(), pt.y(), *bmp.image.get_os_bitmap());
       } else if (bmp.mask) {
-        gc->drawPixmap(pt.x(), pt.y(), *bmp.mask.get_os_bitmap());
+        gc()->drawPixmap(pt.x(), pt.y(), *bmp.mask.get_os_bitmap());
       }
       return *this;
     }
 
     graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) {
       if (bmp) {
-        gc->drawPixmap(pt.os(), *bmp.get_os_bitmap(), src.os());
+        gc()->drawPixmap(pt.os(), *bmp.get_os_bitmap(), src.os());
       }
       return *this;
     }
 
     graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_rect& src, const core::native_point& pt) {
       if (bmp) {
-        gc->drawPixmap(pt.x(), pt.y(), *bmp.get_os_bitmap(), src.x(), src.y(), src.width(), src.height());
+        gc()->drawPixmap(pt.x(), pt.y(), *bmp.get_os_bitmap(), src.x(), src.y(), src.width(), src.height());
       }
       return *this;
     }
 
     void graphics::invert (const core::rectangle& r) {
-      const QPainter::CompositionMode oldMode = gc->compositionMode();
-      gc->setCompositionMode(QPainter::RasterOp_NotDestination);
-      gc->fillRect(r.os(), Qt::white);
-      gc->setCompositionMode(oldMode);
+      const QPainter::CompositionMode oldMode = gc()->compositionMode();
+      gc()->setCompositionMode(QPainter::RasterOp_NotDestination);
+      gc()->fillRect(r.os(), Qt::white);
+      gc()->setCompositionMode(oldMode);
     }
 
     void graphics::flush () {
     }
 
     int graphics::depth () const {
-      return gc->device()->depth();
+      return gc()->device()->depth();
     }
 
     core::native_rect graphics::native_area () const {
-      auto vp = gc->viewport();
+      auto vp = gc()->viewport();
       return core::native_rect(vp.x(),
                                vp.y(),
                                static_cast<core::native_rect::size_type>(vp.width()),
@@ -735,7 +684,7 @@ namespace gui {
 
     graphics& graphics::clear (os::color color) {
 #ifdef GUIPP_QT
-      gc->fillRect(native_area(), color);
+      gc()->fillRect(native_area(), color);
       return *this;
 #else
       return draw(rectangle(area()), color, color);

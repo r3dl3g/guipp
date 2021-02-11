@@ -82,10 +82,11 @@ namespace gui {
         XftDrawSetClip(x11::get_xft_draw(ctx), None);
 #endif // GUIPP_USE_XFT
       }
-#endif // GUIPP_X11
 
     } // namespace native
 
   } // namespace core
 
 } // namespace gui
+
+#endif // GUIPP_X11

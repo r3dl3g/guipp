@@ -22,9 +22,7 @@
 //
 // Common includes
 //
-#include <QtWidgets/QApplication>
-#include <QtGui/QScreen>
-#include <QtWidgets/QDesktopWidget>
+#include <QtGui/QPainter>
 
 
 // --------------------------------------------------------------------------
@@ -42,12 +40,12 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void set_clip_rect (core::context& ctx, const core::rectangle& r) {
-        ctx.g->setClipRect(r.os());
+        ctx.graphics()->setClipRect(r.os());
       }
 
       // --------------------------------------------------------------------------
       void clear_clip_rect (core::context& ctx) {
-        ctx.g->setClipping(false);
+        ctx.graphics()->setClipping(false);
       }
 
     } // namespace native

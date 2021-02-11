@@ -29,6 +29,9 @@
 #include <logging/logger.h>
 #include <gui/core/context.h>
 #include <gui/core/native.h>
+#ifdef GUIPP_QT
+# include <QtGui/QPainter>
+#endif // GUIPP_QT
 
 
 namespace gui {
@@ -88,7 +91,17 @@ namespace gui {
       , g(0)
       , own_gc(true)
     {
+#ifdef GUIPP_WIN
+      HDC gdc = GetDC(NULL);
+      g = CreateCompatibleDC(gdc);
+      ReleaseDC(NULL, gdc);
+#endif // GUIPP_WIN
+#ifdef GUIPP_X11
       g = XCreateGC(global::get_instance(), id, 0, 0);
+#endif // GUIPP_X11
+#ifdef GUIPP_QT
+      g = new QPainter(id);
+#endif // GUIPP_QT
       clippings.clear(*this);
     }
 
@@ -96,7 +109,15 @@ namespace gui {
     context::~context () {
       clippings.clear(*this);
       if (own_gc) {
+#ifdef GUIPP_WIN
+        DeleteDC(g);
+#endif // GUIPP_WIN
+#ifdef GUIPP_X11
         XFreeGC(global::get_instance(), g);
+#endif // GUIPP_X11
+#ifdef GUIPP_QT
+        delete g;
+#endif // GUIPP_QT
         own_gc = false;
         g = 0;
       }

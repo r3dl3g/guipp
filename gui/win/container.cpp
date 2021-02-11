@@ -373,7 +373,7 @@ namespace gui {
    // --------------------------------------------------------------------------
     overlapped_window::operator os::drawable() const {
 #ifdef GUIPP_QT
-      return get_context().get_context().id;
+      return get_context().get_context().drawable();
 #else
       return id;
 #endif

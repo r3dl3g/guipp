@@ -92,8 +92,6 @@ namespace gui {
       , own_gctx(true)
     {
       ctx = new core::context(target);
-
-      SelectObject(gc(), target.get_os_bitmap());
     }
 
     graphics::~graphics () {
@@ -490,9 +488,6 @@ namespace gui {
       , own_gctx(true)
     {
       ctx = new core::context(target);
-      if (depth() == 1) {
-        gc()->setCompositionMode(QPainter::RasterOp_NotSource);
-      }
     }
 
     graphics::~graphics () {

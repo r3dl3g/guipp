@@ -95,12 +95,16 @@ namespace gui {
       HDC gdc = GetDC(NULL);
       g = CreateCompatibleDC(gdc);
       ReleaseDC(NULL, gdc);
+      SelectObject(g, id);
 #endif // GUIPP_WIN
 #ifdef GUIPP_X11
       g = XCreateGC(global::get_instance(), id, 0, 0);
 #endif // GUIPP_X11
 #ifdef GUIPP_QT
       g = new QPainter(id);
+      if (g->device()->depth() == 1) {
+        g->setCompositionMode(QPainter::RasterOp_NotSource);
+      }
 #endif // GUIPP_QT
       clippings.clear(*this);
     }

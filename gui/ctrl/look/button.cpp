@@ -499,7 +499,7 @@ namespace gui {
         r.shrink(core::size(2, 2));
         graph.fill(ellipse(r), state.pushed() ? color::dark_gray : col);
       }
-      area.x(20);
+      area.move_x(20);
       graph.text(text_box(text, area, text_origin_t::vcenter_left), font::system(), col);
       if (state.focused()) {
         graph.text(bounding_box(text, area, text_origin_t::vcenter_left), font::system(), color::black);
@@ -539,7 +539,7 @@ namespace gui {
         graph.fill(ellipse(r), col);
       }
 
-      area.x(20);
+      area.move_x(20);
       graph.text(text_box(text, area, text_origin_t::vcenter_left), font::system(), col);
     }
 
@@ -552,7 +552,7 @@ namespace gui {
       core::rectangle area = rec;
       const auto& img = detail::get_metal_radio(state.checked(), !state.enabled());
       graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
-      area.x(20);
+      area.move_x(20);
       os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
       graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
     }
@@ -566,7 +566,7 @@ namespace gui {
       core::rectangle area = rec;
       const auto& img = detail::get_osx_radio(state.checked(), !state.enabled());
       graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
-      area.x(20);
+      area.move_x(20);
       os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
       graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
     }
@@ -604,7 +604,7 @@ namespace gui {
         r.shrink(core::size(2, 2));
         graph.fill(rectangle(r), state.pushed() ? color::dark_gray : col);
       }
-      area.x(20);
+      area.move_x(20);
       graph.text(text_box(text, area, text_origin_t::vcenter_left), font::system(), col);
       if (state.focused()) {
         graph.text(bounding_box(text, area, text_origin_t::vcenter_left), font::system(), color::black);
@@ -633,7 +633,7 @@ namespace gui {
         graph.frame(polyline({{r.x() + 1, y}, {r.x() + 4, y + 3}, {r.x() + 10, y - 3}}), pen(col, 2));
       }
 
-      area.x(20);
+      area.move_x(20);
       graph.text(text_box(text, area, text_origin_t::vcenter_left), font::system(), col);
     }
 
@@ -646,7 +646,7 @@ namespace gui {
       core::rectangle area = rec;
       const auto& img = detail::get_metal_checkbox(state.checked(), !state.enabled());
       graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
-      area.x(20);
+      area.move_x(20);
       os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
       graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
     }
@@ -660,7 +660,7 @@ namespace gui {
       core::rectangle area = rec;
       const auto& img = detail::get_osx_checkbox(state.checked(), !state.enabled());
       graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
-      area.x(20);
+      area.move_x(20);
       os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
       graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
     }

@@ -289,8 +289,8 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    core::rectangle basic_list<V, T>::content_area (const core::size& sz) const {
-      return super::client_area().with_size(content_size(sz));
+    core::rectangle basic_list<V, T>::content_area (const core::rectangle& r) const {
+      return r.with_size(content_size(r.size()));
     }
 
     template<orientation_t V, typename T>
@@ -497,7 +497,7 @@ namespace gui {
 
     template<orientation_t V>
     void linear_list<V>::paint (draw::graphics& graph) {
-      const core::rectangle area = super::surface_area();
+      const core::rectangle area = super::content_area(super::surface_area());
       core::rectangle place = area;
       draw::clip clp(graph, area);
 

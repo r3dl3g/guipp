@@ -149,7 +149,7 @@ namespace gui {
     template<orientation_t V>
     inline std::size_t tile_list_traits<V>::get_items_per_line (const core::size& list_size) const {
       const auto isp = get_item_spacing();
-      const auto avail = (super::get_2(list_size) - get_line_spacing() - get_item_border() * 2 + isp);
+      const auto avail = (super::get_2(list_size) - get_item_border() * 2 + isp);
       const auto need = (get_item_dimension() + isp);
       return static_cast<std::size_t>(std::max(avail / need, 1.0f));
     }
@@ -191,7 +191,7 @@ namespace gui {
 
     template<orientation_t V>
     core::rectangle basic_tile_view<V>::get_full_place_of_index (int idx) {
-      const core::rectangle list_area = super::surface_area();
+      const core::rectangle list_area = super::content_area(super::surface_area());
 
       const auto per_line = super::traits.get_items_per_line(list_area.size());
       const auto line = per_line > 0 ? static_cast<std::size_t>(idx) / per_line : 0;
@@ -209,7 +209,7 @@ namespace gui {
 
     template<orientation_t V>
     void basic_tile_view<V>::paint (draw::graphics& graph) {
-      const core::rectangle area = super::surface_area();
+      const core::rectangle area = super::content_area(super::surface_area());
       draw::clip clp(graph, area);
 
       draw::brush back_brush(super::get_background());

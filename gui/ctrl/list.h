@@ -333,7 +333,7 @@ namespace gui {
       core::size content_size (const core::size& client_sz) const;
       core::size content_size () const;
 
-      core::rectangle content_area (const core::size& sz) const;
+      core::rectangle content_area (const core::rectangle&) const;
       core::rectangle content_area () const;
 
       void adjust_scroll_bar ();

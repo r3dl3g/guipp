@@ -84,9 +84,9 @@ namespace gui {
       const auto diff = area.height() - needed_height;
       if (diff > 0) {
         if (origin_is_v_center(origin)) {
-          r.y(diff / 2);
+          r.move_y(diff / 2);
         } else if (origin_is_bottom(origin)) {
-          r.y(diff);
+          r.move_y(diff);
         }
       }
 

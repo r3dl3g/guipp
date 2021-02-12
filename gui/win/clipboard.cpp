@@ -26,7 +26,7 @@
 //
 #include <util/string_util.h>
 #include <gui/win/clipboard.h>
-#include <gui/win/container.h>
+#include <gui/win/overlapped_window.h>
 #include <limits>
 
 namespace gui {

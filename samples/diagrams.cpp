@@ -1,5 +1,5 @@
 
-#include <gui/win/container.h>
+#include <gui/win/overlapped_window.h>
 #include <gui/draw/diagram.h>
 #include <gui/core/grid.h>
 #ifdef WIN32

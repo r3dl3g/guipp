@@ -68,9 +68,11 @@ namespace gui {
 
       static const cursor& get (win::cursor_type t);
 
-      operator const os::cursor& () const;
+      operator os::cursor () const;
 
       operator bool () const;
+      bool operator== (const cursor&) const;
+      bool operator!= (const cursor&) const;
 
       cursor ();
 

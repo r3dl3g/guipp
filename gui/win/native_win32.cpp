@@ -30,7 +30,7 @@
 //
 #include <logging/logger.h>
 #include <gui/win/native.h>
-#include <gui/win/container.h>
+#include <gui/win/overlapped_window.h>
 
 #define NO_CAPTURExx
 
@@ -86,6 +86,12 @@ namespace gui {
 
       const class_info& get_window_class (const char* class_name) {
         return window_class_info_map[class_name];
+      }
+
+      void register_window_class (const class_info& type) {
+        if (0 == window_class_info_map.count(type.get_class_name())) {
+          window_class_info_map[type.get_class_name()] = type;
+        }
       }
 
       void move (os::window w, const core::point& pt) {
@@ -147,9 +153,7 @@ namespace gui {
         };
 
         ATOM cls_id = RegisterClass(&wc);
-        if (cls_id) {
-          window_class_info_map[type.get_class_name()] = type;
-        } else {
+        if (!cls_id) {
           auto error_no = GetLastError();
           if (error_no != 1410) {
             clog::trace() << getLastErrorText() << " class name length: " << name.length();
@@ -326,12 +330,21 @@ namespace gui {
       void prepare_popup_window (os::window) {}
       void prepare_dialog_window (os::window, os::window) {}
 
-      void erase (os::bitmap id, os::graphics gc, const core::native_rect& r, os::color c) {
+      void erase (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
         auto brush = CreateSolidBrush(c);
         auto old = SelectObject(gc, brush);
         Rectangle(gc, r.x(), r.y(), r.x2(), r.y2());
         SelectObject(gc, old);
         DeleteObject(brush);
+      }
+
+      void frame (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
+        auto pen = CreatePen(PS_SOLID, 1, c);
+        auto old = SelectObject(gc, pen);
+        SelectObject(gc, GetStockObject(NULL_BRUSH));
+        Rectangle(gc, r.x(), r.y(), r.x2(), r.y2());
+        SelectObject(gc, old);
+        DeleteObject(pen);
       }
 
       os::backstore create_surface (const core::native_size& size, os::window id) {

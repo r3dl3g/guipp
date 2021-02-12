@@ -83,7 +83,7 @@ namespace gui {
       return background;
     }
 
-    os::cursor class_info::get_cursor () const {
+    const win::cursor& class_info::get_cursor () const {
       return cursor;
     }
 

@@ -25,6 +25,7 @@ if(NOT TARGET gui++-win)
       native_qt.cpp
       native_win32.cpp
       native_x11.cpp
+      overlapped_window.cpp
       receiver.cpp
       window.cpp
       window_class.cpp
@@ -35,7 +36,6 @@ if(NOT TARGET gui++-win)
   set(INCLUDE_FILES
       clipboard.h
       container.h
-      container.inl
       container_class_qt.h
       container_class_win32.h
       container_class_x11.h
@@ -43,6 +43,8 @@ if(NOT TARGET gui++-win)
       cursor.inl
       dbg_win_message.h
       native.h
+      overlapped_window.h
+      overlapped_window.inl
       receiver.h
       receiver.inl
       window.h

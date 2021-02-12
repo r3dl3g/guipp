@@ -22,7 +22,7 @@
 //
 // Library includes
 //
-#include <gui/win/container.h>
+#include <gui/win/overlapped_window.h>
 #include <gui/draw/bitmap.h>
 #include <gui/ctrl/control.h>
 

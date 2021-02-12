@@ -32,7 +32,7 @@
 //
 #include <logging/logger.h>
 #include <gui/win/native.h>
-#include <gui/win/container.h>
+#include <gui/win/overlapped_window.h>
 
 
 namespace gui {
@@ -216,8 +216,16 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace native {
 
+      // TODO Register window_class also for win::window!
+
       const class_info& get_window_class (const char* class_name) {
         return window_class_info_map[class_name];
+      }
+
+      void register_window_class (const class_info& type) {
+        if (0 == window_class_info_map.count(type.get_class_name())) {
+          window_class_info_map[type.get_class_name()] = type;
+        }
       }
 
       void move (os::window w, const core::point& pt) {
@@ -352,10 +360,6 @@ namespace gui {
                                       &wa);
 
         detail::set_os_window(&data, id);
-
-        if (0 == window_class_info_map.count(type.get_class_name())) {
-          window_class_info_map[type.get_class_name()] = type;
-        }
 
         return id;
       }
@@ -592,11 +596,17 @@ namespace gui {
         x11::set_wm_protocols(display, id);
       }
 
-      void erase (os::bitmap id, os::graphics gc, const core::native_rect& r, os::color c) {
+      void erase (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
         gui::os::instance display = core::global::get_instance();
         XSetForeground(display, gc, c);
         XSetBackground(display, gc, c);
         XFillRectangle(display, id, gc, r.x(), r.y(), r.width(), r.height());
+        XDrawRectangle(display, id, gc, r.x(), r.y(), r.width(), r.height());
+      }
+
+      void frame (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
+        gui::os::instance display = core::global::get_instance();
+        XSetForeground(display, gc, c);
         XDrawRectangle(display, id, gc, r.x(), r.y(), r.width(), r.height());
       }
 

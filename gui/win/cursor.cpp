@@ -128,7 +128,7 @@ namespace gui {
       , id(IF_QT_ELSE(convert(type), 0))
     {}
 
-    cursor::operator const os::cursor& () const {
+    cursor::operator os::cursor () const {
 #ifdef GUIPP_WIN
       if ((type != cursor_type::none) && !id) {
         id = LoadCursor(nullptr, convert(type));

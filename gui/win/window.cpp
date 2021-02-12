@@ -31,7 +31,7 @@
 //
 #include <util/ostreamfmt.h>
 #include <logging/logger.h>
-#include <gui/win/container.h>
+#include <gui/win/overlapped_window.h>
 #include <gui/win/native.h>
 
 #define NO_CAPTURExx
@@ -46,19 +46,14 @@ namespace gui {
       : area(core::rectangle::def)
       , parent(nullptr)
       , class_name(nullptr)
-      , cursor()
-    {
-      init();
-    }
+    {}
 
     window::window (const window& rhs)
       : area(rhs.area)
       , parent(nullptr)
       , flags(rhs.flags)
       , class_name(nullptr)
-      , cursor()
     {
-      init();
       if (rhs.is_valid()) {
         container* p = rhs.get_parent();
         if (p) {
@@ -72,9 +67,8 @@ namespace gui {
       , parent(std::move(rhs.parent))
       , flags(std::move(rhs.flags))
       , class_name(rhs.class_name)
-      , cursor(rhs.cursor)
+      , cursor_(rhs.cursor_)
     {
-      init();
       if (parent) {
         parent->remove_child(&rhs);
         parent->add_child(this);
@@ -87,15 +81,6 @@ namespace gui {
         parent = nullptr;
       }
       set_state().created(false);
-    }
-
-    void window::init () {
-      on_key_down<core::keys::tab>([&] () {
-        get_overlapped_window().shift_focus(false);
-      });
-      on_key_down<core::keys::tab, core::state::shift>([&] () {
-        get_overlapped_window().shift_focus(true);
-      });
     }
 
     void window::create (const class_info& type,
@@ -112,6 +97,8 @@ namespace gui {
                                   const core::rectangle& r) {
       class_name = type.get_class_name();
       area = r;
+//      cursor_ = type.get_cursor();
+      native::register_window_class(type);
       set_state().created(true);
       notify_event(core::WM_CREATE_WINDOW);
     }
@@ -313,12 +300,16 @@ namespace gui {
       }
     }
 
-    void window::set_cursor (const os::cursor& c) {
-      cursor = c;
+    void window::set_cursor (const cursor& c) {
+      cursor_ = c;
     }
 
-    const os::cursor& window::get_cursor () const {
-      return cursor;
+    void window::reset_cursor () {
+      set_cursor(get_window_class().get_cursor());
+    }
+
+    const cursor& window::get_cursor () const {
+      return cursor_ ? cursor_ : get_window_class().get_cursor();
     }
 
     void window::invalidate () const {

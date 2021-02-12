@@ -27,6 +27,14 @@ namespace gui {
       return type != cursor_type::none;
     }
 
+    inline bool cursor::operator== (const cursor& rhs) const {
+      return type == rhs.type;
+    }
+
+    inline bool cursor::operator!= (const cursor& rhs) const {
+      return type != rhs.type;
+    }
+
   } // namespace win
 
 } // namespace gui

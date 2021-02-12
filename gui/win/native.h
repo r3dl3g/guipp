@@ -43,6 +43,7 @@ namespace gui {
     namespace native {
 
       GUIPP_WIN_EXPORT const class_info& get_window_class (const char* class_name);
+      GUIPP_WIN_EXPORT void register_window_class (const class_info& type);
 
       GUIPP_WIN_EXPORT void move (os::window id, const core::point& pt);
       GUIPP_WIN_EXPORT void resize (os::window id, const core::size& sz);
@@ -112,7 +113,9 @@ namespace gui {
       GUIPP_WIN_EXPORT void prepare_popup_window (os::window id);
       GUIPP_WIN_EXPORT void prepare_dialog_window (os::window id, os::window pid);
 
-      GUIPP_WIN_EXPORT void erase (os::bitmap id, os::graphics gc,
+      GUIPP_WIN_EXPORT void erase (os::drawable id, os::graphics gc,
+                                   const core::native_rect& r, os::color c);
+      GUIPP_WIN_EXPORT void frame (os::drawable id, os::graphics gc,
                                    const core::native_rect& r, os::color c);
 
       GUIPP_WIN_EXPORT os::backstore create_surface (const core::native_size& size, os::window id);

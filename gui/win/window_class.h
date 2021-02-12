@@ -80,7 +80,7 @@ namespace gui {
 
       const char* get_class_name () const;
       os::color get_background () const;
-      os::cursor get_cursor () const;
+      const win::cursor& get_cursor () const;
       os::style get_class_style () const;
       os::style get_style () const;
       os::style get_ex_style () const;

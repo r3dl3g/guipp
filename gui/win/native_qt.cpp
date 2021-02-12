@@ -36,7 +36,7 @@
 //
 #include <logging/logger.h>
 #include <gui/win/native.h>
-#include <gui/win/container.h>
+#include <gui/win/overlapped_window.h>
 
 
 namespace gui {
@@ -53,6 +53,12 @@ namespace gui {
 
       const class_info& get_window_class (const char* class_name) {
         return window_class_info_map[class_name];
+      }
+
+      void register_window_class (const class_info& type) {
+        if (0 == window_class_info_map.count(type.get_class_name())) {
+          window_class_info_map[type.get_class_name()] = type;
+        }
       }
 
       void move (os::window w, const core::point& pt) {
@@ -97,10 +103,6 @@ namespace gui {
 
         id->setGeometry(r.os());
         id->setCursor(type.get_cursor());
-
-        if (0 == window_class_info_map.count(type.get_class_name())) {
-          window_class_info_map[type.get_class_name()] = type;
-        }
 
         return id;
       }
@@ -265,8 +267,12 @@ namespace gui {
       void prepare_popup_window (os::window) {}
       void prepare_dialog_window (os::window, os::window) {}
 
-      void erase (os::bitmap id, os::graphics gc, const core::native_rect& r, os::color c) {
+      void erase (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
         gc->fillRect(r.x(), r.y(), r.width(), r.height(), c);
+      }
+
+      void frame (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
+        gc->drawRect(r.x(), r.y(), r.width(), r.height(), c);
       }
 
       os::backstore create_surface (const core::native_size& size, os::window id) {

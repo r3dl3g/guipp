@@ -1,5 +1,5 @@
 
-#include <gui/win/container.h>
+#include <gui/win/overlapped_window.h>
 #include <gui/layout/layout_container.h>
 #include <gui/layout/border_layout.h>
 #include <gui/ctrl/split_view.h>

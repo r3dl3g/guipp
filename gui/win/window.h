@@ -121,8 +121,9 @@ namespace gui {
       const char* get_class_name () const;
       const class_info& get_window_class () const;
 
-      void set_cursor (const os::cursor&);
-      const os::cursor& get_cursor () const;
+      virtual void set_cursor (const cursor&);
+      void reset_cursor ();
+      const cursor& get_cursor () const;
 
       void capture_pointer ();
       void uncapture_pointer ();
@@ -170,10 +171,8 @@ namespace gui {
       bool has_overlapped_window () const;
 
     private:
-      void init ();
-
       container* parent;
-      os::cursor cursor;
+      cursor cursor_;
       const char* class_name;
 
     };

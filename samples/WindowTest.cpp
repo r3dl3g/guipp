@@ -363,6 +363,8 @@ my_main_window::my_main_window ()
     layout();
     btn_group.layout();
     group_group.layout();
+    chck_group.layout();
+    edit_btn_group.layout();
   });
 
 //#ifdef GUIPP_WIN
@@ -800,7 +802,7 @@ my_main_window::my_main_window ()
   htileview.set_border({ 10, 20 });
   htileview.set_spacing({ 5, 5 });
   
-  vtileview.set_item_size({ 70, 25 });
+  vtileview.set_item_size({ 65, 25 });
   vtileview.set_background(color::very_light_gray);
   vtileview.set_border({ 10, 10 });
   vtileview.set_spacing({ 5, 5 });
@@ -1038,6 +1040,7 @@ void my_main_window::created_children () {
   switch_button.create(chck_group, "Switch", core::rectangle(0, 40, 100, 20));
   check_box.create(chck_group, "Check", core::rectangle(0, 60, 100, 20));
   chck_group.get_layout().add({&radio_button, &radio_button2, &switch_button, &check_box});
+  chck_group.set_children_visible();
 
   edit1.create(main, "Text zwei drei vier fuenf sechs sieben acht", core::rectangle(290, 350, 100, 25));
 

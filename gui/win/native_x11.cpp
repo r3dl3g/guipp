@@ -673,6 +673,22 @@ namespace gui {
         send_client_message_(win, message, r.x, r.y, r.width, r.height);
       }
 
+      void send_mouse_event (window* win, bool enter) {
+        if (win && win->is_valid()) {
+          XEvent event;
+          XCrossingEvent& client = event.xcrossing;
+
+          client.type = enter ? EnterNotify : LeaveNotify;
+          client.serial = 0;
+          client.send_event = True;
+          client.display = core::global::get_instance();
+          client.window = 0;
+          client.mode = NotifyNormal;
+
+          gui::os::event_result result = 0;
+          win->handle_event(event, result);
+        }
+      }
 
     } // namespace native
 

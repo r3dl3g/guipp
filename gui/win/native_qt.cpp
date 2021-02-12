@@ -320,6 +320,10 @@ namespace gui {
         }
       }
 
+      void send_mouse_event (window* win, bool enter) {
+
+      }
+
     } // namespace native
 
   } // namespace win

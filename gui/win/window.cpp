@@ -233,6 +233,10 @@ namespace gui {
       native::send_client_message(this, message, r);
     }
 
+    void window::notify_event_mouse_event (bool enter) {
+      native::send_mouse_event(this, enter);
+    }
+
     void window::set_parent (container& p) {
       if (parent) {
         parent->remove_child(this);

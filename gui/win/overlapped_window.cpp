@@ -46,6 +46,10 @@
 #if !defined(GUIPP_BUILD_FOR_MOBILE)
 # define USE_INPUT_EATER
 #endif
+#define SHOW_FOCUS
+#define SHOW_MOUSE_WIN
+#define SHOW_CAPTURE
+
 
 namespace gui {
 
@@ -187,12 +191,16 @@ namespace gui {
         shift_focus(true);
       });
       on_lost_focus([&] () {
+        set_mouse_window(nullptr);
         if (!capture_stack.empty()) {
           capture_window = nullptr;
           capture_stack.clear();
           native::uncapture_pointer(get_os_window());
           native::unprepare_capture_pointer();
         }
+      });
+      on_mouse_leave([&] () {
+        set_mouse_window(nullptr);
       });
     }
     // --------------------------------------------------------------------------
@@ -328,42 +336,39 @@ namespace gui {
       return *(surface.get());
     }
     // --------------------------------------------------------------------------
-    void frame_window (core::context & cntxt, window* win, os::color col) {
+    void overlapped_window::set_mouse_window (window* win) {
+      if (mouse_window != win) {
+        if (mouse_window) {
+          mouse_window->notify_event_mouse_event(false);
+        }
+        mouse_window = win;
+        if (mouse_window) {
+          mouse_window->notify_event_mouse_event(true);
+        }
+#ifdef SHOW_MOUSE_WIN
+        invalidate();
+#endif
+      }
+    }
+    // --------------------------------------------------------------------------
+    void frame_window (core::context& cntxt, window* win, os::color col) {
       if (win) {
         native::frame(cntxt.drawable(), cntxt.graphics(),
                       core::global::scale_to_native(win->surface_area()), col);
       }
     }
-
-#define SHOW_FOCUS
-#define SHOW_MOUSE_WIN
-#define SHOW_CAPTURE
-
     // --------------------------------------------------------------------------
     bool overlapped_window::handle_event (const core::event& e, gui::os::event_result& r) {
-      // Todo: mouse enter, mouse leave, cursor
-      // -> find top window at cursor position -> mouse enter/leave, cursor, mouse events.
       if (mouse_move_event::match(e) || (btn_down_event::match(e) || btn_up_event::match(e))) {
           if (capture_window && (capture_window != this)) {
             return capture_window->handle_event(e, r);
           } else {
             core::point pt = mouse_move_event::Caller::get_param<1>(e);
             window* win = window_at_point(pt);
-            if (win && (win != this)) {
-              if (mouse_window != win) {
-                if (mouse_window) {
-                  // Todo: notify mouse leave
-                }
-                mouse_window = win;
-                // Todo: notify mouse enter
-#ifdef SHOW_MOUSE_WIN
-                mouse_window->invalidate();
-#endif
-              }
-              set_cursor(mouse_window->get_cursor());
-              return win->handle_event(e, r);
-            } else {
-              set_cursor(get_cursor());
+            set_mouse_window(win);
+            native::set_cursor(get_os_window(), mouse_window ? mouse_window->get_cursor() : get_cursor());
+            if (mouse_window && (mouse_window != this)) {
+              return mouse_window->handle_event(e, r);
             }
           }
       } else if ((any_key_down_event::match(e) || any_key_up_event::match(e)) && focus_window) {

@@ -127,6 +127,7 @@ namespace gui {
       void destroy ();
 
       void set_accept_focus (bool a);
+      void set_mouse_window (window* w);
 
       void move_native (const core::point&) override;
       void resize_native (const core::size&) override;

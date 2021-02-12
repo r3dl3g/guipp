@@ -274,7 +274,7 @@ namespace gui {
         }
 
         const auto width = lw + ib;
-        const auto max_width = super::traits.get_2(area.bottom_right());
+        const auto max_width = super::traits.get_2(area.x2y2());
         if (max_width > width) {
           core::rectangle space = area;
           super::traits.set_2(space, width, max_width - width);

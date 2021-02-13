@@ -177,6 +177,7 @@ namespace gui {
       self& operator&= (const self& rhs);
       self operator& (const self& rhs) const;
       self intersection (const self& rhs) const;
+      bool overlap (const self& rhs) const;
 
       // union
       self& operator|= (const self& rhs);

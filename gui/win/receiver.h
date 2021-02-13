@@ -119,7 +119,7 @@ namespace gui {
 
       void on_layout (std::function<place_fn>&& f);
 
-      void on_paint (std::function<void(core::context*)>&& f);
+      void on_paint (std::function<void(core::context*, core::rectangle*)>&& f);
 
       template<typename H>
       void on (typename H::function&& f);

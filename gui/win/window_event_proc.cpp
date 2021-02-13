@@ -183,12 +183,23 @@ namespace gui {
 
       void invalidate_window (os::window id, const core::rectangle& r) {
         clog::trace() << "invalidate_window: " << id;
-        s_invalidated_windows[id] |= r;
+        if (!r.empty()) {
+          core::rectangle& old = s_invalidated_windows[id];
+          if (old.empty()) {
+            old = r;
+          } else {
+            old |= r;
+          }
+        }
       }
 
       void validate_window (os::window id) {
         clog::trace() << "validate_window: " << id;
         s_invalidated_windows.erase(id);
+      }
+
+      core::rectangle get_expose_rect (core::event& e) {
+        return get<core::rectangle, XExposeEvent>::param(e);
       }
 
     } // namespace x11
@@ -383,17 +394,20 @@ namespace gui {
       }
 
       int register_message_filter (const detail::filter_call& filter) {
+        clog::trace() << "Register nessage filter";
         detail::message_filters.emplace_back(std::make_pair(detail::g_next_filter_id, filter));
         return detail::g_next_filter_id++;
       }
 
       void unregister_message_filter (int id) {
+        clog::trace() << "Try unregister nessage filter";
         auto e = detail::message_filters.end();
         auto b = detail::message_filters.begin();
         auto i = std::find_if(b, e, [id](const detail::filter_call_entry & e)->bool {
                                 return e.first == id;
                               });
         if (i != e) {
+          clog::trace() << "Unregister nessage filter";
           detail::message_filters.erase(i);
         }
       }
@@ -678,70 +692,58 @@ namespace gui {
 #elif GUIPP_X11
       gui::os::instance display = core::global::get_instance();
       gui::os::event_result resultValue = 0;
-
-      core::event e;
       std::function<simple_action> action;
-
-      // http://www.linuxquestions.org/questions/showthread.php?p=2431345#post2431345
-      // Create a File Description Set containing x11_fd
-      auto x11_fd = ConnectionNumber(display);
-
-      fd_set in_fds;
+      core::event e;
 
       while (running) {
+
+        XNextEvent(display, &e);
 
         while (x11::queued_actions.try_dequeue(action)) {
           action();
         }
 
-        FD_ZERO(&in_fds);
-        FD_SET(x11_fd, &in_fds);
-
-        // Define our timeout. Ten milliseconds sounds good.
-        timeval timeout {.tv_sec = 0, .tv_usec = 50000 };
-        // Wait for next XEvent or a timer out
-        const int num_ready_fds = select(x11_fd + 1, &in_fds, nullptr, nullptr, &timeout);
-
-        if (num_ready_fds < 0) {
-          clog::debug() << "select returned: " << num_ready_fds;
-        } else if (num_ready_fds > 0) while (XPending(display) && running) {
-
-          XNextEvent(display, &e);
-
-          if (!win::is_frequent_event(e)) {
-            clog::trace() << e;
-          }
-
-          if (filter && filter(e)) {
-            continue;
-          }
-
-          if (is_expose_event(e)) {
-            x11::invalidate_window(e.xany.window);
-          } else {
-            process_event(e, resultValue);
-          }
-          if (protocol_message_matcher<core::x11::WM_DELETE_WINDOW>(e) && !resultValue) {
-            running = false;
-          }
-
-          if ((e.type == ConfigureNotify) && running) {
-            update_last_place(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));
-          }
-
-        };
-
-        for (auto& w : x11::s_invalidated_windows) {
-          win::window* win = detail::get_window(w.first);
-          if (win && win->is_visible()) {
-            win->redraw();
-          }
+        if (!win::is_frequent_event(e)) {
+          clog::trace() << e;
         }
-        x11::s_invalidated_windows.clear();
 
-//        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        const bool is_btn_down = btn_down_event::match(e);
+        if (is_btn_down) {
+          clog::debug() << e;
+        }
+
+        if (filter && filter(e)) {
+          if (is_btn_down) {
+            clog::debug() << "Button Event filtetred: " << e;
+          }
+          continue;
+        }
+
+        if (is_expose_event(e)) {
+          x11::invalidate_window(e.xany.window, x11::get_expose_rect(e));
+        } else {
+          process_event(e, resultValue);
+        }
+        if (protocol_message_matcher<core::x11::WM_DELETE_WINDOW>(e) && !resultValue) {
+          running = false;
+        }
+
+        if ((e.type == ConfigureNotify) && running) {
+          update_last_place(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));
+        }
+
+        if (!XPending(display)) {
+          for (auto& w : x11::s_invalidated_windows) {
+            win::overlapped_window* win = detail::get_window(w.first);
+            if (win && win->is_visible()) {
+              win->redraw(w.second);
+            }
+          }
+          x11::s_invalidated_windows.clear();
+        }
 
       }
+
       return resultValue;
 #elif GUIPP_QT
       QEventLoop event_loop;

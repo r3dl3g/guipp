@@ -274,41 +274,31 @@ namespace gui {
       }
       return std::string();
     }
-
     // --------------------------------------------------------------------------
-//    os::graphics get_graphics (const core::event& e) {
-//      return DefaultGCOfScreen(DefaultScreenOfDisplay(e.xany.display));
-//    }
-
-    // --------------------------------------------------------------------------
-//    os::window get_draw_window (const core::event& e) {
-//      return e.xany.window;
-//    }
-
     core::context* get_context (const core::event& e) {
       return get_client_data<0, core::context*>(e);
     }
-
+    // --------------------------------------------------------------------------
+    core::rectangle* get_paint_rect (const core::event& e) {
+      return get_client_data<1, core::rectangle*>(e);
+    }
     // --------------------------------------------------------------------------
     core::rectangle get_client_data_rect (const core::event& e) {
       auto& l = e.xclient.data.l;
       return core::rectangle(os::rectangle{static_cast<short>(l[0]), static_cast<short>(l[1]),
                                            static_cast<unsigned short>(l[2]), static_cast<unsigned short>(l[3])});
     }
-
     // --------------------------------------------------------------------------
     core::size get_client_data_size (const core::event& e) {
       auto& l = e.xclient.data.l;
       return core::size(os::size{static_cast<unsigned short>(l[0]), static_cast<unsigned short>(l[1])});
     }
-
     // --------------------------------------------------------------------------
     template<>
     window* get_client_data<0, window*>(const core::event& e) {
       os::window id = e.xclient.data.l[0];
       return detail::get_window(id);
     }
-
     // --------------------------------------------------------------------------
     template<>
     core::point::type get_client_data<0, core::point::type>(const core::event& e) {
@@ -316,40 +306,37 @@ namespace gui {
       double d1 = static_cast<double>(l1) / 1000000.0;
       return d1;
     }
-
     // --------------------------------------------------------------------------
     window* get_current_focus_window (const core::event&) {
       return global::get_current_focus_window();
     }
-
     // --------------------------------------------------------------------------
     core::point get_root_mouse_pos (const core::event& e) {
       auto me = (event_type_cast<XMotionEvent>(e));
       return core::global::scale_from_native(core::native_point{me.x_root, me.y_root});
     }
-
     // --------------------------------------------------------------------------
     std::map<Window, core::rectangle> s_last_place;
-
+    // --------------------------------------------------------------------------
     template<>
     const core::size& get_last_place<core::size>(os::window w) {
       return s_last_place[w].size();
     }
-
+    // --------------------------------------------------------------------------
     template<>
     const core::point& get_last_place<core::point>(os::window w) {
       return s_last_place[w].position();
     }
-
+    // --------------------------------------------------------------------------
     template<>
     const core::rectangle& get_last_place<core::rectangle>(os::window w) {
       return s_last_place[w];
     }
-
+    // --------------------------------------------------------------------------
     void update_last_place (os::window w, const core::rectangle& r) {
       s_last_place[w] = r;
     }
-
+    // --------------------------------------------------------------------------
     void clear_last_place (os::window w) {
       s_last_place.erase(w);
     }

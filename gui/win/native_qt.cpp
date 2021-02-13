@@ -175,10 +175,6 @@ namespace gui {
 
       void prepare_accept_focus (os::window, bool) {}
 
-      void prepare_capture_pointer () {}
-
-      void unprepare_capture_pointer () {}
-
       void capture_pointer (os::window id) {
         if (id) {
           id->setMouseGrabEnabled(true);
@@ -287,7 +283,7 @@ namespace gui {
         delete id;
       }
 
-      os::graphics create_graphics_context (os::backstore id) {
+      os::graphics create_graphics_context (os::drawable id) {
         return new QPainter();
       }
 

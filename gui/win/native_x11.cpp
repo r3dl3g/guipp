@@ -434,11 +434,11 @@ namespace gui {
         XDefineCursor(core::global::get_instance(), id, c);
       }
 
-      void invalidate (os::window id, const core::rectangle& p) {
-        x11::invalidate_window(id, p);
+      void invalidate (os::window id, const core::rectangle& r) {
+        x11::invalidate_window(id, r);
       }
 
-      void redraw (window& w, os::window id, const core::rectangle& p) {
+      void redraw (window& w, os::window id, const core::rectangle& r) {
         XEvent event;
 
         XExposeEvent& e = event.xexpose;
@@ -447,10 +447,10 @@ namespace gui {
         e.send_event = true;
         e.display = core::global::get_instance();
         e.window = id;
-        e.x = p.os_x();
-        e.y = p.os_y();
-        e.width = p.os_width();
-        e.height = p.os_height();
+        e.x = r.os_x();
+        e.y = r.os_y();
+        e.width = r.os_width();
+        e.height = r.os_height();
         e.count = 0;
         gui::os::event_result result;
 
@@ -460,13 +460,7 @@ namespace gui {
       void prepare_accept_focus (os::window, bool) {
       }
 
-#define NO_CAPTURE
-
-      void prepare_capture_pointer () {
-      }
-
-      void unprepare_capture_pointer () {
-      }
+#define NO_CAPTUREx
 
       void capture_pointer (os::window id) {
 #ifndef NO_CAPTURE
@@ -619,7 +613,7 @@ namespace gui {
         XFreePixmap(core::global::get_instance(), id);
       }
 
-      os::graphics create_graphics_context (os::backstore id) {
+      os::graphics create_graphics_context (os::drawable id) {
         return XCreateGC(core::global::get_instance(), id, 0, 0);
       }
 

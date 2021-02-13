@@ -245,20 +245,14 @@ namespace gui {
       void prepare_accept_focus (os::window, bool) {
       }
 
-      void prepare_capture_pointer () {
-        s_wheel_hook.enable();
-      }
-
-      void unprepare_capture_pointer () {
-        s_wheel_hook.disable();
-      }
-
       void capture_pointer (os::window id) {
+        s_wheel_hook.enable();
         SetCapture(id);
       }
 
       void uncapture_pointer (os::window id) {
         ReleaseCapture();
+        s_wheel_hook.disable();
       }
 
       os::window get_desktop_window () {
@@ -358,7 +352,7 @@ namespace gui {
         DeleteObject(id);
       }
 
-      os::graphics create_graphics_context (os::backstore id) {
+      os::graphics create_graphics_context (os::drawable id) {
         auto dc = GetDC(NULL);
         auto ndc = CreateCompatibleDC(dc);
         SelectObject(ndc, id);

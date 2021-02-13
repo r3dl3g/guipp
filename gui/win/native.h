@@ -83,9 +83,6 @@ namespace gui {
 
       GUIPP_WIN_EXPORT void prepare_accept_focus (os::window, bool);
 
-      GUIPP_WIN_EXPORT void prepare_capture_pointer ();
-      GUIPP_WIN_EXPORT void unprepare_capture_pointer ();
-
       GUIPP_WIN_EXPORT void capture_pointer (os::window id);
       GUIPP_WIN_EXPORT void uncapture_pointer (os::window id);
 
@@ -121,7 +118,7 @@ namespace gui {
       GUIPP_WIN_EXPORT os::backstore create_surface (const core::native_size& size, os::window id);
       GUIPP_WIN_EXPORT void delete_surface (os::backstore);
 
-      GUIPP_WIN_EXPORT os::graphics create_graphics_context (os::backstore);
+      GUIPP_WIN_EXPORT os::graphics create_graphics_context (os::drawable);
       GUIPP_WIN_EXPORT void delete_graphics_context (os::graphics);
 
       GUIPP_WIN_EXPORT void copy_surface (os::bitmap src, os::drawable target,

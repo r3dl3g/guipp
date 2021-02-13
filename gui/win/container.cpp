@@ -84,8 +84,8 @@ namespace gui {
     }
 
     void container::init () {
-      on_paint([&] (core::context* ctx) {
-        native::erase(ctx->drawable(), ctx->graphics(), core::global::scale_to_native(surface_area()), get_window_class().get_background());
+      on_paint([&] (core::context* ctx, core::rectangle* r) {
+        native::erase(ctx->drawable(), ctx->graphics(), core::global::scale_to_native(surface_area() & *r), get_window_class().get_background());
       });
       on_show([&] () {
         set_children_visible();
@@ -172,13 +172,16 @@ namespace gui {
     bool container::handle_event (const core::event& e, gui::os::event_result& r) {
       if (paint_event::match(e)) {
         core::context* cntxt = paint_event::Caller::get_param<0>(e);
-        core::clip clp(*cntxt, surface_area());
+        core::rectangle* clip_rect = paint_event::Caller::get_param<1>(e);
         bool ret = super::handle_event(e, r);
         for (auto& w : children) {
-          auto state = w->get_state();
-          if (state.created() && state.visible() && !state.overlapped()) {
-            core::clip clp2(*cntxt, w->surface_area());
-            ret |= w->handle_event(e, r);
+          auto rect = w->surface_area();
+          if (!clip_rect || (clip_rect->overlap(rect))) {
+            auto state = w->get_state();
+            if (state.created() && state.visible() && !state.overlapped()) {
+              core::clip clp2(*cntxt, rect);
+              ret |= w->handle_event(e, r);
+            }
           }
         }
         return ret;

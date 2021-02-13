@@ -324,14 +324,14 @@ namespace gui {
     void window::invalidate () const {
       if (is_valid() && is_visible()) {
         clog::trace() << "invalidate: " << *this;
-        get_overlapped_window().invalidate(client_area());
+        get_overlapped_window().invalidate(surface_area());
       }
     }
 
     void window::redraw () const {
       if (is_visible() && !get_state().redraw_disabled()) {
         clog::trace() << "redraw: " << *this;
-        get_overlapped_window().redraw(client_area());
+        get_overlapped_window().redraw(surface_area());
       }
     }
 

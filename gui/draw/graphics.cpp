@@ -741,7 +741,7 @@ namespace gui {
       : p(std::move(f))
     {}
 
-    void paint::operator() (core::context* s) {
+    void paint::operator() (core::context* s, core::rectangle* r) {
       if (p) {
         draw::graphics graph(s);
         p(graph);

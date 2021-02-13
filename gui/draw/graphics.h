@@ -164,7 +164,7 @@ namespace gui {
       template<typename T, typename F>
       paint (T* t, F f);
 
-      void operator() (core::context*);
+      void operator() (core::context*, core::rectangle*);
 
     private:
       painter p;

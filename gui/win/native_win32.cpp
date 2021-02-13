@@ -411,9 +411,9 @@ namespace gui {
         }
       }
 
-      void send_mouse_event (window* win, bool enter) {
+      void send_mouse_event (window* win, bool enter) {}
 
-      }
+      void send_notify_visibility (window* win, bool visible) {}
 
     } // namespace native
 

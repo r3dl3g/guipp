@@ -339,11 +339,11 @@ namespace gui {
     void overlapped_window::set_mouse_window (window* win) {
       if (mouse_window != win) {
         if (mouse_window) {
-          mouse_window->notify_event_mouse_event(false);
+          mouse_window->notify_mouse_event(false);
         }
         mouse_window = win;
         if (mouse_window) {
-          mouse_window->notify_event_mouse_event(true);
+          mouse_window->notify_mouse_event(true);
         }
 #ifdef SHOW_MOUSE_WIN
         invalidate();

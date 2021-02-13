@@ -565,6 +565,9 @@ namespace gui {
     void linear_list<V>::init () {
       super::on_paint(draw::paint(this, &linear_list::paint));
       super::on_any_key_down(util::bind_method(this, &linear_list::handle_key));
+      super::on_show([&] () {
+        super::invalidate();
+      });
     }
 
     // --------------------------------------------------------------------------

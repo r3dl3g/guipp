@@ -233,8 +233,12 @@ namespace gui {
       native::send_client_message(this, message, r);
     }
 
-    void window::notify_event_mouse_event (bool enter) {
+    void window::notify_mouse_event (bool enter) {
       native::send_mouse_event(this, enter);
+    }
+
+    void window::notify_visibility (bool visible) {
+      native::send_notify_visibility(this, visible);
     }
 
     void window::set_parent (container& p) {
@@ -280,6 +284,7 @@ namespace gui {
       if (is_valid()) {
         if (set_state().visible(s)) {
           invalidate();
+          notify_visibility(s);
         }
       }
     }

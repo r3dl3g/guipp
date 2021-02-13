@@ -690,6 +690,22 @@ namespace gui {
         }
       }
 
+      void send_notify_visibility (window* win, bool visible) {
+        if (win && win->is_valid()) {
+          XEvent event;
+          XMapEvent& client = event.xmap;
+
+          client.type = visible ? MapNotify : UnmapNotify;
+          client.serial = 0;
+          client.send_event = True;
+          client.display = core::global::get_instance();
+          client.window = 0;
+
+          gui::os::event_result result = 0;
+          win->handle_event(event, result);
+        }
+      }
+
     } // namespace native
 
   } // namespace win

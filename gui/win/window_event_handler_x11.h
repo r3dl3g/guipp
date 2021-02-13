@@ -84,6 +84,11 @@ namespace gui {
       return e.xdestroywindow;
     }
 
+    template<>
+    inline const XExposeEvent& event_type_cast<XExposeEvent>(const core::event& e) {
+      return e.xexpose;
+    }
+
     // --------------------------------------------------------------------------
     template<typename T, typename C>
     struct get {

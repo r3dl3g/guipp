@@ -272,7 +272,9 @@ namespace gui {
       }
 
       void frame (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
-        gc->drawRect(r.x(), r.y(), r.width(), r.height(), c);
+        gc->setPen(QPen(c));
+        gc->setBrush(QBrush(Qt::BrushStyle::NoBrush));
+        gc->drawRect(r.x(), r.y(), r.width(), r.height());
       }
 
       os::backstore create_surface (const core::native_size& size, os::window id) {
@@ -320,9 +322,9 @@ namespace gui {
         }
       }
 
-      void send_mouse_event (window* win, bool enter) {
+      void send_mouse_event (window* win, bool enter) {}
 
-      }
+      void send_notify_visibility (window* win, bool visible) {}
 
     } // namespace native
 

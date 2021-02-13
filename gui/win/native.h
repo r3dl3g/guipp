@@ -135,6 +135,7 @@ namespace gui {
       GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const core::rectangle& wr);
 
       GUIPP_WIN_EXPORT void send_mouse_event (window* win, bool enter);
+      GUIPP_WIN_EXPORT void send_notify_visibility (window* win, bool visible);
 
     } // namespace native
 

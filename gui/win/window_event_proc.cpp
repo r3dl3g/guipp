@@ -707,15 +707,7 @@ namespace gui {
           clog::trace() << e;
         }
 
-        const bool is_btn_down = btn_down_event::match(e);
-        if (is_btn_down) {
-          clog::debug() << e;
-        }
-
         if (filter && filter(e)) {
-          if (is_btn_down) {
-            clog::debug() << "Button Event filtetred: " << e;
-          }
           continue;
         }
 

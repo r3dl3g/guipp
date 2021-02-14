@@ -102,6 +102,12 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template<>
+    core::rectangle* get_param<1>(const core::event& e) {
+      return (core::rectangle*)e.lParam;
+    }
+
+    // --------------------------------------------------------------------------
     core::point get_root_mouse_pos (const core::event& e) {
       POINT pt = {GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)};
       ClientToScreen(e.id, &pt);
@@ -371,6 +377,12 @@ namespace gui {
       , m_l2(l2)
     {}
 
+    QClientEvent::QClientEvent (Type type)
+      : QEvent(type)
+      , m_l1(0)
+      , m_l2(0)
+    {}
+
     QClientEvent::~QClientEvent ()
     {}
 
@@ -430,6 +442,10 @@ namespace gui {
 
     core::context* get_context (const core::event& e) {
       return (core::context*)e.cast<QClientEvent>().l1();
+    }
+
+    core::rectangle* get_paint_rect (const core::event& e) {
+      return (core::rectangle*)(e.cast<QClientEvent>().l2());
     }
 
     // --------------------------------------------------------------------------

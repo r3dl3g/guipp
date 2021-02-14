@@ -333,9 +333,9 @@ namespace gui {
       }
 
       void frame (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
+        SelectObject(gc, GetStockObject(NULL_BRUSH));
         auto pen = CreatePen(PS_SOLID, 1, c);
         auto old = SelectObject(gc, pen);
-        SelectObject(gc, GetStockObject(NULL_BRUSH));
         Rectangle(gc, r.x(), r.y(), r.x2(), r.y2());
         SelectObject(gc, old);
         DeleteObject(pen);
@@ -379,35 +379,47 @@ namespace gui {
 
       void send_client_message (window* win, os::message_type message, long l1, long l2) {
         if (win && win->is_valid()) {
-          gui::os::event_result result;
           core::event e{ NULL, message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2) };
+          gui::os::event_result result;
           win->handle_event(e, result);
         }
       }
 
       void send_client_message (window* win, os::message_type message, const core::size& sz) {
         if (win && win->is_valid()) {
-          gui::os::event_result result;
           os::size s = sz;
           long l2 = (long)s.cy << 16 | (long)s.cx;
           core::event e{ NULL, message, 0, static_cast<LPARAM>(l2)};
+          gui::os::event_result result;
           win->handle_event(e, result);
         }
       }
 
       void send_client_message (window* win, os::message_type message, const core::rectangle& wr) {
         if (win && win->is_valid()) {
-          gui::os::event_result result;
           core::native_rect r = core::global::scale_to_native(wr);
           WINDOWPOS wp{NULL, NULL, r.x(), r.y(), static_cast<int>(r.width()), static_cast<int>(r.height()), 0};
           core::event e { NULL, message, 0, reinterpret_cast<LPARAM>(&wp)};
+          gui::os::event_result result;
           win->handle_event(e, result);
         }
       }
 
-      void send_mouse_event (window* win, bool enter) {}
+      void send_mouse_event (window* win, bool enter) {
+        if (win && win->is_valid()) {
+          core::event e{ NULL, enter ? WM_MOUSEMOVE : WM_MOUSELEAVE, 0, 0};
+          gui::os::event_result result;
+          win->handle_event(e, result);
+        }
+      }
 
-      void send_notify_visibility (window* win, bool visible) {}
+      void send_notify_visibility (window* win, bool visible) {
+        if (win && win->is_valid()) {
+          core::event e{ NULL, WM_SHOWWINDOW, visible, 0};
+          gui::os::event_result result;
+          win->handle_event(e, result);
+        }
+      }
 
     } // namespace native
 

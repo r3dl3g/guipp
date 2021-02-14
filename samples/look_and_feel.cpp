@@ -314,7 +314,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.on_destroy(&quit_main_loop);
   main.set_title("Gui++ look & feel");
   main.set_visible();
-  main.set_children_visible();
 
   return run_main_loop();
 }

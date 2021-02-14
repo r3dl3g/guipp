@@ -46,10 +46,14 @@
 #if !defined(GUIPP_BUILD_FOR_MOBILE)
 # define USE_INPUT_EATER
 #endif
+
+#define DEBUG_RECTANGLESx
+#ifdef DEBUG_RECTANGLES
 #define SHOW_FOCUS
 #define SHOW_MOUSE_WIN
 #define SHOW_CAPTURE
 #define SHOW_CLIP_RECT
+#endif
 
 namespace gui {
 
@@ -81,33 +85,47 @@ namespace gui {
       void begin (const win::overlapped_window& w) {
         auto id = w.get_os_window();
         auto sz = core::global::scale_to_native(w.client_size());
-        if (sz != size) {
+        bool create_new = sz != size;
+        if (create_new) {
           create(sz, id);
+#ifndef GUIPP_QT
           native::erase(pixel_store, gc, core::native_rect(sz), w.get_window_class().get_background());
+#endif
         }
 #ifdef GUIPP_QT
         pixel_store->beginPaint(QRegion(0, 0, size.width(), size.height()));
         gc->begin(pixel_store->paintDevice());
+        if (create_new) {
+          native::erase(pixel_store->paintDevice(), gc, core::native_rect(sz), w.get_window_class().get_background());
+        }
 #endif
       }
 
-      void end (const win::overlapped_window& w) {
+      core::context end (os::window id) {
 #ifdef GUIPP_X11
         auto display = core::global::get_instance();
-        auto id = w.get_os_window();
         XSetWindowBackgroundPixmap(display, id, pixel_store);
         XClearWindow(display, id);
 //        XFlush(display);
+        return {id, native::create_graphics_context(id)};
+#elif GUIPP_QT
+        return {pixel_store->paintDevice(), gc};
+#elif GUIPP_WIN
+        os::graphics pgc = BeginPaint(id, &ps);
+        BitBlt(pgc, 0, 0, size.width(), size.height(), gc, 0, 0, SRCCOPY);
+        return {id, pgc};
+#endif
+      }
+
+      void finish (core::context& ctx) {
+#ifdef GUIPP_X11
+        native::delete_graphics_context(ctx.graphics());
 #elif GUIPP_QT
         gc->end();
         pixel_store->endPaint();
-        pixel_store->flush(QRegion(0, 0, size.width(), size.height()), w.get_os_window());
+        pixel_store->flush(QRegion(0, 0, size.width(), size.height()));
 #elif GUIPP_WIN
-        auto id = w.get_os_window();
-        PAINTSTRUCT ps;
-        os::graphics pgc = BeginPaint(id, &ps);
-        BitBlt(pgc, 0, 0, size.width(), size.height(), gc, 0, 0, SRCCOPY);
-        EndPaint(id, &ps);
+        EndPaint((os::window)ctx.drawable(), &ps);
 #endif
       }
 
@@ -116,7 +134,11 @@ namespace gui {
         destroy();
         size = sz;
         pixel_store = native::create_surface(size, id);
+#ifdef GUIPP_QT
+        gc = native::create_graphics_context(pixel_store->paintDevice());
+#else
         gc = native::create_graphics_context(pixel_store);
+#endif
       }
 
       void destroy () {
@@ -133,6 +155,9 @@ namespace gui {
       core::native_size size;
       os::backstore pixel_store;
       os::graphics gc;
+#ifdef GUIPP_WIN
+      PAINTSTRUCT ps;
+#endif
     };
     // --------------------------------------------------------------------------
     namespace {
@@ -364,6 +389,16 @@ namespace gui {
           }
       } else if ((any_key_down_event::match(e) || any_key_up_event::match(e)) && focus_window) {
         focus_window->handle_event(e, r);
+#ifdef GUIPP_WIN
+      } else if (expose_event::match(e)) {
+        os::rectangle rect;
+        if (GetUpdateRect(e.id, &rect, FALSE)) {
+          redraw(core::rectangle(rect));
+        }
+#elif GUIPP_QT
+      } else if (expose_event::match(e)) {
+        redraw(surface_area());
+#endif // GUIPP_WIN
       }
       return super::handle_event(e, r);
     }
@@ -450,6 +485,7 @@ namespace gui {
     void overlapped_window::set_top_most (bool toplevel) {
       native::set_top_most(get_os_window(), toplevel);
     }
+    // TODO: store invalid region as member of overlapped_window.
     // --------------------------------------------------------------------------
     void overlapped_window::invalidate () const {
       invalidate(surface_area());
@@ -462,9 +498,9 @@ namespace gui {
       }
     }
     // --------------------------------------------------------------------------
-    void frame_window (os::drawable id, os::graphics gc, window* win, os::color col) {
+    void frame_window (core::context& ctx, window* win, os::color col) {
       if (win) {
-        native::frame(id, gc,
+        native::frame(ctx.drawable(), ctx.graphics(),
                       core::global::scale_to_native(win->surface_area()), col);
       }
     }
@@ -481,26 +517,25 @@ namespace gui {
         native::erase(cntxt.drawable(), cntxt.graphics(), core::global::scale_to_native(r), get_window_class().get_background());
 
         notify_event(core::WM_PAINT_WINDOW, reinterpret_cast<std::uintptr_t>(&cntxt), reinterpret_cast<std::uintptr_t>(&r));
-        surface.end(*this);
+        auto wctxt = surface.end(get_os_window());
 
 #if defined(SHOW_FOCUS) || defined(SHOW_MOUSE_WIN) || defined(SHOW_CAPTURE) || defined(SHOW_CLIP_RECT)
-        auto id = get_os_window();
-        auto gc = native::create_graphics_context(id);
 
 #ifdef SHOW_FOCUS
-        frame_window(id, gc, focus_window, color::green);
+        frame_window(wctxt, focus_window, color::green);
 #endif
 #ifdef SHOW_MOUSE_WIN
-        frame_window(id, gc, mouse_window, color::red);
+        frame_window(wctxt, mouse_window, color::red);
 #endif
 #ifdef SHOW_CAPTURE
-        frame_window(id, gc, capture_window, color::blue);
+        frame_window(wctxt, capture_window, color::blue);
 #endif
 #ifdef SHOW_CLIP_RECT
-        native::frame(id, gc, core::global::scale_to_native(r), color::cyan);
+        native::frame(wctxt.drawable(), wctxt.graphics(), core::global::scale_to_native(r), color::cyan);
 #endif
-        native::delete_graphics_context(gc);
 #endif // defined(SHOW_FOCUS) || defined(SHOW_MOUSE_WIN) || defined(SHOW_CAPTURE) || defined(SHOW_CLIP_RECT)
+
+        surface.finish(wctxt);
 //        native::redraw(*this, get_os_window(), r);
       }
     }

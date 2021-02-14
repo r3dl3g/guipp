@@ -318,9 +318,26 @@ namespace gui {
         }
       }
 
-      void send_mouse_event (window* win, bool enter) {}
+      void send_mouse_event (window* win, bool enter) {
+        if (win && win->is_valid()) {
+          gui::os::event_result result;
+          QClientEvent e(enter ? QEvent::Enter : QEvent::Leave);
+          win->handle_event(gui::core::event{nullptr, &e}, result);
+        }
+      }
 
-      void send_notify_visibility (window* win, bool visible) {}
+      void send_notify_visibility (window* win, bool visible) {
+        if (win && win->is_valid()) {
+          gui::os::event_result result;
+          if (visible) {
+            QShowEvent e;
+            win->handle_event(gui::core::event{nullptr, &e}, result);
+          } else {
+            QHideEvent e;
+            win->handle_event(gui::core::event{nullptr, &e}, result);
+          }
+        }
+      }
 
     } // namespace native
 

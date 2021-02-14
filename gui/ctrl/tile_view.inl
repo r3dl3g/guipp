@@ -16,8 +16,6 @@
  * @file
  */
 
-#pragma once
-
 
 namespace gui {
 

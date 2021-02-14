@@ -37,6 +37,7 @@ namespace gui {
     public:
       explicit QClientEvent (Type type, const core::rectangle& rect);
       explicit QClientEvent (Type type, long l1, long l2);
+      explicit QClientEvent (Type type);
 
       ~QClientEvent ();
 
@@ -119,6 +120,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT core::rectangle get_client_data_rect (const core::event& e);
+
+    // --------------------------------------------------------------------------
+    GUIPP_WIN_EXPORT core::rectangle* get_paint_rect (const core::event& e);
     // --------------------------------------------------------------------------
 //    GUIPP_WIN_EXPORT os::graphics get_graphics (const core::event&);
     // --------------------------------------------------------------------------
@@ -261,8 +265,8 @@ namespace gui {
                                              getter<get_client_data_rect>>;
 
     using paint_event = core::event_handler<core::WM_PAINT_WINDOW, 0,
-                                            core::params<core::context*>::
-                                            getter<get_context>>;
+                                            core::params<core::context*, core::rectangle*>::
+                                            getter<get_context, get_paint_rect>>;
 
     using expose_event = core::event_handler<QEvent::UpdateRequest>;
 

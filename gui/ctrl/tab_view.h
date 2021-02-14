@@ -104,45 +104,11 @@ namespace gui {
       typedef L layout_t;
       typedef typename button_group_t::button_t button_t;
 
-      tab_view () {
-        super::get_layout().set_header(layout::lay(buttons));
+      tab_view ();
 
-        buttons.on_selection_changed([&] (event_source) {
-          show_page(buttons.get_selection_index());
-        });
+      void show_page (int idx);
 
-        super::on_create([&](){
-          buttons.create(*this);
-          if (!pages.empty()) {
-            pages[0].get().set_visible(true);
-          }
-        });
-        super::on_paint(draw::paint([&] (draw::graphics&  graph) {
-          graph.clear(background);
-        }));
-      }
-
-      void show_page (int idx) {
-        if ((idx >= 0) && (idx < pages.size())) {
-          super::get_layout().set_body(layout::lay(pages[idx].get()));
-          for (int i = 0; i < pages.size(); ++i) {
-            pages[i].get().set_visible(i == idx);
-          }
-          super::layout();
-        }
-      }
-
-      void add_page (const std::string& label, win::window& page) {
-        buttons.add_button(label);
-        if (pages.empty()) {
-          super::get_layout().set_body(layout::lay(page));
-          buttons.get_button(0).get()->set_checked(true);
-        } else {
-          page.set_visible(false);
-        }
-
-        pages.push_back(page);
-      }
+      void add_page (const std::string& label, win::window& page);
 
     private:
       std::vector<std::reference_wrapper<win::window>> pages;
@@ -153,3 +119,5 @@ namespace gui {
   } // namespace ctrl
 
 } // namespace gui
+
+#include <gui/ctrl/tab_view.inl>

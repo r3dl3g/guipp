@@ -41,6 +41,7 @@ namespace gui {
     template<> GUIPP_WIN_EXPORT core::point get_param<1>(const core::event& e);
     template<> GUIPP_WIN_EXPORT core::size get_param<1>(const core::event& e);
     template<> GUIPP_WIN_EXPORT core::rectangle get_param<1>(const core::event& e);
+    template<> GUIPP_WIN_EXPORT core::rectangle* get_param<1>(const core::event& e);
     // --------------------------------------------------------------------------
     template<typename T>
     core::rectangle get_rect (const core::event& e) {
@@ -288,8 +289,8 @@ namespace gui {
                                              getter<get_param<1, core::rectangle>>>;
 
     using paint_event = core::event_handler<core::WM_PAINT_WINDOW, 0,
-                                            core::params<core::context*>::
-                                            getter<get_context>>;
+                                            core::params<core::context*, core::rectangle*>::
+                                            getter<get_context, get_param<1, core::rectangle*>>>;
 
     using expose_event = core::event_handler<WM_PAINT>;
     // --------------------------------------------------------------------------

@@ -225,7 +225,7 @@ namespace gui {
     void column_list_header<Layout, background>::paint (draw::graphics& g) {
       using namespace draw;
 
-      core::rectangle area = this->surface_area();
+      core::rectangle area = this->client_area();
       core::rectangle r = area;
       draw::brush back_brush(background);
 
@@ -270,7 +270,7 @@ namespace gui {
     }
 
     template<typename Layout, os::color background>
-    void column_list_header<Layout, background>::handle_left_btn_down (os::key_state, const core::point& pt) {
+    void column_list_header<Layout, background>::handle_left_btn_down (os::key_state, const core::native_point& pt) {
       last_mouse_point = pt;
       down_idx = layouter.split_idx_at(pt.x(), 2.0F);
       super::set_cursor(down_idx > -1 ? win::cursor::size_h() : win::cursor::arrow());
@@ -278,17 +278,17 @@ namespace gui {
     }
 
     template<typename Layout, os::color background>
-    void column_list_header<Layout, background>::handle_left_btn_up (os::key_state keys, const core::point& pt) {
-      last_mouse_point = core::point::undefined;
+    void column_list_header<Layout, background>::handle_left_btn_up (os::key_state keys, const core::native_point& pt) {
+      last_mouse_point = core::native_point::undefined;
       down_idx = -1;
       super::set_cursor(win::cursor::arrow());
       super::uncapture_pointer();
     }
 
     template<typename Layout, os::color background>
-    void column_list_header<Layout, background>::handle_mouse_move (os::key_state keys, const core::point& pt) {
+    void column_list_header<Layout, background>::handle_mouse_move (os::key_state keys, const core::native_point& pt) {
       if (core::left_button_bit_mask::is_set(keys)) {
-        if (last_mouse_point != core::point::undefined) {
+        if (last_mouse_point != core::native_point::undefined) {
           auto delta = pt.x() - last_mouse_point.x();
           if (down_idx > -1) {
             layouter.set_column_width(down_idx, layouter.get_column_width(down_idx) + delta, true);

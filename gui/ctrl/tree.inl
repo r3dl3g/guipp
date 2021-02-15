@@ -98,7 +98,7 @@ namespace gui {
         super::on_selection_commit([&]() {
           toggle_node(super::get_selection());
         });
-        super::on_left_btn_down([&](os::key_state, const core::point & pt_) {
+        super::on_left_btn_down([&](os::key_state, const core::native_point& pt_) {
           core::point pt = super::surface_to_client(pt_);
           int idx = super::get_index_at_point(pt);
           if ((idx > -1) && (idx < size())) {

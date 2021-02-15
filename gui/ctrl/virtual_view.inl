@@ -79,10 +79,10 @@ namespace gui {
         vscroll.set_value(pos.y(), false);
         super::layout();
       });
-      view.on_wheel_x([&] (const core::point::type delta, const core::point & pt) {
+      view.on_wheel_x([&] (const core::point::type delta, const core::native_point& pt) {
         hscroll.handle_wheel(delta, pt);
       });
-      view.on_wheel_y([&] (const core::point::type delta, const core::point & pt) {
+      view.on_wheel_y([&] (const core::point::type delta, const core::native_point& pt) {
         vscroll.handle_wheel(delta, pt);
       });
     }

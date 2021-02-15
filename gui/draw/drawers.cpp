@@ -972,7 +972,7 @@ namespace gui {
       }
 
       xft_color xftcolor(c, g);
-      clip clp(g, rect);
+//      clip clp(g, rect);
 
       XftDrawStringUtf8(g, &xftcolor, f.font_type(), px, py,
                         (XftChar8*)str.c_str(), int(str.size()));
@@ -1030,8 +1030,8 @@ namespace gui {
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
-        int px = rect.os_x() + extents.x;
-        int py = rect.os_y() + extents.y - extents.height;
+        os::point_type px = rect.os_x() + extents.x;
+        os::point_type py = rect.os_y() + extents.y - extents.height;
 
         if (origin_is_h_center(origin)) {
           px += (rect.os_width() - extents.width) / 2;
@@ -1045,8 +1045,8 @@ namespace gui {
           py += rect.os_height() - extents.height;
         }
 
-        rect.top_left({core::global::scale_from_native<core::point::type>(px), core::global::scale_from_native<core::point::type>(py)});
-        rect.set_size({core::global::scale_from_native<core::size::type>(extents.width), core::global::scale_from_native<core::size::type>(extents.height)});
+        rect.top_left(core::point(os::point{px, py}));
+        rect.set_size(core::size(os::size{extents.width, extents.height}));
 
       } else {
         clog::error() << "font_type is zero!";

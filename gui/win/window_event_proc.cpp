@@ -178,13 +178,13 @@ namespace gui {
       typedef util::blocking_queue<std::function<simple_action>> simple_action_queue;
       simple_action_queue queued_actions;
 
-      typedef std::map<os::window, core::rectangle> window_rectangle_map;
+      typedef std::map<os::window, core::native_rect> window_rectangle_map;
       window_rectangle_map s_invalidated_windows;
 
-      void invalidate_window (os::window id, const core::rectangle& r) {
+      void invalidate_window (os::window id, const core::native_rect& r) {
         clog::trace() << "invalidate_window: " << id;
         if (!r.empty()) {
-          core::rectangle& old = s_invalidated_windows[id];
+          auto& old = s_invalidated_windows[id];
           if (old.empty()) {
             old = r;
           } else {
@@ -198,8 +198,8 @@ namespace gui {
         s_invalidated_windows.erase(id);
       }
 
-      core::rectangle get_expose_rect (core::event& e) {
-        return get<core::rectangle, XExposeEvent>::param(e);
+      core::native_rect get_expose_rect (core::event& e) {
+        return get<core::native_rect, XExposeEvent>::param(e);
       }
 
     } // namespace x11

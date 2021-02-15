@@ -45,7 +45,7 @@ namespace gui {
     GUIPP_WIN_EXPORT os::key_state get_key_state (const core::event& e);
     GUIPP_WIN_EXPORT os::key_symbol get_key_symbol (const core::event& e);
     GUIPP_WIN_EXPORT std::string get_key_chars (const core::event& e);
-    GUIPP_WIN_EXPORT core::point get_root_mouse_pos (const core::event& e);
+    GUIPP_WIN_EXPORT core::native_point get_root_mouse_pos (const core::event& e);
 
     namespace event {
 

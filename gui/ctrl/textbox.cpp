@@ -276,15 +276,15 @@ namespace gui {
       }
 
       void textbox_base::enable_select_by_mouse (const text_origin_t origin) {
-        on_left_btn_down([&, origin](os::key_state, const core::point& pt) {
+        on_left_btn_down([&, origin](os::key_state, const core::native_point& pt) {
           take_focus();
           data.last_mouse_point = pt;
           set_cursor_pos(get_position_at_point(surface_to_client(pt), origin));
         });
-        on_left_btn_up([&](os::key_state, const core::point&) {
-          data.last_mouse_point = core::point::undefined;
+        on_left_btn_up([&](os::key_state, const core::native_point&) {
+          data.last_mouse_point = core::native_point::undefined;
         });
-        on_left_btn_dblclk([&, origin](os::key_state, const core::point& pt) {
+        on_left_btn_dblclk([&, origin](os::key_state, const core::native_point& pt) {
           take_focus();
           data.last_mouse_point = pt;
           const auto p = get_position_at_point(surface_to_client(pt), origin);
@@ -293,8 +293,8 @@ namespace gui {
           set_cursor_pos(p);
           set_selection({l, r});
         });
-        on_mouse_move([&, origin](os::key_state keys, const core::point& pt) {
-          if ((data.last_mouse_point != core::point::undefined) && core::left_button_bit_mask::is_set(keys)) {
+        on_mouse_move([&, origin](os::key_state keys, const core::native_point& pt) {
+          if ((data.last_mouse_point != core::native_point::undefined) && core::left_button_bit_mask::is_set(keys)) {
             set_cursor_pos(get_position_at_point(surface_to_client(pt), origin), true);
           }
         });

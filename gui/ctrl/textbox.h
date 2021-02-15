@@ -93,7 +93,7 @@ namespace gui {
           strings lines;
           draw::font font;
           core::point offset;
-          core::point last_mouse_point;
+          core::native_point last_mouse_point;
           position cursor_pos;
           range selection;
           mutable core::size virtual_size;

@@ -412,7 +412,7 @@ namespace gui {
       core::native_rect clip;
       if (bmp.mask) {
         if (!ctx->clipping().empty()) {
-          clip = core::global::scale_to_native(ctx->clipping().back());
+          clip = ctx->clipping().back();
         }
         XSetClipMask(display, gc(), bmp.mask.get_os_bitmap());
         XSetClipOrigin(display, gc(), pt.x(), pt.y());
@@ -664,7 +664,7 @@ namespace gui {
     }
 
     graphics& graphics::copy_from (graphics& src, const core::point& pt) {
-      return copy_from(src, src.native_area(), core::global::scale_to_native(pt));
+      return copy_from(src, src.native_area(), core::native_point(pt.os()));
     }
 
     graphics& graphics::copy_from (graphics& src, const core::native_point& pt) {
@@ -672,14 +672,14 @@ namespace gui {
     }
 
     graphics& graphics::copy_from (os::drawable w,
-                                         const core::rectangle& r,
-                                         const core::point& pt,
-                                         const copy_mode mode) {
-      return copy_from(w, core::global::scale_to_native(r), core::global::scale_to_native(pt), mode);
+                                   const core::rectangle& r,
+                                   const core::point& pt,
+                                   const copy_mode mode) {
+      return copy_from(w, core::global::scale_to_native(r), core::native_point(pt.os()), mode);
     }
 
     graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::point& pt) {
-      return copy_from(bmp, core::global::scale_to_native(pt));
+      return copy_from(bmp, core::native_point(pt.os()));
     }
 
     graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_point& pt) {
@@ -687,7 +687,7 @@ namespace gui {
     }
 
     graphics& graphics::copy_from (const draw::pixmap& bmp, const core::point& pt) {
-      return copy_from(bmp, core::global::scale_to_native(pt));
+      return copy_from(bmp, core::native_point(pt.os()));
     }
 
 #ifndef GUIPP_QT
@@ -741,13 +741,17 @@ namespace gui {
       : p(std::move(f))
     {}
 
-    void paint::operator() (core::context* s, core::rectangle* r) {
+    void paint::operator() (core::context* s, core::native_rect* r) {
       if (p) {
         draw::graphics graph(s);
         p(graph);
       }
     }
 
+    // --------------------------------------------------------------------------
+    clip::clip (graphics& g, const core::rectangle& r)
+      : core::clip(g.context(), core::native_rect(r.os()))
+    {}
   }
 
 }

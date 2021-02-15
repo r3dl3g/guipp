@@ -111,7 +111,7 @@ namespace gui {
       super::on_mouse_leave([&] () { set_hilited(false); });
       super::on_key_down<core::keys::enter>([&] () { set_pushed(true); });
       super::on_key_down<core::keys::space>([&] () { set_pushed(true); });
-      super::on_left_btn_down([&] (os::key_state, const core::point&) {
+      super::on_left_btn_down([&] (os::key_state, const core::native_point&) {
         take_focus();
         set_pushed(true);
       });
@@ -181,8 +181,8 @@ namespace gui {
 
     template<class T, typename U, U D>
     void basic_text_button<T, U, D>::init () {
-      super::on_paint(draw::paint([&](draw::graphics&  graph) {
-        auto r = super::surface_area();
+      super::on_paint(draw::paint([&](draw::graphics& graph) {
+        auto r = super::client_area();
         auto t = get_text();
         auto s = super::get_state();
         super::traits.template draw<D>(graph, r, t, s);
@@ -224,7 +224,7 @@ namespace gui {
     void custom_button<T>::init () {
       super::on_paint(draw::paint([&] (draw::graphics&  graph) {
         if (drawer) {
-          drawer(graph, super::surface_area(), super::get_state());
+          drawer(graph, super::client_area(), super::get_state());
         }
       }));
     }

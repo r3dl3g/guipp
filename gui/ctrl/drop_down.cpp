@@ -100,7 +100,7 @@ namespace gui {
     }
 
     void drop_down_list::paint (draw::graphics& graph) {
-      core::rectangle area = super::surface_area();
+      core::rectangle area = super::client_area();
       look::drop_down(graph, area, get_state());
       look::drop_down_button(graph,
                              layout::drop_down::button_place(area),
@@ -251,7 +251,7 @@ namespace gui {
       }
     }
 
-    void drop_down_list::handle_wheel (const core::point::type delta, const core::point&) {
+    void drop_down_list::handle_wheel (const core::native_point::type delta, const core::native_point&) {
       if (!is_popup_visible()) {
         set_selection(get_selection() + static_cast<int>(delta), event_source::mouse);
         super::invalidate();

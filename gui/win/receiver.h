@@ -46,8 +46,8 @@ namespace gui {
       virtual ~receiver ();
 
       typedef void(notification_fn)();
-      typedef void(mouse_fn)(os::key_state, core::point);
-      typedef void(wheel_fn)(core::point::type, core::point);
+      typedef void(mouse_fn)(os::key_state, core::native_point);
+      typedef void(wheel_fn)(core::native_point::type, core::native_point);
       typedef void(move_fn)(core::point);
       typedef void(size_fn)(core::size);
       typedef void(place_fn)(core::rectangle);
@@ -119,7 +119,7 @@ namespace gui {
 
       void on_layout (std::function<place_fn>&& f);
 
-      void on_paint (std::function<void(core::context*, core::rectangle*)>&& f);
+      void on_paint (std::function<void(core::context*, core::native_rect*)>&& f);
 
       template<typename H>
       void on (typename H::function&& f);

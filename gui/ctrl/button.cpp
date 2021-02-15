@@ -83,7 +83,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     void push_button_traits::init (button_base& btn) {
-      btn.on_left_btn_up([&] (os::key_state, const core::point & pos) {
+      btn.on_left_btn_up([&] (os::key_state, const core::native_point& pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
           if (btn.surface_area().is_inside(pos)) {
@@ -102,7 +102,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void toggle_button_traits<false>::init (button_base& btn) {
-      btn.on_left_btn_up([&] (os::key_state, const core::point & pos) {
+      btn.on_left_btn_up([&] (os::key_state, const core::native_point& pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
           if (btn.surface_area().is_inside(pos)) {
@@ -123,7 +123,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void toggle_button_traits<true>::init (button_base& btn) {
-      btn.on_left_btn_up([&] (os::key_state, const core::point & pos) {
+      btn.on_left_btn_up([&] (os::key_state, const core::native_point& pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
           if (!btn.is_checked() && btn.surface_area().is_inside(pos)) {
@@ -182,7 +182,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void animated_button_traits<false>::init (button_base& btn) {
-      btn.on_left_btn_up([&] (os::key_state, const core::point & pos) {
+      btn.on_left_btn_up([&] (os::key_state, const core::native_point& pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
           if (btn.surface_area().is_inside(pos)) {
@@ -203,7 +203,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void animated_button_traits<true>::init (button_base& btn) {
-      btn.on_left_btn_up([&] (os::key_state, const core::point & pos) {
+      btn.on_left_btn_up([&] (os::key_state, const core::native_point& pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
           if (!btn.is_checked() && btn.surface_area().is_inside(pos)) {

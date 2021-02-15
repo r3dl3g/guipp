@@ -72,14 +72,14 @@ namespace gui {
       return e.cast<QMouseEvent>().buttons();
     }
 
-    inline core::point get_mouse_point (const core::event& e) {
+    inline core::native_point get_mouse_point (const core::event& e) {
       const QMouseEvent& m = e.cast<QMouseEvent>();
-      return core::point(gui::os::point(m.x(), m.y()));
+      return core::native_point(gui::os::point(m.x(), m.y()));
     }
 
-    inline core::point get_root_mouse_pos (const core::event& e) {
+    inline core::native_point get_root_mouse_pos (const core::event& e) {
       const QMouseEvent& m = e.cast<QMouseEvent>();
-      return core::point(gui::os::point(m.globalX(), m.globalY()));
+      return core::native_point(m.globalX(), m.globalY());
     }
 
     template<os::event_id id, os::key_state btn>
@@ -87,8 +87,8 @@ namespace gui {
       return (e.type() == id) && (e.cast<QMouseEvent>().button() == btn);
     }
 
-    core::point::type get_wheel_delta_x (const core::event& e);
-    core::point::type get_wheel_delta_y (const core::event& e);
+    core::native_point::type get_wheel_delta_x (const core::event& e);
+    core::native_point::type get_wheel_delta_y (const core::event& e);
 
     template<typename T>
     inline core::point get_point (const core::event& e) {
@@ -96,12 +96,12 @@ namespace gui {
     }
 
   template<>
-  inline core::point get_point<QWheelEvent> (const core::event& e) {
+  inline core::native_point get_point<QWheelEvent> (const core::event& e) {
 #if QT_VERSION > QT_VERSION_CHECK(5, 13, 0)
     const auto pt = e.cast<QWheelEvent>().position();
-    return core::point(os::point(pt.x(), pt.y()));
+    return core::native_point(os::point(pt.x(), pt.y()));
 #else
-    return core::point(e.cast<QWheelEvent>().pos());
+    return core::native_point(e.cast<QWheelEvent>().pos());
 #endif
   }
 
@@ -154,83 +154,83 @@ namespace gui {
                                              event::functor<key_symbol_matcher<QEvent::KeyRelease, symbol, state>>>;
 
     using mouse_move_event = core::event_handler<QEvent::MouseMove, 0,
-                                                 core::params<os::key_state, core::point>::
+                                                 core::params<os::key_state, core::native_point>::
                                                  getter<get_mouse_button, get_mouse_point>>;
 
     using mouse_move_abs_event = core::event_handler<QEvent::MouseMove, 0,
-                                                     core::params<os::key_state, core::point>::
+                                                     core::params<os::key_state, core::native_point>::
                                                      getter<get_mouse_button,
                                                             get_root_mouse_pos>>;
 
     using left_btn_down_event = core::event_handler<QEvent::MouseButtonPress, 0,
-                                                    core::params<os::key_state, core::point>::
+                                                    core::params<os::key_state, core::native_point>::
                                                     getter<get_mouse_button, get_mouse_point>,
                                                     0,
                                                     event::functor<event_button_matcher<QEvent::MouseButtonPress, Qt::LeftButton>>>;
 
     using left_btn_up_event = core::event_handler<QEvent::MouseButtonRelease, 0,
-                                                  core::params<os::key_state, core::point>::
+                                                  core::params<os::key_state, core::native_point>::
                                                   getter<get_mouse_button, get_mouse_point>,
                                                   0,
                                                   event::functor<event_button_matcher<QEvent::MouseButtonRelease, Qt::LeftButton>>>;
 
     using right_btn_down_event = core::event_handler<QEvent::MouseButtonPress, 0,
-                                                     core::params<os::key_state, core::point>::
+                                                     core::params<os::key_state, core::native_point>::
                                                      getter<get_mouse_button, get_mouse_point>,
                                                      0,
                                                      event::functor<event_button_matcher<QEvent::MouseButtonPress, Qt::RightButton>>>;
 
     using right_btn_up_event = core::event_handler<QEvent::MouseButtonRelease, 0,
-                                                   core::params<os::key_state, core::point>::
+                                                   core::params<os::key_state, core::native_point>::
                                                    getter<get_mouse_button, get_mouse_point>,
                                                    0,
                                                    event::functor<event_button_matcher<QEvent::MouseButtonRelease, Qt::RightButton>>>;
 
     using middle_btn_down_event = core::event_handler<QEvent::MouseButtonPress, 0,
-                                                      core::params<os::key_state, core::point>::
+                                                      core::params<os::key_state, core::native_point>::
                                                       getter<get_mouse_button, get_mouse_point>,
                                                       0,
                                                       event::functor<event_button_matcher<QEvent::MouseButtonPress, Qt::MiddleButton>>>;
 
     using middle_btn_up_event = core::event_handler<QEvent::MouseButtonRelease, 0,
-                                                    core::params<os::key_state, core::point>::
+                                                    core::params<os::key_state, core::native_point>::
                                                     getter<get_mouse_button, get_mouse_point>,
                                                     0,
                                                     event::functor<event_button_matcher<QEvent::MouseButtonRelease, Qt::MiddleButton>>>;
 
     using btn_down_event = core::event_handler<QEvent::MouseButtonPress, 0,
-                                               core::params<os::key_state, core::point>::
+                                               core::params<os::key_state, core::native_point>::
                                                getter<get_mouse_button, get_mouse_point>>;
 
     using btn_up_event = core::event_handler<QEvent::MouseButtonRelease, 0,
-                                             core::params<os::key_state, core::point>::
+                                             core::params<os::key_state, core::native_point>::
                                              getter<get_mouse_button, get_mouse_point>>;
 
     using left_btn_dblclk_event = core::event_handler<QEvent::MouseButtonDblClick, 0,
-                                                      core::params<os::key_state, core::point>::
+                                                      core::params<os::key_state, core::native_point>::
                                                       getter<get_mouse_button, get_mouse_point>,
                                                       0,
                                                       event::functor<event_button_matcher<QEvent::MouseButtonDblClick, Qt::LeftButton>>>;
 
     using right_btn_dblclk_event = core::event_handler<QEvent::MouseButtonDblClick, 0,
-                                                       core::params<os::key_state, core::point>::
+                                                       core::params<os::key_state, core::native_point>::
                                                        getter<get_mouse_button, get_mouse_point>,
                                                        0,
                                                        event::functor<event_button_matcher<QEvent::MouseButtonDblClick, Qt::RightButton>>>;
     using middle_btn_dblclk_event = core::event_handler<QEvent::MouseButtonDblClick, 0,
-                                                        core::params<os::key_state, core::point>::
+                                                        core::params<os::key_state, core::native_point>::
                                                         getter<get_mouse_button, get_mouse_point>,
                                                         0,
                                                         event::functor<event_button_matcher<QEvent::MouseButtonDblClick, Qt::MiddleButton>>>;
 
     using wheel_x_event = core::event_handler<QEvent::Wheel, 0,
-                                              core::params<core::point::type, core::point>::
+                                              core::params<core::native_point::type, core::native_point>::
                                               getter<get_wheel_delta_x, get_point<QWheelEvent>>,
                                               0,
                                               event::functor<wheel_button_matcher_x>>;
 
     using wheel_y_event = core::event_handler<QEvent::Wheel, 0,
-                                              core::params<core::point::type, core::point>::
+                                              core::params<core::native_point::type, core::native_point>::
                                               getter<get_wheel_delta_y, get_point<QWheelEvent>>,
                                               0,
                                               event::functor<wheel_button_matcher_y>>;
@@ -254,7 +254,7 @@ namespace gui {
     using mouse_leave_event = core::event_handler<QEvent::Leave>;
 
     using move_event = core::event_handler<QEvent::Move, 0,
-                                           core::params<core::point>::
+                                           core::params<core::native_point>::
                                            getter<get_point<QMoveEvent>>>;
     using size_event = core::event_handler<QEvent::Resize, 0,
                                            core::params<core::size>::

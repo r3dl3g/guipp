@@ -39,7 +39,7 @@ namespace gui {
     namespace native {
 
       // --------------------------------------------------------------------------
-      void set_clip_rect (core::context& ctx, const core::rectangle& r) {
+      void set_clip_rect (core::context& ctx, const core::native_rect& r) {
         ctx.graphics()->setClipRect(r.os());
       }
 

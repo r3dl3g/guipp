@@ -56,7 +56,7 @@ namespace gui {
 
     template<orientation_t H>
     inline auto basic_scroll_bar<H>::get_geometry () const -> geometry {
-      const core::rectangle r = super::surface_area();
+      const core::rectangle r = super::client_area();
       const core::point pt = r.top_left();
       const core::size sz = r.size();
       type l = length(sz);
@@ -159,16 +159,17 @@ namespace gui {
     }
 
     template<orientation_t H>
-    void basic_scroll_bar<H>::handle_left_btn_down (os::key_state, const core::point& pt) {
+    void basic_scroll_bar<H>::handle_left_btn_down (os::key_state, const core::native_point& npt) {
       if (is_enabled()) {
         if (can_accept_focus()) {
           take_focus();
         }
-        set_last_mouse_point(pt);
+        set_last_mouse_point(npt);
         set_last_value(get_value());
 
         auto geo = get_geometry();
 
+        auto pt = surface_to_client(npt);
         if (up_button_place(geo).is_inside(pt)) {
           set_selection(scrollbar_item::up_button);
         } else if (down_button_place(geo).is_inside(pt)) {
@@ -189,8 +190,9 @@ namespace gui {
     }
 
     template<orientation_t H>
-    void basic_scroll_bar<H>::handle_left_btn_up (os::key_state, const core::point& pt) {
+    void basic_scroll_bar<H>::handle_left_btn_up (os::key_state, const core::native_point& npt) {
       if (is_enabled()) {
+        auto pt = surface_to_client(npt);
         auto geo = get_geometry();
         switch (get_selection()) {
         case scrollbar_item::up_button:
@@ -247,7 +249,7 @@ namespace gui {
     GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation_t::vertical>::init ();
 
     template<>
-    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation_t::vertical>::handle_mouse_move (os::key_state, const core::point&);
+    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation_t::vertical>::handle_mouse_move (os::key_state, const core::native_point&);
 
     template<>
     GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation_t::vertical>::handle_any_key_up (os::key_state, os::key_symbol key);
@@ -257,7 +259,7 @@ namespace gui {
     GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation_t::horizontal>::init ();
 
     template<>
-    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation_t::horizontal>::handle_mouse_move (os::key_state, const core::point&);
+    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation_t::horizontal>::handle_mouse_move (os::key_state, const core::native_point&);
 
     template<>
     GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation_t::horizontal>::handle_any_key_up (os::key_state, os::key_symbol key);

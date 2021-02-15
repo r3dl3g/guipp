@@ -80,7 +80,7 @@ namespace gui {
       type value;
 
       type last_value;
-      core::point last_mouse_point;
+      core::native_point last_mouse_point;
     };
 
     // --------------------------------------------------------------------------
@@ -109,7 +109,7 @@ namespace gui {
       void set_min_max_step_page (type, type, type, type);
       void set_min_max_step_value (type, type, type, type);
 
-      void handle_wheel (core::point::type delta, const core::point&);
+      void handle_wheel (core::point::type delta, const core::native_point&);
 
       static constexpr int get_scroll_bar_width () {
         return scroll_bar_width;
@@ -137,8 +137,8 @@ namespace gui {
       type get_last_value () const;
       void set_last_value (type last_value);
 
-      core::point get_last_mouse_point () const;
-      void set_last_mouse_point (core::point last_mouse_point);
+      core::native_point get_last_mouse_point () const;
+      void set_last_mouse_point (core::native_point last_mouse_point);
 
     private:
       void init ();
@@ -199,9 +199,9 @@ namespace gui {
       void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
-      void handle_left_btn_down (os::key_state, const core::point&);
-      void handle_left_btn_up (os::key_state, const core::point&);
-      void handle_mouse_move (os::key_state, const core::point&);
+      void handle_left_btn_down (os::key_state, const core::native_point&);
+      void handle_left_btn_up (os::key_state, const core::native_point&);
+      void handle_mouse_move (os::key_state, const core::native_point&);
       void handle_any_key_up (os::key_state, os::key_symbol key);
       void handle_paint (draw::graphics&);
 

@@ -120,7 +120,7 @@ namespace gui {
       void create_popup (const core::rectangle& place);
 
       void handle_move (const core::point&);
-      void handle_wheel (core::point::type delta, const core::point&);
+      void handle_wheel (core::native_point::type delta, const core::native_point&);
 
       struct data {
         explicit data (core::size::type item_size = 20,

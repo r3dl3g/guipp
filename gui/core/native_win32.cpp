@@ -38,7 +38,7 @@ namespace gui {
     namespace native {
 
       // --------------------------------------------------------------------------
-      void set_clip_rect (core::context& ctx, const core::rectangle& rect) {
+      void set_clip_rect (core::context& ctx, const core::native_rect& rect) {
         auto r = rect.os();
         SelectClipRgn(ctx, NULL);
         IntersectClipRect(ctx, r.left, r.top, r.right, r.bottom);

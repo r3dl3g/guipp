@@ -86,10 +86,10 @@ namespace gui {
           }
         }
       });
-      super::header.on_left_btn_down([&] (gui::os::key_state, const core::point& pt) {
+      super::header.on_left_btn_down([&] (gui::os::key_state, const core::native_point& pt) {
         mouse_down_point = pt;
       });
-      super::header.on_left_btn_up([&] (gui::os::key_state, const core::point& pt) {
+      super::header.on_left_btn_up([&] (gui::os::key_state, const core::native_point& pt) {
         if (mouse_down_point == pt) {
           int i = super::get_column_layout().index_at(pt.x());
           if (i < 6) {

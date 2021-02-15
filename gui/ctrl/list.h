@@ -223,7 +223,7 @@ namespace gui {
         item_state get_item_state (int idx) const;
 
         os::color get_background () const;
-        core::point get_last_mouse_point () const;
+        core::native_point get_last_mouse_point () const;
 
         bool is_valid_idx (int idx) const;
         bool is_scroll_bar_enabled () const;
@@ -254,7 +254,7 @@ namespace gui {
           std::function<list_data_provider> items;
           int selection;
           int hilite;
-          core::point last_mouse_point;
+          core::native_point last_mouse_point;
           os::color background;
         } data;
 
@@ -348,9 +348,9 @@ namespace gui {
       void set_hilite (int sel, bool notify = true);
       void clear_hilite (bool notify = true);
 
-      void handle_wheel (pos_t delta, const core::point&);
-      void handle_mouse_move (os::key_state keys, const core::point& pt);
-      void handle_left_btn_up (os::key_state keys, const core::point& pt);
+      void handle_wheel (pos_t delta, const core::native_point&);
+      void handle_mouse_move (os::key_state keys, const core::native_point& pt);
+      void handle_left_btn_up (os::key_state keys, const core::native_point& pt);
 
     protected:
       pos_t get_list_size () const;

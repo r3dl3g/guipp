@@ -113,7 +113,7 @@ namespace gui {
           pos_t cursor_pos;
           pos_t text_limit;
           pos_t scroll_pos;
-          core::point last_mouse_point;
+          core::native_point last_mouse_point;
           text_filter filter;
         } data;
 

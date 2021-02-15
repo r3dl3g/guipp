@@ -63,7 +63,7 @@ namespace gui {
 #endif // GUIPP_X11
 
         set_accept_focus(true);
-        on_left_btn_down([&] (os::key_state, const core::point & pt) {
+        on_left_btn_down([&] (os::key_state, const core::native_point& pt) {
           data.last_mouse_point = pt;
           set_state().moved(false);
           if (get_state().grab_focus()) {
@@ -145,7 +145,7 @@ namespace gui {
     void edit_list::init () {
       super::on_selection_commit(util::bind_method(this, &edit_list::enter_edit));
 
-      data.editor.on_btn_down([&](os::key_state, const core::point& pt) {
+      data.editor.on_btn_down([&](os::key_state, const core::native_point& pt) {
         if (!data.editor.surface_area().is_inside(pt)) {
           commit_edit();
         }

@@ -37,7 +37,7 @@ namespace gui {
     namespace native {
 
       // --------------------------------------------------------------------------
-      GUIPP_CORE_EXPORT void set_clip_rect (context&, const core::rectangle&);
+      GUIPP_CORE_EXPORT void set_clip_rect (context&, const core::native_rect&);
 
       // --------------------------------------------------------------------------
       GUIPP_CORE_EXPORT void clear_clip_rect (context&);

@@ -29,7 +29,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   bool at_paint1 = true;
   bool at_drag = false;
   bool draw_invert = false;
-  core::point last_pos;
+  core::native_point last_pos;
   core::angle start_angle(15), end_angle(245);
 
   const ctrl::paint_function paint1 = create_paint1(window1, draw_invert);
@@ -38,29 +38,29 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.get_layout().set_center(lay(scroll_view));
 
   scroll_view.on_paint(draw::paint([&] (draw::graphics& graph) {
-    graph.fill(draw::rectangle(scroll_view.surface_area()), color::cyan);
+    graph.fill(draw::rectangle(scroll_view.client_area()), color::cyan);
   }));
-  window1.on_left_btn_down([&](gui::os::key_state, const core::point& p) {
+  window1.on_left_btn_down([&](gui::os::key_state, const core::native_point& p) {
     window1.to_front();
     at_drag = true;
     last_pos = p;
     window1.capture_pointer();
   });
-  window1.on_left_btn_up([&](gui::os::key_state, const core::point& p) {
+  window1.on_left_btn_up([&](gui::os::key_state, const core::native_point& p) {
     window1.uncapture_pointer();
     at_drag = false;
   });
-  window1.on_mouse_move([&] (gui::os::key_state, const core::point& p) {
+  window1.on_mouse_move([&] (gui::os::key_state, const core::native_point& p) {
     if (at_drag) {
       auto delta = p - last_pos;
       last_pos = p;
-      window1.move(window1.position() + delta);
+      window1.move(window1.position() + core::global::scale_from_native(delta));
       window1.invalidate();
     }
   });
 
   window1.on_paint(draw::paint(paint1));
-  window1.on_left_btn_dblclk([&] (gui::os::key_state, const core::point& p) {
+  window1.on_left_btn_dblclk([&] (gui::os::key_state, const core::native_point& p) {
     if (at_paint1) {
       at_paint1 = false;
       window1.unregister_event_handler<win::paint_event>(draw::paint(paint1));
@@ -73,29 +73,29 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     window1.invalidate();
   });
 
-  window1.on_wheel<orientation_t::horizontal>([&] (core::point::type delta,
-                                                   const core::point& p) {
-    if (window1.place().is_inside(p)) {
+  window1.on_wheel<orientation_t::horizontal>([&] (core::native_point::type delta,
+                                                   const core::native_point& p) {
+    if (window1.surface_area().is_inside(p)) {
       end_angle += angle(delta);
       window1.invalidate();
     }
   });
-  window1.on_wheel<orientation_t::vertical>([&] (core::point::type delta,
-                                                 const core::point& p) {
-    if (window1.place().is_inside(p)) {
+  window1.on_wheel<orientation_t::vertical>([&] (core::native_point::type delta,
+                                                 const core::native_point& p) {
+    if (window1.surface_area().is_inside(p)) {
       start_angle += angle(delta);
       window1.invalidate();
     }
   });
 
   window2.on_paint(draw::paint([&] (draw::graphics& graph) {
-    graph.fill(draw::rectangle(window2.surface_area()), color::gray);
+    graph.fill(draw::rectangle(window2.client_area()), color::gray);
   }));
-  window2.on_left_btn_down([&] (gui::os::key_state, const core::point& p) {
+  window2.on_left_btn_down([&] (gui::os::key_state, const core::native_point& p) {
     window2.to_front();
     scroll_view.invalidate();
   });
-  window2.on_left_btn_dblclk([&] (gui::os::key_state, const core::point& p) {
+  window2.on_left_btn_dblclk([&] (gui::os::key_state, const core::native_point& p) {
     draw_invert = !draw_invert;
     scroll_view.invalidate();
   });
@@ -143,7 +143,7 @@ ctrl::paint_function create_paint1 (const win::window& win, const bool& draw_inv
     using namespace gui;
     using namespace gui::draw;
 
-    auto area = win.surface_area();
+    auto area = win.client_area();
     auto pos = area.top_left();
     clip clp(graph, area);
 
@@ -230,7 +230,7 @@ ctrl::paint_function create_paint2 (const win::window& win, const bool& draw_inv
     using namespace gui;
     using namespace gui::draw;
 
-    auto area = win.surface_area();
+    auto area = win.client_area();
     auto pos = area.top_left();
     clip clp(graph, area);
     graph.fill(rectangle(area), color::white);

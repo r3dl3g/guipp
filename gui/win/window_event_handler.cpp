@@ -108,10 +108,10 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    core::point get_root_mouse_pos (const core::event& e) {
+    core::native_point get_root_mouse_pos (const core::event& e) {
       POINT pt = {GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)};
       ClientToScreen(e.id, &pt);
-      return core::global::scale_from_native(core::native_point(pt));
+      return core::native_point(pt);
     }
 
     // --------------------------------------------------------------------------
@@ -132,7 +132,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    core::point::type get_wheel_delta (const core::event& e) {
+    core::native_point::type get_wheel_delta (const core::event& e) {
       return static_cast<core::point::type>(core::signum(GET_WHEEL_DELTA_WPARAM(e.wParam)));
     }
 
@@ -285,8 +285,8 @@ namespace gui {
       return get_client_data<0, core::context*>(e);
     }
     // --------------------------------------------------------------------------
-    core::rectangle* get_paint_rect (const core::event& e) {
-      return get_client_data<1, core::rectangle*>(e);
+    core::native_rect* get_paint_rect (const core::event& e) {
+      return get_client_data<1, core::native_rect*>(e);
     }
     // --------------------------------------------------------------------------
     core::rectangle get_client_data_rect (const core::event& e) {
@@ -317,9 +317,9 @@ namespace gui {
       return global::get_current_focus_window();
     }
     // --------------------------------------------------------------------------
-    core::point get_root_mouse_pos (const core::event& e) {
+    core::native_point get_root_mouse_pos (const core::event& e) {
       auto me = (event_type_cast<XMotionEvent>(e));
-      return core::global::scale_from_native(core::native_point{me.x_root, me.y_root});
+      return core::native_point{me.x_root, me.y_root};
     }
     // --------------------------------------------------------------------------
     std::map<Window, core::rectangle> s_last_place;
@@ -409,7 +409,7 @@ namespace gui {
       return e.cast<QClientEvent>().l2();
     }
 
-    core::point::type get_wheel_delta_x (const core::event& e) {
+    core::native_point::type get_wheel_delta_x (const core::event& e) {
       auto we = e.cast<QWheelEvent>();
       os::point numPixels = we.pixelDelta();
       if (numPixels.isNull()) {
@@ -418,7 +418,7 @@ namespace gui {
       return numPixels.x();
     }
 
-    core::point::type get_wheel_delta_y (const core::event& e) {
+    core::native_point::type get_wheel_delta_y (const core::event& e) {
       auto we = e.cast<QWheelEvent>();
       os::point numPixels = we.pixelDelta();
       if (numPixels.isNull()) {
@@ -444,8 +444,8 @@ namespace gui {
       return (core::context*)e.cast<QClientEvent>().l1();
     }
 
-    core::rectangle* get_paint_rect (const core::event& e) {
-      return (core::rectangle*)(e.cast<QClientEvent>().l2());
+    core::native_rect* get_paint_rect (const core::event& e) {
+      return (core::native_rect*)(e.cast<QClientEvent>().l2());
     }
 
     // --------------------------------------------------------------------------

@@ -352,7 +352,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     clog::trace() << "Received on_paint, clear white";
     graph.clear(color::white);
 
-    auto area = main.surface_area();
+    auto area = main.client_area();
     graph.fill(draw::rectangle(area), color::very_very_light_gray);
     clog::trace() << "Draw graphs in area:" << area;
 
@@ -372,7 +372,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
     clog::trace() << "on_paint finished";
   }));
-  main.on_left_btn_down([&] (os::key_state, const core::point& pt) {
+  main.on_left_btn_down([&] (os::key_state, const core::native_point& pt) {
     clog::trace() << "Left button down at " << pt << " -> initiate redraw";
     main.invalidate();
   });

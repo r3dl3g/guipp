@@ -78,8 +78,8 @@ namespace gui {
       GUIPP_WIN_EXPORT void take_focus (os::window id);
       GUIPP_WIN_EXPORT void set_cursor (os::window id, const os::cursor& c);
 
-      GUIPP_WIN_EXPORT void invalidate (os::window id, const core::rectangle& p);
-      GUIPP_WIN_EXPORT void redraw (window& w, os::window id, const core::rectangle& p);
+      GUIPP_WIN_EXPORT void invalidate (os::window id, const core::native_rect& p);
+      GUIPP_WIN_EXPORT void redraw (window& w, os::window id, const core::native_rect& p);
 
       GUIPP_WIN_EXPORT void prepare_accept_focus (os::window, bool);
 

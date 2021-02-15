@@ -254,12 +254,12 @@ namespace gui {
       void init_file_list_header (column_list_header<layout::weight_column_list_layout>&);
 
     private:
-      void handle_header_mouse_down (os::key_state, const core::point&);
-      void handle_header_mouse_up (os::key_state, const core::point&);
+      void handle_header_mouse_down (os::key_state, const core::native_point&);
+      void handle_header_mouse_up (os::key_state, const core::native_point&);
 
       void init ();
 
-      core::point mouse_down_point;
+      core::native_point mouse_down_point;
       std::vector<fs::file_info> current_dir;
       sort_order order;
 

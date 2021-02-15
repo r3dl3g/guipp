@@ -434,11 +434,11 @@ namespace gui {
         XDefineCursor(core::global::get_instance(), id, c);
       }
 
-      void invalidate (os::window id, const core::rectangle& r) {
+      void invalidate (os::window id, const core::native_rect& r) {
         x11::invalidate_window(id, r);
       }
 
-      void redraw (window& w, os::window id, const core::rectangle& r) {
+      void redraw (window& w, os::window id, const core::native_rect& r) {
         XEvent event;
 
         XExposeEvent& e = event.xexpose;

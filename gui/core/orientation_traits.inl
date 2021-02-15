@@ -24,178 +24,202 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    inline point::type
-    orientation_traits<orientation_t::horizontal>::get_1 (const point& pt) {
+    template<typename T, coordinate_system C>
+    inline typename basic_point<T, C>::type
+    orientation_traits<orientation_t::horizontal>::get_1 (const basic_point<T, C>& pt) {
       return pt.x();
     }
 
     template<>
-    inline size::type
-    orientation_traits<orientation_t::horizontal>::get_1 (const size& sz) {
+    template<typename S, coordinate_system C>
+    inline typename basic_size<S, C>::type
+    orientation_traits<orientation_t::horizontal>::get_1 (const basic_size<S, C>& sz) {
       return sz.width();
     }
 
     template<>
-    inline point::type
-    orientation_traits<orientation_t::horizontal>::get_2 (const point& pt) {
+    template<typename T, coordinate_system C>
+    inline typename basic_point<T, C>::type
+    orientation_traits<orientation_t::horizontal>::get_2 (const basic_point<T, C>& pt) {
       return pt.y();
     }
 
     template<>
-    inline size::type
-    orientation_traits<orientation_t::horizontal>::get_2 (const size& sz) {
+    template<typename S, coordinate_system C>
+    inline typename basic_size<S, C>::type
+    orientation_traits<orientation_t::horizontal>::get_2 (const basic_size<S, C>& sz) {
       return sz.height();
     }
 
     template<>
+    template<typename T, coordinate_system C>
     inline void
-    orientation_traits<orientation_t::horizontal>::set (point& pt,
-                                                        point::type d1,
-                                                        point::type d2) {
+    orientation_traits<orientation_t::horizontal>::set (basic_point<T, C>& pt,
+                                                        typename basic_point<T, C>::type d1,
+                                                        typename basic_point<T, C>::type d2) {
       pt.x(d1);
       pt.y(d2);
     }
 
     template<>
+    template<typename T, coordinate_system C>
     inline void
-    orientation_traits<orientation_t::horizontal>::set_1 (point& pt,
-                                                          point::type d1) {
+    orientation_traits<orientation_t::horizontal>::set_1 (basic_point<T, C>& pt,
+                                                          typename basic_point<T, C>::type d1) {
       pt.x(d1);
     }
 
     template<>
+    template<typename T, coordinate_system C>
     inline void
-    orientation_traits<orientation_t::horizontal>::set_2 (point& pt,
-                                                          point::type d2) {
+    orientation_traits<orientation_t::horizontal>::set_2 (basic_point<T, C>& pt,
+                                                          typename basic_point<T, C>::type d2) {
       pt.y(d2);
     }
 
     template<>
+    template<typename S, coordinate_system C>
     inline void
-    orientation_traits<orientation_t::horizontal>::set (size& sz,
-                                                        size::type d1,
-                                                        size::type d2) {
+    orientation_traits<orientation_t::horizontal>::set (basic_size<S, C>& sz,
+                                                        typename basic_size<S, C>::type d1,
+                                                        typename basic_size<S, C>::type d2) {
       sz.width(d1);
       sz.height(d2);
     }
 
     template<>
+    template<typename S, coordinate_system C>
     inline void
-    orientation_traits<orientation_t::horizontal>::set_1 (size& sz,
-                                                          size::type d1) {
+    orientation_traits<orientation_t::horizontal>::set_1 (basic_size<S, C>& sz,
+                                                          typename basic_size<S, C>::type d1) {
       sz.width(d1);
     }
 
     template<>
+    template<typename S, coordinate_system C>
     inline void
-    orientation_traits<orientation_t::horizontal>::set_2 (size& sz,
-                                                          size::type d2) {
+    orientation_traits<orientation_t::horizontal>::set_2 (basic_size<S, C>& sz,
+                                                          typename basic_size<S, C>::type d2) {
       sz.height(d2);
     }
 
     template<>
+    template<typename T, typename S, coordinate_system C>
     inline void
-    orientation_traits<orientation_t::horizontal>::set_1 (rectangle& r,
-                                                          point::type v,
-                                                          size::type s) {
+    orientation_traits<orientation_t::horizontal>::set_1 (basic_rectangle<T, S, C>& r,
+                                                          typename basic_point<T, C>::type v,
+                                                          typename basic_size<S, C>::type s) {
       r.x(v);
       r.width(s);
     }
 
     template<>
+    template<typename T, typename S, coordinate_system C>
     inline void
-    orientation_traits<orientation_t::horizontal>::set_2 (rectangle& r,
-                                                          point::type v,
-                                                          size::type s) {
+    orientation_traits<orientation_t::horizontal>::set_2 (basic_rectangle<T, S, C>& r,
+                                                          typename basic_point<T, C>::type v,
+                                                          typename basic_size<S, C>::type s) {
       r.y(v);
       r.height(s);
     }
 
     // --------------------------------------------------------------------------
     template<>
-    inline point::type
-    orientation_traits<orientation_t::vertical>::get_1 (const point& pt) {
+    template<typename T, coordinate_system C>
+    inline typename basic_point<T, C>::type
+    orientation_traits<orientation_t::vertical>::get_1 (const basic_point<T, C>& pt) {
       return pt.y();
     }
 
     template<>
-    inline size::type
-    orientation_traits<orientation_t::vertical>::get_1 (const size& sz) {
+    template<typename S, coordinate_system C>
+    inline typename basic_size<S, C>::type
+    orientation_traits<orientation_t::vertical>::get_1 (const basic_size<S, C>& sz) {
       return sz.height();
     }
 
     template<>
-    inline point::type
-    orientation_traits<orientation_t::vertical>::get_2 (const point& pt) {
+    template<typename T, coordinate_system C>
+    inline typename basic_point<T, C>::type
+    orientation_traits<orientation_t::vertical>::get_2 (const basic_point<T, C>& pt) {
       return pt.x();
     }
 
     template<>
-    inline size::type
-    orientation_traits<orientation_t::vertical>::get_2 (const size& sz) {
+    template<typename S, coordinate_system C>
+    inline typename basic_size<S, C>::type
+    orientation_traits<orientation_t::vertical>::get_2 (const basic_size<S, C>& sz) {
       return sz.width();
     }
 
     template<>
+    template<typename T, coordinate_system C>
     inline void
-    orientation_traits<orientation_t::vertical>::set (point& pt,
-                                                      point::type d1,
-                                                      point::type d2) {
+    orientation_traits<orientation_t::vertical>::set (basic_point<T, C>& pt,
+                                                      typename basic_point<T, C>::type d1,
+                                                      typename basic_point<T, C>::type d2) {
       pt.y(d1);
       pt.x(d2);
     }
 
     template<>
+    template<typename T, coordinate_system C>
     inline void
-    orientation_traits<orientation_t::vertical>::set_1 (point& pt,
-                                                        point::type d1) {
+    orientation_traits<orientation_t::vertical>::set_1 (basic_point<T, C>& pt,
+                                                        typename basic_point<T, C>::type d1) {
       pt.y(d1);
     }
 
     template<>
+    template<typename T, coordinate_system C>
     inline void
-    orientation_traits<orientation_t::vertical>::set_2 (point& pt,
-                                                        point::type d2) {
+    orientation_traits<orientation_t::vertical>::set_2 (basic_point<T, C>& pt,
+                                                        typename basic_point<T, C>::type d2) {
       pt.x(d2);
     }
 
     template<>
+    template<typename S, coordinate_system C>
     inline void
-    orientation_traits<orientation_t::vertical>::set (size& sz,
-                                                      size::type d1,
-                                                      size::type d2) {
+    orientation_traits<orientation_t::vertical>::set (basic_size<S, C>& sz,
+                                                      typename basic_size<S, C>::type d1,
+                                                      typename basic_size<S, C>::type d2) {
       sz.height(d1);
       sz.width(d2);
     }
 
     template<>
+    template<typename S, coordinate_system C>
     inline void
-    orientation_traits<orientation_t::vertical>::set_1 (size& sz,
-                                                        size::type d1) {
+    orientation_traits<orientation_t::vertical>::set_1 (basic_size<S, C>& sz,
+                                                        typename basic_size<S, C>::type d1) {
       sz.height(d1);
     }
 
     template<>
+    template<typename S, coordinate_system C>
     inline void
-    orientation_traits<orientation_t::vertical>::set_2 (size& sz,
-                                                        size::type d2) {
+    orientation_traits<orientation_t::vertical>::set_2 (basic_size<S, C>& sz,
+                                                        typename basic_size<S, C>::type d2) {
       sz.width(d2);
    }
 
     template<>
+    template<typename T, typename S, coordinate_system C>
     inline void
-    orientation_traits<orientation_t::vertical>::set_1 (rectangle& r,
-                                                        point::type v,
-                                                        size::type s) {
+    orientation_traits<orientation_t::vertical>::set_1 (basic_rectangle<T, S, C>& r,
+                                                        typename basic_point<T, C>::type v,
+                                                        typename basic_size<S, C>::type s) {
       r.y(v);
       r.height(s);
     }
 
     template<>
+    template<typename T, typename S, coordinate_system C>
     inline void
-    orientation_traits<orientation_t::vertical>::set_2 (rectangle& r,
-                                                        point::type v,
-                                                        size::type s) {
+    orientation_traits<orientation_t::vertical>::set_2 (basic_rectangle<T, S, C>& r,
+                                                        typename basic_point<T, C>::type v,
+                                                        typename basic_size<S, C>::type s) {
       r.x(v);
       r.width(s);
     }

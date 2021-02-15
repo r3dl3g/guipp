@@ -255,7 +255,7 @@ namespace gui {
       data.key_caller = nullptr;
     }
 
-    void menu_data::handle_mouse (bool b, const core::point& pt) const {
+    void menu_data::handle_mouse (bool b, const core::native_point& pt) const {
       if (data.mouse_caller) {
         data.mouse_caller(b, pt);
       }
@@ -361,7 +361,7 @@ namespace gui {
 
       on_paint(draw::paint(this, &main_menu::paint));
 
-      on_mouse_move([&] (os::key_state, const core::point & pt) {
+      on_mouse_move([&] (os::key_state, const core::native_point& pt) {
         data.handle_mouse(false, pt);
       });
 
@@ -391,7 +391,7 @@ namespace gui {
         }
       });
 
-      on_left_btn_down([&] (os::key_state, const core::point & pt) {
+      on_left_btn_down([&] (os::key_state, const core::native_point& pt) {
         take_focus();
         data.handle_mouse(true, pt);
       });
@@ -405,7 +405,7 @@ namespace gui {
       });
     }
 
-    void main_menu::handle_mouse (bool btn, const core::point& gpt){
+    void main_menu::handle_mouse (bool btn, const core::native_point& gpt){
       if (surface_area().is_inside(gpt)) {
         const auto idx = get_index_at_point(surface_to_client(gpt));
         if (btn) {
@@ -470,7 +470,7 @@ namespace gui {
     }
 
     int main_menu::get_index_at_point (const core::point& pt) const {
-      if (surface_area().is_inside(pt)) {
+      if (client_area().is_inside(pt)) {
         core::point::type pos = 0;
         int idx = -1;
         for (auto& i : data) {
@@ -499,7 +499,7 @@ namespace gui {
 
     void main_menu::paint (draw::graphics& g) {
       draw::brush back_brush(color::menuColor());
-      const core::rectangle area = surface_area();
+      const core::rectangle area = client_area();
       core::rectangle r = area;
       int idx = -1;
       for (auto& i : data) {
@@ -539,7 +539,7 @@ namespace gui {
     void popup_menu::init () {
       on_paint(draw::paint(this, &popup_menu::paint));
 
-      on_mouse_move([&](os::key_state, const core::point & pt) {
+      on_mouse_move([&](os::key_state, const core::native_point& pt) {
         data.handle_mouse(false, pt);
       });
 
@@ -550,13 +550,13 @@ namespace gui {
         if (idx > -1) {
           clog::trace() << "popup_menu::on_selection_changed() -> select(" << idx << ")";
           if (!data[idx].is_sub_menu()) {
-            data.handle_mouse(true, core::point::zero);
+            data.handle_mouse(true, core::native_point::zero);
           }
           data[idx].select();
         }
       });
 
-      on_left_btn_down([&] (os::key_state, const core::point & pt) {
+      on_left_btn_down([&] (os::key_state, const core::native_point& pt) {
         data.handle_mouse(true, pt);
       });
 
@@ -637,7 +637,7 @@ namespace gui {
       return false;
     }
 
-    void popup_menu::handle_mouse (bool btn, const core::point& gpt) {
+    void popup_menu::handle_mouse (bool btn, const core::native_point& gpt) {
       const auto idx = get_index_at_point(surface_to_client(gpt));
       if (btn) {
         if (!data.is_open() || (idx != data.get_hilite())) {
@@ -657,7 +657,7 @@ namespace gui {
       set_state().disable_redraw(false);
       data.init();
       data.set_hilite(0);
-      data.set_mouse_function([&] (bool btn, const core::point & gpt) {
+      data.set_mouse_function([&] (bool btn, const core::native_point& gpt) {
         if (surface_area().is_inside(gpt)) {
           handle_mouse(btn, gpt);
         } else if (btn) {
@@ -666,7 +666,7 @@ namespace gui {
       });
       clog::trace() << "popup_menu::popup_at(" << pt << ") -> run_modal";
       auto& root = parent.get_overlapped_window();
-      create(root, core::rectangle(pt - parent.surface_offset() + parent.position(), core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
+      create(root, core::rectangle(pt - core::global::scale_from_native(parent.surface_offset()) + parent.position(), core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
       run_modal(root);
     }
 
@@ -680,7 +680,7 @@ namespace gui {
       });
       parent_data.set_key_function(util::bind_method(this, &popup_menu::handle_key));
 
-      data.set_mouse_function([&] (bool btn, const core::point & gpt) {
+      data.set_mouse_function([&] (bool btn, const core::native_point& gpt) {
         if (surface_area().is_inside(gpt)) {
           handle_mouse(btn, gpt);
         } else {
@@ -699,7 +699,7 @@ namespace gui {
     }
 
     int popup_menu::get_index_at_point (const core::point& pt) const {
-      if (surface_area().shrinked({1, 1}).is_inside(pt)) {
+      if (client_area().shrinked({1, 1}).is_inside(pt)) {
         return std::min(static_cast<int>(data.size()), static_cast<int>((pt.y() - 1) / item_height));
       }
       return -1;
@@ -716,7 +716,7 @@ namespace gui {
 
     void popup_menu::paint (draw::graphics& g) {
       draw::brush back_brush(color::menuColor());
-      const core::rectangle area = surface_area();
+      const core::rectangle area = client_area();
       draw::frame::raised_relief(g, area);
       core::rectangle r = area.shrinked({1, 1});
       int idx = -1;

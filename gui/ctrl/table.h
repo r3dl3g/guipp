@@ -411,17 +411,17 @@ namespace gui {
       void handle_created ();
       void handle_layout (const core::rectangle& r);
 
-      void handle_left_btn_down (os::key_state, const core::point& pt);
-      void handle_left_btn_up (os::key_state keys, const core::point& pt);
-      void handle_mouse_move (os::key_state keys, const core::point& pt);
+      void handle_left_btn_down (os::key_state, const core::native_point& pt);
+      void handle_left_btn_up (os::key_state keys, const core::native_point& pt);
+      void handle_mouse_move (os::key_state keys, const core::native_point& pt);
 
-      void handle_column_left_btn_down (os::key_state, const core::point& pt);
-      void handle_column_left_btn_up (os::key_state keys, const core::point& pt);
-      void handle_column_mouse_move (os::key_state keys, const core::point& pt);
+      void handle_column_left_btn_down (os::key_state, const core::native_point& pt);
+      void handle_column_left_btn_up (os::key_state keys, const core::native_point& pt);
+      void handle_column_mouse_move (os::key_state keys, const core::native_point& pt);
 
-      void handle_row_left_btn_down (os::key_state, const core::point& pt);
-      void handle_row_left_btn_up (os::key_state keys, const core::point& pt);
-      void handle_row_mouse_move (os::key_state keys, const core::point& pt);
+      void handle_row_left_btn_down (os::key_state, const core::native_point& pt);
+      void handle_row_left_btn_up (os::key_state keys, const core::native_point& pt);
+      void handle_row_mouse_move (os::key_state keys, const core::native_point& pt);
 
       void handle_key (os::key_state,
                        os::key_symbol key,
@@ -459,7 +459,7 @@ namespace gui {
       bool enable_selection_;
 
       bool moved;
-      core::point last_mouse_point;
+      core::native_point last_mouse_point;
       table::position down_idx;
 
       std::function<scroll_maximum_calcer> scroll_maximum;

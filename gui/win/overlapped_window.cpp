@@ -379,7 +379,7 @@ namespace gui {
           if (capture_window && (capture_window != this)) {
             return capture_window->handle_event(e, r);
           } else {
-            core::point pt = mouse_move_event::Caller::get_param<1>(e);
+            core::native_point pt = mouse_move_event::Caller::get_param<1>(e);
             window* win = window_at_point(pt);
             set_mouse_window(win);
             native::set_cursor(get_os_window(), mouse_window ? mouse_window->get_cursor() : get_cursor());
@@ -491,7 +491,7 @@ namespace gui {
       invalidate(surface_area());
     }
     // --------------------------------------------------------------------------
-    void overlapped_window::invalidate (const core::rectangle& r) {
+    void overlapped_window::invalidate (const core::native_rect& r) {
       if (is_valid() && is_visible()) {
         clog::trace() << "invalidate: " << *this;
         if (invalid_rect.empty()) {
@@ -505,12 +505,11 @@ namespace gui {
     // --------------------------------------------------------------------------
     void frame_window (core::context& ctx, window* win, os::color col) {
       if (win) {
-        native::frame(ctx.drawable(), ctx.graphics(),
-                      core::global::scale_to_native(win->surface_area()), col);
+        native::frame(ctx.drawable(), ctx.graphics(), win->surface_area(), col);
       }
     }
     // --------------------------------------------------------------------------
-    void overlapped_window::redraw (const core::rectangle& r) {
+    void overlapped_window::redraw (const core::native_rect& r) {
       if (is_visible() && !get_state().redraw_disabled()) {
         clog::trace() << "redraw: " << *this;
 
@@ -525,10 +524,12 @@ namespace gui {
         auto cntxt = surface.get_context();
 
         core::clip clp(cntxt, r);
-        native::erase(cntxt.drawable(), cntxt.graphics(), core::global::scale_to_native(r), get_window_class().get_background());
+        native::erase(cntxt.drawable(), cntxt.graphics(), r, get_window_class().get_background());
 
         notify_event(core::WM_PAINT_WINDOW, reinterpret_cast<std::uintptr_t>(&cntxt), reinterpret_cast<std::uintptr_t>(&invalid_rect));
         auto wctxt = surface.end(get_os_window());
+
+        core::global::set_surface_offset(surface_offset());
 
 #if defined(SHOW_FOCUS) || defined(SHOW_MOUSE_WIN) || defined(SHOW_CAPTURE) || defined(SHOW_CLIP_RECT)
 
@@ -542,13 +543,13 @@ namespace gui {
         frame_window(wctxt, capture_window, color::blue);
 #endif
 #ifdef SHOW_CLIP_RECT
-        native::frame(wctxt.drawable(), wctxt.graphics(), core::global::scale_to_native(invalid_rect), color::cyan);
+        native::frame(wctxt.drawable(), wctxt.graphics(), invalid_rect, color::cyan);
 #endif
 #endif // defined(SHOW_FOCUS) || defined(SHOW_MOUSE_WIN) || defined(SHOW_CAPTURE) || defined(SHOW_CLIP_RECT)
 
         surface.finish(wctxt);
 
-        invalid_rect = core::rectangle::zero;
+        invalid_rect = core::native_rect::zero;
 
 //        native::redraw(*this, get_os_window(), r);
       }
@@ -558,8 +559,8 @@ namespace gui {
       return native::get_geometry(get_os_window());
     }
     // --------------------------------------------------------------------------
-    core::point overlapped_window::surface_offset () const {
-      return core::point::zero;
+    core::native_point overlapped_window::surface_offset () const {
+      return core::native_point::zero;
     }
     // --------------------------------------------------------------------------
     core::size overlapped_window::client_size () const {
@@ -674,7 +675,7 @@ namespace gui {
     void modal_window::end_modal () {
       is_modal = false;
 #ifdef GUIPP_X11
-      invalidate(client_area());
+      invalidate(surface_area());
 #endif // GUIPP_X11
 #ifdef GUIPP_QT
       event_loop.exit();
@@ -697,7 +698,7 @@ namespace gui {
 #endif
       set_visible();
       to_front();
-      invalidate(client_area());
+      invalidate(surface_area());
 
       is_modal = true;
 

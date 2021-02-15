@@ -67,7 +67,7 @@ namespace gui {
 #endif // GUIPP_USE_XFT
 
       // --------------------------------------------------------------------------
-      void set_clip_rect (context& ctx, const core::rectangle& rect) {
+      void set_clip_rect (context& ctx, const core::native_rect& rect) {
         auto r = rect.os();
         XSetClipRectangles(global::get_instance(), ctx, 0, 0, &r, 1, Unsorted);
 #ifdef GUIPP_USE_XFT

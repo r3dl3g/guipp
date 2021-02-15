@@ -148,7 +148,7 @@ namespace gui {
       typedef vector::const_iterator const_iterator;
 
       typedef void (close_fn)();
-      typedef void (mouse_fn)(bool, const core::point&);
+      typedef void (mouse_fn)(bool, const core::native_point&);
       typedef bool (key_fn)(os::key_symbol);
 
       typedef std::function<close_fn> close_call;
@@ -198,7 +198,7 @@ namespace gui {
       bool is_open () const;
 
       void close ();
-      void handle_mouse (bool, const core::point&) const;
+      void handle_mouse (bool, const core::native_point&) const;
       bool handle_key (os::key_symbol) const;
 
       void init ();
@@ -246,7 +246,7 @@ namespace gui {
 
       void paint (draw::graphics& g);
       bool handle_key (os::key_symbol);
-      void handle_mouse (bool, const core::point&);
+      void handle_mouse (bool, const core::native_point&);
 
       core::point sub_menu_position (std::size_t idx) const;
       int get_index_at_point (const core::point& pt) const;
@@ -277,7 +277,7 @@ namespace gui {
 
       void paint (draw::graphics& g);
       bool handle_key (os::key_symbol);
-      void handle_mouse (bool, const core::point&);
+      void handle_mouse (bool, const core::native_point&);
 
       core::point sub_menu_position (int idx) const;
       int get_index_at_point (const core::point& pt) const;

@@ -59,7 +59,7 @@ namespace gui {
       void add_child (window*);
       virtual void remove_child (window*);
 
-      window* window_at_point (const core::point&);
+      window* window_at_point (const core::native_point&);
 
       void to_front (window*);
       void to_back (window*);

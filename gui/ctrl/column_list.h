@@ -206,9 +206,9 @@ namespace gui {
       void set_cell_drawer (std::function<cell_draw> cd);
       void set_labels (std::initializer_list<std::string> args);
 
-      void handle_left_btn_down (os::key_state, const core::point& pt);
-      void handle_left_btn_up (os::key_state keys, const core::point& pt);
-      void handle_mouse_move (os::key_state keys, const core::point& pt);
+      void handle_left_btn_down (os::key_state, const core::native_point& pt);
+      void handle_left_btn_up (os::key_state keys, const core::native_point& pt);
+      void handle_mouse_move (os::key_state keys, const core::native_point& pt);
 
       layout_type& get_column_layout ();
       const layout_type& get_column_layout () const;
@@ -219,7 +219,7 @@ namespace gui {
 
     private:
       std::function<cell_draw> cell_drawer;
-      core::point last_mouse_point;
+      core::native_point last_mouse_point;
       int down_idx;
       layout_type layouter;
 

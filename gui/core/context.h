@@ -40,17 +40,17 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct GUIPP_CORE_EXPORT clipping_stack {
-      typedef std::vector<core::rectangle> stack_t;
+      typedef std::vector<core::native_rect> stack_t;
 
-      void push (core::context&, const core::rectangle&);
+      void push (core::context&, const core::native_rect&);
       void pop (core::context&);
 
-      void set (core::context&, const core::rectangle&);
+      void set (core::context&, const core::native_rect&);
       void restore (core::context&);
       void clear (core::context&);
 
       bool empty () const;
-      const core::rectangle& back () const;
+      const core::native_rect& back () const;
 
     private:
       stack_t stack;
@@ -73,7 +73,7 @@ namespace gui {
       gui::os::graphics graphics () const;
       gui::os::drawable drawable () const;
 
-      void push_clipping (const core::rectangle&);
+      void push_clipping (const core::native_rect&);
       void pop_clipping ();
       void restore_clipping ();
 
@@ -89,7 +89,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct GUIPP_CORE_EXPORT clip {
-      clip (context& g, const core::rectangle& r);
+      clip (context& g, const core::native_rect& r);
       ~clip ();
     private:
       context& ctx;

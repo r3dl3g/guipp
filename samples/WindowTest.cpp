@@ -294,7 +294,7 @@ private:
 
   bool at_paint1;
   bool at_drag;
-  core::point last_pos;
+  core::native_point last_pos;
 
   bool calc_pressed;
   bool draw_invert;
@@ -405,81 +405,81 @@ my_main_window::my_main_window ()
 //    clog::debug() << "Button Lost Focus";
 //  });
 
-  on_left_btn_down([&] (os::key_state, const core::point& p) {
+  on_left_btn_down([&] (os::key_state, const core::native_point& p) {
     clog::debug() << "Left Button Down at " << p;
   });
-  on_left_btn_up([&] (os::key_state, const core::point& p) {
+  on_left_btn_up([&] (os::key_state, const core::native_point& p) {
     clog::debug() << "Left Button Up at " << p;
   });
-  on_right_btn_down([&] (os::key_state, const core::point& p) {
+  on_right_btn_down([&] (os::key_state, const core::native_point& p) {
     clog::debug() << "Right Button Down at " << p;
   });
-  on_right_btn_up([&] (os::key_state, const core::point& p) {
+  on_right_btn_up([&] (os::key_state, const core::native_point& p) {
     clog::debug() << "Right Button Up at " << p;
   });
-  window1.on_wheel<orientation_t::horizontal>([&] (core::point::type delta,
-                                                         const core::point& p) {
+  window1.on_wheel<orientation_t::horizontal>([&] (core::native_point::type delta,
+                                                   const core::native_point& p) {
     clog::debug() << "Wheel-X: " << delta << " at " << p;
-    if (window1.place().is_inside(p)) {
+    if (window1.surface_area().is_inside(p)) {
       window1.move(window1.position() + core::size(delta, 0));
     }
   });
-  window1.on_wheel<orientation_t::vertical>([&] (core::point::type delta,
-                                                         const core::point& p) {
+  window1.on_wheel<orientation_t::vertical>([&] (core::native_point::type delta,
+                                                 const core::native_point& p) {
     clog::debug() << "Wheel-Y: " << delta << " at " << p;
-    if (window1.place().is_inside(p)) {
+    if (window1.surface_area().is_inside(p)) {
       window1.move(window1.position() + core::size(0, delta));
     }
   });
 
-  window1.on_left_btn_down([&](os::key_state, const core::point& p) {
+  window1.on_left_btn_down([&](os::key_state, const core::native_point& p) {
     at_drag = true;
     last_pos = p;
     window1.capture_pointer();
     clog::debug() << "Window1 Mouse down at " << p;
   });
-  window1.on_left_btn_up([&](os::key_state, const core::point& p) {
+  window1.on_left_btn_up([&](os::key_state, const core::native_point& p) {
     window1.uncapture_pointer();
     at_drag = false;
     clog::debug() << "Window1 Mouse up at " << p;
   });
 
-  window2.on_left_btn_down([&](os::key_state, const core::point& p) {
+  window2.on_left_btn_down([&](os::key_state, const core::native_point& p) {
     at_drag = true;
     last_pos = p;
     window2.capture_pointer();
     clog::debug() << "Window2 Mouse down at " << p;
   });
-  window2.on_left_btn_up([&](os::key_state, const core::point& p) {
+  window2.on_left_btn_up([&](os::key_state, const core::native_point& p) {
     window2.uncapture_pointer();
     at_drag = false;
     clog::debug() << "Window2 Mouse up at " << p;
   });
 
-  window1.on_mouse_move([&] (os::key_state, const core::point& p) {
+  window1.on_mouse_move([&] (os::key_state, const core::native_point& p) {
     //clog::debug() << "Window1 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
       auto delta = p - last_pos;
       last_pos = p;
-      window1.move(window1.position() + delta, true);
+      window1.move(window1.position() + core::global::scale_from_native(delta), true);
     }
   });
-  window2.on_mouse_move([&] (os::key_state, const core::point& p) {
+  window2.on_mouse_move([&] (os::key_state, const core::native_point& p) {
     //clog::debug() << "Window2 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
       auto delta = p - last_pos;
       last_pos = p;
-      window2.move(window2.position() + delta, true);
+      window2.move(window2.position() + core::global::scale_from_native(delta), true);
       scroll_view.invalidate();
     }
   });
 
-  window1.on_left_btn_dblclk([&] (os::key_state, const core::point& p) {
+  window1.on_left_btn_dblclk([&] (os::key_state, const core::native_point& p) {
     clog::debug() << "Window1 Double Click up at " << p;
     window2.set_visible(!window2.is_visible());
   });
 
-  on_left_btn_dblclk([&] (os::key_state, const core::point& p) {
+  on_left_btn_dblclk([&] (os::key_state, const core::native_point& p) {
     clog::debug() << "Double Click up at " << p;
 
     core::point pos = window1.position();
@@ -498,7 +498,7 @@ my_main_window::my_main_window ()
     core::rectangle car = window1.client_area();
     clog::debug() << "Client: " << car;
   });
-  on_right_btn_dblclk([&] (os::key_state, const core::point&) {
+  on_right_btn_dblclk([&] (os::key_state, const core::native_point&) {
     window1.move({50, 50});
   });
 
@@ -506,7 +506,7 @@ my_main_window::my_main_window ()
 
   at_paint1 = true;
 
-  window2.on_left_btn_dblclk([&] (os::key_state, const core::point& p) {
+  window2.on_left_btn_dblclk([&] (os::key_state, const core::native_point& p) {
     clog::debug() << "Window2 Double Click up at " << p;
     if (at_paint1) {
       at_paint1 = false;
@@ -1165,9 +1165,9 @@ ctrl::paint_function my_main_window::create_paint1 () {
 
     using namespace draw;
 
-    auto area = window2.surface_area();
+    auto area = window2.client_area();
     auto pos = area.top_left();
-    clip clp(graph, area);
+//    clip clp(graph, area);
 
     graph.fill(rectangle(area), color::light_gray);
 
@@ -1251,9 +1251,9 @@ ctrl::paint_function my_main_window::create_paint2 () {
     //clog::debug() << "win::look 2";
     using namespace draw;
 
-    auto area = window2.surface_area();
+    auto area = window2.client_area();
     auto pos = area.top_left();
-    clip clp(graph, area);
+//    clip clp(graph, area);
 
     graph.fill(rectangle(area), color::light_gray);
 

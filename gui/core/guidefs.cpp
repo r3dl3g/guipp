@@ -44,6 +44,7 @@
 //
 #include <logging/logger.h>
 #include <gui/core/guidefs.h>
+#include <gui/core/point.h>
 #include <gui/core/color.h>
 
 
@@ -95,6 +96,21 @@ namespace gui {
 
       namespace {
         double scale_factor = 1.0;
+        int surface_offset_x = 0;
+        int surface_offset_y = 0;
+      }
+
+      void set_surface_offset (const core::native_point& pt) {
+        surface_offset_x = pt.x();
+        surface_offset_y = pt.y();
+      }
+
+      int get_surface_offset_x () {
+        return surface_offset_x;
+      }
+
+      int get_surface_offset_y () {
+        return surface_offset_y;
       }
 
 #ifdef GUIPP_X11

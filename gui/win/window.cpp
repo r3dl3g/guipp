@@ -351,16 +351,16 @@ namespace gui {
       if (dynamic_cast<const overlapped_window*>(this)) {
         return position();
       } else {
-        return surface_offset() + get_overlapped_window().position();
+        return core::global::scale_from_native(surface_offset()) + get_overlapped_window().position();
       }
     }
 
-    core::point window::surface_offset () const {
-      return area.position() + (parent ? parent->surface_offset() : core::point::zero);
+    core::native_point window::surface_offset () const {
+      return core::global::scale_to_native(area.position()) + (parent ? parent->surface_offset() : core::native_point::zero);
     }
 
-    core::rectangle window::surface_area () const {
-      return core::rectangle(surface_offset(), client_size());
+    core::native_rect window::surface_area () const {
+      return core::native_rect(surface_offset(), core::global::scale_to_native(client_size()));
     }
 
     core::rectangle window::place () const {
@@ -391,16 +391,16 @@ namespace gui {
       return pt - absolute_position();
     }
 
-    core::point window::client_to_surface (const core::point& pt) const {
-      return pt + surface_offset();
+    core::native_point window::client_to_surface (const core::point& pt) const {
+      return core::global::scale_to_native(pt) + surface_offset();
     }
 
-    core::point window::surface_to_client (const core::point& pt) const {
-      return pt - surface_offset();
+    core::point window::surface_to_client (const core::native_point& pt) const {
+      return core::global::scale_from_native(pt - surface_offset());
     }
 
-    core::point window::surface_to_screen (const core::point& pt) const {
-      return pt - surface_offset() + absolute_position();
+    core::point window::surface_to_screen (const core::native_point& pt) const {
+      return core::global::scale_from_native(pt - surface_offset()) + absolute_position();
     }
 
     void window::move_native (const core::point&) {}

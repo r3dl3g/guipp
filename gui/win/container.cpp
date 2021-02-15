@@ -84,8 +84,8 @@ namespace gui {
     }
 
     void container::init () {
-      on_paint([&] (core::context* ctx, core::rectangle* r) {
-        native::erase(ctx->drawable(), ctx->graphics(), core::global::scale_to_native(surface_area() & *r), get_window_class().get_background());
+      on_paint([&] (core::context* ctx, core::native_rect* r) {
+        native::erase(ctx->drawable(), ctx->graphics(), surface_area() & *r, get_window_class().get_background());
       });
       on_show([&] () {
         set_children_visible();
@@ -143,7 +143,7 @@ namespace gui {
       }
     }
 
-    window* container::window_at_point (const core::point& pt) {
+    window* container::window_at_point (const core::native_point& pt) {
       for (window* w : reverse(children)) {
         auto state = w->get_state();
         if (state.created() && state.visible() && state.enabled() && !state.overlapped() && w->surface_area().is_inside(pt)) {
@@ -172,14 +172,16 @@ namespace gui {
     bool container::handle_event (const core::event& e, gui::os::event_result& r) {
       if (paint_event::match(e)) {
         core::context* cntxt = paint_event::Caller::get_param<0>(e);
-        core::rectangle* clip_rect = paint_event::Caller::get_param<1>(e);
+        core::native_rect* clip_rect = paint_event::Caller::get_param<1>(e);
+        core::global::set_surface_offset(surface_offset());
         bool ret = super::handle_event(e, r);
         for (auto& w : children) {
           auto rect = w->surface_area();
           if (!clip_rect || (clip_rect->overlap(rect))) {
             auto state = w->get_state();
             if (state.created() && state.visible() && !state.overlapped()) {
-              core::clip clp2(*cntxt, rect);
+              core::clip clp(*cntxt, rect);
+              core::global::set_surface_offset(rect.position());
               ret |= w->handle_event(e, r);
             }
           }

@@ -135,13 +135,13 @@ namespace gui {
     void split_view<O, F, S>::layout (const core::rectangle& r) const {
       clog::trace() << "split_view::layout(" << r << ") split_pos: " << split_pos;
       if (first) {
-        first->place(traits::get_first_place(r, split_pos), IF_WIN32_ELSE(true, false));
+        first->place(traits::get_first_place(r, split_pos), true);
       }
       if (second) {
-        second->place(traits::get_second_place(r, split_pos), IF_WIN32_ELSE(true, false));
+        second->place(traits::get_second_place(r, split_pos), true);
       }
       if (splitter) {
-        splitter->place(traits::get_splitter_place(r, split_pos), IF_WIN32_ELSE(true, false));
+        splitter->place(traits::get_splitter_place(r, split_pos), true);
       }
     }
 

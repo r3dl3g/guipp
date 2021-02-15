@@ -70,7 +70,7 @@ namespace gui {
         return get_state().moved();
       }
 
-      inline core::point list_base::get_last_mouse_point () const {
+      inline core::native_point list_base::get_last_mouse_point () const {
         return data.last_mouse_point;
       }
 
@@ -246,11 +246,11 @@ namespace gui {
         super::invalidate();
       });
       if (scrollbar.is_focus_accepting()) {
-        super::on_left_btn_down([&] (os::key_state, const core::point &) {
+        super::on_left_btn_down([&] (os::key_state, const core::native_point&) {
           super::take_focus();
         });
       }
-      super::on_left_btn_dblclk([&] (os::key_state keys, const core::point & pt) {
+      super::on_left_btn_dblclk([&] (os::key_state, const core::native_point&) {
         super::notify_selection_commit();
       });
       super::on_mouse_leave([&] () {
@@ -438,20 +438,20 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    inline void basic_list<V, T>::handle_wheel (const pos_t delta, const core::point&) {
+    inline void basic_list<V, T>::handle_wheel (const pos_t delta, const core::native_point&) {
       set_scroll_pos(get_scroll_pos() - traits.get_line_size() * delta);
       super::set_state().moved(true);
     }
 
     template<orientation_t V, typename T>
-    void basic_list<V, T>::handle_mouse_move (os::key_state keys, const core::point& pt) {
-      const core::rectangle r = surface_area();
+    void basic_list<V, T>::handle_mouse_move (os::key_state keys, const core::native_point& pt) {
+      const auto r = surface_area();
       if (core::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
-        if ((super::get_last_mouse_point() != core::point::undefined) &&
+        if ((super::get_last_mouse_point() != core::native_point::undefined) &&
             (super::get_last_mouse_point() != pt)) {
           super::set_cursor(win::cursor::move());
-          pos_t delta = traits.get_1(super::get_last_mouse_point()) - traits.get_1(pt);
-          set_scroll_pos(get_scroll_pos() + delta);
+          auto delta = traits.get_1(super::get_last_mouse_point()) - traits.get_1(pt);
+          set_scroll_pos(get_scroll_pos() + core::global::scale_from_native<pos_t>(delta));
           super::set_state().moved(true);
         }
         super::data.last_mouse_point = pt;
@@ -461,8 +461,8 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    void basic_list<V, T>::handle_left_btn_up (os::key_state keys, const core::point& pt) {
-      if (!super::is_moved() && (super::get_last_mouse_point() != core::point::undefined)) {
+    void basic_list<V, T>::handle_left_btn_up (os::key_state keys, const core::native_point& pt) {
+      if (!super::is_moved() && (super::get_last_mouse_point() != core::native_point::undefined)) {
         const int new_selection = get_index_at_point(super::surface_to_client(pt));
         if (new_selection != super::get_selection()) {
           if ((new_selection < 0) || core::control_key_bit_mask::is_set(keys)) {
@@ -475,7 +475,7 @@ namespace gui {
         }
       }
       super::set_cursor(win::cursor::arrow());
-      super::data.last_mouse_point = core::point::undefined;
+      super::data.last_mouse_point = core::native_point::undefined;
     }
 
     // --------------------------------------------------------------------------
@@ -497,9 +497,9 @@ namespace gui {
 
     template<orientation_t V>
     void linear_list<V>::paint (draw::graphics& graph) {
-      const core::rectangle area = super::content_area(super::surface_area());
+      const core::rectangle area = super::content_area(super::client_area());
       core::rectangle place = area;
-      draw::clip clp(graph, area);
+//      draw::clip clp(graph, area);
 
       draw::brush back_brush(super::get_background());
 

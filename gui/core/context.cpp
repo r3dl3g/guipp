@@ -40,7 +40,7 @@ namespace gui {
   namespace core {
 
     // --------------------------------------------------------------------------
-    void clipping_stack::push (core::context& ctx, const core::rectangle& r) {
+    void clipping_stack::push (core::context& ctx, const core::native_rect& r) {
       if (stack.empty()) {
         stack.push_back(r);
       } else {
@@ -67,7 +67,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void clipping_stack::set (core::context& ctx, const core::rectangle& r) {
+    void clipping_stack::set (core::context& ctx, const core::native_rect& r) {
       native::set_clip_rect(ctx, r);
     }
 

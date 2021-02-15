@@ -59,7 +59,7 @@ namespace gui {
     namespace x11 {
 
       GUIPP_WIN_EXPORT XIC get_window_ic (os::window);
-      GUIPP_WIN_EXPORT void invalidate_window (os::window id, const core::rectangle&);
+      GUIPP_WIN_EXPORT void invalidate_window (os::window id, const core::native_rect&);
       GUIPP_WIN_EXPORT void validate_window (os::window id);
 
     } // namespace x11

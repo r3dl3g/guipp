@@ -101,7 +101,6 @@ namespace gui {
         return core::size(core::global::scale_from_native<core::size::type>(event_type_cast<C>(e).width),
                           core::global::scale_from_native<core::size::type>(event_type_cast<C>(e).height));
       }
-
     };
     // --------------------------------------------------------------------------
     template<typename C>
@@ -110,7 +109,6 @@ namespace gui {
         return core::point(core::global::scale_from_native<core::point::type>(event_type_cast<C>(e).x),
                            core::global::scale_from_native<core::point::type>(event_type_cast<C>(e).y));
       }
-
     };
     // --------------------------------------------------------------------------
     template<typename C>
@@ -118,7 +116,29 @@ namespace gui {
       static core::rectangle param (const core::event& e) {
         return core::rectangle(get<core::point, C>::param(e), get<core::size, C>::param(e));
       }
-
+    };
+    // --------------------------------------------------------------------------
+    template<typename C>
+    struct get<core::native_size, C> {
+      static core::native_size param (const core::event& e) {
+        return core::native_size(static_cast<core::native_size::type>(event_type_cast<C>(e).width),
+                                 static_cast<core::native_size::type>(event_type_cast<C>(e).height));
+      }
+    };
+    // --------------------------------------------------------------------------
+    template<typename C>
+    struct get<core::native_point, C> {
+      static core::native_point param (const core::event& e) {
+        return core::native_point(static_cast<core::native_point::type>(event_type_cast<C>(e).x),
+                                  static_cast<core::native_point::type>(event_type_cast<C>(e).y));
+      }
+    };
+    // --------------------------------------------------------------------------
+    template<typename C>
+    struct get<core::native_rect, C> {
+      static core::native_rect param (const core::event& e) {
+        return core::native_rect(get<core::native_point, C>::param(e), get<core::native_size, C>::param(e));
+      }
     };
     // --------------------------------------------------------------------------
     template<typename T>
@@ -189,7 +209,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    GUIPP_WIN_EXPORT core::rectangle* get_paint_rect (const core::event& e);
+    GUIPP_WIN_EXPORT core::native_rect* get_paint_rect (const core::event& e);
 
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT core::rectangle get_client_data_rect (const core::event& e);
@@ -250,7 +270,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<int D, int U>
-    inline core::point::type get_wheel_delta (const core::event& e) {
+    inline core::native_point::type get_wheel_delta (const core::event& e) {
       switch (e.xbutton.button) {
         case D: return 1.0F;
         case U: return -1.0F;
@@ -292,98 +312,98 @@ namespace gui {
                                              event::functor<key_symbol_matcher<KeyRelease, symbol, state>>>;
 
     using mouse_move_event = core::event_handler<MotionNotify, PointerMotionMask,
-                                                 core::params<os::key_state, core::point>::
+                                                 core::params<os::key_state, core::native_point>::
                                                  getter<get_event_state<XMotionEvent>,
-                                                        get<core::point, XMotionEvent>::param>>;
+                                                        get<core::native_point, XMotionEvent>::param>>;
 
     using mouse_move_abs_event = core::event_handler<MotionNotify, PointerMotionMask,
-                                                     core::params<os::key_state, core::point>::
+                                                     core::params<os::key_state, core::native_point>::
                                                      getter<get_event_state<XMotionEvent>,
                                                             get_root_mouse_pos>>;
 
     using left_btn_down_event = core::event_handler<ButtonPress, ButtonPressMask,
-                                                    core::params<os::key_state, core::point>::
+                                                    core::params<os::key_state, core::native_point>::
                                                     getter<get_event_state<XButtonEvent>,
-                                                           get<core::point, XButtonEvent>::param>,
+                                                           get<core::native_point, XButtonEvent>::param>,
                                                     0,
                                                     event::functor<event_button_matcher<ButtonPress, Button1>>>;
 
     using left_btn_up_event = core::event_handler<ButtonRelease, ButtonReleaseMask | ButtonPressMask,
-                                                  core::params<os::key_state, core::point>::
+                                                  core::params<os::key_state, core::native_point>::
                                                   getter<get_event_state<XButtonEvent>,
-                                                         get<core::point, XButtonEvent>::param>,
+                                                         get<core::native_point, XButtonEvent>::param>,
                                                   0,
                                                   event::functor<event_button_matcher<ButtonRelease, Button1>>>;
 
     using right_btn_down_event = core::event_handler<ButtonPress, ButtonPressMask,
-                                                     core::params<os::key_state, core::point>::
+                                                     core::params<os::key_state, core::native_point>::
                                                      getter<get_event_state<XButtonEvent>,
-                                                            get<core::point, XButtonEvent>::param>,
+                                                            get<core::native_point, XButtonEvent>::param>,
                                                      0,
                                                      event::functor<event_button_matcher<ButtonPress, Button3>>>;
 
     using right_btn_up_event = core::event_handler<ButtonRelease, ButtonReleaseMask | ButtonPressMask,
-                                                   core::params<os::key_state, core::point>::
+                                                   core::params<os::key_state, core::native_point>::
                                                    getter<get_event_state<XButtonEvent>,
-                                                          get<core::point, XButtonEvent>::param>,
+                                                          get<core::native_point, XButtonEvent>::param>,
                                                    0,
                                                    event::functor<event_button_matcher<ButtonRelease, Button3>>>;
 
     using middle_btn_down_event = core::event_handler<ButtonPress, ButtonPressMask,
-                                                      core::params<os::key_state, core::point>::
+                                                      core::params<os::key_state, core::native_point>::
                                                       getter<get_event_state<XButtonEvent>,
-                                                             get<core::point, XButtonEvent>::param>,
+                                                             get<core::native_point, XButtonEvent>::param>,
                                                       0,
                                                       event::functor<event_button_matcher<ButtonPress, Button2>>>;
 
     using middle_btn_up_event = core::event_handler<ButtonRelease, ButtonReleaseMask | ButtonPressMask,
-                                                    core::params<os::key_state, core::point>::
+                                                    core::params<os::key_state, core::native_point>::
                                                     getter<get_event_state<XButtonEvent>,
-                                                           get<core::point, XButtonEvent>::param>,
+                                                           get<core::native_point, XButtonEvent>::param>,
                                                     0,
                                                     event::functor<event_button_matcher<ButtonRelease, Button2>>>;
 
     using btn_down_event = core::event_handler<ButtonPress, ButtonPressMask,
-                                               core::params<os::key_state, core::point>::
+                                               core::params<os::key_state, core::native_point>::
                                                getter<get_event_state<XButtonEvent>,
-                                                      get<core::point, XButtonEvent>::param>>;
+                                                      get<core::native_point, XButtonEvent>::param>>;
 
     using btn_up_event = core::event_handler<ButtonRelease, ButtonReleaseMask | ButtonPressMask,
-                                             core::params<os::key_state, core::point>::
+                                             core::params<os::key_state, core::native_point>::
                                              getter<get_event_state<XButtonEvent>,
-                                                    get<core::point, XButtonEvent>::param>>;
+                                                    get<core::native_point, XButtonEvent>::param>>;
 
     using left_btn_dblclk_event = core::event_handler<ButtonRelease, ButtonPressMask | ButtonReleaseMask,
-                                                      core::params<os::key_state, core::point>::
+                                                      core::params<os::key_state, core::native_point>::
                                                       getter<get_event_state<XButtonEvent>,
-                                                             get<core::point, XButtonEvent>::param>,
+                                                             get<core::native_point, XButtonEvent>::param>,
                                                       0,
                                                       double_click_matcher<Button1>>;
 
     using right_btn_dblclk_event = core::event_handler<ButtonRelease, ButtonPressMask | ButtonReleaseMask,
-                                                       core::params<os::key_state, core::point>::
+                                                       core::params<os::key_state, core::native_point>::
                                                        getter<get_event_state<XButtonEvent>,
-                                                              get<core::point, XButtonEvent>::param>,
+                                                              get<core::native_point, XButtonEvent>::param>,
                                                        0,
                                                        double_click_matcher<Button3>>;
     using middle_btn_dblclk_event = core::event_handler<ButtonRelease, ButtonPressMask | ButtonReleaseMask,
-                                                        core::params<os::key_state, core::point>::
+                                                        core::params<os::key_state, core::native_point>::
                                                         getter<get_event_state<XButtonEvent>,
-                                                               get<core::point, XButtonEvent>::param>,
+                                                               get<core::native_point, XButtonEvent>::param>,
                                                         0,
                                                         double_click_matcher<Button2>>;
 
     using wheel_x_event = core::event_handler<ButtonPress, ButtonPressMask,
-                                              core::params<core::point::type, core::point>::
+                                              core::params<core::native_point::type, core::native_point>::
                                               getter<get_wheel_delta<6, 7>,
-                                              get<core::point, XButtonEvent>::param>,
+                                              get<core::native_point, XButtonEvent>::param>,
                                               0,
                                               event::functor<wheel_button_matcher<6, 7>>>;
 
     using wheel_y_event = core::event_handler<ButtonPress, ButtonPressMask,
-                                              core::params<core::point::type, core::point>::
+                                              core::params<core::native_point::type, core::native_point>::
                                               getter<get_wheel_delta<Button4, Button5>,
-                                                     get<core::point, XButtonEvent>::param>,
+                                                     get<core::native_point, XButtonEvent>::param>,
                                               0,
                                               event::functor<wheel_button_matcher<Button4, Button5>>>;
 
@@ -433,7 +453,7 @@ namespace gui {
                                              event::functor<client_message_matcher<core::WM_LAYOUT_WINDOW>>>;
 
     using paint_event = core::event_handler<ClientMessage, 0,
-                                            core::params<core::context*, core::rectangle*>::
+                                            core::params<core::context*, core::native_rect*>::
                                             getter<get_context, get_paint_rect>,
                                             0,
                                             event::functor<client_message_matcher<core::WM_PAINT_WINDOW>>>;

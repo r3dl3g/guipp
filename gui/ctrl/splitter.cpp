@@ -62,10 +62,10 @@ namespace gui {
       template<>
       void basic_splitter<orientation_t::vertical>::init () {
         on_mouse_move([&](os::key_state keys,
-                          const core::point & p) {
-          if ((start_mouse_point != core::point::undefined) && is_enabled() && core::left_button_bit_mask::is_set(keys)) {
+                          const core::native_point& p) {
+          if ((start_mouse_point != core::native_point::undefined) && is_enabled() && core::left_button_bit_mask::is_set(keys)) {
 //            clog::debug() << "splitter::mouse_move to:" << p;
-            set_value(start_window_point.x() + p.x() - start_mouse_point.x());
+            set_value(start_window_point.x() + core::global::scale_from_native<core::size::type>(p.x() - start_mouse_point.x()));
           }
         });
         on_any_key_down([&](os::key_state state, os::key_symbol key, const std::string &) {
@@ -126,10 +126,10 @@ namespace gui {
       template<>
       void basic_splitter<orientation_t::horizontal>::init () {
         on_mouse_move([&](os::key_state keys,
-                              const core::point & p) {
-          if ((start_mouse_point != core::point::undefined) && is_enabled() && core::left_button_bit_mask::is_set(keys)) {
+                              const core::native_point& p) {
+          if ((start_mouse_point != core::native_point::undefined) && is_enabled() && core::left_button_bit_mask::is_set(keys)) {
 //            clog::debug() << "splitter::mouse_move to:" << p;
-            set_value(start_window_point.y() + p.y() - start_mouse_point.y());
+            set_value(start_window_point.y() + core::global::scale_from_native<core::size::type>(p.y() - start_mouse_point.y()));
           }
         });
         on_any_key_down([&](os::key_state state, os::key_symbol key, const std::string &) {
@@ -203,7 +203,7 @@ namespace gui {
 
         set_accept_focus(true);
 
-        on_left_btn_down([&] (os::key_state, const core::point& pt) {
+        on_left_btn_down([&] (os::key_state, const core::native_point& pt) {
           capture_pointer();
           start_mouse_point = pt;//client_to_screen(pt);
           start_window_point = position();
@@ -211,9 +211,9 @@ namespace gui {
           take_focus();
         });
 
-        on_left_btn_up([&] (os::key_state, const core::point&) {
+        on_left_btn_up([&] (os::key_state, const core::native_point&) {
           uncapture_pointer();
-          start_mouse_point = core::point::undefined;
+          start_mouse_point = core::native_point::undefined;
           start_window_point = core::point::undefined;
         });
         on_set_focus([&] () {

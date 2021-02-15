@@ -26,30 +26,38 @@ namespace gui {
 
       template<typename T, coordinate_system C>
       struct point {
-        static gui::os::point_type to_os (const T&);
-        static T from_os (const gui::os::point_type&);
+        static gui::os::point_type to_os_x (const T&);
+        static gui::os::point_type to_os_y (const T&);
+        static T from_os_x (const gui::os::point_type&);
+        static T from_os_y (const gui::os::point_type&);
       };
 
       template<typename T>
       struct point<T, coordinate_system::local> {
-        static inline gui::os::point_type to_os (const T& v) {
-          return global::scale_to_native<T, gui::os::point_type>(v);
+        static inline gui::os::point_type to_os_x (const T& v) {
+          return global::scale_to_native<T, gui::os::point_type>(v) + global::get_surface_offset_x();
         }
 
-        static inline T from_os (const gui::os::point_type& v) {
-          return global::scale_from_native<T, gui::os::point_type>(v);
+        static inline gui::os::point_type to_os_y (const T& v) {
+          return global::scale_to_native<T, gui::os::point_type>(v) + global::get_surface_offset_y();
         }
+
+        static inline T from_os_x (const gui::os::point_type& v) {
+          return global::scale_from_native<T, gui::os::point_type>(v - global::get_surface_offset_x());
+        }
+
+        static inline T from_os_y (const gui::os::point_type& v) {
+          return global::scale_from_native<T, gui::os::point_type>(v - global::get_surface_offset_y());
+        }
+
       };
 
       template<typename T>
       struct point<T, coordinate_system::surface> {
-        static inline gui::os::point_type to_os (const T& v) {
-          return static_cast<gui::os::point_type>(v);
-        }
-
-        static inline T from_os (const gui::os::point_type& v) {
-          return static_cast<T>(v);
-        }
+        static inline gui::os::point_type to_os_x (const T& v)    { return static_cast<gui::os::point_type>(v); }
+        static inline gui::os::point_type to_os_y (const T& v)    { return static_cast<gui::os::point_type>(v); }
+        static inline T from_os_x (const gui::os::point_type& v)  { return static_cast<T>(v); }
+        static inline T from_os_y (const gui::os::point_type& v)  { return static_cast<T>(v); }
       };
 
     }
@@ -103,31 +111,31 @@ namespace gui {
 
     template<typename T, coordinate_system C>
     inline gui::os::point_type basic_point<T, C>::os_x () const {
-      return convert::point<T, C>::to_os(x_);
+      return convert::point<T, C>::to_os_x(x_);
     }
 
     template<typename T, coordinate_system C>
     inline gui::os::point_type basic_point<T, C>::os_y () const {
-      return convert::point<T, C>::to_os(y_);
+      return convert::point<T, C>::to_os_y(y_);
     }
 
     template<typename T, coordinate_system C>
     inline basic_point<T, C>::basic_point (const gui::os::point& rhs)
-      : x_(convert::point<T, C>::from_os(IF_QT_ELSE(rhs.x(), rhs.x)))
-      , y_(convert::point<T, C>::from_os(IF_QT_ELSE(rhs.y(), rhs.y)))
+      : x_(convert::point<T, C>::from_os_x(IF_QT_ELSE(rhs.x(), rhs.x)))
+      , y_(convert::point<T, C>::from_os_y(IF_QT_ELSE(rhs.y(), rhs.y)))
     {}
 
     template<typename T, coordinate_system C>
     inline basic_point<T, C>::basic_point (const gui::os::rectangle& r)
 #ifdef GUIPP_WIN
-      : x_(convert::point<T, C>::from_os(r.left))
-      , y_(convert::point<T, C>::from_os(r.top))
+      : x_(convert::point<T, C>::from_os_x(r.left))
+      , y_(convert::point<T, C>::from_os_y(r.top))
 #elif GUIPP_X11
-      : x_(convert::point<T, C>::from_os(r.x))
-      , y_(convert::point<T, C>::from_os(r.y))
+      : x_(convert::point<T, C>::from_os_x(r.x))
+      , y_(convert::point<T, C>::from_os_y(r.y))
 #elif GUIPP_QT
-      : x_(convert::point<T, C>::from_os(r.x()))
-      , y_(convert::point<T, C>::from_os(r.y()))
+      : x_(convert::point<T, C>::from_os_x(r.x()))
+      , y_(convert::point<T, C>::from_os_y(r.y()))
 #else
 #error Unknown target system: basic_point<T, C>::basic_point (const gui::os::rectangle& r)
 #endif // GUIPP_QT

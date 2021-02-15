@@ -37,23 +37,35 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<orientation_t V>
     struct orientation_traits {
-      static core::point::type get_1 (const core::point&);
-      static core::point::type get_2 (const core::point&);
+      template<typename T, coordinate_system C>
+      static typename basic_point<T, C>::type get_1 (const basic_point<T, C>&);
+      template<typename T, coordinate_system C>
+      static typename basic_point<T, C>::type get_2 (const basic_point<T, C>&);
 
-      static core::size::type get_1 (const core::size&);
-      static core::size::type get_2 (const core::size&);
+      template<typename S, coordinate_system C>
+      static typename basic_size<S, C>::type get_1 (const basic_size<S, C>&);
+      template<typename S, coordinate_system C>
+      static typename basic_size<S, C>::type get_2 (const basic_size<S, C>&);
 
-      static void set (core::point&, core::point::type dim, core::point::type other);
-      static void set (core::size&, core::size::type dim, core::size::type other);
+      template<typename T, coordinate_system C>
+      static void set (basic_point<T, C>&, typename basic_point<T, C>::type dim, typename basic_point<T, C>::type other);
+      template<typename S, coordinate_system C>
+      static void set (basic_size<S, C>&, typename basic_size<S, C>::type dim, typename basic_size<S, C>::type other);
 
-      static void set_1 (core::point&, core::point::type dim);
-      static void set_2 (core::point&, core::point::type other);
+      template<typename T, coordinate_system C>
+      static void set_1 (basic_point<T, C>&, typename basic_point<T, C>::type dim);
+      template<typename T, coordinate_system C>
+      static void set_2 (basic_point<T, C>&, typename basic_point<T, C>::type other);
 
-      static void set_1 (core::size&, core::size::type dim);
-      static void set_2 (core::size&, core::size::type other);
+      template<typename S, coordinate_system C>
+      static void set_1 (basic_size<S, C>&, typename basic_size<S, C>::type dim);
+      template<typename S, coordinate_system C>
+      static void set_2 (basic_size<S, C>&, typename basic_size<S, C>::type other);
 
-      static void set_1 (core::rectangle&, core::point::type, core::size::type);
-      static void set_2 (core::rectangle&, core::point::type, core::size::type);
+      template<typename T, typename S, coordinate_system C>
+      static void set_1 (basic_rectangle<T, S, C>&, typename basic_point<T, C>::type, typename basic_size<S, C>::type);
+      template<typename T, typename S, coordinate_system C>
+      static void set_2 (basic_rectangle<T, S, C>&, typename basic_point<T, C>::type, typename basic_size<S, C>::type);
     };
 
     // --------------------------------------------------------------------------

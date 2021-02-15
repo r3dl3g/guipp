@@ -87,13 +87,13 @@ namespace gui {
       void to_front ();
       void to_back ();
 
-      void invalidate (const core::rectangle&);
+      void invalidate (const core::native_rect&);
       void invalidate ();
-      void redraw (const core::rectangle&);
+      void redraw (const core::native_rect&);
 
       core::point position () const override;
       core::size client_size () const override;
-      core::point surface_offset () const override;
+      core::native_point surface_offset () const override;
 
       void shift_focus (bool backward = false);
 
@@ -144,7 +144,7 @@ namespace gui {
       window* focus_window;
       window* capture_window;
       window* mouse_window;
-      core::rectangle invalid_rect;
+      core::native_rect invalid_rect;
 
       os::window id;
       mutable std::unique_ptr<overlapped_context> surface;

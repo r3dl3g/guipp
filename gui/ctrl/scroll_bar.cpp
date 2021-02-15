@@ -205,11 +205,11 @@ namespace gui {
       data.last_value = last_value;
     }
 
-    core::point scroll_bar::get_last_mouse_point () const {
+    core::native_point scroll_bar::get_last_mouse_point () const {
       return data.last_mouse_point;
     }
 
-    void scroll_bar::set_last_mouse_point (core::point last_mouse_point) {
+    void scroll_bar::set_last_mouse_point (core::native_point last_mouse_point) {
       data.last_mouse_point = last_mouse_point;
     }
 
@@ -217,7 +217,7 @@ namespace gui {
       super::notify_event_double(detail::SCROLLBAR_MESSAGE, data.value);
     }
 
-    void scroll_bar::handle_wheel (const core::point::type delta, const core::point&) {
+    void scroll_bar::handle_wheel (const core::point::type delta, const core::native_point&) {
       if (is_enabled()) {
         clog::trace() << "scroll_bar::handle_wheel(" << delta << ") step: " << get_step();
         set_value(get_value() - delta * get_step(), true);
@@ -269,15 +269,16 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void basic_scroll_bar<orientation_t::horizontal>::handle_mouse_move (os::key_state keys, const core::point& pt) {
+    void basic_scroll_bar<orientation_t::horizontal>::handle_mouse_move (os::key_state keys, const core::native_point& npt) {
       if (is_enabled()) {
         if (core::left_button_bit_mask::is_set(keys)) {
           // check if on thumb
           if (get_selection() == scrollbar_item::thumb_button) {
-            type delta = (pt.x() - get_last_mouse_point().x()) / get_scale();
+            type delta = core::global::scale_from_native<type>(npt.x() - get_last_mouse_point().x()) / get_scale();
             set_value(get_last_value() + delta, true);
           }
         } else {
+          auto pt = surface_to_client(npt);
           auto geo = get_geometry();
           if (up_button_place(geo).is_inside(pt)) {
             set_hilite(scrollbar_item::up_button);
@@ -297,15 +298,16 @@ namespace gui {
     }
 
     template<>
-    void basic_scroll_bar<orientation_t::vertical>::handle_mouse_move (os::key_state keys, const core::point& pt) {
+    void basic_scroll_bar<orientation_t::vertical>::handle_mouse_move (os::key_state keys, const core::native_point& npt) {
       if (is_enabled()) {
         if (core::left_button_bit_mask::is_set(keys)) {
           // check if on thumb
           if (get_selection() == scrollbar_item::thumb_button) {
-            type delta = (pt.y() - get_last_mouse_point().y()) / get_scale();
+            type delta = core::global::scale_from_native<type>(npt.y() - get_last_mouse_point().y()) / get_scale();
             set_value(get_last_value() + delta, true);
           }
         } else {
+          auto pt = surface_to_client(npt);
           auto geo = get_geometry();
           if (up_button_place(geo).is_inside(pt)) {
             set_hilite(scrollbar_item::up_button);

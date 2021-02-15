@@ -92,10 +92,6 @@ namespace gui {
       : p(util::bind_method(t, f))
     {}
 
-    // --------------------------------------------------------------------------
-    inline clip::clip (graphics& g, const core::rectangle& r)
-      : core::clip(g.context(), r)
-    {}
 
   } // draw
 

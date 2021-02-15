@@ -38,7 +38,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline const core::rectangle& clipping_stack::back () const {
+    inline const core::native_rect& clipping_stack::back () const {
       return stack.back();
     }
 
@@ -63,7 +63,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline void context::push_clipping (const core::rectangle& r) {
+    inline void context::push_clipping (const core::native_rect& r) {
       clippings.push(*this, r);
     }
 
@@ -83,7 +83,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline clip::clip (context& ctx, const core::rectangle& r)
+    inline clip::clip (context& ctx, const core::native_rect& r)
       : ctx(ctx) {
       ctx.push_clipping(r);
     }

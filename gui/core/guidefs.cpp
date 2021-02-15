@@ -465,7 +465,7 @@ namespace gui {
           return scale;
         } else {
           QScreen* d = QGuiApplication::primaryScreen();
-          auto r = (double)d->logicalDotsPerInchX() / 96.0;
+          auto r = std::max((double)d->logicalDotsPerInchX() / 96.0, 0.5);
           clog::info()  << "Display "
                            "W:" << d->size().width() << ", H:" << d->size().height()
                         << ", MM-W:" << d->physicalSize().width() << ", MM-H:" << d->physicalSize().height()

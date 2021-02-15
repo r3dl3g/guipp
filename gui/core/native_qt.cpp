@@ -45,7 +45,9 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void clear_clip_rect (core::context& ctx) {
-        ctx.graphics()->setClipping(false);
+        if (ctx.graphics()->isActive()) {
+          ctx.graphics()->setClipping(false);
+        }
       }
 
     } // namespace native

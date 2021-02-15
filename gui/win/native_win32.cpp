@@ -238,8 +238,8 @@ namespace gui {
       }
 
       void redraw (window&, os::window id, const core::rectangle& r) {
-//        RECT rect = r.os();
-        RedrawWindow(id, nullptr/*&rect*/, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
+        RECT rect = r.os();
+        RedrawWindow(id, &rect, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
       }
 
       void prepare_accept_focus (os::window, bool) {
@@ -424,21 +424,6 @@ namespace gui {
     } // namespace native
 
     // --------------------------------------------------------------------------
-# ifdef WIN32_DEPRECATED
-    os::style window::get_style (os::style mask) const {
-      LONG old_style = GetWindowLong(get_os_window(), GWL_STYLE);
-      os::style new_style = old_style & mask;
-      return new_style;
-    }
-
-    void window::set_style (os::style style, bool enable) {
-      LONG new_style = enable ? get_style() | style : get_style(~style);
-      SetWindowLong(get_os_window(), GWL_STYLE, new_style);
-      redraw();
-    }
-
-# endif // WIN32_DEPRECATED
-
   } // namespace win
 
 } // namespace gui

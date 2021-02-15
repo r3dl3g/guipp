@@ -47,7 +47,7 @@
 # define USE_INPUT_EATER
 #endif
 
-#define DEBUG_RECTANGLESx
+#define DEBUG_RECTANGLES
 #ifdef DEBUG_RECTANGLES
 #define SHOW_FOCUS
 #define SHOW_MOUSE_WIN
@@ -397,7 +397,7 @@ namespace gui {
         }
 #elif GUIPP_QT
       } else if (expose_event::match(e)) {
-        redraw(surface_area());
+        redraw(invalid_rect);
 #endif // GUIPP_WIN
       }
       return super::handle_event(e, r);
@@ -487,14 +487,19 @@ namespace gui {
     }
     // TODO: store invalid region as member of overlapped_window.
     // --------------------------------------------------------------------------
-    void overlapped_window::invalidate () const {
+    void overlapped_window::invalidate () {
       invalidate(surface_area());
     }
     // --------------------------------------------------------------------------
-    void overlapped_window::invalidate (const core::rectangle& r) const {
+    void overlapped_window::invalidate (const core::rectangle& r) {
       if (is_valid() && is_visible()) {
         clog::trace() << "invalidate: " << *this;
-        native::invalidate(get_os_window(), r);
+        if (invalid_rect.empty()) {
+          invalid_rect = r;
+        } else {
+          invalid_rect |= r;
+        }
+        native::invalidate(get_os_window(), invalid_rect);
       }
     }
     // --------------------------------------------------------------------------
@@ -509,6 +514,12 @@ namespace gui {
       if (is_visible() && !get_state().redraw_disabled()) {
         clog::trace() << "redraw: " << *this;
 
+        if (invalid_rect.empty()) {
+          invalid_rect = r;
+        } else {
+          invalid_rect |= r;
+        }
+
         overlapped_context& surface = get_context();
         surface.begin(*this);
         auto cntxt = surface.get_context();
@@ -516,7 +527,7 @@ namespace gui {
         core::clip clp(cntxt, r);
         native::erase(cntxt.drawable(), cntxt.graphics(), core::global::scale_to_native(r), get_window_class().get_background());
 
-        notify_event(core::WM_PAINT_WINDOW, reinterpret_cast<std::uintptr_t>(&cntxt), reinterpret_cast<std::uintptr_t>(&r));
+        notify_event(core::WM_PAINT_WINDOW, reinterpret_cast<std::uintptr_t>(&cntxt), reinterpret_cast<std::uintptr_t>(&invalid_rect));
         auto wctxt = surface.end(get_os_window());
 
 #if defined(SHOW_FOCUS) || defined(SHOW_MOUSE_WIN) || defined(SHOW_CAPTURE) || defined(SHOW_CLIP_RECT)
@@ -531,11 +542,14 @@ namespace gui {
         frame_window(wctxt, capture_window, color::blue);
 #endif
 #ifdef SHOW_CLIP_RECT
-        native::frame(wctxt.drawable(), wctxt.graphics(), core::global::scale_to_native(r), color::cyan);
+        native::frame(wctxt.drawable(), wctxt.graphics(), core::global::scale_to_native(invalid_rect), color::cyan);
 #endif
 #endif // defined(SHOW_FOCUS) || defined(SHOW_MOUSE_WIN) || defined(SHOW_CAPTURE) || defined(SHOW_CLIP_RECT)
 
         surface.finish(wctxt);
+
+        invalid_rect = core::rectangle::zero;
+
 //        native::redraw(*this, get_os_window(), r);
       }
     }

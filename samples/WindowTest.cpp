@@ -460,16 +460,17 @@ my_main_window::my_main_window ()
     //clog::debug() << "Window1 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
       auto delta = p - last_pos;
-      //last_pos = p;
-      window1.move(window1.position() + delta);
+      last_pos = p;
+      window1.move(window1.position() + delta, true);
     }
   });
   window2.on_mouse_move([&] (os::key_state, const core::point& p) {
     //clog::debug() << "Window2 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
       auto delta = p - last_pos;
-      //last_pos = p;
-      window2.move(window2.position() + delta);
+      last_pos = p;
+      window2.move(window2.position() + delta, true);
+      scroll_view.invalidate();
     }
   });
 

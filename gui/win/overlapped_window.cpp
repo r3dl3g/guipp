@@ -37,6 +37,7 @@
 // Library includes
 //
 #include <util/ostreamfmt.h>
+#include <gui/core/native.h>
 #include <gui/win/overlapped_window.h>
 #include <gui/win/window_event_proc.h>
 #include <gui/win/window_event_handler.h>
@@ -47,7 +48,7 @@
 # define USE_INPUT_EATER
 #endif
 
-#define DEBUG_RECTANGLES
+#define DEBUG_RECTANGLESxx
 #ifdef DEBUG_RECTANGLES
 #define SHOW_FOCUS
 #define SHOW_MOUSE_WIN
@@ -71,11 +72,7 @@ namespace gui {
       }
 
       core::context get_context () {
-#ifdef GUIPP_QT
-        return {pixel_store->paintDevice(), gc};
-#else
-        return {pixel_store, gc};
-#endif
+        return {get_drawable(), gc};
       }
 
       const core::native_size& get_size () const {
@@ -88,44 +85,60 @@ namespace gui {
         bool create_new = sz != size;
         if (create_new) {
           create(sz, id);
-#ifndef GUIPP_QT
-          native::erase(pixel_store, gc, core::native_rect(sz), w.get_window_class().get_background());
-#endif
         }
 #ifdef GUIPP_QT
         pixel_store->beginPaint(QRegion(0, 0, size.width(), size.height()));
-        gc->begin(pixel_store->paintDevice());
-        if (create_new) {
-          native::erase(pixel_store->paintDevice(), gc, core::native_rect(sz), w.get_window_class().get_background());
-        }
+        gc->begin(get_drawable());
 #endif
+        if (create_new) {
+          native::erase(get_drawable(), gc, core::native_rect(sz), w.get_window_class().get_background());
+        }
       }
 
-      core::context end (os::window id) {
+#ifdef DEBUG_RECTANGLES
+      typedef core::context end_return;
+#else
+      typedef bool end_return;
+#endif
+
+      end_return end (os::window id) {
 #ifdef GUIPP_X11
         auto display = core::global::get_instance();
         XSetWindowBackgroundPixmap(display, id, pixel_store);
         XClearWindow(display, id);
 //        XFlush(display);
-        return {id, native::create_graphics_context(id)};
+# ifdef DEBUG_RECTANGLES
+        return {id};
+# else
+        return true;
+# endif
 #elif GUIPP_QT
-        return {pixel_store->paintDevice(), gc};
+# ifdef DEBUG_RECTANGLES
+        return {get_drawable(), gc};
+# else
+        return true;
+# endif
 #elif GUIPP_WIN
         os::graphics pgc = BeginPaint(id, &ps);
         BitBlt(pgc, 0, 0, size.width(), size.height(), gc, 0, 0, SRCCOPY);
+# ifdef DEBUG_RECTANGLES
         return {id, pgc};
+# else
+        EndPaint(id, &ps);
+        return true;
+# endif
 #endif
       }
 
-      void finish (core::context& ctx) {
-#ifdef GUIPP_X11
-        native::delete_graphics_context(ctx.graphics());
-#elif GUIPP_QT
+      void finish (end_return& ctx) {
+#ifdef GUIPP_QT
         gc->end();
         pixel_store->endPaint();
         pixel_store->flush(QRegion(0, 0, size.width(), size.height()));
 #elif GUIPP_WIN
+# ifdef DEBUG_RECTANGLES
         EndPaint((os::window)ctx.drawable(), &ps);
+# endif
 #endif
       }
 
@@ -134,22 +147,26 @@ namespace gui {
         destroy();
         size = sz;
         pixel_store = native::create_surface(size, id);
-#ifdef GUIPP_QT
-        gc = native::create_graphics_context(pixel_store->paintDevice());
-#else
-        gc = native::create_graphics_context(pixel_store);
-#endif
+        gc = core::native::create_graphics_context(get_drawable());
       }
 
       void destroy () {
         if (gc) {
-          native::delete_graphics_context(gc);
+          core::native::delete_graphics_context(gc);
           gc = 0;
         }
         if (pixel_store) {
           native::delete_surface(pixel_store);
           pixel_store = 0;
         }
+      }
+
+      gui::os::drawable get_drawable () {
+#ifdef GUIPP_QT
+        return pixel_store->paintDevice();
+#else
+        return pixel_store;
+#endif
       }
 
       core::native_size size;
@@ -375,7 +392,7 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     bool overlapped_window::handle_event (const core::event& e, gui::os::event_result& r) {
-      if (mouse_move_event::match(e) || (btn_down_event::match(e) || btn_up_event::match(e))) {
+      if (is_mouse_event(e)) {
           if (capture_window && (capture_window != this)) {
             return capture_window->handle_event(e, r);
           } else {
@@ -387,14 +404,11 @@ namespace gui {
               return mouse_window->handle_event(e, r);
             }
           }
-      } else if ((any_key_down_event::match(e) || any_key_up_event::match(e)) && focus_window) {
+      } else if (is_key_event(e) && focus_window) {
         focus_window->handle_event(e, r);
 #ifdef GUIPP_WIN
       } else if (expose_event::match(e)) {
-        os::rectangle rect;
-        if (GetUpdateRect(e.id, &rect, FALSE)) {
-          redraw(core::rectangle(rect));
-        }
+        redraw(invalid_rect);
 #elif GUIPP_QT
       } else if (expose_event::match(e)) {
         redraw(invalid_rect);
@@ -525,14 +539,13 @@ namespace gui {
 
         core::clip clp(cntxt, r);
         native::erase(cntxt.drawable(), cntxt.graphics(), r, get_window_class().get_background());
-
         notify_event(core::WM_PAINT_WINDOW, reinterpret_cast<std::uintptr_t>(&cntxt), reinterpret_cast<std::uintptr_t>(&invalid_rect));
         auto wctxt = surface.end(get_os_window());
 
+#if defined(SHOW_FOCUS) || defined(SHOW_MOUSE_WIN) || defined(SHOW_CAPTURE) || defined(SHOW_CLIP_RECT)
+
         const auto offs = surface_offset();
         cntxt.set_offset(offs.x(), offs.y());
-
-#if defined(SHOW_FOCUS) || defined(SHOW_MOUSE_WIN) || defined(SHOW_CAPTURE) || defined(SHOW_CLIP_RECT)
 
 #ifdef SHOW_FOCUS
         frame_window(wctxt, focus_window, color::green);
@@ -593,9 +606,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     void overlapped_window::capture_pointer (window* w) {
       if (is_valid()) {
-        clog::debug() << "capture_pointer:" << *w;
+        clog::trace() << "capture_pointer:" << *w;
         if (capture_stack.empty()) {
-          clog::debug() << "capture_pointer for overlapped_window";
+          clog::trace() << "capture_pointer for overlapped_window";
           native::capture_pointer(get_os_window());
         }
         capture_window = w;
@@ -609,14 +622,14 @@ namespace gui {
           if (capture_stack.back() != w) {
             clog::fatal() << "uncapture_pointer:" << w << " differs from stack back:(" << capture_stack.back() << ")";
           } else {
-            clog::debug() << "uncapture_pointer:" << w;
+            clog::trace() << "uncapture_pointer:" << w;
           }
           capture_stack.pop_back();
           if (!capture_stack.empty()) {
             clog::trace() << "re-capture_pointer:" << capture_stack.back();
             capture_window = capture_stack.back();
           } else {
-            clog::debug() << "uncapture_pointer for overlapped_window";
+            clog::trace() << "uncapture_pointer for overlapped_window";
             native::uncapture_pointer(get_os_window());
             capture_window = nullptr;
           }

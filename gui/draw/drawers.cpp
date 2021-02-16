@@ -145,10 +145,10 @@ namespace gui {
     void line::operator() (graphics& g, const pen& p) const {
       const auto pw = p.os_size();
       const auto off = p.os_size() / 2;
-      const auto x = from.os_x() + off;
-      const auto y = from.os_y() + off;
-      const auto x2 = to.os_x() + off;
-      const auto y2 = to.os_y() + off;
+      const auto x = from.os_x(g.context()) + off;
+      const auto y = from.os_y(g.context()) + off;
+      const auto x2 = to.os_x(g.context()) + off;
+      const auto y2 = to.os_y(g.context()) + off;
       if ((x == x2) && (y == y2)) {
         if (pw < 2) {
           SetPixel(g, x, y, p.color());
@@ -179,7 +179,7 @@ namespace gui {
     void rectangle::operator() (graphics& g,
                                 const brush& b,
                                 const pen& p) const {
-      const os::rectangle r = rect.os();
+      const os::rectangle r = rect.os(g.context());
       const auto pw = p.os_size();
       if ((r.left + pw == r.right) && (r.top + pw == r.bottom)) {
         if (pw < 2) {
@@ -202,7 +202,7 @@ namespace gui {
 
     void rectangle::operator() (graphics& g,
                                 const pen& p) const {
-      const os::rectangle r = rect.os();
+      const os::rectangle r = rect.os(g.context());
       const auto pw = p.os_size();
       if ((r.left + pw == r.right) && (r.top + pw == r.bottom)) {
         if (pw < 2) {
@@ -232,7 +232,7 @@ namespace gui {
     void ellipse::operator() (graphics& g,
                               const brush& b,
                               const pen& p) const {
-      const os::rectangle r = rect.os();
+      const os::rectangle r = rect.os(g.context());
       const auto pw = p.os_size();
       if ((r.left == r.right) && (r.top == r.bottom)) {
         if (pw < 2) {
@@ -261,7 +261,7 @@ namespace gui {
 
     void ellipse::operator() (graphics& g,
                               const pen& p) const {
-      const os::rectangle r = rect.os();
+      const os::rectangle r = rect.os(g.context());
       const auto pw = p.os_size();
       if ((r.left == r.right) && (r.top == r.bottom)) {
         if (pw < 2) {
@@ -297,10 +297,10 @@ namespace gui {
       Use<pen> pn(g, p);
       Use<brush> br(g, brush::invisible);
       RoundRect(g,
-                rect.os_x(),
-                rect.os_y(),
-                rect.os_x2(),
-                rect.os_y2(),
+                rect.os_x(g.context()),
+                rect.os_y(g.context()),
+                rect.os_x2(g.context()),
+                rect.os_y2(g.context()),
                 (radius.os_width() * 2),
                 (radius.os_height() * 2));
     }
@@ -311,10 +311,10 @@ namespace gui {
       pen p(b.color());
       Use<pen> pn(g, p);
       RoundRect(g,
-                rect.os_x(),
-                rect.os_y(),
-                rect.os_x2(),
-                rect.os_y2(),
+                rect.os_x(g.context()),
+                rect.os_y(g.context()),
+                rect.os_x2(g.context()),
+                rect.os_y2(g.context()),
                 (radius.os_width() * 2),
                 (radius.os_height() * 2));
     }
@@ -325,10 +325,10 @@ namespace gui {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
       RoundRect(g,
-                rect.os_x(),
-                rect.os_y(),
-                rect.os_x2(),
-                rect.os_y2(),
+                rect.os_x(g.context()),
+                rect.os_y(g.context()),
+                rect.os_x2(g.context()),
+                rect.os_y2(g.context()),
                 (radius.os_width() * 2),
                 (radius.os_height() * 2));
     }
@@ -452,15 +452,15 @@ namespace gui {
       Use<font> fn(g, f);
       os::color old_color = SetTextColor(g, c);
       int old_mode = SetBkMode(g, TRANSPARENT);
-      RECT Rect = rect;
+      RECT Rect = rect.os(g.context());
 
       std::wstring wstr = util::string::utf8_to_utf16(str);
 
       unsigned int o = static_cast<unsigned int>(origin);
       if (core::bit_mask<unsigned int, DT_WORDBREAK | DT_VCENTER>::is_set(o)) {
         int h = DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, o | DT_CALCRECT);
-        Rect.left = rect.os_x();
-        Rect.right = rect.os_x2();
+        Rect.left = rect.os_x(g.context());
+        Rect.right = rect.os_x2(g.context());
         Rect.top = ((rect.size().os_height() - h) / 2);
         Rect.bottom = Rect.top + h;
       }
@@ -474,10 +474,10 @@ namespace gui {
                                    const font& f,
                                    os::color) const {
       Use<font> fn(g, f);
-      RECT r = rect;
+      RECT r = rect.os(g.context());
       std::wstring wstr = util::string::utf8_to_utf16(str);
       DrawTextW(g, wstr.c_str(), (int)wstr.size(), &r, static_cast<unsigned int>(text_origin_t::top_left) | DT_CALCRECT);
-      core::rectangle rr(r);
+      core::rectangle rr(r, g.context());
       if (origin_is_right(origin)) {
         rect.set_horizontal(rect.x2() - rr.width(), rr.width());
       } else if (origin_is_h_center(origin)) {
@@ -501,8 +501,8 @@ namespace gui {
       Use<font> fn(g, f);
       os::color old_color = SetTextColor(g, c);
       int old_mode = SetBkMode(g, TRANSPARENT);
-      int px = pos.os_x();
-      int py = pos.os_y();
+      int px = pos.os_x(g.context());
+      int py = pos.os_y(g.context());
       unsigned int old_align = static_cast<unsigned int>(text_origin_t::top_left);
       std::wstring wstr = util::string::utf8_to_utf16(str);
 
@@ -1177,7 +1177,7 @@ namespace gui {
       if (from == to) {
         if (pw < 2) {
           Use<pen> pn(g, p);
-          g.os()->drawPoint(from.os());
+          g.os()->drawPoint(from.os(g.context()));
         } else {
           pen p1 = p.with_os_size(1);
           brush b1(p.color());
@@ -1185,8 +1185,8 @@ namespace gui {
           Use<brush> ubr(g, b1);
 
           const auto off = pw / 2;
-          const auto x = from.os_x() + off;
-          const auto y = from.os_y() + off;
+          const auto x = from.os_x(g.context()) + off;
+          const auto y = from.os_y(g.context()) + off;
           g.os()->drawRect(x - off, y - off, pw - off, pw - off);
         }
       } else {
@@ -1196,10 +1196,10 @@ namespace gui {
         // const offs[] =  {0, 0, 1, 1, 2, 2, 3, 3, 4};
         // const offs2[] = {0, 0, 1, 2, 2, 3, 3, 4, 4};
 
-        const auto x0 = from.os_x();
-        const auto y0 = from.os_y();
-        const auto x1 = to.os_x();
-        const auto y1 = to.os_y();
+        const auto x0 = from.os_x(g.context());
+        const auto y0 = from.os_y(g.context());
+        const auto x1 = to.os_x(g.context());
+        const auto y1 = to.os_y(g.context());
 
         const auto x0off = (x1 < x0) && (y1 != y0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
         const auto y0off = (y1 < y0) && (x1 != x0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
@@ -1225,7 +1225,7 @@ namespace gui {
                                 const pen& p) const {
       const auto pw = p.os_size();
       const auto off = pw / 2;
-      const os::rectangle r = rect.os();
+      const os::rectangle r = rect.os(g.context());
       Use<brush> ubr(g, b);
       Use<pen> pn(g, p);
       if ((r.width() > pw) && (r.height() > pw)) {
@@ -1242,7 +1242,7 @@ namespace gui {
                                 const pen& p) const {
       const auto pw = p.os_size();
       const auto off = pw / 2;
-      const os::rectangle r = rect.os();
+      const os::rectangle r = rect.os(g.context());
       Use<brush> ubr(g, brush::invisible);
       Use<pen> pn(g, p);
       if ((r.width() > pw) && (r.height() > pw)) {
@@ -1268,7 +1268,7 @@ namespace gui {
       const auto pw = p.os_size();
       const auto off = pw / 2;
       const auto off2 = pw > 2 ? off : 0;
-      const os::rectangle r = rect.os();
+      const os::rectangle r = rect.os(g.context());
       g.os()->drawEllipse(r.x() + off, r.y() + off, r.width() + off2, r.height() + off2);
     }
 
@@ -1301,7 +1301,7 @@ namespace gui {
 
       const auto pw = p.os_size();
       const auto off = pw / 2;
-      const os::rectangle r = rect.os();
+      const os::rectangle r = rect.os(g.context());
       if ((r.width() > pw) && (r.height() > pw)) {
         g.os()->drawRoundedRect(r.x() + off, r.y() + off, r.width() - pw, r.height() - pw, radius.os_width(), radius.os_height());
       } else if ((r.width() > 1) && (r.height() > 1)) {
@@ -1354,7 +1354,8 @@ namespace gui {
                               const pen& p) const {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
-      g.os()->drawPolyline(points.data(), (int)points.size());
+      auto pts = convert(g);
+      g.os()->drawPolyline(pts.data(), (int)pts.size());
     }
 
     void polyline::operator() (graphics& g,
@@ -1373,7 +1374,8 @@ namespace gui {
                                const pen& p) const {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
-      g.os()->drawPolygon(points.data(), (int)points.size());
+      auto pts = convert(g);
+      g.os()->drawPolygon(pts.data(), (int)pts.size());
     }
 
     void polygon::operator() (graphics& g,
@@ -1393,14 +1395,14 @@ namespace gui {
       Use<font> fn(g, f);
       Use<pen> pn(g, c);
 
-      g.os()->drawText(rect.os(), static_cast<int>(origin), QString::fromStdString(str));
+      g.os()->drawText(rect.os(g.context()), static_cast<int>(origin), QString::fromStdString(str));
     }
 
     // --------------------------------------------------------------------------
     void bounding_box::operator() (graphics& g,
                                    const font& f,
                                    os::color) const {
-      rect = core::rectangle(QFontMetrics(f).boundingRect(rect.os(), static_cast<int>(origin), QString::fromStdString(str)));
+      rect = core::rectangle(QFontMetrics(f).boundingRect(rect.os(g.context()), static_cast<int>(origin), QString::fromStdString(str)), g.context());
     }
 
     // --------------------------------------------------------------------------
@@ -1413,24 +1415,24 @@ namespace gui {
       const QString t = QString::fromStdString(str);
 
       os::rectangle area = g.os()->viewport();
-      os::rectangle r(pos.os(), area.bottomRight());
+      os::rectangle r(pos.os(g.context()), area.bottomRight());
 
       if (!origin_is_left(origin) || !origin_is_top(origin)) {
 
         if (origin_is_h_center(origin)) {
-          r.setLeft(pos.os_x() - area.width());
-          r.setRight(pos.os_x() + area.width());
+          r.setLeft(pos.os_x(g.context()) - area.width());
+          r.setRight(pos.os_x(g.context()) + area.width());
         } else if (origin_is_right(origin)) {
           r.setLeft(area.left());
-          r.setRight(pos.os_x());
+          r.setRight(pos.os_x(g.context()));
         }
 
         if (origin_is_v_center(origin)) {
-          r.setTop(pos.os_y() - area.height());
-          r.setBottom(pos.os_y() + area.height());
+          r.setTop(pos.os_y(g.context()) - area.height());
+          r.setBottom(pos.os_y(g.context()) + area.height());
         } else if (origin_is_bottom(origin)) {
           r.setTop(area.top());
-          r.setBottom(pos.os_y());
+          r.setBottom(pos.os_y(g.context()));
         }
       }
 
@@ -1492,9 +1494,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     std::vector<os::point> polyline::convert (graphics& g) const {
       std::vector<os::point> pts;
-      pts.reserve(points.size());
-      for (const core::point& pt : points) {
-        pts.push_back(pt.os(g.context()));
+      const auto sz = points.size();
+      if (sz) {
+        pts.reserve(points.size());
+        for (const core::point& pt : points) {
+          pts.push_back(pt.os(g.context()));
+        }
       }
       return pts;
     }
@@ -1510,11 +1515,14 @@ namespace gui {
     // --------------------------------------------------------------------------
     std::vector<os::point> polygon::convert (graphics& g) const {
       std::vector<os::point> pts;
-      pts.reserve(points.size() + 1);
-      for (const core::point& pt : points) {
-        pts.push_back(pt.os(g.context()));
+      const auto sz = points.size();
+      if (sz) {
+        pts.reserve(sz + 1);
+        for (const core::point& pt : points) {
+          pts.push_back(pt.os(g.context()));
+        }
+        pts.push_back(points[0].os(g.context()));
       }
-      pts.push_back(points[0].os(g.context()));
       return pts;
     }
 

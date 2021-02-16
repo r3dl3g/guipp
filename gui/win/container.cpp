@@ -173,13 +173,18 @@ namespace gui {
       if (paint_event::match(e)) {
         core::context* cntxt = paint_event::Caller::get_param<0>(e);
         core::native_rect* clip_rect = paint_event::Caller::get_param<1>(e);
+
         const auto offs = surface_offset();
         cntxt->set_offset(offs.x(), offs.y());
+
         bool ret = super::handle_event(e, r);
+
         for (auto& w : children) {
           const auto rect = w->surface_area();
+
           if (!clip_rect || (clip_rect->overlap(rect))) {
             const auto state = w->get_state();
+
             if (state.created() && state.visible() && !state.overlapped()) {
               core::clip clp(*cntxt, rect);
               cntxt->set_offset(rect.x(), rect.y());

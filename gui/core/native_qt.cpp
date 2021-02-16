@@ -30,6 +30,7 @@
 // Library includes
 //
 #include <gui/core/native.h>
+#include <gui/core/context.h>
 
 
 namespace gui {
@@ -39,8 +40,8 @@ namespace gui {
     namespace native {
 
       // --------------------------------------------------------------------------
-      void set_clip_rect (core::context& ctx, const core::native_rect& r) {
-        ctx.graphics()->setClipRect(r.os());
+      void set_clip_rect (core::context& ctx, const gui::os::rectangle& r) {
+        ctx.graphics()->setClipRect(r);
       }
 
       // --------------------------------------------------------------------------
@@ -48,6 +49,24 @@ namespace gui {
         if (ctx.graphics()->isActive()) {
           ctx.graphics()->setClipping(false);
         }
+      }
+
+      // --------------------------------------------------------------------------
+      gui::os::graphics create_graphics_context (gui::os::drawable id) {
+        if (id) {
+          auto g = new QPainter(id);
+          if (g->device()->depth() == 1) {
+            g->setCompositionMode(QPainter::RasterOp_NotSource);
+          }
+          return g;
+        } else {
+          return new QPainter();
+        }
+      }
+
+      // --------------------------------------------------------------------------
+      void delete_graphics_context (gui::os::graphics id) {
+        delete id;
       }
 
     } // namespace native

@@ -30,9 +30,6 @@
 #include <gui/core/context.h>
 #include <gui/core/native.h>
 #include <gui/core/rectangle.h>
-#ifdef GUIPP_QT
-# include <QtGui/QPainter>
-#endif // GUIPP_QT
 
 
 namespace gui {
@@ -104,41 +101,36 @@ namespace gui {
       , offs_y(0)
       , own_gc(true)
     {
-#ifdef GUIPP_WIN
-      HDC gdc = GetDC(NULL);
-      g = CreateCompatibleDC(gdc);
-      ReleaseDC(NULL, gdc);
-      SelectObject(g, id);
-#endif // GUIPP_WIN
-#ifdef GUIPP_X11
-      g = XCreateGC(global::get_instance(), id, 0, 0);
-#endif // GUIPP_X11
-#ifdef GUIPP_QT
-      g = new QPainter(id);
-      if (g->device()->depth() == 1) {
-        g->setCompositionMode(QPainter::RasterOp_NotSource);
-      }
-#endif // GUIPP_QT
+      g = core::native::create_graphics_context(id);
       clippings.clear(*this);
     }
 
     // --------------------------------------------------------------------------
     context::~context () {
-      clippings.clear(*this);
-      if (own_gc) {
-#ifdef GUIPP_WIN
-        DeleteDC(g);
-#endif // GUIPP_WIN
-#ifdef GUIPP_X11
-        XFreeGC(global::get_instance(), g);
-#endif // GUIPP_X11
-#ifdef GUIPP_QT
-        delete g;
-#endif // GUIPP_QT
-        own_gc = false;
-        g = 0;
+      if (g) {
+        clippings.clear(*this);
       }
+      detach();
     }
+
+    // --------------------------------------------------------------------------
+    void context::detach () {
+      if (own_gc) {
+        core::native::delete_graphics_context(g);
+        own_gc = false;
+      }
+      g = 0;
+    }
+
+//    core::native_point context::offset () const {
+//      POINT pt;
+//      GetViewportOrgEx(gc(), &pt);
+//      return {pt.x, pt.y};
+//    }
+
+//    void context::set_offset (const core::native_point& o) {
+//      SetViewportOrgEx(gc(), o.x(), o.y(), NULL);
+//    }
 
     // --------------------------------------------------------------------------
     clip::clip (context& ctx, const core::native_rect& r)

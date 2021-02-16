@@ -22,7 +22,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::core;
 
   layout_main_window<border::layouter</*50, 50, 50, 50*/>> main;
-  ctrl::scroll_view<> scroll_view;
+  ctrl::scroll_view<color::very_light_gray> scroll_view;
   ctrl::client_control<> window1;
   ctrl::client_control<> window2;
 
@@ -37,9 +37,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   main.get_layout().set_center(lay(scroll_view));
 
-  scroll_view.on_paint(draw::paint([&] (draw::graphics& graph) {
-    graph.fill(draw::rectangle(scroll_view.client_area()), color::cyan);
-  }));
   window1.on_left_btn_down([&](gui::os::key_state, const core::native_point& p) {
     window1.to_front();
     at_drag = true;
@@ -55,7 +52,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
       auto delta = p - last_pos;
       last_pos = p;
       window1.move(window1.position() + core::global::scale_from_native(delta));
-      window1.invalidate();
+      scroll_view.invalidate();
     }
   });
 
@@ -109,7 +106,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   main.create({50, 50, 800, 600});
   main.on_destroy(&quit_main_loop);
-  main.set_title("Split view");
+  main.set_title("Sroll view");
   main.set_visible();
   main.layout();
 

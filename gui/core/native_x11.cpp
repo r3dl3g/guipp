@@ -29,7 +29,7 @@
 // Library includes
 //
 #include <gui/core/native.h>
-#include <gui/core/rectangle.h>
+#include <gui/core/context.h>
 
 
 namespace gui {
@@ -82,6 +82,17 @@ namespace gui {
         XftDrawSetClip(x11::get_xft_draw(ctx), None);
 #endif // GUIPP_USE_XFT
       }
+
+      // --------------------------------------------------------------------------
+      gui::os::graphics create_graphics_context (gui::os::drawable id) {
+        return XCreateGC(core::global::get_instance(), id, 0, 0);
+      }
+
+      // --------------------------------------------------------------------------
+      void delete_graphics_context (gui::os::graphics id) {
+        XFreeGC(core::global::get_instance(), id);
+      }
+
 
     } // namespace native
 

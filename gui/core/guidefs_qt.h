@@ -107,8 +107,8 @@ namespace gui {
 
     inline point_type get_x (const rectangle& r) { return r.x(); }
     inline point_type get_y (const rectangle& r) { return r.y(); }
-    inline point_type get_x2 (const rectangle& r) { return r.x2(); }
-    inline point_type get_y2 (const rectangle& r) { return r.y2(); }
+    inline point_type get_x2 (const rectangle& r) { return r.right(); }
+    inline point_type get_y2 (const rectangle& r) { return r.bottom(); }
     inline size_type get_width (const rectangle& r) { return r.width(); }
     inline size_type get_height (const rectangle& r) { return r.height(); }
 

@@ -63,6 +63,10 @@ namespace gui {
     GUIPP_WIN_EXPORT core::context* get_context (const core::event&);
 
     // --------------------------------------------------------------------------
+    GUIPP_WIN_EXPORT bool is_mouse_event (const core::event&);
+    GUIPP_WIN_EXPORT bool is_key_event (const core::event&);
+
+    // --------------------------------------------------------------------------
   } // namespace win
 
 } // namespace gui

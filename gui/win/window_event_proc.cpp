@@ -237,10 +237,11 @@ namespace gui {
 
         const int status = XGetWindowProperty(core::global::get_instance(), id,
                                               core::x11::GUI_LIB_WIN_PTR,
-                                              0, 1024, False, AnyPropertyType,
+                                              0, sizeof(overlapped_window*),
+                                              False, AnyPropertyType,
                                               &actual_type, &actual_format,
                                               &nitems, &bytes, &data);
-        if ((Success == status) && (nitems == sizeof(window*))) {
+        if ((Success == status) && (nitems == sizeof(overlapped_window*))) {
 #ifdef LOG_GET_WINDOW_PROPERTY
           clog::debug() << "get window " << id << ": "
                    << (int)data[0] << ' ' << (int)data[1] << ' ' << (int)data[2] << ' ' << (int)data[3] << ' '
@@ -653,7 +654,8 @@ namespace gui {
         case QEvent::MouseButtonPress:
         case QEvent::MouseButtonRelease: {
           const QMouseEvent& me = e.cast<QMouseEvent>();
-          return !w.absolute_place().is_inside(core::point(me.globalPos()));
+          const auto pt = me.globalPos();
+          return !w.absolute_place().is_inside(core::global::scale_from_native(core::native_point(pt.x(), pt.y())));
         }
         default: break;
       }
@@ -703,9 +705,9 @@ namespace gui {
           action();
         }
 
-        if (!win::is_frequent_event(e)) {
-          clog::trace() << e;
-        }
+//        if (!win::is_frequent_event(e)) {
+//          clog::trace() << e;
+//        }
 
         if (filter && filter(e)) {
           continue;

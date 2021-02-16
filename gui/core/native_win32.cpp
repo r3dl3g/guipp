@@ -29,6 +29,7 @@
 // Library includes
 //
 #include <gui/core/native.h>
+#include <gui/core/context.h>
 
 
 namespace gui {
@@ -38,8 +39,7 @@ namespace gui {
     namespace native {
 
       // --------------------------------------------------------------------------
-      void set_clip_rect (core::context& ctx, const core::native_rect& rect) {
-        auto r = rect.os();
+      void set_clip_rect (core::context& ctx, const gui::os::rectangle& r) {
         SelectClipRgn(ctx, NULL);
         IntersectClipRect(ctx, r.left, r.top, r.right, r.bottom);
       }
@@ -47,6 +47,20 @@ namespace gui {
       // --------------------------------------------------------------------------
       void clear_clip_rect (core::context& ctx) {
         SelectClipRgn(ctx, NULL);
+      }
+
+      // --------------------------------------------------------------------------
+      gui::os::graphics create_graphics_context (gui::os::drawable id) {
+        auto dc = GetDC(NULL);
+        auto ndc = CreateCompatibleDC(dc);
+        SelectObject(ndc, id);
+        ReleaseDC(NULL, dc);
+        return ndc;
+      }
+
+      // --------------------------------------------------------------------------
+      void delete_graphics_context (gui::os::graphics id) {
+        DeleteDC(id);
       }
 
     } // namespace native

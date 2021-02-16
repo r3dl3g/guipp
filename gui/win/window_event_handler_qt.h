@@ -55,10 +55,10 @@ namespace gui {
     long get_param (const core::event&);
 
     template<>
-    long get_param<0> (const core::event&);
+    GUIPP_WIN_EXPORT long get_param<0> (const core::event&);
 
     template<>
-    long get_param<1> (const core::event&);
+    GUIPP_WIN_EXPORT long get_param<1> (const core::event&);
 
     // --------------------------------------------------------------------------
     template<os::event_id E, os::key_symbol symbol, os::key_state state>
@@ -74,7 +74,7 @@ namespace gui {
 
     inline core::native_point get_mouse_point (const core::event& e) {
       const QMouseEvent& m = e.cast<QMouseEvent>();
-      return core::native_point(gui::os::point(m.x(), m.y()));
+      return core::native_point(m.x(), m.y());
     }
 
     inline core::native_point get_root_mouse_pos (const core::event& e) {
@@ -87,23 +87,11 @@ namespace gui {
       return (e.type() == id) && (e.cast<QMouseEvent>().button() == btn);
     }
 
-    core::native_point::type get_wheel_delta_x (const core::event& e);
-    core::native_point::type get_wheel_delta_y (const core::event& e);
+    GUIPP_WIN_EXPORT core::native_point::type get_wheel_delta_x (const core::event& e);
+    GUIPP_WIN_EXPORT core::native_point::type get_wheel_delta_y (const core::event& e);
 
-    template<typename T>
-    inline core::point get_point (const core::event& e) {
-      return core::point(e.cast<T>().pos());
-    }
-
-  template<>
-  inline core::native_point get_point<QWheelEvent> (const core::event& e) {
-#if QT_VERSION > QT_VERSION_CHECK(5, 13, 0)
-    const auto pt = e.cast<QWheelEvent>().position();
-    return core::native_point(os::point(pt.x(), pt.y()));
-#else
-    return core::native_point(e.cast<QWheelEvent>().pos());
-#endif
-  }
+    GUIPP_WIN_EXPORT core::point get_move_point (const core::event& e);
+    GUIPP_WIN_EXPORT core::native_point get_wheel_point (const core::event& e);
 
     template<typename T>
     inline core::size get_size (const core::event& e) {
@@ -122,7 +110,7 @@ namespace gui {
     GUIPP_WIN_EXPORT core::rectangle get_client_data_rect (const core::event& e);
 
     // --------------------------------------------------------------------------
-    GUIPP_WIN_EXPORT core::rectangle* get_paint_rect (const core::event& e);
+    GUIPP_WIN_EXPORT core::native_rect* get_paint_rect (const core::event& e);
     // --------------------------------------------------------------------------
 //    GUIPP_WIN_EXPORT os::graphics get_graphics (const core::event&);
     // --------------------------------------------------------------------------
@@ -225,13 +213,13 @@ namespace gui {
 
     using wheel_x_event = core::event_handler<QEvent::Wheel, 0,
                                               core::params<core::native_point::type, core::native_point>::
-                                              getter<get_wheel_delta_x, get_point<QWheelEvent>>,
+                                              getter<get_wheel_delta_x, get_wheel_point>,
                                               0,
                                               event::functor<wheel_button_matcher_x>>;
 
     using wheel_y_event = core::event_handler<QEvent::Wheel, 0,
                                               core::params<core::native_point::type, core::native_point>::
-                                              getter<get_wheel_delta_y, get_point<QWheelEvent>>,
+                                              getter<get_wheel_delta_y, get_wheel_point>,
                                               0,
                                               event::functor<wheel_button_matcher_y>>;
 
@@ -254,8 +242,8 @@ namespace gui {
     using mouse_leave_event = core::event_handler<QEvent::Leave>;
 
     using move_event = core::event_handler<QEvent::Move, 0,
-                                           core::params<core::native_point>::
-                                           getter<get_point<QMoveEvent>>>;
+                                           core::params<core::point>::
+                                           getter<get_move_point>>;
     using size_event = core::event_handler<QEvent::Resize, 0,
                                            core::params<core::size>::
                                            getter<get_size<QResizeEvent>>>;
@@ -265,7 +253,7 @@ namespace gui {
                                              getter<get_client_data_rect>>;
 
     using paint_event = core::event_handler<core::WM_PAINT_WINDOW, 0,
-                                            core::params<core::context*, core::rectangle*>::
+                                            core::params<core::context*, core::native_rect*>::
                                             getter<get_context, get_paint_rect>>;
 
     using expose_event = core::event_handler<QEvent::UpdateRequest>;

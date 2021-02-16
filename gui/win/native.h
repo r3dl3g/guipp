@@ -118,9 +118,6 @@ namespace gui {
       GUIPP_WIN_EXPORT os::backstore create_surface (const core::native_size& size, os::window id);
       GUIPP_WIN_EXPORT void delete_surface (os::backstore);
 
-      GUIPP_WIN_EXPORT os::graphics create_graphics_context (os::drawable);
-      GUIPP_WIN_EXPORT void delete_graphics_context (os::graphics);
-
       GUIPP_WIN_EXPORT void copy_surface (os::bitmap src, os::drawable target,
                                           os::graphics context,
                                           const core::native_point& from,

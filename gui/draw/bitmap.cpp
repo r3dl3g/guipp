@@ -28,6 +28,7 @@
 //
 // Library includes
 //
+#include <gui/core/native.h>
 #include <gui/draw/bitmap.h>
 #include <gui/draw/graphics.h>
 #include <gui/draw/pen.h>
@@ -200,7 +201,7 @@ namespace gui {
 
     void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi) {
       auto display = core::global::get_instance();
-      auto gc = XCreateGC(display, id, 0, nullptr);
+      auto gc = core::native::create_graphics_context(id);
 
       core::byte_order_t byte_order = get_pixel_format_byte_order(bmi.pixel_format);
 
@@ -222,7 +223,7 @@ namespace gui {
       Status st = XInitImage(&im);
       (void)st;
       int res = XPutImage(display, id, gc, &im, 0, 0, 0, 0, bmi.width, bmi.height);
-      res = XFreeGC(display, gc);
+      core::native::delete_graphics_context(gc);
     }
 
 # endif // !USE_XSHM

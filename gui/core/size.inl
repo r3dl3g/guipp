@@ -263,10 +263,10 @@ namespace gui {
 //      return os();
 //    }
 
-//    template<typename T, coordinate_system C>
-//    inline basic_size<T, C>::operator gui::os::point() const {
-//      return {static_cast<gui::os::point_type>(os_width()), static_cast<gui::os::point_type>(os_height())};
-//    }
+    template<typename T, coordinate_system C>
+    inline gui::os::point basic_size<T, C>::os_point () const {
+      return {static_cast<gui::os::point_type>(os_width()), static_cast<gui::os::point_type>(os_height())};
+    }
 
     template<typename T, coordinate_system C>
     std::ostream& operator<< (std::ostream& out, const basic_size<T, C>& sz) {

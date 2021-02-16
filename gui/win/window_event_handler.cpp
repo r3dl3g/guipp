@@ -85,33 +85,51 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    core::point get_param<1, core::point>(const core::event& e) {
-      return core::global::scale_from_native(core::native_point(GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)));
+    core::point get_param<1>(const core::event& e) {
+      return core::global::scale_from_native(get_param<1, core::native_point>(e));
     }
 
     // --------------------------------------------------------------------------
     template<>
-    core::size get_param<1, core::size>(const core::event& e) {
-      return core::global::scale_from_native(core::native_size(GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)));
+    core::size get_param<1>(const core::event& e) {
+      return core::global::scale_from_native(get_param<1, core::native_size>(e));
     }
 
     // --------------------------------------------------------------------------
     template<>
     core::rectangle get_param<1>(const core::event& e) {
+      return core::global::scale_from_native(get_param<1, core::native_rect>(e));
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    core::native_point get_param<1>(const core::event& e) {
+      return core::native_point(GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam));
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    core::native_size get_param<1>(const core::event& e) {
+      return core::native_size(GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam));
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    core::native_rect get_param<1>(const core::event& e) {
       return get_rect<WINDOWPOS>(e);
     }
 
     // --------------------------------------------------------------------------
     template<>
-    core::rectangle* get_param<1>(const core::event& e) {
-      return (core::rectangle*)e.lParam;
+    core::native_rect* get_param<1>(const core::event& e) {
+      return (core::native_rect*)e.lParam;
     }
 
     // --------------------------------------------------------------------------
     core::native_point get_root_mouse_pos (const core::event& e) {
       POINT pt = {GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)};
       ClientToScreen(e.id, &pt);
-      return core::native_point(pt);
+      return core::native_point(pt.x, pt.y);
     }
 
     // --------------------------------------------------------------------------
@@ -133,7 +151,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     core::native_point::type get_wheel_delta (const core::event& e) {
-      return static_cast<core::point::type>(core::signum(GET_WHEEL_DELTA_WPARAM(e.wParam)));
+      return static_cast<core::native_point::type>(core::signum(GET_WHEEL_DELTA_WPARAM(e.wParam)));
     }
 
     // --------------------------------------------------------------------------
@@ -226,12 +244,12 @@ namespace gui {
     void pos_changing_getter::operator() (const core::event& e) {
       if (callback) {
         LPWINDOWPOS p = reinterpret_cast<LPWINDOWPOS>(e.lParam);
-        core::rectangle r = get_rect<WINDOWPOS>(e);
+        core::rectangle r = core::global::scale_from_native(get_rect<WINDOWPOS>(e));
         callback(r);
-        p->x = r.os_x();
-        p->y = r.os_y();
-        p->cx = r.os_width();
-        p->cy = r.os_height();
+        p->x = r.x();
+        p->y = r.y();
+        p->cx = r.width();
+        p->cy = r.height();
       }
     }
 
@@ -239,15 +257,46 @@ namespace gui {
     void minmax_getter::operator() (const core::event& e) {
       if (callback) {
         LPMINMAXINFO info = reinterpret_cast<LPMINMAXINFO>(e.lParam);
-        core::size mi(info->ptMinTrackSize);
-        core::size ma(info->ptMaxTrackSize);
-        core::size sz(info->ptMaxSize);
-        core::point pos(info->ptMaxPosition);
+        core::size mi = core::global::scale_from_native(core::native_size(info->ptMinTrackSize));
+        core::size ma = core::global::scale_from_native(core::native_size(info->ptMaxTrackSize));
+        core::size sz = core::global::scale_from_native(core::native_size(info->ptMaxSize));
+        core::point pos = core::global::scale_from_native(core::native_point(info->ptMaxPosition.x, info->ptMaxPosition.y));
         callback(sz, pos, mi, ma);
-        info->ptMinTrackSize = mi;
-        info->ptMaxTrackSize = ma;
+        info->ptMinTrackSize = core::global::scale_to_native(mi).os_point();
+        info->ptMaxTrackSize = core::global::scale_to_native(ma).os_point();
       }
     }
+    // --------------------------------------------------------------------------
+    bool is_mouse_event (const core::event& e) {
+      switch (e.type) {
+        case WM_MOUSEMOVE:
+        case WM_MOUSELEAVE:
+        case WM_LBUTTONDOWN:
+        case WM_LBUTTONUP:
+        case WM_LBUTTONDBLCLK:
+        case WM_RBUTTONDOWN:
+        case WM_RBUTTONUP:
+        case WM_RBUTTONDBLCLK:
+        case WM_MBUTTONDOWN:
+        case WM_MBUTTONUP:
+        case WM_MBUTTONDBLCLK:
+        case WM_MOUSEHWHEEL:
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    bool is_key_event (const core::event& e) {
+      switch (e.type) {
+        case WM_KEYDOWN:
+        case WM_KEYUP:
+          return true;
+        default:
+          return false;
+      }
+    }
+
 
 #endif // Win32
 #ifdef GUIPP_X11
@@ -346,6 +395,30 @@ namespace gui {
     void clear_last_place (os::window w) {
       s_last_place.erase(w);
     }
+    // --------------------------------------------------------------------------
+    bool is_mouse_event (const core::event& e) {
+      switch (e.type) {
+        case MotionNotify:
+        case ButtonPress:
+        case ButtonRelease:
+        case EnterNotify:
+        case LeaveNotify:
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    bool is_key_event (const core::event& e) {
+      switch (e.type) {
+        case KeyPress:
+        case KeyRelease:
+          return true;
+        default:
+          return false;
+      }
+    }
+
 
 #endif // GUIPP_X11
 
@@ -427,6 +500,20 @@ namespace gui {
       return numPixels.y();
     }
 
+    core::point get_move_point (const core::event& e) {
+      const auto p = e.cast<QMoveEvent>().pos();
+      return core::global::scale_from_native(core::native_point(p.x(), p.y()));
+    }
+
+    core::native_point get_wheel_point (const core::event& e) {
+#if QT_VERSION > QT_VERSION_CHECK(5, 13, 0)
+      const auto pt = e.cast<QWheelEvent>().position();
+      return core::native_point(pt.x(), pt.y());
+#else
+      return core::native_point(e.cast<QWheelEvent>().x(), e.cast<QWheelEvent>().y());
+#endif
+    }
+
     // --------------------------------------------------------------------------
     core::rectangle get_client_data_rect (const core::event& e) {
       return e.cast<QClientEvent>().rect();
@@ -446,6 +533,35 @@ namespace gui {
 
     core::native_rect* get_paint_rect (const core::event& e) {
       return (core::native_rect*)(e.cast<QClientEvent>().l2());
+    }
+
+    bool is_mouse_event (const core::event& e) {
+      switch (e.type()) {
+        case QEvent::MouseMove:
+        case QEvent::MouseButtonPress:
+        case QEvent::MouseButtonRelease:
+        case QEvent::MouseButtonDblClick:
+        case QEvent::DragEnter:
+        case QEvent::DragMove:
+        case QEvent::DragLeave:
+//        case QEvent::Enter:
+//        case QEvent::Leave:
+        case QEvent::MouseTrackingChange:
+        case QEvent::Wheel:
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    bool is_key_event (const core::event& e) {
+      switch (e.type()) {
+        case QEvent::KeyPress:
+        case QEvent::KeyRelease:
+          return true;
+        default:
+          return false;
+      }
     }
 
     // --------------------------------------------------------------------------

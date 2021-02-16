@@ -114,10 +114,10 @@ void test_raw_rect () {
 #endif
 #ifdef GUIPP_WIN
   SelectObject(g, GetStockObject(NULL_BRUSH));
-  Rectangle(g, r.os_x(), r.os_y(), r.os_x2(), r.os_y2());
+  Rectangle(g, r.os_x(g.context()), r.os_y(g.context()), r.os_x2(g.context()), r.os_y2(g.context()));
 #endif
 #ifdef GUIPP_QT
-  g.os()->drawRect(r.os_x(), r.os_y(), r.os_width() - 1, r.os_height() - 1);
+  g.os()->drawRect(r.os_x(g.context()), r.os_y(g.context()), r.os_width() - 1, r.os_height() - 1);
 #endif
 
   auto buffer = pixmap2colormap(img);
@@ -148,10 +148,10 @@ void test_raw_ellipse () {
 #endif
 #ifdef GUIPP_WIN
   SelectObject(g, GetStockObject(NULL_BRUSH));
-  Ellipse(g, r.os_x(), r.os_y(), r.os_x2(), r.os_y2());
+  Ellipse(g, r.os_x(g.context()), r.os_y(g.context()), r.os_x2(g.context()), r.os_y2(g.context()));
 #endif
 #ifdef GUIPP_QT
-  g.os()->drawEllipse(r.os_x(), r.os_y(), r.os_width() - 1, r.os_height() - 1);
+  g.os()->drawEllipse(r.os_x(g.context()), r.os_y(g.context()), r.os_width() - 1, r.os_height() - 1);
 #endif
 
   auto buffer = pixmap2colormap(img);
@@ -178,10 +178,10 @@ void test_raw_ellipse2 () {
 #endif
 #ifdef GUIPP_WIN
   SelectObject(g, GetStockObject(NULL_BRUSH));
-  Ellipse(g, r.os_x(), r.os_y(), r.os_x2(), r.os_y2());
+  Ellipse(g, r.os_x(g.context()), r.os_y(g.context()), r.os_x2(g.context()), r.os_y2(g.context()));
 #endif
 #ifdef GUIPP_QT
-  g.os()->drawEllipse(r.os_x(), r.os_y(), r.os_width() - 1, r.os_height() - 1);
+  g.os()->drawEllipse(r.os_x(g.context()), r.os_y(g.context()), r.os_width() - 1, r.os_height() - 1);
 #endif
 
   auto buffer = pixmap2colormap(img);

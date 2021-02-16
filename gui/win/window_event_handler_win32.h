@@ -41,12 +41,15 @@ namespace gui {
     template<> GUIPP_WIN_EXPORT core::point get_param<1>(const core::event& e);
     template<> GUIPP_WIN_EXPORT core::size get_param<1>(const core::event& e);
     template<> GUIPP_WIN_EXPORT core::rectangle get_param<1>(const core::event& e);
-    template<> GUIPP_WIN_EXPORT core::rectangle* get_param<1>(const core::event& e);
+    template<> GUIPP_WIN_EXPORT core::native_point get_param<1>(const core::event& e);
+    template<> GUIPP_WIN_EXPORT core::native_size get_param<1>(const core::event& e);
+    template<> GUIPP_WIN_EXPORT core::native_rect get_param<1>(const core::event& e);
+    template<> GUIPP_WIN_EXPORT core::native_rect* get_param<1>(const core::event& e);
     // --------------------------------------------------------------------------
     template<typename T>
-    core::rectangle get_rect (const core::event& e) {
+    core::native_rect get_rect (const core::event& e) {
       T& p = *reinterpret_cast<T*>(e.lParam);
-      return core::global::scale_from_native(core::native_rect(p.x, p.y, p.cx, p.cy));
+      return core::native_rect(p.x, p.y, p.cx, p.cy);
     }
 
     // --------------------------------------------------------------------------
@@ -56,7 +59,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT unsigned int get_flags_from_wp (const core::event& e);
     // --------------------------------------------------------------------------
-    GUIPP_WIN_EXPORT core::point::type get_wheel_delta (const core::event& e);
+    GUIPP_WIN_EXPORT core::native_point::type get_wheel_delta (const core::event& e);
     // --------------------------------------------------------------------------
     template<bool down>
     bool any_button_matcher (const core::event& e);
@@ -122,7 +125,7 @@ namespace gui {
       {}
 
       template<class T>
-      minmax_getter (T* win, void(T::*fn)(const core::size &, const core::point &, core::size &, core::size &))
+      minmax_getter (T* win, void(T::*fn)(const core::size&, const core::point&, core::size&, core::size&))
         : callback(win, fn)
       {}
 
@@ -197,64 +200,64 @@ namespace gui {
                                            getter<get_param<1, core::size>>>;
 
     using left_btn_down_event = core::event_handler<WM_LBUTTONDOWN, 0,
-                                                    core::params<os::key_state, core::point>::
+                                                    core::params<os::key_state, core::native_point>::
                                                     getter<get_param<0, os::key_state>,
-                                                           get_param<1, core::point>>>;
+                                                           get_param<1, core::native_point>>>;
     using left_btn_up_event = core::event_handler<WM_LBUTTONUP, 0,
-                                                  core::params<os::key_state, core::point>::
+                                                  core::params<os::key_state, core::native_point>::
                                                   getter<get_param<0, os::key_state>,
-                                                         get_param<1, core::point>>>;
+                                                         get_param<1, core::native_point>>>;
     using left_btn_dblclk_event = core::event_handler<WM_LBUTTONDBLCLK, 0,
-                                                      core::params<os::key_state, core::point>::
+                                                      core::params<os::key_state, core::native_point>::
                                                       getter<get_param<0, os::key_state>,
-                                                             get_param<1, core::point>>>;
+                                                             get_param<1, core::native_point>>>;
 
     using right_btn_down_event = core::event_handler<WM_RBUTTONDOWN, 0,
-                                                     core::params<os::key_state, core::point>::
+                                                     core::params<os::key_state, core::native_point>::
                                                      getter<get_param<0, os::key_state>,
-                                                            get_param<1, core::point>>>;
+                                                            get_param<1, core::native_point>>>;
     using right_btn_up_event = core::event_handler<WM_RBUTTONUP, 0,
-                                                   core::params<os::key_state, core::point>::
+                                                   core::params<os::key_state, core::native_point>::
                                                    getter<get_param<0, os::key_state>,
-                                                          get_param<1, core::point>>>;
+                                                          get_param<1, core::native_point>>>;
     using right_btn_dblclk_event = core::event_handler<WM_RBUTTONDBLCLK, 0,
-                                                       core::params<os::key_state, core::point>::
+                                                       core::params<os::key_state, core::native_point>::
                                                        getter<get_param<0, os::key_state>,
-                                                              get_param<1, core::point>>>;
+                                                              get_param<1, core::native_point>>>;
 
     using middle_btn_down_event = core::event_handler<WM_MBUTTONDOWN, 0,
-                                                      core::params<os::key_state, core::point>::
+                                                      core::params<os::key_state, core::native_point>::
                                                       getter<get_param<0, os::key_state>,
-                                                             get_param<1, core::point>>>;
+                                                             get_param<1, core::native_point>>>;
     using middle_btn_up_event = core::event_handler<WM_MBUTTONUP, 0,
-                                                    core::params<os::key_state, core::point>::
+                                                    core::params<os::key_state, core::native_point>::
                                                     getter<get_param<0, os::key_state>,
-                                                           get_param<1, core::point>>>;
+                                                           get_param<1, core::native_point>>>;
     using middle_btn_dblclk_event = core::event_handler<WM_MBUTTONDBLCLK, 0,
-                                                        core::params<os::key_state, core::point>::
+                                                        core::params<os::key_state, core::native_point>::
                                                         getter<get_param<0, os::key_state>,
-                                                               get_param<1, core::point>>>;
+                                                               get_param<1, core::native_point>>>;
 
     using btn_down_event = core::event_handler<WM_LBUTTONDOWN, 0,
-                                               core::params<os::key_state, core::point>::
+                                               core::params<os::key_state, core::native_point>::
                                                getter<get_param<0, os::key_state>,
-                                                      get_param<1, core::point>>,
+                                                      get_param<1, core::native_point>>,
                                                0,
                                                event::functor<any_button_matcher<true>>>;
     using btn_up_event = core::event_handler<WM_LBUTTONUP, 0,
-                                             core::params<os::key_state, core::point>::
+                                             core::params<os::key_state, core::native_point>::
                                              getter<get_param<0, os::key_state>,
-                                                    get_param<1, core::point>>,
+                                                    get_param<1, core::native_point>>,
                                              0,
                                              event::functor<any_button_matcher<false>>>;
 
     using mouse_move_event = core::event_handler<WM_MOUSEMOVE, 0,
-                                                 core::params<os::key_state, core::point>::
+                                                 core::params<os::key_state, core::native_point>::
                                                  getter<get_param<0, os::key_state>,
-                                                        get_param<1, core::point>>>;
+                                                        get_param<1, core::native_point>>>;
 
     using mouse_move_abs_event = core::event_handler<WM_MOUSEMOVE, 0,
-                                                     core::params<os::key_state, core::point>::
+                                                     core::params<os::key_state, core::native_point>::
                                                      getter<get_param<0, os::key_state>,
                                                             get_root_mouse_pos>>;
 
@@ -265,13 +268,13 @@ namespace gui {
     using mouse_leave_event = core::event_handler<WM_MOUSELEAVE>;
 
     using wheel_x_event = core::event_handler<WM_MOUSEHWHEEL, 0,
-                                              core::params<core::point::type, core::point>::
+                                              core::params<core::native_point::type, core::native_point>::
                                               getter<get_wheel_delta,
-                                                     get_param<1, core::point>>>;
+                                                     get_param<1, core::native_point>>>;
     using wheel_y_event = core::event_handler<WM_MOUSEWHEEL, 0,
-                                              core::params<core::point::type, core::point>::
+                                              core::params<core::native_point::type, core::native_point>::
                                               getter<get_wheel_delta,
-                                                     get_param<1, core::point>>>;
+                                                     get_param<1, core::native_point>>>;
 
     using show_event = core::event_handler<WM_SHOWWINDOW, 0,
                                            core::params<>::getter<>,
@@ -289,8 +292,8 @@ namespace gui {
                                              getter<get_param<1, core::rectangle>>>;
 
     using paint_event = core::event_handler<core::WM_PAINT_WINDOW, 0,
-                                            core::params<core::context*, core::rectangle*>::
-                                            getter<get_context, get_param<1, core::rectangle*>>>;
+                                            core::params<core::context*, core::native_rect*>::
+                                            getter<get_context, get_param<1, core::native_rect*>>>;
 
     using expose_event = core::event_handler<WM_PAINT>;
     // --------------------------------------------------------------------------

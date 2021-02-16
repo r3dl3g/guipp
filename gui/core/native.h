@@ -45,6 +45,13 @@ namespace gui {
       // --------------------------------------------------------------------------
       GUIPP_CORE_EXPORT void clear_clip_rect (context&);
 
+      // --------------------------------------------------------------------------
+      GUIPP_CORE_EXPORT gui::os::graphics create_graphics_context (gui::os::drawable);
+
+      // --------------------------------------------------------------------------
+      GUIPP_CORE_EXPORT void delete_graphics_context (gui::os::graphics);
+
+      // --------------------------------------------------------------------------
 #ifdef GUIPP_USE_XFT
       namespace x11 {
         GUIPP_CORE_EXPORT XftDraw* get_xft_draw (context&);

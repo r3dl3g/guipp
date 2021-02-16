@@ -62,7 +62,8 @@ namespace gui {
       }
 
       void move (os::window w, const core::point& pt) {
-        w->setPosition(pt.os_x(), pt.os_y());
+        const auto npt = core::global::scale_to_native(pt);
+        w->setPosition(npt.x(), npt.y());
       }
 
       void resize (os::window w, const core::size& sz) {
@@ -70,11 +71,14 @@ namespace gui {
       }
 
       void place (os::window w, const core::rectangle& r) {
-        w->setGeometry(r.os());
+        const auto nr = core::global::scale_to_native(r);
+        w->setGeometry(nr.x(), nr.y(), nr.width(), nr.height());
       }
 
       void notify_move (window& w, const core::point& pt, const core::point& old) {
-        QMoveEvent qe(pt.os(), old.os());
+        const auto npt = core::global::scale_to_native(pt);
+        const auto nold = core::global::scale_to_native(old);
+        QMoveEvent qe({npt.x(), npt.y()}, {nold.x(), nold.y()});
         gui::os::event_result result = 0;
         gui::core::event e{0, &qe};
         w.handle_event(e, result);
@@ -88,7 +92,8 @@ namespace gui {
       }
 
       core::point get_geometry (os::window w) {
-        return core::point(w->position());
+        const auto pt = w->position();
+        return core::global::scale_from_native(core::native_point{pt.x(), pt.y()});
       }
 
       void prepare(overlapped_window&) {}
@@ -99,9 +104,10 @@ namespace gui {
                          overlapped_window& data) {
         os::window id = new os::qt::Widget(parent_id, type.get_style(), &data);
         Qt::WindowFlags style = id->flags();
+        const auto nr = core::global::scale_to_native(r);
         //clog::debug() << "Expected style: " << std::hex << type.get_style() << ", current style: " << std::hex << style;
 
-        id->setGeometry(r.os());
+        id->setGeometry(nr.x(), nr.y(), nr.width(), nr.height());
         id->setCursor(type.get_cursor());
 
         return id;
@@ -161,13 +167,13 @@ namespace gui {
         }
       }
 
-      void invalidate (os::window id, const core::rectangle& r) {
+      void invalidate (os::window id, const core::native_rect&) {
         if (id) {
           id->requestUpdate();
         }
       }
 
-      void redraw (window&, os::window id, const core::rectangle& r) {
+      void redraw (window&, os::window id, const core::native_rect&) {
         if (id) {
           id->requestUpdate();
         }
@@ -196,7 +202,8 @@ namespace gui {
       }
 
       core::rectangle screen_area () {
-        return core::rectangle(core::global::get_instance()->primaryScreen()->availableGeometry());
+        const auto nr = core::global::get_instance()->primaryScreen()->availableGeometry();
+        return core::global::scale_from_native(core::native_rect(nr.x(), nr.y(), nr.width(), nr.height()));
       }
 
       core::rectangle adjust_overlapped_area (const core::rectangle& r, const class_info&) {
@@ -280,14 +287,6 @@ namespace gui {
       }
 
       void delete_surface (os::backstore id) {
-        delete id;
-      }
-
-      os::graphics create_graphics_context (os::drawable id) {
-        return new QPainter();
-      }
-
-      void delete_graphics_context (os::graphics id) {
         delete id;
       }
 

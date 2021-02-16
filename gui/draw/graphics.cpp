@@ -126,9 +126,9 @@ namespace gui {
       for (const core::point& pt : points) {
         if (first) {
           first = false;
-          MoveToEx(gc(), pt.os_x() + off, pt.os_y() + off, nullptr);
+          MoveToEx(gc(), pt.os_x(context()) + off, pt.os_y(context()) + off, nullptr);
         } else {
-          LineTo(gc(), pt.os_x() + off, pt.os_y() + off);
+          LineTo(gc(), pt.os_x(context()) + off, pt.os_y(context()) + off);
         }
       }
       return *this;
@@ -214,7 +214,7 @@ namespace gui {
     }
 
     void graphics::invert (const core::rectangle& r) {
-      RECT rect = r;
+      RECT rect = r.os(context());
       InvertRect(gc(), &rect);
     }
 
@@ -249,17 +249,6 @@ namespace gui {
       }
       return r;
     }
-
-    core::native_point graphics::offset () const {
-      POINT pt;
-      GetViewportOrgEx(gc(), &pt);
-      return {pt.x, pt.y};
-    }
-
-    void graphics::set_offset (const core::native_point& o) {
-      SetViewportOrgEx(gc(), o.x(), o.y(), NULL);
-    }
-
 
 #endif // GUIPP_WIN
 
@@ -540,10 +529,10 @@ namespace gui {
       for (const core::point& pt : points) {
         if (first) {
           first = false;
-          last = pt.os() + off;
+          last = pt.os(context()) + off;
         } else {
           pointPairs.push_back(last);
-          last = pt.os() + off;
+          last = pt.os(context()) + off;
           pointPairs.push_back(last);
         }
       }
@@ -562,7 +551,7 @@ namespace gui {
       QWindow* w = dynamic_cast<QWindow*>(d);
       if (w) {
         QPixmap pix;
-        pix.grabWindow(w->winId(), r.os_x(), r.os_y(), r.os_width(), r.os_height());
+        pix.grabWindow(w->winId(), r.x(), r.y(), r.width(), r.height());
         const QPainter::CompositionMode oldMode = gc()->compositionMode();
         gc()->setCompositionMode(static_cast<QPainter::CompositionMode>(mode));
         gc()->drawPixmap(pt.x(), pt.y(), pix);
@@ -605,7 +594,10 @@ namespace gui {
 
     graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) {
       if (bmp) {
-        gc()->drawPixmap(pt.os(), *bmp.get_os_bitmap(), src.os());
+        const auto r = core::global::scale_to_native(src);
+        const auto p = pt.os(context());
+        gc()->drawPixmap(p.x(), p.y(), *bmp.get_os_bitmap(),
+                         r.x(), r.y(), r.width(), r.height());
       }
       return *this;
     }
@@ -620,7 +612,7 @@ namespace gui {
     void graphics::invert (const core::rectangle& r) {
       const QPainter::CompositionMode oldMode = gc()->compositionMode();
       gc()->setCompositionMode(QPainter::RasterOp_NotDestination);
-      gc()->fillRect(r.os(), Qt::white);
+      gc()->fillRect(r.os(context()), Qt::white);
       gc()->setCompositionMode(oldMode);
     }
 
@@ -644,7 +636,7 @@ namespace gui {
 
     graphics& graphics::clear (os::color color) {
 #ifdef GUIPP_QT
-      gc()->fillRect(native_area(), color);
+      gc()->fillRect(native_area().os(context()), color);
       return *this;
 #else
       return draw(rectangle(area()), color, color);

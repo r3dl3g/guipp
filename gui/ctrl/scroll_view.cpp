@@ -252,6 +252,7 @@ namespace gui {
       }
       current_pos = current_pos + delta;
       get_layout().set_in_scroll_event(false);
+      invalidate();
     }
 
     void scroll_view_base::set_scroll_pos (const core::point& pt) {

@@ -60,6 +60,7 @@ namespace gui {
 //      operator gui::os::point() const;
 
       gui::os::size os () const;
+      gui::os::point os_point () const;
 
       type width () const;
       type height () const;

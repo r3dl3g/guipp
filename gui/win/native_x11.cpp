@@ -617,14 +617,6 @@ namespace gui {
         XFreePixmap(core::global::get_instance(), id);
       }
 
-      os::graphics create_graphics_context (os::drawable id) {
-        return XCreateGC(core::global::get_instance(), id, 0, 0);
-      }
-
-      void delete_graphics_context (os::graphics id) {
-        XFreeGC(core::global::get_instance(), id);
-      }
-
       void copy_surface (os::bitmap src, os::drawable target, os::graphics context,
                          const core::native_point& from, const core::native_point& to,
                          const core::native_size& size) {

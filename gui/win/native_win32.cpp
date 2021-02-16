@@ -95,7 +95,8 @@ namespace gui {
       }
 
       void move (os::window w, const core::point& pt) {
-        SetWindowPos(w, nullptr, pt.os_x(), pt.os_y(), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
+        const auto npt = core::global::scale_to_native(pt);
+        SetWindowPos(w, nullptr, npt.x(), npt.y(), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
       }
 
       void resize (os::window w, const core::size& sz) {
@@ -103,12 +104,14 @@ namespace gui {
       }
 
       void place (os::window w, const core::rectangle& r) {
-        MoveWindow(w, r.os_x(), r.os_y(), r.os_width(), r.os_height(), false);
+        const auto nr = core::global::scale_to_native(r);
+        MoveWindow(w, nr.x(), nr.y(), nr.width(), nr.height(), false);
       }
 
       void notify_move (window& w, const core::point& pt, const core::point&) {
+        const auto npt = core::global::scale_to_native(pt);
         gui::os::event_result result = 0;
-        gui::core::event e{0, WM_MOVE, 0, MAKELPARAM(pt.os_x(), pt.os_y())};
+        gui::core::event e{0, WM_MOVE, 0, MAKELPARAM(npt.x(), npt.y())};
         w.handle_event(e, result);
       }
 
@@ -121,7 +124,7 @@ namespace gui {
       core::point get_geometry (os::window w) {
         RECT r;
         GetWindowRect(w, &r);
-        return core::point(r);
+        return core::global::scale_from_native(core::native_point{os::get_x(r), os::get_y(r)});
       }
 
       void prepare (overlapped_window&) {}
@@ -159,15 +162,16 @@ namespace gui {
             clog::trace() << getLastErrorText() << " class name length: " << name.length();
           }
         }
+        const auto nr = core::global::scale_to_native(r);
 
         os::window id = CreateWindowEx(type.get_ex_style(),
                                        name.c_str(),
                                        nullptr,         // address of window text
                                        type.get_style(),  // window style
-                                       r.os_x(),        // horizontal position of window
-                                       r.os_y(),        // vertical position of window
-                                       r.os_width(),    // window width
-                                       r.os_height(),   // window height
+                                       nr.x(),        // horizontal position of window
+                                       nr.y(),        // vertical position of window
+                                       nr.width(),    // window width
+                                       nr.height(),   // window height
                                        parent_id,       // handle of parent window
                                        NULL,            // handle of menu or child-window identifier
                                        display,         // handle of application instance
@@ -232,13 +236,13 @@ namespace gui {
         SetClassLongPtr(id, GCLP_HCURSOR, reinterpret_cast<LONG_PTR>(c));
       }
 
-      void invalidate (os::window id, const core::rectangle& r) {
-//        RECT rect = r.os();
-        InvalidateRect(id, nullptr/*&rect*/, TRUE);
+      void invalidate (os::window id, const core::native_rect& r) {
+        RECT rect = gui::os::mk_rectangle(r.x(), r.y(), r.x2(), r.y2());
+        InvalidateRect(id, &rect, TRUE);
       }
 
-      void redraw (window&, os::window id, const core::rectangle& r) {
-        RECT rect = r.os();
+      void redraw (window&, os::window id, const core::native_rect& r) {
+        RECT rect = gui::os::mk_rectangle(r.x(), r.y(), r.x2(), r.y2());
         RedrawWindow(id, &rect, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
       }
 
@@ -268,9 +272,11 @@ namespace gui {
       }
 
       core::rectangle adjust_overlapped_area (const core::rectangle& r, const class_info& type) {
-        auto rect = r.os();
+        const auto nr = core::global::scale_to_native(r);
+        RECT rect = gui::os::mk_rectangle(nr.x(), nr.y(), nr.x2(), nr.y2());
         AdjustWindowRectEx(&rect, type.get_style(), FALSE, type.get_ex_style());
-        return core::rectangle(rect);
+        return core::global::scale_from_native(core::native_rect(os::get_x(rect), os::get_y(rect),
+                                                                 os::get_width(rect), os::get_height(rect)));
       }
 
       void prepare_overlapped (os::window id, os::window pid) {
@@ -352,18 +358,6 @@ namespace gui {
         DeleteObject(id);
       }
 
-      os::graphics create_graphics_context (os::drawable id) {
-        auto dc = GetDC(NULL);
-        auto ndc = CreateCompatibleDC(dc);
-        SelectObject(ndc, id);
-        ReleaseDC(NULL, dc);
-        return ndc;
-      }
-
-      void delete_graphics_context (os::graphics id) {
-        DeleteDC(id);
-      }
-
       void copy_surface (os::bitmap src, os::drawable target, os::graphics context,
                          const core::native_point& from, const core::native_point& to,
                          const core::native_size& size) {
@@ -387,7 +381,7 @@ namespace gui {
 
       void send_client_message (window* win, os::message_type message, const core::size& sz) {
         if (win && win->is_valid()) {
-          os::size s = sz;
+          os::size s = sz.os();
           long l2 = (long)s.cy << 16 | (long)s.cx;
           core::event e{ NULL, message, 0, static_cast<LPARAM>(l2)};
           gui::os::event_result result;
@@ -407,7 +401,7 @@ namespace gui {
 
       void send_mouse_event (window* win, bool enter) {
         if (win && win->is_valid()) {
-          core::event e{ NULL, enter ? WM_MOUSEMOVE : WM_MOUSELEAVE, 0, 0};
+          core::event e{ NULL, (gui::os::event_id)(enter ? WM_MOUSEMOVE : WM_MOUSELEAVE), 0, 0};
           gui::os::event_result result;
           win->handle_event(e, result);
         }

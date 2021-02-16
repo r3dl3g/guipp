@@ -65,6 +65,8 @@ namespace gui {
 
       ~context ();
 
+      void detach ();
+
       void operator= (const context&) = delete;
 
       operator gui::os::graphics () const;

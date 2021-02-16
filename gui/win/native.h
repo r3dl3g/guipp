@@ -125,6 +125,7 @@ namespace gui {
                                           const core::native_size& size);
 
       GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, long l1 = 0, long l2 = 0);
+      GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, void* v1, void* v2);
       GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const core::size& sz);
       GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const core::rectangle& wr);
 

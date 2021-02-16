@@ -379,6 +379,14 @@ namespace gui {
         }
       }
 
+      void send_client_message (window* win, os::message_type message, void* v1, void* v2) {
+        if (win && win->is_valid()) {
+          core::event e { NULL, message, (WPARAM)v1, (LPARAM)v2 };
+          gui::os::event_result result;
+          win->handle_event(e, result);
+        }
+      }
+
       void send_client_message (window* win, os::message_type message, const core::size& sz) {
         if (win && win->is_valid()) {
           os::size s = sz.os();

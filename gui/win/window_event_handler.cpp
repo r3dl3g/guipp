@@ -122,7 +122,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     core::native_rect* get_param<1>(const core::event& e) {
-      return (core::native_rect*)e.lParam;
+      return (core::native_rect*)(e.lParam);
     }
 
     // --------------------------------------------------------------------------
@@ -237,7 +237,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     core::context* get_context (const core::event& e) {
-      return (core::context*)e.wParam;
+      return (core::context*)(e.wParam);
     }
 
     // --------------------------------------------------------------------------

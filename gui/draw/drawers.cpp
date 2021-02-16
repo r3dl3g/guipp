@@ -403,14 +403,16 @@ namespace gui {
                               const pen& p) const {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
-      Polyline(g, (const POINT*)points.data(), (int)points.size());
+      auto pts = convert(g);
+      Polyline(g, (const POINT*)pts.data(), (int)pts.size());
     }
 
     void polyline::operator() (graphics& g,
                               const pen& p) const {
       Use<pen> pn(g, p);
       Use<brush> br(g, brush::invisible);
-      Polyline(g, (const POINT*)points.data(), (int)points.size());
+      auto pts = convert(g);
+      Polyline(g, (const POINT*)pts.data(), (int)pts.size());
     }
 
     void polyline::operator() (graphics& g,
@@ -418,7 +420,8 @@ namespace gui {
       Use<brush> br(g, b);
       pen p(b.color());
       Use<pen> pn(g, p);
-      Polyline(g, (const POINT*)points.data(), (int)points.size());
+      auto pts = convert(g);
+      Polyline(g, (const POINT*)pts.data(), (int)pts.size());
     }
 
     // --------------------------------------------------------------------------
@@ -427,14 +430,16 @@ namespace gui {
                                const pen& p) const {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
-      Polygon(g, (const POINT*)points.data(), (int)points.size());
+      auto pts = convert(g);
+      Polygon(g, (const POINT*)pts.data(), (int)pts.size());
     }
 
     void polygon::operator() (graphics& g,
                                const pen& p) const {
       Use<pen> pn(g, p);
       Use<brush> br(g, brush::invisible);
-      Polygon(g, (const POINT*)points.data(), (int)points.size());
+      auto pts = convert(g);
+      Polygon(g, (const POINT*)pts.data(), (int)pts.size());
     }
 
     void polygon::operator() (graphics& g,
@@ -442,7 +447,8 @@ namespace gui {
       Use<brush> br(g, b);
       pen p(b.color());
       Use<pen> pn(g, p);
-      Polygon(g, (const POINT*)points.data(), (int)points.size());
+      auto pts = convert(g);
+      Polygon(g, (const POINT*)pts.data(), (int)pts.size());
     }
 
     // --------------------------------------------------------------------------

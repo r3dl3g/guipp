@@ -277,7 +277,7 @@ namespace gui {
 
 #ifdef GUIPP_WIN
     template<typename T, typename S, coordinate_system C>
-    const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def(point_t(-1, -1), point_t(-2, -2));
+    const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def(-1, -1, -1, -1);
 #elif GUIPP_X11
     template<typename T, typename S, coordinate_system C>
     const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def(0, 0, 1, 1);

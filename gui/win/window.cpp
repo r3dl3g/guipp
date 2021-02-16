@@ -229,6 +229,10 @@ namespace gui {
       native::send_client_message(this, message, l1, l2);
     }
 
+    void window::notify_event (os::message_type message, void* v1, void* v2) {
+      native::send_client_message(this, message, v1, v2);
+    }
+
     void window::notify_event (os::message_type message, const core::rectangle& r) {
       native::send_client_message(this, message, r);
     }

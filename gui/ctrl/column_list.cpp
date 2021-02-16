@@ -40,7 +40,7 @@ namespace gui {
       int column_list_layout::index_at (core::point::type pt) const {
         core::point::type pos = 0;
         int idx = 0;
-        const int max_idx = get_column_count();
+        const auto max_idx = get_column_count();
         while ((pos <= pt) && (idx < max_idx)) {
           pos += get_column_width(idx);
           ++idx;
@@ -53,7 +53,7 @@ namespace gui {
         const core::point::type upper = pt + delta;
         core::point::type pos = 0;
         int idx = 0;
-        const int max_idx = get_column_count();
+        const auto max_idx = get_column_count();
         while ((pos < lower) && (idx < max_idx)) {
           pos += get_column_width(idx);
           ++idx;

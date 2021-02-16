@@ -85,17 +85,22 @@ namespace gui {
     } size;
     typedef XRectangle rectangle;
 
-    inline point_type get_x (const XPoint& p) { return p.x; }
-    inline point_type get_y (const XPoint& p) { return p.y; }
+    inline point_type get_x (const point& p) { return p.x; }
+    inline point_type get_y (const point& p) { return p.y; }
 
     inline size_type get_width (const size& s) { return s.cx; }
     inline size_type get_height (const size& s) { return s.cy; }
 
-    inline point_type get_x (const XRectangle& r) { return r.x; }
-    inline point_type get_y (const XRectangle& r) { return r.y; }
-    inline size_type get_width (const XRectangle& r) { return r.width; }
-    inline size_type get_height (const XRectangle& r) { return r.height; }
+    inline point_type get_x (const rectangle& r) { return r.x; }
+    inline point_type get_y (const rectangle& r) { return r.y; }
+    inline point_type get_x2 (const rectangle& r) { return r.x + r.width; }
+    inline point_type get_y2 (const rectangle& r) { return r.y + r.height; }
+    inline size_type get_width (const rectangle& r) { return r.width; }
+    inline size_type get_height (const rectangle& r) { return r.height; }
 
+    inline rectangle mk_rectangle (point_type x, point_type y, point_type x2, point_type y2) {
+      return rectangle{x, y, static_cast<size_type>(x2 - x), static_cast<size_type>(y2 - y)};
+    }
 
     typedef int event_id;
     typedef Atom message_type;

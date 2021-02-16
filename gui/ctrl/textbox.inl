@@ -55,7 +55,7 @@ namespace gui {
 
       inline textbox_base::data::data ()
         : font(draw::font::system())
-        , last_mouse_point(core::point::undefined)
+        , last_mouse_point(core::native_point::undefined)
       {}
 
     } // namespace detail

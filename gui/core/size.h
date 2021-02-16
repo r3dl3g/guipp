@@ -56,8 +56,8 @@ namespace gui {
       explicit basic_size (const gui::os::point& pt);
       explicit basic_size (const gui::os::rectangle& r);
 
-      operator gui::os::size () const;
-      operator gui::os::point() const;
+//      operator gui::os::size () const;
+//      operator gui::os::point() const;
 
       gui::os::size os () const;
 

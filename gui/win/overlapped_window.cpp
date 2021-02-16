@@ -529,7 +529,8 @@ namespace gui {
         notify_event(core::WM_PAINT_WINDOW, reinterpret_cast<std::uintptr_t>(&cntxt), reinterpret_cast<std::uintptr_t>(&invalid_rect));
         auto wctxt = surface.end(get_os_window());
 
-        core::global::set_surface_offset(surface_offset());
+        const auto offs = surface_offset();
+        cntxt.set_offset(offs.x(), offs.y());
 
 #if defined(SHOW_FOCUS) || defined(SHOW_MOUSE_WIN) || defined(SHOW_CAPTURE) || defined(SHOW_CLIP_RECT)
 

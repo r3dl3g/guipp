@@ -317,14 +317,6 @@ namespace gui {
       own_gctx = false;
     }
 
-    core::native_point graphics::offset () const {
-      return offs;
-    }
-
-    void graphics::set_offset (const core::native_point& o) {
-      offs = o;
-    }
-
     graphics& graphics::draw_pixel (const core::native_point& pt,
                                           os::color c) {
       Use<pen> pn(gc(), pen(c));
@@ -359,7 +351,7 @@ namespace gui {
       std::vector<os::point> points;
       points.reserve(pts.size());
       for (const core::point& pt : pts) {
-        points.push_back(pt.os() + off);
+        points.push_back(pt.os(context()) + off);
       }
       XDrawLines(get_instance(), target(), gc(),
                  points.data(), (int)points.size(),
@@ -412,7 +404,7 @@ namespace gui {
       core::native_rect clip;
       if (bmp.mask) {
         if (!ctx->clipping().empty()) {
-          clip = ctx->clipping().back();
+          clip = core::native_rect(ctx->clipping().back(), context());
         }
         XSetClipMask(display, gc(), bmp.mask.get_os_bitmap());
         XSetClipOrigin(display, gc(), pt.x(), pt.y());
@@ -447,7 +439,7 @@ namespace gui {
       XGCValues values = { GXinvert, 0 };  // .function =
       values.graphics_exposures = False;
       XChangeGC(display, gc(), GCFunction, &values);
-      XFillRectangle(display, target(), gc(), r.os_x(), r.os_y(), r.os_width(), r.os_height());
+      XFillRectangle(display, target(), gc(), r.os_x(context()), r.os_y(context()), r.os_width(), r.os_height());
       values = { GXcopy, 0 }; // .function =
       XChangeGC(display, gc(), GCFunction, &values);
     }
@@ -664,7 +656,7 @@ namespace gui {
     }
 
     graphics& graphics::copy_from (graphics& src, const core::point& pt) {
-      return copy_from(src, src.native_area(), core::native_point(pt.os()));
+      return copy_from(src, src.native_area(), core::native_point(pt.os(context()), context()));
     }
 
     graphics& graphics::copy_from (graphics& src, const core::native_point& pt) {
@@ -675,11 +667,11 @@ namespace gui {
                                    const core::rectangle& r,
                                    const core::point& pt,
                                    const copy_mode mode) {
-      return copy_from(w, core::global::scale_to_native(r), core::native_point(pt.os()), mode);
+      return copy_from(w, core::global::scale_to_native(r), core::native_point(pt.os(context()), context()), mode);
     }
 
     graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::point& pt) {
-      return copy_from(bmp, core::native_point(pt.os()));
+      return copy_from(bmp, core::native_point(pt.os(context()), context()));
     }
 
     graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_point& pt) {
@@ -687,7 +679,7 @@ namespace gui {
     }
 
     graphics& graphics::copy_from (const draw::pixmap& bmp, const core::point& pt) {
-      return copy_from(bmp, core::native_point(pt.os()));
+      return copy_from(bmp, core::native_point(pt.os(context()), context()));
     }
 
 #ifndef GUIPP_QT
@@ -750,7 +742,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     clip::clip (graphics& g, const core::rectangle& r)
-      : core::clip(g.context(), core::native_rect(r.os()))
+      : core::clip(g.context(), core::native_rect(r.os(g.context()), g.context()))
     {}
   }
 

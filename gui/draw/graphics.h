@@ -34,6 +34,7 @@
 #include <util/bind_method.h>
 #include <gui/core/context.h>
 #include <gui/core/color.h>
+#include <gui/core/rectangle.h>
 #include <gui/draw/draw_fwd.h>
 #include <gui++-draw-export.h>
 
@@ -122,9 +123,6 @@ namespace gui {
       core::rectangle area () const;
       core::native_rect native_area () const;
 
-      core::native_point offset () const;
-      void set_offset (const core::native_point& o);
-
       os::graphics os () const;
       operator os::graphics () const;
       operator os::drawable () const;
@@ -144,13 +142,10 @@ namespace gui {
       XftDraw* get_xft () const;
 #endif // GUIPP_USE_XFT
 
-
-
     private:
       void destroy ();
 
       core::context* ctx;
-      core::native_point offs;
       bool own_gctx;
     };
 

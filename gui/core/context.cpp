@@ -29,6 +29,7 @@
 #include <logging/logger.h>
 #include <gui/core/context.h>
 #include <gui/core/native.h>
+#include <gui/core/rectangle.h>
 #ifdef GUIPP_QT
 # include <QtGui/QPainter>
 #endif // GUIPP_QT
@@ -39,8 +40,16 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace core {
 
+    gui::os::rectangle operator& (const gui::os::rectangle& lhs, const gui::os::rectangle& rhs) {
+      gui::os::point_type x0 = std::max(gui::os::get_x(lhs),  gui::os::get_x(rhs));
+      gui::os::point_type y0 = std::max(gui::os::get_y(lhs),  gui::os::get_y(rhs));
+      gui::os::point_type x1 = std::min(gui::os::get_x2(lhs), gui::os::get_x2(rhs));
+      gui::os::point_type y1 = std::min(gui::os::get_y2(lhs), gui::os::get_y2(rhs));
+      return gui::os::mk_rectangle(x0, y0, x1, y1);
+    }
+
     // --------------------------------------------------------------------------
-    void clipping_stack::push (core::context& ctx, const core::native_rect& r) {
+    void clipping_stack::push (core::context& ctx, const gui::os::rectangle& r) {
       if (stack.empty()) {
         stack.push_back(r);
       } else {
@@ -67,7 +76,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void clipping_stack::set (core::context& ctx, const core::native_rect& r) {
+    void clipping_stack::set (core::context& ctx, const gui::os::rectangle& r) {
       native::set_clip_rect(ctx, r);
     }
 
@@ -80,6 +89,8 @@ namespace gui {
     context::context (gui::os::drawable id, gui::os::graphics g)
       : id(id)
       , g(g)
+      , offs_x(0)
+      , offs_y(0)
       , own_gc(false)
     {
       clippings.clear(*this);
@@ -89,6 +100,8 @@ namespace gui {
     context::context (gui::os::drawable id)
       : id(id)
       , g(0)
+      , offs_x(0)
+      , offs_y(0)
       , own_gc(true)
     {
 #ifdef GUIPP_WIN
@@ -125,6 +138,16 @@ namespace gui {
         own_gc = false;
         g = 0;
       }
+    }
+
+    // --------------------------------------------------------------------------
+    clip::clip (context& ctx, const core::native_rect& r)
+      : ctx(ctx) {
+      ctx.push_clipping(r.os(ctx));
+    }
+    // --------------------------------------------------------------------------
+    clip::~clip () {
+      ctx.pop_clipping();
     }
 
   } // core

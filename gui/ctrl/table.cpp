@@ -481,7 +481,7 @@ namespace gui {
       , enable_hilite_(false)
       , enable_selection_(false)
       , moved(false)
-      , last_mouse_point(core::point::undefined)
+      , last_mouse_point(core::native_point::undefined)
     {
       init();
     }
@@ -497,7 +497,7 @@ namespace gui {
       , enable_hilite_(false)
       , enable_selection_(false)
       , moved(false)
-      , last_mouse_point(core::point::undefined)
+      , last_mouse_point(core::native_point::undefined)
     {
       init();
     }
@@ -513,7 +513,7 @@ namespace gui {
       , enable_hilite_(false)
       , enable_selection_(false)
       , moved(false)
-      , last_mouse_point(core::point::undefined)
+      , last_mouse_point(core::native_point::undefined)
     {
       init();
     }

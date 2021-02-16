@@ -33,7 +33,7 @@ namespace gui {
       list_base::data::data (os::color background)
         : selection(-1)
         , hilite(-1)
-        , last_mouse_point(core::point::undefined)
+        , last_mouse_point(core::native_point::undefined)
         , background(background)
       {}
 

@@ -54,14 +54,14 @@ namespace gui {
     {}
 
     template<typename T, typename S, coordinate_system C>
-    basic_rectangle<T, S, C>::basic_rectangle (const gui::os::rectangle& r)
-      : pos(r)
+    basic_rectangle<T, S, C>::basic_rectangle (const gui::os::rectangle& r, const context& ctx)
+      : pos(r, ctx)
       , sz(r)
     {}
 
     template<typename T, typename S, coordinate_system C>
-    basic_rectangle<T, S, C>::basic_rectangle (const gui::os::point& p, const gui::os::size& s)
-      : pos(p)
+    basic_rectangle<T, S, C>::basic_rectangle (const gui::os::point& p, const gui::os::size& s, const context& ctx)
+      : pos(p, ctx)
       , sz(s)
     {}
 
@@ -236,23 +236,23 @@ namespace gui {
     }
 
     template<typename T, typename S, coordinate_system C>
-    inline gui::os::point_type basic_rectangle<T, S, C>::os_x () const {
-      return pos.os_x();
+    inline gui::os::point_type basic_rectangle<T, S, C>::os_x (const context& ctx) const {
+      return pos.os_x(ctx);
     }
 
     template<typename T, typename S, coordinate_system C>
-    inline gui::os::point_type basic_rectangle<T, S, C>::os_y () const {
-      return pos.os_y();
+    inline gui::os::point_type basic_rectangle<T, S, C>::os_y (const context& ctx) const {
+      return pos.os_y(ctx);
     }
 
     template<typename T, typename S, coordinate_system C>
-    inline gui::os::point_type basic_rectangle<T, S, C>::os_x2 () const {
-      return convert::point<T, C>::to_os(x2());
+    inline gui::os::point_type basic_rectangle<T, S, C>::os_x2 (const context& ctx) const {
+      return convert::point<T, C>::to_os(x2(), ctx);
     }
 
     template<typename T, typename S, coordinate_system C>
-    inline gui::os::point_type basic_rectangle<T, S, C>::os_y2 () const {
-      return convert::point<T, C>::to_os(y2());
+    inline gui::os::point_type basic_rectangle<T, S, C>::os_y2 (const context& ctx) const {
+      return convert::point<T, C>::to_os(y2(), ctx);
     }
 
     template<typename T, typename S, coordinate_system C>
@@ -266,13 +266,13 @@ namespace gui {
     }
 
     template<typename T, typename S, coordinate_system C>
-    inline gui::os::point_type basic_rectangle<T, S, C>::os_right () const {
-      return convert::point<T, C>::to_os(right());
+    inline gui::os::point_type basic_rectangle<T, S, C>::os_right (const context& ctx) const {
+      return convert::point<T, C>::to_os(right(), ctx);
     }
 
     template<typename T, typename S, coordinate_system C>
-    inline gui::os::point_type basic_rectangle<T, S, C>::os_bottom () const {
-      return convert::point<T, C>::to_os(bottom());
+    inline gui::os::point_type basic_rectangle<T, S, C>::os_bottom (const context& ctx) const {
+      return convert::point<T, C>::to_os(bottom(), ctx);
     }
 
 #ifdef GUIPP_WIN
@@ -494,17 +494,17 @@ namespace gui {
       return !operator== (rhs);
     }
 
-    template<typename T, typename S, coordinate_system C>
-    inline basic_rectangle<T, S, C>::operator gui::os::rectangle() const {
-      return os();
-    }
+//    template<typename T, typename S, coordinate_system C>
+//    inline basic_rectangle<T, S, C>::operator gui::os::rectangle() const {
+//      return os();
+//    }
 
     template<typename T, typename S, coordinate_system C>
-    gui::os::rectangle basic_rectangle<T, S, C>::os () const {
+    gui::os::rectangle basic_rectangle<T, S, C>::os (const context& ctx) const {
       return {
-        os_x(), os_y(),
+        os_x(ctx), os_y(ctx),
 #ifdef GUIPP_WIN
-        os_x2(), os_y2()
+        os_x2(ctx), os_y2(ctx)
 #elif GUIPP_X11
         os_width(), os_height()
 #elif GUIPP_QT

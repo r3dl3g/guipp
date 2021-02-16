@@ -28,6 +28,7 @@
 // Library includes
 //
 #include "size.h"
+#include "context.h"
 
 
 namespace gui {
@@ -49,17 +50,17 @@ namespace gui {
       inline basic_point (type x, type y);
 
       explicit inline basic_point (type i);
-      explicit basic_point (const gui::os::point& rhs);
-      explicit basic_point (const gui::os::rectangle& r);
+      explicit basic_point (const gui::os::point& rhs, const context&);
+      explicit basic_point (const gui::os::rectangle& r, const context&);
 
-      operator gui::os::point () const;
-      gui::os::point os () const;
+//      operator gui::os::point () const;
+      gui::os::point os (const context&) const;
 
       type x () const;
       type y () const;
 
-      gui::os::point_type os_x () const;
-      gui::os::point_type os_y () const;
+      gui::os::point_type os_x (const context&) const;
+      gui::os::point_type os_y (const context&) const;
 
       void x (type v);
       void y (type v);

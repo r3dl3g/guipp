@@ -84,16 +84,22 @@ namespace gui {
     typedef SIZE size;
     typedef RECT rectangle;
 
-    inline point_type get_x (const POINT& p) { return p.x; }
-    inline point_type get_y (const POINT& p) { return p.y; }
+    inline point_type get_x (const point& p) { return p.x; }
+    inline point_type get_y (const point& p) { return p.y; }
 
-    inline size_type get_width (const SIZE& s) { return s.cx; }
-    inline size_type get_height (const SIZE& s) { return s.cy; }
+    inline size_type get_width (const size& s) { return s.cx; }
+    inline size_type get_height (const size& s) { return s.cy; }
 
-    inline point_type get_x (const RECT& r) { return r.left; }
-    inline point_type get_y (const RECT& r) { return r.top; }
-    inline size_type get_width (const RECT& r) { return r.right - r.left; }
-    inline size_type get_height (const RECT& r) { return r.bottom - r.top; }
+    inline point_type get_x (const rectangle& r) { return r.left; }
+    inline point_type get_y (const rectangle& r) { return r.top; }
+    inline point_type get_x2 (const rectangle& r) { return r.right; }
+    inline point_type get_y2 (const rectangle& r) { return r.bottom; }
+    inline size_type get_width (const rectangle& r) { return r.right - r.left; }
+    inline size_type get_height (const rectangle& r) { return r.bottom - r.top; }
+
+    inline rectangle mk_rectangle (point_type x, point_type y, point_type x2, point_type y2) {
+      return rectangle{x, y, x2, y2};
+    }
 
     typedef UINT event_id;
     typedef UINT message_type;

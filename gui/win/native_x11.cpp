@@ -229,8 +229,9 @@ namespace gui {
       }
 
       void move (os::window w, const core::point& pt) {
+        const auto npt = core::global::scale_to_native(pt);
         x11::check_return(XMoveWindow(core::global::get_instance(), w,
-                                      pt.os_x(), pt.os_y()));
+                                      npt.x(), npt.y()));
       }
 
       void resize (os::window w, const core::size& sz) {
@@ -239,12 +240,15 @@ namespace gui {
       }
 
       void place (os::window w, const core::rectangle& r) {
+        const auto nr = core::global::scale_to_native(r);
         x11::check_return(XMoveResizeWindow(core::global::get_instance(), w,
-                                            r.os_x(), r.os_y(), r.os_width(), r.os_height()));
+                                            nr.x(), nr.y(), nr.width(), nr.height()));
       }
 
       void notify_move (window& win, const core::point& pt, const core::point&) {
         if (win.is_valid()) {
+          const auto npt = core::global::scale_to_native(pt);
+
           XEvent event;
           XConfigureEvent& client = event.xconfigure;
 
@@ -254,8 +258,8 @@ namespace gui {
           client.display = core::global::get_instance();
           client.event = 0;
           client.window = 0;
-          client.x = pt.os_x();
-          client.y = pt.os_y();
+          client.x = npt.x();
+          client.y = npt.y();
           client.width = 0;
           client.height = 0;
           client.border_width = 0;
@@ -345,13 +349,14 @@ namespace gui {
 
         mask |= CWColormap;
         wa.colormap = XCreateColormap(display, DefaultRootWindow(display), visual, AllocNone);
+        const auto nr = core::global::scale_to_native(r);
 
         os::window id = XCreateWindow(display,
                                       parent_id,
-                                      r.os_x(),
-                                      r.os_y(),
-                                      std::max<gui::os::size_type>(r.os_width(), 1),
-                                      std::max<gui::os::size_type>(r.os_height(), 1),
+                                      nr.x(),
+                                      nr.y(),
+                                      std::max<gui::os::size_type>(nr.width(), 1),
+                                      std::max<gui::os::size_type>(nr.height(), 1),
                                       0,
                                       depth,
                                       type.get_class_style(),
@@ -440,17 +445,16 @@ namespace gui {
 
       void redraw (window& w, os::window id, const core::native_rect& r) {
         XEvent event;
-
         XExposeEvent& e = event.xexpose;
         e.type = Expose;
         e.serial = 0;
         e.send_event = true;
         e.display = core::global::get_instance();
         e.window = id;
-        e.x = r.os_x();
-        e.y = r.os_y();
-        e.width = r.os_width();
-        e.height = r.os_height();
+        e.x = r.x();
+        e.y = r.y();
+        e.width = r.width();
+        e.height = r.height();
         e.count = 0;
         gui::os::event_result result;
 
@@ -663,8 +667,8 @@ namespace gui {
       }
 
       void send_client_message (window* win, os::message_type message, const core::rectangle& wr) {
-        os::rectangle r = wr.os();
-        send_client_message_(win, message, r.x, r.y, r.width, r.height);
+        const auto r = core::global::scale_to_native(wr);
+        send_client_message_(win, message, r.x(), r.y(), r.width(), r.height());
       }
 
       void send_mouse_event (window* win, bool enter) {

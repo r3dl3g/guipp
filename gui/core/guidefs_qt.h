@@ -99,16 +99,23 @@ namespace gui {
     typedef QSize size;
     typedef QRect rectangle;
 
-    inline point_type get_x (const QPoint& p) { return p.x(); }
-    inline point_type get_y (const QPoint& p) { return p.y(); }
+    inline point_type get_x (const point& p) { return p.x(); }
+    inline point_type get_y (const point& p) { return p.y(); }
 
-    inline size_type get_width (const QSize& s) { return s.width(); }
-    inline size_type get_height (const QSize& s) { return s.height(); }
+    inline size_type get_width (const size& s) { return s.width(); }
+    inline size_type get_height (const size& s) { return s.height(); }
 
-    inline point_type get_x (const QRect& r) { return r.x(); }
-    inline point_type get_y (const QRect& r) { return r.y(); }
-    inline size_type get_width (const QRect& r) { return r.width(); }
-    inline size_type get_height (const QRect& r) { return r.height(); }
+    inline point_type get_x (const rectangle& r) { return r.x(); }
+    inline point_type get_y (const rectangle& r) { return r.y(); }
+    inline point_type get_x2 (const rectangle& r) { return r.x2(); }
+    inline point_type get_y2 (const rectangle& r) { return r.y2(); }
+    inline size_type get_width (const rectangle& r) { return r.width(); }
+    inline size_type get_height (const rectangle& r) { return r.height(); }
+
+    inline rectangle mk_rectangle (point_type x, point_type y, point_type x2, point_type y2) {
+      return rectangle{x, y, x2 - x, y2 - y};
+    }
+
 
     typedef /*QEvent::Type*/int event_id;
     typedef /*QEvent::Type*/int message_type;

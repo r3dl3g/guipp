@@ -110,7 +110,7 @@ void test_raw_rect () {
 
   core::rectangle r(core::point(1, 1), core::size(3, 3));
 #ifdef GUIPP_X11
-  XDrawRectangle(core::global::get_instance(), img, g, r.os_x(), r.os_y(), r.os_width() - 1, r.os_height() - 1);
+  XDrawRectangle(core::global::get_instance(), img, g, r.os_x(g.context()), r.os_y(g.context()), r.os_width() - 1, r.os_height() - 1);
 #endif
 #ifdef GUIPP_WIN
   SelectObject(g, GetStockObject(NULL_BRUSH));
@@ -174,7 +174,7 @@ void test_raw_ellipse2 () {
   core::rectangle r(core::point(1, 1), core::size(5, 5));
 #ifdef GUIPP_X11
   XSetArcMode(core::global::get_instance(), g, ArcChord);
-  XDrawArc(core::global::get_instance(), img, g, r.os_x(), r.os_y(), r.os_width() - 1, r.os_height() - 1, 0, degree_360);
+  XDrawArc(core::global::get_instance(), img, g, r.os_x(g.context()), r.os_y(g.context()), r.os_width() - 1, r.os_height() - 1, 0, degree_360);
 #endif
 #ifdef GUIPP_WIN
   SelectObject(g, GetStockObject(NULL_BRUSH));

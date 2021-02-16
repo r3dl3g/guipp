@@ -28,7 +28,7 @@
 // Library includes
 //
 #include <gui/core/guidefs.h>
-#include <gui/core/rectangle.h>
+#include <gui/core/core_fwd.h>
 
 
 namespace gui {
@@ -36,21 +36,21 @@ namespace gui {
   namespace core {
 
     // --------------------------------------------------------------------------
-    struct GUIPP_CORE_EXPORT context;
+    struct context;
 
     // --------------------------------------------------------------------------
     struct GUIPP_CORE_EXPORT clipping_stack {
-      typedef std::vector<core::native_rect> stack_t;
+      typedef std::vector<gui::os::rectangle> stack_t;
 
-      void push (core::context&, const core::native_rect&);
+      void push (core::context&, const gui::os::rectangle&);
       void pop (core::context&);
 
-      void set (core::context&, const core::native_rect&);
+      void set (core::context&, const gui::os::rectangle&);
       void restore (core::context&);
       void clear (core::context&);
 
       bool empty () const;
-      const core::native_rect& back () const;
+      const gui::os::rectangle& back () const;
 
     private:
       stack_t stack;
@@ -73,15 +73,21 @@ namespace gui {
       gui::os::graphics graphics () const;
       gui::os::drawable drawable () const;
 
-      void push_clipping (const core::native_rect&);
+      void push_clipping (const gui::os::rectangle&);
       void pop_clipping ();
       void restore_clipping ();
 
       const clipping_stack& clipping () const;
 
+      int offset_x () const;
+      int offset_y () const;
+      void set_offset (int x, int y);
+
     private:
       gui::os::drawable id;
       gui::os::graphics g;
+      int offs_x;
+      int offs_y;
       bool own_gc;
 
       mutable clipping_stack clippings;
@@ -89,7 +95,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct GUIPP_CORE_EXPORT clip {
-      clip (context& g, const core::native_rect& r);
+      clip (context& g, const native_rect& r);
       ~clip ();
     private:
       context& ctx;

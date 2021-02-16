@@ -235,8 +235,8 @@ ctrl::paint_function create_paint2 (const win::window& win, const bool& draw_inv
     clip clp(graph, area);
     graph.fill(rectangle(area), color::white);
 
-    graph.draw_pixel(core::native_point(pos.os_x() + 3, pos.os_y() + 3), color::gray);
-    graph.draw_pixel(core::native_point(pos.os_x() + 6, pos.os_y() + 6), color::gray);
+    graph.draw_pixel(core::native_point(pos.os_x(graph.context()) + 3, pos.os_y(graph.context()) + 3), color::gray);
+    graph.draw_pixel(core::native_point(pos.os_x(graph.context()) + 6, pos.os_y(graph.context()) + 6), color::gray);
 
     core::size sz(30, 50);
     core::size offs1(0, 60);

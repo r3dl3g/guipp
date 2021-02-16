@@ -142,7 +142,9 @@ namespace gui {
       void operator() (graphics&, const brush&) const;
 
     protected:
-      std::vector<os::point> points;
+      std::vector<os::point> convert (graphics&) const;
+
+      std::vector<core::point> points;
     };
 
     // --------------------------------------------------------------------------
@@ -155,7 +157,9 @@ namespace gui {
       void operator() (graphics&, const brush&) const;
 
     protected:
-      std::vector<os::point> points;
+      std::vector<os::point> convert (graphics&) const;
+
+      std::vector<core::point> points;
     };
 
     // --------------------------------------------------------------------------

@@ -60,7 +60,8 @@ namespace gui {
       const core::angle start;
       const core::angle end;
 
-      arc_coords (const core::rectangle& rect,
+      arc_coords (const core::context& ctx,
+                  const core::rectangle& rect,
                   const core::angle& start_angle,
                   const core::angle& end_angle);
 
@@ -74,11 +75,12 @@ namespace gui {
       bool empty () const;
     };
 
-    arc_coords::arc_coords (const core::rectangle& rect,
+    arc_coords::arc_coords (const core::context& ctx,
+                            const core::rectangle& rect,
                             const core::angle& start_angle,
                             const core::angle& end_angle)
-      : x(rect.os_x())
-      , y(rect.os_y())
+      : x(rect.os_x(ctx))
+      , y(rect.os_y(ctx))
       , w(rect.os_width())
       , h(rect.os_height())
       , start(start_angle)
@@ -559,7 +561,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename Arc, typename Line, typename Rectangle, typename Angle>
-    void calc_arcs (const core::rectangle& rect,
+    void calc_arcs (const core::context& ctx,
+                    const core::rectangle& rect,
                     const core::size& size,
                     std::array<Arc, 4>* arcs,
                     std::array<Line, 4>* segments,
@@ -570,7 +573,7 @@ namespace gui {
 
       constexpr auto two = size_type(2);
 
-      const os::rectangle r = rect.os();
+      const os::rectangle r = rect.os(ctx);
       const os::size s = size.os();
 
       const size_type w = std::min(os::get_width(s), static_cast<size_type>(os::get_width(r) / 2));
@@ -650,10 +653,10 @@ namespace gui {
       const short off = pw / 2;
       Use<pen> pn(g, p);
 
-      const auto x0 = from.os_x();
-      const auto y0 = from.os_y();
-      const auto x1 = to.os_x();
-      const auto y1 = to.os_y();
+      const auto x0 = from.os_x(g.context());
+      const auto y0 = from.os_y(g.context());
+      const auto x1 = to.os_x(g.context());
+      const auto y1 = to.os_y(g.context());
 
       XDrawLine(display, g, g, x0 + off, y0 + off, x1 + off, y1 + off);
       if ((pw > 1) && (pw % 2 == 0)) {
@@ -673,7 +676,7 @@ namespace gui {
       const auto pw = p.os_size();
       const auto off = pw / 2;
 
-      const os::rectangle r = rect.os();
+      const os::rectangle r = rect.os(g.context());
       if ((r.width > pw) && (r.height > pw)) {
         Use<brush> br(g, b);
         XFillRectangle(display, g, g, r.x + pw, r.y + pw, r.width - pw * 2, r.height - pw * 2);
@@ -692,7 +695,7 @@ namespace gui {
                                 const pen& p) const {
       const auto pw = p.os_size();
       const auto off = pw / 2;
-      const os::rectangle r = rect.os();
+      const os::rectangle r = rect.os(g.context());
       if ((r.width > pw) && (r.height > pw)) {
         Use<pen> pn(g, p);
         XDrawRectangle(get_instance(), g, g, r.x + off, r.y + off, r.width - pw, r.height - pw);
@@ -721,8 +724,7 @@ namespace gui {
       gui::os::instance display = get_instance();
       const auto pw = p.os_size();
       const auto off = (pw - 1) / 2;
-      const os::rectangle r = rect.os();
-
+      const os::rectangle r = rect.os(g.context());
       if ((r.width == 0) && (r.height == 0)) {
         if (pw < 2) {
           Use<pen> pn(g, p);
@@ -747,7 +749,7 @@ namespace gui {
       gui::os::instance display = get_instance();
       const auto pw = p.os_size();
       const auto off = (pw - 1) / 2;
-      const os::rectangle r = rect.os();
+      const os::rectangle r = rect.os(g.context());
       if ((r.width == 0) && (r.height == 0)) {
         if (pw < 2) {
           Use<pen> pn(g, p);
@@ -779,7 +781,7 @@ namespace gui {
       std::array<XArc, 4> arcs{};
       std::array<XSegment, 4> segments{};
 
-      calc_arcs<XArc, XSegment, XRectangle>(rect - core::size::one, radius, &arcs, &segments, nullptr, degree_90);
+      calc_arcs<XArc, XSegment, XRectangle>(g.context(), rect - core::size::one, radius, &arcs, &segments, nullptr, degree_90);
 
       XDrawArcs(display, g, g, arcs.data(), (int)arcs.size());
       XDrawSegments(display, g, g, segments.data(), (int)segments.size());
@@ -793,7 +795,7 @@ namespace gui {
 
       std::array<XArc, 4> arcs{};
       std::array<XRectangle, 3> rects{};
-      calc_arcs<XArc, XSegment, XRectangle>(rect - core::size::one, radius, &arcs, nullptr, &rects, degree_90);
+      calc_arcs<XArc, XSegment, XRectangle>(g.context(), rect - core::size::one, radius, &arcs, nullptr, &rects, degree_90);
 
       XFillArcs(display, g, g, arcs.data(), (int)arcs.size());
       pen p(b.color());
@@ -814,7 +816,7 @@ namespace gui {
       std::array<XArc, 4> arcs{};
       std::array<XSegment, 4> segments{};
       std::array<XRectangle, 3> rects{};
-      calc_arcs<XArc, XSegment, XRectangle>(rect - core::size::one, radius, &arcs, &segments, &rects, degree_90);
+      calc_arcs<XArc, XSegment, XRectangle>(g.context(), rect - core::size::one, radius, &arcs, &segments, &rects, degree_90);
 
       XFillArcs(display, g, g, arcs.data(), (int)arcs.size());
       XFillRectangles(display, g, g, rects.data(), (int)rects.size());
@@ -865,74 +867,80 @@ namespace gui {
     void polyline::operator() (graphics& g,
                                const brush& b,
                                const pen& p) const {
+      auto pts = convert(g);
       Use<brush> br(g, b);
       XFillPolygon(get_instance(),
                    g,
                    g,
-                   (XPoint*)points.data(),
-                   (int)points.size(),
+                   (XPoint*)pts.data(),
+                   (int)pts.size(),
                    0,
                    CoordModeOrigin);
       Use<pen> pn(g, p);
-      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
+      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(pts.data()), (int)pts.size(), CoordModeOrigin);
     }
 
     void polyline::operator() (graphics& g,
                                const pen& p) const {
+      auto pts = convert(g);
       Use<pen> pn(g, p);
-      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
+      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(pts.data()), (int)pts.size(), CoordModeOrigin);
     }
 
     void polyline::operator() (graphics& g,
                                const brush& b) const {
+      auto pts = convert(g);
       Use<brush> br(g, b);
       XFillPolygon(get_instance(),
                    g,
                    g,
-                   const_cast<XPoint*>(points.data()),
-                   (int)points.size(),
+                   const_cast<XPoint*>(pts.data()),
+                   (int)pts.size(),
                    0,
                    CoordModeOrigin);
       pen p(b.color());
       Use<pen> pn(g, p);
-      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
+      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(pts.data()), (int)pts.size(), CoordModeOrigin);
     }
 
     // --------------------------------------------------------------------------
     void polygon::operator() (graphics& g,
                               const brush& b,
                               const pen& p) const {
+      auto pts = convert(g);
       Use<brush> br(g, b);
       XFillPolygon(get_instance(),
                    g,
                    g,
-                   (XPoint*)points.data(),
-                   (int)points.size(),
+                   (XPoint*)pts.data(),
+                   (int)pts.size(),
                    0,
                    CoordModeOrigin);
       Use<pen> pn(g, p);
-      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
+      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(pts.data()), (int)pts.size(), CoordModeOrigin);
     }
 
     void polygon::operator() (graphics& g,
                               const pen& p) const {
+      auto pts = convert(g);
       Use<pen> pn(g, p);
-      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
+      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(pts.data()), (int)pts.size(), CoordModeOrigin);
     }
 
     void polygon::operator() (graphics& g,
                               const brush& b) const {
+      auto pts = convert(g);
       Use<brush> br(g, b);
       XFillPolygon(get_instance(),
                    g,
                    g,
-                   const_cast<XPoint*>(points.data()),
-                   (int)points.size(),
+                   const_cast<XPoint*>(pts.data()),
+                   (int)pts.size(),
                    0,
                    CoordModeOrigin);
       pen p(b.color());
       Use<pen> pn(g, p);
-      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
+      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(pts.data()), (int)pts.size(), CoordModeOrigin);
     }
 
     // --------------------------------------------------------------------------
@@ -941,8 +949,8 @@ namespace gui {
                                os::color c) const {
       gui::os::instance display = get_instance();
 
-      int px = rect.os_x();
-      int py = rect.os_y();
+      int px = rect.os_x(g.context());
+      int py = rect.os_y(g.context());
 #ifdef GUIPP_USE_XFT
       if (f.font_type()) {
         XGlyphInfo extents = {};
@@ -1030,8 +1038,8 @@ namespace gui {
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
-        os::point_type px = rect.os_x() + extents.x;
-        os::point_type py = rect.os_y() + extents.y - extents.height;
+        os::point_type px = rect.os_x(g.context()) + extents.x;
+        os::point_type py = rect.os_y(g.context()) + extents.y - extents.height;
 
         if (origin_is_h_center(origin)) {
           px += (rect.os_width() - extents.width) / 2;
@@ -1045,7 +1053,7 @@ namespace gui {
           py += rect.os_height() - extents.height;
         }
 
-        rect.top_left(core::point(os::point{px, py}));
+        rect.top_left(core::point(os::point{px, py}, g.context()));
         rect.set_size(core::size(os::size{extents.width, extents.height}));
 
       } else {
@@ -1094,8 +1102,8 @@ namespace gui {
                            os::color c) const {
       gui::os::instance display = get_instance();
 
-      int px = pos.os_x();
-      int py = pos.os_y();
+      int px = pos.os_x(g.context());
+      int py = pos.os_y(g.context());
 #ifdef GUIPP_USE_XFT
       if (f.font_type()) {
         XGlyphInfo extents = {};
@@ -1435,7 +1443,7 @@ namespace gui {
     void arc_or_pie<arc_type::arc>::operator() (graphics& g,
                                                 const pen& p) const {
       Use<brush> br(g, brush::invisible);
-      draw_arc<arc_type::arc>(g, arc_coords(rect, start_angle, end_angle), p);
+      draw_arc<arc_type::arc>(g, arc_coords(g.context(), rect, start_angle, end_angle), p);
     }
 
     template<>
@@ -1456,13 +1464,13 @@ namespace gui {
     void arc_or_pie<arc_type::pie>::operator() (graphics& g,
                                                 const pen& p) const {
       Use<brush> br(g, brush::invisible);
-      draw_arc<arc_type::pie>(g, arc_coords(rect, start_angle, end_angle), p);
+      draw_arc<arc_type::pie>(g, arc_coords(g.context(), rect, start_angle, end_angle), p);
     }
 
     template<>
     void arc_or_pie<arc_type::pie>::operator() (graphics& g,
                                                 const brush& b) const {
-      arc_coords c(rect, start_angle, end_angle);
+      arc_coords c(g.context(), rect, start_angle, end_angle);
       pen pn(b.color());
       Use<pen> upn(g, pn);
       fill_arc<arc_type::pie>(g, c, b);
@@ -1474,7 +1482,7 @@ namespace gui {
     void arc_or_pie<arc_type::pie>::operator() (graphics& g,
                                                 const brush& b,
                                                 const pen& p) const {
-      arc_coords c(rect, start_angle, end_angle);
+      arc_coords c(g.context(), rect, start_angle, end_angle);
       Use<pen> pn(g, pen::invisible);
       fill_arc<arc_type::pie>(g, c, b);
       Use<brush> br(g, brush::invisible);
@@ -1482,36 +1490,41 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    polyline::polyline (const std::vector<core::point>& pts) {
-      points.reserve(pts.size());
-      for (const core::point& pt : pts) {
-        points.push_back(pt.os());
+    std::vector<os::point> polyline::convert (graphics& g) const {
+      std::vector<os::point> pts;
+      pts.reserve(points.size());
+      for (const core::point& pt : points) {
+        pts.push_back(pt.os(g.context()));
       }
+      return pts;
     }
 
-    polyline::polyline (std::initializer_list<core::point> pts) {
-      points.reserve(pts.size());
-      for (const core::point& pt : pts) {
-        points.push_back(pt.os());
-      }
+    polyline::polyline (const std::vector<core::point>& pts)
+      : points(pts)
+    {}
+
+    polyline::polyline (std::initializer_list<core::point> pts)
+      : points(pts) {
     }
 
     // --------------------------------------------------------------------------
-    polygon::polygon (const std::vector<core::point>& pts) {
-      points.reserve(pts.size() + 1);
-      for (const core::point& pt : pts) {
-        points.push_back(pt.os());
+    std::vector<os::point> polygon::convert (graphics& g) const {
+      std::vector<os::point> pts;
+      pts.reserve(points.size() + 1);
+      for (const core::point& pt : points) {
+        pts.push_back(pt.os(g.context()));
       }
-      points.push_back(pts[0].os());
+      pts.push_back(points[0].os(g.context()));
+      return pts;
     }
 
-    polygon::polygon (std::initializer_list<core::point> pts) {
-      points.reserve(pts.size() + 1);
-      for (const core::point& pt : pts) {
-        points.push_back(pt.os());
-      }
-      points.push_back(pts.begin()->os());
-    }
+    polygon::polygon (const std::vector<core::point>& pts)
+      : points(pts)
+    {}
+
+    polygon::polygon (std::initializer_list<core::point> pts)
+      : points(pts)
+    {}
 
     // --------------------------------------------------------------------------
     template<pixel_format_t px_fmt>

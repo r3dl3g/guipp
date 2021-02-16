@@ -616,9 +616,9 @@ namespace gui {
                               e.xbutton.x, e.xbutton.y,
                               &x, &y, &child);
 
-        core::rectangle area = w.absolute_place();
-        return !area.is_inside(core::point(os::point{static_cast<decltype(os::point::x)>(x),
-                                                     static_cast<decltype(os::point::x)>(y)}));
+        const core::rectangle area = w.absolute_place();
+        const core::point pt = core::global::scale_from_native(core::native_point{x, y});
+        return !area.is_inside(pt);
       }
       }
       return false;

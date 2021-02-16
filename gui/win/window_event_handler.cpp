@@ -291,8 +291,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     core::rectangle get_client_data_rect (const core::event& e) {
       auto& l = e.xclient.data.l;
-      return core::rectangle(os::rectangle{static_cast<short>(l[0]), static_cast<short>(l[1]),
-                                           static_cast<unsigned short>(l[2]), static_cast<unsigned short>(l[3])});
+      return core::global::scale_from_native(core::native_rect{static_cast<short>(l[0]), static_cast<short>(l[1]),
+                                                               static_cast<unsigned short>(l[2]), static_cast<unsigned short>(l[3])});
     }
     // --------------------------------------------------------------------------
     core::size get_client_data_size (const core::event& e) {

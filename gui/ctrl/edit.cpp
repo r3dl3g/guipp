@@ -154,7 +154,7 @@ namespace gui {
         : cursor_pos(0)
         , text_limit(std::numeric_limits<pos_t>::max())
         , scroll_pos(0)
-        , last_mouse_point(core::point::undefined)
+        , last_mouse_point(core::native_point::undefined)
       {}
 
       edit_base::edit_base () {

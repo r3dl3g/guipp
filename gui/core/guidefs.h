@@ -42,8 +42,6 @@
 // Library includes
 //
 #include <logging/logger.h>
-#include <gui/core/bits.h>
-#include <gui/core/core_fwd.h>
 
 
 #ifdef GUIPP_WIN
@@ -256,10 +254,6 @@ namespace gui {
       GUIPP_CORE_EXPORT gui::os::key_state get_key_state ();
       GUIPP_CORE_EXPORT double get_scale_factor ();
       GUIPP_CORE_EXPORT void set_scale_factor (double);
-
-      GUIPP_CORE_EXPORT void set_surface_offset (const core::native_point& pt);
-      GUIPP_CORE_EXPORT int get_surface_offset_x ();
-      GUIPP_CORE_EXPORT int get_surface_offset_y ();
 
       template<typename R, typename T>
       inline typename std::enable_if<std::is_signed<R>::value && !std::is_floating_point<R>::value, R>::type

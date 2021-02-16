@@ -27,17 +27,20 @@
 //
 // Library includes
 //
-#include <gui/core/context.h>
+#include <gui/core/guidefs.h>
+#include <gui++-core-export.h>
 
 
 namespace gui {
 
   namespace core {
 
+    struct context;
+
     namespace native {
 
       // --------------------------------------------------------------------------
-      GUIPP_CORE_EXPORT void set_clip_rect (context&, const core::native_rect&);
+      GUIPP_CORE_EXPORT void set_clip_rect (context&, const gui::os::rectangle&);
 
       // --------------------------------------------------------------------------
       GUIPP_CORE_EXPORT void clear_clip_rect (context&);

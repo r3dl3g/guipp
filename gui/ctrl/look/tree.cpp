@@ -153,8 +153,8 @@ namespace gui {
 
       if (icon) {
         auto sz = icon.native_size();
-        core::native_point::type y = r.os_y() + (r.os_height() - sz.height()) / 2;
-        graph.copy_from(icon, core::native_point(r.os_x(), y));
+        core::native_point::type y = r.os_y(graph.context()) + (r.os_height() - sz.height()) / 2;
+        graph.copy_from(icon, core::native_point(r.os_x(graph.context()), y));
         r += core::point(core::global::scale_from_native<core::size::type>(sz.width()) + 5, 0);
       }
 

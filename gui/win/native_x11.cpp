@@ -653,6 +653,10 @@ namespace gui {
         send_client_message_(win, message, l1, l2);
       }
 
+      void send_client_message (window* win, os::message_type message, void* v1, void* v2) {
+        send_client_message_(win, message, reinterpret_cast<std::uintptr_t>(v1), reinterpret_cast<std::uintptr_t>(v2));
+      }
+
       void send_client_message (window* win, os::message_type message, const core::size& sz) {
         os::size s = sz.os();
         send_client_message_(win, message, s.cx, s.cy);

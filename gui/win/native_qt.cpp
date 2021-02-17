@@ -317,6 +317,10 @@ namespace gui {
         }
       }
 
+      void send_client_message (window* win, os::message_type message, void* v1, void* v2) {
+        send_client_message(win, message, reinterpret_cast<std::uintptr_t>(v1), reinterpret_cast<std::uintptr_t>(v2));
+      }
+
       void send_mouse_event (window* win, bool enter) {
         if (win && win->is_valid()) {
           gui::os::event_result result;

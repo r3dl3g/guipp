@@ -539,12 +539,7 @@ namespace gui {
 
         core::clip clp(cntxt, r);
         native::erase(cntxt.drawable(), cntxt.graphics(), r, get_window_class().get_background());
-        notify_event(core::WM_PAINT_WINDOW,
-#ifdef GUIPP_WIN
-                     &cntxt, &invalid_rect);
-#else
-                     reinterpret_cast<std::uintptr_t>(&cntxt), reinterpret_cast<std::uintptr_t>(&invalid_rect));
-#endif
+        notify_event(core::WM_PAINT_WINDOW, &cntxt, &invalid_rect);
         auto wctxt = surface.end(get_os_window());
 
 #if defined(SHOW_FOCUS) || defined(SHOW_MOUSE_WIN) || defined(SHOW_CAPTURE) || defined(SHOW_CLIP_RECT)

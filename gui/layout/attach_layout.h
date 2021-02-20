@@ -175,12 +175,12 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      inline core::rectangle place (const win::window* w) {
+      inline core::rectangle geometry (const win::window* w) {
         return {w->position(), w->client_size()};
       }
 
-      inline void place (win::window* w, const core::rectangle& r) {
-        w->place(r);
+      inline void geometry (win::window* w, const core::rectangle& r) {
+        w->geometry(r);
       }
 
       inline const void* key (const win::window* w) {
@@ -189,12 +189,12 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T>
-      inline core::rectangle place (const attachable_layout<T>* w) {
+      inline core::rectangle geometry (const attachable_layout<T>* w) {
         return w->place;
       }
 
       template<typename T>
-      inline void place (attachable_layout<T>* w, const core::rectangle& r) {
+      inline void geometry (attachable_layout<T>* w, const core::rectangle& r) {
         w->layout(r);
       }
 
@@ -223,11 +223,11 @@ namespace gui {
 
       adjust_function adjust;
 
-      virtual core::rectangle source_place () const = 0;
+      virtual core::rectangle source_geometry () const = 0;
       virtual const void* source_key () const = 0;
-      virtual core::rectangle target_place () const = 0;
+      virtual core::rectangle target_geometry () const = 0;
       virtual const void* target_key () const = 0;
-      virtual void place (const core::rectangle&) const = 0;
+      virtual void geometry (const core::rectangle&) const = 0;
     };
 
     // --------------------------------------------------------------------------
@@ -243,24 +243,24 @@ namespace gui {
       T target;
       S source;
 
-      core::rectangle source_place () const override {
-        return detail::place(source);
+      core::rectangle source_geometry () const override {
+        return detail::geometry(source);
       }
 
       const void* source_key () const override {
         return detail::key(source);
       }
 
-      core::rectangle target_place () const override {
-        return detail::place(target);
+      core::rectangle target_geometry () const override {
+        return detail::geometry(target);
       }
 
       const void* target_key () const override {
         return detail::key(target);
       }
 
-      void place (const core::rectangle& r) const override {
-        detail::place(target, r);
+      void geometry (const core::rectangle& r) const override {
+        detail::geometry(target, r);
       }
 
     };

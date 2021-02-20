@@ -70,7 +70,7 @@ namespace gui {
         w->resize(sz.os_width(), sz.os_height());
       }
 
-      void place (os::window w, const core::rectangle& r) {
+      void geometry (os::window w, const core::rectangle& r) {
         const auto nr = core::global::scale_to_native(r);
         w->setGeometry(nr.x(), nr.y(), nr.width(), nr.height());
       }

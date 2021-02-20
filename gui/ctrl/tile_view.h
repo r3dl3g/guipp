@@ -56,7 +56,7 @@ namespace gui {
                               dim_type scroll_pos,
                               size_t count) const;
 
-      core::rectangle get_place_of_index (const core::rectangle& list_size,
+      core::rectangle get_geometry_of_index (const core::rectangle& list_size,
                                           int idx,
                                           dim_type scroll_pos) const;
 

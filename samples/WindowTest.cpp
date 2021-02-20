@@ -420,14 +420,14 @@ my_main_window::my_main_window ()
   window1.on_wheel<orientation_t::horizontal>([&] (core::native_point::type delta,
                                                    const core::native_point& p) {
     clog::debug() << "Wheel-X: " << delta << " at " << p;
-    if (window1.surface_area().is_inside(p)) {
+    if (window1.surface_geometry().is_inside(p)) {
       window1.position(window1.position() + core::size(delta, 0));
     }
   });
   window1.on_wheel<orientation_t::vertical>([&] (core::native_point::type delta,
                                                  const core::native_point& p) {
     clog::debug() << "Wheel-Y: " << delta << " at " << p;
-    if (window1.surface_area().is_inside(p)) {
+    if (window1.surface_geometry().is_inside(p)) {
       window1.position(window1.position() + core::size(0, delta));
     }
   });
@@ -486,16 +486,16 @@ my_main_window::my_main_window ()
     core::size sz = window1.size();
     clog::debug() << "Pos: " << pos << " Size " << sz;
 
-    core::rectangle pl = window1.place();
+    core::rectangle pl = window1.geometry();
     clog::debug() << "Place: " << pl;
 
-    core::rectangle apl = window1.absolute_place();
+    core::rectangle apl = window1.absolute_geometry();
     clog::debug() << "Abs Place: " << apl;
 
     core::point apos = window1.absolute_position();
     clog::debug() << "Abs Pos: " << apos;
 
-    core::rectangle car = window1.client_area();
+    core::rectangle car = window1.client_geometry();
     clog::debug() << "Client: " << car;
   });
   on_right_btn_dblclk([&] (os::key_state, const core::native_point&) {
@@ -1165,7 +1165,7 @@ ctrl::paint_function my_main_window::create_paint1 () {
 
     using namespace draw;
 
-    auto area = window2.client_area();
+    auto area = window2.client_geometry();
     auto pos = area.top_left();
 //    clip clp(graph, area);
 
@@ -1251,7 +1251,7 @@ ctrl::paint_function my_main_window::create_paint2 () {
     //clog::debug() << "win::look 2";
     using namespace draw;
 
-    auto area = window2.client_area();
+    auto area = window2.client_geometry();
     auto pos = area.top_left();
 //    clip clp(graph, area);
 

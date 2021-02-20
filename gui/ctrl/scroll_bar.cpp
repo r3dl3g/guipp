@@ -279,16 +279,16 @@ namespace gui {
           }
         } else {
           auto pt = surface_to_client(npt);
-          auto geo = get_geometry();
-          if (up_button_place(geo).is_inside(pt)) {
+          auto geo = get_metric();
+          if (up_button_geometry(geo).is_inside(pt)) {
             set_hilite(scrollbar_item::up_button);
-          } else if (down_button_place(geo).is_inside(pt)) {
+          } else if (down_button_geometry(geo).is_inside(pt)) {
             set_hilite(scrollbar_item::down_button);
-          } else if (thumb_button_place(geo).is_inside(pt)) {
+          } else if (thumb_button_geometry(geo).is_inside(pt)) {
             set_hilite(scrollbar_item::thumb_button);
-          } else if (page_up_place(geo).is_inside(pt)) {
+          } else if (page_up_geometry(geo).is_inside(pt)) {
             set_hilite(scrollbar_item::page_up);
-          } else if (page_down_place(geo).is_inside(pt)) {
+          } else if (page_down_geometry(geo).is_inside(pt)) {
             set_hilite(scrollbar_item::page_down);
           } else {
             set_hilite(scrollbar_item::nothing);
@@ -308,16 +308,16 @@ namespace gui {
           }
         } else {
           auto pt = surface_to_client(npt);
-          auto geo = get_geometry();
-          if (up_button_place(geo).is_inside(pt)) {
+          auto geo = get_metric();
+          if (up_button_geometry(geo).is_inside(pt)) {
             set_hilite(scrollbar_item::up_button);
-          } else if (down_button_place(geo).is_inside(pt)) {
+          } else if (down_button_geometry(geo).is_inside(pt)) {
             set_hilite(scrollbar_item::down_button);
-          } else if (thumb_button_place(geo).is_inside(pt)) {
+          } else if (thumb_button_geometry(geo).is_inside(pt)) {
             set_hilite(scrollbar_item::thumb_button);
-          } else if (page_up_place(geo).is_inside(pt)) {
+          } else if (page_up_geometry(geo).is_inside(pt)) {
             set_hilite(scrollbar_item::page_up);
-          } else if (page_down_place(geo).is_inside(pt)) {
+          } else if (page_down_geometry(geo).is_inside(pt)) {
             set_hilite(scrollbar_item::page_down);
           } else {
             set_hilite(scrollbar_item::nothing);

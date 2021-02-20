@@ -90,7 +90,7 @@ namespace gui {
 
     template<text_origin_t align, draw::frame::drawer frame, os::color foreground, os::color background>
     inline void basic_label<align, frame, foreground, background>::paint (draw::graphics& graph) {
-      gui::core::rectangle place = frame(graph, client_area());
+      gui::core::rectangle place = frame(graph, client_geometry());
       look::label(graph, place, get_text(), foreground, background, align);
     }
 

@@ -31,11 +31,11 @@ struct layout_group {
     left.create(main);
     right.create(main);
     center.create(main);
-    top.set_text([&] () { return ostreamfmt("T (" << top.place() << ")"); });
-    bottom.set_text([&] () { return ostreamfmt("B (" << bottom.place() << ")"); });
-    left.set_text([&] () { return ostreamfmt("L (" << left.place() << ")"); });
-    right.set_text([&] () { return ostreamfmt("R (" << right.place() << ")"); });
-    center.set_text([&] () { return ostreamfmt("C (" << center.place() << ")"); });
+    top.set_text([&] () { return ostreamfmt("T (" << top.geometry() << ")"); });
+    bottom.set_text([&] () { return ostreamfmt("B (" << bottom.geometry() << ")"); });
+    left.set_text([&] () { return ostreamfmt("L (" << left.geometry() << ")"); });
+    right.set_text([&] () { return ostreamfmt("R (" << right.geometry() << ")"); });
+    center.set_text([&] () { return ostreamfmt("C (" << center.geometry() << ")"); });
     layouter.set_center_top_bottom_left_right(lay(center), lay(top), lay(bottom), lay(left), lay(right));
   }
 };

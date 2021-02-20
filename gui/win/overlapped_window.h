@@ -131,7 +131,7 @@ namespace gui {
 
       void move_native (const core::point&) override;
       void resize_native (const core::size&) override;
-      void place_native (const core::rectangle&) override;
+      void geometry_native (const core::rectangle&) override;
 
       overlapped_context& get_context () const;
 

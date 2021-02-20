@@ -41,15 +41,15 @@ namespace gui {
 
     template<>
     GUIPP_CTRL_EXPORT core::rectangle
-    split_view_traits<orientation_t::vertical>::get_first_place (const core::rectangle&, double);
+    split_view_traits<orientation_t::vertical>::get_first_geometry (const core::rectangle&, double);
 
     template<>
     GUIPP_CTRL_EXPORT core::rectangle
-    split_view_traits<orientation_t::vertical>::get_second_place (const core::rectangle&, double);
+    split_view_traits<orientation_t::vertical>::get_second_geometry (const core::rectangle&, double);
 
     template<>
     GUIPP_CTRL_EXPORT core::rectangle
-    split_view_traits<orientation_t::vertical>::get_splitter_place (const core::rectangle&, double);
+    split_view_traits<orientation_t::vertical>::get_splitter_geometry (const core::rectangle&, double);
 
     // --------------------------------------------------------------------------
     template<>
@@ -62,15 +62,15 @@ namespace gui {
 
     template<>
     GUIPP_CTRL_EXPORT core::rectangle
-    split_view_traits<orientation_t::horizontal>::get_first_place (const core::rectangle&, double);
+    split_view_traits<orientation_t::horizontal>::get_first_geometry (const core::rectangle&, double);
 
     template<>
     GUIPP_CTRL_EXPORT core::rectangle
-    split_view_traits<orientation_t::horizontal>::get_second_place (const core::rectangle&, double);
+    split_view_traits<orientation_t::horizontal>::get_second_geometry (const core::rectangle&, double);
 
     template<>
     GUIPP_CTRL_EXPORT core::rectangle
-    split_view_traits<orientation_t::horizontal>::get_splitter_place (const core::rectangle&, double);
+    split_view_traits<orientation_t::horizontal>::get_splitter_geometry (const core::rectangle&, double);
 
     // --------------------------------------------------------------------------
     template<orientation_t O, typename F, typename S>
@@ -135,13 +135,13 @@ namespace gui {
     void split_view<O, F, S>::layout (const core::rectangle& r) const {
       clog::trace() << "split_view::layout(" << r << ") split_pos: " << split_pos;
       if (first) {
-        first->place(traits::get_first_place(r, split_pos), true);
+        first->geometry(traits::get_first_geometry(r, split_pos), true);
       }
       if (second) {
-        second->place(traits::get_second_place(r, split_pos), true);
+        second->geometry(traits::get_second_geometry(r, split_pos), true);
       }
       if (splitter) {
-        splitter->place(traits::get_splitter_place(r, split_pos), true);
+        splitter->geometry(traits::get_splitter_geometry(r, split_pos), true);
       }
     }
 
@@ -185,10 +185,10 @@ namespace gui {
       super::create(clazz::get(), parent, place);
       set_split_pos(split_pos);
 
-      const auto area = super::client_area();
-      splitter.create(*this, layout_type::traits::get_splitter_place(area, split_pos));
-      first.create(*this, layout_type::traits::get_first_place(area, split_pos));
-      second.create(*this, layout_type::traits::get_second_place(area, split_pos));
+      const auto area = super::client_geometry();
+      splitter.create(*this, layout_type::traits::get_splitter_geometry(area, split_pos));
+      first.create(*this, layout_type::traits::get_first_geometry(area, split_pos));
+      second.create(*this, layout_type::traits::get_second_geometry(area, split_pos));
       splitter.set_visible();
       first.set_visible();
       second.set_visible();

@@ -222,7 +222,7 @@ namespace gui {
       }
 
       void unset_os_window (os::window id) {
-        clear_last_place(id);
+        clear_last_geometry(id);
         global_window_map.erase(id);
       }
 
@@ -272,7 +272,7 @@ namespace gui {
       }
 
       void unset_os_window (os::window id) {
-        clear_last_place(id);
+        clear_last_geometry(id);
       }
 
 #endif // USE_WINDOW_MAP
@@ -617,7 +617,7 @@ namespace gui {
                               e.xbutton.x, e.xbutton.y,
                               &x, &y, &child);
 
-        const core::rectangle area = w.absolute_place();
+        const core::rectangle area = w.absolute_geometry();
         const core::point pt = core::global::scale_from_native(core::native_point{x, y});
         return !area.is_inside(pt);
       }
@@ -655,7 +655,7 @@ namespace gui {
         case QEvent::MouseButtonRelease: {
           const QMouseEvent& me = e.cast<QMouseEvent>();
           const auto pt = me.globalPos();
-          return !w.absolute_place().is_inside(core::global::scale_from_native(core::native_point(pt.x(), pt.y())));
+          return !w.absolute_geometry().is_inside(core::global::scale_from_native(core::native_point(pt.x(), pt.y())));
         }
         default: break;
       }
@@ -723,7 +723,7 @@ namespace gui {
         }
 
         if ((e.type == ConfigureNotify) && running) {
-          update_last_place(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));
+          update_last_geometry(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));
         }
 
         if (!XPending(display)) {

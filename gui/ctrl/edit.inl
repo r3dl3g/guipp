@@ -44,7 +44,7 @@ namespace gui {
 
     template<text_origin_t origin, draw::frame::drawer frame, os::color foreground, os::color background>
     inline void basic_edit<origin, frame, foreground, background>::paint (draw::graphics& graph) {
-      auto area = frame(graph, client_area());
+      auto area = frame(graph, client_geometry());
       area.shrink(core::size::one);
       look::edit_line(graph, area, data.text, draw::font::system(), foreground, background, origin,
                       data.selection, data.cursor_pos, data.scroll_pos, is_focused(), is_enabled());
@@ -78,7 +78,7 @@ namespace gui {
 
     template<text_origin_t origin, char character, draw::frame::drawer frame, os::color foreground, os::color background>
     inline void basic_pass<origin, character, frame, foreground, background>::paint (draw::graphics& graph) {
-      auto area = frame(graph, client_area());
+      auto area = frame(graph, client_geometry());
       area.shrink(core::size::one);
       std::string t(data.text.length(), character);
       look::edit_line(graph, area, t, draw::font::system(), foreground, background, origin,

@@ -34,12 +34,12 @@ struct drawing {
     if (win) win->invalidate();
   }
 
-  void place (const gui::core::rectangle& r) {
+  void geometry (const gui::core::rectangle& r) {
     area = r;
     if (win) win->invalidate();
   }
 
-  const gui::core::rectangle& place () const {
+  const gui::core::rectangle& geometry () const {
     return area;
   }
 
@@ -51,7 +51,7 @@ struct drawing {
 template<typename T>
 gui::layout::layout_function any (T& t) {
   return [&t] (const gui::core::rectangle& r) {
-    t.place(r);
+    t.geometry(r);
   };
 }
 
@@ -90,11 +90,11 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   layout.attach_fix<What::left, Where::x2, 10>(&middle, &first);
   layout.attach_fix<What::right, Where::x, -10>(&middle, &right);
 
-  first.set_text([&] () { return ostreamfmt("1.:(" << first.place() << ")"); });
-  second.set_text([&] () { return ostreamfmt("2.:(" << second.place() << ")"); });
-  third.set_text([&] () { return ostreamfmt("3.:(" << third.place() << ")"); });
-  fourth.set_text([&] () { return ostreamfmt("4.:(" << fourth.place() << ")"); });
-  fifth.set_text([&] () { return ostreamfmt("5.:(" << fifth.place() << ")"); });
+  first.set_text([&] () { return ostreamfmt("1.:(" << first.geometry() << ")"); });
+  second.set_text([&] () { return ostreamfmt("2.:(" << second.geometry() << ")"); });
+  third.set_text([&] () { return ostreamfmt("3.:(" << third.geometry() << ")"); });
+  fourth.set_text([&] () { return ostreamfmt("4.:(" << fourth.geometry() << ")"); });
+  fifth.set_text([&] () { return ostreamfmt("5.:(" << fifth.geometry() << ")"); });
 
   main.on_create([&] () {
     first.create(main);

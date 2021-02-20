@@ -323,7 +323,7 @@ namespace gui {
       void invalidate ();
 
       int get_index_at_point (const core::point& pt);
-      core::rectangle get_place_of_index (int idx);
+      core::rectangle get_geometry_of_index (int idx);
 
       bool try_to_select (int sel, event_source notify);
       void set_selection (int sel, event_source notify);
@@ -385,7 +385,7 @@ namespace gui {
                               size_type scroll_pos,
                               size_t /*count*/) const;
 
-      core::rectangle get_place_of_index (const core::rectangle& list_size,
+      core::rectangle get_geometry_of_index (const core::rectangle& list_size,
                                           int idx,
                                           size_type scroll_pos) const;
 

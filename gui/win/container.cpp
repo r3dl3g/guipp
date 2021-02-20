@@ -85,7 +85,7 @@ namespace gui {
 
     void container::init () {
       on_paint([&] (core::context* ctx, core::native_rect* r) {
-        native::erase(ctx->drawable(), ctx->graphics(), surface_area() & *r, get_window_class().get_background());
+        native::erase(ctx->drawable(), ctx->graphics(), surface_geometry() & *r, get_window_class().get_background());
       });
       on_show([&] () {
         set_children_visible();
@@ -146,7 +146,7 @@ namespace gui {
     window* container::window_at_point (const core::native_point& pt) {
       for (window* w : reverse(children)) {
         auto state = w->get_state();
-        if (state.created() && state.visible() && state.enabled() && !state.overlapped() && w->surface_area().is_inside(pt)) {
+        if (state.created() && state.visible() && state.enabled() && !state.overlapped() && w->surface_geometry().is_inside(pt)) {
           container* cont = dynamic_cast<container*>(w);
           if (cont) {
             return cont->window_at_point(pt);
@@ -180,7 +180,7 @@ namespace gui {
         bool ret = super::handle_event(e, r);
 
         for (auto& w : children) {
-          const auto rect = w->surface_area();
+          const auto rect = w->surface_geometry();
 
           if (!clip_rect || (clip_rect->overlap(rect))) {
             const auto state = w->get_state();

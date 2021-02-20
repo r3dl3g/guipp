@@ -386,7 +386,7 @@ namespace gui {
       void data_view::init () {
         set_accept_focus(true);
         super::on_paint(draw::paint([&](draw::graphics&  graph){
-          paint::draw_table_data(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+          paint::draw_table_data(graph, client_geometry(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
         }));
       }
 
@@ -417,7 +417,7 @@ namespace gui {
 
       void column_view::init () {
         super::on_paint(draw::paint([&](draw::graphics&  graph) {
-          paint::draw_table_column(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+          paint::draw_table_column(graph, client_geometry(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
         }));
       }
 
@@ -448,7 +448,7 @@ namespace gui {
 
       void row_view::init () {
         super::on_paint(draw::paint([&](draw::graphics&  graph){
-          paint::draw_table_row(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+          paint::draw_table_row(graph, client_geometry(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
         }));
       }
 
@@ -710,7 +710,7 @@ namespace gui {
       vscroll.create(*this, core::rectangle(240, 0, static_cast<core::size::type>(scroll_bar::scroll_bar_width), 80));
       hscroll.create(*this, core::rectangle(0, 100, 240, static_cast<core::size::type>(scroll_bar::scroll_bar_width)));
 
-      core::rectangle r = place();
+      core::rectangle r = geometry();
       vscroll.set_max(r.height() * 2);
       vscroll.set_step(column_height());
       hscroll.set_max(r.width() * 2);
@@ -751,7 +751,7 @@ namespace gui {
     }
 
     void table_view::handle_mouse_move (os::key_state keys, const core::native_point& pt) {
-      const auto r = data.surface_area();
+      const auto r = data.surface_geometry();
       if (core::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if (last_mouse_point != core::native_point::undefined) {
           auto delta = last_mouse_point - pt;
@@ -994,7 +994,7 @@ namespace gui {
       on_selection_commit(util::bind_method(this, &table_edit::enter_edit));
 
       editor.on_btn_down([&](os::key_state, const core::native_point& pt) {
-        if (!editor.surface_area().is_inside(pt)) {
+        if (!editor.surface_geometry().is_inside(pt)) {
           commit_edit();
         }
       });
@@ -1014,7 +1014,7 @@ namespace gui {
     void table_edit::move_editor (core::point::type) {
       if (editor.is_visible()) {
         const auto pos = geometrie.position_of(get_selection());
-        if (data.client_area().is_inside(pos)) {
+        if (data.client_geometry().is_inside(pos)) {
           editor.position(pos);
         } else {
           editor.set_visible(false);
@@ -1034,7 +1034,7 @@ namespace gui {
         if (!editor.is_valid()) {
           editor.create(data, core::rectangle(0, 0, 10, 10));
         }
-        editor.place(core::rectangle(pt, sz));
+        editor.geometry(core::rectangle(pt, sz));
         editor.set_text(data_source(cell));
         editor.set_cursor_pos(editor.get_text_length());
         editor.set_visible();

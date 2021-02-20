@@ -239,7 +239,7 @@ namespace gui {
                                         sz.os_width(), sz.os_height()));
       }
 
-      void place (os::window w, const core::rectangle& r) {
+      void geometry (os::window w, const core::rectangle& r) {
         const auto nr = core::global::scale_to_native(r);
         x11::check_return(XMoveResizeWindow(core::global::get_instance(), w,
                                             nr.x(), nr.y(), nr.width(), nr.height()));

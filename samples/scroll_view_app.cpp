@@ -72,21 +72,21 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   window1.on_wheel<orientation_t::horizontal>([&] (core::native_point::type delta,
                                                    const core::native_point& p) {
-    if (window1.surface_area().is_inside(p)) {
+    if (window1.surface_geometry().is_inside(p)) {
       end_angle += angle(delta);
       window1.invalidate();
     }
   });
   window1.on_wheel<orientation_t::vertical>([&] (core::native_point::type delta,
                                                  const core::native_point& p) {
-    if (window1.surface_area().is_inside(p)) {
+    if (window1.surface_geometry().is_inside(p)) {
       start_angle += angle(delta);
       window1.invalidate();
     }
   });
 
   window2.on_paint(draw::paint([&] (draw::graphics& graph) {
-    graph.fill(draw::rectangle(window2.client_area()), color::gray);
+    graph.fill(draw::rectangle(window2.client_geometry()), color::gray);
   }));
   window2.on_left_btn_down([&] (gui::os::key_state, const core::native_point& p) {
     window2.to_front();
@@ -145,7 +145,7 @@ ctrl::paint_function create_paint1 (const win::window& win, const bool& draw_inv
     using namespace gui;
     using namespace gui::draw;
 
-    auto area = win.client_area();
+    auto area = win.client_geometry();
     auto pos = area.top_left();
     clip clp(graph, area);
 
@@ -232,7 +232,7 @@ ctrl::paint_function create_paint2 (const win::window& win, const bool& draw_inv
     using namespace gui;
     using namespace gui::draw;
 
-    auto area = win.client_area();
+    auto area = win.client_geometry();
     auto pos = area.top_left();
     clip clp(graph, area);
     graph.fill(rectangle(area), color::white);

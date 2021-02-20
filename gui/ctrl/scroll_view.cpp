@@ -131,20 +131,20 @@ namespace gui {
       core::rectangle available(new_size);
 
       if (edge && show_h && show_v) {
-        edge->place(get_edge_area(new_size));
+        edge->geometry(get_edge_area(new_size));
         edge->to_front();
       }
 
       if (show_v) {
         auto area = get_vscroll_area(new_size, show_h);
-        vscroll->place(area);
+        vscroll->geometry(area);
         vscroll->to_front();
         available.x2(area.x());
       }
 
       if (show_h) {
         auto area = get_hscroll_area(new_size, show_v);
-        hscroll->place(area);
+        hscroll->geometry(area);
         hscroll->to_front();
         available.y2(area.y());
       }
@@ -186,7 +186,7 @@ namespace gui {
         core::rectangle required = get_client_area(new_size);
         for (win::window* win : children) {
           if ((win != vscroll) && (win != hscroll) && (win != edge)) {
-            required |= win->place();
+            required |= win->geometry();
             win->unregister_event_handler<win::move_event>(me);
             win->unregister_event_handler<win::size_event>(se);
           }
@@ -209,13 +209,13 @@ namespace gui {
 
     void scroll_view::handle_child_move (const core::point&) const {
       if (!in_scroll_event && main) {
-        layout(main->client_area());
+        layout(main->client_geometry());
       }
     }
 
     void scroll_view::handle_child_size (const core::size&) const {
       if (main) {
-        layout(main->client_area());
+        layout(main->client_geometry());
       }
     }
 
@@ -269,12 +269,12 @@ namespace gui {
       vscroll.set_visible(enable);
       if (enable) {
         bool hscroll_bar_enabled = is_hscroll_bar_enabled();
-        const auto area = client_area();
-        vscroll.place(layout::scroll_view::get_vscroll_area(area, hscroll_bar_enabled));
+        const auto area = client_geometry();
+        vscroll.geometry(layout::scroll_view::get_vscroll_area(area, hscroll_bar_enabled));
         vscroll.to_front();
         if (hscroll_bar_enabled) {
-          hscroll.place(layout::scroll_view::get_hscroll_area(area, enable));
-          edge.place(layout::scroll_view::get_edge_area(area));
+          hscroll.geometry(layout::scroll_view::get_hscroll_area(area, enable));
+          edge.geometry(layout::scroll_view::get_edge_area(area));
           edge.set_visible();
           edge.to_front();
         }
@@ -285,12 +285,12 @@ namespace gui {
       hscroll.set_visible(enable);
       if (enable) {
         bool vscroll_bar_enabled = is_vscroll_bar_enabled();
-        const auto area = client_area();
-        hscroll.place(layout::scroll_view::get_hscroll_area(area, vscroll_bar_enabled));
+        const auto area = client_geometry();
+        hscroll.geometry(layout::scroll_view::get_hscroll_area(area, vscroll_bar_enabled));
         hscroll.to_front();
         if (vscroll_bar_enabled) {
-          vscroll.place(layout::scroll_view::get_vscroll_area(area, enable));
-          edge.place(layout::scroll_view::get_edge_area(area));
+          vscroll.geometry(layout::scroll_view::get_vscroll_area(area, enable));
+          edge.geometry(layout::scroll_view::get_edge_area(area));
           edge.set_visible();
           edge.to_front();
         }

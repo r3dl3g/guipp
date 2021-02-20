@@ -99,15 +99,15 @@ namespace gui {
       core::point absolute_position () const;
 
       virtual core::native_point surface_position () const;
-      core::native_rect surface_area () const;
+      core::native_rect surface_geometry () const;
 
-      core::rectangle place () const;
-      core::rectangle absolute_place () const;
-      core::rectangle client_area () const;
+      core::rectangle geometry () const;
+      core::rectangle absolute_geometry () const;
+      core::rectangle client_geometry () const;
 
       void position (const core::point&, bool repaint = false);
       void resize (const core::size&, bool repaint = true);
-      void place (const core::rectangle&, bool repaint = true);
+      void geometry (const core::rectangle&, bool repaint = true);
 
       core::point window_to_screen (const core::point&) const;
       core::point screen_to_window (const core::point&) const;
@@ -170,7 +170,7 @@ namespace gui {
 
       virtual void move_native (const core::point&);
       virtual void resize_native (const core::size&);
-      virtual void place_native (const core::rectangle&);
+      virtual void geometry_native (const core::rectangle&);
 
       bool has_overlapped_window () const;
 

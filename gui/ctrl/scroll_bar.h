@@ -206,7 +206,7 @@ namespace gui {
       void handle_paint (draw::graphics&);
 
     protected:
-      struct geometry {
+      struct metric {
         type length;
         type thickness;
         type button_size;
@@ -218,13 +218,13 @@ namespace gui {
         type other;
       };
 
-      geometry get_geometry () const;
+      metric get_metric () const;
 
-      core::rectangle up_button_place (const geometry& m) const;
-      core::rectangle down_button_place (const geometry& m) const;
-      core::rectangle page_up_place (const geometry& m) const;
-      core::rectangle page_down_place (const geometry& m) const;
-      core::rectangle thumb_button_place (const geometry& m) const;
+      core::rectangle up_button_geometry (const metric& m) const;
+      core::rectangle down_button_geometry (const metric& m) const;
+      core::rectangle page_up_geometry (const metric& m) const;
+      core::rectangle page_down_geometry (const metric& m) const;
+      core::rectangle thumb_button_geometry (const metric& m) const;
 
     private:
       void init ();

@@ -192,7 +192,7 @@ namespace gui {
         return get_text_in_range(get_selection());
       }
 
-      core::rectangle textbox_base::get_virtual_place () const {
+      core::rectangle textbox_base::get_virtual_geometry () const {
         if (data.virtual_size.empty()) {
           const auto row_sz = data.font.line_height();
           const auto row_cnt = row_count();

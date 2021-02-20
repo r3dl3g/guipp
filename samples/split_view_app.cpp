@@ -76,7 +76,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   main.get_layout().set_center(lay(main_split_view));
   main.on_create([&] () {
-    main_split_view.create(main, main.client_area());
+    main_split_view.create(main, main.client_geometry());
  });
 
   main.create({50, 50, 800, 600});

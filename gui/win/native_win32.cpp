@@ -103,7 +103,7 @@ namespace gui {
         SetWindowPos(w, nullptr, 0, 0, sz.os_width(), sz.os_height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
       }
 
-      void place (os::window w, const core::rectangle& r) {
+      void geometry (os::window w, const core::rectangle& r) {
         const auto nr = core::global::scale_to_native(r);
         MoveWindow(w, nr.x(), nr.y(), nr.width(), nr.height(), false);
       }

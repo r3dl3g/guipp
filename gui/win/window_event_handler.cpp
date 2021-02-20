@@ -374,25 +374,25 @@ namespace gui {
     std::map<Window, core::rectangle> s_last_place;
     // --------------------------------------------------------------------------
     template<>
-    const core::size& get_last_place<core::size>(os::window w) {
+    const core::size& get_last_geometry<core::size>(os::window w) {
       return s_last_place[w].size();
     }
     // --------------------------------------------------------------------------
     template<>
-    const core::point& get_last_place<core::point>(os::window w) {
+    const core::point& get_last_geometry<core::point>(os::window w) {
       return s_last_place[w].position();
     }
     // --------------------------------------------------------------------------
     template<>
-    const core::rectangle& get_last_place<core::rectangle>(os::window w) {
+    const core::rectangle& get_last_geometry<core::rectangle>(os::window w) {
       return s_last_place[w];
     }
     // --------------------------------------------------------------------------
-    void update_last_place (os::window w, const core::rectangle& r) {
+    void update_last_geometry (os::window w, const core::rectangle& r) {
       s_last_place[w] = r;
     }
     // --------------------------------------------------------------------------
-    void clear_last_place (os::window w) {
+    void clear_last_geometry (os::window w) {
       s_last_place.erase(w);
     }
     // --------------------------------------------------------------------------

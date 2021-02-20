@@ -111,7 +111,7 @@ namespace gui {
     }
 
     template<orientation_t V>
-    inline core::rectangle linear_list_traits<V>::get_place_of_index (const core::rectangle& list_size,
+    inline core::rectangle linear_list_traits<V>::get_geometry_of_index (const core::rectangle& list_size,
                                                                       int idx,
                                                                       size_type scroll_pos) const {
       core::rectangle place;
@@ -186,7 +186,7 @@ namespace gui {
     void basic_list<V, T>::enable_scroll_bar (bool enable) {
       super::set_state().scroll_bar_enabled(enable);
       if (enable) {
-        create_scroll_bar(client_area());
+        create_scroll_bar(client_geometry());
       }
       scrollbar.enable(enable);
       scrollbar.set_visible(enable && scrollbar.get_max());
@@ -295,7 +295,7 @@ namespace gui {
 
     template<orientation_t V, typename T>
     core::rectangle basic_list<V, T>::content_area () const {
-      return super::client_area().with_size(content_size());
+      return super::client_geometry().with_size(content_size());
     }
 
     template<orientation_t V, typename T>
@@ -348,7 +348,7 @@ namespace gui {
 
     template<orientation_t V, typename T>
     void basic_list<V, T>::adjust_scroll_bar () {
-      adjust_scroll_bar(client_area());
+      adjust_scroll_bar(client_geometry());
     }
 
     template<orientation_t V, typename T>
@@ -361,7 +361,7 @@ namespace gui {
         const bool show_scroll = (invisible > zero) && super::is_scroll_bar_enabled();
         if (show_scroll) {
           create_scroll_bar(r);
-          scrollbar.place(get_scroll_bar_area(r), IF_WIN32_ELSE(true, false));
+          scrollbar.geometry(get_scroll_bar_area(r), IF_WIN32_ELSE(true, false));
         }
         scrollbar.set_visible(show_scroll);
       }
@@ -383,9 +383,9 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    core::rectangle basic_list<V, T>::get_place_of_index (int idx) {
+    core::rectangle basic_list<V, T>::get_geometry_of_index (int idx) {
       if (super::is_valid_idx(idx)) {
-        return traits.get_place_of_index(content_area(), idx, get_scroll_pos());
+        return traits.get_geometry_of_index(content_area(), idx, get_scroll_pos());
       }
       return core::rectangle::zero;
     }
@@ -445,7 +445,7 @@ namespace gui {
 
     template<orientation_t V, typename T>
     void basic_list<V, T>::handle_mouse_move (os::key_state keys, const core::native_point& pt) {
-      const auto r = surface_area();
+      const auto r = surface_geometry();
       if (core::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if ((super::get_last_mouse_point() != core::native_point::undefined) &&
             (super::get_last_mouse_point() != pt)) {
@@ -497,7 +497,7 @@ namespace gui {
 
     template<orientation_t V>
     void linear_list<V>::paint (draw::graphics& graph) {
-      const core::rectangle area = super::content_area(super::client_area());
+      const core::rectangle area = super::content_area(super::client_geometry());
       core::rectangle place = area;
 //      draw::clip clp(graph, area);
 

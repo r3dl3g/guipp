@@ -406,7 +406,7 @@ namespace gui {
     }
 
     void main_menu::handle_mouse (bool btn, const core::native_point& gpt){
-      if (surface_area().is_inside(gpt)) {
+      if (surface_geometry().is_inside(gpt)) {
         const auto idx = get_index_at_point(surface_to_client(gpt));
         if (btn) {
           if (idx == data.get_selection()) {
@@ -470,7 +470,7 @@ namespace gui {
     }
 
     int main_menu::get_index_at_point (const core::point& pt) const {
-      if (client_area().is_inside(pt)) {
+      if (client_geometry().is_inside(pt)) {
         core::point::type pos = 0;
         int idx = -1;
         for (auto& i : data) {
@@ -499,7 +499,7 @@ namespace gui {
 
     void main_menu::paint (draw::graphics& g) {
       draw::brush back_brush(color::menuColor());
-      const core::rectangle area = client_area();
+      const core::rectangle area = client_geometry();
       core::rectangle r = area;
       int idx = -1;
       for (auto& i : data) {
@@ -658,7 +658,7 @@ namespace gui {
       data.init();
       data.set_hilite(0);
       data.set_mouse_function([&] (bool btn, const core::native_point& gpt) {
-        if (surface_area().is_inside(gpt)) {
+        if (surface_geometry().is_inside(gpt)) {
           handle_mouse(btn, gpt);
         } else if (btn) {
           close();
@@ -681,7 +681,7 @@ namespace gui {
       parent_data.set_key_function(util::bind_method(this, &popup_menu::handle_key));
 
       data.set_mouse_function([&] (bool btn, const core::native_point& gpt) {
-        if (surface_area().is_inside(gpt)) {
+        if (surface_geometry().is_inside(gpt)) {
           handle_mouse(btn, gpt);
         } else {
           parent_data.handle_mouse(btn, gpt);
@@ -699,7 +699,7 @@ namespace gui {
     }
 
     int popup_menu::get_index_at_point (const core::point& pt) const {
-      if (client_area().shrinked({1, 1}).is_inside(pt)) {
+      if (client_geometry().shrinked({1, 1}).is_inside(pt)) {
         return std::min(static_cast<int>(data.size()), static_cast<int>((pt.y() - 1) / item_height));
       }
       return -1;
@@ -716,7 +716,7 @@ namespace gui {
 
     void popup_menu::paint (draw::graphics& g) {
       draw::brush back_brush(color::menuColor());
-      const core::rectangle area = client_area();
+      const core::rectangle area = client_geometry();
       draw::frame::raised_relief(g, area);
       core::rectangle r = area.shrinked({1, 1});
       int idx = -1;

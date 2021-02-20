@@ -83,7 +83,7 @@ namespace gui {
       super::create(parent, place);
       for (auto& b : buttons) {
         b->create(*this);
-        super::get_layout().add([b] (const core::rectangle& r) { b->place(r); });
+        super::get_layout().add([b] (const core::rectangle& r) { b->geometry(r); });
       }
       super::set_children_visible();
     }

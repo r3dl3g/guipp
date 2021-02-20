@@ -17,7 +17,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   sorted_dir_tree client;
 
   main.on_create([&] () {
-    client.create(main, main.client_area());
+    client.create(main, main.client_geometry());
 
     sys_fs::path current = sys_fs::current_path();
     client.set_roots(fs::get_all_root_file_infos());

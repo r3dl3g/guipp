@@ -27,7 +27,7 @@ namespace gui {
 
   namespace layout {
 
-    core::rectangle drop_down::label_place (const core::rectangle& r) {
+    core::rectangle drop_down::label_geometry (const core::rectangle& r) {
       core::size::type h = r.height() - 4;
       return core::rectangle(r.top_left() + core::point(2, 2), core::size(r.width() - h - 4, h));
     }
@@ -35,33 +35,33 @@ namespace gui {
     namespace detail {
 
       template<look::look_and_feel_t L = look::system_look_and_feel>
-      inline core::rectangle button_place (const core::rectangle& r) {
+      inline core::rectangle button_geometry (const core::rectangle& r) {
         core::size::type h = r.height();
         return core::rectangle(r.top_left() + core::point(r.width() - h, 0), core::size(h, h));
       }
 
       template<>
-      inline core::rectangle button_place<look::look_and_feel_t::w95> (const core::rectangle& r) {
+      inline core::rectangle button_geometry<look::look_and_feel_t::w95> (const core::rectangle& r) {
         core::size::type h = r.height() - 4;
         return core::rectangle(r.top_left() + core::point(r.width() - h - 2, 2), core::size(h, h));
       }
 
       template<>
-      inline core::rectangle button_place<look::look_and_feel_t::w10> (const core::rectangle& r) {
+      inline core::rectangle button_geometry<look::look_and_feel_t::w10> (const core::rectangle& r) {
         core::size::type h = r.height() - 2;
         return core::rectangle(r.top_left() + core::point(r.width() - h - 1, 1), core::size(h, h));
       }
 
       template<>
-      inline core::rectangle button_place<look::look_and_feel_t::osx> (const core::rectangle& r) {
+      inline core::rectangle button_geometry<look::look_and_feel_t::osx> (const core::rectangle& r) {
         core::size::type h = r.height();
         return core::rectangle(r.top_left() + core::point(r.width() - 17, 0), core::size(17, h));
       }
 
     } // namespace detail
 
-    core::rectangle drop_down::button_place (const core::rectangle& r) {
-      return detail::button_place<>(r);
+    core::rectangle drop_down::button_geometry (const core::rectangle& r) {
+      return detail::button_geometry<>(r);
     }
 
   } // layout
@@ -100,16 +100,16 @@ namespace gui {
     }
 
     void drop_down_list::paint (draw::graphics& graph) {
-      core::rectangle area = super::client_area();
+      core::rectangle area = super::client_geometry();
       look::drop_down(graph, area, get_state());
       look::drop_down_button(graph,
-                             layout::drop_down::button_place(area),
+                             layout::drop_down::button_geometry(area),
                              get_state(),
                              is_popup_visible());
       if (data.selection > -1) {
         data.items.draw_item(data.selection,
                              graph,
-                             layout::drop_down::label_place(area),
+                             layout::drop_down::label_geometry(area),
                              data.items.get_background(),
                              item_state(is_focused(), false, !is_enabled()));
       }
@@ -144,8 +144,8 @@ namespace gui {
       }
     }
 
-    core::rectangle drop_down_list::get_popup_place () const {
-      core::rectangle place = super::absolute_place();
+    core::rectangle drop_down_list::get_popup_geometry () const {
+      core::rectangle place = super::absolute_geometry();
       place.move_y(place.height());
       place.height(core::size::type(data.visible_items * data.items.get_item_dimension()));
       return place;
@@ -153,9 +153,9 @@ namespace gui {
 
     void drop_down_list::show_popup () {
       if (!data.popup.is_valid()) {
-        create_popup(get_popup_place());
+        create_popup(get_popup_geometry());
       } else {
-        data.popup.place(get_popup_place());
+        data.popup.geometry(get_popup_geometry());
       }
       data.items.set_selection(data.selection, event_source::logic);
       data.items.make_selection_visible();
@@ -177,7 +177,7 @@ namespace gui {
     void drop_down_list::set_visible_items (int n) {
       data.visible_items = n;
       if (is_popup_visible()) {
-        data.popup.place(get_popup_place());
+        data.popup.geometry(get_popup_geometry());
       }
     }
 
@@ -219,10 +219,10 @@ namespace gui {
 
     void drop_down_list::create_popup (const core::rectangle& place) {
       data.popup.on_size([&] (const core::size & sz) {
-        data.items.place(core::rectangle(sz));
+        data.items.geometry(core::rectangle(sz));
       });
       data.popup.on_create([&] () {
-        data.items.create(data.popup, data.popup.client_area());
+        data.items.create(data.popup, data.popup.client_geometry());
         data.items.set_visible();
       });
       data.popup.on_show([&] () {
@@ -247,7 +247,7 @@ namespace gui {
 
     void drop_down_list::handle_move (const core::point&) {
       if (is_popup_visible()) {
-        data.popup.place(get_popup_place());
+        data.popup.geometry(get_popup_geometry());
       }
     }
 

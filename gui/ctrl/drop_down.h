@@ -36,8 +36,8 @@ namespace gui {
 
     struct GUIPP_CTRL_EXPORT drop_down {
 
-      static core::rectangle label_place (const core::rectangle&) ;
-      static core::rectangle button_place (const core::rectangle&) ;
+      static core::rectangle label_geometry (const core::rectangle&) ;
+      static core::rectangle button_geometry (const core::rectangle&) ;
 
     };
 
@@ -96,7 +96,7 @@ namespace gui {
 
       void set_data (std::function<list_data_provider> dta);
 
-      core::rectangle get_popup_place () const;
+      core::rectangle get_popup_geometry () const;
 
       void show_popup ();
       void hide_popup ();

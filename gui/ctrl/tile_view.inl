@@ -117,11 +117,11 @@ namespace gui {
       const auto line = static_cast<int>((super::get_1(pt) + scroll_pos - get_line_border()) / get_line_size());
       const auto offs = static_cast<int>((super::get_2(pt) - get_item_border()) / (get_item_dimension() + get_item_spacing()));
       const auto idx = (line * per_line) + offs;
-      return (idx < count) && get_place_of_index(list_area, idx, scroll_pos).is_inside(pt) ? idx : -1;
+      return (idx < count) && get_geometry_of_index(list_area, idx, scroll_pos).is_inside(pt) ? idx : -1;
     }
 
     template<orientation_t V>
-    core::rectangle tile_list_traits<V>::get_place_of_index (const core::rectangle& list_area,
+    core::rectangle tile_list_traits<V>::get_geometry_of_index (const core::rectangle& list_area,
                                                              int idx,
                                                              dim_type scroll_pos) const {
       const auto per_line = get_items_per_line(list_area.size());
@@ -189,7 +189,7 @@ namespace gui {
 
     template<orientation_t V>
     core::rectangle basic_tile_view<V>::get_full_place_of_index (int idx) {
-      const core::rectangle list_area = super::content_area(super::client_area());
+      const core::rectangle list_area = super::content_area(super::client_geometry());
 
       const auto per_line = super::traits.get_items_per_line(list_area.size());
       const auto line = per_line > 0 ? static_cast<std::size_t>(idx) / per_line : 0;
@@ -207,7 +207,7 @@ namespace gui {
 
     template<orientation_t V>
     void basic_tile_view<V>::paint (draw::graphics& graph) {
-      const core::rectangle area = super::content_area(super::client_area());
+      const core::rectangle area = super::content_area(super::client_geometry());
 //      draw::clip clp(graph, area);
 
       draw::brush back_brush(super::get_background());
@@ -227,7 +227,7 @@ namespace gui {
         const int first_line = static_cast<int>((scp - lb + lsp) / lsz);
 
         int idx = first_line * per_line;
-        core::rectangle place = super::traits.get_place_of_index(area, idx, scp);
+        core::rectangle place = super::traits.get_geometry_of_index(area, idx, scp);
 
         const auto start = super::traits.get_1(place.top_left());
 
@@ -238,7 +238,7 @@ namespace gui {
             super::traits.set_2(place, super::traits.get_2(place.x2y2()), isp);
             graph.fill(draw::rectangle(place), back_brush);
           }
-          place = super::traits.get_place_of_index(area, idx + 1, scp);
+          place = super::traits.get_geometry_of_index(area, idx + 1, scp);
         }
 
         const int last_line = core::div_ceil(idx, per_line);

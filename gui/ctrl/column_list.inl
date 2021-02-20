@@ -72,8 +72,8 @@ namespace gui {
       // --------------------------------------------------------------------------
       inline void base_column_list_layout::layout (const core::rectangle& r) const {
         clog::trace() << "base_column_list_layout::layout(" << r << ")";
-        data.header->place(header_pos(r), false);
-        data.list->place(list_pos(r), false);
+        data.header->geometry(header_pos(r), false);
+        data.list->geometry(list_pos(r), false);
       }
 
       inline void base_column_list_layout::set_header_and_list (win::window* header, list_type* list) {
@@ -151,7 +151,7 @@ namespace gui {
     inline void weight_column_list_layout::init_auto_layout () {
       main->on_layout(util::bind_method(this, &weight_column_list_layout::layout));
       main->on_show([&] () {
-        layout(list->content_area(list->client_area()));
+        layout(list->content_area(list->client_geometry()));
       });
     }
 
@@ -225,7 +225,7 @@ namespace gui {
     void column_list_header<Layout, background>::paint (draw::graphics& g) {
       using namespace draw;
 
-      core::rectangle area = this->client_area();
+      core::rectangle area = this->client_geometry();
       core::rectangle r = area;
       draw::brush back_brush(background);
 

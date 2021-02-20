@@ -1170,7 +1170,7 @@ struct timed_progress {
     , file_size(file_size)
     , step(std::chrono::milliseconds(100))
   {
-    progress.place(core::rectangle(25, (s.height() - 25) / 2, s.width() - 50, 25));
+    progress.geometry(core::rectangle(25, (s.height() - 25) / 2, s.width() - 50, 25));
     progress.set_value(0);
     last_step = clock::now();
   }

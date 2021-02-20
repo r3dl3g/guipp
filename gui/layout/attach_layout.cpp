@@ -58,7 +58,7 @@ namespace gui {
         if (s_it != splaces.end()) {
           source = s_it->second;
         } else {
-          source.place = a->source_place();
+          source.place = a->source_geometry();
           source.size = source.place.size();
           source.attach = a.get();
           splaces[s_key] = source;
@@ -70,7 +70,7 @@ namespace gui {
           a->adjust(t_it->second.place, source.size, source.place);
         } else {
           place_and_size& r = tplaces[t_key];
-          r.place = a->target_place();
+          r.place = a->target_geometry();
           r.size = r.place.size();
           r.attach = a.get();
           core::size diff = r.place.size() - r.size;
@@ -79,7 +79,7 @@ namespace gui {
         }
       }
       for (auto& i : tplaces) {
-        i.second.attach->place(i.second.place);
+        i.second.attach->geometry(i.second.place);
       }
     }
 

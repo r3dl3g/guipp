@@ -218,7 +218,7 @@ namespace gui {
       on_size([&] (const core::size& sz) {
         area.set_size(sz);
 #ifndef BUILD_FOR_ARM
-        notify_event(core::WM_LAYOUT_WINDOW, client_area());
+        notify_event(core::WM_LAYOUT_WINDOW, client_geometry());
 #endif
       });
       on_move([&] (const core::point& pt) {
@@ -450,8 +450,8 @@ namespace gui {
       native::resize(get_os_window(), sz);
     }
     // --------------------------------------------------------------------------
-    void overlapped_window::place_native (const core::rectangle& r) {
-      native::place(get_os_window(), r);
+    void overlapped_window::geometry_native (const core::rectangle& r) {
+      native::geometry(get_os_window(), r);
     }
     // --------------------------------------------------------------------------
     void overlapped_window::set_visible (bool s) {
@@ -517,7 +517,7 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     void overlapped_window::invalidate () {
-      invalidate(surface_area());
+      invalidate(surface_geometry());
     }
     // --------------------------------------------------------------------------
     void overlapped_window::invalidate (const core::native_rect& r) {
@@ -536,7 +536,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     void frame_window (core::context& ctx, window* win, os::color col) {
       if (win) {
-        native::frame(ctx.drawable(), ctx.graphics(), win->surface_area(), col);
+        native::frame(ctx.drawable(), ctx.graphics(), win->surface_geometry(), col);
       }
     }
     // --------------------------------------------------------------------------
@@ -675,7 +675,7 @@ namespace gui {
 
     public:
       explicit input_only_window (container& parent) {
-        super::create(clazz::get(), parent, parent.client_area());
+        super::create(clazz::get(), parent, parent.client_geometry());
         to_front();
       }
     };
@@ -712,7 +712,7 @@ namespace gui {
     void modal_window::end_modal () {
       is_modal = false;
 #ifdef GUIPP_X11
-      invalidate(surface_area());
+      invalidate(surface_geometry());
 #endif // GUIPP_X11
 #ifdef GUIPP_QT
       event_loop.exit();
@@ -735,7 +735,7 @@ namespace gui {
 #endif
       set_visible();
       to_front();
-      invalidate(surface_area());
+      invalidate(surface_geometry());
 
       is_modal = true;
 

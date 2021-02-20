@@ -142,20 +142,20 @@ namespace gui {
     };
     // --------------------------------------------------------------------------
     template<typename T>
-    const T& get_last_place (os::window);
+    const T& get_last_geometry (os::window);
 
     template<>
-    GUIPP_WIN_EXPORT const core::size& get_last_place<core::size>(os::window);
+    GUIPP_WIN_EXPORT const core::size& get_last_geometry<core::size>(os::window);
 
     template<>
-    GUIPP_WIN_EXPORT const core::point& get_last_place<core::point>(os::window);
+    GUIPP_WIN_EXPORT const core::point& get_last_geometry<core::point>(os::window);
 
     template<>
-    GUIPP_WIN_EXPORT const core::rectangle& get_last_place<core::rectangle>(os::window);
+    GUIPP_WIN_EXPORT const core::rectangle& get_last_geometry<core::rectangle>(os::window);
 
     // --------------------------------------------------------------------------
-    GUIPP_WIN_EXPORT void update_last_place (os::window, const core::rectangle&);
-    GUIPP_WIN_EXPORT void clear_last_place (os::window);
+    GUIPP_WIN_EXPORT void update_last_geometry (os::window, const core::rectangle&);
+    GUIPP_WIN_EXPORT void clear_last_geometry (os::window);
 
     // --------------------------------------------------------------------------
     template<typename T>
@@ -179,7 +179,7 @@ namespace gui {
       os::event_id t = e.type;
       if ((t == E) && (match_send_event<T>(e))) {
         const C& c = event_type_cast<C>(e);
-        return (get_last_place<T>(c.window) != get<T, C>::param(e));
+        return (get_last_geometry<T>(c.window) != get<T, C>::param(e));
       }
       return false;
     }

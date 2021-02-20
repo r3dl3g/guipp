@@ -55,8 +55,8 @@ namespace gui {
     }
 
     template<orientation_t H>
-    inline auto basic_scroll_bar<H>::get_geometry () const -> geometry {
-      const core::rectangle r = super::client_area();
+    inline auto basic_scroll_bar<H>::get_metric () const -> metric {
+      const core::rectangle r = super::client_geometry();
       const core::point pt = r.top_left();
       const core::size sz = r.size();
       type l = length(sz);
@@ -73,7 +73,7 @@ namespace gui {
 
     template<orientation_t H>
     inline auto basic_scroll_bar<H>::get_scale() const -> type {
-      return get_geometry().scale;
+      return get_metric().scale;
     }
 
     template<orientation_t H>
@@ -129,31 +129,31 @@ namespace gui {
     }
 
     template<orientation_t H>
-    inline core::rectangle basic_scroll_bar<H>::up_button_place (const geometry& m) const {
+    inline core::rectangle basic_scroll_bar<H>::up_button_geometry (const metric& m) const {
       return core::rectangle(build_pos(m.pos, m.other), build_size(m.button_size, m.thickness));
     }
 
     template<orientation_t H>
-    inline core::rectangle basic_scroll_bar<H>::down_button_place (const geometry& m) const {
+    inline core::rectangle basic_scroll_bar<H>::down_button_geometry (const metric& m) const {
       return core::rectangle(build_pos(m.pos + m.length - m.button_size, m.other),
                              build_size(m.button_size, m.thickness));
     }
 
     template<orientation_t H>
-    inline core::rectangle basic_scroll_bar<H>::page_up_place (const geometry& m) const {
+    inline core::rectangle basic_scroll_bar<H>::page_up_geometry (const metric& m) const {
       return core::rectangle(build_pos(m.pos + m.button_size, m.other),
                              build_size(m.thumb_top - m.button_size, m.thickness));
     }
 
     template<orientation_t H>
-    inline core::rectangle basic_scroll_bar<H>::page_down_place (const geometry& m) const {
+    inline core::rectangle basic_scroll_bar<H>::page_down_geometry (const metric& m) const {
       type tmb_bottom = m.thumb_top + m.thumb_size;
       return core::rectangle(build_pos(m.pos + tmb_bottom, m.other),
                              build_size(m.length - m.button_size - tmb_bottom, m.thickness));
     }
 
     template<orientation_t H>
-    inline core::rectangle basic_scroll_bar<H>::thumb_button_place (const geometry& m) const {
+    inline core::rectangle basic_scroll_bar<H>::thumb_button_geometry (const metric& m) const {
       return core::rectangle(build_pos(m.pos + m.thumb_top, m.other),
                              build_size(m.thumb_size, m.thickness));
     }
@@ -167,18 +167,18 @@ namespace gui {
         set_last_mouse_point(npt);
         set_last_value(get_value());
 
-        auto geo = get_geometry();
+        auto geo = get_metric();
 
         auto pt = surface_to_client(npt);
-        if (up_button_place(geo).is_inside(pt)) {
+        if (up_button_geometry(geo).is_inside(pt)) {
           set_selection(scrollbar_item::up_button);
-        } else if (down_button_place(geo).is_inside(pt)) {
+        } else if (down_button_geometry(geo).is_inside(pt)) {
           set_selection(scrollbar_item::down_button);
-        } else if (thumb_button_place(geo).is_inside(pt)) {
+        } else if (thumb_button_geometry(geo).is_inside(pt)) {
           set_selection(scrollbar_item::thumb_button);
-        } else if (page_up_place(geo).is_inside(pt)) {
+        } else if (page_up_geometry(geo).is_inside(pt)) {
           set_selection(scrollbar_item::page_up);
-        } else if (page_down_place(geo).is_inside(pt)) {
+        } else if (page_down_geometry(geo).is_inside(pt)) {
           set_selection(scrollbar_item::page_down);
         } else {
           set_selection(scrollbar_item::nothing);
@@ -193,25 +193,25 @@ namespace gui {
     void basic_scroll_bar<H>::handle_left_btn_up (os::key_state, const core::native_point& npt) {
       if (is_enabled()) {
         auto pt = surface_to_client(npt);
-        auto geo = get_geometry();
+        auto geo = get_metric();
         switch (get_selection()) {
         case scrollbar_item::up_button:
-          if (up_button_place(geo).is_inside(pt)) {
+          if (up_button_geometry(geo).is_inside(pt)) {
             set_value(get_value() - get_step(), true);
           }
           break;
         case scrollbar_item::down_button:
-          if (down_button_place(geo).is_inside(pt)) {
+          if (down_button_geometry(geo).is_inside(pt)) {
             set_value(get_value() + get_step(), true);
           }
           break;
         case scrollbar_item::page_up:
-          if (page_up_place(geo).is_inside(pt)) {
+          if (page_up_geometry(geo).is_inside(pt)) {
             set_value(get_value() - get_page(), true);
           }
           break;
         case scrollbar_item::page_down:
-          if (page_down_place(geo).is_inside(pt)) {
+          if (page_down_geometry(geo).is_inside(pt)) {
             set_value(get_value() + get_page(), true);
           }
           break;
@@ -230,18 +230,18 @@ namespace gui {
 
     template<orientation_t H>
     void basic_scroll_bar<H>::handle_paint (draw::graphics& g) {
-      auto geo = get_geometry();
+      auto geo = get_metric();
       look::scrollbar<>(g,
                         super::get_selection(),
                         super::get_hilite(),
                         super::is_enabled(),
                         H == orientation_t::horizontal,
                         super::is_focused(),
-                        up_button_place(geo),
-                        down_button_place(geo),
-                        thumb_button_place(geo),
-                        page_up_place(geo),
-                        page_down_place(geo));
+                        up_button_geometry(geo),
+                        down_button_geometry(geo),
+                        thumb_button_geometry(geo),
+                        page_up_geometry(geo),
+                        page_down_geometry(geo));
     }
 
     // --------------------------------------------------------------------------

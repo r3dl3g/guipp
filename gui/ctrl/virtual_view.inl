@@ -41,8 +41,8 @@ namespace gui {
     inline void virtual_layout<T>::layout (const core::rectangle& r) const {
       clog::trace() << "virtual_layout::layout()";
       if (client) {
-        auto available = super::layout(r, client->get_virtual_place());
-        client->place(available);
+        auto available = super::layout(r, client->get_virtual_geometry());
+        client->geometry(available);
       } else {
         super::layout(r, core::rectangle());
       }
@@ -89,7 +89,7 @@ namespace gui {
 
     template<typename T, os::color B>
     void virtual_view<T, B>::handle_create () {
-      core::rectangle r = super::client_area();
+      core::rectangle r = super::client_geometry();
       vscroll.create(*this, layout::scroll_view::get_vscroll_area(r, true));
       hscroll.create(*this, layout::scroll_view::get_hscroll_area(r, true));
       edge.create(*this, layout::scroll_view::get_edge_area(r));

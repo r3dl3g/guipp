@@ -133,7 +133,7 @@ namespace gui {
                                                 std::function<action> action) {
       multi_input_dialog dialog;
       dialog.create(parent, title, message, initial, ok_label, cancel_label,
-                    detail::std_multi_input_dialog_size<>(parent.place(), N),
+                    detail::std_multi_input_dialog_size<>(parent.geometry(), N),
                     action);
       dialog.show(parent);
     }
@@ -213,7 +213,7 @@ namespace gui {
                                          std::function<fs::filter_fn> filter) {
       path_open_dialog_base dialog;
       dialog.create(parent, title, ok_label, cancel_label,
-                    detail::std_path_open_dialog_size<>(parent.place()),
+                    detail::std_path_open_dialog_size<>(parent.geometry()),
                     action, filter);
       dialog.super::show(parent);
     }

@@ -146,7 +146,7 @@ namespace gui {
       super::on_selection_commit(util::bind_method(this, &edit_list::enter_edit));
 
       data.editor.on_btn_down([&](os::key_state, const core::native_point& pt) {
-        if (!data.editor.surface_area().is_inside(pt)) {
+        if (!data.editor.surface_geometry().is_inside(pt)) {
           commit_edit();
         }
       });
@@ -156,7 +156,7 @@ namespace gui {
 
       super::scrollbar.on_scroll([&] (core::point::type) {
         if (data.editor.is_visible()) {
-          data.editor.place(super::get_place_of_index(super::get_selection()));
+          data.editor.geometry(super::get_geometry_of_index(super::get_selection()));
         }
       });
 
@@ -177,11 +177,11 @@ namespace gui {
     void edit_list::enter_edit () {
       if (data.enable_edit && data.data_source) {
         auto cell = super::get_selection();
-        auto area = super::get_place_of_index(cell);
+        auto area = super::get_geometry_of_index(cell);
         if (!data.editor.is_valid()) {
           data.editor.create(*this, area);
         }
-        data.editor.place(area);
+        data.editor.geometry(area);
         data.editor.set_text(data.data_source(cell));
         data.editor.set_cursor_pos(data.editor.get_text_length());
         data.editor.set_visible();

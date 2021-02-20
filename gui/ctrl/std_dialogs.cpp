@@ -119,7 +119,7 @@ namespace gui {
                              std::function<yes_no_action> action) {
       yes_no_dialog dialog;
       dialog.create(parent, title, message, yes_label, no_label,
-                    detail::std_yes_no_dialog_size<>(parent.place()),
+                    detail::std_yes_no_dialog_size<>(parent.geometry()),
                     action);
       dialog.show(parent, action);
     }
@@ -164,7 +164,7 @@ namespace gui {
                                const std::string& ok_label) {
       message_dialog dialog;
       dialog.create(parent, title, message, ok_label,
-                    detail::std_message_dialog_size<>(parent.place()));
+                    detail::std_message_dialog_size<>(parent.geometry()));
       dialog.super::show(parent);
     }
 
@@ -200,7 +200,7 @@ namespace gui {
                             std::function<input_action> action) {
       input_dialog dialog;
       dialog.create(parent, title, message, initial, ok_label, cancel_label,
-                    detail::std_input_dialog_size<>(parent.place()),
+                    detail::std_input_dialog_size<>(parent.geometry()),
                     action);
       dialog.show(parent);
     }
@@ -270,7 +270,7 @@ namespace gui {
                                  std::function<file_selected> action) {
       file_save_dialog dialog;
       dialog.create(parent, title, default_name, name_label, ok_label, cancel_label,
-                    detail::std_file_save_dialog_size<>(parent.place()),
+                    detail::std_file_save_dialog_size<>(parent.geometry()),
                     action);
       dialog.super::show(parent);
     }

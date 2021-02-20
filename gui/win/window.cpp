@@ -57,7 +57,7 @@ namespace gui {
       if (rhs.is_valid()) {
         container* p = rhs.get_parent();
         if (p) {
-          create(rhs.get_window_class(), *p, rhs.place());
+          create(rhs.get_window_class(), *p, rhs.geometry());
         }
       }
     }
@@ -324,14 +324,14 @@ namespace gui {
     void window::invalidate () const {
       if (is_valid() && is_visible()) {
         clog::trace() << "invalidate: " << *this;
-        get_overlapped_window().invalidate(surface_area());
+        get_overlapped_window().invalidate(surface_geometry());
       }
     }
 
     void window::redraw () const {
       if (is_visible() && !get_state().redraw_disabled()) {
         clog::trace() << "redraw: " << *this;
-        get_overlapped_window().redraw(surface_area());
+        get_overlapped_window().redraw(surface_geometry());
       }
     }
 
@@ -359,19 +359,19 @@ namespace gui {
       return core::global::scale_to_native(area.position()) + (parent ? parent->surface_position() : core::native_point::zero);
     }
 
-    core::native_rect window::surface_area () const {
+    core::native_rect window::surface_geometry () const {
       return core::native_rect(surface_position(), core::global::scale_to_native(client_size()));
     }
 
-    core::rectangle window::place () const {
+    core::rectangle window::geometry () const {
       return area;
     }
 
-    core::rectangle window::absolute_place () const {
+    core::rectangle window::absolute_geometry () const {
       return core::rectangle(absolute_position(), size());
     }
 
-    core::rectangle window::client_area () const {
+    core::rectangle window::client_geometry () const {
       return core::rectangle(client_size());
     }
 
@@ -405,7 +405,7 @@ namespace gui {
 
     void window::move_native (const core::point&) {}
     void window::resize_native (const core::size&) {}
-    void window::place_native (const core::rectangle&) {}
+    void window::geometry_native (const core::rectangle&) {}
 
     void window::position (const core::point& pt, bool repaint) {
       const auto previous = position();
@@ -441,12 +441,12 @@ namespace gui {
           }
         }
         native::notify_resize(*this, sz, previous);
-        notify_event(core::WM_LAYOUT_WINDOW, client_area());
+        notify_event(core::WM_LAYOUT_WINDOW, client_geometry());
       }
     }
 
-    void window::place (const core::rectangle& r, bool repaint) {
-      const auto previous = place();
+    void window::geometry (const core::rectangle& r, bool repaint) {
+      const auto previous = geometry();
       if (previous != r) {
         area = r;
         if (r.empty()) {
@@ -458,7 +458,7 @@ namespace gui {
             set_visible();
           }
           if (is_valid()) {
-            place_native(area);
+            geometry_native(area);
             if (repaint) {
               invalidate();
             }
@@ -469,7 +469,7 @@ namespace gui {
         }
         if (previous.size() != area.size()) {
           native::notify_resize(*this, area.size(), previous.size());
-          notify_event(core::WM_LAYOUT_WINDOW, client_area());
+          notify_event(core::WM_LAYOUT_WINDOW, client_geometry());
         }
       }
     }

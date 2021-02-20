@@ -33,9 +33,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<orientation_t O>
     struct split_view_traits {
-      static core::rectangle get_first_place (const core::rectangle&, double pos);
-      static core::rectangle get_second_place (const core::rectangle&, double pos);
-      static core::rectangle get_splitter_place (const core::rectangle&, double pos);
+      static core::rectangle get_first_geometry (const core::rectangle&, double pos);
+      static core::rectangle get_second_geometry (const core::rectangle&, double pos);
+      static core::rectangle get_splitter_geometry (const core::rectangle&, double pos);
       static core::size::type get_splitter_width ();
       static double get_split_pos (const core::point&, const core::size&);
     };

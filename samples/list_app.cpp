@@ -17,7 +17,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   file_list<path_tree::sorted_path_info> client;
 
   main.on_create([&] () {
-    client.create(main, main.client_area());
+    client.create(main, main.client_geometry());
     client.set_path(sys_fs::current_path().parent_path());
     main.get_layout().set_center(layout::lay(client));
     main.set_children_visible();

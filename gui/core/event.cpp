@@ -732,7 +732,7 @@ namespace std {
   }
 
   template<typename T>
-  inline streamfkt place (const T& t) {
+  inline streamfkt geometry (const T& t) {
     return [&] (ostream& out) { out << " area: (" << t.x << ", " << t.y << ")-(" << t.width << ", " << t.height << ")"; };
   }
 
@@ -787,10 +787,10 @@ namespace std {
         out << window(e.xkeymap) << " key_vector:'" << e.xkeymap.key_vector << "'";
       break;
       case Expose:
-        out << window(e.xexpose) << place(e.xexpose) << count(e.xexpose);
+        out << window(e.xexpose) << geometry(e.xexpose) << count(e.xexpose);
       break;
       case GraphicsExpose:
-        out << drawable(e.xgraphicsexpose) << place(e.xgraphicsexpose) << count(e.xgraphicsexpose);
+        out << drawable(e.xgraphicsexpose) << geometry(e.xgraphicsexpose) << count(e.xgraphicsexpose);
       break;
       case NoExpose:
         out << drawable(e.xnoexpose);
@@ -799,7 +799,7 @@ namespace std {
         out << window(e.xvisibility) << state(e.xvisibility);
       break;
       case CreateNotify:
-        out << window(e.xcreatewindow) << place(e.xcreatewindow);
+        out << window(e.xcreatewindow) << geometry(e.xcreatewindow);
       break;
       case DestroyNotify:
         out << window(e.xdestroywindow);
@@ -817,7 +817,7 @@ namespace std {
         out << window(e.xreparent) << position(e.xreparent);
       break;
       case ConfigureNotify:
-        out << window(e.xconfigure) << place(e.xconfigure);
+        out << window(e.xconfigure) << geometry(e.xconfigure);
       break;
       case ConfigureRequest:
         out << window(e.xconfigurerequest);

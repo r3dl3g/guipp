@@ -576,7 +576,7 @@ namespace gui {
 //        gc()->setClipRegion(QRegion(mask));
         gc()->setClipRegion(QRegion(*bmp.mask.get_os_bitmap()));
         gc()->drawPixmap(pt.x(), pt.y(), *bmp.image.get_os_bitmap());
-//        restore_clipping();
+        context().restore_clipping();
 
 //        QPainter::CompositionMode old_mode = gc()->compositionMode();
 //        gc()->setCompositionMode(QPainter::RasterOp_NotSourceAndDestination);

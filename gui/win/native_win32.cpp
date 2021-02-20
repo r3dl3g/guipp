@@ -167,11 +167,11 @@ namespace gui {
         os::window id = CreateWindowEx(type.get_ex_style(),
                                        name.c_str(),
                                        nullptr,         // address of window text
-                                       type.get_style(),  // window style
-                                       nr.x(),        // horizontal position of window
-                                       nr.y(),        // vertical position of window
-                                       nr.width(),    // window width
-                                       nr.height(),   // window height
+                                       type.get_style(),// window style
+                                       nr.x(),          // horizontal position of window
+                                       nr.y(),          // vertical position of window
+                                       nr.width(),      // window width
+                                       nr.height(),     // window height
                                        parent_id,       // handle of parent window
                                        NULL,            // handle of menu or child-window identifier
                                        display,         // handle of application instance

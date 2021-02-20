@@ -102,7 +102,7 @@ namespace gui {
                          const core::rectangle& r,
                          os::window parent_id,
                          overlapped_window& data) {
-        os::window id = new os::qt::Widget(parent_id, type.get_style(), &data);
+        os::window id = new os::qt::window(parent_id, type.get_style(), &data);
         Qt::WindowFlags style = id->flags();
         const auto nr = core::global::scale_to_native(r);
         //clog::debug() << "Expected style: " << std::hex << type.get_style() << ", current style: " << std::hex << style;
@@ -214,7 +214,7 @@ namespace gui {
       }
 
       os::window get_overlapped_parent (os::window pid) {
-        return pid;
+        return get_desktop_window();
       }
 
       void set_title (os::window id, const std::string& title) {
@@ -350,33 +350,35 @@ namespace gui {
 
     namespace qt {
 
-      Widget::Widget (Widget* parent, os::style s, win::overlapped_window* w)
+      window::window (window* parent, os::style s, win::overlapped_window* w)
         : super(parent)
         , win(w)
-      {}
+      {
+        setFlags(s);
+      }
 
-      Widget::~Widget () {
+      window::~window () {
         if (win) {
           win::detail::set_os_window(win, nullptr);
         }
       }
 
-      win::overlapped_window* Widget::get_window () const {
+      win::overlapped_window* window::get_window () const {
         return win;
       }
 
-      void Widget::set_window (win::overlapped_window* w) {
+      void window::set_window (win::overlapped_window* w) {
         win = w;
       }
 
-      Widget* Widget::get_parent () const {
-        return static_cast<Widget*>(parent());
+      window* window::get_parent () const {
+        return static_cast<window*>(parent());
       }
 
-      bool Widget::event (QEvent* e) {
+      bool window::event (QEvent* e) {
         gui::os::event_result result;
         gui::core::event ev = {this, e};
-//        clog::info() << "Widget received event: " << ev;
+//        clog::info() << "window received event: " << ev;
         if (win && win->handle_event(ev, result)) {
           return true;
         }

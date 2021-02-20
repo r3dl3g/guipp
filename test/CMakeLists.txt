@@ -20,7 +20,7 @@ if (GUIPP_USE_QT)
 endif()
 
 if (GUIPP_USE_BOOST)
-  find_package(Boost 1.66 REQUIRED COMPONENTS filesystem)
+  find_package(Boost 1.65 REQUIRED COMPONENTS filesystem)
 endif()
 
 DebugPrint("app GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")

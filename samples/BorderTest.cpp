@@ -103,7 +103,7 @@ private:
   typedef ctrl::sorted_file_tree file_tree;
   ctrl::horizontal_split_view<simple_tree, file_tree> right_view;
 
-  group_window<attach, color::rgb<0, 0, 224>::value> client_view;
+  group_window<attach, color::rgb_gray<224>::value> client_view;
 
   top_tab_group<origin_t::start, color::black, color::very_light_gray, 50, 80> hsegmented1;
   bottom_tab_group<origin_t::start, color::black, color::very_light_gray, 40, 70> hsegmented2;
@@ -117,6 +117,7 @@ private:
   bwmap bws[2];
 
   rgbmap wave_color;
+  core::point last_mouse_point;
 };
 
 // --------------------------------------------------------------------------
@@ -216,6 +217,10 @@ my_main_window::my_main_window ()
 
     if (wave_color) {
       graph.copy_from(wave_color, core::point::zero);
+    }
+
+    if (last_mouse_point != core::point::zero) {
+      graph.frame(draw::arc(window1.screen_to_client(last_mouse_point), 5, 0, 360), color::red);
     }
 
   }));
@@ -456,7 +461,8 @@ void my_main_window::onCreated () {
   client_view.create(*this, core::rectangle(100, 40, 100, 100));
 
   window1.on_right_btn_up([&](gui::os::key_state, const core::native_point& pt){
-    edit_sub_menu.popup_at(window1.surface_to_screen(pt), window1);
+    last_mouse_point = surface_to_screen(pt);
+    edit_sub_menu.popup_at(window1.screen_to_client(last_mouse_point), window1);
   });
 
   window1.create(client_view, core::rectangle(69, 40, 600, 400));

@@ -37,12 +37,12 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace core {
 
-    gui::os::rectangle operator& (const gui::os::rectangle& lhs, const gui::os::rectangle& rhs) {
+    gui::os::rectangle intersection (const gui::os::rectangle& lhs, const gui::os::rectangle& rhs) {
       gui::os::point_type x0 = std::max(gui::os::get_x(lhs),  gui::os::get_x(rhs));
       gui::os::point_type y0 = std::max(gui::os::get_y(lhs),  gui::os::get_y(rhs));
       gui::os::point_type x1 = std::min(gui::os::get_x2(lhs), gui::os::get_x2(rhs));
       gui::os::point_type y1 = std::min(gui::os::get_y2(lhs), gui::os::get_y2(rhs));
-      return gui::os::mk_rectangle(x0, y0, x1, y1);
+      return (x1 > x0) && (y1 > y0)? gui::os::mk_rectangle(x0, y0, x1, y1) : gui::os::rectangle();
     }
 
     // --------------------------------------------------------------------------
@@ -50,7 +50,7 @@ namespace gui {
       if (stack.empty()) {
         stack.push_back(r);
       } else {
-        stack.push_back(stack.back() & r);
+        stack.push_back(intersection(stack.back(), r));
       }
       set(ctx, stack.back());
     }

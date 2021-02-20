@@ -17,6 +17,7 @@ option(GUIPP_STANDALONE_BUILD "On to make an installable standalone build, Off t
 option(GUIPP_BUILD_FOR_MOBILE "On to optimize for smartphone, Off to optimize for dekstop. Default Off" OFF)
 option(GUIPP_USE_QT "On to make use of the Qt library. Default Off" OFF)
 option(GUIPP_CXX_STANDARD "C++ standard to overwrite default cmake standard" ${CMAKE_CXX_STANDARD})
+option(VERBOSE "Print messages during cmake run" OFF)
 
 function(DebugPrint MSG)
   if(VERBOSE)
@@ -45,7 +46,9 @@ if(NOT TARGET gui++)
   add_subdirectory(../util util)
 
   if (GUIPP_USE_BOOST)
-    find_package(Boost 1.66 REQUIRED COMPONENTS filesystem)
+    find_package(Boost 1.65 REQUIRED COMPONENTS filesystem)
+    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DUSE_BOOST)
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} dl)
   endif()
 
   if (GUIPP_BUILD_FOR_MOBILE)
@@ -150,7 +153,7 @@ if(NOT TARGET gui++)
   elseif (WIN32)
     DebugPrint("GUIPP: build for Win32!")
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_WIN)
-    set (GUIPP_SYS_LIBRARIES Shcore)
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} Shcore)
   endif ()
 
   if (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")

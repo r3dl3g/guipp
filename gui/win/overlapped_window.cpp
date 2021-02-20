@@ -143,13 +143,7 @@ namespace gui {
       }
 
     private:
-      void create (const core::native_size& sz, os::window id) {
-        destroy();
-        size = sz;
-        pixel_store = native::create_surface(size, id);
-        gc = core::native::create_graphics_context(get_drawable());
-      }
-
+      friend class overlapped_window;
       void destroy () {
         if (gc) {
           core::native::delete_graphics_context(gc);
@@ -159,6 +153,14 @@ namespace gui {
           native::delete_surface(pixel_store);
           pixel_store = 0;
         }
+      }
+
+    private:
+      void create (const core::native_size& sz, os::window id) {
+        destroy();
+        size = sz;
+        pixel_store = native::create_surface(size, id);
+        gc = core::native::create_graphics_context(get_drawable());
       }
 
       gui::os::drawable get_drawable () {
@@ -213,9 +215,6 @@ namespace gui {
 
       native::prepare(*this);
 
-//      on_set_focus([&] () {
-//        notify_event(core::WM_LAYOUT_WINDOW, client_area());
-//      });
       on_size([&] (const core::size& sz) {
         area.set_size(sz);
 #ifndef BUILD_FOR_ARM
@@ -245,7 +244,11 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     void overlapped_window::destroy () {
+      surface.reset();
       native::destroy(get_os_window());
+      auto s = set_state();
+      s.visible(false);
+      s.created(false);
       id = 0;
     }
     // --------------------------------------------------------------------------
@@ -366,6 +369,9 @@ namespace gui {
       if (w == focus_window) {
         focus_window = nullptr;
       }
+      if (w == mouse_window) {
+        mouse_window = nullptr;
+      }
       super::remove_child(w);
     }
     // --------------------------------------------------------------------------
@@ -398,14 +404,21 @@ namespace gui {
           } else {
             core::native_point pt = mouse_move_event::Caller::get_param<1>(e);
             window* win = window_at_point(pt);
+            if (win == this) {
+              win = nullptr;
+            }
             set_mouse_window(win);
             native::set_cursor(get_os_window(), mouse_window ? mouse_window->get_cursor() : get_cursor());
             if (mouse_window && (mouse_window != this)) {
               return mouse_window->handle_event(e, r);
             }
           }
-      } else if (is_key_event(e) && focus_window) {
+      } else if (is_key_event(e) && focus_window && (focus_window != this)) {
         focus_window->handle_event(e, r);
+      } else if (show_event::match(e)) {
+        set_state().visible(true);
+      } else if (hide_event::match(e)) {
+        set_state().visible(false);
 #ifdef GUIPP_WIN
       } else if (expose_event::match(e)) {
         redraw(invalid_rect);
@@ -499,13 +512,13 @@ namespace gui {
     void overlapped_window::set_top_most (bool toplevel) {
       native::set_top_most(get_os_window(), toplevel);
     }
-    // TODO: store invalid region as member of overlapped_window.
     // --------------------------------------------------------------------------
     void overlapped_window::invalidate () {
       invalidate(surface_area());
     }
     // --------------------------------------------------------------------------
     void overlapped_window::invalidate (const core::native_rect& r) {
+      clog::trace() << "request invalidate: region " << r << " in window " << *this;
       if (is_valid() && is_visible()) {
         clog::trace() << "invalidate: " << *this;
         if (invalid_rect.empty()) {
@@ -514,6 +527,8 @@ namespace gui {
           invalid_rect |= r;
         }
         native::invalidate(get_os_window(), invalid_rect);
+      } else {
+        clog::trace() << "ignore invalidate request, state: " << get_state();
       }
     }
     // --------------------------------------------------------------------------
@@ -564,8 +579,6 @@ namespace gui {
         surface.finish(wctxt);
 
         invalid_rect = core::native_rect::zero;
-
-//        native::redraw(*this, get_os_window(), r);
       }
     }
     // --------------------------------------------------------------------------

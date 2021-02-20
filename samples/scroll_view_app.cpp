@@ -10,7 +10,7 @@
 
 using namespace gui;
 
-ctrl::paint_function create_paint1 (const win::window&, const bool& draw_invert);
+ctrl::paint_function create_paint1 (const win::window&, const bool& draw_invert, const core::angle& start, const core::angle& end);
 ctrl::paint_function create_paint2 (const win::window&, const bool& draw_invert, const core::angle& start, const core::angle& end);
 
 // --------------------------------------------------------------------------
@@ -32,7 +32,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   core::native_point last_pos;
   core::angle start_angle(15), end_angle(245);
 
-  const ctrl::paint_function paint1 = create_paint1(window1, draw_invert);
+  const ctrl::paint_function paint1 = create_paint1(window1, draw_invert, start_angle, end_angle);
   const ctrl::paint_function paint2 = create_paint2(window1, draw_invert, start_angle, end_angle);
 
   main.get_layout().set_center(lay(scroll_view));
@@ -113,28 +113,33 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   return run_main_loop();
 }
 
-std::vector<core::point> calc_star (const core::point& pt) {
-  const core::point::type w = 40;
-  const core::point::type h = 40;
+std::vector<core::point> calc_star (const core::point& pt, const core::angle& a) {
+  const core::point::type r = 20;
   const core::point::type x = pt.x();
   const core::point::type y = pt.y();
 
-  core::point::type x1 = x + w / 4;
-  core::point::type x2 = x + w / 2;
-  core::point::type x3 = x + w * 3 / 4;
-  core::point::type x4 = x + w;
-  core::point::type y1 = y + h / 4;
-  core::point::type y2 = y + h / 2;
-  core::point::type y3 = y + h * 3 / 4;
-  core::point::type y4 = y + h;
-  return{
-    core::point(x, y), core::point(x2, y1), core::point(x4, y),
-    core::point(x3, y2), core::point(x4, y4), core::point(x2, y3),
-    core::point(x, y4), core::point(x1, y2), core::point(x, y)
+  const auto ca = cos(a.rad());
+  const auto sa = sin(a.rad());
+  const auto ca2 = cos(a.rad() + M_PI / 4);
+  const auto sa2 = sin(a.rad() + M_PI / 4);
+
+  core::point::type rca = r * ca;
+  core::point::type rsa = r * sa;
+  core::point::type rca2 = ca2 * r / 3;
+  core::point::type rsa2 = sa2 * r / 3;
+  return {
+        core::point(x - rsa, y - rca),
+        core::point(x + rca2, y - rsa2),
+        core::point(x + rca, y - rsa),
+        core::point(x + rsa2, y + rca2),
+        core::point(x + rsa, y + rca),
+        core::point(x - rca2, y + rsa2),
+        core::point(x - rca, y + rsa),
+        core::point(x - rsa2, y - rca2),
   };
 }
 
-ctrl::paint_function create_paint1 (const win::window& win, const bool& draw_invert) {
+ctrl::paint_function create_paint1 (const win::window& win, const bool& draw_invert, const core::angle& start, const core::angle& end) {
   return [&] (draw::graphics& graph) {
 
     using namespace gui;
@@ -146,9 +151,9 @@ ctrl::paint_function create_paint1 (const win::window& win, const bool& draw_inv
 
     graph.fill(rectangle(area), color::very_very_light_gray);
 
-    graph.frame(polygon(calc_star(pos + core::point{10, 10})), color::blue);
-    graph.fill(polygon(calc_star(pos + core::point{60, 10})), color::dark_green);
-    graph.draw(polygon(calc_star(pos + core::point{110, 10})), color::yellow, color::red);
+    graph.frame(polygon(calc_star(pos + core::point{30, 30}, start)), color::blue);
+    graph.fill(polygon(calc_star(pos + core::point{80, 30}, start)), color::dark_green);
+    graph.draw(polygon(calc_star(pos + core::point{130, 30}, start)), color::yellow, color::red);
 
     graph.frame(polygon({ { 5, 5 }, { 155, 5 }, {75, 8} }), color::red);
 

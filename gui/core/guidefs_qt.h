@@ -52,17 +52,17 @@ namespace gui {
 
     namespace qt {
 
-      class Widget : public QWindow {
+      class window : public QWindow {
       public:
         typedef QWindow super;
 
-        Widget (Widget* parent, os::style s, win::overlapped_window* w);
-        ~Widget ();
+        window (window* parent, os::style s, win::overlapped_window* w);
+        ~window ();
 
         void set_window (win::overlapped_window*);
         win::overlapped_window* get_window () const;
 
-        Widget* get_parent () const;
+        window* get_parent () const;
 
       protected:
         bool event (QEvent* e) override;
@@ -74,7 +74,7 @@ namespace gui {
     } // namespace qt
 
     typedef QGuiApplication* instance;
-    typedef qt::Widget* window;
+    typedef qt::window* window;
     typedef QPaintDevice* drawable;
     typedef QPainter* graphics;
 

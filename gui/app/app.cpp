@@ -17,6 +17,7 @@
  */
 #include <fstream>
 #include <cstring>
+#include <signal.h>
 
 #ifdef GUIPP_QT
 #include <QtWidgets/qapplication.h>
@@ -34,6 +35,20 @@
 #include <gui/app/app.h>
 #include <gui/core/guidefs.h>
 
+#ifdef USE_BOOST
+#define ENABLE_STACKTRACE
+#endif
+
+#ifdef ENABLE_STACKTRACE
+#include <boost/stacktrace.hpp>
+
+void fatal_error_handler(int signum) {
+  ::signal(signum, SIG_DFL);
+//  boost::stacktrace::safe_dump_to("./backtrace.dump");
+  clog::fatal() << boost::stacktrace::stacktrace();
+  ::raise(SIGABRT);
+}
+#endif // ENABLE_STACKTRACE
 
 #ifdef GUIPP_WIN
 int APIENTRY WinMain (_In_ HINSTANCE hInstance,
@@ -58,6 +73,12 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
 int main (int argc, char* argv[]) {
   std::vector<std::string> args(argv, argv + argc);
 #endif // GUIPP_X11 || GUIPP_QT
+
+#ifdef ENABLE_STACKTRACE
+  ::signal(SIGSEGV, &fatal_error_handler);
+  ::signal(SIGABRT, &fatal_error_handler);
+  ::signal(SIGILL,  &fatal_error_handler);
+#endif // ENABLE_STACKTRACE
 
 #ifdef GUIPP_X11
   const char* display = NULL;

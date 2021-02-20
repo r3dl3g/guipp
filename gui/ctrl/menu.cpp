@@ -666,7 +666,7 @@ namespace gui {
       });
       clog::trace() << "popup_menu::popup_at(" << pt << ") -> run_modal";
       auto& root = parent.get_overlapped_window();
-      create(root, core::rectangle(pt - core::global::scale_from_native(parent.surface_offset()) + parent.position(), core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
+      create(root, core::rectangle(parent.client_to_screen(pt), core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
       run_modal(root);
     }
 

@@ -256,7 +256,7 @@ namespace gui {
                                             core::params<core::context*, core::native_rect*>::
                                             getter<get_context, get_paint_rect>>;
 
-    using expose_event = core::event_handler<QEvent::UpdateRequest>;
+    using redraw_event = core::event_handler<QEvent::UpdateRequest>;
 
     // --------------------------------------------------------------------------
 

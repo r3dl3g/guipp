@@ -568,10 +568,9 @@ namespace gui {
         handle_key(key);
       });
 
-      on_show([&] () {
-        capture_pointer(this);
-        invalidate();
-      });
+//      on_show([&] () {
+//        capture_pointer(this);
+//      });
 
 //      on_create([&](window*, const core::rectangle&){
 //        data.register_menu_keys();
@@ -709,7 +708,7 @@ namespace gui {
     void popup_menu::close () {
       set_state().disable_redraw();
       data.close();
-      uncapture_pointer(this);
+//      uncapture_pointer(this);
       set_visible(false);
       destroy();
       end_modal();

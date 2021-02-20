@@ -420,10 +420,12 @@ namespace gui {
       } else if (hide_event::match(e)) {
         set_state().visible(false);
 #ifdef GUIPP_WIN
-      } else if (expose_event::match(e)) {
+      } else if (redraw_event::match(e)) {
         redraw(invalid_rect);
 #elif GUIPP_QT
-      } else if (expose_event::match(e)) {
+      } else if (e.type() == QEvent::Expose) {
+        redraw(invalid_rect);
+      } else if (redraw_event::match(e)) {
         redraw(invalid_rect);
 #endif // GUIPP_WIN
       }
@@ -518,14 +520,13 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     void overlapped_window::invalidate (const core::native_rect& r) {
-      clog::trace() << "request invalidate: region " << r << " in window " << *this;
       if (is_valid() && is_visible()) {
-        clog::trace() << "invalidate: " << *this;
         if (invalid_rect.empty()) {
           invalid_rect = r;
         } else {
           invalid_rect |= r;
         }
+        clog::trace() << "invalidate: region " << r << " -> " << invalid_rect << " in window " << *this;
         native::invalidate(get_os_window(), invalid_rect);
       } else {
         clog::trace() << "ignore invalidate request, state: " << get_state();
@@ -540,13 +541,19 @@ namespace gui {
     // --------------------------------------------------------------------------
     void overlapped_window::redraw (const core::native_rect& r) {
       if (is_visible() && !get_state().redraw_disabled()) {
-        clog::trace() << "redraw: " << *this;
-
         if (invalid_rect.empty()) {
           invalid_rect = r;
         } else {
           invalid_rect |= r;
         }
+        clog::trace() << "redraw region " << r << " -> " << invalid_rect << " in window " << *this;
+
+#ifdef GUIPP_QT
+        if (!get_os_window()->isExposed()) {
+          clog::trace() << "skip redraw, window is not exposed " << *this;
+          return;
+        }
+#endif
 
         overlapped_context& surface = get_context();
         surface.begin(*this);
@@ -579,6 +586,8 @@ namespace gui {
         surface.finish(wctxt);
 
         invalid_rect = core::native_rect::zero;
+      } else {
+        clog::trace() << "ignore redraw, state: " << get_state() << " in window " << *this;
       }
     }
     // --------------------------------------------------------------------------

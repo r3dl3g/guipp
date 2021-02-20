@@ -295,7 +295,7 @@ namespace gui {
                                             core::params<core::context*, core::native_rect*>::
                                             getter<get_context, get_param<1, core::native_rect*>>>;
 
-    using expose_event = core::event_handler<WM_PAINT>;
+    using redraw_event = core::event_handler<WM_PAINT>;
     // --------------------------------------------------------------------------
 
   } // namespace win

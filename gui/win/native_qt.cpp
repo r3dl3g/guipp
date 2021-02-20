@@ -181,16 +181,22 @@ namespace gui {
 
       void prepare_accept_focus (os::window, bool) {}
 
+#define NO_CAPTUREx
+
       void capture_pointer (os::window id) {
+#ifndef NO_CAPTURE
         if (id) {
           id->setMouseGrabEnabled(true);
         }
+#endif // NO_CAPTURE
       }
 
       void uncapture_pointer (os::window id) {
+#ifndef NO_CAPTURE
         if (id) {
           id->setMouseGrabEnabled(false);
         }
+#endif // NO_CAPTURE
       }
 
       os::window get_desktop_window () {

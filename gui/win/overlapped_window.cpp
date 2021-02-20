@@ -417,6 +417,7 @@ namespace gui {
         focus_window->handle_event(e, r);
       } else if (show_event::match(e)) {
         set_state().visible(true);
+        invalidate();
       } else if (hide_event::match(e)) {
         set_state().visible(false);
 #ifdef GUIPP_WIN

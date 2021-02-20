@@ -421,14 +421,14 @@ my_main_window::my_main_window ()
                                                    const core::native_point& p) {
     clog::debug() << "Wheel-X: " << delta << " at " << p;
     if (window1.surface_area().is_inside(p)) {
-      window1.move(window1.position() + core::size(delta, 0));
+      window1.position(window1.position() + core::size(delta, 0));
     }
   });
   window1.on_wheel<orientation_t::vertical>([&] (core::native_point::type delta,
                                                  const core::native_point& p) {
     clog::debug() << "Wheel-Y: " << delta << " at " << p;
     if (window1.surface_area().is_inside(p)) {
-      window1.move(window1.position() + core::size(0, delta));
+      window1.position(window1.position() + core::size(0, delta));
     }
   });
 
@@ -461,7 +461,7 @@ my_main_window::my_main_window ()
     if (at_drag) {
       auto delta = p - last_pos;
       last_pos = p;
-      window1.move(window1.position() + core::global::scale_from_native(delta), true);
+      window1.position(window1.position() + core::global::scale_from_native(delta), true);
     }
   });
   window2.on_mouse_move([&] (os::key_state, const core::native_point& p) {
@@ -469,7 +469,7 @@ my_main_window::my_main_window ()
     if (at_drag) {
       auto delta = p - last_pos;
       last_pos = p;
-      window2.move(window2.position() + core::global::scale_from_native(delta), true);
+      window2.position(window2.position() + core::global::scale_from_native(delta), true);
       scroll_view.invalidate();
     }
   });
@@ -499,7 +499,7 @@ my_main_window::my_main_window ()
     clog::debug() << "Client: " << car;
   });
   on_right_btn_dblclk([&] (os::key_state, const core::native_point&) {
-    window1.move({50, 50});
+    window1.position({50, 50});
   });
 
   window2.on_paint(draw::paint(paint1));

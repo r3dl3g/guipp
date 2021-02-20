@@ -92,7 +92,7 @@ namespace gui {
         const auto pt = position();
         if (new_x != pt.x()) {
 //          clog::debug() << "splitter::set_value old:" << pt.x() << " new:" << new_x;
-          move(core::point(new_x, pt.y()), true);
+          position(core::point(new_x, pt.y()), true);
           super::notify_event(detail::SLIDER_MESSAGE, static_cast<long>(new_x - pt.x()));
         }
 
@@ -156,7 +156,7 @@ namespace gui {
         const auto pt = position();
         if (new_y != pt.y()) {
 //          clog::debug() << "splitter::set_value old:" << pt.y() << " new:" << new_y;
-          move(core::point(pt.x(), new_y), true);
+          position(core::point(pt.x(), new_y), true);
           super::notify_event(detail::SLIDER_MESSAGE, static_cast<long>(new_y - pt.y()));
         }
 

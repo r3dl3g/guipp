@@ -599,7 +599,7 @@ namespace gui {
       rows.on_left_btn_up(util::bind_method(this, &table_view::handle_row_left_btn_up));
 
       on_layout([&] (const core::rectangle& r) {
-        edge.move(r.top_left());
+        edge.position(r.top_left());
       });
     }
 
@@ -1015,7 +1015,7 @@ namespace gui {
       if (editor.is_visible()) {
         const auto pos = geometrie.position_of(get_selection());
         if (data.client_area().is_inside(pos)) {
-          editor.move(pos);
+          editor.position(pos);
         } else {
           editor.set_visible(false);
         }

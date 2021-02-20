@@ -247,7 +247,7 @@ namespace gui {
       std::vector<window*> children = get_children();
       for (window* win : children) {
         if ((win != &vscroll) && (win != &hscroll) && (win != &edge)) {
-          win->move(win->position() - delta);
+          win->position(win->position() - delta);
         }
       }
       current_pos = current_pos + delta;

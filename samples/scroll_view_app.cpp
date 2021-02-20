@@ -51,7 +51,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     if (at_drag) {
       auto delta = p - last_pos;
       last_pos = p;
-      window1.move(window1.position() + core::global::scale_from_native(delta));
+      window1.position(window1.position() + core::global::scale_from_native(delta));
       scroll_view.invalidate();
     }
   });

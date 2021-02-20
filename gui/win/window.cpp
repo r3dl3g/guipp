@@ -407,7 +407,7 @@ namespace gui {
     void window::resize_native (const core::size&) {}
     void window::place_native (const core::rectangle&) {}
 
-    void window::move (const core::point& pt, bool repaint) {
+    void window::position (const core::point& pt, bool repaint) {
       const auto previous = position();
       if (previous != pt) {
         area.set_position(pt);

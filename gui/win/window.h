@@ -105,7 +105,7 @@ namespace gui {
       core::rectangle absolute_place () const;
       core::rectangle client_area () const;
 
-      void move (const core::point&, bool repaint = false);
+      void position (const core::point&, bool repaint = false);
       void resize (const core::size&, bool repaint = true);
       void place (const core::rectangle&, bool repaint = true);
 

@@ -123,18 +123,18 @@ std::vector<core::point> calc_star (const core::point& pt, const core::angle& a)
   const auto ca2 = cos(a.rad() + M_PI / 4);
   const auto sa2 = sin(a.rad() + M_PI / 4);
 
-  core::point::type rca = r * ca;
-  core::point::type rsa = r * sa;
+  core::point::type rca1 = r * ca;
+  core::point::type rsa1 = r * sa;
   core::point::type rca2 = ca2 * r / 3;
   core::point::type rsa2 = sa2 * r / 3;
   return {
-        core::point(x - rsa, y - rca),
+        core::point(x - rsa1, y - rca1),
         core::point(x + rca2, y - rsa2),
-        core::point(x + rca, y - rsa),
+        core::point(x + rca1, y - rsa1),
         core::point(x + rsa2, y + rca2),
-        core::point(x + rsa, y + rca),
+        core::point(x + rsa1, y + rca1),
         core::point(x - rca2, y + rsa2),
-        core::point(x - rca, y + rsa),
+        core::point(x - rca1, y + rsa1),
         core::point(x - rsa2, y - rca2),
   };
 }

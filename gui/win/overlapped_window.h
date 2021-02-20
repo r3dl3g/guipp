@@ -93,7 +93,7 @@ namespace gui {
 
       core::point position () const override;
       core::size client_size () const override;
-      core::native_point surface_offset () const override;
+      core::native_point surface_position () const override;
 
       void shift_focus (bool backward = false);
 

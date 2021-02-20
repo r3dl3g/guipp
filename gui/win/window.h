@@ -98,7 +98,7 @@ namespace gui {
       virtual core::point position () const;
       core::point absolute_position () const;
 
-      virtual core::native_point surface_offset () const;
+      virtual core::native_point surface_position () const;
       core::native_rect surface_area () const;
 
       core::rectangle place () const;

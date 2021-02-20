@@ -174,7 +174,7 @@ namespace gui {
         core::context* cntxt = paint_event::Caller::get_param<0>(e);
         core::native_rect* clip_rect = paint_event::Caller::get_param<1>(e);
 
-        const auto offs = surface_offset();
+        const auto offs = surface_position();
         cntxt->set_offset(offs.x(), offs.y());
 
         bool ret = super::handle_event(e, r);

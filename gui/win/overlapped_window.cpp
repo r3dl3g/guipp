@@ -567,7 +567,7 @@ namespace gui {
 
 #if defined(SHOW_FOCUS) || defined(SHOW_MOUSE_WIN) || defined(SHOW_CAPTURE) || defined(SHOW_CLIP_RECT)
 
-        const auto offs = surface_offset();
+        const auto offs = surface_position();
         cntxt.set_offset(offs.x(), offs.y());
 
 #ifdef SHOW_FOCUS
@@ -596,7 +596,7 @@ namespace gui {
       return native::get_geometry(get_os_window());
     }
     // --------------------------------------------------------------------------
-    core::native_point overlapped_window::surface_offset () const {
+    core::native_point overlapped_window::surface_position () const {
       return core::native_point::zero;
     }
     // --------------------------------------------------------------------------

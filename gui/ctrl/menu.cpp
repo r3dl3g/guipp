@@ -570,6 +570,7 @@ namespace gui {
 
       on_show([&] () {
         capture_pointer(this);
+        invalidate();
       });
 
 //      on_create([&](window*, const core::rectangle&){

@@ -779,6 +779,9 @@ my_main_window::my_main_window ()
   window1.on_size([](const core::size& s) {
     clog::debug() << "Window1 size: " << s;
   });
+  window1.on_paint(draw::paint([] (draw::graphics& g) {
+    g.clear(color::gray);
+  }));
 
 //  table_view.columns.set_selection_filter([] (const ctrl::table::position& cell,
 //                                              const ctrl::table::metric& geo) {

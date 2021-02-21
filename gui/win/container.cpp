@@ -161,10 +161,10 @@ namespace gui {
       if (paint_event::match(e)) {
         core::context* cntxt = paint_event::Caller::get_param<0>(e);
         const core::native_rect* clip_rect = paint_event::Caller::get_param<1>(e);
-        const auto geo = surface_geometry();
-        native::erase(cntxt->drawable(), cntxt->graphics(), geo & *clip_rect, get_window_class().get_background());
 
+        const auto geo = surface_geometry();
         cntxt->set_offset(geo.x(), geo.y());
+        native::erase(cntxt->drawable(), cntxt->graphics(), geo & *clip_rect, get_window_class().get_background());
 
         bool ret = super::handle_event(e, r);
 

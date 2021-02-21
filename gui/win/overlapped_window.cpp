@@ -395,6 +395,7 @@ namespace gui {
 #ifndef BUILD_FOR_ARM
         notify_event(core::WM_LAYOUT_WINDOW, client_geometry());
 #endif
+        invalidate();
       } else if (move_event::match(e)) {
         area.set_position(move_event::Caller::get_param<0>(e));
       } else if (lost_focus_event::match(e)) {
@@ -518,7 +519,7 @@ namespace gui {
         } else {
           invalid_rect |= r;
         }
-        clog::trace() << "invalidate: region " << r << " -> " << invalid_rect << " in window " << *this;
+        clog::trace() << "invalidate: region " << r << " -> " << invalid_rect << " in window " << this;
         native::invalidate(get_os_window(), invalid_rect);
       } else {
         clog::trace() << "ignore invalidate request, state: " << get_state();

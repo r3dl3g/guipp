@@ -353,11 +353,10 @@ namespace gui {
           wa.cursor = type.get_cursor();
         }
 
-        mask |= (CWBitGravity | CWBackingStore | CWColormap);
-        wa.bit_gravity = ForgetGravity;
+        mask |= (CWBackPixmap | CWBitGravity | CWBackingStore | CWColormap);
+        wa.bit_gravity = NorthWestGravity;
         wa.backing_store = NotUseful;
-
-        mask |= CWColormap;
+        wa.background_pixmap = None;
         wa.colormap = XCreateColormap(display, DefaultRootWindow(display), visual, AllocNone);
         const auto nr = core::global::scale_to_native(r);
 

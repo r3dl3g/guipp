@@ -103,9 +103,10 @@ namespace gui {
 
       end_return end (os::window id) {
 #ifdef GUIPP_X11
-        auto display = core::global::get_instance();
-        XSetWindowBackgroundPixmap(display, id, pixel_store);
-        XClearWindow(display, id);
+        native::copy_surface(pixel_store, id, gc, core::native_point::zero, core::native_point::zero, size);
+//        auto display = core::global::get_instance();
+//        XSetWindowBackgroundPixmap(display, id, pixel_store);
+//        XClearWindow(display, id);
 //        XFlush(display);
 # ifdef DEBUG_RECTANGLES
         return {id};

@@ -99,7 +99,9 @@ namespace gui {
       area = r;
 //      cursor_ = type.get_cursor();
       native::register_window_class(type);
-      set_state().created(true);
+      auto s = set_state();
+      s.created(true);
+      s.visible(true);
       notify_event(core::WM_CREATE_WINDOW);
     }
 

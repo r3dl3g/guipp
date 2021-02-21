@@ -60,18 +60,15 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 
-    container::container () {
-      init();
-    }
+    container::container ()
+    {}
 
     container::container (const container& rhs)
-      : super(rhs) {
-      init();
-    }
+      : super(rhs)
+    {}
 
     container::container (container&& rhs) noexcept
       : super(std::move(rhs)) {
-      init();
       for(auto& w : rhs.children) {
         w->set_parent(*this);
       }
@@ -81,15 +78,6 @@ namespace gui {
       for(window* win : children) {
         win->remove_parent();
       }
-    }
-
-    void container::init () {
-      on_paint([&] (core::context* ctx, core::native_rect* r) {
-        native::erase(ctx->drawable(), ctx->graphics(), surface_geometry() & *r, get_window_class().get_background());
-      });
-      on_show([&] () {
-        set_children_visible();
-      });
     }
 
     bool container::is_parent_of (const window& child) const {
@@ -172,10 +160,11 @@ namespace gui {
     bool container::handle_event (const core::event& e, gui::os::event_result& r) {
       if (paint_event::match(e)) {
         core::context* cntxt = paint_event::Caller::get_param<0>(e);
-        core::native_rect* clip_rect = paint_event::Caller::get_param<1>(e);
+        const core::native_rect* clip_rect = paint_event::Caller::get_param<1>(e);
+        const auto geo = surface_geometry();
+        native::erase(cntxt->drawable(), cntxt->graphics(), geo & *clip_rect, get_window_class().get_background());
 
-        const auto offs = surface_position();
-        cntxt->set_offset(offs.x(), offs.y());
+        cntxt->set_offset(geo.x(), geo.y());
 
         bool ret = super::handle_event(e, r);
 

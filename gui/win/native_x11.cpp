@@ -295,7 +295,7 @@ namespace gui {
         }
       }
 
-      core::point get_geometry (os::window wid) {
+      core::point get_position (os::window wid) {
         auto display = core::global::get_instance();
         Window root = DefaultRootWindow(display);
         Window child;
@@ -304,6 +304,16 @@ namespace gui {
           return core::global::scale_from_native(core::native_point{x, y});
         }
         return core::point::zero;
+      }
+
+      core::size client_size (os::window, const core::size& sz) {
+        return sz;
+//        Window root;
+//        int x, y;
+//        unsigned int w, h, bw, d;
+//        x11::check_status(XGetGeometry(core::global::get_instance(), id, &root,
+//                                       &x, &y, &w, &h, &bw, &d));
+//        return core::global::scale_from_native(core::native_rect(0, 0, w, h));
       }
 
       void prepare (overlapped_window& w) {

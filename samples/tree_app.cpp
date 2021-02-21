@@ -25,7 +25,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     client.update_node_list();
 
     main.get_layout().set_center(layout::lay(client));
-    main.set_children_visible();
   });
 
   main.create({50, 50, 800, 600});

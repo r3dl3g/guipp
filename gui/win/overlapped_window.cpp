@@ -214,33 +214,6 @@ namespace gui {
       mouse_window = nullptr;
 
       native::prepare(*this);
-
-      on_size([&] (const core::size& sz) {
-        area.set_size(sz);
-#ifndef BUILD_FOR_ARM
-        notify_event(core::WM_LAYOUT_WINDOW, client_geometry());
-#endif
-      });
-      on_move([&] (const core::point& pt) {
-        area.set_position(pt);
-      });
-      on_key_down<core::keys::tab>([&] () {
-        shift_focus(false);
-      });
-      on_key_down<core::keys::tab, core::state::shift>([&] () {
-        shift_focus(true);
-      });
-      on_lost_focus([&] () {
-        set_mouse_window(nullptr);
-        if (!capture_stack.empty()) {
-          capture_window = nullptr;
-          capture_stack.clear();
-          native::uncapture_pointer(get_os_window());
-        }
-      });
-      on_mouse_leave([&] () {
-        set_mouse_window(nullptr);
-      });
     }
     // --------------------------------------------------------------------------
     void overlapped_window::destroy () {
@@ -413,8 +386,26 @@ namespace gui {
               return mouse_window->handle_event(e, r);
             }
           }
+      } else if (any_key_down_event::match(e) && (any_key_down_event::Caller::get_param<1>(e) == core::keys::tab)) {
+        shift_focus(any_key_down_event::Caller::get_param<0>(e) == core::state::shift);
       } else if (is_key_event(e) && focus_window && (focus_window != this)) {
         focus_window->handle_event(e, r);
+      } else if (size_event::match(e)) {
+        area.set_size(size_event::Caller::get_param<0>(e));
+#ifndef BUILD_FOR_ARM
+        notify_event(core::WM_LAYOUT_WINDOW, client_geometry());
+#endif
+      } else if (move_event::match(e)) {
+        area.set_position(move_event::Caller::get_param<0>(e));
+      } else if (lost_focus_event::match(e)) {
+        set_mouse_window(nullptr);
+        if (!capture_stack.empty()) {
+          capture_window = nullptr;
+          capture_stack.clear();
+          native::uncapture_pointer(get_os_window());
+        }
+      } else if (mouse_leave_event::match(e)) {
+        set_mouse_window(nullptr);
       } else if (show_event::match(e)) {
         set_state().visible(true);
         invalidate();
@@ -593,7 +584,7 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     core::point overlapped_window::position () const {
-      return native::get_geometry(get_os_window());
+      return native::get_position(get_os_window());
     }
     // --------------------------------------------------------------------------
     core::native_point overlapped_window::surface_position () const {
@@ -601,7 +592,7 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     core::size overlapped_window::client_size () const {
-      return super::client_size();
+      return native::client_size(get_os_window(), super::client_size());
     }
     // --------------------------------------------------------------------------
     void overlapped_window::set_focus_window (window* w) {

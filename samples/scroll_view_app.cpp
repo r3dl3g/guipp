@@ -101,7 +101,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     scroll_view.create(main);
     window1.create(scroll_view, core::rectangle(10, 10, 200, 280));
     window2.create(scroll_view, core::rectangle(220, 10, 200, 280));
-    scroll_view.set_children_visible();
   });
 
   main.create({50, 50, 800, 600});

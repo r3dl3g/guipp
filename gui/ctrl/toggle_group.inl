@@ -85,7 +85,6 @@ namespace gui {
         b->create(*this);
         super::get_layout().add([b] (const core::rectangle& r) { b->geometry(r); });
       }
-      super::set_children_visible();
     }
 
     template<orientation_t O, os::color FG, os::color BG, typename B, typename L>

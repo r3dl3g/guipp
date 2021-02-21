@@ -853,7 +853,6 @@ void my_main_window::created_children () {
 
   window1.create(scroll_view, core::rectangle(10, 10, 100, 280));
   window2.create(scroll_view, core::rectangle(120, 10, 200, 280));
-  scroll_view.set_children_visible();
 
   hseparator.create(main, core::rectangle(330, 10, 300, 2));
   vseparator.create(main, core::rectangle(310, 20, 2, 300));
@@ -1041,7 +1040,6 @@ void my_main_window::created_children () {
   switch_button.create(chck_group, "Switch", core::rectangle(0, 40, 100, 20));
   check_box.create(chck_group, "Check", core::rectangle(0, 60, 100, 20));
   chck_group.get_layout().add({&radio_button, &radio_button2, &switch_button, &check_box});
-  chck_group.set_children_visible();
 
   edit1.create(main, "Text zwei drei vier fuenf sechs sieben acht", core::rectangle(290, 350, 100, 25));
 

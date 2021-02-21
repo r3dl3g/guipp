@@ -20,7 +20,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     client.create(main, main.client_geometry());
     client.set_path(sys_fs::current_path().parent_path());
     main.get_layout().set_center(layout::lay(client));
-    main.set_children_visible();
 
     client.on_selection_commit([&] () {
       auto path = client.get_selected_path();

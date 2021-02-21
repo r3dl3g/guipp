@@ -761,9 +761,6 @@ covid19main::covid19main ()
     get_layout().set_bottom_left(layout::lay(edge_layput));
 
     progress.create(*this, "Per 100k");
-
-    set_children_visible();
-
     progress.set_visible(false);
   });
 

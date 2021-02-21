@@ -91,9 +91,13 @@ namespace gui {
         w.handle_event(e, result);
       }
 
-      core::point get_geometry (os::window w) {
+      core::point get_position (os::window w) {
         const auto pt = w->position();
         return core::global::scale_from_native(core::native_point{pt.x(), pt.y()});
+      }
+
+      core::size client_size (os::window id, const core::size&) {
+        return core::global::scale_from_native(core::native_size(id->width(), id->height()));
       }
 
       void prepare(overlapped_window&) {}

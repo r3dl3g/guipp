@@ -75,8 +75,6 @@ namespace gui {
       container (container&&) noexcept ;
 
     private:
-      void init ();
-
       window_list_t children;
     };
 

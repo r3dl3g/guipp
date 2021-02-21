@@ -257,8 +257,6 @@ namespace gui {
       dir_tree.update_node_list();
       dir_tree.select_node(current);
       files.set_path(current);
-
-      top_view.set_children_visible();
     }
 
     void file_save_dialog::show (win::overlapped_window& parent,

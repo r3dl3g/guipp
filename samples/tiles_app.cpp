@@ -48,7 +48,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.on_create([&] () {
     vtileview.create(main);
     htileview.create(main);
-    main.set_children_visible();
   });
 
   main.create({50, 50, 800, 600});

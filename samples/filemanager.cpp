@@ -58,7 +58,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     client.set_split_pos(0.5);
     main.get_layout().set_top(lay(menu));
     main.get_layout().set_center(lay(client));
-    main.set_children_visible();
 
     sys_fs::path current = sys_fs::current_path();
     client.first.set_roots(gui::fs::get_all_root_file_infos());

@@ -79,7 +79,7 @@ namespace gui {
       XShmSegmentInfo shminfo = {0};
 
       size_t sz = bmi.mem_size();
-      shminfo.shmid = shmget(IPC_PRIVATE, sz, IPC_CREAT | 0644);
+      shminfo.shmid = shmget(IPC_PRIVATE, sz, IPC_CREAT | 0777);
       shminfo.readOnly = False;
       shminfo.shmaddr = reinterpret_cast<char*>(shmat(shminfo.shmid, 0, 0));
 
@@ -134,7 +134,7 @@ namespace gui {
         XShmSegmentInfo& shminfo = i->second.first;
         bmi = i->second.second;
         byteptr d = reinterpret_cast<byteptr>(shminfo.shmaddr);
-        data.assing(d, d + bmi.mem_size());
+        data.assign(d, d + bmi.mem_size());
       }
     }
 

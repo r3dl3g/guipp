@@ -47,8 +47,6 @@ namespace gui {
 
       explicit tile_list_traits (const size_type& item_size);
 
-      dim_type get_invisible_size (const core::size& list_size, size_t count) const;
-
       dim_type get_offset_of_index(const core::size& list_size, int idx) const;
 
       int get_index_at_point (const core::rectangle& list_size,
@@ -97,6 +95,8 @@ namespace gui {
       const core::size& get_spacing () const;
 
       std::size_t get_line_count () const;
+
+      core::rectangle get_virtual_geometry () const;
 
       void paint (draw::graphics& graph);
 

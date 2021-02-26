@@ -151,7 +151,7 @@ namespace gui {
     inline void weight_column_list_layout::init_auto_layout () {
       main->on_layout(util::bind_method(this, &weight_column_list_layout::layout));
       main->on_show([&] () {
-        layout(list->content_area(list->client_geometry()));
+        layout(list->client_geometry());
       });
     }
 

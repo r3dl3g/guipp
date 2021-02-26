@@ -78,6 +78,13 @@ namespace gui {
         });
       }
 
+      void list_base::set_scroll_pos (const core::point& pos) {
+        if (data.offset != pos) {
+          data.offset = pos;
+          invalidate();
+        }
+      }
+
       void list_base::on_selection_changed (selection_changed_event::function&& f) {
         on<selection_changed_event>(std::move(f));
       }
@@ -153,12 +160,6 @@ namespace gui {
 
       data.editor.on_selection_cancel(util::bind_method(this, &edit_list::cancel_edit));
       data.editor.on_selection_commit(util::bind_method(this, &edit_list::commit_edit));
-
-      super::scrollbar.on_scroll([&] (core::point::type) {
-        if (data.editor.is_visible()) {
-          data.editor.geometry(super::get_geometry_of_index(super::get_selection()));
-        }
-      });
 
       super::on_selection_changed([&](event_source) {
         commit_edit();

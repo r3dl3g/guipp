@@ -161,10 +161,16 @@ namespace gui {
 
     void scroll_bar::set_page (type p) {
       data.page = p;
+      data.step = std::min(p, data.step);
     }
 
     void scroll_bar::set_min_max_step (type mi, type ma, type s) {
       set_step(s);
+      set_min_max(mi, ma);
+    }
+
+    void scroll_bar::set_min_max_page (type mi, type ma, type s) {
+      set_page(s);
       set_min_max(mi, ma);
     }
 
@@ -175,6 +181,11 @@ namespace gui {
 
     void scroll_bar::set_min_max_step_value (type mi, type ma, type s, type v) {
       set_min_max_step(mi, ma, s);
+      set_value(v, false);
+    }
+
+    void scroll_bar::set_min_max_page_value (type mi, type ma, type s, type v) {
+      set_min_max_page(mi, ma, s);
       set_value(v, false);
     }
 

@@ -225,6 +225,9 @@ namespace gui {
         os::color get_background () const;
         core::native_point get_last_mouse_point () const;
 
+        void set_scroll_pos (const core::point& pos);
+        const core::point& get_scroll_pos () const;
+
         bool is_valid_idx (int idx) const;
         bool is_scroll_bar_enabled () const;
         bool is_moved () const;
@@ -254,6 +257,7 @@ namespace gui {
           std::function<list_data_provider> items;
           int selection;
           int hilite;
+          core::point offset;
           core::native_point last_mouse_point;
           os::color background;
         } data;
@@ -320,8 +324,6 @@ namespace gui {
       void set_item_size (size_type item_size);
       void set_item_size_and_background (size_type item_size, os::color background);
 
-      void invalidate ();
-
       int get_index_at_point (const core::point& pt);
       core::rectangle get_geometry_of_index (int idx);
 
@@ -329,41 +331,23 @@ namespace gui {
       void set_selection (int sel, event_source notify);
       void make_selection_visible ();
 
-      core::size content_size (const core::size& client_sz, bool scrollbar_visible) const;
-      core::size content_size (const core::size& client_sz) const;
-      core::size content_size () const;
-
-      core::rectangle content_area (const core::rectangle&) const;
-      core::rectangle content_area () const;
-
-      void adjust_scroll_bar ();
-      void set_scroll_pos (pos_t pos);
-      pos_t get_scroll_pos () const;
-
-      void enable_scroll_bar (bool enable);
-      bool is_scroll_bar_visible () const;
-
       void clear_selection (event_source notify);
 
       void set_hilite (int sel, bool notify = true);
       void clear_hilite (bool notify = true);
 
-      void handle_wheel (pos_t delta, const core::native_point&);
       void handle_mouse_move (os::key_state keys, const core::native_point& pt);
       void handle_left_btn_up (os::key_state keys, const core::native_point& pt);
+
+      void set_scroll_pos_1 (pos_t pos);
+      pos_t get_scroll_pos_1 () const;
 
     protected:
       pos_t get_list_size () const;
 
-      core::rectangle get_scroll_bar_area (const core::rectangle&) const;
-      void adjust_scroll_bar (const core::rectangle&);
-
-      scroll_bar_type scrollbar;
       traits_type traits;
 
     private:
-      void create_scroll_bar (const core::rectangle&);
-
       void init ();
 
     };
@@ -375,8 +359,6 @@ namespace gui {
       typedef core::size::type size_type;
 
       explicit linear_list_traits (size_type item_size);
-
-      size_type get_invisible_size (const core::size& list_size, size_t count) const;
 
       size_type get_offset_of_index (const core::size& list_size, int idx) const;
 
@@ -419,6 +401,9 @@ namespace gui {
                    bool grab_focus = true);
 
       linear_list (linear_list&& rhs) noexcept ;
+
+      core::rectangle get_virtual_geometry () const;
+      core::size get_scroll_steps () const;
 
       void paint (draw::graphics& graph);
 

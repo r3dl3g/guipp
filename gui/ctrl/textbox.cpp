@@ -205,6 +205,10 @@ namespace gui {
         return core::rectangle(-data.offset, data.virtual_size);
       }
 
+      core::size textbox_base::get_scroll_steps () const {
+        return {data.font.get_text_size("O").width(), data.font.line_height()};
+      }
+
       void textbox_base::make_selection_visible () {
         if (data.cursor_pos >= position::zero) {
           const auto old_pos = data.offset;

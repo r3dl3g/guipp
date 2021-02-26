@@ -70,7 +70,7 @@ namespace gui {
 
       core::size::type column_list_layout::get_available_width () const {
         if (list) {
-          return list->content_size(list->client_size()).width();
+          return list->client_size().width();
         }
         return 0;
       }

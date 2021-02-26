@@ -679,14 +679,14 @@ my_main_window::my_main_window ()
   });
 
   scroll_check_box.on_state_changed([&] (bool on) {
-    list1.enable_scroll_bar(on);
-    list2.enable_scroll_bar(on);
+    list1.enable(on);
+    list2.enable(on);
   });
 
   vscroll.on_scroll([&](core::point::type pos) {
-    list1.set_scroll_pos(pos);
-    list2.set_scroll_pos(pos);
-    list3.set_scroll_pos(pos);
+    list1.set_scroll_pos_1(pos);
+    list2.set_scroll_pos_1(pos);
+    list3.set_scroll_pos_1(pos);
     editor.vscroll.set_value(pos);
     textbox.vscroll.set_value(pos);
   });

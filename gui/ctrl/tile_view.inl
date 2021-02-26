@@ -101,14 +101,6 @@ namespace gui {
     {}
 
     template<orientation_t V>
-    inline auto tile_list_traits<V>::get_invisible_size (const core::size& list_size,
-                                                         size_t count) const -> dim_type {
-      const auto ipl = get_items_per_line(list_size);
-      const auto lines = (ipl > 0 ? core::div_ceil(count, ipl) : 1);
-      return std::max(dim_type(0), ((get_line_size()) * lines + get_line_border() * 2) - super::get_1(list_size));
-    }
-
-    template<orientation_t V>
     int tile_list_traits<V>::get_index_at_point (const core::rectangle& list_area,
                                                  const core::point& pt,
                                                  dim_type scroll_pos,
@@ -188,8 +180,13 @@ namespace gui {
     }
 
     template<orientation_t V>
+    inline core::rectangle basic_tile_view<V>::get_virtual_geometry () const {
+      return super::traits.get_virtual_geometry(super::client_size(), get_line_count());
+    }
+
+    template<orientation_t V>
     core::rectangle basic_tile_view<V>::get_full_place_of_index (int idx) {
-      const core::rectangle list_area = super::content_area(super::client_geometry());
+      const core::rectangle list_area = super::client_geometry();
 
       const auto per_line = super::traits.get_items_per_line(list_area.size());
       const auto line = per_line > 0 ? static_cast<std::size_t>(idx) / per_line : 0;
@@ -200,14 +197,14 @@ namespace gui {
       const auto pos = list_area.position();
 
       core::rectangle place;
-      super::traits.set_1(place, super::traits.get_1(pos) + lsz * line - super::get_scroll_pos() + super::traits.get_line_border(), lsz + 1);
+      super::traits.set_1(place, super::traits.get_1(pos) + lsz * line - super::get_scroll_pos_1() + super::traits.get_line_border(), lsz + 1);
       super::traits.set_2(place, super::traits.get_2(pos) + isz * offs + super::traits.get_item_border(), isz + 1);
       return place;
     }
 
     template<orientation_t V>
     void basic_tile_view<V>::paint (draw::graphics& graph) {
-      const core::rectangle area = super::content_area(super::client_geometry());
+      const core::rectangle area = super::client_geometry();
 //      draw::clip clp(graph, area);
 
       draw::brush back_brush(super::get_background());
@@ -220,7 +217,7 @@ namespace gui {
         const auto list_max = super::traits.get_1(area.x2y2());
         const auto isp = super::traits.get_item_spacing();
         const auto lsp = super::traits.get_line_spacing();
-        const auto scp = super::get_scroll_pos();
+        const auto scp = super::get_scroll_pos_1();
         const auto lb = super::traits.get_line_border();
         const int per_line = static_cast<int>(super::traits.get_items_per_line(area.size()));
 
@@ -340,13 +337,13 @@ namespace gui {
     template<orientation_t V>
     void basic_tile_view<V>::set_border (const core::size& sz) {
       super::traits.border = sz;
-      super::adjust_scroll_bar();
+      super::invalidate();
     }
     
     template<orientation_t V>
     void basic_tile_view<V>::set_spacing (const core::size& sz) {
       super::traits.spacing = sz;
-      super::adjust_scroll_bar();
+      super::invalidate();
     }
 
     template<orientation_t V>

@@ -106,8 +106,10 @@ namespace gui {
       void set_value(type, bool notify = true);
 
       void set_min_max_step (type, type, type);
+      void set_min_max_page (type, type, type);
       void set_min_max_step_page (type, type, type, type);
       void set_min_max_step_value (type, type, type, type);
+      void set_min_max_page_value (type, type, type, type);
 
       void handle_wheel (core::point::type delta, const core::native_point&);
 

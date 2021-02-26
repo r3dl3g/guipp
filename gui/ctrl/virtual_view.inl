@@ -95,6 +95,9 @@ namespace gui {
       edge.create(*this, layout::scroll_view::get_edge_area(r));
       view.create(*this, r);
       view.set_visible();
+      auto steps = view.get_scroll_steps();
+      vscroll.set_step(steps.height());
+      hscroll.set_step(steps.width());
     }
 
   } // namespace ctrl

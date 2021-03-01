@@ -85,6 +85,41 @@ namespace gui {
         }
       }
 
+      void list_base::clear_selection (event_source notify) {
+        if (data.selection != -1) {
+          data.selection = -1;
+          if (notify != event_source::logic) {
+
+            notify_selection_changed(notify);
+            invalidate();
+          }
+        }
+      }
+
+      void list_base::set_hilite (int sel, bool notify) {
+        int new_hilite = std::max(-1, sel);
+        if (new_hilite >= static_cast<int>(get_count())) {
+          new_hilite = -1;
+        }
+        if (get_hilite() != new_hilite) {
+          data.hilite = new_hilite;
+          if (notify) {
+            notify_hilite_changed(new_hilite != -1);
+            invalidate();
+          }
+        }
+      }
+
+      void list_base::clear_hilite (bool notify) {
+        if (get_hilite() != -1) {
+          data.hilite = -1;
+          if (notify) {
+            notify_hilite_changed(false);
+            invalidate();
+          }
+        }
+      }
+
       void list_base::on_selection_changed (selection_changed_event::function&& f) {
         on<selection_changed_event>(std::move(f));
       }
@@ -180,7 +215,7 @@ namespace gui {
         auto cell = super::get_selection();
         auto area = super::get_geometry_of_index(cell);
         if (!data.editor.is_valid()) {
-          data.editor.create(*this, area);
+          data.editor.create(*get_parent(), area);
         }
         data.editor.geometry(area);
         data.editor.set_text(data.data_source(cell));

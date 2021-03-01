@@ -643,6 +643,10 @@ namespace gui {
 #endif // GUIPP_QT
     }
 
+    graphics& graphics::erase (const core::rectangle& r, os::color color) {
+      return draw(rectangle(r), color, color);
+    }
+
     core::rectangle graphics::area () const {
       return core::global::scale_from_native(native_area());
     }

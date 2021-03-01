@@ -72,6 +72,7 @@ namespace gui {
       ~graphics ();
 
       graphics& clear (os::color color);
+      graphics& erase (const core::rectangle& r, os::color color);
       graphics& draw_pixel (const core::native_point& pt,
                                   os::color color);
 

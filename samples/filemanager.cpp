@@ -60,13 +60,14 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     main.get_layout().set_center(lay(client));
 
     sys_fs::path current = sys_fs::current_path();
-    client.first.set_roots(gui::fs::get_all_root_file_infos());
+    auto& first = client.first.view;
+    first.set_roots(gui::fs::get_all_root_file_infos());
     for (auto next = current; next.has_root_path() && (next != next.root_path()); next = next.parent_path()) {
-      client.first.add_open_node(next);
+      first.add_open_node(next);
     }
-    client.first.add_open_node(current.root_path());
-    client.first.update_node_list();
-    client.first.select_node(current);
+    first.add_open_node(current.root_path());
+    first.update_node_list();
+    first.select_node(current);
     client.second.set_path(current);
     client.init([] (container&, const sys_fs::path& path) {
       if (sys_fs::is_regular_file(path)) {

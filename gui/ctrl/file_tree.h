@@ -178,8 +178,9 @@ namespace gui {
                                    sys_fs::file_time_type> super;
         typedef typename super::row_type row_type;
         typedef typename super::drawer_type drawer_type;
+        typedef vertical_scrollable_list list_type;
 
-        file_list_row_data (const std::vector<fs::file_info>&, const vertical_list&);
+        file_list_row_data (const std::vector<fs::file_info>&, const list_type&);
 
         std::size_t size () const override;
 
@@ -187,7 +188,7 @@ namespace gui {
 
       private:
         const std::vector<fs::file_info>& data;
-        const vertical_list& list;
+        const list_type& list;
 
       };
 

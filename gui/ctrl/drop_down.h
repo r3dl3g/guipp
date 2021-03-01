@@ -72,7 +72,7 @@ namespace gui {
     class GUIPP_CTRL_EXPORT drop_down_list : public push_button {
     public:
       typedef push_button super;
-      typedef vertical_list list_type;
+      typedef vertical_scrollable_list list_type;
 
       explicit drop_down_list (core::size::type item_size = 20,
                                os::color background = color::white);

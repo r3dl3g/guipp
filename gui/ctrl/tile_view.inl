@@ -176,12 +176,31 @@ namespace gui {
 
     template<orientation_t V>
     inline std::size_t basic_tile_view<V>::get_line_count () const {
-      return super::traits.get_line_count(super::get_count(), super::content_size(super::client_size(), true));
+      return super::traits.get_line_count(super::get_count(), super::client_size());
     }
 
     template<orientation_t V>
-    inline core::rectangle basic_tile_view<V>::get_virtual_geometry () const {
-      return super::traits.get_virtual_geometry(super::client_size(), get_line_count());
+    inline core::rectangle basic_tile_view<V>::get_virtual_geometry (const core::rectangle& r) const {
+//      const core::size scsz{ctrl::scroll_bar::get_scroll_bar_width(), ctrl::scroll_bar::get_scroll_bar_width()};
+
+      const auto lc = super::traits.get_line_count(super::get_count(), r.size()/* - scsz*/);
+      const auto isp = super::traits.get_item_spacing();
+      const auto lsz = super::traits.get_line_size();
+      const auto ib = super::traits.get_item_border() * 2;
+      const auto need_1 = (lsz + isp) * lc - isp + ib;
+      const auto need_2 = super::traits.get_item_dimension() + ib;
+
+      core::rectangle place;
+      super::traits.set_1(place, 0, need_1);
+      super::traits.set_2(place, 0, need_2);
+
+      return place;
+    }
+
+    template<orientation_t V>
+    core::size basic_tile_view<V>::get_scroll_steps () const {
+      const core::size isp{super::traits.get_item_spacing()};
+      return super::get_item_size() + isp;
     }
 
     template<orientation_t V>

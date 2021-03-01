@@ -28,20 +28,20 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   layout_main_window<vertical_adaption<4, 4>> main;
 
-  horizontal_tile_view htileview;
-  vertical_tile_view vtileview;
+  horizontal_scrollable_tile_view htileview;
+  vertical_scrollable_tile_view vtileview;
 
-  htileview.set_item_size({ 110, 110 });
-  htileview.set_background(color::very_very_light_gray);
-  htileview.set_border({ 10, 20 });
-  htileview.set_spacing({ 5, 5 });
-  htileview.set_data(tile_drawer<97>());
+  htileview->set_item_size({ 110, 33 });
+  htileview->set_background(color::very_very_light_gray);
+  htileview->set_border({ 10, 20 });
+  htileview->set_spacing({ 5, 5 });
+  htileview->set_data(tile_drawer<97>());
 
-  vtileview.set_item_size({ 110, 110 });
-  vtileview.set_background(color::very_very_light_gray);
-  vtileview.set_border({ 10, 20 });
-  vtileview.set_spacing({ 5, 5 });
-  vtileview.set_data(tile_drawer<97>());
+  vtileview->set_item_size({ 110, 33 });
+  vtileview->set_background(color::very_very_light_gray);
+  vtileview->set_border({ 10, 20 });
+  vtileview->set_spacing({ 5, 5 });
+  vtileview->set_data(tile_drawer<97>());
 
   main.get_layout().add({lay(htileview), lay(vtileview)});
 

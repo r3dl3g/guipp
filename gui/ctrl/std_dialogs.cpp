@@ -215,7 +215,7 @@ namespace gui {
                                    const core::rectangle& rect,
                                    std::function<file_selected> action) {
 
-      auto& dir_tree = content_view.first;
+      auto& dir_tree = content_view.first.view;
       auto& files = content_view.second;
 
       content_view.init([&, action] (win::overlapped_window& dlg, const sys_fs::path& path) {
@@ -224,7 +224,7 @@ namespace gui {
         action(dlg, path);
       });
 
-      files.list.on_selection_changed([&] (event_source) {
+      files.list->on_selection_changed([&] (event_source) {
         input_line.set_text(files.get_selected_path().filename().string());
       });
 

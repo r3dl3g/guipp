@@ -142,17 +142,17 @@ namespace gui {
     template<typename T>
     void dir_file_view<T>::init (std::function<file_selected> action,
                                  std::function<fs::filter_fn> filter) {
-      super::first.on_selection_changed([&,filter](event_source) {
-        int idx = super::first.get_selection();
+      super::first->on_selection_changed([&,filter](event_source) {
+        int idx = super::first->get_selection();
         if (idx > -1) {
-          super::second.set_path(super::first.get_item(idx).path, filter);
+          super::second.set_path(super::first->get_item(idx).path, filter);
         }
       });
-      super::second.list.on_selection_commit([&, action, filter] () {
+      super::second.list->on_selection_commit([&, action, filter] () {
         auto path = super::second.get_selected_path();
         if (sys_fs::is_directory(path)) {
-          super::first.open_node(path.parent_path());
-          super::first.select_node(path);
+          super::first->open_node(path.parent_path());
+          super::first->select_node(path);
           super::second.set_path(path, filter);
         } else {
           action(super::get_overlapped_window(), path);
@@ -169,7 +169,7 @@ namespace gui {
                                            const core::rectangle& rect,
                                            std::function<file_selected> action,
                                            std::function<fs::filter_fn> filter) {
-      auto& dir_tree = super::content_view.first;
+      auto& dir_tree = super::content_view.first.view;
       auto& file_list = super::content_view.second;
 
       super::content_view.init([&, action] (win::overlapped_window& dlg, const sys_fs::path& path) {
@@ -180,12 +180,12 @@ namespace gui {
 
       super::create(parent, title, rect, [&, action] (win::overlapped_window& dlg, int btn) {
         if (1 == btn) {
-          if (super::content_view.second.list.get_selection() > -1) {
+          if (super::content_view.second.list->get_selection() > -1) {
             action(dlg, super::content_view.second.get_selected_path());
           } else {
-            int idx = super::content_view.first.get_selection();
+            int idx = super::content_view.first->get_selection();
             if (idx > -1) {
-              action(dlg, super::content_view.first.get_item(idx).path);
+              action(dlg, super::content_view.first->get_item(idx).path);
             }
           }
         }

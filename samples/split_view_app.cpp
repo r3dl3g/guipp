@@ -17,10 +17,10 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   layout_main_window<border::layouter</*50, 50, 50, 50*/>> main;
 
   typedef ctrl::edit_list list1_t;
-  typedef ctrl::vertical_list list2_t;
+  typedef ctrl::vertical_scrollable_list list2_t;
   typedef ctrl::vertical_split_view<list1_t, list2_t> left_split_view_t;
 
-  typedef ctrl::horizontal_list list3_t;
+  typedef ctrl::horizontal_scrollable_list list3_t;
   typedef ctrl::column_list_t<layout::simple_column_list_layout, std::string, int, double> list4_t;
   typedef ctrl::vertical_split_view<list3_t, list4_t> right_split_view_t;
 
@@ -46,9 +46,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     data[idx] = s;
   });
 
-  list2.set_data(ctrl::indirect_list_data<std::string>(data));
-
-  list3.set_data(ctrl::const_list_data<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12});
+  list2->set_data(ctrl::indirect_list_data<std::string>(data));
+  list3->set_data(ctrl::const_list_data<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12});
 
   auto columns = {
     layout::simple_column_info{ 100, text_origin_t::vcenter_left, 20 },

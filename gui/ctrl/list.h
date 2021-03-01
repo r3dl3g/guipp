@@ -26,8 +26,7 @@
 #include <gui/core/orientation_traits.h>
 #include <gui/core/list_state.h>
 #include <gui/draw/brush.h>
-#include <gui/win/container.h>
-#include <gui/ctrl/scroll_bar.h>
+#include <gui/ctrl/virtual_view.h>
 #include <gui/ctrl/edit.h>
 #include <gui/ctrl/look/control.h>
 
@@ -204,9 +203,9 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class GUIPP_CTRL_EXPORT list_base : public win::container {
+      class GUIPP_CTRL_EXPORT list_base : public control {
       public:
-        typedef win::container super;
+        typedef control super;
         typedef core::size::type pos_t;
 
         explicit list_base (os::color background = color::white,
@@ -219,7 +218,12 @@ namespace gui {
         std::size_t get_count () const;
         int get_selection () const;
         bool has_selection () const;
+        void clear_selection (event_source notify);
+
         int get_hilite () const;
+        void set_hilite (int sel, bool notify = true);
+        void clear_hilite (bool notify = true);
+
         item_state get_item_state (int idx) const;
 
         os::color get_background () const;
@@ -319,8 +323,9 @@ namespace gui {
 
       void set_data (const std::function<list_data_provider>& dta);
 
-      size_type get_item_size () const;
       core::size::type get_item_dimension () const;
+
+      size_type get_item_size () const;
       void set_item_size (size_type item_size);
       void set_item_size_and_background (size_type item_size, os::color background);
 
@@ -330,11 +335,6 @@ namespace gui {
       bool try_to_select (int sel, event_source notify);
       void set_selection (int sel, event_source notify);
       void make_selection_visible ();
-
-      void clear_selection (event_source notify);
-
-      void set_hilite (int sel, bool notify = true);
-      void clear_hilite (bool notify = true);
 
       void handle_mouse_move (os::key_state keys, const core::native_point& pt);
       void handle_left_btn_up (os::key_state keys, const core::native_point& pt);
@@ -402,7 +402,7 @@ namespace gui {
 
       linear_list (linear_list&& rhs) noexcept ;
 
-      core::rectangle get_virtual_geometry () const;
+      core::rectangle get_virtual_geometry (const core::rectangle&) const;
       core::size get_scroll_steps () const;
 
       void paint (draw::graphics& graph);
@@ -427,7 +427,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     typedef linear_list<orientation_t::horizontal> horizontal_list;
     typedef linear_list<orientation_t::vertical> vertical_list;
-    typedef vertical_list list;
+    typedef virtual_view<horizontal_list> horizontal_scrollable_list;
+    typedef virtual_view<vertical_list> vertical_scrollable_list;
+    typedef vertical_scrollable_list list;
 
     // --------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT edit_list : public vertical_list {

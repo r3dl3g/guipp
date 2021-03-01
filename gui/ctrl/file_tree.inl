@@ -220,8 +220,8 @@ namespace gui {
     template<typename T>
     inline void file_column_list<T>::set_path (const sys_fs::path& dir, std::function<fs::filter_fn> filter) {
       current_dir = T::sub_nodes(dir, filter);
-      super::list.clear_selection(event_source::logic);
-      super::list.set_scroll_pos(core::point::zero);
+      super::list->clear_selection(event_source::logic);
+      super::list->set_scroll_pos(core::point::zero);
       if (order == sort_order::none) {
         order = sort_order::name_up;
       }
@@ -234,7 +234,7 @@ namespace gui {
 
     template<typename T>
     inline sys_fs::path file_column_list<T>::get_selected_path () const {
-      int selection = super::list.get_selection();
+      int selection = super::list->get_selection();
       if (selection > -1) {
         return current_dir[selection].path;
       }

@@ -97,7 +97,7 @@ private:
   typedef basic_label<text_origin_t::vcenter_left, frame::sunken_relief> StatusLabel;
   StatusLabel labels[4];
 
-  vertical_list left_list;
+  list left_list;
 
   typedef tree_view simple_tree;
   typedef ctrl::sorted_file_tree file_tree;
@@ -447,15 +447,15 @@ void my_main_window::onCreated () {
   };
 
   left_list.create(*this);
-  left_list.set_data(mylist_data());
-  left_list.on_hilite_changed([&](bool){
-    labels[0].set_text(ostreamfmt("list item " << left_list.get_hilite() << " hilited"));
+  left_list->set_data(mylist_data());
+  left_list->on_hilite_changed([&](bool){
+    labels[0].set_text(ostreamfmt("list item " << left_list->get_hilite() << " hilited"));
   });
-  left_list.on_selection_changed([&](event_source){
-    labels[0].set_text(ostreamfmt("list item " << left_list.get_hilite() << " selected"));
+  left_list->on_selection_changed([&](event_source){
+    labels[0].set_text(ostreamfmt("list item " << left_list->get_hilite() << " selected"));
   });
-  left_list.on_selection_commit([&](){
-    labels[0].set_text(ostreamfmt("list item " << left_list.get_hilite() << " commited"));
+  left_list->on_selection_commit([&](){
+    labels[0].set_text(ostreamfmt("list item " << left_list->get_hilite() << " commited"));
   });
 
   client_view.create(*this, core::rectangle(100, 40, 100, 100));

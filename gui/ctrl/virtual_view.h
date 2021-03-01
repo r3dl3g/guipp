@@ -66,8 +66,14 @@ namespace gui {
 
       virtual_view ();
 
+      template<typename ... Args>
+      virtual_view (const Args& ... args);
+
       void create (win::container& parent,
                    const core::rectangle& r = core::rectangle::def);
+
+      view_type* operator-> ();
+      const view_type* operator-> () const;
 
       view_type             view;
       horizontal_scroll_bar hscroll;
@@ -75,6 +81,7 @@ namespace gui {
       client_control<>      edge;
 
     private:
+      void init ();
       void handle_create ();
 
     };

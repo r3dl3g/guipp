@@ -96,7 +96,8 @@ namespace gui {
 
       std::size_t get_line_count () const;
 
-      core::rectangle get_virtual_geometry () const;
+      core::rectangle get_virtual_geometry (const core::rectangle&) const;
+      core::size get_scroll_steps () const;
 
       void paint (draw::graphics& graph);
 
@@ -123,7 +124,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     typedef basic_tile_view<orientation_t::horizontal> horizontal_tile_view;
     typedef basic_tile_view<orientation_t::vertical> vertical_tile_view;
-    typedef vertical_tile_view tile_view;
+    typedef virtual_view<horizontal_tile_view> horizontal_scrollable_tile_view;
+    typedef virtual_view<vertical_tile_view> vertical_scrollable_tile_view;
+    typedef vertical_scrollable_tile_view tile_view;
 
   } // ctrl
 

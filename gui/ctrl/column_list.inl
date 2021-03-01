@@ -449,7 +449,7 @@ namespace gui {
     template<typename L, typename ... A>
     void column_list_t<L, A ...>::set_data (std::function<column_list_data_provider> data) {
       data().set_layout(&super::get_column_layout());
-      super::list.set_data(data);
+      super::list->set_data(data);
     }
 
     // --------------------------------------------------------------------------

@@ -42,7 +42,7 @@ namespace gui {
 
       class GUIPP_CTRL_EXPORT column_list_layout {
       public:
-        typedef ctrl::vertical_list list_type;
+        typedef ctrl::vertical_scrollable_list list_type;
 
         explicit column_list_layout (win::window* main);
         column_list_layout (win::window* main, const column_list_layout& rhs);
@@ -153,7 +153,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       class GUIPP_CTRL_EXPORT base_column_list_layout {
       public:
-        typedef ctrl::vertical_list list_type;
+        typedef ctrl::vertical_scrollable_list list_type;
 
         void layout (const core::rectangle& r) const;
         void set_header_and_list (win::window* header, list_type* list);
@@ -236,7 +236,7 @@ namespace gui {
         typedef Layout layout_type;
         typedef win::layout_container<layout::detail::base_column_list_layout> super;
         typedef column_list_header<layout_type> header_type;
-        typedef vertical_list list_type;
+        typedef vertical_scrollable_list list_type;
         typedef no_erase_window_class<base_column_list> clazz;
 
         explicit base_column_list (core::size::type item_size = list_defaults<>::item_size,

@@ -70,7 +70,7 @@ namespace gui {
         std::string get_text_in_range (const range&) const;
         std::string get_selected_text () const;
 
-        core::rectangle get_virtual_geometry () const;
+        core::rectangle get_virtual_geometry (const core::rectangle&) const;
         core::size get_scroll_steps () const;
 
         void make_selection_visible ();

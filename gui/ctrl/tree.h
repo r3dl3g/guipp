@@ -190,6 +190,7 @@ namespace gui {
     } // tree
 
     typedef tree::basic_tree<tree::default_node_info> tree_view;
+    typedef virtual_view<tree_view> scrollable_tree_view;
 
   } // ctrl
 

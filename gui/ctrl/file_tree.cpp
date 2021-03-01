@@ -347,7 +347,7 @@ namespace gui {
       }
 
       file_list_row_data::file_list_row_data (const std::vector<fs::file_info>& dir,
-                                              const vertical_list& list)
+                                              const list_type& list)
         : super(
           [] (const gui::tree::tree_icon* const& img, draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t) {
             if (img) {
@@ -383,7 +383,7 @@ namespace gui {
       }
 
       auto file_list_row_data::at (std::size_t idx) const -> row_type {
-        bool selected = (idx == list.get_selection());
+        bool selected = (idx == list->get_selection());
         const fs::file_info& f = data[idx];
 
         const gui::tree::tree_icon& img = gui::tree::standard_icon(f.is_directory(), false, selected);

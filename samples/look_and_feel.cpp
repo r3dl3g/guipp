@@ -112,8 +112,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   std::array<horizontal_scroll_bar, COLUMNS> scroll_bars;
   std::array<drop_down_list, COLUMNS> drop_downs;
 
-  std::array<vertical_list, 2> vlist;
-  std::array<horizontal_list, 2> hlist;
+  std::array<vertical_scrollable_list, 2> vlist;
+  std::array<horizontal_scrollable_list, 2> hlist;
   std::array<edit_list, 2> elist;
   std::array<tree_view, 2> trees;
 
@@ -144,8 +144,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   std::vector<std::string> edata;
   edata.insert(edata.end(), { "Eins", "Zwei", "Drei", "View", "Fünf", "Sechs", "Sieben", "Acht", "Neun", "Zehn", "Fuß" });
 
-  vlist[0].set_data(ctrl::indirect_list_data<std::string>(edata));
-  vlist[1].set_data(ctrl::indirect_list_data<std::string>(edata));
+  vlist[0]->set_data(ctrl::indirect_list_data<std::string>(edata));
+  vlist[1]->set_data(ctrl::indirect_list_data<std::string>(edata));
   elist[0].set_data(ctrl::indirect_list_data<std::string>(edata));
   elist[1].set_data(ctrl::indirect_list_data<std::string>(edata));
 
@@ -178,8 +178,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   trees[0].on_selection_changed([&](event_source src){
     trees[1].set_selection(trees[0].get_selection(), src);
   });
-  vlist[0].on_selection_changed([&](event_source src){
-    vlist[1].set_selection(vlist[0].get_selection(), src);
+  vlist[0]->on_selection_changed([&](event_source src){
+    vlist[1]->set_selection(vlist[0]->get_selection(), src);
   });
 
   std::array<label, 2> bheader_labels;
@@ -190,8 +190,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     third_view.get_layout().add(layout::lay(bheader_layouts[i]));
   }
 
-  hlist[0].on_selection_changed([&](event_source src){
-    hlist[1].set_selection(hlist[0].get_selection(), src);
+  hlist[0]->on_selection_changed([&](event_source src){
+    hlist[1]->set_selection(hlist[0]->get_selection(), src);
   });
 
   i = 0;
@@ -203,8 +203,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   bheader_labels[i++].set_text("Disabled");
 
   typedef ctrl::const_list_data<std::string, default_list_item_drawer<std::string, text_origin_t::center>> hlist_data_t;
-  hlist[0].set_data(hlist_data_t({"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}));
-  hlist[1].set_data(hlist_data_t({"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"}));
+  hlist[0]->set_data(hlist_data_t({"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}));
+  hlist[1]->set_data(hlist_data_t({"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"}));
 
   auto invalidate_lists = [&] () {
     vlist[0].invalidate();

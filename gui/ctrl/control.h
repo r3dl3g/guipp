@@ -239,6 +239,9 @@ namespace gui {
     inline void client_control<B>::create (win::container& parent,
                                            const core::rectangle& r) {
       super::create(clazz::get(), parent, r);
+      on_paint(draw::paint([&] (draw::graphics& g) {
+        g.erase(super::client_geometry(), B);
+      }));
     }
 
   } // ctrl

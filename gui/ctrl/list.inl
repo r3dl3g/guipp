@@ -159,56 +159,8 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    inline auto basic_list<V, T>::get_item_size () const -> size_type {
-      return traits.item_size;
-    }
-
-    template<orientation_t V, typename T>
-    inline core::size::type basic_list<V, T>::get_item_dimension () const {
-      return traits.get_item_dimension();
-    }
-
-    template<orientation_t V, typename T>
     inline auto basic_list<V, T>::get_scroll_pos_1 () const -> pos_t {
       return traits.get_1(super::get_scroll_pos());
-    }
-
-    template<orientation_t V, typename T>
-    void basic_list<V, T>::clear_selection (event_source notify) {
-      if (data.selection != -1) {
-        data.selection = -1;
-        if (notify != event_source::logic) {
-
-          notify_selection_changed(notify);
-          super::invalidate();
-        }
-      }
-    }
-
-    template<orientation_t V, typename T>
-    void basic_list<V, T>::set_hilite (int sel, bool notify) {
-      int new_hilite = std::max(-1, sel);
-      if (new_hilite >= static_cast<int>(super::get_count())) {
-        new_hilite = -1;
-      }
-      if (super::get_hilite() != new_hilite) {
-        data.hilite = new_hilite;
-        if (notify) {
-          super::notify_hilite_changed(new_hilite != -1);
-          super::invalidate();
-        }
-      }
-    }
-
-    template<orientation_t V, typename T>
-    void basic_list<V, T>::clear_hilite (bool notify) {
-      if (super::get_hilite() != -1) {
-        data.hilite = -1;
-        if (notify) {
-          super::notify_hilite_changed(false);
-          super::invalidate();
-        }
-      }
     }
 
     template<orientation_t V, typename T>
@@ -258,6 +210,16 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
+    inline core::size::type basic_list<V, T>::get_item_dimension () const {
+      return traits.get_item_dimension();
+    }
+
+    template<orientation_t V, typename T>
+    inline auto basic_list<V, T>::get_item_size () const -> size_type{
+      return traits.item_size;
+    }
+
+    template<orientation_t V, typename T>
     inline void basic_list<V, T>::set_item_size (size_type item_size) {
       traits.item_size = item_size;
     }
@@ -272,7 +234,7 @@ namespace gui {
     inline int basic_list<V, T>::get_index_at_point (const core::point& pt) {
       auto rect = super::client_geometry();
       if (rect.is_inside(pt)) {
-        return traits.get_index_at_point(rect, pt - rect.position(), get_scroll_pos_1(), get_count());
+        return traits.get_index_at_point(rect, pt - rect.position(), get_scroll_pos_1(), super::get_count());
       }
       return -1;
     }
@@ -300,7 +262,7 @@ namespace gui {
 
     template<orientation_t V, typename T>
     bool basic_list<V, T>::try_to_select (int sel, event_source notify) {
-      if ((sel >= 0) && (sel < get_count())) {
+      if ((sel >= 0) && (sel < super::get_count())) {
         set_selection(sel, notify);
         return true;
       }
@@ -325,7 +287,8 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    void basic_list<V, T>::set_scroll_pos_1 (pos_t value) {
+    void basic_list<V, T>::set_scroll_pos_1 (pos_t pos) {
+      auto value = std::max(pos_t(0), std::min(pos, static_cast<pos_t>(get_item_dimension() * get_count() - traits.get_1(client_size()))));
       auto pt = super::get_scroll_pos();
       traits.set_1(pt, value);
       super::set_scroll_pos(pt);
@@ -384,10 +347,10 @@ namespace gui {
     }
 
     template<orientation_t V>
-    inline core::rectangle linear_list<V>::get_virtual_geometry () const {
+    inline core::rectangle linear_list<V>::get_virtual_geometry (const core::rectangle&) const {
       core::rectangle place;
-      super::traits.set_1(place, -super::traits.get_1(super::data.offset), super::get_item_dimension() * super::get_count());
-      super::traits.set_2(place, -super::traits.get_2(super::data.offset), 1);
+      super::traits.set_1(place, 0, super::get_item_dimension() * super::get_count());
+      super::traits.set_2(place, 0, 1);
       return place;
     }
 
@@ -411,7 +374,9 @@ namespace gui {
       const auto last = super::get_count();
       const auto first = static_cast<decltype(last)>(super::get_scroll_pos_1() / super::get_item_dimension());
 
-      super::traits.set_1(place, super::traits.get_1(area.top_left()), super::get_item_dimension());
+      super::traits.set_1(place, -super::traits.get_1(super::get_scroll_pos()) + super::get_item_dimension() * first, super::get_item_dimension());
+      const auto sp2 = super::traits.get_2(super::get_scroll_pos());
+      super::traits.set_2(place, -sp2, super::traits.get_2(area.size()) + sp2);
 
       for (auto idx = first; (idx < last) && (super::traits.get_1(place.top_left()) < list_sz); ++idx) {
         super::draw_item(idx, graph, place, back_brush, super::get_item_state(static_cast<int>(idx)));

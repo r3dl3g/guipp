@@ -96,7 +96,7 @@ namespace gui {
       super::on_clicked(util::bind_method(this, &drop_down_list::toggle_popup));
       super::on_wheel<orientation_t::vertical>(util::bind_method(this, &drop_down_list::handle_wheel));
       super::on_any_key_down(util::bind_method(this, &drop_down_list::handle_key));
-      data.items.on_selection_changed(util::bind_method(this, &drop_down_list::handle_selection_changed));
+      data.items->on_selection_changed(util::bind_method(this, &drop_down_list::handle_selection_changed));
     }
 
     void drop_down_list::paint (draw::graphics& graph) {
@@ -107,11 +107,11 @@ namespace gui {
                              get_state(),
                              is_popup_visible());
       if (data.selection > -1) {
-        data.items.draw_item(data.selection,
-                             graph,
-                             layout::drop_down::label_geometry(area),
-                             data.items.get_background(),
-                             item_state(is_focused(), false, !is_enabled()));
+        data.items->draw_item(data.selection,
+                                  graph,
+                                  layout::drop_down::label_geometry(area),
+                                  data.items->get_background(),
+                                  item_state(is_focused(), false, !is_enabled()));
       }
     }
 
@@ -122,7 +122,7 @@ namespace gui {
         if (key == core::keys::tab) {
           hide_popup();
         }
-        data.items.handle_key(state, key, t);
+        data.items->handle_key(state, key, t);
       } else {
         switch (key) {
         case core::keys::down:
@@ -134,7 +134,7 @@ namespace gui {
     }
 
     void drop_down_list::handle_selection_changed (event_source src) {
-      int idx = data.items.get_selection();
+      int idx = data.items->get_selection();
       if (idx > -1) {
         data.selection = idx;
         super::invalidate();
@@ -147,7 +147,7 @@ namespace gui {
     core::rectangle drop_down_list::get_popup_geometry () const {
       core::rectangle place = super::absolute_geometry();
       place.move_y(place.height());
-      place.height(core::size::type(data.visible_items * data.items.get_item_dimension()));
+      place.height(core::size::type(data.visible_items * data.items->get_item_dimension()));
       return place;
     }
 
@@ -157,8 +157,8 @@ namespace gui {
       } else {
         data.popup.geometry(get_popup_geometry());
       }
-      data.items.set_selection(data.selection, event_source::logic);
-      data.items.make_selection_visible();
+      data.items->set_selection(data.selection, event_source::logic);
+      data.items->make_selection_visible();
       data.popup.set_visible();
     }
 
@@ -168,9 +168,9 @@ namespace gui {
     }
 
     void drop_down_list::set_selection (int idx, event_source src) {
-      data.selection = std::max(-1, std::min(idx, static_cast<int>(data.items.get_count())));
+      data.selection = std::max(-1, std::min(idx, static_cast<int>(data.items->get_count())));
       if (is_popup_visible()) {
-        data.items.set_selection(idx, src);
+        data.items->set_selection(idx, src);
       }
     }
 

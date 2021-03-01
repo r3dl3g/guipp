@@ -259,12 +259,12 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     template<typename T = path_tree::sorted_path_info>
-    class dir_file_view : public vertical_split_view<sorted_dir_tree,
+    class dir_file_view : public vertical_split_view<virtual_view<sorted_dir_tree>,
                                                      file_column_list<T>> {
     public:
       typedef sorted_dir_tree dir_tree_type;
       typedef file_column_list<T> file_list_type;
-      typedef vertical_split_view<dir_tree_type, file_list_type> super;
+      typedef vertical_split_view<virtual_view<dir_tree_type>, file_list_type> super;
 
       void init (std::function<file_selected> action,
                  std::function<fs::filter_fn> filter = nullptr);

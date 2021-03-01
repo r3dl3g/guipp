@@ -67,7 +67,7 @@ namespace gui {
 
       template<typename B, typename L, typename ... A>
       inline void layout_container_base<B, L, A...>::geometry (const core::rectangle& r, bool repaint) {
-        layouter.layout(r);
+        layouter.layout(core::rectangle(r.size()));
         super::geometry(r, repaint);
       }
 

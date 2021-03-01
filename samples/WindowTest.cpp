@@ -232,9 +232,9 @@ private:
 
   std::vector<std::string> data;
 
-  typedef ctrl::vertical_list List1;
+  typedef ctrl::vertical_scrollable_list List1;
   typedef ctrl::edit_list List2;
-  typedef ctrl::vertical_list List3;
+  typedef ctrl::vertical_scrollable_list List3;
 
   List1 list1;
   List2& list2;
@@ -242,7 +242,7 @@ private:
 
   typedef ctrl::vertical_split_view<List2, List3> list_split_view;
   typedef ctrl::column_list_t<layout::simple_column_list_layout, int, int, int> simple_list;
-  typedef ctrl::vertical_split_view<ctrl::horizontal_list, simple_list> column_list_split_view;
+  typedef ctrl::vertical_split_view<ctrl::horizontal_scrollable_list, simple_list> column_list_split_view;
 
   ctrl::horizontal_split_view<list_split_view, column_list_split_view> main_split_view;
 
@@ -289,8 +289,8 @@ private:
 
   textbox_view textbox;
 
-  ctrl::horizontal_tile_view htileview;
-  ctrl::vertical_tile_view vtileview;
+  ctrl::horizontal_scrollable_tile_view htileview;
+  ctrl::vertical_scrollable_tile_view vtileview;
 
   bool at_paint1;
   bool at_drag;
@@ -350,9 +350,9 @@ my_main_window::my_main_window ()
   , calc_pressed(false)
   , draw_invert(false)
 {
-  main_split_view.second.second.list.set_item_size_and_background(16, color::very_light_gray);
-  list1.set_item_size(25);
-  list3.set_item_size_and_background(20, color::light_gray);
+  main_split_view.second.second.list->set_item_size_and_background(16, color::very_light_gray);
+  list1->set_item_size(25);
+  list3->set_item_size_and_background(20, color::light_gray);
 
   on_destroy([] () {
     clog::debug() << "Destroyed!";
@@ -586,7 +586,7 @@ my_main_window::my_main_window ()
   info_button.on_clicked([&] () {
     clog::debug() << "Info clicked";
     query_state();
-    textbox.view.set_text(editor.view.get_selected_text());
+    textbox->set_text(editor->get_selected_text());
     textbox.layout();
   });
   null_button.on_clicked([&] () {
@@ -598,34 +598,34 @@ my_main_window::my_main_window ()
     vsplitter.set_value(size().width() - 15);
   });
 
-  list1.set_data(ctrl::draw_list_data([] (std::size_t idx,
-                                          draw::graphics& g,
-                                          const core::rectangle& place,
-                                          const draw::brush& background,
-                                          ctrl::item_state state) {
-    using namespace draw;
+  list1->set_data(ctrl::draw_list_data([] (std::size_t idx,
+                                           draw::graphics& g,
+                                           const core::rectangle& place,
+                                           const draw::brush& background,
+                                           ctrl::item_state state) {
+                        using namespace draw;
 
     std::ostringstream strm;
     strm << "Item " << idx;
 
     gui::look::text_item(g, place, background, strm.str(), state);
   }, [] () { return 20; }));
-  list1.on_selection_changed([&](ctrl::event_source) {
-    labelC.set_text(ostreamfmt("List1 item " << list1.get_selection()));
+  list1->on_selection_changed([&](ctrl::event_source) {
+    labelC.set_text(ostreamfmt("List1 item " << list1->get_selection()));
   });
-  list1.on_selection_commit([&] () {
-    labelC.set_text(ostreamfmt("List1 commited " << list1.get_selection()));
+  list1->on_selection_commit([&] () {
+    labelC.set_text(ostreamfmt("List1 commited " << list1->get_selection()));
   });
 
   up_button.on_clicked([&] () {
-    list1.set_selection(list1.get_selection() - 1, ctrl::event_source::mouse);
+    list1->set_selection(list1->get_selection() - 1, ctrl::event_source::mouse);
     list2.set_selection(list2.get_selection() - 1, ctrl::event_source::mouse);
-    list3.set_selection(list3.get_selection() - 1, ctrl::event_source::mouse);
+    list3->set_selection(list3->get_selection() - 1, ctrl::event_source::mouse);
   });
   down_button.on_clicked([&] () {
-    list1.set_selection(list1.get_selection() + 1, ctrl::event_source::mouse);
+    list1->set_selection(list1->get_selection() + 1, ctrl::event_source::mouse);
     list2.set_selection(list2.get_selection() + 1, ctrl::event_source::mouse);
-    list3.set_selection(list3.get_selection() + 1, ctrl::event_source::mouse);
+    list3->set_selection(list3->get_selection() + 1, ctrl::event_source::mouse);
   });
 
   data.insert(data.end(), { "Eins", "Zwei", "Drei", "View", "Fünf", "Fuß" });
@@ -648,11 +648,11 @@ my_main_window::my_main_window ()
     labelC.set_text(ostreamfmt("List2 commited " << list2.get_selection()));
   });
 
-  column_list.list.on_selection_changed([&](ctrl::event_source) {
-    labelC.set_text(ostreamfmt("column_list item " << column_list.list.get_selection()));
+  column_list.list->on_selection_changed([&](ctrl::event_source) {
+    labelC.set_text(ostreamfmt("column_list item " << column_list.list->get_selection()));
   });
-  column_list.list.on_selection_commit([&] () {
-    labelC.set_text(ostreamfmt("column_list commited " << column_list.list.get_selection()));
+  column_list.list->on_selection_commit([&] () {
+    labelC.set_text(ostreamfmt("column_list commited " << column_list.list->get_selection()));
   });
 
   ok_button.on_clicked([&] () {
@@ -684,9 +684,9 @@ my_main_window::my_main_window ()
   });
 
   vscroll.on_scroll([&](core::point::type pos) {
-    list1.set_scroll_pos_1(pos);
+    list1->set_scroll_pos_1(pos);
     list2.set_scroll_pos_1(pos);
-    list3.set_scroll_pos_1(pos);
+    list3->set_scroll_pos_1(pos);
     editor.vscroll.set_value(pos);
     textbox.vscroll.set_value(pos);
   });
@@ -801,18 +801,18 @@ my_main_window::my_main_window ()
                        current_pos.y() + size.height() * 2);
   });
 
-  htileview.set_item_size({ 50, 30 });
-  htileview.set_background(color::very_light_gray);
-  htileview.set_border({ 10, 20 });
-  htileview.set_spacing({ 5, 5 });
+  htileview->set_item_size({ 50, 30 });
+  htileview->set_background(color::very_light_gray);
+  htileview->set_border({ 10, 20 });
+  htileview->set_spacing({ 5, 5 });
   
-  vtileview.set_item_size({ 65, 25 });
-  vtileview.set_background(color::very_light_gray);
-  vtileview.set_border({ 10, 10 });
-  vtileview.set_spacing({ 5, 5 });
+  vtileview->set_item_size({ 65, 25 });
+  vtileview->set_background(color::very_light_gray);
+  vtileview->set_border({ 10, 10 });
+  vtileview->set_spacing({ 5, 5 });
 
-  htileview.set_data(htile_drawer<20, draw::frame::sunken_relief>());
-  vtileview.set_data(vtile_drawer<0xffff - 32, draw::frame::raised_relief>());
+  htileview->set_data(htile_drawer<20, draw::frame::sunken_relief>());
+  vtileview->set_data(vtile_drawer<0xffff - 32, draw::frame::raised_relief>());
 
   on_create(util::bind_method(this, &my_main_window::onCreated));
 }
@@ -886,8 +886,8 @@ void my_main_window::created_children () {
     row_type{ 12, 13, 14 }
   });
   main_split_view.create(main, core::rectangle(410, 50, 160, 250));
-  main_split_view.first.second.set_data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-  main_split_view.second.first.set_data(ctrl::const_list_data<float>({ 1.1F, 2.2F, 3.3F, 4.4F, 5.5F }));
+  main_split_view.first.second->set_data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+  main_split_view.second.first->set_data(ctrl::const_list_data<float>({ 1.1F, 2.2F, 3.3F, 4.4F, 5.5F }));
   main_split_view.second.second.get_column_layout().set_columns(columns);
   main_split_view.second.second.set_data(std::move(second_data));
 
@@ -975,7 +975,7 @@ void my_main_window::created_children () {
 
   editor.create(main, core::rectangle(740, 320, 150, 250));
   clog::debug() << "Create editor: " << editor;
-  editor.view.set_text("1. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
+  editor->set_text("1. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
                        "2. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
                        "3. magna aliquyam erat, sed diam voluptua.\n"
                        "4. At vero eos et accusam et justo duo dolores et ea rebum.\n"
@@ -995,11 +995,11 @@ void my_main_window::created_children () {
                        "18. magna aliquyam erat, sed diam voluptua.\n"
                        "19. At vero eos et accusam et justo duo dolores et ea rebum.\n"
                        "20. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\n");
-  editor.view.set_cursor_pos({3, 5});
-  editor.view.set_selection({{3, 2}, {2, 4}});
+  editor->set_cursor_pos({3, 5});
+  editor->set_selection({{3, 2}, {2, 4}});
 
   textbox.create(main, core::rectangle(740, 580, 150, 250));
-  textbox.view.enable_select_by_mouse();
+  textbox->enable_select_by_mouse();
 
   htileview.create(main, core::rectangle(10, 580, 200, 250));
   htileview.invalidate();
@@ -1011,8 +1011,8 @@ void my_main_window::created_children () {
   progress.create(main, core::rectangle(550, 325, 130, static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width())));
 
   vscroll.create(main, core::rectangle(700, 50, static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width()), 250));
-  vscroll.set_max((int)list1.get_count() * list1.get_item_dimension() - list1.size().height());
-  vscroll.set_step(static_cast<ctrl::scroll_bar::type>(list1.get_item_dimension()));
+  vscroll.set_max((int)list1->get_count() * list1->get_item_dimension() - list1.size().height());
+  vscroll.set_step(static_cast<ctrl::scroll_bar::type>(list1->get_item_dimension()));
 
   up_button.create(main, "Up", core::rectangle(330, 305, 47, 25));
 

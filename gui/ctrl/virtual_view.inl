@@ -41,7 +41,7 @@ namespace gui {
     inline void virtual_layout<T>::layout (const core::rectangle& r) const {
       clog::trace() << "virtual_layout::layout()";
       if (client) {
-        auto available = super::layout(r, client->get_virtual_geometry());
+        auto available = super::layout(r, client->get_virtual_geometry(r));
         client->geometry(available);
       } else {
         super::layout(r, core::rectangle());
@@ -59,7 +59,29 @@ namespace gui {
     }
 
     template<typename T, os::color B>
+    template<typename ... Args>
+    virtual_view<T, B>::virtual_view (const Args& ... args)
+      : view(args...) {
+      init();
+    }
+
+    template<typename T, os::color B>
     virtual_view<T, B>::virtual_view () {
+      init();
+    }
+
+    template<typename T, os::color B>
+    auto virtual_view<T, B>::operator-> () -> view_type* {
+      return &view;
+    }
+
+    template<typename T, os::color B>
+    auto virtual_view<T, B>::operator-> () const -> const view_type* {
+      return &view;
+    }
+
+    template<typename T, os::color B>
+    void virtual_view<T, B>::init () {
       super::on_create(util::bind_method(this, &virtual_view::handle_create));
       super::get_layout().init(&vscroll, &hscroll, &edge, &view);
 
@@ -70,6 +92,9 @@ namespace gui {
         view.set_scroll_pos(core::point(x, vscroll.get_value()));
       });
       view.on_content_changed([&] () {
+        super::layout();
+      });
+      super::on_show([&] () {
         super::layout();
       });
       view.on_selection_changed([&] (event_source) {

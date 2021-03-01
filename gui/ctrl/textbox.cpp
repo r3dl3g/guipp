@@ -192,7 +192,7 @@ namespace gui {
         return get_text_in_range(get_selection());
       }
 
-      core::rectangle textbox_base::get_virtual_geometry () const {
+      core::rectangle textbox_base::get_virtual_geometry (const core::rectangle&) const {
         if (data.virtual_size.empty()) {
           const auto row_sz = data.font.line_height();
           const auto row_cnt = row_count();
@@ -202,7 +202,7 @@ namespace gui {
           }
           data.virtual_size = {w, static_cast<core::size::type>(row_sz * row_cnt)};
         }
-        return core::rectangle(-data.offset, data.virtual_size);
+        return core::rectangle(data.virtual_size);
       }
 
       core::size textbox_base::get_scroll_steps () const {

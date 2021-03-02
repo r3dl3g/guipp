@@ -219,7 +219,7 @@ namespace gui {
 
     private:
       std::function<cell_draw> cell_drawer;
-      core::native_point last_mouse_point;
+      core::point last_mouse_point;
       int down_idx;
       layout_type layouter;
 

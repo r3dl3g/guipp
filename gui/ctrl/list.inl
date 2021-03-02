@@ -372,15 +372,17 @@ namespace gui {
 
       const auto list_sz = super::traits.get_1(area.bottom_right());
       const auto last = super::get_count();
-      const auto first = static_cast<decltype(last)>(super::get_scroll_pos_1() / super::get_item_dimension());
-
-      super::traits.set_1(place, -super::traits.get_1(super::get_scroll_pos()) + super::get_item_dimension() * first, super::get_item_dimension());
+      const auto isz = super::get_item_dimension();
+      const auto sp1 = super::traits.get_1(super::get_scroll_pos());
       const auto sp2 = super::traits.get_2(super::get_scroll_pos());
+      const auto first = static_cast<decltype(last)>(sp1 / isz);
+
+      super::traits.set_1(place, -sp1 + isz * first, isz);
       super::traits.set_2(place, -sp2, super::traits.get_2(area.size()) + sp2);
 
       for (auto idx = first; (idx < last) && (super::traits.get_1(place.top_left()) < list_sz); ++idx) {
         super::draw_item(idx, graph, place, back_brush, super::get_item_state(static_cast<int>(idx)));
-        super::traits.set_1(place, super::traits.get_1(place.top_left()) + super::get_item_dimension(), super::get_item_dimension());
+        super::traits.set_1(place, super::traits.get_1(place.top_left()) + isz, isz);
       }
 
       const auto pos = super::traits.get_1(place.top_left());

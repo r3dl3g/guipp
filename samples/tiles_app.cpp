@@ -37,7 +37,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   htileview->set_spacing({ 5, 5 });
   htileview->set_data(tile_drawer<97>());
 
-  vtileview->set_item_size({ 110, 33 });
+  vtileview->set_item_size({ 330, 33 });
   vtileview->set_background(color::very_very_light_gray);
   vtileview->set_border({ 10, 20 });
   vtileview->set_spacing({ 5, 5 });

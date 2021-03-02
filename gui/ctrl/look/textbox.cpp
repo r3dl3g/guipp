@@ -73,7 +73,6 @@ namespace gui {
                    const core::point& offset,
                    const bool is_focused,
                    const bool is_enabled) {
-//      draw::clip clp(graph, area);
 
       const auto height = area.y2();
       const auto row_sz = static_cast<core::size::type>(fnt.line_height());

@@ -105,6 +105,8 @@ namespace gui {
 //        clog::debug() << *vscroll << " Y:{ min:" << ymin << ", pos:" << ypos << ", max:" << ymax << ", step:" << ypage << " }";
 
         vscroll->set_min_max_page(ymin, ymax, ypage);
+      } else {
+        vscroll->set_min_max(0, 0);
       }
 
       if (show_h) {
@@ -116,6 +118,8 @@ namespace gui {
 //        clog::debug() << *vscroll << " X:{ min:" << xmin << ", pos:" << xpos << ", max:" << xmax << ", step:" << xpage << " }";
 
         hscroll->set_min_max_page(xmin, xmax, xpage);
+      } else {
+        hscroll->set_min_max(0, 0);
       }
 
       if (vscroll) {

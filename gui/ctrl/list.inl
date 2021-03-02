@@ -103,18 +103,18 @@ namespace gui {
     template<orientation_t V>
     inline int linear_list_traits<V>::get_index_at_point (const core::rectangle& /*list_size*/,
                                                           const core::point& pt,
-                                                          size_type scroll_pos,
+                                                          const core::point& scroll_pos,
                                                           size_t /*count*/) const {
-      return static_cast<int>((super::get_1(pt) + scroll_pos) / item_size);
+      return static_cast<int>((super::get_1(pt) + super::get_1(scroll_pos)) / item_size);
     }
 
     template<orientation_t V>
     inline core::rectangle linear_list_traits<V>::get_geometry_of_index (const core::rectangle& list_size,
-                                                                      int idx,
-                                                                      size_type scroll_pos) const {
+                                                                         int idx,
+                                                                         const core::point& scroll_pos) const {
       core::rectangle place;
-      super::set_1(place, super::get_1(list_size.position()) + item_size * idx - scroll_pos, item_size);
-      super::set_2(place, super::get_2(list_size.position()), super::get_2(list_size.size()));
+      super::set_1(place, super::get_1(list_size.position()) + item_size * idx - super::get_1(scroll_pos), item_size);
+      super::set_2(place, super::get_2(list_size.position()) - super::get_2(scroll_pos), super::get_2(list_size.size()));
       return place;
     }
 
@@ -234,7 +234,7 @@ namespace gui {
     inline int basic_list<V, T>::get_index_at_point (const core::point& pt) {
       auto rect = super::client_geometry();
       if (rect.is_inside(pt)) {
-        return traits.get_index_at_point(rect, pt - rect.position(), get_scroll_pos_1(), super::get_count());
+        return traits.get_index_at_point(rect, pt - rect.position(), get_scroll_pos(), super::get_count());
       }
       return -1;
     }
@@ -242,7 +242,7 @@ namespace gui {
     template<orientation_t V, typename T>
     core::rectangle basic_list<V, T>::get_geometry_of_index (int idx) {
       if (super::is_valid_idx(idx)) {
-        return traits.get_geometry_of_index(super::client_geometry(), idx, get_scroll_pos_1());
+        return traits.get_geometry_of_index(super::client_geometry(), idx, get_scroll_pos());
       }
       return core::rectangle::zero;
     }
@@ -350,7 +350,7 @@ namespace gui {
     inline core::rectangle linear_list<V>::get_virtual_geometry (const core::rectangle&) const {
       core::rectangle place;
       super::traits.set_1(place, 0, super::get_item_dimension() * super::get_count());
-      super::traits.set_2(place, 0, 1);
+      super::traits.set_2(place, 0, 0);
       return place;
     }
 
@@ -366,7 +366,6 @@ namespace gui {
     void linear_list<V>::paint (draw::graphics& graph) {
       const core::rectangle area = super::client_geometry();
       core::rectangle place = area;
-//      draw::clip clp(graph, area);
 
       draw::brush back_brush(super::get_background());
 

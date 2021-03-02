@@ -364,12 +364,12 @@ namespace gui {
 
       int get_index_at_point (const core::rectangle& list_size,
                               const core::point& pt,
-                              size_type scroll_pos,
+                              const core::point& scroll_pos,
                               size_t /*count*/) const;
 
       core::rectangle get_geometry_of_index (const core::rectangle& list_size,
-                                          int idx,
-                                          size_type scroll_pos) const;
+                                             int idx,
+                                             const core::point& scroll_pos) const;
 
       size_type get_line_size () const;
       size_type get_item_dimension () const;

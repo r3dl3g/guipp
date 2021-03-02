@@ -212,8 +212,9 @@ namespace gui {
 
     void edit_list::enter_edit () {
       if (data.enable_edit && data.data_source) {
-        auto cell = super::get_selection();
-        auto area = super::get_geometry_of_index(cell);
+        auto cell = get_selection();
+        auto area = get_geometry_of_index(cell);
+        area.set_position(get_parent()->surface_to_client(client_to_surface(area.position())));
         if (!data.editor.is_valid()) {
           data.editor.create(*get_parent(), area);
         }
@@ -227,9 +228,11 @@ namespace gui {
 
     void edit_list::commit_edit () {
       if (data.data_target && data.editor.is_visible()) {
-        auto pos = data.editor.position();
-        auto cell = super::get_index_at_point(pos);
-        data.data_target(cell, data.editor.get_text());
+        auto pos = surface_to_client(data.editor.surface_position());
+        auto cell = get_index_at_point(pos);
+        if (cell > -1) {
+          data.data_target(cell, data.editor.get_text());
+        }
       }
       cancel_edit();
     }

@@ -164,7 +164,6 @@ namespace gui {
 
         const auto geo = surface_geometry();
         cntxt->set_offset(geo.x(), geo.y());
-        native::erase(cntxt->drawable(), cntxt->graphics(), geo & *clip_rect, get_window_class().get_background());
 
         bool ret = super::handle_event(e, r);
 
@@ -177,6 +176,7 @@ namespace gui {
             if (state.created() && state.visible() && !state.overlapped()) {
               core::clip clp(*cntxt, rect);
               cntxt->set_offset(rect.x(), rect.y());
+              native::erase(cntxt->drawable(), cntxt->graphics(), rect & *clip_rect, w->get_window_class().get_background());
               ret |= w->handle_event(e, r);
             }
           }

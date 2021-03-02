@@ -230,19 +230,11 @@ namespace gui {
       typedef control super;
       typedef win::window_class<client_control, background> clazz;
 
-      void create (win::container& parent,
-                   const core::rectangle& r = core::rectangle::def);
+      inline void create (win::container& parent,
+                          const core::rectangle& r = core::rectangle::def) {
+        super::create(clazz::get(), parent, r);
+      }
     };
-
-    // --------------------------------------------------------------------------
-    template<os::color B>
-    inline void client_control<B>::create (win::container& parent,
-                                           const core::rectangle& r) {
-      super::create(clazz::get(), parent, r);
-      on_paint(draw::paint([&] (draw::graphics& g) {
-        g.erase(super::client_geometry(), B);
-      }));
-    }
 
   } // ctrl
 

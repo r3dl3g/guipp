@@ -186,7 +186,7 @@ namespace gui {
 
 //      clog::trace() << "handle_event: for window: " << this << " " << e;
       bool res = false;
-      if (is_enabled() || paint_event::match(e)) {
+      if (is_enabled() || paint_event::match(e) ||!is_mouse_event(e)) {
         res = events.handle_event(e, result);
       }
 

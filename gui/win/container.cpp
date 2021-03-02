@@ -162,22 +162,25 @@ namespace gui {
         core::context* cntxt = paint_event::Caller::get_param<0>(e);
         const core::native_rect* clip_rect = paint_event::Caller::get_param<1>(e);
 
-        const auto geo = surface_geometry();
-        cntxt->set_offset(geo.x(), geo.y());
+        bool ret = false;
+        if (cntxt && clip_rect) {
+          const auto geo = surface_geometry();
+          cntxt->set_offset(geo.x(), geo.y());
 
-        bool ret = super::handle_event(e, r);
+          ret = super::handle_event(e, r);
 
-        for (auto& w : children) {
-          const auto rect = w->surface_geometry();
+          for (auto& w : children) {
+            const auto rect = w->surface_geometry();
 
-          if (!clip_rect || (clip_rect->overlap(rect))) {
-            const auto state = w->get_state();
+            if (!clip_rect || (clip_rect->overlap(rect))) {
+              const auto state = w->get_state();
 
-            if (state.created() && state.visible() && !state.overlapped()) {
-              core::clip clp(*cntxt, rect);
-              cntxt->set_offset(rect.x(), rect.y());
-              native::erase(cntxt->drawable(), cntxt->graphics(), rect & *clip_rect, w->get_window_class().get_background());
-              ret |= w->handle_event(e, r);
+              if (state.created() && state.visible() && !state.overlapped()) {
+                core::clip clp(*cntxt, rect);
+                cntxt->set_offset(rect.x(), rect.y());
+                native::erase(cntxt->drawable(), cntxt->graphics(), rect & *clip_rect, w->get_window_class().get_background());
+                ret |= w->handle_event(e, r);
+              }
             }
           }
         }

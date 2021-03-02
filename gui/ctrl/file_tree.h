@@ -260,7 +260,7 @@ namespace gui {
 
       void init ();
 
-      core::native_point mouse_down_point;
+      core::point mouse_down_point;
       std::vector<fs::file_info> current_dir;
       sort_order order;
 

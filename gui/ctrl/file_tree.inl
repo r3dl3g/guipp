@@ -199,12 +199,13 @@ namespace gui {
     }
 
     template<typename T>
-    inline void file_column_list<T>::handle_header_mouse_down (os::key_state, const core::native_point& pt) {
-      mouse_down_point = pt;
+    inline void file_column_list<T>::handle_header_mouse_down (os::key_state, const core::native_point& npt) {
+      mouse_down_point = super::surface_to_client(npt);
     }
 
     template<typename T>
-    inline void file_column_list<T>::handle_header_mouse_up (os::key_state, const core::native_point& pt) {
+    inline void file_column_list<T>::handle_header_mouse_up (os::key_state, const core::native_point& npt) {
+      auto pt = super::surface_to_client(npt);
       if (mouse_down_point == pt) {
         int i = super::get_column_layout().index_at(pt.x());
         const auto idx = static_cast<unsigned short>(order);
@@ -214,7 +215,7 @@ namespace gui {
           sort_by(sort_order(i * 2));     // down
         }
       }
-      mouse_down_point = core::native_point::undefined;
+      mouse_down_point = core::point::undefined;
     }
 
     template<typename T>

@@ -235,18 +235,19 @@ namespace gui {
       get_layout().init(&vscroll, &hscroll, &edge);
 
       vscroll.on_scroll([&](core::point::type y) {
-        move_children(core::size(0, y - current_pos.y()));
+        move_children(0, y - current_pos.y());
       });
 
       hscroll.on_scroll([&](core::point::type x) {
-        move_children(core::size(x - current_pos.x(), 0));
+        move_children(x - current_pos.x(), 0);
       });
     }
 
-    void scroll_view_base::move_children (const core::size& delta) {
-      if (delta == core::size::zero) {
+    void scroll_view_base::move_children (type dx, type dy) {
+      if ((dx == 0.0F) && (dy == 0.0F)) {
         return;
       }
+      core::point delta(dx, dy);
       get_layout().set_in_scroll_event(true);
       std::vector<window*> children = get_children();
       for (window* win : children) {
@@ -262,6 +263,7 @@ namespace gui {
     void scroll_view_base::set_scroll_pos (const core::point& pt) {
       hscroll.set_value(pt.x());
       vscroll.set_value(pt.y());
+      current_pos = pt;
     }
 
     core::point scroll_view_base::get_scroll_pos () const {

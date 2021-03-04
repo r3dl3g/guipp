@@ -92,6 +92,7 @@ namespace gui {
     class GUIPP_CTRL_EXPORT scroll_view_base : public win::layout_container<layout::scroll_view> {
     public:
       typedef win::layout_container<layout::scroll_view> super;
+      typedef core::point::type type;
 
       scroll_view_base ();
 
@@ -103,7 +104,7 @@ namespace gui {
       bool is_vscroll_bar_enabled () const;
       bool is_hscroll_bar_enabled () const;
 
-      void move_children (const core::size& delta);
+      void move_children (type dx, type dy);
 
     protected:
       void create_children (const core::rectangle& place);

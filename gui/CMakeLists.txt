@@ -221,7 +221,7 @@ if(NOT TARGET gui++)
   endif()
 
   set (GUIPP_APP_LIBRARIES
-    $<TARGET_OBJECTS:gui++-app>
+    gui++-app
     ${GUIPP_LIBRARIES}
   )
 

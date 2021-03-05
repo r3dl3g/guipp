@@ -17,6 +17,10 @@
 #include <gui/ctrl/tab_group.h>
 #include <gui/ctrl/tab_view.h>
 
+template<typename T, std::size_t N>
+constexpr std::size_t size_of (const std::array<T, N>&) {
+  return N;
+}
 
 const std::size_t COLUMNS = 4;
 
@@ -118,9 +122,9 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   std::array<tree_view, 2> trees;
 
   std::array<label, 6> cheader_labels;
-  std::array<layout::header_layout, cheader_labels.size()> cheader_layouts;
+  std::array<layout::header_layout, size_of(cheader_labels)> cheader_layouts;
 
-  for (int i = 0; i < cheader_labels.size(); ++i) {
+  for (int i = 0; i < size_of(cheader_labels); ++i) {
     cheader_layouts[i].set_header(layout::lay(cheader_labels[i]));
     second_view.get_layout().add(layout::lay(cheader_layouts[i]));
   }
@@ -183,9 +187,9 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   });
 
   std::array<label, 2> bheader_labels;
-  std::array<bottom_layout_t, bheader_labels.size()> bheader_layouts;
+  std::array<bottom_layout_t, size_of(bheader_labels)> bheader_layouts;
 
-  for (int i = 0; i < bheader_labels.size(); ++i) {
+  for (int i = 0; i < size_of(bheader_labels); ++i) {
     bheader_layouts[i].add(layout::lay(bheader_labels[i]));
     third_view.get_layout().add(layout::lay(bheader_layouts[i]));
   }

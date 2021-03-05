@@ -62,6 +62,7 @@ namespace gui {
       context (gui::os::drawable, gui::os::graphics);
       context (gui::os::drawable);
       context (const context&) = delete;
+      context (context&&) = default;
 
       ~context ();
 

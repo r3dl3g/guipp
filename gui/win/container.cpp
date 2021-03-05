@@ -39,8 +39,8 @@ namespace gui {
     namespace {
 
       template<typename T>
-      struct reverse {
-        explicit reverse (T& iterable)
+      struct reverse_ {
+        explicit reverse_ (T& iterable)
           : iterable{iterable}
         {}
 
@@ -55,6 +55,11 @@ namespace gui {
       private:
         T& iterable;
       };
+
+      template<typename T>
+      inline reverse_<T> reverse (T& t) {
+        return reverse_<T>(t);
+      }
 
     }
 

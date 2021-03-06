@@ -220,10 +220,11 @@ if(NOT TARGET gui++)
       )
   endif()
 
-  set (GUIPP_APP_LIBRARIES
-    $<TARGET_OBJECTS:gui++-app>
-    ${GUIPP_LIBRARIES}
-  )
+  if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.5)
+    set (GUIPP_APP_LIBRARIES $<TARGET_OBJECTS:gui++-app> ${GUIPP_LIBRARIES})
+  else()
+    set (GUIPP_APP_LIBRARIES gui++-app ${GUIPP_LIBRARIES})
+  endif()
 
   add_subdirectory(core gui_core)
   add_subdirectory(win gui_win)

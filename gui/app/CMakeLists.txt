@@ -18,8 +18,11 @@ if(NOT TARGET gui++-app)
 
   add_definitions(${GUIPP_CXX_FLAGS})
 
-  add_library(gui++-app OBJECT ${SOURCE_FILES})
-  #add_library(gui++-app ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
+  if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.5)
+    add_library(gui++-app OBJECT ${SOURCE_FILES})
+  else()
+    add_library(gui++-app ${GUIPP_LINK} ${SOURCE_FILES})
+  endif()
 
   set_target_properties(gui++-app PROPERTIES
                         POSITION_INDEPENDENT_CODE ON

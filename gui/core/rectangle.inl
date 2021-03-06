@@ -27,7 +27,7 @@ namespace gui {
 
     template<typename T, typename S, coordinate_system C>
     inline basic_rectangle<T, S, C>::basic_rectangle (const point_t& pos,
-                                                   const size_t& sz)
+                                                      const size_t& sz)
       : pos(pos)
       , sz(sz)
     {}
@@ -39,16 +39,16 @@ namespace gui {
 
     template<typename T, typename S, coordinate_system C>
     inline basic_rectangle<T, S, C>::basic_rectangle (const point_t& topleft,
-                                                   const point_t& bottomright)
+                                                      const point_t& bottomright)
       : pos(std::min(topleft.x(), bottomright.x()), std::min(topleft.y(), bottomright.y()))
       , sz(std::abs(bottomright.x() - topleft.x()), std::abs(bottomright.y() - topleft.y()))
     {}
 
     template<typename T, typename S, coordinate_system C>
     inline basic_rectangle<T, S, C>::basic_rectangle (point_type x,
-                                                   point_type y,
-                                                   size_type width,
-                                                   size_type height)
+                                                      point_type y,
+                                                      size_type width,
+                                                      size_type height)
       : pos(x, y)
       , sz(width, height)
     {}

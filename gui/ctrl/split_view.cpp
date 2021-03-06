@@ -58,7 +58,7 @@ namespace gui {
     core::rectangle split_view_traits<orientation_t::vertical>::get_second_geometry (const core::rectangle& r,
                                                                                   double pos) {
       const core::point::type x = r.x() + core::point::type(r.width() * pos + get_splitter_width() / 2);
-      return r.with_horizontal(x, r.x2() - x);
+      return r.with_horizontal(x, r.right() - x);
     }
 
     template<>

@@ -106,7 +106,7 @@ namespace gui {
         g.os()->fillRect(r.x() + off, r.y() + off, r.width() - pw, r.height() - pw, b.color());
         g.os()->drawRect(r.x() + off, r.y() + off, r.width() - pw, r.height() - pw);
       } else if ((r.width() > 1) && (r.height() > 1)) {
-        g.os()->fillRect(r.x(), r.y(), pw, pw, p.color());
+        g.os()->fillRect(r.x(), r.y(), r.width(), r.height(), p.color());
       } else if ((1 == r.width()) && (1 == r.height())) {
         g.os()->drawPoint(r.x() + off, r.y() + off);
       }
@@ -122,7 +122,7 @@ namespace gui {
       if ((r.width() > pw) && (r.height() > pw)) {
         g.os()->drawRect(r.x() + off, r.y() + off, r.width() - pw, r.height() - pw);
       } else if ((r.width() > 1) && (r.height() > 1)) {
-        g.os()->fillRect(r.x(), r.y(), pw, pw, p.color());
+        g.os()->fillRect(r.x(), r.y(), r.width(), r.height(), p.color());
       } else if ((1 == r.width()) && (1 == r.height())) {
         g.os()->drawPoint(r.x() + off, r.y() + off);
       }

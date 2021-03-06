@@ -181,9 +181,9 @@ namespace gui {
               const auto state = w->get_state();
 
               if (state.created() && state.visible() && !state.overlapped()) {
-                core::clip clp(*cntxt, rect);
+                core::clip clp(*cntxt, rect & *clip_rect);
                 cntxt->set_offset(rect.x(), rect.y());
-                native::erase(cntxt->drawable(), cntxt->graphics(), rect & *clip_rect, w->get_window_class().get_background());
+                native::erase(cntxt->drawable(), cntxt->graphics(), rect + core::native_size::one, w->get_window_class().get_background());
                 ret |= w->handle_event(e, r);
               }
             }

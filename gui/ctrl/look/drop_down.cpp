@@ -76,9 +76,9 @@ namespace gui {
       core::rectangle r = area.shrinked(area.size() / 3);
       if (!r.empty()) {
         if (is_open) {
-          return {r.bottom_right(), {r.center_x(), r.y()}, r.bottom_left()};
+          return {r.x2y2(), {r.center_x(), r.y()}, r.x1y2()};
         } else {
-          return {r.top_left(), {r.center_x(), r.y2()}, r.top_right()};
+          return {r.top_left(), {r.center_x(), r.y2()}, r.x2y1()};
         }
       }
       return {};

@@ -113,7 +113,7 @@ namespace gui {
         XDrawRectangle(display, g, g, r.x + off, r.y + off, r.width - pw, r.height - pw);
       } else if ((r.width > 1) && (r.height > 1)) {
         Use<brush> br(g, brush(p.color()));
-        XFillRectangle(display, g, g, r.x, r.y, pw, pw);
+        XFillRectangle(display, g, g, r.x, r.y, r.width, r.height);
       } else if ((1 == r.width) && (1 == r.height)) {
         Use<pen> pn(g, p);
         XDrawPoint(display, g, g, r.x + off, r.y + off);

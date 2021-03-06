@@ -3011,11 +3011,11 @@ void test_frame_arc_3x3 () {
     {_,R,_,_,R},
     {_,R,R,R,R}
 #else
-    {_,_,_,_,_},
-    {_,_,R,R,_},
-    {_,R,_,_,R},
-    {_,R,_,_,R},
-    {_,_,R,R,_}
+    {_,R,R,_,_},
+    {R,_,_,R,_},
+    {R,_,_,R,_},
+    {_,R,R,_,_},
+    {_,_,_,_,_}
 #endif
   });
   EXPECT_EQUAL(buffer, expected);
@@ -3059,9 +3059,9 @@ void test_frame_arc_1x1 () {
   auto buffer = pixmap2colormap(img);
 
   EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
+                           {_,R,R,_,_},
+                           {_,R,R,_,_},
                            {_,_,_,_,_},
-                           {_,_,R,R,_},
-                           {_,_,R,R,_},
                            {_,_,_,_,_}}));
 
 }
@@ -3116,11 +3116,11 @@ void test_fill_arc_3x3 () {
     {_,R,R,R,R},
     {_,R,R,R,R}
 #else
+    {_,R,R,_,_},
+    {R,R,R,R,_},
+    {R,R,R,R,_},
+    {_,R,R,_,_},
     {_,_,_,_,_},
-    {_,_,R,R,_},
-    {_,R,R,R,R},
-    {_,R,R,R,R},
-    {_,_,R,R,_},
 #endif
   });
   EXPECT_EQUAL(buffer, expected);
@@ -3164,9 +3164,9 @@ void test_fill_arc_1x1 () {
   auto buffer = pixmap2colormap(img);
 
   EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
+                           {_,R,R,_,_},
+                           {_,R,R,_,_},
                            {_,_,_,_,_},
-                           {_,_,R,R,_},
-                           {_,_,R,R,_},
                            {_,_,_,_,_}}));
 }
 // --------------------------------------------------------------------------
@@ -3218,11 +3218,11 @@ void test_draw_arc_3x3 () {
     {_,R,B,B,R},
     {_,R,R,R,R}
 #else
-    {_,_,_,_,_},
-    {_,_,R,R,_},
-    {_,R,B,B,R},
-    {_,R,B,B,R},
-    {_,_,R,R,_},
+    {_,R,R,_,_},
+    {R,B,B,R,_},
+    {R,B,B,R,_},
+    {_,R,R,_,_},
+    {_,_,_,_,_}
 #endif
   });
   EXPECT_EQUAL(buffer, expected);
@@ -3266,9 +3266,9 @@ void test_draw_arc_1x1 () {
   auto buffer = pixmap2colormap(img);
 
   EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
+                           {_,R,R,_,_},
+                           {_,R,R,_,_},
                            {_,_,_,_,_},
-                           {_,_,R,R,_},
-                           {_,_,R,R,_},
                            {_,_,_,_,_}}));
 }
 // --------------------------------------------------------------------------

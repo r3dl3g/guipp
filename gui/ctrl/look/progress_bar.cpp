@@ -43,8 +43,10 @@ namespace gui {
                        os::color bar_color,
                        core::size::type bar_pos) {
       using namespace gui::draw;
-      graph.fill(draw::rectangle(area.with_width(bar_pos)), bar_color);
-      graph.fill(draw::rectangle(core::point{area.x() + bar_pos, area.y()}, area.x2y2()), background);
+      const core::rectangle left = area.with_width(bar_pos);
+      const core::rectangle right = area.with_horizontal(left.x2(), area.x2() - left.x2() + 1);
+      graph.fill(draw::rectangle(left), bar_color);
+      graph.fill(draw::rectangle(right), background);
       if (!txt.empty()) {
         graph.text(draw::text_box(txt, area, origin), font::system(), foreground);
       }

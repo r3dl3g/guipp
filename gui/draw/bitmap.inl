@@ -82,14 +82,6 @@ namespace gui {
       create(sz);
     }
 
-    inline void bitmap::create (const core::native_size& sz) {
-      create(sz.width(), sz.height());
-    }
-
-    inline void bitmap::create (const core::size& sz) {
-      create(sz.os_width(), sz.os_height());
-    }
-
     // --------------------------------------------------------------------------
     template<pixel_format_t T>
     inline pixmap::pixmap (const datamap<T>& rhs) {
@@ -117,14 +109,6 @@ namespace gui {
 
     inline pixmap::pixmap (const core::size& sz) {
       create(sz);
-    }
-
-    inline void pixmap::create (const core::native_size& sz) {
-      create(sz.width(), sz.height());
-    }
-
-    inline void pixmap::create (const core::size& sz) {
-      create(sz.os_width(), sz.os_height());
     }
 
     template<pixel_format_t T>

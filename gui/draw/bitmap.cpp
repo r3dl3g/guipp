@@ -430,6 +430,14 @@ namespace gui {
       }
     }
 
+    void bitmap::create (const core::native_size& sz) {
+      create(sz.width(), sz.height());
+    }
+
+    void bitmap::create (const core::size& sz) {
+      create(sz.os_width(), sz.os_height());
+    }
+
     void bitmap::copy_from (const bitmap& src_img,
                             const core::native_rect& src_rect,
                             const core::native_point& dest_pt) {
@@ -494,6 +502,14 @@ namespace gui {
       if (!is_valid()) {
         throw std::runtime_error("create pixmap failed");
       }
+    }
+
+    void pixmap::create (const core::native_size& sz) {
+      create(sz.width(), sz.height());
+    }
+
+    void pixmap::create (const core::size& sz) {
+      create(sz.os_width(), sz.os_height());
     }
 
     void pixmap::copy_from (const pixmap& src_img,

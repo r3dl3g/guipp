@@ -38,7 +38,7 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace core {
 
-    union state_type {
+    union GUIPP_CORE_EXPORT state_type {
       struct {
         bool created:1;
         bool focus_accepting:1;

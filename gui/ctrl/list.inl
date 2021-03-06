@@ -386,7 +386,7 @@ namespace gui {
 
       const auto pos = super::traits.get_1(place.top_left());
       if (pos < list_sz) {
-        super::traits.set_1(place, pos, list_sz - pos);
+        super::traits.set_1(place, pos, list_sz - pos + 1);
         graph.fill(draw::rectangle(place), back_brush);
       }
 

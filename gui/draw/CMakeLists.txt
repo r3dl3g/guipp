@@ -18,11 +18,15 @@ if(NOT TARGET gui++-draw)
   set (LIBRARY_INSTALL_DIR lib/guipp)
 
   set(SOURCE_FILES
+      arc_coords.cpp
       bitmap_info.cpp
       datamap.cpp
       converter.cpp
       frames.cpp
       drawers.cpp
+      drawers_qt.cpp
+      drawers_win32.cpp
+      drawers_x11.cpp
       brush.cpp
       diagram.cpp
       bitmap.cpp

@@ -446,7 +446,7 @@ namespace gui {
             dpi = 96;
           }
 
-          return floor((double)dpi / 95.9);
+          return  std::max(floor((double)dpi * 2.0 / 95.9) / 2.0, 0.5);
         }
       }
 
@@ -466,7 +466,7 @@ namespace gui {
           return scale;
         } else {
           QScreen* d = QGuiApplication::primaryScreen();
-          auto r = std::max((double)d->logicalDotsPerInchX() / 96.0, 0.5);
+          auto r =  std::max(floor((double)d->physicalDotsPerInchX() * 2.0 / 95.9) / 2.0, 0.5);
           clog::info()  << "Display "
                            "W:" << d->size().width() << ", H:" << d->size().height()
                         << ", MM-W:" << d->physicalSize().width() << ", MM-H:" << d->physicalSize().height()

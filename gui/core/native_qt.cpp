@@ -53,15 +53,11 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       gui::os::graphics create_graphics_context (gui::os::drawable id) {
-        if (id) {
-          auto g = new QPainter(id);
-          if (g->device()->depth() == 1) {
-            g->setCompositionMode(QPainter::RasterOp_NotSource);
-          }
-          return g;
-        } else {
-          return new QPainter();
+        auto g = new QPainter();
+        if (id && (id->depth() == 1)) {
+          g->setCompositionMode(QPainter::RasterOp_NotSource);
         }
+        return g;
       }
 
       // --------------------------------------------------------------------------

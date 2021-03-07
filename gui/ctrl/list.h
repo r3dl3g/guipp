@@ -470,6 +470,8 @@ namespace gui {
 
     };
 
+    typedef virtual_view<edit_list> scrollable_edit_list;
+
   } // ctrl
 
 } // gui

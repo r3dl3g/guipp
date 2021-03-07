@@ -118,8 +118,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   std::array<vertical_scrollable_list, 2> vlist;
   std::array<horizontal_scrollable_list, 2> hlist;
-  std::array<edit_list, 2> elist;
-  std::array<tree_view, 2> trees;
+  std::array<scrollable_edit_list, 2> elist;
+  std::array<scrollable_tree_view, 2> trees;
 
   std::array<label, 6> cheader_labels;
   std::array<layout::header_layout, size_of(cheader_labels)> cheader_layouts;
@@ -150,8 +150,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   vlist[0]->set_data(ctrl::indirect_list_data<std::string>(edata));
   vlist[1]->set_data(ctrl::indirect_list_data<std::string>(edata));
-  elist[0].set_data(ctrl::indirect_list_data<std::string>(edata));
-  elist[1].set_data(ctrl::indirect_list_data<std::string>(edata));
+  elist[0]->set_data(ctrl::indirect_list_data<std::string>(edata));
+  elist[1]->set_data(ctrl::indirect_list_data<std::string>(edata));
 
   tree_view::type root;
   root.label = "root";
@@ -172,15 +172,15 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     }),
     node("3 leaf")
   });
-  trees[0].set_root(root);
-  trees[1].set_root(root);
-  trees[0].open_all();
-  trees[1].open_all();
-  trees[0].update_node_list();
-  trees[1].update_node_list();
+  trees[0]->set_root(root);
+  trees[1]->set_root(root);
+  trees[0]->open_all();
+  trees[1]->open_all();
+  trees[0]->update_node_list();
+  trees[1]->update_node_list();
 
-  trees[0].on_selection_changed([&](event_source src){
-    trees[1].set_selection(trees[0].get_selection(), src);
+  trees[0]->on_selection_changed([&](event_source src){
+    trees[1]->set_selection(trees[0]->get_selection(), src);
   });
   vlist[0]->on_selection_changed([&](event_source src){
     vlist[1]->set_selection(vlist[0]->get_selection(), src);
@@ -224,8 +224,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     edata[idx] = s;
     invalidate_lists();
   };
-  elist[0].set_data_source_and_target(source, target);
-  elist[1].set_data_source_and_target(source, target);
+  elist[0]->set_data_source_and_target(source, target);
+  elist[1]->set_data_source_and_target(source, target);
 
   for (int i = 0; i < COLUMNS; ++i) {
     scroll_bars[i].on_scroll([&, i] (const core::point::type& v) {

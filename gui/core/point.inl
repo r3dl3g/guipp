@@ -35,19 +35,19 @@ namespace gui {
       template<typename T>
       struct point<T, coordinate_system::local> {
         static inline gui::os::point_type to_os_x (const T& v, const context& ctx) {
-          return global::scale_to_native<T, gui::os::point_type>(v) + ctx.offset_x();
+          return global::scale_to_native<gui::os::point_type>(v) + ctx.offset_x();
         }
 
         static inline gui::os::point_type to_os_y (const T& v, const context& ctx) {
-          return global::scale_to_native<T, gui::os::point_type>(v) + ctx.offset_y();
+          return global::scale_to_native<gui::os::point_type>(v) + ctx.offset_y();
         }
 
         static inline T from_os_x (const gui::os::point_type& v, const context& ctx) {
-          return global::scale_from_native<T, gui::os::point_type>(v - ctx.offset_x());
+          return global::scale_from_native<T>(v - ctx.offset_x());
         }
 
         static inline T from_os_y (const gui::os::point_type& v, const context& ctx) {
-          return global::scale_from_native<T, gui::os::point_type>(v - ctx.offset_y());
+          return global::scale_from_native<T>(v - ctx.offset_y());
         }
 
       };

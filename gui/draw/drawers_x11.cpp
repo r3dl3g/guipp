@@ -97,9 +97,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void rectangle::operator() (graphics& g,
-                                const brush& b,
-                                const pen& p) const {
+    void rectangle::operator() (graphics& g, const brush& b, const pen& p) const {
       gui::os::instance display = get_instance();
 
       const auto pw = p.os_size();
@@ -120,25 +118,28 @@ namespace gui {
       }
     }
 
-    void rectangle::operator() (graphics& g,
-                                const pen& p) const {
-      const auto pw = p.os_size();
-      const auto off = pw / 2;
+    void rectangle::operator() (graphics& g, const pen& p) const {
       const os::rectangle r = rect.os(g.context());
-      if ((r.width > pw) && (r.height > pw)) {
+      const auto pw = p.os_size();
+      if (pw == 1) {
         Use<pen> pn(g, p);
-        XDrawRectangle(get_instance(), g, g, r.x + off, r.y + off, r.width - pw, r.height - pw);
-      } else if ((r.width > 1) && (r.height > 1)) {
-        Use<brush> br(g, brush(p.color()));
-        XFillRectangle(get_instance(), g, g, r.x, r.y, pw, pw);
-      } else if ((1 == r.width) && (1 == r.height)) {
-        Use<pen> pn(g, p);
-        XDrawPoint(get_instance(), g, g, r.x + off, r.y + off);
+        XDrawRectangle(get_instance(), g, g, r.x, r.y, r.width - 1, r.height - 1);
+      } else {
+        const auto off = pw / 2;
+        if ((r.width > pw) && (r.height > pw)) {
+          Use<pen> pn(g, p);
+          XDrawRectangle(get_instance(), g, g, r.x + off, r.y + off, r.width - pw, r.height - pw);
+        } else if ((r.width > 1) && (r.height > 1)) {
+          Use<brush> br(g, brush(p.color()));
+          XFillRectangle(get_instance(), g, g, r.x, r.y, pw, pw);
+        } else if ((1 == r.width) && (1 == r.height)) {
+          Use<pen> pn(g, p);
+          XDrawPoint(get_instance(), g, g, r.x + off, r.y + off);
+        }
       }
     }
 
-    void rectangle::operator() (graphics& g,
-                                const brush& b) const {
+    void rectangle::operator() (graphics& g, const brush& b) const {
       operator ()(g, b, b.color());
     }
 
@@ -152,7 +153,7 @@ namespace gui {
                               const pen& p) const {
       gui::os::instance display = get_instance();
       const auto pw = p.os_size();
-      const auto off = (pw - 1) / 2;
+      const auto off = pw/*(pw - 1)*/ / 2;
       const os::rectangle r = rect.os(g.context());
       if ((r.width == 0) && (r.height == 0)) {
         if (pw < 2) {
@@ -163,7 +164,7 @@ namespace gui {
           XFillRectangle(get_instance(), g, g, r.x, r.y, pw, pw);
         }
       } else {
-        const auto soff = -(pw + 1) % 2;
+        const auto soff = pw;//-(pw + 1) % 2;
         Use<brush> br(g, b);
         XSetArcMode(display, g, ArcPieSlice);
         XFillArc(display, g, g, r.x + off, r.y + off, r.width - soff, r.height - soff, 0, degree_360);
@@ -177,7 +178,7 @@ namespace gui {
                               const pen& p) const {
       gui::os::instance display = get_instance();
       const auto pw = p.os_size();
-      const auto off = (pw - 1) / 2;
+      const auto off = pw/*(pw - 1)*/ / 2;
       const os::rectangle r = rect.os(g.context());
       if ((r.width == 0) && (r.height == 0)) {
         if (pw < 2) {
@@ -190,7 +191,7 @@ namespace gui {
       } else {
         Use<pen> pn(g, p);
         XSetArcMode(display, g, ArcChord);
-        const auto soff = -(pw + 1) % 2;
+        const auto soff = pw;//-(pw + 1) % 2;
         XDrawArc(display, g, g, r.x + off, r.y + off, r.width - soff, r.height - soff, 0, degree_360);
       }
     }

@@ -469,6 +469,7 @@ namespace gui {
       , own_gctx(true)
     {
       ctx = new core::context(target);
+      gc()->begin(target);
     }
 
     graphics::~graphics () {
@@ -478,6 +479,7 @@ namespace gui {
     void graphics::destroy () {
       if (ctx) {
         if (own_gctx) {
+          gc()->end();
           delete ctx;
         }
         ctx = 0;

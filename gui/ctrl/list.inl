@@ -369,7 +369,7 @@ namespace gui {
 
       draw::brush back_brush(super::get_background());
 
-      const auto list_sz = super::traits.get_1(area.x2y2()) + 1;
+      const auto list_sz = super::traits.get_1(area.x2y2());
       const auto last = super::get_count();
       const auto isz = super::get_item_dimension();
       const auto sp1 = super::traits.get_1(super::get_scroll_pos());
@@ -377,7 +377,7 @@ namespace gui {
       const auto first = static_cast<decltype(last)>(sp1 / isz);
 
       super::traits.set_1(place, -sp1 + isz * first, isz);
-      super::traits.set_2(place, -sp2, super::traits.get_2(area.size()) + sp2 + 1);
+      super::traits.set_2(place, -sp2, super::traits.get_2(area.size()) + sp2);
 
       for (auto idx = first; (idx < last) && (super::traits.get_1(place.top_left()) < list_sz); ++idx) {
         super::draw_item(idx, graph, place, back_brush, super::get_item_state(static_cast<int>(idx)));
@@ -391,7 +391,7 @@ namespace gui {
       }
 
       if (super::is_focused()) {
-        draw::frame::dots(graph, area + core::size::one);
+        draw::frame::dots(graph, area);
       }
 
     }

@@ -164,14 +164,14 @@ namespace gui {
       self& set_horizontal (const point_type x, const size_type w);
       self& set_vertical (const point_type y, const size_type h);
 
-      inline gui::os::point_type os_x (const context&) const;
-      inline gui::os::point_type os_y (const context&) const;
-      inline gui::os::point_type os_x2 (const context&) const;
-      inline gui::os::point_type os_y2 (const context&) const;
-      inline gui::os::size_type os_width () const;
-      inline gui::os::size_type os_height () const;
-      inline gui::os::point_type os_right (const context&) const;
-      inline gui::os::point_type os_bottom (const context&) const;
+      gui::os::point_type os_x (const context&) const;
+      gui::os::point_type os_y (const context&) const;
+      gui::os::point_type os_x2 (const context&) const;
+      gui::os::point_type os_y2 (const context&) const;
+      gui::os::size_type os_width () const;
+      gui::os::size_type os_height () const;
+      gui::os::point_type os_right (const context&) const;
+      gui::os::point_type os_bottom (const context&) const;
 
       // intersection
       self& operator&= (const self& rhs);

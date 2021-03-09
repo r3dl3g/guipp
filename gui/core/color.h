@@ -318,6 +318,10 @@ namespace gui {
       return extract<part::alpha>(c);
     }
 
+    inline bool is_transparent (os::color c) {
+      return get_alpha(c) == 0xff;
+    }
+
     constexpr os::color transparent = rgba_gray<0, 0xff>::value;
 
     constexpr os::color black = rgb_gray<0>::value;

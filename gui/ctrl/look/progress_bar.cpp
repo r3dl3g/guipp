@@ -44,7 +44,7 @@ namespace gui {
                        core::size::type bar_pos) {
       using namespace gui::draw;
       const core::rectangle left = area.with_width(bar_pos);
-      const core::rectangle right = area.with_horizontal(left.x2(), area.x2() - left.x2() + 1);
+      const core::rectangle right = area.with_horizontal(left.x2(), area.x2() - left.x2());
       graph.fill(draw::rectangle(left), bar_color);
       graph.fill(draw::rectangle(right), background);
       if (!txt.empty()) {

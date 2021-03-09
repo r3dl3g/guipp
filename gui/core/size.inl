@@ -46,11 +46,11 @@ namespace gui {
       template<typename T>
       struct size<T, coordinate_system::local> {
         static inline gui::os::size_type to_os (const T& v) {
-          return global::scale_to_native<T, gui::os::size_type>(v);
+          return global::scale_to_native<gui::os::size_type>(v);
         }
 
         static inline T from_os (const gui::os::size_type& v) {
-          return global::scale_from_native<T, gui::os::size_type>(v);
+          return global::scale_from_native<T>(v);
         }
       };
 

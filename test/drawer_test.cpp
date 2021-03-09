@@ -76,7 +76,7 @@ void test_data2colormap1 () {
 // --------------------------------------------------------------------------
 template<typename T, typename D = draw::pen>
 void tester (float scale, int sz, const core::point& p1, const core::point& p2,
-             colormap&& expected) {
+             const colormap& expected) {
   core::global::set_scale_factor(scale);
   pixmap img(sz, sz);
   graphics g(img);
@@ -89,7 +89,7 @@ void tester (float scale, int sz, const core::point& p1, const core::point& p2,
 // --------------------------------------------------------------------------
 template<typename T, os::color B, os::color P>
 void tester2 (float scale, int sz, const core::point& p1, const core::point& p2,
-             colormap&& expected) {
+             const colormap& expected) {
   core::global::set_scale_factor(scale);
   pixmap img(sz, sz);
   graphics g(img);
@@ -110,14 +110,14 @@ void test_raw_rect () {
 
   core::rectangle r(core::point(1, 1), core::size(3, 3));
 #ifdef GUIPP_X11
-  XDrawRectangle(core::global::get_instance(), img, g, r.os_x(g.context()), r.os_y(g.context()), r.os_width() - 1, r.os_height() - 1);
+  XDrawRectangle(core::global::get_instance(), img, g, 1, 1, 2, 2);
 #endif
 #ifdef GUIPP_WIN
   SelectObject(g, GetStockObject(NULL_BRUSH));
   Rectangle(g, r.os_x(g.context()), r.os_y(g.context()), r.os_x2(g.context()), r.os_y2(g.context()));
 #endif
 #ifdef GUIPP_QT
-  g.os()->drawRect(r.os_x(g.context()), r.os_y(g.context()), r.os_width() - 1, r.os_height() - 1);
+  g.os()->drawRect(1, 1, 2, 2);
 #endif
 
   auto buffer = pixmap2colormap(img);
@@ -145,21 +145,24 @@ void test_raw_ellipse () {
 #ifdef GUIPP_X11
   XSetArcMode(core::global::get_instance(), g, ArcChord);
   XDrawArc(core::global::get_instance(), img, g, 1, 1, 2, 2, 0, degree_360);
+  constexpr gui::os::color Q = R;
 #endif
 #ifdef GUIPP_WIN
   SelectObject(g, GetStockObject(NULL_BRUSH));
   Ellipse(g, r.os_x(g.context()), r.os_y(g.context()), r.os_x2(g.context()), r.os_y2(g.context()));
+  constexpr gui::os::color Q = _;
 #endif
 #ifdef GUIPP_QT
-  g.os()->drawEllipse(r.os_x(g.context()), r.os_y(g.context()), r.os_width() - 1, r.os_height() - 1);
+  g.os()->drawEllipse(1, 1, 2, 2);
+  constexpr gui::os::color Q = _;
 #endif
 
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
-                           {_, R, R, R, _},
-                           {_, R, _, R, _},
-                           {_, R, R, R, _},
-                           {_, _, _, _, _}}));
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
+                           {_,Q,R,Q,_},
+                           {_,R,_,R,_},
+                           {_,Q,R,Q,_},
+                           {_,_,_,_,_}}));
 }
 
 // --------------------------------------------------------------------------
@@ -305,30 +308,46 @@ void test_raw_ellipse4 () {
 // --------------------------------------------------------------------------
 void test_frame_rect_4x4 () {
   core::global::set_scale_factor(1.0);
-  pixmap img(5, 5);
+  pixmap img(6, 6);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::red);
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,R,R,R,R},
-                           {_,R,_,_,R},
-                           {_,R,_,_,R},
-                           {_,R,R,R,R}}));
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_},
+                           {_,R,R,R,R,_},
+                           {_,R,_,_,R,_},
+                           {_,R,_,_,R,_},
+                           {_,R,R,R,R,_},
+                           {_,_,_,_,_,_}}));
 }
 
+// --------------------------------------------------------------------------
+void test_frame_rect_3x1 () {
+  auto expected = CM({{_,_,_,_,_},
+                      {_,R,R,R,_},
+                      {_,_,_,_,_},
+                      {_,_,_,_,_},
+                      {_,_,_,_,_}});
+  tester<draw::rectangle>(1.0F, 5, {1, 1}, {3, 1}, expected);
+}
+
+// --------------------------------------------------------------------------
+void test_frame_rect_3x2 () {
+  auto expected = CM({{_,_,_,_,_},
+                      {_,R,R,R,_},
+                      {_,R,R,R,_},
+                      {_,_,_,_,_},
+                      {_,_,_,_,_}});
+  tester<draw::rectangle>(1.0F, 5, {1, 1}, {3, 2}, expected);
+}
 
 // --------------------------------------------------------------------------
 void test_frame_rect_3x3 () {
-  core::global::set_scale_factor(1.0);
-  pixmap img(5, 5);
-  graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::red);
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,R,R,R,_},
-                           {_,R,_,R,_},
-                           {_,R,R,R,_},
-                           {_,_,_,_,_}}));
+  auto expected = CM({{_,_,_,_,_},
+                      {_,R,R,R,_},
+                      {_,R,_,R,_},
+                      {_,R,R,R,_},
+                      {_,_,_,_,_}});
+  tester<draw::rectangle>(1.0F, 5, {1, 1}, {3, 3}, expected);
 }
-
 
 // --------------------------------------------------------------------------
 void test_frame_rect_2x2 () {
@@ -3662,6 +3681,8 @@ void test_main (const testing::start_params& params) {
 #ifdef TEST_RECT
   run_test(test_frame_rect_4x4);
   run_test(test_frame_rect_3x3);
+  run_test(test_frame_rect_3x2);
+  run_test(test_frame_rect_3x1);
   run_test(test_frame_rect_2x2);
   run_test(test_frame_rect_1x1);
   run_test(test_frame_rect_0x0);

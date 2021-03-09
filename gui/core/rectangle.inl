@@ -22,6 +22,19 @@ namespace gui {
 
   namespace core {
 
+#ifdef GUIPP_WIN
+    template<typename T, typename S, coordinate_system C>
+    const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def(-1, -1, -1, -1);
+#elif GUIPP_X11
+    template<typename T, typename S, coordinate_system C>
+    const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def(0, 0, 1, 1);
+#elif GUIPP_QT
+    template<typename T, typename S, coordinate_system C>
+    const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def(0, 0, -1, -1);
+#else
+#error Unknown target system: const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def
+#endif // GUIPP_QT
+
     template<typename T, typename S, coordinate_system C>
     const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::zero;
 
@@ -41,7 +54,7 @@ namespace gui {
     inline basic_rectangle<T, S, C>::basic_rectangle (const point_t& topleft,
                                                       const point_t& bottomright)
       : pos(std::min(topleft.x(), bottomright.x()), std::min(topleft.y(), bottomright.y()))
-      , sz(std::abs(bottomright.x() - topleft.x()), std::abs(bottomright.y() - topleft.y()))
+      , sz(std::abs(bottomright.x() - topleft.x()) + 1, std::abs(bottomright.y() - topleft.y()) + 1)
     {}
 
     template<typename T, typename S, coordinate_system C>
@@ -223,16 +236,12 @@ namespace gui {
 
     template<typename T, typename S, coordinate_system C>
     inline auto basic_rectangle<T, S, C>::bottom_right (const point_t& pt) -> self& {
-      sz.width(pt.x() - pos.x() + 1);
-      sz.height(pt.y() - pos.y() + 1);
-      return *this;
+      return bottom(pt.x()).right(pt.y());
     }
 
     template<typename T, typename S, coordinate_system C>
     inline auto basic_rectangle<T, S, C>::x2y2 (const point_t& pt) -> self& {
-      sz.width(pt.x() - pos.x());
-      sz.height(pt.y() - pos.y());
-      return *this;
+      return x2(pt.x()).y2(pt.y());
     }
 
     template<typename T, typename S, coordinate_system C>
@@ -274,19 +283,6 @@ namespace gui {
     inline gui::os::point_type basic_rectangle<T, S, C>::os_bottom (const context& ctx) const {
       return convert::point<T, C>::to_os(bottom(), ctx);
     }
-
-#ifdef GUIPP_WIN
-    template<typename T, typename S, coordinate_system C>
-    const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def(-1, -1, -1, -1);
-#elif GUIPP_X11
-    template<typename T, typename S, coordinate_system C>
-    const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def(0, 0, 1, 1);
-#elif GUIPP_QT
-    template<typename T, typename S, coordinate_system C>
-    const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def(0, 0, -1, -1);
-#else
-#error Unknown target system: const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def
-#endif // GUIPP_QT
 
     template<typename T, typename S, coordinate_system C>
     inline bool basic_rectangle<T, S, C>::empty () const {
@@ -494,21 +490,17 @@ namespace gui {
       return !operator== (rhs);
     }
 
-//    template<typename T, typename S, coordinate_system C>
-//    inline basic_rectangle<T, S, C>::operator gui::os::rectangle() const {
-//      return os();
-//    }
-
     template<typename T, typename S, coordinate_system C>
     gui::os::rectangle basic_rectangle<T, S, C>::os (const context& ctx) const {
       return {
-        os_x(ctx), os_y(ctx),
 #ifdef GUIPP_WIN
+        os_x(ctx), os_y(ctx),
         os_x2(ctx), os_y2(ctx)
 #elif GUIPP_X11
+        os_x(ctx), os_y(ctx),
         os_width(), os_height()
 #elif GUIPP_QT
-        os_width(), os_height()
+        top_left().os(ctx), size().os()
 #else
 # error Unknown target system: gui::os::rectangle basic_rectangle<T, S, C>::os () const
 #endif // GUIPP_QT

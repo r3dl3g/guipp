@@ -97,9 +97,9 @@ namespace gui {
     void rectangle::operator() (graphics& g,
                                 const brush& b,
                                 const pen& p) const {
+      const os::rectangle r = rect.os(g.context());
       const auto pw = p.os_size();
       const auto off = pw / 2;
-      const os::rectangle r = rect.os(g.context());
       Use<brush> ubr(g, b);
       Use<pen> pn(g, p);
       if ((r.width() > pw) && (r.height() > pw)) {
@@ -114,14 +114,14 @@ namespace gui {
 
     void rectangle::operator() (graphics& g,
                                 const pen& p) const {
+      os::rectangle r = rect.os(g.context());
       const auto pw = p.os_size();
       const auto off = pw / 2;
-      const os::rectangle r = rect.os(g.context());
-      Use<brush> ubr(g, brush::invisible);
       Use<pen> pn(g, p);
+      Use<brush> ubr(g, brush::invisible);
       if ((r.width() > pw) && (r.height() > pw)) {
         g.os()->drawRect(r.x() + off, r.y() + off, r.width() - pw, r.height() - pw);
-      } else if ((r.width() > 1) && (r.height() > 1)) {
+      } else if ((r.width() > 1) || (r.height() > 1)) {
         g.os()->fillRect(r.x(), r.y(), r.width(), r.height(), p.color());
       } else if ((1 == r.width()) && (1 == r.height())) {
         g.os()->drawPoint(r.x() + off, r.y() + off);
@@ -137,13 +137,17 @@ namespace gui {
     void ellipse::operator() (graphics& g,
                               const brush& b,
                               const pen& p) const {
+      os::rectangle r = rect.os(g.context());
       Use<pen> upn(g, p);
       Use<brush> ubr(g, b);
       const auto pw = p.os_size();
       const auto off = pw / 2;
-      const auto off2 = pw > 2 ? off : 0;
-      const os::rectangle r = rect.os(g.context());
-      g.os()->drawEllipse(r.x() + off, r.y() + off, r.width() + off2, r.height() + off2);
+      r.adjust(off, off, -1, -1);
+      if ((0 == r.width()) && (0 == r.height())) {
+        g.os()->drawPoint(r.x(), r.y());
+      } else {
+        g.os()->drawEllipse(r);
+      }
     }
 
     void ellipse::operator() (graphics& g,
@@ -170,18 +174,17 @@ namespace gui {
     void round_rectangle::operator() (graphics& g,
                                       const brush& b,
                                       const pen& p) const {
+      os::rectangle r = rect.os(g.context());
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
 
       const auto pw = p.os_size();
       const auto off = pw / 2;
-      const os::rectangle r = rect.os(g.context());
-      if ((r.width() > pw) && (r.height() > pw)) {
-        g.os()->drawRoundedRect(r.x() + off, r.y() + off, r.width() - pw, r.height() - pw, radius.os_width(), radius.os_height());
-      } else if ((r.width() > 1) && (r.height() > 1)) {
-        g.os()->drawRoundedRect(r.x(), r.y(), pw, pw, radius.os_width(), radius.os_height());
-      } else if ((1 == r.width()) && (1 == r.height())) {
-        g.os()->drawPoint(r.x() + off, r.y() + off);
+      r.adjust(off, off, -1, -1);
+      if ((0 == r.width()) && (0 == r.height())) {
+        g.os()->drawPoint(r.x(), r.y());
+      } else {
+        g.os()->drawRoundedRect(r, radius.os_width(), radius.os_height());
       }
     }
 

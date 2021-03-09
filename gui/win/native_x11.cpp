@@ -604,17 +604,23 @@ namespace gui {
       }
 
       void erase (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
-        gui::os::instance display = core::global::get_instance();
-        XSetForeground(display, gc, c);
-        XSetBackground(display, gc, c);
-        XFillRectangle(display, id, gc, r.x(), r.y(), r.width(), r.height());
-        XDrawRectangle(display, id, gc, r.x(), r.y(), r.width(), r.height());
+        if (!color::is_transparent(c)) {
+          gui::os::instance display = core::global::get_instance();
+          const int sc = static_cast<int>(core::global::get_scale_factor());
+          XSetForeground(display, gc, c);
+          XSetBackground(display, gc, c);
+          XFillRectangle(display, id, gc, r.x(), r.y(), r.width() - sc, r.height() - sc);
+          XDrawRectangle(display, id, gc, r.x(), r.y(), r.width() - sc, r.height() - sc);
+        }
       }
 
       void frame (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
-        gui::os::instance display = core::global::get_instance();
-        XSetForeground(display, gc, c);
-        XDrawRectangle(display, id, gc, r.x(), r.y(), r.width(), r.height());
+        if (!color::is_transparent(c)) {
+          gui::os::instance display = core::global::get_instance();
+          const int sc = static_cast<int>(core::global::get_scale_factor());
+          XSetForeground(display, gc, c);
+          XDrawRectangle(display, id, gc, r.x(), r.y(), r.width() - sc, r.height() - sc);
+        }
       }
 
       os::backstore create_surface (const core::native_size& size, os::window id) {

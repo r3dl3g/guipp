@@ -53,7 +53,6 @@ namespace gui {
       explicit basic_point (const gui::os::point& rhs, const context&);
       explicit basic_point (const gui::os::rectangle& r, const context&);
 
-//      operator gui::os::point () const;
       gui::os::point os (const context&) const;
 
       type x () const;

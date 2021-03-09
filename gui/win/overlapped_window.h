@@ -87,7 +87,7 @@ namespace gui {
       void to_front ();
       void to_back ();
 
-      void invalidate (const core::native_rect&);
+      void invalidate (const core::native_rect&) override;
       void invalidate ();
       void redraw (const core::native_rect&);
 

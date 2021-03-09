@@ -477,6 +477,7 @@ my_main_window::my_main_window ()
   window1.on_left_btn_dblclk([&] (os::key_state, const core::native_point& p) {
     clog::debug() << "Window1 Double Click up at " << p;
     window2.set_visible(!window2.is_visible());
+    scroll_view.invalidate();
   });
 
   on_left_btn_dblclk([&] (os::key_state, const core::native_point& p) {

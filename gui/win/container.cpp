@@ -162,6 +162,12 @@ namespace gui {
       invalidate();
     }
 
+    void container::invalidate (const core::native_rect& r) {
+      if (is_valid() && is_visible()) {
+        get_parent()->invalidate(r & surface_geometry());
+      }
+    }
+
     bool container::handle_event (const core::event& e, gui::os::event_result& r) {
       if (paint_event::match(e)) {
         core::context* cntxt = paint_event::Caller::get_param<0>(e);
@@ -181,8 +187,9 @@ namespace gui {
               const auto state = w->get_state();
 
               if (state.created() && state.visible() && !state.overlapped()) {
-                core::clip clp(*cntxt, rect & *clip_rect);
-                native::erase(cntxt->drawable(), cntxt->graphics(), rect, w->get_window_class().get_background());
+                const auto crc = rect & *clip_rect;
+                core::clip clp(*cntxt, crc);
+                native::erase(cntxt->drawable(), cntxt->graphics(), crc, w->get_window_class().get_background());
                 cntxt->set_offset(rect.x(), rect.y());
                 ret |= w->handle_event(e, r);
               }

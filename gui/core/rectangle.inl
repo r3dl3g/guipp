@@ -381,14 +381,14 @@ namespace gui {
 
     template<typename T, typename S, coordinate_system C>
     inline auto basic_rectangle<T, S, C>::grow (const size_t& s) -> self& {
-      pos -= s;
+      pos = point_t{point_type(pos.x() - s.width()), point_type(pos.y() - s.height())};
       sz += (s + s);
       return *this;
     }
 
     template<typename T, typename S, coordinate_system C>
     inline auto basic_rectangle<T, S, C>::shrink (const size_t& s) -> self& {
-      pos += s;
+      pos = point_t{point_type(pos.x() + s.width()), point_type(pos.y() + s.height())};
       sz -= (s + s);
       return *this;
     }

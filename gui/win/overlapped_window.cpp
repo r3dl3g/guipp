@@ -48,7 +48,7 @@
 # define USE_INPUT_EATER
 #endif
 
-#define DEBUG_RECTANGLESxx
+#define DEBUG_RECTANGLESx
 #ifdef DEBUG_RECTANGLES
 #define SHOW_FOCUS
 #define SHOW_MOUSE_WIN
@@ -553,8 +553,8 @@ namespace gui {
         surface.begin(*this);
         auto cntxt = surface.get_context();
 
-        core::clip clp(cntxt, r);
-        native::erase(cntxt.drawable(), cntxt.graphics(), r, get_window_class().get_background());
+        core::clip clp(cntxt, invalid_rect);
+        native::erase(cntxt.drawable(), cntxt.graphics(), invalid_rect, get_window_class().get_background());
         notify_event(core::WM_PAINT_WINDOW, &cntxt, &invalid_rect);
         auto wctxt = surface.end(get_os_window());
 

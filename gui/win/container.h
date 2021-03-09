@@ -64,6 +64,9 @@ namespace gui {
       void to_front (window*);
       void to_back (window*);
 
+      virtual void invalidate (const core::native_rect&);
+      using window::invalidate;
+
       bool handle_event (const core::event&, gui::os::event_result&) override;
       os::event_id collect_event_mask () const override;
 

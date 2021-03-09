@@ -123,6 +123,7 @@ namespace gui {
       auto steps = view.get_scroll_steps();
       vscroll.set_step(steps.height());
       hscroll.set_step(steps.width());
+      super::layout();
     }
 
   } // namespace ctrl

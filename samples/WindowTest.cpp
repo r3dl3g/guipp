@@ -609,7 +609,9 @@ my_main_window::my_main_window ()
     strm << "Item " << idx;
 
     gui::look::text_item(g, place, background, strm.str(), state);
-  }, [] () { return 20; }));
+  }, [] () {
+    return 20;
+  }));
   list1->on_selection_changed([&](ctrl::event_source) {
     labelC.set_text(ostreamfmt("List1 item " << list1->get_selection()));
   });
@@ -976,25 +978,25 @@ void my_main_window::created_children () {
   editor.create(main, core::rectangle(740, 320, 150, 250));
   clog::debug() << "Create editor: " << editor;
   editor->set_text("1. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
-                       "2. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
-                       "3. magna aliquyam erat, sed diam voluptua.\n"
-                       "4. At vero eos et accusam et justo duo dolores et ea rebum.\n"
-                       "5. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\n"
-                       "6. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
-                       "7. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
-                       "8. magna aliquyam erat, sed diam voluptua.\n"
-                       "9. At vero eos et accusam et justo duo dolores et ea rebum.\n"
-                       "10. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\n"
-                       "11. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
-                       "12. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
-                       "13. magna aliquyam erat, sed diam voluptua.\n"
-                       "14. At vero eos et accusam et justo duo dolores et ea rebum.\n"
-                       "15. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\n"
-                       "16. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
-                       "17. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
-                       "18. magna aliquyam erat, sed diam voluptua.\n"
-                       "19. At vero eos et accusam et justo duo dolores et ea rebum.\n"
-                       "20. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\n");
+                   "2. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
+                   "3. magna aliquyam erat, sed diam voluptua.\n"
+                   "4. At vero eos et accusam et justo duo dolores et ea rebum.\n"
+                   "5. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\n"
+                   "6. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
+                   "7. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
+                   "8. magna aliquyam erat, sed diam voluptua.\n"
+                   "9. At vero eos et accusam et justo duo dolores et ea rebum.\n"
+                   "10. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\n"
+                   "11. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
+                   "12. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
+                   "13. magna aliquyam erat, sed diam voluptua.\n"
+                   "14. At vero eos et accusam et justo duo dolores et ea rebum.\n"
+                   "15. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\n"
+                   "16. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
+                   "17. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
+                   "18. magna aliquyam erat, sed diam voluptua.\n"
+                   "19. At vero eos et accusam et justo duo dolores et ea rebum.\n"
+                   "20. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\n");
   editor->set_cursor_pos({3, 5});
   editor->set_selection({{3, 2}, {2, 4}});
 

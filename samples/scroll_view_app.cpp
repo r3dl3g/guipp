@@ -21,10 +21,11 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::ctrl;
   using namespace gui::core;
 
-  layout_main_window<border::layouter</*50, 50, 50, 50*/>> main;
+  layout_main_window<border::layouter<50, 50, 50, 50>> main;
   ctrl::scroll_view<color::very_light_gray> scroll_view;
-  ctrl::client_control<> window1;
-  ctrl::client_control<> window2;
+  ctrl::client_control<color::very_very_light_gray> window1;
+  ctrl::client_control<color::gray> window2;
+  ctrl::client_control<color::white> bottom;
 
   bool at_paint1 = true;
   bool at_drag = false;
@@ -36,6 +37,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   const ctrl::paint_function paint2 = create_paint2(window1, draw_invert, start_angle, end_angle);
 
   main.get_layout().set_center(lay(scroll_view));
+  main.get_layout().set_bottom(lay(bottom));
 
   window1.on_left_btn_down([&](gui::os::key_state, const core::native_point& p) {
     window1.to_front();
@@ -85,9 +87,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     }
   });
 
-  window2.on_paint(draw::paint([&] (draw::graphics& graph) {
-    graph.fill(draw::rectangle(window2.client_geometry()), color::gray);
-  }));
   window2.on_left_btn_down([&] (gui::os::key_state, const core::native_point& p) {
     window2.to_front();
     scroll_view.invalidate();
@@ -101,6 +100,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     scroll_view.create(main);
     window1.create(scroll_view, core::rectangle(10, 10, 200, 280));
     window2.create(scroll_view, core::rectangle(220, 10, 200, 280));
+    bottom.create(main);
   });
 
   main.create({50, 50, 800, 600});
@@ -148,7 +148,7 @@ ctrl::paint_function create_paint1 (const win::window& win, const bool& draw_inv
     auto pos = area.top_left();
     clip clp(graph, area);
 
-    graph.fill(rectangle(area), color::very_very_light_gray);
+//    graph.fill(rectangle(area), color::very_very_light_gray);
 
     graph.frame(polygon(calc_star(pos + core::point{30, 30}, start)), color::blue);
     graph.fill(polygon(calc_star(pos + core::point{80, 30}, start)), color::dark_green);
@@ -234,7 +234,7 @@ ctrl::paint_function create_paint2 (const win::window& win, const bool& draw_inv
     auto area = win.client_geometry();
     auto pos = area.top_left();
     clip clp(graph, area);
-    graph.fill(rectangle(area), color::white);
+//    graph.fill(rectangle(area), color::white);
 
     graph.draw_pixel(core::native_point(pos.os_x(graph.context()) + 3, pos.os_y(graph.context()) + 3), color::gray);
     graph.draw_pixel(core::native_point(pos.os_x(graph.context()) + 6, pos.os_y(graph.context()) + 6), color::gray);

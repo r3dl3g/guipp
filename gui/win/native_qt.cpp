@@ -281,7 +281,8 @@ namespace gui {
       void prepare_dialog_window (os::window, os::window) {}
 
       void erase (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
-        gc->fillRect(r.x(), r.y(), r.width(), r.height(), c);
+        const int sc = static_cast<int>(core::global::get_scale_factor());
+        gc->fillRect(r.x(), r.y(), r.width() - sc, r.height() - sc, c);
       }
 
       void frame (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {

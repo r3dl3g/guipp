@@ -561,8 +561,8 @@ namespace gui {
     auto basic_rectangle<T, S, C>::operator|= (const self& rhs) -> self& {
       point_type x0 = std::min(x(), rhs.x());
       point_type y0 = std::min(y(), rhs.y());
-      point_type x1 = std::max(x2(), rhs.x2());
-      point_type y1 = std::max(y2(), rhs.y2());
+      point_type x1 = std::max(right(), rhs.right());
+      point_type y1 = std::max(bottom(), rhs.bottom());
       return operator= ({point_t {x0, y0}, point_t {x1, y1}});
     }
 
@@ -583,7 +583,7 @@ namespace gui {
       point_type y0 = std::max(y(), rhs.y());
       point_type x1 = std::min(x2(), rhs.x2());
       point_type y1 = std::min(y2(), rhs.y2());
-      return operator= ({point_t {x0, y0}, point_t {x1, y1}});
+      return operator= ({point_t {x0, y0}, size_t {size_type(x1 - x0), size_type(y1 - y0)}});
     }
 
     template<typename T, typename S, coordinate_system C>

@@ -113,7 +113,7 @@ namespace gui {
     inline size_type get_height (const rectangle& r) { return r.height(); }
 
     inline rectangle mk_rectangle (point_type x, point_type y, point_type x2, point_type y2) {
-      return rectangle{x, y, x2 - x, y2 - y};
+      return rectangle{point{x, y}, point{x2, y2}};
     }
 
 

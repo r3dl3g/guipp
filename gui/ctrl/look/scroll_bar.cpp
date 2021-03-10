@@ -125,7 +125,7 @@ namespace gui {
       if (!up.empty()) {
         look::button_frame<look_and_feel_t::w95>(g, up, true, false, ctrl::scrollbar_item::up_button == hilite, false);
         if (ctrl::scrollbar_item::up_button == select) {
-          draw::frame::sunken_relief(g, up.shrinked(core::size::two));
+          draw::frame::sunken_relief(g, up.shrinked(2, 3, 2, 3));
         }
         auto s = up_left_arrows[horizontal];
         g.text(draw::text_box(s, up, text_origin_t::center), draw::font::system(), col);
@@ -133,7 +133,7 @@ namespace gui {
       if (!down.empty()) {
         look::button_frame<look_and_feel_t::w95>(g, down, true, false, ctrl::scrollbar_item::down_button == hilite, false);
         if (ctrl::scrollbar_item::down_button == select) {
-          draw::frame::sunken_relief(g, down.shrinked(core::size::two));
+          draw::frame::sunken_relief(g, down.shrinked(2, 3, 2, 3));
         }
         auto s = down_right_arrows[horizontal];
         g.text(draw::text_box(s, down, text_origin_t::center), draw::font::system(), col);
@@ -141,7 +141,7 @@ namespace gui {
       if (!thumb.empty()) {
         look::button_frame<look_and_feel_t::w95>(g, thumb, true, false, ctrl::scrollbar_item::thumb_button == hilite, false);
         if (ctrl::scrollbar_item::thumb_button == select) {
-          draw::frame::sunken_relief(g, thumb.shrinked(core::size::two));
+          draw::frame::sunken_relief(g, thumb.shrinked(2, 3, 2, 3));
         }
       }
     }

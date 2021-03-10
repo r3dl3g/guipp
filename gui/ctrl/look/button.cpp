@@ -167,6 +167,13 @@ namespace gui {
       return img;
     }
 
+    template<typename T>
+    draw::masked_bitmap make_masked (const T& img) {
+      auto mask = img.get_mask({0x01});
+      return draw::masked_bitmap(img, std::move(mask));
+    }
+
+
     const draw::rgbmap& get_osx_checkbox (bool active, bool disabled) {
       static draw::rgbmap off = upscale(build_gray_image(make_string(image_data::osx_checkbox_off)).convert<pixel_format_t::RGB>());
       static draw::rgbmap on = upscale(build_rgb_image(make_string(image_data::osx_checkbox_on)));
@@ -183,19 +190,19 @@ namespace gui {
       return disabled ? (active ? dis_on : dis_off) : (active ? on : off);
     }
 
-    const draw::graymap& get_metal_checkbox (bool active, bool disabled) {
-      static draw::graymap off = downscale(build_gray_image(make_string(image_data::metal_check_off)));
-      static draw::graymap on = downscale(build_gray_image(make_string(image_data::metal_check_on)));
-      static draw::graymap dis_off = downscale(build_gray_image(make_string(image_data::metal_check_disabled)));
-      static draw::graymap dis_on = downscale(build_gray_image(make_string(image_data::metal_check_disabled_on)));
+    const draw::masked_bitmap& get_metal_checkbox (bool active, bool disabled) {
+      static draw::masked_bitmap off = make_masked(downscale(build_gray_image(make_string(image_data::metal_check_off))));
+      static draw::masked_bitmap on = make_masked(downscale(build_gray_image(make_string(image_data::metal_check_on))));
+      static draw::masked_bitmap dis_off = make_masked(downscale(build_gray_image(make_string(image_data::metal_check_disabled))));
+      static draw::masked_bitmap dis_on = make_masked(downscale(build_gray_image(make_string(image_data::metal_check_disabled_on))));
       return disabled ? (active ? dis_on : dis_off) : (active ? on : off);
     }
 
-    const draw::graymap& get_metal_radio (bool active, bool disabled) {
-      static draw::graymap off = downscale(build_gray_image(make_string(image_data::metal_radio_off)));
-      static draw::graymap on = downscale(build_gray_image(make_string(image_data::metal_radio_on)));
-      static draw::graymap dis_off = downscale(build_gray_image(make_string(image_data::metal_radio_disabled)));
-      static draw::graymap dis_on = downscale(build_gray_image(make_string(image_data::metal_radio_disabled_on)));
+    const draw::masked_bitmap& get_metal_radio (bool active, bool disabled) {
+      static draw::masked_bitmap off = make_masked(downscale(build_gray_image(make_string(image_data::metal_radio_off))));
+      static draw::masked_bitmap on = make_masked(downscale(build_gray_image(make_string(image_data::metal_radio_on))));
+      static draw::masked_bitmap dis_off = make_masked(downscale(build_gray_image(make_string(image_data::metal_radio_disabled))));
+      static draw::masked_bitmap dis_on = make_masked(downscale(build_gray_image(make_string(image_data::metal_radio_disabled_on))));
       return disabled ? (active ? dis_on : dis_off) : (active ? on : off);
     }
 

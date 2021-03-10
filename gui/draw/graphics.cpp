@@ -400,11 +400,13 @@ namespace gui {
       }
 
       if (bmp.image) {
-        core::native_rect src(pt, bmp.image.native_size());
-        if (!clip.empty()) {
-          src &= clip;
-        }
-        res = XCopyArea(get_instance(), bmp.image, target(), gc(), src.x() - pt.x(), src.y() - pt.x(), src.width(), src.height(), src.x(), src.y());
+        core::native_rect src(bmp.image.native_size());
+        res = XCopyArea(get_instance(), bmp.image, target(), gc(), src.x(), src.y(), src.width(), src.height(), pt.x(), pt.y());
+//        core::native_rect src(pt, bmp.image.native_size());
+//        if (!clip.empty()) {
+//          src &= clip;
+//        }
+//        res = XCopyArea(get_instance(), bmp.image, target(), gc(), src.x() - pt.x(), src.y() - pt.x(), src.width(), src.height(), src.x(), src.y());
       } else {
         Use<brush> br(gc(), color::black);
 
@@ -572,20 +574,11 @@ namespace gui {
 
     graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) {
       if (bmp.mask && bmp.image) {
-//        QImage img = bmp.mask.get_os_bitmap()->toImage();
-//        img.invertPixels();
-//        QBitmap mask = QBitmap::fromImage(img);
-//        gc()->setClipRegion(QRegion(mask));
-        gc()->setClipRegion(QRegion(*bmp.mask.get_os_bitmap()));
+        QRegion clip(*bmp.mask.get_os_bitmap());
+        clip.translate(pt.x(), pt.y());
+        gc()->setClipRegion(clip);
         gc()->drawPixmap(pt.x(), pt.y(), *bmp.image.get_os_bitmap());
         context().restore_clipping();
-
-//        QPainter::CompositionMode old_mode = gc()->compositionMode();
-//        gc()->setCompositionMode(QPainter::RasterOp_NotSourceAndDestination);
-//        gc()->drawPixmap(pt.x(), pt.y(), *bmp.mask.get_os_bitmap());
-//        gc()->setCompositionMode(QPainter::RasterOp_SourceOrDestination);
-//        gc()->drawPixmap(pt.x(), pt.y(), *bmp.image.get_os_bitmap());
-//        gc()->setCompositionMode(old_mode);
       } else if (bmp.image) {
         gc()->drawPixmap(pt.x(), pt.y(), *bmp.image.get_os_bitmap());
       } else if (bmp.mask) {

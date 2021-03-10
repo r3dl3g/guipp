@@ -568,9 +568,10 @@ namespace gui {
         handle_key(key);
       });
 
-//      on_show([&] () {
+      on_show([&] () {
+        invalidate();
 //        capture_pointer(this);
-//      });
+      });
 
 //      on_create([&](window*, const core::rectangle&){
 //        data.register_menu_keys();

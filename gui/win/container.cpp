@@ -122,10 +122,12 @@ namespace gui {
     }
 
     void container::add_child (window* w) {
-      auto i = std::find(children.begin(), children.end(), w);
-      if (i == children.end()) {
-        children.push_back(w);
-        invalidate();
+      if (w) {
+        auto i = std::find(children.begin(), children.end(), w);
+        if (i == children.end()) {
+          children.push_back(w);
+          invalidate();
+        }
       }
     }
 
@@ -181,17 +183,19 @@ namespace gui {
           ret = super::handle_event(e, r);
 
           for (auto& w : children) {
-            const auto rect = w->surface_geometry();
+            if (w && w->is_valid()) {
+              const auto rect = w->surface_geometry();
 
-            if (!clip_rect || (clip_rect->overlap(rect))) {
-              const auto state = w->get_state();
+              if (!clip_rect || (clip_rect->overlap(rect))) {
+                const auto state = w->get_state();
 
-              if (state.created() && state.visible() && !state.overlapped()) {
-                const auto crc = rect & *clip_rect;
-                core::clip clp(*cntxt, crc);
-                native::erase(cntxt->drawable(), cntxt->graphics(), crc, w->get_window_class().get_background());
-                cntxt->set_offset(rect.x(), rect.y());
-                ret |= w->handle_event(e, r);
+                if (state.created() && state.visible() && !state.overlapped()) {
+                  const auto crc = rect & *clip_rect;
+                  core::clip clp(*cntxt, crc);
+                  native::erase(cntxt->drawable(), cntxt->graphics(), crc, w->get_window_class().get_background());
+                  cntxt->set_offset(rect.x(), rect.y());
+                  ret |= w->handle_event(e, r);
+                }
               }
             }
           }

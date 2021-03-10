@@ -326,7 +326,7 @@ namespace gui {
     void window::invalidate () const {
       if (is_valid() && is_visible()) {
         clog::trace() << "invalidate: " << *this;
-        if (get_parent()) {
+        if (get_parent() && !get_state().overlapped()) {
           get_parent()->invalidate(surface_geometry());
         } else {
           get_overlapped_window().invalidate(surface_geometry());

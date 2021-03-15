@@ -52,7 +52,7 @@ namespace gui {
       GUIPP_WIN_EXPORT void notify_move (window& w, const core::point& pt, const core::point& old);
       GUIPP_WIN_EXPORT void notify_resize (window& w, const core::size& sz, const core::size& old);
 
-      GUIPP_WIN_EXPORT core::point get_position (os::window id);
+      GUIPP_WIN_EXPORT core::native_point get_position (os::window id);
       GUIPP_WIN_EXPORT core::size client_size (os::window id, const core::size& sz);
 
       GUIPP_WIN_EXPORT void prepare (overlapped_window& w);

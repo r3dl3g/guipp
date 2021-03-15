@@ -295,15 +295,15 @@ namespace gui {
         }
       }
 
-      core::point get_position (os::window wid) {
+      core::native_point get_position (os::window wid) {
         auto display = core::global::get_instance();
         Window root = DefaultRootWindow(display);
         Window child;
         int x = 0, y = 0;
         if (wid && x11::check_status(XTranslateCoordinates(display, wid, root, 0, 0,&x, &y, &child))) {
-          return core::global::scale_from_native(core::native_point{x, y});
+          return {x, y};
         }
-        return core::point::zero;
+        return core::native_point::zero;
       }
 
       core::size client_size (os::window, const core::size& sz) {
@@ -508,6 +508,14 @@ namespace gui {
 
       core::rectangle adjust_overlapped_area (const core::rectangle& r, const class_info&) {
         return r;
+      }
+
+      core::native_point surface_to_screen (os::window id, const core::native_point& pt) {
+        return pt + get_position(id);
+      }
+
+      core::native_point screen_to_surface (os::window id, const core::native_point& pt) {
+        return pt - get_position(id);
       }
 
       void prepare_overlapped (os::window id, os::window pid) {

@@ -586,7 +586,7 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     core::point overlapped_window::position () const {
-      return native::get_position(get_os_window());
+      return core::global::scale_from_native(native::get_position(get_os_window()));
     }
     // --------------------------------------------------------------------------
     core::native_point overlapped_window::surface_position () const {

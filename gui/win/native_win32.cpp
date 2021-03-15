@@ -121,10 +121,10 @@ namespace gui {
         w.handle_event(e, result);
       }
 
-      core::point get_position (os::window w) {
+      core::native_point get_position (os::window w) {
         RECT r;
         GetWindowRect(w, &r);
-        return core::global::scale_from_native(core::native_point{os::get_x(r), os::get_y(r)});
+        return {os::get_x(r), os::get_y(r)};
       }
 
       core::size client_size (os::window id, const core::size&) {

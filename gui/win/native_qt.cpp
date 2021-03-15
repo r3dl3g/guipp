@@ -91,9 +91,9 @@ namespace gui {
         w.handle_event(e, result);
       }
 
-      core::point get_position (os::window w) {
+      core::native_point get_position (os::window w) {
         const auto pt = w->position();
-        return core::global::scale_from_native(core::native_point{pt.x(), pt.y()});
+        return {pt.x(), pt.y()};
       }
 
       core::size client_size (os::window id, const core::size&) {
@@ -218,6 +218,14 @@ namespace gui {
 
       core::rectangle adjust_overlapped_area (const core::rectangle& r, const class_info&) {
         return r;
+      }
+
+      core::native_point surface_to_screen (os::window id, const core::native_point& pt) {
+        return pt + get_position(id);
+      }
+
+      core::native_point screen_to_surface (os::window id, const core::native_point& pt) {
+        return pt - get_position(id);
       }
 
       void prepare_overlapped (os::window id, os::window pid) {

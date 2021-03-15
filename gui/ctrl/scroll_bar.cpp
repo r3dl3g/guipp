@@ -44,7 +44,7 @@ namespace gui {
 #ifdef GUIPP_QT
 
     core::point::type get_scroll_value (const core::event& e) {
-      return e.cast<win::QClientEvent>().l1() / 1000000.0;
+      return *(core::point::type*)e.cast<win::QClientEvent>().l1();
     }
 
 #endif // GUIPP_QT

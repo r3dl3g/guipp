@@ -130,7 +130,7 @@ namespace gui {
       void notify_event (os::message_type message, long l1 = 0, long l2 = 0);
       void notify_event (os::message_type message, void* v1, void* v2);
       void notify_event (os::message_type message, const core::rectangle&);
-      void notify_event_double (os::message_type message, double d1);
+      void notify_event_float (os::message_type message, float d1);
       void notify_mouse_event (bool enter);
       void notify_visibility (bool visible);
 

@@ -31,8 +31,8 @@ namespace gui {
   namespace win {
 
     template<>
-    float get_param<0, float>(const core::event& e) {
-      return (float)(e.wParam / 1000000.0);
+    float get_param<0, core::point::type>(const core::event& e) {
+      return *(float*)e.wParam;
     }
 
   } // namespace win
@@ -225,7 +225,7 @@ namespace gui {
     }
 
     void scroll_bar::send_notify () {
-      super::notify_event_double(detail::SCROLLBAR_MESSAGE, data.value);
+      super::notify_event_float(detail::SCROLLBAR_MESSAGE, data.value);
     }
 
     void scroll_bar::handle_wheel (const core::point::type delta, const core::native_point&) {

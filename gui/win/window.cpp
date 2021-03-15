@@ -218,9 +218,8 @@ namespace gui {
       }
     }
 
-    void window::notify_event_double (os::message_type message, double d1) {
-      long l1 = static_cast<long>(d1 * 1000000.0);
-      notify_event(message, l1, 0);
+    void window::notify_event_float (os::message_type message, float d1) {
+      notify_event(message, &d1, nullptr);
     }
 
     void window::notify_event (os::message_type message, long l1, long l2) {

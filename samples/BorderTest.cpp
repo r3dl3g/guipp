@@ -232,10 +232,10 @@ masked_bitmap create_text_pixmap (const std::string& str,
                            const os::color color) {
   pixmap img(rect.size());
   graphics g(img);
-  text_box box(str, rect, text_origin_t::center);
   g.clear(color::black);
+  text_box box(str, rect, text_origin_t::center);
   g.text(box, font::menu(), color);
-  return masked_bitmap{img};
+  return masked_bitmap{std::move(img)};
 }
 
 // --------------------------------------------------------------------------

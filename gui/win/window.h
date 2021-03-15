@@ -109,15 +109,11 @@ namespace gui {
       void resize (const core::size&, bool repaint = true);
       void geometry (const core::rectangle&, bool repaint = true);
 
-      core::point window_to_screen (const core::point&) const;
-      core::point screen_to_window (const core::point&) const;
-
       core::point client_to_screen (const core::point&) const;
       core::point screen_to_client (const core::point&) const;
 
       core::native_point client_to_surface (const core::point&) const;
       core::point surface_to_client (const core::native_point&) const;
-      core::point surface_to_screen (const core::native_point&) const;
 
       const char* get_class_name () const;
       const class_info& get_window_class () const;

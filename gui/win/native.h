@@ -95,6 +95,9 @@ namespace gui {
       GUIPP_WIN_EXPORT void prepare_overlapped (os::window id, os::window pid);
       GUIPP_WIN_EXPORT os::window get_overlapped_parent (os::window pid);
 
+      GUIPP_WIN_EXPORT core::native_point surface_to_screen (os::window id, const core::native_point&);
+      GUIPP_WIN_EXPORT core::native_point screen_to_surface (os::window id, const core::native_point&);
+
       GUIPP_WIN_EXPORT void set_title (os::window id, const std::string& title);
       GUIPP_WIN_EXPORT std::string get_title (os::window id);
 

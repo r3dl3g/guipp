@@ -593,6 +593,14 @@ namespace gui {
       return core::native_point::zero;
     }
     // --------------------------------------------------------------------------
+    core::point overlapped_window::surface_to_screen (const core::native_point& pt) const {
+      return core::global::scale_from_native(native::surface_to_screen(get_os_window(), pt));
+    }
+    // --------------------------------------------------------------------------
+    core::native_point overlapped_window::screen_to_surface (const core::point& pt) const {
+      return native::screen_to_surface(get_os_window(), core::global::scale_to_native(pt));
+    }
+    // --------------------------------------------------------------------------
     core::size overlapped_window::client_size () const {
       return native::client_size(get_os_window(), super::client_size());
     }

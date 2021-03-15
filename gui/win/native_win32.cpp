@@ -292,6 +292,18 @@ namespace gui {
         return pid;
       }
 
+      core::native_point surface_to_screen (os::window id, const core::native_point& pt) {
+        os::point p = {pt.x(), pt.y()};
+        ClientToScreen(id, &p);
+        return {p.x, p.y};
+      }
+
+      core::native_point screen_to_surface (os::window id, const core::native_point& pt) {
+        os::point p = { pt.x(), pt.y() };
+        ScreenToClient(id, &p);
+        return { p.x, p.y };
+      }
+
       void set_title (os::window id, const std::string& title) {
         SendMessage(id, WM_SETTEXT, 0, (LPARAM)title.c_str());
       }

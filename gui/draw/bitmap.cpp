@@ -352,7 +352,11 @@ namespace gui {
 
     basic_map& basic_map::operator= (const basic_map& rhs) {
       if (&rhs != this) {
+        clear();
         if (rhs) {
+#ifdef GUIPP_WIN
+          set_os_bitmap((os::bitmap)CopyImage(rhs.get_os_bitmap(), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE));
+#else
           bitmap_info bmi = rhs.get_info();
           create(bmi);
 #ifdef GUIPP_QT
@@ -360,8 +364,7 @@ namespace gui {
 #else
           graphics(*this).copy_from((os::drawable)rhs, core::native_rect(bmi.size()));
 #endif
-        } else {
-          clear();
+#endif
         }
       }
       return *this;

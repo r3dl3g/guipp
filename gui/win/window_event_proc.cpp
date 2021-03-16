@@ -316,6 +316,8 @@ namespace gui {
 
 #endif
 
+    bool check_message_filter (const core::event& ev);
+    bool check_hot_key (const core::event& e);
 
     // --------------------------------------------------------------------------
     namespace detail {
@@ -330,6 +332,28 @@ namespace gui {
       typedef std::pair<int, filter_call> filter_call_entry;
       typedef std::vector<filter_call_entry> filter_list;
       filter_list message_filters;
+
+#ifdef GUIPP_QT
+      class ShortcutFilter : public QObject {
+      public:
+        typedef QObject super;
+
+        bool eventFilter (QObject *watched, QEvent *event) override;
+      };
+
+      bool ShortcutFilter::eventFilter (QObject *watched, QEvent *event) {
+        core::event ev{dynamic_cast<os::qt::window*>(watched), event};
+        if (check_message_filter(ev)) {
+          return true;
+        }
+        if (check_hot_key(ev)) {
+          return true;
+        }
+        return false;
+      }
+
+      ShortcutFilter* shortcut_filter = nullptr;
+#endif
 
     }
 
@@ -370,6 +394,10 @@ namespace gui {
         os::window root = (os::window)QGuiApplication::topLevelWindows().first();
         if (win && win->is_valid()) {
           root = win->get_overlapped_window().get_os_window();
+        }
+        if (!detail::shortcut_filter) {
+          detail::shortcut_filter = new detail::ShortcutFilter();
+          core::global::get_instance()->installEventFilter(detail::shortcut_filter);
         }
 #endif
         detail::hot_keys.emplace(hk, std::make_pair(root, fn));

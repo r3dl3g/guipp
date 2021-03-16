@@ -745,7 +745,13 @@ namespace gui {
 #endif // GUIPP_X11
 
 #ifdef GUIPP_QT
+      for (auto& hk : hot_keys) {
+        global::register_hot_key(hk.hk, hk.fn, this);
+      }
       event_loop.exec(QEventLoop::DialogExec);
+      for (auto& hk : hot_keys) {
+        global::unregister_hot_key(hk.hk);
+      }
 #else
       if (hot_keys.empty()) {
         run_loop(is_modal);

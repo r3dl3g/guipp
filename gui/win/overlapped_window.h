@@ -148,6 +148,7 @@ namespace gui {
       window* capture_window;
       window* mouse_window;
       core::native_rect invalid_rect;
+      std::vector<window*> capture_stack;
 
       os::window id;
       mutable std::unique_ptr<overlapped_context> surface;

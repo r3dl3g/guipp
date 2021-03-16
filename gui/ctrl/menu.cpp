@@ -640,6 +640,7 @@ namespace gui {
 
     void popup_menu::handle_mouse (bool btn, const core::native_point& gpt) {
       const auto idx = get_index_at_point(surface_to_client(gpt));
+      clog::trace() << "popup_menu::handle_mouse at:" << gpt << " -> index:" << idx << " in window " << *this;
       if (btn) {
         if (!data.is_open() || (idx != data.get_hilite())) {
           data.set_selection(idx, event_source::mouse);
@@ -659,10 +660,10 @@ namespace gui {
       data.init();
       data.set_hilite(0);
       data.set_mouse_function([&] (bool btn, const core::native_point& gpt) {
-        if (surface_geometry().is_inside(gpt)) {
-          handle_mouse(btn, gpt);
-        } else if (btn) {
+        if (btn && !surface_geometry().is_inside(gpt)) {
           close();
+        } else {
+          handle_mouse(btn, gpt);
         }
       });
       clog::trace() << "popup_menu::popup_at(" << pt << ") -> run_modal";
@@ -700,13 +701,14 @@ namespace gui {
     }
 
     int popup_menu::get_index_at_point (const core::point& pt) const {
-      if (client_geometry().shrinked({1, 1}).is_inside(pt)) {
+      if (client_geometry().is_inside(pt)) {
         return std::min(static_cast<int>(data.size()), static_cast<int>((pt.y() - 1) / item_height));
       }
       return -1;
     }
 
     void popup_menu::close () {
+      clog::trace() << "popup_menu::close";
       set_state().disable_redraw();
       data.close();
 //      uncapture_pointer(this);

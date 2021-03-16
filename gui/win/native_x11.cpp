@@ -475,18 +475,38 @@ namespace gui {
 
 #define NO_CAPTUREx
 
-      void capture_pointer (os::window id) {
-#ifndef NO_CAPTURE
+      std::vector<os::window> capture_stack;
+
+      inline void grab (os::window id) {
         x11::check_return(XGrabPointer(core::global::get_instance(), id,
                                        False,
                                        ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | LeaveWindowMask,
                                        GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
+      }
+
+      inline void ungrab () {
+        x11::check_return(XUngrabPointer(core::global::get_instance(), CurrentTime));
+      }
+
+      void capture_pointer (os::window id) {
+#ifndef NO_CAPTURE
+        if (!capture_stack.empty()) {
+          ungrab();
+        }
+        capture_stack.push_back(id);
+        grab(id);
 #endif // NO_CAPTURE
       }
 
       void uncapture_pointer (os::window id) {
 #ifndef NO_CAPTURE
-        x11::check_return(XUngrabPointer(core::global::get_instance(), CurrentTime));
+        if (!capture_stack.empty()) {
+          ungrab();
+          capture_stack.pop_back();
+          if (!capture_stack.empty()) {
+            grab(capture_stack.back());
+          }
+        }
 #endif // NO_CAPTURE
       }
 

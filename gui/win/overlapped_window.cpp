@@ -180,10 +180,6 @@ namespace gui {
 #endif
     };
     // --------------------------------------------------------------------------
-    namespace {
-      std::vector<window*> capture_stack;
-    }
-
     // --------------------------------------------------------------------------
     overlapped_window::overlapped_window ()
       : id(0)
@@ -630,9 +626,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     void overlapped_window::capture_pointer (window* w) {
       if (is_valid()) {
-        clog::trace() << "capture_pointer:" << *w;
+        clog::info() << "capture_pointer:" << *w;
         if (capture_stack.empty()) {
-          clog::trace() << "capture_pointer for overlapped_window";
+          clog::info() << "capture_pointer for overlapped_window " << *this;
           native::capture_pointer(get_os_window());
         }
         capture_window = w;
@@ -646,14 +642,14 @@ namespace gui {
           if (capture_stack.back() != w) {
             clog::fatal() << "uncapture_pointer:" << w << " differs from stack back:(" << capture_stack.back() << ")";
           } else {
-            clog::trace() << "uncapture_pointer:" << w;
+            clog::info() << "uncapture_pointer:" << w;
           }
           capture_stack.pop_back();
           if (!capture_stack.empty()) {
-            clog::trace() << "re-capture_pointer:" << capture_stack.back();
+            clog::info() << "re-capture_pointer:" << capture_stack.back();
             capture_window = capture_stack.back();
           } else {
-            clog::trace() << "uncapture_pointer for overlapped_window";
+            clog::info() << "uncapture_pointer for overlapped_window " << *this;
             native::uncapture_pointer(get_os_window());
             capture_window = nullptr;
           }

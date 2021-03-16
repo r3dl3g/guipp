@@ -272,6 +272,7 @@ namespace gui {
       popup_menu (const popup_menu&);
       popup_menu (popup_menu&&) noexcept ;
       popup_menu (std::initializer_list<menu_entry> entries);
+      ~popup_menu ();
 
       void close ();
 
@@ -299,6 +300,9 @@ namespace gui {
 
       void popup_at (win::container& parent, menu_data& parent_data, const core::point& pt);
 
+      void register_message_filter ();
+      void unregister_message_filter ();
+
       core::size::type calc_width ();
 
       struct positions {
@@ -308,6 +312,8 @@ namespace gui {
         core::point::type hotkey;
 
       } pos;
+
+      int message_filter_id;
     };
 
   } // ctrl

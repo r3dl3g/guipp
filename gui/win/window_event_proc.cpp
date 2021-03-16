@@ -352,7 +352,16 @@ namespace gui {
         return false;
       }
 
-      ShortcutFilter* shortcut_filter = nullptr;
+      void install_message_filter () {
+        static ShortcutFilter* shortcut_filter = nullptr;
+
+        if (!shortcut_filter) {
+          shortcut_filter = new ShortcutFilter();
+          core::global::get_instance()->installEventFilter(shortcut_filter);
+        }
+      }
+#else
+      void install_message_filter () {}
 #endif
 
     }
@@ -395,10 +404,7 @@ namespace gui {
         if (win && win->is_valid()) {
           root = win->get_overlapped_window().get_os_window();
         }
-        if (!detail::shortcut_filter) {
-          detail::shortcut_filter = new detail::ShortcutFilter();
-          core::global::get_instance()->installEventFilter(detail::shortcut_filter);
-        }
+        detail::install_message_filter();
 #endif
         detail::hot_keys.emplace(hk, std::make_pair(root, fn));
       }
@@ -424,6 +430,7 @@ namespace gui {
 
       int register_message_filter (const detail::filter_call& filter) {
         clog::trace() << "Register nessage filter";
+        detail::install_message_filter();
         detail::message_filters.emplace_back(std::make_pair(detail::g_next_filter_id, filter));
         return detail::g_next_filter_id++;
       }

@@ -536,7 +536,13 @@ namespace gui {
       init();
     }
 
+    popup_menu::~popup_menu () {
+      unregister_message_filter();
+    }
+
     void popup_menu::init () {
+      message_filter_id = -1;
+
       on_paint(draw::paint(this, &popup_menu::paint));
 
       on_mouse_move([&](os::key_state, const core::native_point& pt) {
@@ -570,12 +576,35 @@ namespace gui {
 
       on_show([&] () {
         invalidate();
-//        capture_pointer(this);
+        register_message_filter();
       });
 
 //      on_create([&](window*, const core::rectangle&){
 //        data.register_menu_keys();
 //      });
+    }
+
+    void popup_menu::register_message_filter () {
+      unregister_message_filter();
+      message_filter_id = win::global::register_message_filter([&] (const core::event& e) {
+        if (win::left_btn_down_event::match(e)) {
+          auto gpt = win::left_btn_down_event::Caller::get_param<1>(e);
+          if (!surface_geometry().is_inside(gpt)) {
+            close();
+            return true;
+          }
+        }
+        return false;
+      });
+      clog::info() << "popup_menu::register_message_filter " << message_filter_id;
+    }
+
+    void popup_menu::unregister_message_filter () {
+      if (message_filter_id != -1) {
+        clog::info() << "popup_menu::unregister_message_filter " << message_filter_id;
+        win::global::unregister_message_filter(message_filter_id);
+        message_filter_id = -1;
+      }
     }
 
     bool compare_menu_key (os::key_symbol key, const menu_entry& e) {
@@ -669,7 +698,7 @@ namespace gui {
       clog::trace() << "popup_menu::popup_at(" << pt << ") -> run_modal";
       auto& root = parent.get_overlapped_window();
       create(root, core::rectangle(parent.client_to_screen(pt), core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
-      run_modal(root);
+      set_visible();
     }
 
     void popup_menu::popup_at (container& parent, menu_data& parent_data, const core::point& pt) {
@@ -711,10 +740,9 @@ namespace gui {
       clog::trace() << "popup_menu::close";
       set_state().disable_redraw();
       data.close();
-//      uncapture_pointer(this);
+      unregister_message_filter();
       set_visible(false);
       destroy();
-      end_modal();
     }
 
     void popup_menu::paint (draw::graphics& g) {

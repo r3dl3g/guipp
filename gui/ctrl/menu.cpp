@@ -596,12 +596,12 @@ namespace gui {
         }
         return false;
       });
-      clog::info() << "popup_menu::register_message_filter " << message_filter_id;
+      clog::trace() << "popup_menu::register_message_filter " << message_filter_id;
     }
 
     void popup_menu::unregister_message_filter () {
       if (message_filter_id != -1) {
-        clog::info() << "popup_menu::unregister_message_filter " << message_filter_id;
+        clog::trace() << "popup_menu::unregister_message_filter " << message_filter_id;
         win::global::unregister_message_filter(message_filter_id);
         message_filter_id = -1;
       }

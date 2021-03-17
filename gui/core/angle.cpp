@@ -87,8 +87,24 @@ namespace gui {
       return degrees < rhs.degrees;
     }
 
+    bool angle::operator<= (const angle& rhs) const {
+      return degrees <= rhs.degrees;
+    }
+
     bool angle::operator== (const angle& rhs) const {
       return degrees == rhs.degrees;
+    }
+
+    bool angle::operator!= (const angle& rhs) const {
+      return degrees != rhs.degrees;
+    }
+
+    bool angle::operator> (const angle& rhs) const {
+      return degrees > rhs.degrees;
+    }
+
+    bool angle::operator>= (const angle& rhs) const {
+      return degrees >= rhs.degrees;
     }
 
   } // namespace core

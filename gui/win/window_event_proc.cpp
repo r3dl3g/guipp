@@ -32,6 +32,7 @@
 #elif GUIPP_QT
 # include <QtGui/QGuiApplication>
 # include <QtCore/QEventLoop>
+# include <QtCore/QTimer>
 #endif
 
 // --------------------------------------------------------------------------
@@ -815,6 +816,18 @@ namespace gui {
                         0,
                         (ULONG_PTR)new std::function<void()>(action));
 #endif // GUIPP_WIN
+#ifdef GUIPP_QT
+      QTimer* timer = new QTimer();
+      timer->moveToThread(qApp->thread());
+      timer->setSingleShot(true);
+      QObject::connect(timer, &QTimer::timeout, [=]()
+      {
+        // main thread
+        action();
+        timer->deleteLater();
+      });
+      QMetaObject::invokeMethod(timer, "start", Qt::QueuedConnection, Q_ARG(int, 0));
+#endif // GUIPP_QT
     }
   }   // win
 } // gui

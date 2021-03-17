@@ -408,6 +408,18 @@ namespace gui {
     }
 
     template<typename T, typename S, coordinate_system C>
+    inline auto basic_rectangle<T, S, C>::square () -> self& {
+      const auto s = std::min(width(), height());
+      sz = {s, s};
+      return *this;
+    }
+
+    template<typename T, typename S, coordinate_system C>
+    inline auto basic_rectangle<T, S, C>::squared () const -> self {
+      return self(*this).square();
+    }
+
+    template<typename T, typename S, coordinate_system C>
     inline auto basic_rectangle<T, S, C>::operator- (const size_t& s) const -> self {
       return {position(), size() - s};
     }
@@ -471,6 +483,32 @@ namespace gui {
     inline auto basic_rectangle<T, S, C>::operator+= (const self& r) -> self& {
       operator= (*this + r);
       return *this;
+    }
+
+    template<typename T, typename S, coordinate_system C>
+    inline auto basic_rectangle<T, S, C>::operator*= (double f) -> self& {
+      const auto pt = center();
+      sz *= f;
+      set_center(pt);
+      return *this;
+    }
+
+    template<typename T, typename S, coordinate_system C>
+    inline auto basic_rectangle<T, S, C>::operator/= (double f) -> self& {
+      const auto pt = center();
+      sz /= f;
+      set_center(pt);
+      return *this;
+    }
+
+    template<typename T, typename S, coordinate_system C>
+    inline auto basic_rectangle<T, S, C>::operator* (double f) const -> self {
+      return self(*this) *= f;
+    }
+
+    template<typename T, typename S, coordinate_system C>
+    inline auto basic_rectangle<T, S, C>::operator/ (double f) const -> self {
+      return self(*this) /= f;
     }
 
     template<typename T, typename S, coordinate_system C>

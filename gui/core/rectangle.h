@@ -130,6 +130,9 @@ namespace gui {
       self& shrink (const size_t& s);
       self& shrink (const size_type top, const size_type bottom, const size_type left, const size_type right);
 
+      self& square ();
+      self squared () const;
+
       bool operator== (const self& rhs) const;
       bool operator!= (const self& rhs) const;
 
@@ -140,6 +143,8 @@ namespace gui {
       self& operator-= (const point_t& pt);
       self& operator+= (const self& r);
       self& operator-= (const self& r);
+      self& operator*= (double f);
+      self& operator/= (double f);
 
       self operator+ (const size_t& s) const;
       self operator- (const size_t& s) const;
@@ -147,6 +152,8 @@ namespace gui {
       self operator- (const point_t& pt) const;
       self operator+ (const self& r) const;
       self operator- (const self& r) const;
+      self operator* (double f) const;
+      self operator/ (double f) const;
 
       self& move (const point_t& pt);
       self& move (const size_t& sz);

@@ -66,6 +66,16 @@ namespace gui {
       pages.push_back(page);
     }
 
+    template<alignment_t A, os::color B, typename G, typename L>
+    void tab_view<A, B, G, L>::on_selection_changed (std::function<void(event_source)>&& f) {
+      buttons.on_selection_changed(std::move(f));
+    }
+
+    template<alignment_t A, os::color B, typename G, typename L>
+    int tab_view<A, B, G, L>::get_selection_index () const {
+      return buttons.get_selection_index();
+    }
+
   } // ctrl
 
 } // gui

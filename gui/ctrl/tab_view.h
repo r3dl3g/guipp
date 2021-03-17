@@ -110,6 +110,9 @@ namespace gui {
 
       void add_page (const std::string& label, win::window& page);
 
+      void on_selection_changed (std::function<void(event_source)>&& f);
+      int get_selection_index () const;
+
     private:
       std::vector<std::reference_wrapper<win::window>> pages;
       button_group_t buttons;

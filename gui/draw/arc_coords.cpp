@@ -41,11 +41,11 @@ namespace gui {
       , end(end_angle)
     {}
 
-    inline os::point calc_arc_point (const os::point& pt,
-                                     const os::size& sz,
-                                     double a) {
-      const auto ca = cos(a);
-      const auto sa = sin(a);
+    os::point arc_coords::calc_arc_point (const os::point& pt,
+                                          const os::size& sz,
+                                          double angle) {
+      const auto ca = cos(angle);
+      const auto sa = sin(angle);
       return os::point{(short)round(os::get_x(pt) + os::get_width(sz) * ca),
                        (short)round(os::get_y(pt) - os::get_height(sz) * sa)};
     }

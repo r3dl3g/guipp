@@ -58,6 +58,10 @@ namespace gui {
 
       bool full () const;
       bool empty () const;
+
+      static os::point calc_arc_point (const os::point& center,
+                                       const os::size& radius,
+                                       double angle);
     };
 
     // --------------------------------------------------------------------------

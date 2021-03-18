@@ -72,10 +72,10 @@ namespace gui {
       text_item(g, r, b, t, s, text_origin_t::vcenter_left);
     }
 
-    std::vector<core::point> get_button_poly (const core::rectangle& area, bool is_open) {
+    std::vector<core::point> get_up_down_polygon (const core::rectangle& area, bool up) {
       core::rectangle r = area.shrinked(area.size() / 3);
       if (!r.empty()) {
-        if (is_open) {
+        if (up) {
           return {r.x2y2(), {r.center_x(), r.y()}, r.x1y2()};
         } else {
           return {r.top_left(), {r.center_x(), r.y2()}, r.x2y1()};
@@ -89,7 +89,7 @@ namespace gui {
                                                      const core::rectangle& area,
                                                      const core::button_state::is& state,
                                                      bool is_open) {
-      graph.fill(draw::polygon(get_button_poly(area, is_open)), state.enabled() ? color::black : color::light_gray);
+      graph.fill(draw::polygon(get_up_down_polygon(area, is_open)), state.enabled() ? color::black : color::light_gray);
     }
 
     template<>
@@ -98,7 +98,7 @@ namespace gui {
                                                    const core::button_state::is& state,
                                                    bool is_open) {
       look::button_frame<look_and_feel_t::w95>(graph, area, state);
-      graph.fill(draw::polygon(get_button_poly(area, is_open)), state.enabled() ? color::black : color::light_gray);
+      graph.fill(draw::polygon(get_up_down_polygon(area, is_open)), state.enabled() ? color::black : color::light_gray);
     }
 
     template<>
@@ -106,7 +106,7 @@ namespace gui {
                                                    const core::rectangle& r,
                                                    const core::button_state::is& state,
                                                    bool is_open) {
-      graph.frame(draw::polyline(get_button_poly(r, is_open)), state.enabled() ? color::black : color::light_gray);
+      graph.frame(draw::polyline(get_up_down_polygon(r, is_open)), state.enabled() ? color::black : color::light_gray);
     }
 
     template<>

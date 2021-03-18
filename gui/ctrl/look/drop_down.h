@@ -23,6 +23,7 @@
 // Common includes
 //
 #include <string>
+#include <vector>
 
 // --------------------------------------------------------------------------
 //
@@ -53,6 +54,8 @@ namespace gui {
                                            const draw::brush& background,
                                            const std::string& label,
                                            const ctrl::item_state& state);
+
+    GUIPP_LOOK_EXPORT std::vector<core::point> get_up_down_polygon (const core::rectangle& area, bool up);
 
     template<look_and_feel_t L = system_look_and_feel>
     void drop_down_button_t (draw::graphics&,

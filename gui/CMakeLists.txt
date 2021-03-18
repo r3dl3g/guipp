@@ -45,6 +45,12 @@ if(NOT TARGET gui++)
   add_subdirectory(../logging logging)
   add_subdirectory(../util util)
 
+  if (WIN32)
+    set (GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN -D_USE_MATH_DEFINES)
+  else ()
+    set (GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS})
+  endif ()
+
   if (GUIPP_USE_BOOST)
     find_package(Boost 1.65 REQUIRED COMPONENTS filesystem)
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DUSE_BOOST)
@@ -62,12 +68,6 @@ if(NOT TARGET gui++)
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_BINARY_DIR}
     )
-
-  if (WIN32)
-    set (GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN -D_USE_MATH_DEFINES)
-  else ()
-    set (GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS})
-  endif ()
 
   if (GUIPP_USE_QT)
     DebugPrint("GUIPP: build with Qt5!")

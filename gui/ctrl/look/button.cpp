@@ -235,8 +235,10 @@ namespace gui {
 
     } // namespace osx
 
+#ifndef GUIPP_BUILD_FOR_MOBILE
     const gui::draw::pen::size_type dot_line_width = 1;
     const draw::pen::Style dot_line_style = draw::pen::Style::dot;
+#endif // GUIPP_BUILD_FOR_MOBILE
 
     // --------------------------------------------------------------------------
     template<>
@@ -252,10 +254,12 @@ namespace gui {
 
       draw::frame::deep_relief(graph, area, pushed);
 
+#ifndef GUIPP_BUILD_FOR_MOBILE
       if (enabled && focused && !pushed) {
         area = r.shrinked({6, 6});
         graph.frame(draw::rectangle(area), draw::pen(color::light_gray, dot_line_width, dot_line_style));
       }
+#endif // GUIPP_BUILD_FOR_MOBILE
     }
 
     namespace win10 {
@@ -385,9 +389,11 @@ namespace gui {
         f = color::darker(foreground);
       }
       g.text(draw::text_box(text, r, text_origin_t::center), draw::font::system(), f);
+#ifndef GUIPP_BUILD_FOR_MOBILE
       if (enabled && state.focused()) {
         g.frame(draw::rectangle(r), draw::pen(f, dot_line_width, dot_line_style));
       }
+#endif // GUIPP_BUILD_FOR_MOBILE
     }
 
     // --------------------------------------------------------------------------
@@ -508,11 +514,13 @@ namespace gui {
       }
       area.move_x(20);
       graph.text(text_box(text, area, text_origin_t::vcenter_left), font::system(), col);
+#ifndef GUIPP_BUILD_FOR_MOBILE
       if (state.focused()) {
         graph.text(bounding_box(text, area, text_origin_t::vcenter_left), font::system(), color::black);
         area.grow({3, 3});
         graph.frame(draw::rectangle(area), pen(color::black, dot_line_width, dot_line_style));
       }
+#endif // GUIPP_BUILD_FOR_MOBILE
     }
 
     os::color get_w10_color (const core::button_state::is& state) {
@@ -612,12 +620,14 @@ namespace gui {
         graph.fill(rectangle(r), state.pushed() ? color::dark_gray : col);
       }
       area.move_x(20);
+#ifndef GUIPP_BUILD_FOR_MOBILE
       graph.text(text_box(text, area, text_origin_t::vcenter_left), font::system(), col);
       if (state.focused()) {
         graph.text(bounding_box(text, area, text_origin_t::vcenter_left), font::system(), color::black);
         area.grow({3, 3});
         graph.frame(draw::rectangle(area), pen(color::black, dot_line_width, dot_line_style));
       }
+#endif // GUIPP_BUILD_FOR_MOBILE
     }
 
     // --------------------------------------------------------------------------

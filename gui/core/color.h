@@ -235,7 +235,7 @@ namespace gui {
     }
 
     constexpr os::color add_transparency (os::color c, float faktor) {
-      return remove_transparency(c) | build<part::alpha>(static_cast<type>((1.0F - faktor) * 255));
+      return remove_transparency(c) | build<part::alpha>(static_cast<type>((1.0F - faktor) * 0xff));
     }
 
     template<part P>
@@ -336,40 +336,53 @@ namespace gui {
     constexpr os::color white = rgb_gray<0xff>::value;
 
     constexpr os::color grey (int f) {
-      return calc_rgb_gray(static_cast<type>(255 * f / 100));
+      return calc_rgb_gray(static_cast<type>(0xff * f / 100));
     }
 
-    constexpr os::color red = rgb<255, 0, 0>::value;
-    constexpr os::color green = rgb<0, 255, 0>::value;
-    constexpr os::color blue = rgb<0, 0, 255>::value;
-    constexpr os::color cyan = rgb<0, 255, 255>::value;
-    constexpr os::color magenta = rgb<255, 0, 255>::value;
-    constexpr os::color yellow = rgb<255, 255, 0>::value;
-    constexpr os::color orange = rgb<255, 128, 0>::value;
-    constexpr os::color brown = rgb<192, 64, 0>::value;
+    constexpr os::color red = rgb<0xff, 0, 0>::value;
+    constexpr os::color green = rgb<0, 0xff, 0>::value;
+    constexpr os::color blue = rgb<0, 0, 0xff>::value;
+    constexpr os::color cyan = rgb<0, 0xff, 0xff>::value;
+    constexpr os::color magenta = rgb<0xff, 0, 0xff>::value;
+    constexpr os::color yellow = rgb<0xff, 0xff, 0>::value;
+    constexpr os::color orange = rgb<0xff, 0x80, 0>::value;
+    constexpr os::color brown = rgb<0xc0, 0x40, 0>::value;
 
-    constexpr os::color dark_red = rgb<192, 0, 0>::value;
-    constexpr os::color dark_green = rgb<0, 192, 0>::value;
-    constexpr os::color dark_blue = rgb<0, 0, 192>::value;
-    constexpr os::color dark_cyan = rgb<0, 192, 192>::value;
-    constexpr os::color dark_magenta = rgb<192, 0, 192>::value;
-    constexpr os::color dark_yellow = rgb<192, 192, 0>::value;
-    constexpr os::color dark_orange = rgb<192, 96, 0>::value;
-    constexpr os::color dark_brown = rgb<128, 48, 0>::value;
+    constexpr os::color dark_red = rgb<0xc0, 0, 0>::value;
+    constexpr os::color dark_green = rgb<0, 0xc0, 0>::value;
+    constexpr os::color dark_blue = rgb<0, 0, 0xc0>::value;
+    constexpr os::color dark_cyan = rgb<0, 0xc0, 0xc0>::value;
+    constexpr os::color dark_magenta = rgb<0xc0, 0, 0xc0>::value;
+    constexpr os::color dark_yellow = rgb<0xc0, 0xc0, 0>::value;
+    constexpr os::color dark_orange = rgb<0xc0, 0x60, 0>::value;
+    constexpr os::color dark_brown = rgb<0x80, 0x30, 0>::value;
 
-    constexpr os::color light_red = rgb<255, 128, 128>::value;
-    constexpr os::color light_green = rgb<128, 255, 128>::value;
-    constexpr os::color light_blue = rgb<64, 128, 255>::value;
-    constexpr os::color light_cyan = rgb<128, 255, 255>::value;
-    constexpr os::color light_magenta = rgb<255, 128, 255>::value;
-    constexpr os::color light_yellow = rgb<255, 255, 128>::value;
+    constexpr os::color light_red = rgb<0xff, 0x80, 0x80>::value;
+    constexpr os::color light_green = rgb<0x80, 0xff, 0x80>::value;
+    constexpr os::color light_blue = rgb<0x40, 0x80, 0xff>::value;
+    constexpr os::color light_cyan = rgb<0x80, 0xff, 0xff>::value;
+    constexpr os::color light_magenta = rgb<0xff, 0x80, 0xff>::value;
+    constexpr os::color light_yellow = rgb<0xff, 0xff, 0x80>::value;
+    constexpr os::color light_orange = rgb<0xe0, 0x80, 0>::value;
+    constexpr os::color light_brown = rgb<0xa0, 0x50, 0>::value;
 
-    constexpr os::color very_light_red = rgb<255, 192, 192>::value;
-    constexpr os::color very_light_green = rgb<192, 255, 192>::value;
-    constexpr os::color very_light_blue = rgb<128, 192, 255>::value;
-    constexpr os::color very_light_cyan = rgb<192, 255, 255>::value;
-    constexpr os::color very_light_magenta = rgb<255, 192, 255>::value;
-    constexpr os::color very_light_yellow = rgb<255, 255, 192>::value;
+    constexpr os::color very_light_red = rgb<0xff, 0xc0, 0xc0>::value;
+    constexpr os::color very_light_green = rgb<0xc0, 0xff, 0xc0>::value;
+    constexpr os::color very_light_blue = rgb<0x80, 0xc0, 0xff>::value;
+    constexpr os::color very_light_cyan = rgb<0xc0, 0xff, 0xff>::value;
+    constexpr os::color very_light_magenta = rgb<0xff, 0xc0, 0xff>::value;
+    constexpr os::color very_light_yellow = rgb<0xff, 0xff, 0xc0>::value;
+    constexpr os::color very_light_orange = rgb<0xf0, 0xa0, 0>::value;
+    constexpr os::color very_light_brown = rgb<0xc0, 0x70, 0>::value;
+
+    constexpr os::color very_dark_red = rgb<0x60, 0, 0>::value;
+    constexpr os::color very_dark_green = rgb<0, 0x60, 0>::value;
+    constexpr os::color very_dark_blue = rgb<0, 0, 0x60>::value;
+    constexpr os::color very_dark_cyan = rgb<0, 0x60, 0x60>::value;
+    constexpr os::color very_dark_magenta = rgb<0x60, 0, 0x60>::value;
+    constexpr os::color very_dark_yellow = rgb<0x60, 0x60, 0>::value;
+    constexpr os::color very_dark_orange = rgb<0x60, 0x30, 0>::value;
+    constexpr os::color very_dark_brown = rgb<0x40, 0x18, 0>::value;
 
     GUIPP_CORE_EXPORT os::color scrollBarColor ();
     GUIPP_CORE_EXPORT os::color menuColor ();

@@ -66,14 +66,18 @@ namespace gui {
       } else {
         Use<pen> pn(g, p);
 
-        //                  0, 1, 2, 3, 4, 5, 6, 7, 8
-        // const offs[] =  {0, 0, 1, 1, 2, 2, 3, 3, 4};
-        // const offs2[] = {0, 0, 1, 2, 2, 3, 3, 4, 4};
-
         const auto x0 = from.os_x(g.context());
         const auto y0 = from.os_y(g.context());
         const auto x1 = to.os_x(g.context());
         const auto y1 = to.os_y(g.context());
+
+#if defined(GUIPP_BUILD_FOR_MOBILE)
+        g.os()->drawLine(x0, y0, x1, y1);
+#else
+
+        //                  0, 1, 2, 3, 4, 5, 6, 7, 8
+        // const offs[] =  {0, 0, 1, 1, 2, 2, 3, 3, 4};
+        // const offs2[] = {0, 0, 1, 2, 2, 3, 3, 4, 4};
 
         const auto x0off = (x1 < x0) && (y1 != y0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
         const auto y0off = (y1 < y0) && (x1 != x0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
@@ -81,6 +85,7 @@ namespace gui {
         const auto y1off = (y1 > y0) && (x1 != x0) && (pw > 2) ? (pw + 1) / 2 : pw / 2;
 
         g.os()->drawLine(x0 + x0off, y0 + y0off, x1 + x1off, y1 + y1off);
+#endif // GUIPP_BUILD_FOR_MOBILE
       }
     }
 

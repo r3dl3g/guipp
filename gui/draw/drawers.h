@@ -46,9 +46,12 @@ namespace gui {
 
       void operator() (graphics&, const pen&) const;
 
+      const core::point& p0 () const;
+      const core::point& p1 () const;
+
     private:
-      core::point from;
-      core::point to;
+      const core::point from;
+      const core::point to;
     };
 
     // --------------------------------------------------------------------------

@@ -30,6 +30,14 @@ namespace gui {
       , to(to)
     {}
 
+    inline const core::point& line::p0 () const {
+      return from;
+    }
+
+    inline const core::point& line::p1 () const {
+      return to;
+    }
+
     // --------------------------------------------------------------------------
     inline rectangle::rectangle (const core::rectangle& rect)
       : rect(rect)

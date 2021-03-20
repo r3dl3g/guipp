@@ -127,7 +127,7 @@ void my_main_window::start_thread () {
   background_action1 = std::thread([&] () {
     int counter = 0;
     while (thread_is_active) {
-      win::run_on_main([&, counter] () {
+      win::run_on_main(*this, [&, counter] () {
         labels[3].set_text(ostreamfmt("Trip " << counter));
       });
       ++counter;
@@ -138,7 +138,7 @@ void my_main_window::start_thread () {
   background_action2 = std::thread([&] () {
     int counter = 0;
     while (thread_is_active) {
-      win::run_on_main([&, counter] () {
+      win::run_on_main(*this, [&, counter] () {
         labels[3].set_text(ostreamfmt("Trap " << counter));
       });
       ++counter;
@@ -652,7 +652,7 @@ void my_main_window::wipe_space () {
   dir_open_dialog::show(*this, "Choose target directory", "Wipe", "Cancel", [&] (win::overlapped_window&, const sys_fs::path& dir) {
     sys_fs::path file = /*"C:\\";*/ dir;
     file /= "empty.tmp";
-    win::run_on_main([&, file] () {
+    win::run_on_main(*this, [&, file] () {
       progress_dialog dlg;
       const uintmax_t space = sys_fs::space(file).free;
       dlg.progress_view.set_min_max_value(0, 1, 0);

@@ -299,7 +299,7 @@ namespace gui {
     {}
 
     void menu_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::line(center - core::size(radius, radius),  center + core::size(-radius, radius)), pn);
+      g.frame(draw::line(center - core::size(radius, radius),  center + core::size(radius, -radius)), pn);
       g.frame(draw::line(center - core::size(radius, 0),       center + core::size(radius, 0)), pn);
       g.frame(draw::line(center - core::size(radius, -radius), center + core::size(radius, radius)), pn);
     }
@@ -323,11 +323,11 @@ namespace gui {
 
     void draw_find (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       g.frame(draw::arc(center, radius, 0, 360), pn);
-      g.frame(draw::line(calc_clock_point<135>(center, radius), calc_clock_point<135>(center, radius * 3)), pn);
+      g.frame(draw::line(calc_clock_point<135>(center, radius * 1.1), calc_clock_point<135>(center, radius * 2)), pn);
     }
 
     void find_icon::operator() (graphics& g, const pen& pn) const {
-      draw_find(g, pn, center - core::size(radius / 2, radius / 2), radius / 2);
+      draw_find(g, pn, center - core::size(radius / 4, radius / 4), radius * 3 / 4);
     }
 
     // --------------------------------------------------------------------------
@@ -336,10 +336,10 @@ namespace gui {
     {}
 
     void undo_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::arc(center, radius, -90, 90), pn);
+      g.frame(draw::arc(center, radius, 0, 170), pn);
       const auto p = calc_clock_point<-90>(center, radius);
-      const auto l = calc_centerline<-70>(center, radius * 0.8, radius * 1.2);
-      g.frame(draw::polyline({l.p0(), p, l.p1()}), pn);
+      const auto l = calc_centerline<-60>(center, radius * 0.8, radius * 1.2);
+      g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
     }
 
     // --------------------------------------------------------------------------
@@ -348,10 +348,10 @@ namespace gui {
     {}
 
     void redo_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::arc(center, radius, 90, -90), pn);
-      const auto p = calc_clock_point<90>(center, radius);
-      const auto l = calc_centerline<110>(center, radius * 0.8, radius * 1.2);
-      g.frame(draw::polyline({l.p0(), p, l.p1()}), pn);
+      g.frame(draw::arc(center, radius, 180, 330), pn);
+      const auto p = calc_clock_point<100>(center, radius);
+      const auto l = calc_centerline<120>(center, radius * 0.8, radius * 1.2);
+      g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
     }
 
     // --------------------------------------------------------------------------
@@ -361,7 +361,7 @@ namespace gui {
 
     void info_icon::operator() (graphics& g, const pen& pn) const {
       g.frame(draw::arc(center, radius, 0, 360), pn);
-      g.frame(draw::arc(center - core::size(0, radius / 2), radius * 0.1, 0, 360), pn);
+      g.draw(draw::pie(center - core::size(0, radius / 2), radius / 20, 0, 360), pn.color(), pn);
       g.frame(draw::line(center - core::size(0, radius / 4),  center + core::size(0, radius / 2)), pn);
     }
 
@@ -372,7 +372,7 @@ namespace gui {
 
     void important_icon::operator() (graphics& g, const pen& pn) const {
       g.frame(draw::arc(center, radius, 0, 360), pn);
-      g.frame(draw::arc(center + core::size(0, radius / 2), radius * 0.1, 0, 360), pn);
+      g.draw(draw::pie(center + core::size(0, radius / 2), radius / 20, 0, 360), pn.color(), pn);
       g.frame(draw::line(center + core::size(0, radius / 4),  center - core::size(0, radius / 2)), pn);
     }
 
@@ -382,15 +382,15 @@ namespace gui {
     {}
 
     void sync_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::arc(center, radius, -90, 80), pn);
-      const auto p0 = calc_clock_point<80>(center, radius);
-      const auto l0 = calc_centerline<60>(center, radius * 0.8, radius * 1.2);
-      g.frame(draw::polyline({l0.p0(), p0, l0.p1()}), pn);
+      g.frame(draw::arc(center, radius, 10, 160), pn);
+      const auto p0 = calc_clock_point<90>(center, radius);
+      const auto l0 = calc_centerline<70>(center, radius * 0.8, radius * 1.2);
+      g.draw(draw::polygon({l0.p0(), p0, l0.p1()}), pn.color(), pn);
 
-      g.frame(draw::arc(center, radius, 90, 260), pn);
-      const auto p1 = calc_clock_point<260>(center, radius);
-      const auto l1 = calc_centerline<240>(center, radius * 0.8, radius * 1.2);
-      g.frame(draw::polyline({l1.p0(), p1, l1.p1()}), pn);
+      g.frame(draw::arc(center, radius, 190, 340), pn);
+      const auto p1 = calc_clock_point<270>(center, radius);
+      const auto l1 = calc_centerline<250>(center, radius * 0.8, radius * 1.2);
+      g.draw(draw::polygon({l1.p0(), p1, l1.p1()}), pn.color(), pn);
     }
 
     // --------------------------------------------------------------------------
@@ -401,8 +401,8 @@ namespace gui {
     void restart_icon::operator() (graphics& g, const pen& pn) const {
       const auto p = calc_clock_point<55>(center, radius);
       const auto l = calc_centerline<35>(center, radius * 0.8, radius * 1.2);
-      g.frame(draw::arc(center, radius, 125, 555), pn);
-      g.frame(draw::polyline({l.p0(), p, l.p1()}), pn);
+      g.frame(draw::arc(center, radius, 35, 330), pn);
+      g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
     }
 
     // --------------------------------------------------------------------------
@@ -411,10 +411,10 @@ namespace gui {
     {}
 
     void zoom_in_icon::operator() (graphics& g, const pen& pn) const {
-      core::point c = center - core::size(radius / 2, radius / 2);
-      core::size::type r = radius / 2;
+      core::point c = center - core::size(radius / 4, radius / 4);
+      core::size::type r = radius * 3 / 4;
       draw_find(g, pn, c, r);
-      draw_plus(g, pn, c, r * 0.7);
+      draw_plus(g, pn, c, r * 0.6);
     }
 
     // --------------------------------------------------------------------------
@@ -423,10 +423,10 @@ namespace gui {
     {}
 
     void zoom_out_icon::operator() (graphics& g, const pen& pn) const {
-      core::point c = center - core::size(radius / 2, radius / 2);
-      core::size::type r = radius / 2;
+      core::point c = center - core::size(radius / 4, radius / 4);
+      core::size::type r = radius * 3 / 4;
       draw_find(g, pn, c, r);
-      draw_minus(g, pn, c, r * 0.7);
+      draw_minus(g, pn, c, r * 0.6);
     }
 
     // --------------------------------------------------------------------------

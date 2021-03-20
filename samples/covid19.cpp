@@ -1448,7 +1448,7 @@ void covid19main::load_data (const std::vector<std::string>& args) {
         load_cases_data(in, file_size, true);
       } else if ((header == covid19_tests_header) || (header == covid19_tests_header_new2)) {
         if (full_data.country_map.empty()) {
-          win::run_on_main([&] () {
+          win::run_on_main(*this, [&] () {
             ctrl::message_dialog::show(*this, "Warning!", "You have to load cases data first!", "Ok");
           });
         } else {
@@ -1456,7 +1456,7 @@ void covid19main::load_data (const std::vector<std::string>& args) {
         }
       } else {
         clog::warn() << "Found unknown header:" << header;
-        win::run_on_main([&] () {
+        win::run_on_main(*this, [&] () {
           ctrl::message_dialog::show(*this, "Warning!", "Type of csv file could not be recognized", "Ok");
         });
       }

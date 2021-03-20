@@ -106,7 +106,7 @@ namespace gui {
 
     typedef void (simple_action)();
 
-    GUIPP_WIN_EXPORT void run_on_main (const std::function<simple_action>& action);
+    GUIPP_WIN_EXPORT void run_on_main (const window& w, const std::function<simple_action>& action);
 
   } // namespace win
 

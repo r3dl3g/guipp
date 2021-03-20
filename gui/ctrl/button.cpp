@@ -165,7 +165,7 @@ namespace gui {
       animation_thread = std::thread([&] () {
         while (animation_step < 1.0F) {
           animation_step += 0.1F;
-          win::run_on_main([&] () {
+          win::run_on_main(btn, [&] () {
             btn.redraw();
           });
           std::this_thread::sleep_for(std::chrono::milliseconds(25));

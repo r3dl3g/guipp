@@ -806,9 +806,24 @@ namespace gui {
 #endif // GUIPP_QT
     }
 
-    void run_on_main (const std::function<void()>& action) {
+    void run_on_main (const window& w, const std::function<void()>& action) {
 #ifdef GUIPP_X11
       x11::queued_actions.enqueue(action);
+
+      gui::os::instance display = core::global::get_instance();
+
+      XEvent event;
+      memset(&event, 0, sizeof(event));
+      XClientMessageEvent& client = event.xclient;
+
+      client.type = ClientMessage;
+      client.send_event = True;
+      client.display = display;
+      client.window = w.get_overlapped_window().get_os_window();
+      client.format = 32;
+      XSendEvent(display, client.window, False, 0, &event);
+      XFlush(display);
+
 #endif // GUIPP_X11
 #ifdef GUIPP_WIN
       PostThreadMessage(util::robbery::get_native_thread_id(detail::main_thread_id),

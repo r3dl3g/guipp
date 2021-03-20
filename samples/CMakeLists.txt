@@ -62,6 +62,7 @@ set(apps
     covid19
     WindowTest
     BorderTest
+    icons
 )
 
 add_definitions(${GUIPP_CXX_FLAGS})

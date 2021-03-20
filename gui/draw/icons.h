@@ -149,6 +149,126 @@ namespace gui {
       void operator() (graphics& g, const pen& pn) const;
 
     };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT add_icon : public detail::icon_base {
+
+      add_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT cancel_icon : public detail::icon_base {
+
+      cancel_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT okay_icon : public detail::icon_base {
+
+      okay_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT close_icon : public detail::icon_base {
+
+      close_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT menu_icon : public detail::icon_base {
+
+      menu_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT clear_icon : public detail::icon_base {
+
+      clear_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT find_icon : public detail::icon_base {
+
+      find_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT undo_icon : public detail::icon_base {
+
+      undo_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT redo_icon : public detail::icon_base {
+
+      redo_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT info_icon : public detail::icon_base {
+
+      info_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT important_icon : public detail::icon_base {
+
+      important_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT sync_icon : public detail::icon_base {
+
+      sync_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT restart_icon : public detail::icon_base {
+
+      restart_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT zoom_in_icon : public detail::icon_base {
+
+      zoom_in_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT zoom_out_icon : public detail::icon_base {
+
+      zoom_out_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
 
     // --------------------------------------------------------------------------
   } //namespace draw

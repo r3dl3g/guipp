@@ -87,13 +87,14 @@ namespace gui {
       const auto x1 = to.os_x(g.context());
       const auto y1 = to.os_y(g.context());
 
-      XDrawLine(display, g, g, x0 + off, y0 + off, x1 + off, y1 + off);
-      if ((pw > 1) && (pw % 2 == 0)) {
-        XDrawPoint(display, g, g, x0, y0);
-        if ((x1 < x0) || (y1 < y0)) {
-          XDrawPoint(display, g, g, x1, y1);
-        }
-      }
+      XDrawLine(display, g, g, x0, y0, x1, y1);
+//      XDrawLine(display, g, g, x0 + off, y0 + off, x1 + off, y1 + off);
+//      if ((pw > 1) && (pw % 2 == 0)) {
+//        XDrawPoint(display, g, g, x0, y0);
+//        if ((x1 < x0) || (y1 < y0)) {
+//          XDrawPoint(display, g, g, x1, y1);
+//        }
+//      }
     }
 
     // --------------------------------------------------------------------------

@@ -36,6 +36,8 @@ if(NOT TARGET gui++-draw)
       pen.cpp
       text_origin.cpp
       use.cpp
+      icons.cpp
+      clock.cpp
   )
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 

@@ -18,6 +18,7 @@ if(NOT TARGET gui++-win)
   set (LIBRARY_INSTALL_DIR lib/guipp)
 
   set(SOURCE_FILES
+      background_repeater.cpp
       clipboard.cpp
       container.cpp
       cursor.cpp

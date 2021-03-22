@@ -152,7 +152,30 @@ namespace gui {
         } data;
       };
 
+      // --------------------------------------------------------------------------
+      template<typename T>
+      class zero_layout {
+      public:
+        zero_layout (T& p)
+          : page(p)
+        {}
+
+        void layout (const gui::core::rectangle& r) {
+          page.geometry(r);
+        }
+
+      private:
+        T& page;
+      };
+
     } // namespace border
+
+    template<typename T>
+    struct is_layout<border::zero_layout<T>> {
+      enum {
+        value = true
+      };
+    };
 
     template<int TO, int BO, int LE, int RI, border::type_t T>
     struct is_layout<border::layouter<TO, BO, LE, RI, T>> {

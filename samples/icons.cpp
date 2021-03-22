@@ -1,6 +1,7 @@
 
 #include <gui/win/overlapped_window.h>
 #include <gui/draw/icons.h>
+#include <gui/draw/pen.h>
 #include <gui/core/grid.h>
 #ifdef WIN32
 #include <math.h>
@@ -9,12 +10,11 @@
 
 using namespace gui;
 using namespace gui::draw;
-using namespace gui::draw::diagram;
 
 template<typename T>
 void draw_icon (draw::graphics& g,
                   const core::rectangle& r) {
-  static draw::pen icon_pen(color::black, 3, draw::pen::Style::solid, draw::pen::Cap::round);
+  static draw::pen icon_pen(color::black, 5, draw::pen::Style::solid, draw::pen::Cap::round);
   g.frame(T(r.center(), r.height() / 3), icon_pen);
 }
 
@@ -50,17 +50,17 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     draw_icon<close_icon>(graph, g(3, 2));
     draw_icon<menu_icon>(graph, g(4, 2));
 
-    draw_icon<clear_icon>(graph, g(0, 2));
-    draw_icon<find_icon>(graph, g(1, 2));
-    draw_icon<undo_icon>(graph, g(2, 2));
-    draw_icon<redo_icon>(graph, g(3, 2));
-    draw_icon<info_icon>(graph, g(4, 2));
+    draw_icon<clear_icon>(graph, g(0, 3));
+    draw_icon<find_icon>(graph, g(1, 3));
+    draw_icon<undo_icon>(graph, g(2, 3));
+    draw_icon<redo_icon>(graph, g(3, 3));
+    draw_icon<info_icon>(graph, g(4, 3));
 
-    draw_icon<important_icon>(graph, g(0, 2));
-    draw_icon<sync_icon>(graph, g(1, 2));
-    draw_icon<restart_icon>(graph, g(2, 2));
-    draw_icon<zoom_in_icon>(graph, g(3, 2));
-    draw_icon<zoom_out_icon>(graph, g(4, 2));
+    draw_icon<important_icon>(graph, g(0, 4));
+    draw_icon<sync_icon>(graph, g(1, 4));
+    draw_icon<restart_icon>(graph, g(2, 4));
+    draw_icon<zoom_in_icon>(graph, g(3, 4));
+    draw_icon<zoom_out_icon>(graph, g(4, 4));
 
     clog::trace() << "on_paint finished";
   }));

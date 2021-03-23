@@ -323,12 +323,12 @@ namespace gui {
     }
 
     template<typename T, typename U>
-    inline T roundup (U v) {
+    inline T round_up (U v) {
       return static_cast<T>(std::ceil(v));
     }
 
     template<typename T, typename U>
-    inline T rounddown (U v) {
+    inline T round_down (U v) {
       return static_cast<T>(std::floor(v));
     }
 

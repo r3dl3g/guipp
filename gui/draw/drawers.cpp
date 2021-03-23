@@ -232,8 +232,8 @@ namespace gui {
         return;
       }
 
-      const auto width = core::roundup<uint32_t>(rect.os_width());
-      const auto height = core::roundup<uint32_t>(rect.os_height());
+      const auto width = core::round_up<uint32_t>(rect.os_width());
+      const auto height = core::round_up<uint32_t>(rect.os_height());
 
       datamap<T> dest(width, height);
       copy_frame_image<T>(img.get_data(), dest.get_data(),

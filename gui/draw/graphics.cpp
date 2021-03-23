@@ -497,7 +497,8 @@ namespace gui {
       QWindow* w = dynamic_cast<QWindow*>(target());
       if (w) {
         QPixmap px;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+#elif QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
         px = w->grab({pt.x(), pt.y(), 1, 1});
 #else
         px.grabWindow(w->winId(), pt.x(), pt.y(), 1, 1);

@@ -52,7 +52,7 @@ if (NOT CMAKE_DEBUG_POSTFIX)
 endif ()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_definitions(-Wall -Wno-switch -Wno-unused-command-line-argument -Wno-sign-compare)
+    add_definitions(-Wall -Wno-switch -Wno-unused-command-line-argument -Wno-sign-compare  -Wno-unused-local-typedef)
     if (NOT CMAKE_CXX_PLATFORM_ID STREQUAL "Windows")
         add_definitions(-fexceptions)
     endif ()

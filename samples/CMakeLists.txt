@@ -14,7 +14,7 @@ add_subdirectory(./../gui gui)
 
 if (GUIPP_USE_QT)
   DebugPrint("GUIPP samples: build with Qt5!")
-  find_package(Qt5Widgets REQUIRED)
+  find_package(Qt5Gui REQUIRED)
 #  find_package(ICU REQUIRED data i18n io lx uc)
 #  find_package(PNG REQUIRED)
 #  set(APP_SYS_LIBRARIES ${ICU_LIBRARIES} ${PNG_LIBRARIES})
@@ -73,11 +73,24 @@ else ()
 endif ()
 
 foreach(app ${apps})
+  if (ANDROID)
+    add_library(${app} SHARED ${app}.cpp)
+  else ()
     add_executable(${app} WIN32 ${app}.cpp)
 #    target_link_libraries(${app} ${APP_SYS_LIBRARIES} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
-    target_link_libraries(${app} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
-    install(TARGETS ${app} DESTINATION bin)
-    set_target_properties(${app} PROPERTIES
-                          FOLDER apps
-                          CXX_STANDARD ${GUIPP_CXX_STANDARD})
+  endif ()
+  target_link_libraries(${app} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
+  install(TARGETS ${app} DESTINATION bin)
+  set_target_properties(${app} PROPERTIES
+                        FOLDER apps
+                        CXX_STANDARD ${GUIPP_CXX_STANDARD})
 endforeach(app)
+
+if (ANDROID)
+  foreach(app ${apps})
+    add_qt_android_apk(${app}_apk ${app}
+                       PACKAGE_NAME "de.red-space.${app}"
+                       INSTALL
+    )
+  endforeach(app)
+endif ()

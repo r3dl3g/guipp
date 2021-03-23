@@ -79,19 +79,59 @@ namespace gui {
       return static_cast<float>(M_PI * degrees / 180.0);
     }
     // --------------------------------------------------------------------------
-    template<int angle>
-    struct sinus {
-      static constexpr double value = sin(radian(angle));
+    template<int I, typename = void>
+    struct const_sinus {
+//      static constexpr double value = sin(radian(angle));
+    };
+    // --------------------------------------------------------------------------
+    template<> struct const_sinus<0> { static constexpr double value = 0.0; };
+    template<> struct const_sinus<5> { static constexpr double value = 0.087155743; };
+    template<> struct const_sinus<10> { static constexpr double value = 0.173648178; };
+    template<> struct const_sinus<15> { static constexpr double value = 0.258819045; };
+    template<> struct const_sinus<20> { static constexpr double value = 0.342020143; };
+    template<> struct const_sinus<25> { static constexpr double value = 0.422618262; };
+    template<> struct const_sinus<30> { static constexpr double value = 0.5; };
+    template<> struct const_sinus<35> { static constexpr double value = 0.573576436; };
+    template<> struct const_sinus<40> { static constexpr double value = 0.64278761; };
+    template<> struct const_sinus<45> { static constexpr double value = 0.707106781; };
+    template<> struct const_sinus<50> { static constexpr double value = 0.766044443; };
+    template<> struct const_sinus<55> { static constexpr double value = 0.819152044; };
+    template<> struct const_sinus<60> { static constexpr double value = 0.866025404; };
+    template<> struct const_sinus<65> { static constexpr double value = 0.906307787; };
+    template<> struct const_sinus<70> { static constexpr double value = 0.939692621; };
+    template<> struct const_sinus<75> { static constexpr double value = 0.965925826; };
+    template<> struct const_sinus<80> { static constexpr double value = 0.984807753; };
+    template<> struct const_sinus<85> { static constexpr double value = 0.996194698; };
+    template<> struct const_sinus<90> { static constexpr double value = 1.0; };
+    // --------------------------------------------------------------------------
+    template<int I>
+    struct const_sinus<I, std::enable_if_t<(I > 90 && I <= 180)>> {
+      static constexpr double value = const_sinus<180 - I>::value;
+    };
+    // --------------------------------------------------------------------------
+    template<int I>
+    struct const_sinus<I, std::enable_if_t<(I > 180 && I <= 360)>> {
+      static constexpr double value = -(const_sinus<I - 180>::value);
+    };
+    // --------------------------------------------------------------------------
+    template<int I>
+    struct const_sinus<I, std::enable_if_t<(I < 0)>> {
+      static constexpr double value = -const_sinus<-I>::value;
+    };
+    // --------------------------------------------------------------------------
+    template<int I>
+    struct const_sinus<I, std::enable_if_t<(I > 360)>> {
+      static constexpr double value = const_sinus<I % 360>::value;
     };
     // --------------------------------------------------------------------------
     template<int angle>
-    struct cosinus {
-      static constexpr double value = cos(radian(angle));
+    struct const_cosinus {
+      static constexpr double value = const_sinus<(angle+90)>::value;
     };
     // --------------------------------------------------------------------------
     template<int angle>
     point calc_clock_point (const point& center, size::type radius) {
-      return calc_clock_point(center, sinus<angle>::value, cosinus<angle>::value, radius);
+      return calc_clock_point(center, const_sinus<angle>::value, const_cosinus<angle>::value, radius);
     }
     // --------------------------------------------------------------------------
     template<int angle>
@@ -101,8 +141,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<int angle>
     draw::line calc_centerline (const point& center, size::type radius0, size::type radius1) {
-      const auto ca = cosinus<angle>::value;
-      const auto sa = sinus<angle>::value;
+      const auto ca = const_cosinus<angle>::value;
+      const auto sa = const_sinus<angle>::value;
       return {
         calc_clock_point(center, sa, ca, radius0), calc_clock_point(center, sa, ca, radius1)
       };

@@ -3,7 +3,6 @@
 #include <gui/io/pnm_to_src.h>
 #include <util/command_line.h>
 #include <util/sys_fs.h>
-# include <experimental/filesystem>
 
 
 using namespace gui;
@@ -48,8 +47,6 @@ int gui_main(const std::vector<std::string>& args) {
     }
     basic_datamap bmp;
     load_pnm(f, bmp);
-
-    namespace sys_fs = std::experimental::filesystem;
 
     sys_fs::path p(f);
     auto stem = p.stem().string();

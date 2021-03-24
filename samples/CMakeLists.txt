@@ -6,13 +6,13 @@ set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/obj)
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-if(NOT CMAKE_DEBUG_POSTFIX)
+if(NOT ANDROID AND NOT CMAKE_DEBUG_POSTFIX)
   set(CMAKE_DEBUG_POSTFIX d)
 endif()
 
 add_subdirectory(./../gui gui)
 
-if (GUIPP_USE_QT)
+if (GUIPP_USE_QT AND NOT ANDROID)
   DebugPrint("GUIPP samples: build with Qt5!")
   find_package(Qt5Gui REQUIRED)
 #  find_package(ICU REQUIRED data i18n io lx uc)
@@ -39,32 +39,6 @@ DebugPrint("samples GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
 # so that we will find Version.h
 include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS})
 
-set(apps
-    hello_world
-    pnm2src
-    one_child
-    border_layout_app
-    dynamic_border_layout_app
-    attach_all_layout
-    weighted_layout_app
-    look_and_feel
-    diagrams
-    dialogs
-    split_view
-    split_view_app
-    scroll_view_app
-    list_app
-    tree_app
-    tiles_app
-    table_app
-    filemanager
-    editor
-    covid19
-    WindowTest
-    BorderTest
-    icons
-)
-
 add_definitions(${GUIPP_CXX_FLAGS})
 if (${CMAKE_VERSION} VERSION_LESS "3.13.0")
   set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${GUIPP_EXE_LINKER_FLAGS})
@@ -72,25 +46,30 @@ else ()
   add_link_options(${GUIPP_EXE_LINKER_FLAGS})
 endif ()
 
-foreach(app ${apps})
-  if (ANDROID)
-    add_library(${app} SHARED ${app}.cpp)
-  else ()
-    add_executable(${app} WIN32 ${app}.cpp)
-#    target_link_libraries(${app} ${APP_SYS_LIBRARIES} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
-  endif ()
-  target_link_libraries(${app} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
-  install(TARGETS ${app} DESTINATION bin)
-  set_target_properties(${app} PROPERTIES
-                        FOLDER apps
-                        CXX_STANDARD ${GUIPP_CXX_STANDARD})
-endforeach(app)
+#add_subdirectory(LookAndFeelApp)
+#if (0)
 
-if (ANDROID)
-  foreach(app ${apps})
-    add_qt_android_apk(${app}_apk ${app}
-                       PACKAGE_NAME "de.red-space.${app}"
-                       INSTALL
-    )
-  endforeach(app)
-endif ()
+add_subdirectory(AttachAllLayoutApp)
+add_subdirectory(BorderLayoutApp)
+add_subdirectory(BorderTestApp)
+add_subdirectory(Covid19App)
+add_subdirectory(DiagramsApp)
+add_subdirectory(DialogsApp)
+add_subdirectory(DynamicBorderLayoutApp)
+add_subdirectory(EditorApp)
+add_subdirectory(FilemanagerApp)
+add_subdirectory(HelloWorldApp)
+add_subdirectory(IconsApp)
+add_subdirectory(ListApp)
+add_subdirectory(LookAndFeelApp)
+add_subdirectory(ScrollViewApp)
+add_subdirectory(SimpleChildApp)
+add_subdirectory(SplitListViewApp)
+add_subdirectory(SplitViewApp)
+add_subdirectory(TableApp)
+add_subdirectory(TilesApp)
+add_subdirectory(TreeApp)
+add_subdirectory(WeightedLayoutApp)
+add_subdirectory(WindowTestApp)
+
+#endif ()

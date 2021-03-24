@@ -75,7 +75,7 @@ if(NOT TARGET gui++)
 
   if (GUIPP_USE_QT)
     DebugPrint("GUIPP: build with Qt5!")
-    find_package(Qt5Gui REQUIRED)
+#    find_package(Qt5Gui REQUIRED)
 
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${Qt5Gui_LIBRARIES})
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_QT ${Qt5Gui_DEFINITIONS})

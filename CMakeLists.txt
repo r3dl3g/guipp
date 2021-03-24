@@ -43,11 +43,16 @@ else()
     set(INSTALL_BASE_DIR "/usr/local")
 endif ()
 
+if (GUIPP_USE_QT)
+    message(STATUS "GUIPP: build with Qt5!")
+    find_package(Qt5Gui REQUIRED)
+endif ()
+
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/obj)
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-if (NOT CMAKE_DEBUG_POSTFIX)
+if (NOT ANDROID AND NOT CMAKE_DEBUG_POSTFIX)
     set(CMAKE_DEBUG_POSTFIX d)
 endif ()
 
@@ -64,8 +69,12 @@ if (NOT HAS_PARENT)
 endif ()
 
 add_subdirectory(gui)
+
 if (GUIPP_STANDALONE_BUILD)
-  add_subdirectory(test)
+  if (NOT ANDROID)
+    add_subdirectory(test)
+    add_subdirectory(tools)
+  endif ()
   add_subdirectory(samples)
 endif ()
 

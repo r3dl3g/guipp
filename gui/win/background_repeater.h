@@ -18,9 +18,13 @@
 
 #pragma once
 
-#include <thread>
 #include <functional>
 #include <chrono>
+#ifdef USE_MINGW
+#include <mingw/mingw.thread.h>
+#else
+#include <thread>
+#endif
 
 // --------------------------------------------------------------------------
 //

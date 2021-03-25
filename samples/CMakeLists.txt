@@ -71,5 +71,6 @@ add_subdirectory(TilesApp)
 add_subdirectory(TreeApp)
 add_subdirectory(WeightedLayoutApp)
 add_subdirectory(WindowTestApp)
+add_subdirectory(ClockApp)
 
 #endif ()

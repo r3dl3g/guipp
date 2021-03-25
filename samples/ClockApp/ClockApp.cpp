@@ -434,6 +434,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     page_0.create(tabs);
     page_1.create(tabs);
     page_2.create(tabs);
+
+    tabs.show_page(0);
   });
 
   tabs.on_selection_changed([&] (event_source ) {

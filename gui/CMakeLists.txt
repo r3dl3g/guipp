@@ -53,6 +53,7 @@ if(NOT TARGET gui++)
 
   if (ANDROID)
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DANDROID)
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} log)
   endif ()
 
   if (GUIPP_USE_BOOST)

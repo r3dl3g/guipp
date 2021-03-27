@@ -24,7 +24,7 @@ constexpr std::size_t size_of (const std::array<T, N>&) {
 
 const std::size_t COLUMNS = 4;
 
-typedef gui::layout::fixed_grid_lineup<120, 22, COLUMNS + 1, 10, 4> layout_t;
+typedef gui::layout::fixed_grid_lineup<120, IF_MOBILE_ELSE(40, 22), COLUMNS + 1, 10, 4> layout_t;
 typedef gui::win::group_window<layout_t, gui::color::very_very_light_gray> top_grid_t;
 
 template<typename T>
@@ -85,8 +85,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   typedef layout_main_window<layout::border::layouter<10, 10, 10, 10, layout::border::type_t::all_symmetric>> main_window_t;
 
   typedef layout::vertical_lineup<236, 10, 8> center_layout_t;
-  typedef layout::vertical_lineup<40, 0, 8> bottom_layout_t;
-  typedef layout::horizontal_adaption<10, 4, 0, 80, 200> center_grid_t;
+  typedef layout::vertical_lineup<IF_MOBILE_ELSE(80, 40), 0, 8> bottom_layout_t;
+  typedef layout::horizontal_adaption<10, 4, 0, IF_MOBILE_ELSE(160, 80), IF_MOBILE_ELSE(400, 200)> center_grid_t;
   typedef group_window<center_grid_t, color::very_very_light_gray> page_t;
 
   main_window_t main;

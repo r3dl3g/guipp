@@ -140,10 +140,36 @@ namespace gui {
 
       draw::pen pn(p.color(), w, draw::pen::Style::solid, draw::pen::Cap::round);
 
-      g.frame(calc_centerline(center, ((hour % 12) + min / 60.0F) * 360 / 12, radius * 0.6), pn);
-      g.frame(calc_centerline(center, min * 360 / 60, radius), pn);
+      const auto hangle = ((hour % 12) + min / 60.0F) * 360 / 12;
+      g.frame(calc_centerline(center, hangle, radius * 0.1, radius * 0.6), pn);
+      g.frame(calc_centerline(center, hangle, radius * 0.1), pn.with_size(w / 3));
+      const auto mangle = min * 360 / 60;
+      g.frame(calc_centerline(center, mangle, radius * 0.1, radius * 0.9), pn);
+      g.frame(calc_centerline(center, mangle, radius * 0.1), pn.with_size(w / 3));
       draw::pen pn2(second_color, w / 2, draw::pen::Style::solid, draw::pen::Cap::round);
       g.frame(calc_centerline(center, sec * 360 / 60, radius), pn2);
+
+      g.fill(draw::pie(center, w, 0, 360), p.color());
+    }
+
+    // --------------------------------------------------------------------------
+    clock_simple_hands::clock_simple_hands (const core::point& center,
+                                            core::size::type radius,
+                                            int hour, int min)
+      : icon_base(center, radius)
+      , hour(hour)
+      , min(min)
+    {}
+
+    void clock_simple_hands::operator() (graphics& g, const pen& p) const {
+      const auto w = radius * 0.03;
+
+      draw::pen pn(p.color(), w, draw::pen::Style::solid, draw::pen::Cap::round);
+
+      const auto hangle = ((hour % 12) + min / 60.0F) * 360 / 12;
+      g.frame(calc_centerline(center, hangle, radius * 0.6), pn);
+      const auto mangle = min * 360 / 60;
+      g.frame(calc_centerline(center, mangle, radius), pn);
 
       g.fill(draw::pie(center, w, 0, 360), p.color());
     }

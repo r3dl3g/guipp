@@ -310,6 +310,11 @@ namespace gui {
     }
 
     template<typename T, typename S, coordinate_system C>
+    inline auto basic_rectangle<T, S, C>::max_radius () const -> size_type {
+      return std::min(height(), width()) / size_type(2);
+    }
+
+    template<typename T, typename S, coordinate_system C>
     inline auto basic_rectangle<T, S, C>::with_width (const size_type w) const -> self {
       return {position(), size_t(w, height())};
     }

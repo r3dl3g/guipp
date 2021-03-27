@@ -123,6 +123,19 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT clock_simple_hands : public detail::icon_base {
+
+      clock_simple_hands (const core::point& center, core::size::type radius,
+                          int hour, int min);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    private:
+      int hour;
+      int min;
+    };
+
+    // --------------------------------------------------------------------------
     struct GUIPP_DRAW_EXPORT stopwatch_seconds_face : public detail::icon_base {
 
       stopwatch_seconds_face (const core::point& center, core::size::type radius);

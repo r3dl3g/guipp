@@ -124,7 +124,22 @@ namespace gui {
       void operator() (graphics& g, const pen& pn) const;
 
     };
-    using play_icon = right_icon;
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT play_icon : public detail::icon_base {
+
+      play_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT back_icon : public detail::icon_base {
+
+      back_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
     // --------------------------------------------------------------------------
     struct GUIPP_DRAW_EXPORT pause_icon : public detail::icon_base {
 
@@ -153,6 +168,14 @@ namespace gui {
     struct GUIPP_DRAW_EXPORT add_icon : public detail::icon_base {
 
       add_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT remove_icon : public detail::icon_base {
+
+      remove_icon (const core::point& center, core::size::type radius);
 
       void operator() (graphics& g, const pen& pn) const;
 
@@ -265,6 +288,14 @@ namespace gui {
     struct GUIPP_DRAW_EXPORT zoom_out_icon : public detail::icon_base {
 
       zoom_out_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT off_icon : public detail::icon_base {
+
+      off_icon (const core::point& center, core::size::type radius);
 
       void operator() (graphics& g, const pen& pn) const;
 

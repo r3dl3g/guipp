@@ -291,6 +291,20 @@ struct chronometer_page : group_window<stopwatch_layout, color::black, window&, 
 };
 // --------------------------------------------------------------------------
 template<bool up>
+void draw_up_down_button (draw::graphics& g, const core::rectangle& r);
+
+template<>
+void draw_up_down_button<true> (draw::graphics& g, const core::rectangle& r) {
+  g.frame(draw::up_icon(r.center(), r.max_radius() / 2), color::dark_gray);
+}
+
+template<>
+void draw_up_down_button<false> (draw::graphics& g, const core::rectangle& r) {
+  g.frame(draw::down_icon(r.center(), r.max_radius() / 2), color::dark_gray);
+}
+
+// --------------------------------------------------------------------------
+template<bool up>
 struct direction_button : public custom_push_button {
   typedef custom_push_button super;
 

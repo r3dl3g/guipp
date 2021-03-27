@@ -104,6 +104,7 @@ namespace gui {
       point_type center_x () const;
       point_type center_y () const;
       point_t center () const;
+      size_type max_radius () const;
 
       self with_pos (const point_t& pt) const;
       self with_size (const size_t& sz) const;

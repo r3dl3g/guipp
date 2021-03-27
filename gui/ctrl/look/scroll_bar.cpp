@@ -26,6 +26,7 @@
 #include <gui/draw/pen.h>
 #include <gui/draw/brush.h>
 #include <gui/draw/font.h>
+#include <gui/draw/icons.h>
 #include <gui/ctrl/look/scroll_bar.h>
 #include <gui/ctrl/look/button.h>
 
@@ -35,14 +36,23 @@ namespace gui {
   namespace look {
 
     namespace {
-      std::string up_left_arrows[] = {
-        "\xe2\x96\xb4", // up
-        "\xe2\x97\x82", // left
-      };
-      std::string down_right_arrows[] = {
-        "\xe2\x96\xbe",  // down
-        "\xe2\x96\xb8", // right
-      };
+
+      void draw_up_left_arrow (draw::graphics& g, bool horizontal, const core::rectangle& up, os::color col) {
+        if (horizontal) {
+          g.frame(draw::left_icon(up.center(), up.max_radius() / 2), col);
+        } else {
+          g.frame(draw::up_icon(up.center(), up.max_radius() / 2), col);
+        }
+      }
+
+      void draw_down_right_arrow (draw::graphics& g, bool horizontal, const core::rectangle& up, os::color col) {
+        if (horizontal) {
+          g.frame(draw::right_icon(up.center(), up.max_radius() / 2), col);
+        } else {
+          g.frame(draw::down_icon(up.center(), up.max_radius() / 2), col);
+        }
+      }
+
     }
 
     // --------------------------------------------------------------------------
@@ -74,16 +84,14 @@ namespace gui {
         if (ctrl::scrollbar_item::up_button == select) {
           draw::frame::sunken_relief(g, up.shrinked(core::size::two));
         }
-        auto s = up_left_arrows[horizontal];
-        g.text(draw::text_box(s, up, text_origin_t::center), draw::font::system(), col);
+        draw_up_left_arrow(g, horizontal, up, col);
       }
       if (!down.empty()) {
         look::simple_frame(g, down, ctrl::scrollbar_item::down_button == hilite);
         if (ctrl::scrollbar_item::down_button == select) {
           draw::frame::sunken_relief(g, down.shrinked(core::size::two));
         }
-        auto s = down_right_arrows[horizontal];
-        g.text(draw::text_box(s, down, text_origin_t::center), draw::font::system(), col);
+        draw_down_right_arrow(g, horizontal, down, col);
       }
       if (!thumb.empty()) {
         look::simple_frame(g, thumb, ctrl::scrollbar_item::thumb_button == hilite, 3, horizontal ? 3 : 13);
@@ -127,16 +135,14 @@ namespace gui {
         if (ctrl::scrollbar_item::up_button == select) {
           draw::frame::sunken_relief(g, up.shrinked(2, 3, 2, 3));
         }
-        auto s = up_left_arrows[horizontal];
-        g.text(draw::text_box(s, up, text_origin_t::center), draw::font::system(), col);
+        draw_up_left_arrow(g, horizontal, up, col);
       }
       if (!down.empty()) {
         look::button_frame<look_and_feel_t::w95>(g, down, true, false, ctrl::scrollbar_item::down_button == hilite, false);
         if (ctrl::scrollbar_item::down_button == select) {
           draw::frame::sunken_relief(g, down.shrinked(2, 3, 2, 3));
         }
-        auto s = down_right_arrows[horizontal];
-        g.text(draw::text_box(s, down, text_origin_t::center), draw::font::system(), col);
+        draw_down_right_arrow(g, horizontal, down, col);
       }
       if (!thumb.empty()) {
         look::button_frame<look_and_feel_t::w95>(g, thumb, true, false, ctrl::scrollbar_item::thumb_button == hilite, false);
@@ -144,30 +150,6 @@ namespace gui {
           draw::frame::sunken_relief(g, thumb.shrinked(2, 3, 2, 3));
         }
       }
-    }
-
-    std::vector<core::point> up_left_arrows_poly (const core::rectangle& area, bool horizontal) {
-      core::rectangle r = area.shrinked(area.size() / 3);
-      if (!r.empty()) {
-        if (horizontal) {
-          return {r.x2y1(), {r.x(), r.center_y()}, r.x2y2()};
-        } else {
-          return {r.x2y2(), {r.center_x(), r.y()}, r.x1y2()};
-        }
-      }
-      return {};
-    }
-
-    std::vector<core::point> down_right_arrows_poly (const core::rectangle& area, bool horizontal) {
-      core::rectangle r = area.shrinked(area.size() / 3);
-      if (!r.empty()) {
-        if (horizontal) {
-          return {r.top_left(), {r.x2(), r.center_y()}, r.x1y2()};
-        } else {
-          return {r.top_left(), {r.center_x(), r.y2()}, r.x2y1()};
-        }
-      }
-      return {};
     }
 
     static os::color gray128 = color::rgb_gray<128>::value;
@@ -198,11 +180,11 @@ namespace gui {
       os::color col = is_enabled ? color::black : color::gray;
       if (!up.empty()) {
         g.fill(draw::rectangle(up), color::very_very_light_gray);
-        g.frame(draw::polyline(up_left_arrows_poly(up, horizontal)), col);
+        draw_up_left_arrow(g, horizontal, up, col);
       }
       if (!down.empty()) {
         g.fill(draw::rectangle(down), color::very_very_light_gray);
-        g.frame(draw::polyline(down_right_arrows_poly(down, horizontal)), col);
+        draw_down_right_arrow(g, horizontal, down, col);
       }
       if (!thumb.empty()) {
         g.fill(draw::rectangle(thumb), ctrl::scrollbar_item::thumb_button == select ?

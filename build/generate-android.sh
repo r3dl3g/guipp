@@ -17,9 +17,9 @@ Qt5Core_DIR=$QTDIR/lib/cmake/Qt5Core
 
 . ./.generate.sh
 
-#generate_all android \
+#generate android-release-static Release -DGUIPP_BUILD_STATIC_MODULE_LIBS=ON \
 
-generate android-release-static Release -DGUIPP_BUILD_STATIC_MODULE_LIBS=ON \
+generate_all android \
 -DGUIPP_STANDALONE_BUILD=ON \
 -DGUIPP_USE_QT=ON \
 -DGUIPP_BUILD_FOR_MOBILE=ON \

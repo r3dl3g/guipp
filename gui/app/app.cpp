@@ -23,6 +23,11 @@
 #include <QtWidgets/qapplication.h>
 #endif // GUIPP_QT
 
+#ifdef ANDROID
+#include <android/log.h>
+#include <logging/redirect_stream.h>
+#endif // ANDROID
+
  // --------------------------------------------------------------------------
 //
 // Library includes
@@ -49,6 +54,38 @@ void fatal_error_handler(int signum) {
   ::raise(SIGABRT);
 }
 #endif // ENABLE_STACKTRACE
+
+#ifdef ANDROID
+struct android_log {
+
+  android_log (const std::string& app_name)
+    : app_name(app_name)
+  {}
+
+  void operator ()(const std::string& t) {
+    __android_log_write(ANDROID_LOG_INFO, app_name.c_str(), t.c_str());
+  }
+
+private:
+  std::string app_name;
+};
+
+struct android_log_stream : public logging::basic_redirect_stream<android_log, char> {
+  typedef logging::basic_redirect_stream<android_log, char>super;
+
+  android_log_stream (const std::string& app_name, logging::level lvl, const logging::record_formatter& fmt)
+    : super(app_name) {
+    logging::core::instance().add_sink(this, lvl, fmt);
+  }
+
+  ~android_log_stream () override {
+    logging::core::instance().remove_sink(this);
+  }
+
+};
+
+#endif // ANDROID
+
 
 #ifdef GUIPP_WIN
 int APIENTRY WinMain (_In_ HINSTANCE hInstance,
@@ -80,6 +117,21 @@ int main (int argc, char* argv[]) {
   ::signal(SIGILL,  &fatal_error_handler);
 #endif // ENABLE_STACKTRACE
 
+#ifdef ANDROID
+  std::string appname = [&] () {
+    auto end = args[0].find('-');
+    auto begin = args[0].find_last_of('/', end);
+    if (begin == std::string::npos) {
+      begin = 0;
+    } else {
+      ++begin;
+    }
+    return args[0].substr(begin, end - begin);
+  }();
+  android_log_stream android_logger(appname, logging::level::debug, logging::core::get_no_time_formatter());
+  clog::info() << "Found app name: '" << appname << "'";
+#endif // ANDROID
+
 #ifdef GUIPP_X11
   const char* display = NULL;
 
@@ -109,6 +161,10 @@ int main (int argc, char* argv[]) {
 # endif // GUIPP_QT_HIDPI
   QGuiApplication qapplication(argc, argv);
   gui::core::global::init(&qapplication);
+  clog::info() << "Qt app name: '" << qapplication.applicationName().toStdString() << "'";
+  clog::info() << "Qt app display name: '" << qapplication.applicationDisplayName().toStdString() << "'";
+  clog::info() << "Qt app desktop file name: '" << qapplication.desktopFileName().toStdString() << "'";
+  clog::info() << "Qt app platform name: '" << qapplication.platformName().toStdString() << "'";
 #endif // GUIPP_QT
 
   int ret = 0;

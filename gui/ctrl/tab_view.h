@@ -59,7 +59,7 @@ namespace gui {
                             tab_view_button_origin<>::background,
                             tab_view_button_origin<>::min,
                             tab_view_button_origin<>::max> type;
-      static constexpr int size = 25;
+      static constexpr int size = IF_MOBILE_ELSE(80, 25);
     };
 
     template<>
@@ -69,7 +69,7 @@ namespace gui {
                               tab_view_button_origin<>::background,
                               tab_view_button_origin<>::min,
                               tab_view_button_origin<>::max> type;
-      static constexpr int size = 25;
+      static constexpr int size = IF_MOBILE_ELSE(80, 25);
     };
 
     template<>
@@ -79,7 +79,7 @@ namespace gui {
                               tab_view_button_origin<>::background,
                               tab_view_button_origin<>::min,
                               tab_view_button_origin<>::max> type;
-      static constexpr int size = 75;
+      static constexpr int size = 80;
     };
 
     template<>
@@ -89,7 +89,7 @@ namespace gui {
                               tab_view_button_origin<>::background,
                               tab_view_button_origin<>::min,
                               tab_view_button_origin<>::max> type;
-      static constexpr int size = 75;
+      static constexpr int size = 80;
     };
 
     template<alignment_t A = alignment_t::top,

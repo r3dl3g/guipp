@@ -149,15 +149,27 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    std::vector<core::point> left_points (const point& center, size::type radius) {
+      const auto p0 = calc_clock_point<30>(center, radius);
+      const auto p1 = calc_clock_point<150>(center, radius);
+      const auto p2 = calc_clock_point<270>(center, radius);
+      return {p0, p1, p2};
+    }
+
+    std::vector<core::point> right_points (const point& center, size::type radius) {
+      auto p0 = calc_clock_point<90>(center, radius);
+      auto p1 = calc_clock_point<210>(center, radius);
+      auto p2 = calc_clock_point<330>(center, radius);
+      return {p0, p1, p2};
+    }
+
+    // --------------------------------------------------------------------------
     left_icon::left_icon (const point& center, size::type radius)
       : icon_base(center, radius)
     {}
 
     void left_icon::operator() (graphics& g, const pen& pn) const {
-      auto p0 = calc_clock_point<30>(center, radius);
-      auto p1 = calc_clock_point<150>(center, radius);
-      auto p2 = calc_clock_point<270>(center, radius);
-      g.frame(draw::polygon({p0, p1, p2}), pn);
+      g.fill(draw::polygon(left_points(center, radius)), pn.color());
     }
 
     // --------------------------------------------------------------------------
@@ -166,10 +178,7 @@ namespace gui {
     {}
 
     void right_icon::operator() (graphics& g, const pen& pn) const {
-      auto p0 = calc_clock_point<90>(center, radius);
-      auto p1 = calc_clock_point<210>(center, radius);
-      auto p2 = calc_clock_point<330>(center, radius);
-      g.frame(draw::polygon({p0, p1, p2}), pn);
+      g.fill(draw::polygon(right_points(center, radius)), pn.color());
     }
 
     // --------------------------------------------------------------------------
@@ -181,7 +190,7 @@ namespace gui {
       auto p0 = calc_clock_point<120>(center, radius);
       auto p1 = calc_clock_point<240>(center, radius);
       auto p2 = calc_clock_point<0>(center, radius);
-      g.frame(draw::polygon({p0, p1, p2}), pn);
+      g.fill(draw::polygon({p0, p1, p2}), pn.color());
     }
 
     // --------------------------------------------------------------------------
@@ -193,7 +202,7 @@ namespace gui {
       auto p0 = calc_clock_point<60>(center, radius);
       auto p1 = calc_clock_point<180>(center, radius);
       auto p2 = calc_clock_point<300>(center, radius);
-      g.frame(draw::polygon({p0, p1, p2}), pn);
+      g.fill(draw::polygon({p0, p1, p2}), pn.color());
     }
 
     // --------------------------------------------------------------------------
@@ -238,6 +247,24 @@ namespace gui {
       g.frame(calc_centerline<0>(center, r2), pn);
       g.frame(draw::arc(center, r0, 145, 125), pn);
       g.frame(draw::arc(center, r0, 55, 35), pn);
+    }
+
+    // --------------------------------------------------------------------------
+    play_icon::play_icon (const point& center, size::type radius)
+      : icon_base(center, radius)
+    {}
+
+    void play_icon::operator() (graphics& g, const pen& pn) const {
+      g.frame(draw::polygon(right_points(center, radius)), pn);
+    }
+
+    // --------------------------------------------------------------------------
+    back_icon::back_icon (const point& center, size::type radius)
+      : icon_base(center, radius)
+    {}
+
+    void back_icon::operator() (graphics& g, const pen& pn) const {
+      g.frame(draw::polygon(left_points(center, radius)), pn);
     }
 
     // --------------------------------------------------------------------------
@@ -286,10 +313,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    add_icon::add_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
     void draw_minus (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       g.frame(draw::polyline({calc_clock_point<90>(center, radius), calc_clock_point<270>(center, radius)}), pn);
     }
@@ -299,8 +322,22 @@ namespace gui {
       draw_minus(g, pn, center, radius);
     }
 
+    // --------------------------------------------------------------------------
+    add_icon::add_icon (const core::point& center, core::size::type radius)
+      : icon_base(center, radius)
+    {}
+
     void add_icon::operator() (graphics& g, const pen& pn) const {
       draw_plus(g, pn, center, radius);
+    }
+
+    // --------------------------------------------------------------------------
+    remove_icon::remove_icon (const core::point& center, core::size::type radius)
+      : icon_base(center, radius)
+    {}
+
+    void remove_icon::operator() (graphics& g, const pen& pn) const {
+      draw_minus(g, pn, center, radius);
     }
 
     // --------------------------------------------------------------------------
@@ -467,6 +504,16 @@ namespace gui {
       core::size::type r = radius * 3 / 4;
       draw_find(g, pn, c, r);
       draw_minus(g, pn, c, r * 0.6);
+    }
+
+    // --------------------------------------------------------------------------
+    off_icon::off_icon (const core::point& center, core::size::type radius)
+      : icon_base(center, radius)
+    {}
+
+    void off_icon::operator() (graphics& g, const pen& pn) const {
+      g.frame(draw::arc(center, radius * 0.9, 120, 60+360), pn);
+      g.frame(draw::line(calc_clock_point<0>(center, radius * 0.3), calc_clock_point<0>(center, radius)), pn);
     }
 
     // --------------------------------------------------------------------------

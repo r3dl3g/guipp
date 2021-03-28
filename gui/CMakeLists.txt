@@ -5,6 +5,8 @@ project("gui++" CXX)
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
 include (GenerateExportHeader)
+include (CMakePackageConfigHelpers)
+include (GNUInstallDirs)
 
 if(POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
@@ -312,30 +314,62 @@ if(NOT TARGET gui++)
 
   endif()
 
+  add_library(gui++::gui++ ALIAS gui++)
+
   set_target_properties(gui++ PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
                         VERSION ${GUIPP_VERSION}
                         SOVERSION ${GUIPP_VERSION_MAJOR}
-                        CXX_STANDARD ${GUIPP_CXX_STANDARD}
-                        )
+                        CXX_STANDARD ${GUIPP_CXX_STANDARD})
 
   GENERATE_EXPORT_HEADER(gui++
                          BASE_NAME GUIPP
                          EXPORT_MACRO_NAME GUIPP_EXPORT
                          EXPORT_FILE_NAME gui++-export.h
-                         STATIC_DEFINE GUIPP_BUILT_AS_STATIC
-                         )
-
-  set (INCLUDE_INSTALL_DIR include/guipp/gui)
-  set (LIBRARY_INSTALL_DIR lib/guipp)
+                         STATIC_DEFINE GUIPP_BUILT_AS_STATIC)
 
   if (GUIPP_STANDALONE_BUILD)
-    install(TARGETS gui++ DESTINATION ${LIBRARY_INSTALL_DIR})
+    set_property(TARGET gui++ PROPERTY VERSION ${GUIPP_VERSION})
+    set_property(TARGET gui++ PROPERTY SOVERSION ${GUIPP_VERSION_MAJOR})
+    set_property(TARGET gui++ PROPERTY INTERFACE_gui++_MAJOR_VERSION ${GUIPP_VERSION_MAJOR})
+    set_property(TARGET gui++ APPEND PROPERTY COMPATIBLE_INTERFACE_STRING gui++_MAJOR_VERSION)
+
+    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui++)
+    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/gui++)
+
+    target_include_directories(gui++ PUBLIC
+                               "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+                               "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>")
+
+    write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/gui++ConfigVersion.cmake"
+                                     VERSION "${GUIPP_VERSION}"
+                                     COMPATIBILITY SameMajorVersion)
+
+    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+                                    "${CMAKE_CURRENT_BINARY_DIR}/gui++Config.cmake"
+                                    INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+
+    install(TARGETS gui++ EXPORT gui++Targets
+            LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
+            ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR})
+
     install(FILES ${INCLUDE_FILES}
-      ${PROJECT_BINARY_DIR}/gui++-export.h
-      ${PROJECT_BINARY_DIR}/gui_version.h
-      DESTINATION ${INCLUDE_INSTALL_DIR})
+            ${PROJECT_BINARY_DIR}/gui++-export.h
+            DESTINATION ${INCLUDE_INSTALL_DIR})
+
+    install(EXPORT gui++Targets
+            FILE gui++Targets.cmake
+            NAMESPACE gui++::
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+
+    install(FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/gui++Config.cmake"
+            "${CMAKE_CURRENT_BINARY_DIR}/gui++ConfigVersion.cmake"
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+
   endif()
 
 endif()

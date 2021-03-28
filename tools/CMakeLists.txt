@@ -50,7 +50,7 @@ endif ()
 foreach(app ${apps})
   add_executable(${app} WIN32 ${app}.cpp)
   target_link_libraries(${app} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
-  install(TARGETS ${app} DESTINATION bin)
+#  install(TARGETS ${app} DESTINATION bin)
   set_target_properties(${app} PROPERTIES
                         FOLDER apps
                         CXX_STANDARD ${GUIPP_CXX_STANDARD})

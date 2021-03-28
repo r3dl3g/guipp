@@ -20,5 +20,3 @@ if (ANDROID)
                        PACKAGE_NAME "de.redspace.${PROJECT_NAME}"
                        INSTALL)
 endif ()
-#                       VERSION_CODE 1
-#                       PACKAGE_SOURCES ${CMAKE_CURRENT_LIST_DIR}

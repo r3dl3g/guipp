@@ -18,9 +18,6 @@ if(NOT TARGET gui++-look)
   DebugPrint("look GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
 #  message(STATUS "look GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
 
-  set (INCLUDE_INSTALL_DIR include/guipp/gui/look)
-  set (LIBRARY_INSTALL_DIR lib/guipp)
-
   set(SOURCE_FILES
       button.cpp
       control.cpp
@@ -39,6 +36,7 @@ if(NOT TARGET gui++-look)
   file(GLOB RESOURCE_FILES "res/*.h")
 
   add_library(gui++-look ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES} ${RESOURCE_FILES})
+  add_library(gui++::look ALIAS gui++-look)
 
   set_target_properties(gui++-look PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
@@ -62,10 +60,6 @@ if(NOT TARGET gui++-look)
                           ${GUIPP_SYS_LIBRARIES})
   endif()
 
-  if (GUIPP_STANDALONE_BUILD)
-    install(TARGETS gui++-look DESTINATION ${LIBRARY_INSTALL_DIR})
-  endif()
-
   GENERATE_EXPORT_HEADER(gui++-look
     BASE_NAME GUIPP_LOOK
     EXPORT_MACRO_NAME GUIPP_LOOK_EXPORT
@@ -74,12 +68,46 @@ if(NOT TARGET gui++-look)
     )
 
   if (GUIPP_STANDALONE_BUILD)
-    install(FILES ${INCLUDE_FILES}
-      ${PROJECT_BINARY_DIR}/gui++-look-export.h
-      DESTINATION ${INCLUDE_INSTALL_DIR})
+    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui++/ctrl/look)
+    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/gui++)
 
+    target_include_directories(gui++-look
+                               PUBLIC
+                               "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+                               "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>"
+    )
+
+    install(TARGETS gui++-look
+            EXPORT gui++lookTargets
+            LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
+            ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
+    )
+
+    install(FILES ${INCLUDE_FILES}
+            ${PROJECT_BINARY_DIR}/gui++-look-export.h
+            DESTINATION ${INCLUDE_INSTALL_DIR}
+    )
     install(FILES ${RESOURCE_FILES}
-      DESTINATION ${INCLUDE_INSTALL_DIR}/res)
+          DESTINATION ${INCLUDE_INSTALL_DIR}/res)
+
+    install(EXPORT gui++lookTargets
+            FILE gui++lookTargets.cmake
+            NAMESPACE gui++::
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
+    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../../Config.cmake.in
+      "${CMAKE_CURRENT_BINARY_DIR}/gui++lookConfig.cmake"
+      INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
+    install(FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/gui++lookConfig.cmake"
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
   endif()
 
 endif()

@@ -16,6 +16,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 if (ANDROID)
   add_qt_android_apk(${PROJECT_NAME}_apk ${PROJECT_NAME}
-                       PACKAGE_NAME "de.redspace.${PROJECT_NAME}"
-                       INSTALL)
+                     PACKAGE_NAME "de.redspace.${PROJECT_NAME}"
+                     )
 endif ()

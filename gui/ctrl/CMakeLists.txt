@@ -19,9 +19,6 @@ if(NOT TARGET gui++-ctrl)
   DebugPrint("ctrl GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
 #  message(STATUS "ctrl GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
 
-  set (INCLUDE_INSTALL_DIR include/guipp/gui/ctrl)
-  set (LIBRARY_INSTALL_DIR lib/guipp)
-
   set(SOURCE_FILES
       button.cpp
       column_list.cpp
@@ -47,9 +44,9 @@ if(NOT TARGET gui++-ctrl)
   )
 
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
-  file(GLOB RESOURCE_FILES "res/*.h")
 
-  add_library(gui++-ctrl ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES} ${RESOURCE_FILES})
+  add_library(gui++-ctrl ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
+  add_library(gui++::ctrl ALIAS gui++-ctrl)
 
   set_target_properties(gui++-ctrl PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
@@ -77,10 +74,6 @@ if(NOT TARGET gui++-ctrl)
                           ${GUIPP_SYS_LIBRARIES})
   endif()
 
-  if (GUIPP_STANDALONE_BUILD)
-    install(TARGETS gui++-ctrl DESTINATION ${LIBRARY_INSTALL_DIR})
-  endif()
-
   GENERATE_EXPORT_HEADER(gui++-ctrl
     BASE_NAME GUIPP_CTRL
     EXPORT_MACRO_NAME GUIPP_CTRL_EXPORT
@@ -89,12 +82,44 @@ if(NOT TARGET gui++-ctrl)
     )
 
   if (GUIPP_STANDALONE_BUILD)
-    install(FILES ${INCLUDE_FILES}
-      ${PROJECT_BINARY_DIR}/gui++-ctrl-export.h
-      DESTINATION ${INCLUDE_INSTALL_DIR})
+    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui++/ctrl)
+    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/gui++)
 
-    install(FILES ${RESOURCE_FILES}
-      DESTINATION ${INCLUDE_INSTALL_DIR}/res)
+    target_include_directories(gui++-ctrl
+                               PUBLIC
+                               "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+                               "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>"
+    )
+
+    install(TARGETS gui++-ctrl
+            EXPORT gui++ctrlTargets
+            LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
+            ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
+    )
+
+    install(FILES ${INCLUDE_FILES}
+            ${PROJECT_BINARY_DIR}/gui++-ctrl-export.h
+            DESTINATION ${INCLUDE_INSTALL_DIR}
+    )
+
+    install(EXPORT gui++ctrlTargets
+            FILE gui++ctrlTargets.cmake
+            NAMESPACE gui++::
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
+    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in
+      "${CMAKE_CURRENT_BINARY_DIR}/gui++ctrlConfig.cmake"
+      INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
+    install(FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/gui++ctrlConfig.cmake"
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
   endif()
 
 endif()

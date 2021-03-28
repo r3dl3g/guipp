@@ -14,9 +14,6 @@ if(NOT TARGET gui++-io)
 
   add_definitions(${GUIPP_CXX_FLAGS})
 
-  set (INCLUDE_INSTALL_DIR include/guipp/gui/io)
-  set (LIBRARY_INSTALL_DIR lib/guipp)
-
   set(SOURCE_FILES
       pnm.cpp
       pnm_to_src.cpp
@@ -25,6 +22,7 @@ if(NOT TARGET gui++-io)
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
   add_library(gui++-io ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
+  add_library(gui++::io ALIAS gui++-io)
 
   set_target_properties(gui++-io PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
@@ -46,10 +44,6 @@ if(NOT TARGET gui++-io)
                           ${GUIPP_SYS_LIBRARIES})
   endif()
 
-  if (GUIPP_STANDALONE_BUILD)
-    install(TARGETS gui++-io DESTINATION ${LIBRARY_INSTALL_DIR})
-  endif()
-
   GENERATE_EXPORT_HEADER(gui++-io
     BASE_NAME GUIPP_IO
     EXPORT_MACRO_NAME GUIPP_IO_EXPORT
@@ -58,9 +52,44 @@ if(NOT TARGET gui++-io)
   )
 
   if (GUIPP_STANDALONE_BUILD)
+    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui++/io)
+    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/gui++)
+
+    target_include_directories(gui++-io
+                               PUBLIC
+                               "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+                               "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>"
+    )
+
+    install(TARGETS gui++-io
+            EXPORT gui++ioTargets
+            LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
+            ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
+    )
+
     install(FILES ${INCLUDE_FILES}
-      ${PROJECT_BINARY_DIR}/gui++-io-export.h
-      DESTINATION ${INCLUDE_INSTALL_DIR})
+            ${PROJECT_BINARY_DIR}/gui++-io-export.h
+            DESTINATION ${INCLUDE_INSTALL_DIR}
+    )
+
+    install(EXPORT gui++ioTargets
+            FILE gui++ioTargets.cmake
+            NAMESPACE gui++::
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
+    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in
+      "${CMAKE_CURRENT_BINARY_DIR}/gui++ioConfig.cmake"
+      INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
+    install(FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/gui++ioConfig.cmake"
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
   endif()
 
 

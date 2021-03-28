@@ -14,9 +14,6 @@ if(NOT TARGET gui++-draw)
 
   add_definitions(${GUIPP_CXX_FLAGS})
 
-  set (INCLUDE_INSTALL_DIR include/guipp/gui/draw)
-  set (LIBRARY_INSTALL_DIR lib/guipp)
-
   set(SOURCE_FILES
       arc_coords.cpp
       bitmap_info.cpp
@@ -42,6 +39,7 @@ if(NOT TARGET gui++-draw)
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
   add_library(gui++-draw ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
+  add_library(gui++::draw ALIAS gui++-draw)
 
   if(GUIPP_BUILD_STATIC_MODULE_LIBS)
 
@@ -52,10 +50,6 @@ if(NOT TARGET gui++-draw)
     add_definitions(-Dgui___draw_EXPORTS)
     target_link_libraries(gui++-draw PRIVATE gui++-core ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
 
-  endif()
-
-  if (GUIPP_STANDALONE_BUILD)
-    install(TARGETS gui++-draw DESTINATION ${LIBRARY_INSTALL_DIR})
   endif()
 
   set_target_properties(gui++-draw PROPERTIES
@@ -74,9 +68,44 @@ if(NOT TARGET gui++-draw)
   )
 
   if (GUIPP_STANDALONE_BUILD)
+    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui++/draw)
+    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/gui++)
+
+    target_include_directories(gui++-draw
+                               PUBLIC
+                               "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+                               "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>"
+    )
+
+    install(TARGETS gui++-draw
+            EXPORT gui++drawTargets
+            LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
+            ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
+    )
+
     install(FILES ${INCLUDE_FILES}
-      ${PROJECT_BINARY_DIR}/gui++-draw-export.h
-      DESTINATION ${INCLUDE_INSTALL_DIR})
+            ${PROJECT_BINARY_DIR}/gui++-draw-export.h
+            DESTINATION ${INCLUDE_INSTALL_DIR}
+    )
+
+    install(EXPORT gui++drawTargets
+            FILE gui++drawTargets.cmake
+            NAMESPACE gui++::
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
+    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in
+      "${CMAKE_CURRENT_BINARY_DIR}/gui++drawConfig.cmake"
+      INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
+    install(FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/gui++drawConfig.cmake"
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
   endif()
 
 endif()

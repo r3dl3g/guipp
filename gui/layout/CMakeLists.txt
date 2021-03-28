@@ -14,9 +14,6 @@ if(NOT TARGET gui++-layout)
 
   add_definitions(${GUIPP_CXX_FLAGS})
 
-  set (INCLUDE_INSTALL_DIR include/guipp/gui/layout)
-  set (LIBRARY_INSTALL_DIR lib/guipp)
-
   set(SOURCE_FILES
       attach_layout.cpp
       layout.cpp
@@ -43,6 +40,7 @@ if(NOT TARGET gui++-layout)
   )
 
   add_library(gui++-layout ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
+  add_library(gui++::layout ALIAS gui++-layout)
 
   set_target_properties(gui++-layout PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
@@ -64,10 +62,6 @@ if(NOT TARGET gui++-layout)
                           ${GUIPP_SYS_LIBRARIES})
   endif()
 
-  if (GUIPP_STANDALONE_BUILD)
-    install(TARGETS gui++-layout DESTINATION ${LIBRARY_INSTALL_DIR})
-  endif()
-
   GENERATE_EXPORT_HEADER(gui++-layout
     BASE_NAME GUIPP_LAYOUT
     EXPORT_MACRO_NAME GUIPP_LAYOUT_EXPORT
@@ -76,9 +70,44 @@ if(NOT TARGET gui++-layout)
   )
 
   if (GUIPP_STANDALONE_BUILD)
+    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui++/layout)
+    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/gui++)
+
+    target_include_directories(gui++-layout
+                               PUBLIC
+                               "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+                               "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>"
+    )
+
+    install(TARGETS gui++-layout
+            EXPORT gui++layoutTargets
+            LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
+            ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
+    )
+
     install(FILES ${INCLUDE_FILES}
-      ${PROJECT_BINARY_DIR}/gui++-layout-export.h
-      DESTINATION ${INCLUDE_INSTALL_DIR})
+            ${PROJECT_BINARY_DIR}/gui++-layout-export.h
+            DESTINATION ${INCLUDE_INSTALL_DIR}
+    )
+
+    install(EXPORT gui++layoutTargets
+            FILE gui++layoutTargets.cmake
+            NAMESPACE gui++::
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
+    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in
+      "${CMAKE_CURRENT_BINARY_DIR}/gui++layoutConfig.cmake"
+      INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
+    install(FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/gui++layoutConfig.cmake"
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
   endif()
 
 endif()

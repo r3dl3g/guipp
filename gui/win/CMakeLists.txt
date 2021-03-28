@@ -14,9 +14,6 @@ if(NOT TARGET gui++-win)
 
   add_definitions(${GUIPP_CXX_FLAGS})
 
-  set (INCLUDE_INSTALL_DIR include/guipp/gui/win)
-  set (LIBRARY_INSTALL_DIR lib/guipp)
-
   set(SOURCE_FILES
       background_repeater.cpp
       clipboard.cpp
@@ -59,6 +56,7 @@ if(NOT TARGET gui++-win)
   )
 
   add_library(gui++-win ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
+  add_library(gui++::win ALIAS gui++-win)
 
   set_target_properties(gui++-win PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
@@ -81,10 +79,6 @@ if(NOT TARGET gui++-win)
                           ${GUIPP_SYS_LIBRARIES})
   endif()
 
-  if (GUIPP_STANDALONE_BUILD)
-    install(TARGETS gui++-win DESTINATION ${LIBRARY_INSTALL_DIR})
-  endif()
-
   GENERATE_EXPORT_HEADER(gui++-win
     BASE_NAME GUIPP_WIN
     EXPORT_MACRO_NAME GUIPP_WIN_EXPORT
@@ -93,9 +87,44 @@ if(NOT TARGET gui++-win)
   )
 
   if (GUIPP_STANDALONE_BUILD)
+    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui++/win)
+    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/gui++)
+
+    target_include_directories(gui++-win
+                               PUBLIC
+                               "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+                               "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>"
+    )
+
+    install(TARGETS gui++-win
+            EXPORT gui++winTargets
+            LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
+            ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
+    )
+
     install(FILES ${INCLUDE_FILES}
-      ${PROJECT_BINARY_DIR}/gui++-win-export.h
-      DESTINATION ${INCLUDE_INSTALL_DIR})
+            ${PROJECT_BINARY_DIR}/gui++-win-export.h
+            DESTINATION ${INCLUDE_INSTALL_DIR}
+    )
+
+    install(EXPORT gui++winTargets
+            FILE gui++winTargets.cmake
+            NAMESPACE gui++::
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
+    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in
+      "${CMAKE_CURRENT_BINARY_DIR}/gui++winConfig.cmake"
+      INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
+    install(FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/gui++winConfig.cmake"
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
   endif()
 
 endif()

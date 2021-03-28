@@ -397,7 +397,9 @@ namespace gui {
       bool window::event (QEvent* e) {
         gui::os::event_result result;
         gui::core::event ev = {this, e};
-//        clog::info() << "window received event: " << ev;
+//        if (e->type() != QEvent::MouseMove) {
+//          clog::info() << "window received event: " << ev;
+//        }
         if (win && win->handle_event(ev, result)) {
           return true;
         }

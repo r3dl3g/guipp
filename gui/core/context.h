@@ -99,9 +99,11 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct GUIPP_CORE_EXPORT clip {
       clip (context& g, const native_rect& r);
+      void unclip ();
       ~clip ();
     private:
       context& ctx;
+      bool is_popped;
     };
     // --------------------------------------------------------------------------
 

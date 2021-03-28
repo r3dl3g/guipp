@@ -256,8 +256,6 @@ namespace gui {
                                             core::params<core::context*, core::native_rect*>::
                                             getter<get_context, get_paint_rect>>;
 
-    using redraw_event = core::event_handler<QEvent::UpdateRequest>;
-
     // --------------------------------------------------------------------------
 
   } // namespace win

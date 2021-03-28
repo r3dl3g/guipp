@@ -79,7 +79,7 @@ namespace gui {
         return size;
       }
 
-      void begin (const win::overlapped_window& w) {
+      void begin (const win::overlapped_window& w, const core::native_rect& r) {
         auto id = w.get_os_window();
         auto sz = core::global::scale_to_native(w.client_size());
         bool create_new = sz != size;
@@ -87,7 +87,7 @@ namespace gui {
           create(sz, id);
         }
 #ifdef GUIPP_QT
-        pixel_store->beginPaint(QRegion(0, 0, size.width(), size.height()));
+        pixel_store->beginPaint(QRegion(r.x(), r.y(), r.width(), r.height()));
         gc->begin(get_drawable());
 #endif
         if (create_new) {
@@ -161,7 +161,7 @@ namespace gui {
         destroy();
         size = sz;
         pixel_store = native::create_surface(size, id);
-        gc = core::native::create_graphics_context(get_drawable());
+        gc = core::native::create_graphics_context(IF_QT_ELSE(nullptr, get_drawable()));
       }
 
       gui::os::drawable get_drawable () {
@@ -415,12 +415,10 @@ namespace gui {
       } else if (hide_event::match(e)) {
         set_state().visible(false);
 #ifdef GUIPP_WIN
-      } else if (redraw_event::match(e)) {
+      } else if (core::event_handler<WM_PAINT>::match(e)) {
         redraw(invalid_rect);
 #elif GUIPP_QT
-      } else if (e.type() == QEvent::Expose) {
-        redraw(invalid_rect);
-      } else if (redraw_event::match(e)) {
+      } else if ((e.type() == QEvent::UpdateRequest) || (e.type() == QEvent::Expose)) {
         redraw(invalid_rect);
 #endif // GUIPP_WIN
       }
@@ -541,17 +539,21 @@ namespace gui {
         } else {
           invalid_rect |= r;
         }
-        clog::trace() << "redraw region " << r << " -> " << invalid_rect << " in window " << *this;
+        if (invalid_rect.empty()) {
+          clog::trace() << "skip redraw, invalid_rect is empty " << this;
+          return;
+        }
 
 #ifdef GUIPP_QT
         if (!get_os_window()->isExposed()) {
-          clog::trace() << "skip redraw, window is not exposed " << *this;
+          clog::trace() << "skip redraw, window is not exposed " << this;
           return;
         }
 #endif
+        clog::trace() << "redraw region " << r << " -> " << invalid_rect << " in window " << this;
 
         overlapped_context& surface = get_context();
-        surface.begin(*this);
+        surface.begin(*this, invalid_rect);
         auto cntxt = surface.get_context();
 
         core::clip clp(cntxt, invalid_rect);
@@ -578,11 +580,13 @@ namespace gui {
 #endif
 #endif // defined(SHOW_FOCUS) || defined(SHOW_MOUSE_WIN) || defined(SHOW_CAPTURE) || defined(SHOW_CLIP_RECT)
 
+//        clp.unclip();
+
         surface.finish(wctxt);
 
         invalid_rect = core::native_rect::zero;
       } else {
-        clog::trace() << "ignore redraw, state: " << get_state() << " in window " << *this;
+        clog::trace() << "ignore redraw, state: " << get_state() << " in window " << this;
       }
     }
     // --------------------------------------------------------------------------
@@ -633,7 +637,7 @@ namespace gui {
       if (is_valid()) {
         clog::trace() << "capture_pointer:" << *w;
         if (capture_stack.empty()) {
-          clog::trace() << "capture_pointer for overlapped_window " << *this;
+          clog::trace() << "capture_pointer for overlapped_window " << this;
           native::capture_pointer(get_os_window());
         }
         capture_window = w;
@@ -654,7 +658,7 @@ namespace gui {
             clog::trace() << "re-capture_pointer:" << capture_stack.back();
             capture_window = capture_stack.back();
           } else {
-            clog::trace() << "uncapture_pointer for overlapped_window " << *this;
+            clog::trace() << "uncapture_pointer for overlapped_window " << this;
             native::uncapture_pointer(get_os_window());
             capture_window = nullptr;
           }

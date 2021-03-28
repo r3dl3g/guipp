@@ -18,7 +18,7 @@ if(NOT TARGET gui++-app)
 
   add_definitions(${GUIPP_CXX_FLAGS})
 
-  if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.5)
+  if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.5 AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     add_library(gui++-app OBJECT ${SOURCE_FILES})
   else()
     add_library(gui++-app ${GUIPP_LINK} ${SOURCE_FILES})

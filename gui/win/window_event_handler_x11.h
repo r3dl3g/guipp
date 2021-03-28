@@ -458,8 +458,6 @@ namespace gui {
                                             0,
                                             event::functor<client_message_matcher<core::WM_PAINT_WINDOW>>>;
 
-    using redraw_event = core::event_handler<Expose, ExposureMask>;
-
     // --------------------------------------------------------------------------
 
   } // namespace win

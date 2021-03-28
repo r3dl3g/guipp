@@ -134,12 +134,20 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     clip::clip (context& ctx, const core::native_rect& r)
-      : ctx(ctx) {
+      : ctx(ctx)
+      , is_popped(false) {
       ctx.push_clipping(r.os(ctx));
     }
     // --------------------------------------------------------------------------
     clip::~clip () {
-      ctx.pop_clipping();
+      unclip();
+    }
+    // --------------------------------------------------------------------------
+    void clip::unclip () {
+      if (!is_popped) {
+        ctx.pop_clipping();
+        is_popped = true;
+      }
     }
 
   } // core

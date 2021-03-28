@@ -177,16 +177,16 @@ if(NOT TARGET gui++)
     set (GUIPP_LINK STATIC)
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_BUILT_AS_STATIC)
     set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES}
-      gui++-ctrl
-      gui++-look
-      gui++-io
-      gui++-draw
-      gui++-layout
-      gui++-win
-      gui++-core
+      gui++::ctrl
+      gui++::look
+      gui++::io
+      gui++::draw
+      gui++::layout
+      gui++::win
+      gui++::core
       ${LOGGING_LIBRARIES}
       ${UTIL_LIBRARIES}
-      gui++
+      gui++::gui++
       )
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES}
       ${LOGGING_SYS_LIBRARIES}
@@ -194,16 +194,16 @@ if(NOT TARGET gui++)
   elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
     set (GUIPP_LINK SHARED)
     set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES}
-      gui++-ctrl
-      gui++-look
-      gui++-io
-      gui++-draw
-      gui++-layout
-      gui++-win
-      gui++-core
+      gui++::ctrl
+      gui++::look
+      gui++::io
+      gui++::draw
+      gui++::layout
+      gui++::win
+      gui++::core
       ${LOGGING_LIBRARIES}
       ${UTIL_LIBRARIES}
-      gui++
+      gui++::gui++
       )
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES}
       ${LOGGING_SYS_LIBRARIES}
@@ -234,14 +234,14 @@ if(NOT TARGET gui++)
     set (GUIPP_APP_LIBRARIES gui++-app ${GUIPP_LIBRARIES})
   endif()
 
-  add_subdirectory(core gui_core)
-  add_subdirectory(win gui_win)
-  add_subdirectory(layout gui_layout)
-  add_subdirectory(draw gui_draw)
-  add_subdirectory(io gui_io)
-  add_subdirectory(ctrl gui_ctrl)
-  add_subdirectory(ctrl/look gui_look)
-  add_subdirectory(app gui_app)
+  add_subdirectory(core)
+  add_subdirectory(win)
+  add_subdirectory(layout)
+  add_subdirectory(draw)
+  add_subdirectory(io)
+  add_subdirectory(ctrl)
+  add_subdirectory(ctrl/look look)
+  add_subdirectory(app)
 
   DebugPrint("gui GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
   DebugPrint("gui GUIPP_CXX_STANDARD: ${GUIPP_CXX_STANDARD}")
@@ -279,13 +279,13 @@ if(NOT TARGET gui++)
     add_definitions(-Dgui___EXPORTS)
 
     add_library(gui++ SHARED
-      $<TARGET_OBJECTS:gui++-core>
-      $<TARGET_OBJECTS:gui++-win>
-      $<TARGET_OBJECTS:gui++-layout>
-      $<TARGET_OBJECTS:gui++-draw>
-      $<TARGET_OBJECTS:gui++-io>
-      $<TARGET_OBJECTS:gui++-ctrl>
-      $<TARGET_OBJECTS:gui++-look>
+      $<TARGET_OBJECTS:gui++::core>
+      $<TARGET_OBJECTS:gui++::win>
+      $<TARGET_OBJECTS:gui++::layout>
+      $<TARGET_OBJECTS:gui++::draw>
+      $<TARGET_OBJECTS:gui++::io>
+      $<TARGET_OBJECTS:gui++::ctrl>
+      $<TARGET_OBJECTS:gui++::look>
       gui.cpp
       )
 

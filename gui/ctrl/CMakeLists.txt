@@ -6,9 +6,9 @@ project("gui++-ctrl" CXX)
 
 if(NOT TARGET gui++-ctrl)
 
-  add_subdirectory(../win gui_win)
-  add_subdirectory(../io gui_io)
-  add_subdirectory(look gui_look)
+  add_subdirectory(../win win)
+  add_subdirectory(../io io)
+  add_subdirectory(look)
 
   set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
   set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} PARENT_SCOPE)
@@ -63,12 +63,12 @@ if(NOT TARGET gui++-ctrl)
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
     add_definitions(-Dgui___ctrl_EXPORTS)
     target_link_libraries(gui++-ctrl PRIVATE
-                          gui++-core
-                          gui++-win
-                          gui++-draw
-                          gui++-io
-                          gui++-layout
-                          gui++-look
+                          gui++::core
+                          gui++::win
+                          gui++::draw
+                          gui++::io
+                          gui++::layout
+                          gui++::look
                           ${LOGGING_LIBRARIES}
                           ${UTIL_LIBRARIES}
                           ${GUIPP_SYS_LIBRARIES})

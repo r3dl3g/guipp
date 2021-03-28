@@ -6,7 +6,7 @@ project("gui++-layout" CXX)
 
 if(NOT TARGET gui++-layout)
 
-  add_subdirectory(../win gui_win)
+  add_subdirectory(../win win)
 
   set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
   set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} PARENT_SCOPE)
@@ -57,8 +57,8 @@ if(NOT TARGET gui++-layout)
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
     add_definitions(-Dgui___layout_EXPORTS)
     target_link_libraries(gui++-layout PRIVATE
-                          gui++-core
-                          gui++-win
+                          gui++::core
+                          gui++::win
                           ${GUIPP_SYS_LIBRARIES})
   endif()
 

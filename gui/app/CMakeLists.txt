@@ -6,7 +6,7 @@ project("gui++-app" CXX)
 
 if(NOT TARGET gui++-app)
 
-  add_subdirectory(./../core gui_core)
+  add_subdirectory(./../core core)
 
   include_directories(${GUIPP_INCLUDE_DIRS})
 

@@ -57,10 +57,11 @@ if(NOT TARGET gui++-core)
                           ${LOGGING_SYS_LIBRARIES})
   endif()
 
+  set (EXPORT_NAME gui++-core-export.h)
   GENERATE_EXPORT_HEADER(gui++-core
     BASE_NAME GUIPP_CORE
     EXPORT_MACRO_NAME GUIPP_CORE_EXPORT
-    EXPORT_FILE_NAME gui++-core-export.h
+    EXPORT_FILE_NAME ${EXPORT_NAME}
     STATIC_DEFINE GUIPP_BUILT_AS_STATIC)
 
   if (GUIPP_STANDALONE_BUILD)
@@ -89,7 +90,7 @@ if(NOT TARGET gui++-core)
             DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
 
     install(FILES ${INCLUDE_FILES}
-            ${PROJECT_BINARY_DIR}/gui++-core-export.h
+            ${PROJECT_BINARY_DIR}/${EXPORT_NAME}
             DESTINATION ${INCLUDE_INSTALL_DIR})
 
     install(FILES

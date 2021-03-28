@@ -6,7 +6,7 @@ project("gui++-io" CXX)
 
 if(NOT TARGET gui++-io)
 
-  add_subdirectory(../draw gui_draw)
+  add_subdirectory(../draw draw)
 
   set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
   set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} PARENT_SCOPE)
@@ -39,8 +39,8 @@ if(NOT TARGET gui++-io)
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
     add_definitions(-Dgui___io_EXPORTS)
     target_link_libraries(gui++-io PRIVATE
-                          gui++-draw
-                          gui++-core
+                          gui++::draw
+                          gui++::core
                           ${GUIPP_SYS_LIBRARIES})
   endif()
 

@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-project("gui++-ctrl" CXX)
+project("ctrl" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
-if(NOT TARGET gui++-ctrl)
+if(NOT TARGET ${PROJECT_NAME})
 
   add_subdirectory(../win win)
   add_subdirectory(../io io)
@@ -45,10 +45,11 @@ if(NOT TARGET gui++-ctrl)
 
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
-  add_library(gui++-ctrl ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
-  add_library(gui++::ctrl ALIAS gui++-ctrl)
+  add_library(${PROJECT_NAME} ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
+  add_library(gui++::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+  set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "libgui++")
 
-  set_target_properties(gui++-ctrl PROPERTIES
+  set_target_properties(${PROJECT_NAME} PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
                         VERSION ${GUIPP_VERSION}
@@ -61,8 +62,8 @@ if(NOT TARGET gui++-ctrl)
   endif()
 
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
-    add_definitions(-Dgui___ctrl_EXPORTS)
-    target_link_libraries(gui++-ctrl PRIVATE
+    add_definitions(-Dgui___${PROJECT_NAME}_EXPORTS)
+    target_link_libraries(${PROJECT_NAME} PRIVATE
                           gui++::core
                           gui++::win
                           gui++::draw
@@ -74,52 +75,15 @@ if(NOT TARGET gui++-ctrl)
                           ${GUIPP_SYS_LIBRARIES})
   endif()
 
-  GENERATE_EXPORT_HEADER(gui++-ctrl
+  GENERATE_EXPORT_HEADER(${PROJECT_NAME}
     BASE_NAME GUIPP_CTRL
     EXPORT_MACRO_NAME GUIPP_CTRL_EXPORT
-    EXPORT_FILE_NAME gui++-ctrl-export.h
+    EXPORT_FILE_NAME gui++-${PROJECT_NAME}-export.h
     STATIC_DEFINE GUIPP_BUILT_AS_STATIC
     )
 
   if (GUIPP_STANDALONE_BUILD)
-    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui++/ctrl)
-    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/gui++)
-
-    target_include_directories(gui++-ctrl
-                               PUBLIC
-                               "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-                               "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>"
-    )
-
-    install(TARGETS gui++-ctrl
-            EXPORT gui++ctrlTargets
-            LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
-            ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-            INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
-    )
-
-    install(FILES ${INCLUDE_FILES}
-            ${PROJECT_BINARY_DIR}/gui++-ctrl-export.h
-            DESTINATION ${INCLUDE_INSTALL_DIR}
-    )
-
-    install(EXPORT gui++ctrlTargets
-            FILE gui++ctrlTargets.cmake
-            NAMESPACE gui++::
-            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
-    )
-
-    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in
-      "${CMAKE_CURRENT_BINARY_DIR}/gui++ctrlConfig.cmake"
-      INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
-    )
-
-    install(FILES
-            "${CMAKE_CURRENT_BINARY_DIR}/gui++ctrlConfig.cmake"
-            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
-    )
-
+    write_subpackage_config(gui++ ${PROJECT_NAME} ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in "${INCLUDE_FILES}")
   endif()
 
 endif()

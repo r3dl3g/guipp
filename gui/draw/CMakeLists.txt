@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-project("gui++-draw" CXX)
+project("draw" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
-if(NOT TARGET gui++-draw)
+if(NOT TARGET ${PROJECT_NAME})
 
   add_subdirectory(../core core)
 
@@ -38,8 +38,9 @@ if(NOT TARGET gui++-draw)
   )
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
-  add_library(gui++-draw ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
-  add_library(gui++::draw ALIAS gui++-draw)
+  add_library(${PROJECT_NAME} ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
+  add_library(gui++::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+  set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "libgui++")
 
   if(GUIPP_BUILD_STATIC_MODULE_LIBS)
 
@@ -47,12 +48,15 @@ if(NOT TARGET gui++-draw)
 
   elseif(GUIPP_BUILD_SHARED_MODULE_LIBS)
 
-    add_definitions(-Dgui___draw_EXPORTS)
-    target_link_libraries(gui++-draw PRIVATE gui++::core ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
+    add_definitions(-Dgui___${PROJECT_NAME}_EXPORTS)
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+                          gui++::core
+                          ${UTIL_LIBRARIES}
+                          ${GUIPP_SYS_LIBRARIES})
 
   endif()
 
-  set_target_properties(gui++-draw PROPERTIES
+  set_target_properties(${PROJECT_NAME} PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
                         VERSION ${GUIPP_VERSION}
@@ -60,52 +64,15 @@ if(NOT TARGET gui++-draw)
                         CXX_STANDARD ${GUIPP_CXX_STANDARD}
                         )
 
-  GENERATE_EXPORT_HEADER(gui++-draw
+  GENERATE_EXPORT_HEADER(${PROJECT_NAME}
     BASE_NAME GUIPP_DRAW
     EXPORT_MACRO_NAME GUIPP_DRAW_EXPORT
-    EXPORT_FILE_NAME gui++-draw-export.h
+    EXPORT_FILE_NAME gui++-${PROJECT_NAME}-export.h
     STATIC_DEFINE GUIPP_BUILT_AS_STATIC
   )
 
   if (GUIPP_STANDALONE_BUILD)
-    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui++/draw)
-    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/gui++)
-
-    target_include_directories(gui++-draw
-                               PUBLIC
-                               "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-                               "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>"
-    )
-
-    install(TARGETS gui++-draw
-            EXPORT gui++drawTargets
-            LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
-            ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-            INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
-    )
-
-    install(FILES ${INCLUDE_FILES}
-            ${PROJECT_BINARY_DIR}/gui++-draw-export.h
-            DESTINATION ${INCLUDE_INSTALL_DIR}
-    )
-
-    install(EXPORT gui++drawTargets
-            FILE gui++drawTargets.cmake
-            NAMESPACE gui++::
-            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
-    )
-
-    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in
-      "${CMAKE_CURRENT_BINARY_DIR}/gui++drawConfig.cmake"
-      INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
-    )
-
-    install(FILES
-            "${CMAKE_CURRENT_BINARY_DIR}/gui++drawConfig.cmake"
-            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
-    )
-
+    write_subpackage_config(gui++ ${PROJECT_NAME} ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in "${INCLUDE_FILES}")
   endif()
 
 endif()

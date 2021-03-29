@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-project("gui++-win" CXX)
+project("win" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
-if(NOT TARGET gui++-win)
+if(NOT TARGET ${PROJECT_NAME})
 
   add_subdirectory(../core core)
 
@@ -55,10 +55,11 @@ if(NOT TARGET gui++-win)
       window_event_proc.h
   )
 
-  add_library(gui++-win ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
-  add_library(gui++::win ALIAS gui++-win)
+  add_library(${PROJECT_NAME} ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
+  add_library(gui++::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+  set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "libgui++")
 
-  set_target_properties(gui++-win PROPERTIES
+  set_target_properties(${PROJECT_NAME} PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
                         VERSION ${GUIPP_VERSION}
@@ -71,60 +72,23 @@ if(NOT TARGET gui++-win)
   endif()
 
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
-    add_definitions(-Dgui___win_EXPORTS)
-    target_link_libraries(gui++-win PRIVATE
+    add_definitions(-Dgui___${PROJECT_NAME}_EXPORTS)
+    target_link_libraries(${PROJECT_NAME} PRIVATE
                           gui++::core
                           ${LOGGING_LIBRARIES}
                           ${UTIL_LIBRARIES}
                           ${GUIPP_SYS_LIBRARIES})
   endif()
 
-  GENERATE_EXPORT_HEADER(gui++-win
+  GENERATE_EXPORT_HEADER(${PROJECT_NAME}
     BASE_NAME GUIPP_WIN
     EXPORT_MACRO_NAME GUIPP_WIN_EXPORT
-    EXPORT_FILE_NAME gui++-win-export.h
+    EXPORT_FILE_NAME gui++-${PROJECT_NAME}-export.h
     STATIC_DEFINE GUIPP_BUILT_AS_STATIC
   )
 
   if (GUIPP_STANDALONE_BUILD)
-    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui++/win)
-    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/gui++)
-
-    target_include_directories(gui++-win
-                               PUBLIC
-                               "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-                               "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>"
-    )
-
-    install(TARGETS gui++-win
-            EXPORT gui++winTargets
-            LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
-            ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-            INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
-    )
-
-    install(FILES ${INCLUDE_FILES}
-            ${PROJECT_BINARY_DIR}/gui++-win-export.h
-            DESTINATION ${INCLUDE_INSTALL_DIR}
-    )
-
-    install(EXPORT gui++winTargets
-            FILE gui++winTargets.cmake
-            NAMESPACE gui++::
-            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
-    )
-
-    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in
-      "${CMAKE_CURRENT_BINARY_DIR}/gui++winConfig.cmake"
-      INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
-    )
-
-    install(FILES
-            "${CMAKE_CURRENT_BINARY_DIR}/gui++winConfig.cmake"
-            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
-    )
-
+    write_subpackage_config(gui++ ${PROJECT_NAME} ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in "${INCLUDE_FILES}")
   endif()
 
 endif()

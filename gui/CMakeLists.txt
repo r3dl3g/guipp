@@ -27,6 +27,43 @@ function(DebugPrint MSG)
   endif()
 endfunction(DebugPrint)
 
+
+function(write_subpackage_config PREFIX TARGET SUBDIR CONFIG_IN EXPORT_FILES)
+  set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui/${SUBDIR})
+  set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/${PREFIX})
+
+  target_include_directories(${TARGET}
+                             PUBLIC
+                             "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+                             "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>")
+
+  configure_package_config_file(${CONFIG_IN}
+                                "${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}${TARGET}Config.cmake"
+                                INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+
+  install(TARGETS ${TARGET}
+          EXPORT ${PREFIX}${TARGET}Targets
+          LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
+          ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
+          OBJECTS DESTINATION ${LIBRARY_INSTALL_DIR}
+          RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+          INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR})
+
+  install(EXPORT ${PREFIX}${TARGET}Targets
+          FILE ${PREFIX}${TARGET}Targets.cmake
+          NAMESPACE ${PREFIX}::
+          DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+
+  install(FILES ${EXPORT_FILES}
+          ${PROJECT_BINARY_DIR}/gui++-${TARGET}-export.h
+          DESTINATION ${INCLUDE_INSTALL_DIR})
+
+  install(FILES
+          "${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}${TARGET}Config.cmake"
+          DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+
+endfunction(write_subpackage_config)
+
 if(NOT TARGET gui++)
 
   set (GUIPP_VERSION_MAJOR 0)
@@ -39,9 +76,16 @@ if(NOT TARGET gui++)
   endif ()
 
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
-    set (UTIL_BUILD_STATIC_MODULE_LIB OFF)
-    set (LOGGING_BUILD_STATIC_MODULE_LIB OFF)
+    set (UTIL_BUILD_STATIC_MODULE_LIB OFF CACHE BOOL "disable static build")
+    set (LOGGING_BUILD_STATIC_MODULE_LIB OFF CACHE BOOL "disable static build")
   endif ()
+
+  if (GUIPP_STANDALONE_BUILD)
+    set (UTIL_STANDALONE_BUILD ON CACHE BOOL "enable install")
+    set (LOGGING_STANDALONE_BUILD ON CACHE BOOL "enable install")
+    set (TESTING_STANDALONE_BUILD ON CACHE BOOL "enable install")
+  endif ()
+
   set (LOGGING_CXX_STANDARD ${GUIPP_CXX_STANDARD})
   set (UTIL_CXX_STANDARD ${GUIPP_CXX_STANDARD})
   add_subdirectory(../logging logging)
@@ -218,13 +262,14 @@ if(NOT TARGET gui++)
       ${LOGGING_SYS_LIBRARIES}
       ${UTIL_SYS_LIBRARIES})
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS}
-      -Dgui___core_EXPORTS
-      -Dgui___win_EXPORTS
-      -Dgui___layout_EXPORTS
-      -Dgui___draw_EXPORTS
-      -Dgui___io_EXPORTS
-      -Dgui___ctrl_EXPORTS
-      -Dgui___look_EXPORTS
+      -Dgui___EXPORTS
+      -Dcore_EXPORTS
+      -Dwin_EXPORTS
+      -Dlayout_EXPORTS
+      -Ddraw_EXPORTS
+      -Dio_EXPORTS
+      -Dctrl_EXPORTS
+      -Dlook_EXPORTS
       )
   endif()
 
@@ -335,7 +380,7 @@ if(NOT TARGET gui++)
     set_property(TARGET gui++ PROPERTY INTERFACE_gui++_MAJOR_VERSION ${GUIPP_VERSION_MAJOR})
     set_property(TARGET gui++ APPEND PROPERTY COMPATIBLE_INTERFACE_STRING gui++_MAJOR_VERSION)
 
-    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui++)
+    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui)
     set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/gui++)
 
     target_include_directories(gui++ PUBLIC

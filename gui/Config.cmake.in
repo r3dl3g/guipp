@@ -1,5 +1,10 @@
 @PACKAGE_INIT@
 
-#include("${CMAKE_CURRENT_LIST_DIR}/gui++Targets.cmake")
+set_and_check(GUIPP_CXX_FLAGS @GUIPP_CXX_FLAGS@)
+set_and_check(GUIPP_LIBRARIES @GUIPP_LIBRARIES@)
+set_and_check(GUIPP_APP_LIBRARIES @GUIPP_APP_LIBRARIES@)
+set_and_check(GUIPP_SYS_LIBRARIES @GUIPP_SYS_LIBRARIES@)
+set_and_check(GUIPP_EXE_LINKER_FLAGS @GUIPP_EXE_LINKER_FLAGS@)
+set_and_check(GUIPP_CXX_STANDARD @GUIPP_CXX_STANDARD@)
 
-#check_required_components(gui++)
+include("${CMAKE_CURRENT_LIST_DIR}/gui++Targets.cmake")

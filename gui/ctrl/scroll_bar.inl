@@ -231,17 +231,19 @@ namespace gui {
     template<orientation_t H>
     void basic_scroll_bar<H>::handle_paint (draw::graphics& g) {
       auto geo = get_metric();
-      look::scrollbar<>(g,
-                        super::get_selection(),
-                        super::get_hilite(),
-                        super::is_enabled(),
-                        H == orientation_t::horizontal,
-                        super::is_focused(),
-                        up_button_geometry(geo),
-                        down_button_geometry(geo),
-                        thumb_button_geometry(geo),
-                        page_up_geometry(geo),
-                        page_down_geometry(geo));
+      if (geo.length > 0) {
+        look::scrollbar<>(g,
+                          super::get_selection(),
+                          super::get_hilite(),
+                          super::is_enabled(),
+                          H == orientation_t::horizontal,
+                          super::is_focused(),
+                          up_button_geometry(geo),
+                          down_button_geometry(geo),
+                          thumb_button_geometry(geo),
+                          page_up_geometry(geo),
+                          page_down_geometry(geo));
+      }
     }
 
     // --------------------------------------------------------------------------

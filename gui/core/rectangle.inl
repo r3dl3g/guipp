@@ -290,6 +290,11 @@ namespace gui {
     }
 
     template<typename T, typename S, coordinate_system C>
+    inline bool basic_rectangle<T, S, C>::isnan () const {
+      return size().isnan() || position().isnan();
+    }
+
+    template<typename T, typename S, coordinate_system C>
     inline bool basic_rectangle<T, S, C>::is_inside (const point_t& p) const {
       return (p >= pos) && (p <= x2y2());
     }

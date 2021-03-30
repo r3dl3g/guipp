@@ -164,6 +164,11 @@ namespace gui {
     }
 
     template<typename T, coordinate_system C>
+    inline bool basic_size<T, C>::isnan () const {
+      return std::isnan(w) || std::isnan(w);
+    }
+
+    template<typename T, coordinate_system C>
     inline bool basic_size<T, C>::operator== (const self& rhs) const {
       return (w == rhs.w) && (h == rhs.h);
     }

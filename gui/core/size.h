@@ -69,6 +69,7 @@ namespace gui {
       void height (type h);
 
       bool empty () const;
+      bool isnan () const;
       void clear (type v = 0);
 
       bool operator== (const self& rhs) const;

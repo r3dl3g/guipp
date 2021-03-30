@@ -96,7 +96,30 @@ namespace gui {
       super::on_clicked(util::bind_method(this, &drop_down_list::toggle_popup));
       super::on_wheel<orientation_t::vertical>(util::bind_method(this, &drop_down_list::handle_wheel));
       super::on_any_key_down(util::bind_method(this, &drop_down_list::handle_key));
+
       data.items->on_selection_changed(util::bind_method(this, &drop_down_list::handle_selection_changed));
+      data.popup.on_size([&] (const core::size & sz) {
+        data.items.geometry(core::rectangle(sz));
+      });
+      data.popup.on_create([&] () {
+        data.items.create(data.popup, data.popup.client_geometry());
+        data.items.set_visible();
+      });
+      data.popup.on_show([&] () {
+        data.filter_id = win::global::register_message_filter([&] (const core::event & e)->bool {
+          if (is_button_event_outside(data.popup, e)) {
+            hide_popup();
+            return true;
+          }
+          return false;
+        });
+      });
+      data.popup.on_hide([&] () {
+        if (data.filter_id) {
+          win::global::unregister_message_filter(data.filter_id);
+          data.filter_id = 0;
+        }
+      });
     }
 
     void drop_down_list::paint (draw::graphics& graph) {
@@ -218,28 +241,6 @@ namespace gui {
     }
 
     void drop_down_list::create_popup (const core::rectangle& place) {
-      data.popup.on_size([&] (const core::size & sz) {
-        data.items.geometry(core::rectangle(sz));
-      });
-      data.popup.on_create([&] () {
-        data.items.create(data.popup, data.popup.client_geometry());
-        data.items.set_visible();
-      });
-      data.popup.on_show([&] () {
-        data.filter_id = win::global::register_message_filter([&] (const core::event & e)->bool {
-          if (is_button_event_outside(data.popup, e)) {
-            hide_popup();
-            return true;
-          }
-          return false;
-        });
-      });
-      data.popup.on_hide([&] () {
-        if (data.filter_id) {
-          win::global::unregister_message_filter(data.filter_id);
-          data.filter_id = 0;
-        }
-      });
       auto& root = super::get_parent()->get_overlapped_window();
       data.popup.create(root, place);
       root.template on<win::move_event>(me);

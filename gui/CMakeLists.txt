@@ -30,7 +30,7 @@ endfunction(DebugPrint)
 
 function(configure_guipp_subpackage_config PREFIX TARGET SUBDIR CONFIG_IN EXPORT_FILES)
   set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui/${SUBDIR})
-  set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/${PREFIX})
+  set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/${PREFIX})
 
   target_include_directories(${TARGET}
                              PUBLIC
@@ -39,25 +39,25 @@ function(configure_guipp_subpackage_config PREFIX TARGET SUBDIR CONFIG_IN EXPORT
 
   configure_package_config_file(${CONFIG_IN}
                                 "${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}${TARGET}Config.cmake"
-                                INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+                                INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR})
 
   if(GUIPP_BUILD_STATIC_MODULE_LIBS OR GUIPP_BUILD_SHARED_MODULE_LIBS)
     install(TARGETS ${TARGET}
             EXPORT ${PREFIX}${TARGET}Targets
-            LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
-            ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
-            OBJECTS DESTINATION ${LIBRARY_INSTALL_DIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            OBJECTS DESTINATION ${CMAKE_INSTALL_LIBDIR}
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
             INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR})
 
     install(EXPORT ${PREFIX}${TARGET}Targets
             FILE ${PREFIX}${TARGET}Targets.cmake
             NAMESPACE ${PREFIX}::
-            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+            DESTINATION ${LIBRARY_INSTALL_DIR})
 
     install(FILES
             "${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}${TARGET}Config.cmake"
-            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+            DESTINATION ${LIBRARY_INSTALL_DIR})
 
     export(TARGETS ${TARGET} FILE ${PREFIX}${TARGET}Targets.cmake)
 
@@ -118,9 +118,9 @@ if(NOT TARGET gui++)
   endif ()
 
   if (GUIPP_STANDALONE_BUILD)
-    set (UTIL_STANDALONE_BUILD ON CACHE BOOL "enable install")
-    set (LOGGING_STANDALONE_BUILD ON CACHE BOOL "enable install")
-    set (TESTING_STANDALONE_BUILD ON CACHE BOOL "enable install")
+    set (UTIL_CONFIG_INSTALL ON CACHE BOOL "enable install")
+    set (LOGGING_CONFIG_INSTALL ON CACHE BOOL "enable install")
+    set (TESTING_CONFIG_INSTALL ON CACHE BOOL "enable install")
   endif ()
 
   set (LOGGING_CXX_STANDARD ${GUIPP_CXX_STANDARD})
@@ -412,13 +412,13 @@ if(NOT TARGET gui++)
                          STATIC_DEFINE GUIPP_BUILT_AS_STATIC)
 
   if (GUIPP_STANDALONE_BUILD)
-    set_property(TARGET gui++ PROPERTY VERSION ${GUIPP_VERSION})
-    set_property(TARGET gui++ PROPERTY SOVERSION ${GUIPP_VERSION_MAJOR})
-    set_property(TARGET gui++ PROPERTY INTERFACE_gui++_MAJOR_VERSION ${GUIPP_VERSION_MAJOR})
-    set_property(TARGET gui++ APPEND PROPERTY COMPATIBLE_INTERFACE_STRING gui++_MAJOR_VERSION)
+#    set_property(TARGET gui++ PROPERTY VERSION ${GUIPP_VERSION})
+#    set_property(TARGET gui++ PROPERTY SOVERSION ${GUIPP_VERSION_MAJOR})
+#    set_property(TARGET gui++ PROPERTY INTERFACE_gui++_MAJOR_VERSION ${GUIPP_VERSION_MAJOR})
+#    set_property(TARGET gui++ APPEND PROPERTY COMPATIBLE_INTERFACE_STRING gui++_MAJOR_VERSION)
 
     set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui)
-    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/gui++)
+    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/gui++)
 
     target_include_directories(gui++ PUBLIC
                                "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
@@ -430,11 +430,12 @@ if(NOT TARGET gui++)
 
     configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
                                     "${CMAKE_CURRENT_BINARY_DIR}/gui++Config.cmake"
-                                    INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+                                    INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR})
 
     install(TARGETS gui++ EXPORT gui++Targets
-            LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
-            ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            OBJECTS DESTINATION ${CMAKE_INSTALL_LIBDIR}
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
             INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR})
 
@@ -445,14 +446,14 @@ if(NOT TARGET gui++)
     install(EXPORT gui++Targets
             FILE gui++Targets.cmake
             NAMESPACE gui++::
-            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+            DESTINATION ${LIBRARY_INSTALL_DIR})
 
     export(TARGETS gui++ FILE gui++Targets.cmake)
 
     install(FILES
             "${CMAKE_CURRENT_BINARY_DIR}/gui++Config.cmake"
             "${CMAKE_CURRENT_BINARY_DIR}/gui++ConfigVersion.cmake"
-            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+            DESTINATION ${LIBRARY_INSTALL_DIR})
 
   endif()
 

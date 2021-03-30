@@ -322,7 +322,7 @@ namespace gui {
       super::create_internal(type, r);
       native::prepare_overlapped(get_os_window(), parent_id);
 #ifdef GUIPP_BUILD_FOR_MOBILE
-      if (native::get_desktop_window() == parent_id) {
+      if (get_parent() == nullptr) {
         native::maximize(id);
       }
 #endif

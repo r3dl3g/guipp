@@ -75,11 +75,10 @@ function(define_guipp_subpackage PROJECT_NAME BASE_NAME SOURCE_FILES INCLUDE_FIL
 
   add_library(${PROJECT_NAME} ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
   add_library(gui++::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-  set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "libgui++")
-
   set_target_properties(${PROJECT_NAME} PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
+                        PREFIX "libgui++"
                         VERSION ${GUIPP_VERSION}
                         SOVERSION ${GUIPP_VERSION_MAJOR}
                         CXX_STANDARD ${GUIPP_CXX_STANDARD})
@@ -312,9 +311,9 @@ if(NOT TARGET gui++)
   endif()
 
   if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.5 AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    set (GUIPP_APP_LIBRARIES $<TARGET_OBJECTS:gui++-app> ${GUIPP_LIBRARIES})
+    set (GUIPP_APP_LIBRARIES $<TARGET_OBJECTS:gui++::app> ${GUIPP_LIBRARIES})
   else()
-    set (GUIPP_APP_LIBRARIES gui++-app ${GUIPP_LIBRARIES})
+    set (GUIPP_APP_LIBRARIES gui++::app ${GUIPP_LIBRARIES})
   endif()
 
   add_subdirectory(core)

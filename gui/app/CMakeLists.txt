@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-project("gui++-app" CXX)
+project("app" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
-if(NOT TARGET gui++-app)
+if(NOT TARGET ${PROJECT_NAME})
 
   add_subdirectory(./../core core)
 
@@ -17,16 +17,16 @@ if(NOT TARGET gui++-app)
 
   if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.5 AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     set (GUIPP_APP_USE_OBJECT TRUE)
-    add_library(gui++-app OBJECT ${SOURCE_FILES})
+    add_library(${PROJECT_NAME} OBJECT ${SOURCE_FILES})
   else()
     set (GUIPP_APP_USE_OBJECT FALSE)
-    add_library(gui++-app ${GUIPP_LINK} ${SOURCE_FILES})
+    add_library(${PROJECT_NAME} ${GUIPP_LINK} ${SOURCE_FILES})
   endif()
-  add_library(gui++::app ALIAS gui++-app)
-
-  set_target_properties(gui++-app PROPERTIES
+  add_library(gui++::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+  set_target_properties(${PROJECT_NAME} PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
+                        PREFIX "libgui++"
                         VERSION ${GUIPP_VERSION}
                         SOVERSION ${GUIPP_VERSION_MAJOR}
                         CXX_STANDARD ${GUIPP_CXX_STANDARD}
@@ -36,7 +36,7 @@ if(NOT TARGET gui++-app)
     set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui++/app)
     set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/gui++)
 
-    target_include_directories(gui++-app
+    target_include_directories(${PROJECT_NAME}
                                PUBLIC
                                "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
                                "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>"
@@ -48,7 +48,7 @@ if(NOT TARGET gui++-app)
     )
 
     if (NOT GUIPP_APP_USE_OBJECT)
-      install(TARGETS gui++-app
+      install(TARGETS ${PROJECT_NAME}
               EXPORT gui++appTargets
               LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
               ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}

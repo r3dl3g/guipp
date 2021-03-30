@@ -28,7 +28,7 @@ function(DebugPrint MSG)
 endfunction(DebugPrint)
 
 
-function(write_subpackage_config PREFIX TARGET SUBDIR CONFIG_IN EXPORT_FILES)
+function(configure_guipp_subpackage_config PREFIX TARGET SUBDIR CONFIG_IN EXPORT_FILES)
   set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui/${SUBDIR})
   set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/${PREFIX})
 
@@ -41,28 +41,65 @@ function(write_subpackage_config PREFIX TARGET SUBDIR CONFIG_IN EXPORT_FILES)
                                 "${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}${TARGET}Config.cmake"
                                 INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
 
-  install(TARGETS ${TARGET}
-          EXPORT ${PREFIX}${TARGET}Targets
-          LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
-          ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
-          OBJECTS DESTINATION ${LIBRARY_INSTALL_DIR}
-          RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-          INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR})
+  if(GUIPP_BUILD_STATIC_MODULE_LIBS OR GUIPP_BUILD_SHARED_MODULE_LIBS)
+    install(TARGETS ${TARGET}
+            EXPORT ${PREFIX}${TARGET}Targets
+            LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
+            ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
+            OBJECTS DESTINATION ${LIBRARY_INSTALL_DIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR})
 
-  install(EXPORT ${PREFIX}${TARGET}Targets
-          FILE ${PREFIX}${TARGET}Targets.cmake
-          NAMESPACE ${PREFIX}::
-          DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+    install(EXPORT ${PREFIX}${TARGET}Targets
+            FILE ${PREFIX}${TARGET}Targets.cmake
+            NAMESPACE ${PREFIX}::
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+
+    install(FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}${TARGET}Config.cmake"
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+
+    export(TARGETS ${TARGET} FILE ${PREFIX}${TARGET}Targets.cmake)
+
+  endif()
 
   install(FILES ${EXPORT_FILES}
           ${PROJECT_BINARY_DIR}/gui++-${TARGET}-export.h
           DESTINATION ${INCLUDE_INSTALL_DIR})
 
-  install(FILES
-          "${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}${TARGET}Config.cmake"
-          DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+endfunction(configure_guipp_subpackage_config)
 
-endfunction(write_subpackage_config)
+function(define_guipp_subpackage PROJECT_NAME BASE_NAME SOURCE_FILES INCLUDE_FILES LINKED_LIBRARIES)
+
+  add_definitions(${GUIPP_CXX_FLAGS})
+
+  add_library(${PROJECT_NAME} ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
+  add_library(gui++::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+  set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "libgui++")
+
+  set_target_properties(${PROJECT_NAME} PROPERTIES
+                        POSITION_INDEPENDENT_CODE ON
+                        FOLDER libraries
+                        VERSION ${GUIPP_VERSION}
+                        SOVERSION ${GUIPP_VERSION_MAJOR}
+                        CXX_STANDARD ${GUIPP_CXX_STANDARD})
+
+  if(GUIPP_BUILD_STATIC_MODULE_LIBS)
+    add_definitions(-DGUIPP_BUILT_AS_STATIC)
+  endif()
+
+  if(GUIPP_BUILD_SHARED_MODULE_LIBS)
+    add_definitions(-Dgui___${PROJECT_NAME}_EXPORTS)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${LINKED_LIBRARIES})
+  endif()
+
+  GENERATE_EXPORT_HEADER(${PROJECT_NAME}
+    BASE_NAME ${BASE_NAME}
+    EXPORT_MACRO_NAME ${BASE_NAME}_EXPORT
+    EXPORT_FILE_NAME gui++-${PROJECT_NAME}-export.h
+    STATIC_DEFINE GUIPP_BUILT_AS_STATIC)
+
+endfunction(define_guipp_subpackage)
 
 if(NOT TARGET gui++)
 
@@ -409,6 +446,8 @@ if(NOT TARGET gui++)
             FILE gui++Targets.cmake
             NAMESPACE gui++::
             DESTINATION ${LIBRARY_INSTALL_DIR}/cmake)
+
+    export(TARGETS gui++ FILE gui++Targets.cmake)
 
     install(FILES
             "${CMAKE_CURRENT_BINARY_DIR}/gui++Config.cmake"

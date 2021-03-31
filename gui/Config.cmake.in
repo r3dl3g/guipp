@@ -16,6 +16,14 @@ foreach(_comp ${guipp_FIND_COMPONENTS})
   include("${CMAKE_CURRENT_LIST_DIR}/guipp${_comp}Targets.cmake")
 endforeach()
 
+foreach(_comp @LINKED_LIBRARIES@)
+  if (NOT _comp IN_LIST _supported_components)
+    set(guipp_FOUND False)
+    set(guipp_NOT_FOUND_MESSAGE "Unsupported component: ${_comp}")
+  endif()
+  find_package(${_comp})
+endforeach()
+
 set_and_check(GUIPP_INCLUDE_DIRS @PACKAGE_CMAKE_INSTALL_INCLUDEDIR@)
 
 set(GUIPP_SYS_LIBRARIES @GUIPP_SYS_LIBRARIES@)

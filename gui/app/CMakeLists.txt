@@ -55,23 +55,28 @@ if(NOT TARGET ${PROJECT_NAME})
               RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
               INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
       )
-
-      install(FILES ${INCLUDE_FILES}
-              DESTINATION ${INCLUDE_INSTALL_DIR}
+    else()
+      install(TARGETS ${PROJECT_NAME}
+              EXPORT gui++appTargets
+              OBJECTS DESTINATION ${LIBRARY_INSTALL_DIR}
+              INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
       )
-
-      install(EXPORT gui++appTargets
-              FILE gui++appTargets.cmake
-              NAMESPACE gui++::
-              DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
-      )
-
-      install(FILES
-              "${CMAKE_CURRENT_BINARY_DIR}/gui++appConfig.cmake"
-              DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
-      )
-
     endif()
+
+    install(FILES ${INCLUDE_FILES}
+            DESTINATION ${INCLUDE_INSTALL_DIR}
+    )
+
+    install(EXPORT gui++appTargets
+            FILE gui++appTargets.cmake
+            NAMESPACE gui++::
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
+
+    install(FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/gui++appConfig.cmake"
+            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+    )
 
   endif()
 

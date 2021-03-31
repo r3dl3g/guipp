@@ -35,7 +35,6 @@ if(NOT TARGET ${PROJECT_NAME})
       clock.cpp
   )
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
-
   set(LINKED_LIBRARIES
       guipp::core
       ${UTIL_LIBRARIES}

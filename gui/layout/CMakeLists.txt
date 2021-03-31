@@ -16,26 +16,7 @@ if(NOT TARGET ${PROJECT_NAME})
       attach_layout.cpp
       layout.cpp
   )
-  set(INCLUDE_FILES
-    adaption_layout.h
-    attach_layout.h
-    border_layout.h
-    dynamic_border_layout.h
-    grid_layout.h
-    layout_container.h
-    layout.h
-    lineup_layout.h
-    weighted_layout.h
-    adaption_layout.inl
-    attach_layout.inl
-    border_layout.inl
-    dynamic_border_layout.inl
-    grid_layout.inl
-    layout_container.inl
-    layout.inl
-    lineup_layout.inl
-    weighted_layout.inl
-  )
+  file(GLOB INCLUDE_FILES "*.h" "*.inl")
   set(LINKED_LIBRARIES
       guipp::core
       guipp::win

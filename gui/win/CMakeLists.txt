@@ -28,30 +28,7 @@ if(NOT TARGET ${PROJECT_NAME})
       window_event_handler.cpp
       window_event_proc.cpp
   )
-
-  set(INCLUDE_FILES
-      clipboard.h
-      container.h
-      container_class_qt.h
-      container_class_win32.h
-      container_class_x11.h
-      cursor.h
-      cursor.inl
-      dbg_win_message.h
-      native.h
-      overlapped_window.h
-      overlapped_window.inl
-      receiver.h
-      receiver.inl
-      window.h
-      window.inl
-      window_class.h
-      window_event_handler.h
-      window_event_handler_qt.h
-      window_event_handler_win32.h
-      window_event_handler_x11.h
-      window_event_proc.h
-  )
+  file(GLOB INCLUDE_FILES "*.h" "*.inl")
   set(LINKED_LIBRARIES
       guipp::core
       ${LOGGING_LIBRARIES}

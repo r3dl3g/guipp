@@ -33,8 +33,8 @@ if(NOT TARGET ${PROJECT_NAME})
   )
 
   if (GUIPP_STANDALONE_BUILD)
-    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/guixx/app)
-    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/guixx)
+    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui/app)
+    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/guipp)
 
     target_include_directories(${PROJECT_NAME}
                                PUBLIC

@@ -31,7 +31,7 @@
 // Library includes
 //
 #include <gui/core/guidefs.h>
-#include <gui++-win-export.h>
+#include <gui/win/gui++-win-export.h>
 
 
 namespace gui {

@@ -28,7 +28,7 @@ function(DebugPrint MSG)
 endfunction(DebugPrint)
 
 
-function(configure_guipp_subpackage_config PREFIX TARGET SUBDIR CONFIG_IN EXPORT_FILES)
+function(configure_guipp_subpackage_config PREFIX TARGET SUBDIR CONFIG_IN EXPORT_FILES LINKED_LIBRARIES)
   set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui/${SUBDIR})
   set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/${PREFIX})
 
@@ -70,7 +70,7 @@ function(configure_guipp_subpackage_config PREFIX TARGET SUBDIR CONFIG_IN EXPORT
 
 endfunction(configure_guipp_subpackage_config)
 
-function(define_guipp_subpackage PROJECT_NAME BASE_NAME SOURCE_FILES INCLUDE_FILES LINKED_LIBRARIES)
+function(define_guipp_subpackage PROJECT_NAME BASE_NAME SOURCE_FILES INCLUDE_FILES LINKED_LIBRARIES LINKED_SYS_LIBRARIES)
 
   add_definitions(${GUIPP_CXX_FLAGS})
 
@@ -90,7 +90,7 @@ function(define_guipp_subpackage PROJECT_NAME BASE_NAME SOURCE_FILES INCLUDE_FIL
 
   if(GUIPP_BUILD_SHARED_MODULE_LIBS)
     add_definitions(-Dgui___${PROJECT_NAME}_EXPORTS)
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${LINKED_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${LINKED_LIBRARIES} ${LINKED_SYS_LIBRARIES})
   endif()
 
   GENERATE_EXPORT_HEADER(${PROJECT_NAME}
@@ -153,7 +153,7 @@ if(NOT TARGET guipp)
     ${LOGGING_INCLUDE_DIRS}
     ${UTIL_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/..
-    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_BINARY_DIR}
     ${PROJECT_BINARY_DIR}
     )
 
@@ -317,6 +317,8 @@ if(NOT TARGET guipp)
     set (GUIPP_APP_LIBRARIES guipp::app ${GUIPP_LIBRARIES})
   endif()
 
+  include_directories(${GUIPP_INCLUDE_DIRS})
+
   add_subdirectory(core)
   add_subdirectory(win)
   add_subdirectory(layout)
@@ -346,7 +348,7 @@ if(NOT TARGET guipp)
     set (GUIPP_CXX_STANDARD ${GUIPP_CXX_STANDARD} PARENT_SCOPE)
   endif()
 
-  include_directories(${GUIPP_INCLUDE_DIRS})
+#  include_directories(${GUIPP_INCLUDE_DIRS})
 
   # header file to pass version settings to the source code
   configure_file (

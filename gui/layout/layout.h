@@ -31,7 +31,7 @@
 // Library includes
 //
 #include <gui/core/gui_types.h>
-#include <gui++-layout-export.h>
+#include <gui/layout/gui++-layout-export.h>
 
 
 namespace gui {

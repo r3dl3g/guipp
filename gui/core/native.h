@@ -28,7 +28,7 @@
 // Library includes
 //
 #include <gui/core/guidefs.h>
-#include <gui++-core-export.h>
+#include <gui/core/gui++-core-export.h>
 
 
 namespace gui {

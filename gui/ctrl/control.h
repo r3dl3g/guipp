@@ -29,7 +29,7 @@
 #include <gui/draw/drawers.h>
 #include <gui/draw/frames.h>
 #include <gui/ctrl/item_state.h>
-#include <gui++-ctrl-export.h>
+#include <gui/ctrl/gui++-ctrl-export.h>
 
 
 namespace gui {

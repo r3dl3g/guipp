@@ -30,7 +30,7 @@
 // Library includes
 //
 #include <gui/core/color.h>
-#include <gui++-io-export.h>
+#include <gui/io/gui++-io-export.h>
 
 
 namespace gui {

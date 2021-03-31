@@ -32,7 +32,7 @@
 //
 // Library includes
 //
-#include <gui++-core-export.h>
+#include <gui/core/gui++-core-export.h>
 
 #ifdef GUIPP_WIN
 # define IF_WIN32_ELSE(A, B) A

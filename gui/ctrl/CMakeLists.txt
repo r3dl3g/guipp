@@ -10,10 +10,6 @@ if(NOT TARGET ${PROJECT_NAME})
   add_subdirectory(../io io)
   add_subdirectory(look)
 
-  set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
-  set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} PARENT_SCOPE)
-  include_directories(${GUIPP_INCLUDE_DIRS})
-
   set(SOURCE_FILES
       button.cpp
       column_list.cpp
@@ -48,13 +44,15 @@ if(NOT TARGET ${PROJECT_NAME})
     guipp::layout
     guipp::look
     ${LOGGING_LIBRARIES}
-    ${UTIL_LIBRARIES}
+    ${UTIL_LIBRARIES})
+
+  set(LINKED_SYS_LIBRARIES
     ${GUIPP_SYS_LIBRARIES})
 
-  define_guipp_subpackage(${PROJECT_NAME} GUIPP_CTRL "${SOURCE_FILES}" "${INCLUDE_FILES}" "${LINKED_LIBRARIES}")
+  define_guipp_subpackage(${PROJECT_NAME} GUIPP_CTRL "${SOURCE_FILES}" "${INCLUDE_FILES}" "${LINKED_LIBRARIES}" "${LINKED_SYS_LIBRARIES}")
 
   if (GUIPP_STANDALONE_BUILD)
-    configure_guipp_subpackage_config(guipp ${PROJECT_NAME} ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in "${INCLUDE_FILES}")
+    configure_guipp_subpackage_config(guipp ${PROJECT_NAME} ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../SubConfig.cmake.in "${INCLUDE_FILES}" "${LINKED_LIBRARIES}")
   endif()
 
 endif()

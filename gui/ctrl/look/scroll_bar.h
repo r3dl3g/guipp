@@ -26,7 +26,7 @@
 #include <gui/draw/draw_fwd.h>
 #include <gui/ctrl/scrollbar_item.h>
 #include <gui/ctrl/look/look_and_feel.h>
-#include <gui++-look-export.h>
+#include <gui/ctrl/look/gui++-look-export.h>
 
 
 namespace gui {

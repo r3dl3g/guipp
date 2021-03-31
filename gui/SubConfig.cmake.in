@@ -1,0 +1,23 @@
+@PACKAGE_INIT@
+
+if(POLICY CMP0057)
+  cmake_policy(SET CMP0057 NEW)
+endif()
+
+set(_supported_components core io draw win layout app ctrl look)
+
+foreach(_comp @LINKED_LIBRARIES@)
+  if (NOT _comp IN_LIST _supported_components)
+    set(guipp_FOUND False)
+    set(guipp_NOT_FOUND_MESSAGE "Unsupported component: ${_comp}")
+  endif()
+  find_package(${_comp})
+endforeach()
+
+set_and_check(GUIPP_@TARGET@_INCLUDE_DIRS @PACKAGE_CMAKE_INSTALL_INCLUDEDIR@)
+
+set(GUIPP_@TARGET@_SYS_LIBRARIES @LINKED_SYS_LIBRARIES@)
+set(GUIPP_@TARGET@_LIBRARIES @GUIPP_LIBRARIES@ HINT ${PACKAGE_PREFIX_DIR}/lib)
+set(GUIPP_@TARGET@_CXX_FLAGS @GUIPP_CXX_FLAGS@)
+set(GUIPP_@TARGET@_EXE_LINKER_FLAGS @GUIPP_EXE_LINKER_FLAGS@)
+set(GUIPP_@TARGET@_CXX_STANDARD @GUIPP_CXX_STANDARD@)

@@ -25,7 +25,7 @@
 #include <gui/core/gui_types.h>
 #include <gui/draw/draw_fwd.h>
 #include <gui/draw/frames.h>
-#include <gui++-look-export.h>
+#include <gui/ctrl/look/gui++-look-export.h>
 
 
 namespace gui {

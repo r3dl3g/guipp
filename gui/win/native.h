@@ -29,7 +29,7 @@
 // Library includes
 //
 #include <gui/core/gui_types.h>
-#include <gui++-win-export.h>
+#include <gui/win/gui++-win-export.h>
 
 
 namespace gui {

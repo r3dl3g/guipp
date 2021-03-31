@@ -26,7 +26,7 @@
 #include <gui/draw/draw_fwd.h>
 #include <gui/ctrl/item_state.h>
 #include <util/string_util.h>
-#include <gui++-look-export.h>
+#include <gui/ctrl/look/gui++-look-export.h>
 
 
 namespace gui {

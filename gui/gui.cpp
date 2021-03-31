@@ -28,7 +28,7 @@
 #include <logging/logger.h>
 #include <logging/core.h>
 #include <gui_version.h>
-#include <gui++-export.h>
+#include "gui++-export.h"
 
 #if defined(LOGGING_BUILT_AS_STATIC_LIB)
 DEFINE_LOGGING_CORE(GUIPP_EXPORT)

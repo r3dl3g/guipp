@@ -33,7 +33,7 @@
 #include <gui/core/angle.h>
 #include <gui/draw/graphics.h>
 #include <gui/draw/text_origin.h>
-#include <gui++-draw-export.h>
+#include <gui/draw/gui++-draw-export.h>
 
 namespace gui {
 

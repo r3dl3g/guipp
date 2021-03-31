@@ -6,10 +6,6 @@ project("core" CXX)
 
 if(NOT TARGET ${PROJECT_NAME})
 
-  set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
-  set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} PARENT_SCOPE)
-  include_directories(${GUIPP_INCLUDE_DIRS})
-
   set(SOURCE_FILES
       angle.cpp
       bits.cpp
@@ -28,15 +24,16 @@ if(NOT TARGET ${PROJECT_NAME})
   )
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
-  set(LINKED_LIBRARIES
-      ${LOGGING_LIBRARIES}
+  set(LINKED_LIBRARIES ${LOGGING_LIBRARIES})
+
+  set(LINKED_SYS_LIBRARIES
       ${GUIPP_SYS_LIBRARIES}
       ${LOGGING_SYS_LIBRARIES})
 
-  define_guipp_subpackage(${PROJECT_NAME} GUIPP_CORE "${SOURCE_FILES}" "${INCLUDE_FILES}" "${LINKED_LIBRARIES}")
+  define_guipp_subpackage(${PROJECT_NAME} GUIPP_CORE "${SOURCE_FILES}" "${INCLUDE_FILES}" "${LINKED_LIBRARIES}" "${LINKED_SYS_LIBRARIES}")
 
   if (GUIPP_STANDALONE_BUILD)
-    configure_guipp_subpackage_config(guipp ${PROJECT_NAME} ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in "${INCLUDE_FILES}")
+    configure_guipp_subpackage_config(guipp ${PROJECT_NAME} ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../SubConfig.cmake.in "${INCLUDE_FILES}" "${LINKED_LIBRARIES}")
   endif()
 
 endif()

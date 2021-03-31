@@ -31,7 +31,7 @@
 //
 #include <util/ostreamfmt.h>
 #include <gui/draw/bitmap.h>
-#include <gui++-io-export.h>
+#include <gui/io/gui++-io-export.h>
 
 
 namespace gui {

@@ -45,6 +45,7 @@ if(NOT TARGET ${PROJECT_NAME})
     configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in
       "${CMAKE_CURRENT_BINARY_DIR}/guippappConfig.cmake"
       INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}
+      PATH_VARS CMAKE_INSTALL_INCLUDEDIR
     )
 
     if (NOT GUIPP_APP_USE_OBJECT)

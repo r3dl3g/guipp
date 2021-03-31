@@ -429,8 +429,7 @@ if(NOT TARGET guipp)
     configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
                                     "${CMAKE_CURRENT_BINARY_DIR}/guippConfig.cmake"
                                     INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}
-                                    PATH_VARS INCLUDE_INSTALL_DIR GUIPP_SYS_LIBRARIES
-                                    )
+                                    PATH_VARS CMAKE_INSTALL_INCLUDEDIR GUIPP_SYS_LIBRARIES)
 
     install(TARGETS guipp EXPORT guippTargets
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

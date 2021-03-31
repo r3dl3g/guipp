@@ -39,7 +39,8 @@ function(configure_guipp_subpackage_config PREFIX TARGET SUBDIR CONFIG_IN EXPORT
 
   configure_package_config_file(${CONFIG_IN}
                                 "${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}${TARGET}Config.cmake"
-                                INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR})
+                                INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}
+                                PATH_VARS CMAKE_INSTALL_INCLUDEDIR)
 
   if(GUIPP_BUILD_STATIC_MODULE_LIBS OR GUIPP_BUILD_SHARED_MODULE_LIBS)
     install(TARGETS ${TARGET}
@@ -425,7 +426,9 @@ if(NOT TARGET guipp)
 
     configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
                                     "${CMAKE_CURRENT_BINARY_DIR}/guippConfig.cmake"
-                                    INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR})
+                                    INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}
+                                    PATH_VARS INCLUDE_INSTALL_DIR GUIPP_SYS_LIBRARIES
+                                    )
 
     install(TARGETS guipp EXPORT guippTargets
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

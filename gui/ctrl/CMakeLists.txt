@@ -41,12 +41,12 @@ if(NOT TARGET ${PROJECT_NAME})
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
   set(LINKED_LIBRARIES
-    gui++::core
-    gui++::win
-    gui++::draw
-    gui++::io
-    gui++::layout
-    gui++::look
+    guipp::core
+    guipp::win
+    guipp::draw
+    guipp::io
+    guipp::layout
+    guipp::look
     ${LOGGING_LIBRARIES}
     ${UTIL_LIBRARIES}
     ${GUIPP_SYS_LIBRARIES})
@@ -54,7 +54,7 @@ if(NOT TARGET ${PROJECT_NAME})
   define_guipp_subpackage(${PROJECT_NAME} GUIPP_CTRL "${SOURCE_FILES}" "${INCLUDE_FILES}" "${LINKED_LIBRARIES}")
 
   if (GUIPP_STANDALONE_BUILD)
-    configure_guipp_subpackage_config(gui++ ${PROJECT_NAME} ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in "${INCLUDE_FILES}")
+    configure_guipp_subpackage_config(guipp ${PROJECT_NAME} ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in "${INCLUDE_FILES}")
   endif()
 
 endif()

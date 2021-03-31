@@ -22,19 +22,19 @@ if(NOT TARGET ${PROJECT_NAME})
     set (GUIPP_APP_USE_OBJECT FALSE)
     add_library(${PROJECT_NAME} ${GUIPP_LINK} ${SOURCE_FILES})
   endif()
-  add_library(gui++::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+  add_library(guipp::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
   set_target_properties(${PROJECT_NAME} PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
-                        PREFIX "libgui++"
+                        PREFIX "libguipp"
                         VERSION ${GUIPP_VERSION}
                         SOVERSION ${GUIPP_VERSION_MAJOR}
                         CXX_STANDARD ${GUIPP_CXX_STANDARD}
   )
 
   if (GUIPP_STANDALONE_BUILD)
-    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui++/app)
-    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/gui++)
+    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/guipp/app)
+    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/guipp)
 
     target_include_directories(${PROJECT_NAME}
                                PUBLIC
@@ -43,13 +43,13 @@ if(NOT TARGET ${PROJECT_NAME})
     )
 
     configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in
-      "${CMAKE_CURRENT_BINARY_DIR}/gui++appConfig.cmake"
+      "${CMAKE_CURRENT_BINARY_DIR}/guippappConfig.cmake"
       INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
     )
 
     if (NOT GUIPP_APP_USE_OBJECT)
       install(TARGETS ${PROJECT_NAME}
-              EXPORT gui++appTargets
+              EXPORT guippappTargets
               LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
               ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
               RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -57,7 +57,7 @@ if(NOT TARGET ${PROJECT_NAME})
       )
     else()
       install(TARGETS ${PROJECT_NAME}
-              EXPORT gui++appTargets
+              EXPORT guippappTargets
               OBJECTS DESTINATION ${LIBRARY_INSTALL_DIR}
               INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
       )
@@ -67,14 +67,14 @@ if(NOT TARGET ${PROJECT_NAME})
             DESTINATION ${INCLUDE_INSTALL_DIR}
     )
 
-    install(EXPORT gui++appTargets
-            FILE gui++appTargets.cmake
-            NAMESPACE gui++::
+    install(EXPORT guippappTargets
+            FILE guippappTargets.cmake
+            NAMESPACE guipp::
             DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
     )
 
     install(FILES
-            "${CMAKE_CURRENT_BINARY_DIR}/gui++appConfig.cmake"
+            "${CMAKE_CURRENT_BINARY_DIR}/guippappConfig.cmake"
             DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
     )
 

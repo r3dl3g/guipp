@@ -53,7 +53,7 @@ if(NOT TARGET ${PROJECT_NAME})
       window_event_proc.h
   )
   set(LINKED_LIBRARIES
-      gui++::core
+      guipp::core
       ${LOGGING_LIBRARIES}
       ${UTIL_LIBRARIES}
       ${GUIPP_SYS_LIBRARIES})
@@ -61,7 +61,7 @@ if(NOT TARGET ${PROJECT_NAME})
   define_guipp_subpackage(${PROJECT_NAME} GUIPP_WIN "${SOURCE_FILES}" "${INCLUDE_FILES}" "${LINKED_LIBRARIES}")
 
   if (GUIPP_STANDALONE_BUILD)
-    configure_guipp_subpackage_config(gui++ ${PROJECT_NAME} ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in "${INCLUDE_FILES}")
+    configure_guipp_subpackage_config(guipp ${PROJECT_NAME} ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in "${INCLUDE_FILES}")
   endif()
 
 endif()

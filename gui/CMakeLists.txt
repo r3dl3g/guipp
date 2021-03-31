@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-project("gui++" CXX)
+project("guipp" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
@@ -74,11 +74,11 @@ function(define_guipp_subpackage PROJECT_NAME BASE_NAME SOURCE_FILES INCLUDE_FIL
   add_definitions(${GUIPP_CXX_FLAGS})
 
   add_library(${PROJECT_NAME} ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
-  add_library(gui++::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+  add_library(guipp::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
   set_target_properties(${PROJECT_NAME} PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
-                        PREFIX "libgui++"
+                        PREFIX "libguipp"
                         VERSION ${GUIPP_VERSION}
                         SOVERSION ${GUIPP_VERSION_MAJOR}
                         CXX_STANDARD ${GUIPP_CXX_STANDARD})
@@ -100,7 +100,7 @@ function(define_guipp_subpackage PROJECT_NAME BASE_NAME SOURCE_FILES INCLUDE_FIL
 
 endfunction(define_guipp_subpackage)
 
-if(NOT TARGET gui++)
+if(NOT TARGET guipp)
 
   set (GUIPP_VERSION_MAJOR 0)
   set (GUIPP_VERSION_MINOR 1)
@@ -258,16 +258,16 @@ if(NOT TARGET gui++)
     set (GUIPP_LINK STATIC)
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_BUILT_AS_STATIC)
     set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES}
-      gui++::ctrl
-      gui++::look
-      gui++::io
-      gui++::draw
-      gui++::layout
-      gui++::win
-      gui++::core
+      guipp::ctrl
+      guipp::look
+      guipp::io
+      guipp::draw
+      guipp::layout
+      guipp::win
+      guipp::core
       ${LOGGING_LIBRARIES}
       ${UTIL_LIBRARIES}
-      gui++::gui++
+      guipp::guipp
       )
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES}
       ${LOGGING_SYS_LIBRARIES}
@@ -275,16 +275,16 @@ if(NOT TARGET gui++)
   elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
     set (GUIPP_LINK SHARED)
     set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES}
-      gui++::ctrl
-      gui++::look
-      gui++::io
-      gui++::draw
-      gui++::layout
-      gui++::win
-      gui++::core
+      guipp::ctrl
+      guipp::look
+      guipp::io
+      guipp::draw
+      guipp::layout
+      guipp::win
+      guipp::core
       ${LOGGING_LIBRARIES}
       ${UTIL_LIBRARIES}
-      gui++::gui++
+      guipp::guipp
       )
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES}
       ${LOGGING_SYS_LIBRARIES}
@@ -294,7 +294,7 @@ if(NOT TARGET gui++)
     set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES}
       ${LOGGING_LIBRARIES}
       ${UTIL_LIBRARIES}
-      gui++)
+      guipp)
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES}
       ${LOGGING_SYS_LIBRARIES}
       ${UTIL_SYS_LIBRARIES})
@@ -311,9 +311,9 @@ if(NOT TARGET gui++)
   endif()
 
   if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.5 AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    set (GUIPP_APP_LIBRARIES $<TARGET_OBJECTS:gui++::app> ${GUIPP_LIBRARIES})
+    set (GUIPP_APP_LIBRARIES $<TARGET_OBJECTS:guipp::app> ${GUIPP_LIBRARIES})
   else()
-    set (GUIPP_APP_LIBRARIES gui++::app ${GUIPP_LIBRARIES})
+    set (GUIPP_APP_LIBRARIES guipp::app ${GUIPP_LIBRARIES})
   endif()
 
   add_subdirectory(core)
@@ -360,52 +360,52 @@ if(NOT TARGET gui++)
 
     add_definitions(-Dgui___EXPORTS)
 
-    add_library(gui++ SHARED
-      $<TARGET_OBJECTS:gui++::core>
-      $<TARGET_OBJECTS:gui++::win>
-      $<TARGET_OBJECTS:gui++::layout>
-      $<TARGET_OBJECTS:gui++::draw>
-      $<TARGET_OBJECTS:gui++::io>
-      $<TARGET_OBJECTS:gui++::ctrl>
-      $<TARGET_OBJECTS:gui++::look>
+    add_library(guipp SHARED
+      $<TARGET_OBJECTS:guipp::core>
+      $<TARGET_OBJECTS:guipp::win>
+      $<TARGET_OBJECTS:guipp::layout>
+      $<TARGET_OBJECTS:guipp::draw>
+      $<TARGET_OBJECTS:guipp::io>
+      $<TARGET_OBJECTS:guipp::ctrl>
+      $<TARGET_OBJECTS:guipp::look>
       gui.cpp
       )
 
-    target_link_libraries(gui++ PRIVATE ${LOGGING_LIBRARIES} ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
+    target_link_libraries(guipp PRIVATE ${LOGGING_LIBRARIES} ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
 
   elseif(GUIPP_BUILD_SHARED_MODULE_LIBS)
     DebugPrint("gui build multiple shared gui libraries")
 
     add_definitions(-Dgui___EXPORTS)
 
-    add_library(gui++ SHARED gui.cpp)
+    add_library(guipp SHARED gui.cpp)
 
-    target_link_libraries(gui++ PRIVATE ${GUIPP_SYS_LIBRARIES})
+    target_link_libraries(guipp PRIVATE ${GUIPP_SYS_LIBRARIES})
 
     if (UTIL_BUILD_STATIC_MODULE_LIB)
-      target_link_libraries(gui++ PRIVATE ${UTIL_LIBRARIES})
+      target_link_libraries(guipp PRIVATE ${UTIL_LIBRARIES})
     endif()
     if (LOGGING_BUILD_STATIC_MODULE_LIB)
-      target_link_libraries(gui++ PRIVATE ${LOGGING_LIBRARIES})
+      target_link_libraries(guipp PRIVATE ${LOGGING_LIBRARIES})
     endif()
 
   else()
     DebugPrint("gui build multiple static gui libraries")
 
-    add_library(gui++ STATIC gui.cpp)
+    add_library(guipp STATIC gui.cpp)
 
   endif()
 
-  add_library(gui++::gui++ ALIAS gui++)
+  add_library(guipp::guipp ALIAS guipp)
 
-  set_target_properties(gui++ PROPERTIES
+  set_target_properties(guipp PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
                         VERSION ${GUIPP_VERSION}
                         SOVERSION ${GUIPP_VERSION_MAJOR}
                         CXX_STANDARD ${GUIPP_CXX_STANDARD})
 
-  GENERATE_EXPORT_HEADER(gui++
+  GENERATE_EXPORT_HEADER(guipp
                          BASE_NAME GUIPP
                          EXPORT_MACRO_NAME GUIPP_EXPORT
                          EXPORT_FILE_NAME gui++-export.h
@@ -413,21 +413,21 @@ if(NOT TARGET gui++)
 
   if (GUIPP_STANDALONE_BUILD)
     set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui)
-    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/gui++)
+    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/guipp)
 
-    target_include_directories(gui++ PUBLIC
+    target_include_directories(guipp PUBLIC
                                "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
                                "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>")
 
-    write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/gui++ConfigVersion.cmake"
+    write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/guippConfigVersion.cmake"
                                      VERSION "${GUIPP_VERSION}"
                                      COMPATIBILITY SameMajorVersion)
 
     configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
-                                    "${CMAKE_CURRENT_BINARY_DIR}/gui++Config.cmake"
+                                    "${CMAKE_CURRENT_BINARY_DIR}/guippConfig.cmake"
                                     INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR})
 
-    install(TARGETS gui++ EXPORT gui++Targets
+    install(TARGETS guipp EXPORT guippTargets
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
             ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
             OBJECTS DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -438,16 +438,16 @@ if(NOT TARGET gui++)
             ${PROJECT_BINARY_DIR}/gui++-export.h
             DESTINATION ${INCLUDE_INSTALL_DIR})
 
-    install(EXPORT gui++Targets
-            FILE gui++Targets.cmake
-            NAMESPACE gui++::
+    install(EXPORT guippTargets
+            FILE guippTargets.cmake
+            NAMESPACE guipp::
             DESTINATION ${LIBRARY_INSTALL_DIR})
 
-    export(TARGETS gui++ FILE gui++Targets.cmake)
+    export(TARGETS guipp FILE guippTargets.cmake)
 
     install(FILES
-            "${CMAKE_CURRENT_BINARY_DIR}/gui++Config.cmake"
-            "${CMAKE_CURRENT_BINARY_DIR}/gui++ConfigVersion.cmake"
+            "${CMAKE_CURRENT_BINARY_DIR}/guippConfig.cmake"
+            "${CMAKE_CURRENT_BINARY_DIR}/guippConfigVersion.cmake"
             DESTINATION ${LIBRARY_INSTALL_DIR})
 
   endif()

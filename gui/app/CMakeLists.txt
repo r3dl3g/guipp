@@ -33,8 +33,8 @@ if(NOT TARGET ${PROJECT_NAME})
   )
 
   if (GUIPP_STANDALONE_BUILD)
-    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/guipp/app)
-    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/guipp)
+    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/guixx/app)
+    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/guixx)
 
     target_include_directories(${PROJECT_NAME}
                                PUBLIC
@@ -44,17 +44,18 @@ if(NOT TARGET ${PROJECT_NAME})
 
     configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in
       "${CMAKE_CURRENT_BINARY_DIR}/guippappConfig.cmake"
-      INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+      INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}
     )
 
     if (NOT GUIPP_APP_USE_OBJECT)
       install(TARGETS ${PROJECT_NAME}
               EXPORT guippappTargets
-              LIBRARY DESTINATION ${LIBRARY_INSTALL_DIR}
-              ARCHIVE DESTINATION ${LIBRARY_INSTALL_DIR}
+              LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+              ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
               RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
               INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
       )
+
     else()
       install(TARGETS ${PROJECT_NAME}
               EXPORT guippappTargets
@@ -70,12 +71,12 @@ if(NOT TARGET ${PROJECT_NAME})
     install(EXPORT guippappTargets
             FILE guippappTargets.cmake
             NAMESPACE guipp::
-            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+            DESTINATION ${LIBRARY_INSTALL_DIR}
     )
 
     install(FILES
             "${CMAKE_CURRENT_BINARY_DIR}/guippappConfig.cmake"
-            DESTINATION ${LIBRARY_INSTALL_DIR}/cmake
+            DESTINATION ${LIBRARY_INSTALL_DIR}
     )
 
   endif()

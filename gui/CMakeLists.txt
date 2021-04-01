@@ -295,7 +295,7 @@ if(NOT TARGET guipp)
     set (GUIPP_LIBRARIES ${GUIPP_LIBRARIES}
       ${LOGGING_LIBRARIES}
       ${UTIL_LIBRARIES}
-      guipp)
+      guipp::guipp)
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES}
       ${LOGGING_SYS_LIBRARIES}
       ${UTIL_SYS_LIBRARIES})

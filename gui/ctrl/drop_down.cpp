@@ -177,7 +177,7 @@ namespace gui {
 
     template<>
     void adjust_drop_down_size<core::os::ui_t::mobile> (core::rectangle& r, int, core::size::type) {
-      const auto area = win::window::screen_area();
+      const auto area = win::window::screen_area().shrinked({20, 20});
       r.y2(area.y2());
       r.set_horizontal(area.x(), area.width());
     }

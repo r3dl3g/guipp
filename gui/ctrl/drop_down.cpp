@@ -131,10 +131,10 @@ namespace gui {
                              is_popup_visible());
       if (data.selection > -1) {
         data.items->draw_item(data.selection,
-                                  graph,
-                                  layout::drop_down::label_geometry(area),
-                                  data.items->get_background(),
-                                  item_state(is_focused(), false, !is_enabled()));
+                              graph,
+                              layout::drop_down::label_geometry(area),
+                              color::transparent,
+                              item_state(is_focused(), false, !is_enabled()));
       }
     }
 
@@ -167,11 +167,26 @@ namespace gui {
       }
     }
 
+    template<core::os::ui_t T = core::os::system_ui>
+    void adjust_drop_down_size (core::rectangle& r, int visible_items, core::size::type item_dimension);
+
+    template<>
+    void adjust_drop_down_size<core::os::ui_t::desktop> (core::rectangle& r, int visible_items, core::size::type item_dimension) {
+      r.height(core::size::type(visible_items * item_dimension));
+    }
+
+    template<>
+    void adjust_drop_down_size<core::os::ui_t::mobile> (core::rectangle& r, int, core::size::type) {
+      const auto area = win::window::screen_area();
+      r.y2(area.y2());
+      r.set_horizontal(area.x(), area.width());
+    }
+
     core::rectangle drop_down_list::get_popup_geometry () const {
-      core::rectangle place = super::absolute_geometry();
-      place.move_y(place.height());
-      place.height(core::size::type(data.visible_items * data.items->get_item_dimension()));
-      return place;
+      core::rectangle r = super::absolute_geometry();
+      r.move_y(r.height());
+      adjust_drop_down_size<>(r, data.visible_items, data.items->get_item_dimension());
+      return r;
     }
 
     void drop_down_list::show_popup () {

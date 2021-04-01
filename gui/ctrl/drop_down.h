@@ -69,12 +69,26 @@ namespace gui {
     using indirect_dropdown_data = indirect_list_data<T, D>;
 
     // --------------------------------------------------------------------------
+    template<core::os::ui_t T = core::os::system_ui>
+    struct drop_down_list_defaults {};
+
+    template<>
+    struct drop_down_list_defaults<core::os::ui_t::desktop> {
+      static constexpr core::size::type item_size = 20;
+    };
+
+    template<>
+    struct drop_down_list_defaults<core::os::ui_t::mobile> {
+      static constexpr core::size::type item_size = 80;
+    };
+
+    // --------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT drop_down_list : public push_button {
     public:
       typedef push_button super;
       typedef vertical_scrollable_list list_type;
 
-      explicit drop_down_list (core::size::type item_size = 20,
+      explicit drop_down_list (core::size::type item_size = drop_down_list_defaults<>::item_size,
                                os::color background = color::white);
       drop_down_list (drop_down_list&& rhs) noexcept;
 
@@ -123,7 +137,7 @@ namespace gui {
       void handle_wheel (core::native_point::type delta, const core::native_point&);
 
       struct data {
-        explicit data (core::size::type item_size = 20,
+        explicit data (core::size::type item_size = drop_down_list_defaults<>::item_size,
                        os::color background = color::white);
 
         win::popup_window popup;

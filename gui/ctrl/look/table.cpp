@@ -46,7 +46,9 @@ namespace gui {
                                                        const os::color& background,
                                                        const ctrl::item_state& state) {
       using namespace draw;
-      graph.fill(draw::rectangle(place), get_background_color(state, background));
+      if (!color::is_transparent(background)) {
+        graph.fill(draw::rectangle(place), get_background_color(state, background));
+      }
       graph.text(draw::text_box(t, place, align), font::system(), get_text_color(state, foreground));
     }
 

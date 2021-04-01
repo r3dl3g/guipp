@@ -140,7 +140,9 @@ namespace gui {
                     bool has_children,
                     bool is_open,
                     ctrl::item_state state) {
-      graph.fill(draw::rectangle(area), get_background_color(state, background.color()));
+      if (!color::is_transparent(background.color())) {
+        graph.fill(draw::rectangle(area), get_background_color(state, background.color()));
+      }
 
       core::rectangle r = area + core::point(core::point::type(depth * 16), 0);
 

@@ -426,7 +426,7 @@ namespace gui {
 
     void redo_icon::operator() (graphics& g, const pen& pn) const {
       g.frame(draw::arc(center, radius, 180, 330), pn);
-      const auto p = calc_clock_point<100>(center, radius);
+      const auto p = calc_clock_point<90>(center, radius);
       const auto l = calc_centerline<120>(center, radius * 0.8, radius * 1.2);
       g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
     }
@@ -478,7 +478,7 @@ namespace gui {
     void restart_icon::operator() (graphics& g, const pen& pn) const {
       const auto p = calc_clock_point<55>(center, radius);
       const auto l = calc_centerline<35>(center, radius * 0.8, radius * 1.2);
-      g.frame(draw::arc(center, radius, 35, 330), pn);
+      g.frame(draw::arc(center, radius, 45, 330), pn);
       g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
     }
 
@@ -515,6 +515,72 @@ namespace gui {
       g.frame(draw::arc(center, radius * 0.9, 120, 60+360), pn);
       g.frame(draw::line(calc_clock_point<0>(center, radius * 0.3), calc_clock_point<0>(center, radius)), pn);
     }
+
+    // --------------------------------------------------------------------------
+    forward_icon::forward_icon (const core::point& center, core::size::type radius)
+      : icon_base(center, radius)
+    {}
+
+    void forward_icon::operator() (graphics& g, const pen& pn) const {
+      g.frame(draw::arc(center, radius, 20, 180), pn);
+      const auto p = calc_clock_point<90>(center, radius);
+      const auto l = calc_centerline<60>(center, radius * 0.8, radius * 1.2);
+      g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
+    }
+
+    // --------------------------------------------------------------------------
+    backward_icon::backward_icon (const core::point& center, core::size::type radius)
+      : icon_base(center, radius)
+    {}
+
+    void backward_icon::operator() (graphics& g, const pen& pn) const {
+      g.frame(draw::arc(center, radius, 200, 360), pn);
+      const auto p = calc_clock_point<-90>(center, radius);
+      const auto l = calc_centerline<-120>(center, radius * 0.8, radius * 1.2);
+      g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
+    }
+    // --------------------------------------------------------------------------
+    check_off_icon::check_off_icon (const point& center, size::type radius)
+      : icon_base(center, radius)
+    {}
+
+    void check_off_icon::operator() (graphics& g, const pen& pn) const {
+      g.frame(draw::round_rectangle({center - core::size{radius, radius},
+                                     core::size{radius+radius, radius+radius}}, radius/2), pn);
+    }
+
+    // --------------------------------------------------------------------------
+    check_on_icon::check_on_icon (const point& center, size::type radius)
+      : icon_base(center, radius)
+    {}
+
+    void check_on_icon::operator() (graphics& g, const pen& pn) const {
+      g.frame(draw::round_rectangle({center - core::size{radius, radius},
+                                     core::size{radius+radius, radius+radius}}, radius/2), pn);
+      g.frame(draw::polyline({calc_clock_point<270>(center, radius / 1.4),
+                              calc_clock_point<180>(center, radius / 1.5),
+                              calc_clock_point<45>(center, radius / 1.2)}), pn);
+    }
+
+    // --------------------------------------------------------------------------
+    radio_off_icon::radio_off_icon (const core::point& center, core::size::type radius)
+      : icon_base(center, radius)
+    {}
+
+    void radio_off_icon::operator() (graphics& g, const pen& pn) const {
+      g.frame(draw::arc(center, radius, 0, 360), pn);
+    }
+
+    // --------------------------------------------------------------------------
+    radio_on_icon::radio_on_icon (const core::point& center, core::size::type radius)
+      : icon_base(center, radius)
+    {}
+
+    void radio_on_icon::operator() (graphics& g, const pen& pn) const {
+      g.frame(draw::arc(center, radius, 0, 360), pn);
+      g.fill(draw::pie(center, radius / 2, 0, 360), pn.color());
+    }
+
 
     // --------------------------------------------------------------------------
   }

@@ -300,6 +300,54 @@ namespace gui {
       void operator() (graphics& g, const pen& pn) const;
 
     };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT forward_icon : public detail::icon_base {
+
+      forward_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT backward_icon : public detail::icon_base {
+
+      backward_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT check_off_icon : public detail::icon_base {
+
+      check_off_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT check_on_icon : public detail::icon_base {
+
+      check_on_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT radio_off_icon : public detail::icon_base {
+
+      radio_off_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
+    // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT radio_on_icon : public detail::icon_base {
+
+      radio_on_icon (const core::point& center, core::size::type radius);
+
+      void operator() (graphics& g, const pen& pn) const;
+
+    };
 
     // --------------------------------------------------------------------------
   } //namespace draw

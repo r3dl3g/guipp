@@ -3,7 +3,6 @@
 #include <gui/layout/border_layout.h>
 #include <gui/layout/layout_container.h>
 #include <gui/ctrl/tab_view.h>
-#include <gui/ctrl/look/drop_down.h>
 #include <gui/ctrl/label.h>
 #include <gui/draw/clock.h>
 #include <gui/draw/pen.h>
@@ -313,7 +312,7 @@ struct direction_button : public custom_push_button {
                       const core::rectangle& r,
                       const core::button_state::is&) {
       g.erase(r, color::very_very_dark_gray);
-      g.fill(draw::polygon(look::get_up_down_polygon(r, up)), color::dark_gray);
+      draw_up_down_button<up>(g, r);
     });
   }
 };

@@ -247,7 +247,7 @@ struct chronometer_page : group_window<stopwatch_layout, color::black, window&, 
         const auto col = page.can_reset() ? color::gray : color::very_dark_gray;
         draw::pen pn(col, 3, draw::pen::Style::solid, draw::pen::Cap::round);
         g.draw(draw::round_rectangle(r, roundness(r.size())), color::very_very_dark_gray, pn.with_size(1));
-        g.frame(draw::reset_icon(r.center(), icon_size(r.size())), pn);
+        g.frame(draw::icon<draw::icon_t::reset>(r.center(), icon_size(r.size())), pn);
       }
     });
     start_stop_btn.set_drawer([&] (draw::graphics& g,
@@ -258,11 +258,11 @@ struct chronometer_page : group_window<stopwatch_layout, color::black, window&, 
         draw::pen pn(col, 3, draw::pen::Style::solid, draw::pen::Cap::round);
         g.draw(draw::round_rectangle(r, roundness(r.size())), color::darker(col, 0.85), pn.with_size(1));
         if (page.active()) {
-          g.frame(draw::stop_icon(r.center(), icon_size(r.size())), pn);
+          g.frame(draw::icon<draw::icon_t::stop>(r.center(), icon_size(r.size())), pn);
         } else if (page.can_reset()) {
-          g.frame(draw::pause_icon(r.center(), icon_size(r.size())), pn);
+          g.frame(draw::icon<draw::icon_t::pause>(r.center(), icon_size(r.size())), pn);
         } else {
-          g.frame(draw::play_icon(r.center(), icon_size(r.size())), pn);
+          g.frame(draw::icon<draw::icon_t::play>(r.center(), icon_size(r.size())), pn);
         }
       }
     });
@@ -294,12 +294,12 @@ void draw_up_down_button (draw::graphics& g, const core::rectangle& r);
 
 template<>
 void draw_up_down_button<true> (draw::graphics& g, const core::rectangle& r) {
-  g.frame(draw::up_icon(r.center(), r.max_radius() / 2), color::dark_gray);
+  g.frame(draw::icon<draw::icon_t::up>(r.center(), r.max_radius() / 2), color::dark_gray);
 }
 
 template<>
 void draw_up_down_button<false> (draw::graphics& g, const core::rectangle& r) {
-  g.frame(draw::down_icon(r.center(), r.max_radius() / 2), color::dark_gray);
+  g.frame(draw::icon<draw::icon_t::down>(r.center(), r.max_radius() / 2), color::dark_gray);
 }
 
 // --------------------------------------------------------------------------
@@ -438,9 +438,9 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   tabs.add_page("Stoppwatch", page_1);
   tabs.add_page("Timer", page_2);
 
-  tabs.get_buttons().get_button(0)->set_drawer(icon_drawer<draw::clock_icon>);
-  tabs.get_buttons().get_button(1)->set_drawer(icon_drawer<draw::stopwatch_icon>);
-  tabs.get_buttons().get_button(2)->set_drawer(icon_drawer<draw::timer_icon>);
+  tabs.get_buttons().get_button(0)->set_drawer(icon_drawer<draw::icon<draw::icon_t::clock>>);
+  tabs.get_buttons().get_button(1)->set_drawer(icon_drawer<draw::icon<draw::icon_t::stopwatch>>);
+  tabs.get_buttons().get_button(2)->set_drawer(icon_drawer<draw::icon<draw::icon_t::timer>>);
 
   main.on_create([&] () {
     tabs.create(main);

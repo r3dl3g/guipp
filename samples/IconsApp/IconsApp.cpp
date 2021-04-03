@@ -16,8 +16,8 @@ template<typename T>
 void draw_icon (draw::graphics& g,
                 const core::rectangle& r,
                 const std::string& str) {
-  static draw::pen icon_pen(color::black, 5, draw::pen::Style::solid, draw::pen::Cap::round);
   const auto radius = std::min(r.height(), r.width()) / 3;
+  draw::pen icon_pen(color::black, radius/8, draw::pen::Style::solid, draw::pen::Cap::round, draw::pen::Join::round);
   g.frame(T(r.center(), radius), icon_pen);
   g.text(text_box(str, r, text_origin_t::bottom_hcenter), font::system_small(), color::black);
 }
@@ -35,48 +35,57 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     auto area = main.client_geometry().shrink({5, 5});
     clog::trace() << "Draw graphs in area:" << area;
 
-    core::grid<6, 6> g(area);
-    draw_icon<up_icon>(graph, g(0, 0), "up");
-    draw_icon<down_icon>(graph, g(1, 0), "down");
-    draw_icon<left_icon>(graph, g(2, 0), "left");
-    draw_icon<right_icon>(graph, g(3, 0), "right");
-    draw_icon<add_icon>(graph, g(4, 0), "add");
-    draw_icon<remove_icon>(graph, g(5, 0), "remove");
+    core::grid<6, 8> g(area);
+    draw_icon<icon<icon_t::up>>(graph, g(0, 0), "up");
+    draw_icon<icon<icon_t::down>>(graph, g(1, 0), "down");
+    draw_icon<icon<icon_t::left>>(graph, g(2, 0), "left");
+    draw_icon<icon<icon_t::right>>(graph, g(3, 0), "right");
+    draw_icon<icon<icon_t::add>>(graph, g(4, 0), "add");
+    draw_icon<icon<icon_t::remove>>(graph, g(5, 0), "remove");
 
-    draw_icon<clock_icon>(graph, g(0, 1), "clock");
-    draw_icon<stopwatch_icon>(graph, g(1, 1), "stopwatch");
-    draw_icon<timer_icon>(graph, g(2, 1), "timer");
-    draw_icon<info_icon>(graph, g(3, 1), "info");
-    draw_icon<important_icon>(graph, g(4,1), "important");
-    draw_icon<clear_icon>(graph, g(5, 1), "clear");
+    draw_icon<icon<icon_t::clock>>(graph, g(0, 1), "clock");
+    draw_icon<icon<icon_t::stopwatch>>(graph, g(1, 1), "stopwatch");
+    draw_icon<icon<icon_t::timer>>(graph, g(2, 1), "timer");
+    draw_icon<icon<icon_t::info>>(graph, g(3, 1), "info");
+    draw_icon<icon<icon_t::important>>(graph, g(4,1), "important");
+    draw_icon<icon<icon_t::clear>>(graph, g(5, 1), "clear");
 
-    draw_icon<play_icon>(graph, g(0, 2), "play");
-    draw_icon<pause_icon>(graph, g(1, 2), "pause");
-    draw_icon<stop_icon>(graph, g(2, 2), "stop");
-    draw_icon<reset_icon>(graph, g(3, 2), "reset");
-    draw_icon<back_icon>(graph, g(4, 2), "back");
-    draw_icon<menu_icon>(graph, g(5, 2), "menu");
+    draw_icon<icon<icon_t::play>>(graph, g(0, 2), "play");
+    draw_icon<icon<icon_t::pause>>(graph, g(1, 2), "pause");
+    draw_icon<icon<icon_t::stop>>(graph, g(2, 2), "stop");
+    draw_icon<icon<icon_t::reset>>(graph, g(3, 2), "reset");
+    draw_icon<icon<icon_t::back>>(graph, g(4, 2), "back");
+    draw_icon<icon<icon_t::menu>>(graph, g(5, 2), "menu");
 
-    draw_icon<okay_icon>(graph, g(0, 3), "okay");
-    draw_icon<cancel_icon>(graph, g(1, 3), "cancel");
-    draw_icon<close_icon>(graph, g(2, 3), "close");
-    draw_icon<find_icon>(graph, g(3, 3), "find");
-    draw_icon<zoom_in_icon>(graph, g(4, 3), "zoom_in");
-    draw_icon<zoom_out_icon>(graph, g(5, 3), "zoom_out");
+    draw_icon<icon<icon_t::okay>>(graph, g(0, 3), "okay");
+    draw_icon<icon<icon_t::cancel>>(graph, g(1, 3), "cancel");
+    draw_icon<icon<icon_t::cross>>(graph, g(2, 3), "cross");
+    draw_icon<icon<icon_t::find>>(graph, g(3, 3), "find");
+    draw_icon<icon<icon_t::zoom_in>>(graph, g(4, 3), "zoom_in");
+    draw_icon<icon<icon_t::zoom_out>>(graph, g(5, 3), "zoom_out");
 
-    draw_icon<undo_icon>(graph, g(0, 4), "undo");
-    draw_icon<redo_icon>(graph, g(1, 4), "redo");
-    draw_icon<forward_icon>(graph, g(2, 4), "forward");
-    draw_icon<backward_icon>(graph, g(3, 4), "backward");
-    draw_icon<sync_icon>(graph, g(4, 4), "sync");
-    draw_icon<restart_icon>(graph, g(5, 4), "restart");
+    draw_icon<icon<icon_t::undo>>(graph, g(0, 4), "undo");
+    draw_icon<icon<icon_t::redo>>(graph, g(1, 4), "redo");
+    draw_icon<icon<icon_t::forward>>(graph, g(2, 4), "forward");
+    draw_icon<icon<icon_t::backward>>(graph, g(3, 4), "backward");
+    draw_icon<icon<icon_t::sync>>(graph, g(4, 4), "sync");
+    draw_icon<icon<icon_t::restart>>(graph, g(5, 4), "restart");
 
-    draw_icon<off_icon>(graph, g(0, 5), "off");
-    draw_icon<check_off_icon>(graph, g(1, 5), "check_off");
-    draw_icon<check_on_icon>(graph, g(2, 5), "check_on");
-    draw_icon<radio_off_icon>(graph, g(3, 5), "radio_off");
-    draw_icon<radio_on_icon>(graph, g(4, 5), "radio_on");
+    draw_icon<icon<icon_t::check_off>>(graph, g(0, 5), "check_off");
+    draw_icon<icon<icon_t::check_on>>(graph, g(1, 5), "check_on");
+    draw_icon<icon<icon_t::radio_off>>(graph, g(2, 5), "radio_off");
+    draw_icon<icon<icon_t::radio_on>>(graph, g(3, 5), "radio_on");
+    draw_icon<icon<icon_t::open>>(graph, g(4, 5), "open");
+    draw_icon<icon<icon_t::close>>(graph, g(5, 5), "close");
 
+    draw_icon<icon<icon_t::off>>(graph, g(0, 6), "off");
+    draw_icon<icon<icon_t::settings>>(graph, g(1, 6), "settings");
+    draw_icon<icon<icon_t::person>>(graph, g(2, 6), "person");
+    draw_icon<icon<icon_t::trash>>(graph, g(3, 6), "trash");
+    draw_icon<icon<icon_t::file>>(graph, g(4, 6), "file");
+    draw_icon<icon<icon_t::folder>>(graph, g(5, 6), "folder");
+
+    draw_icon<icon<icon_t::folder_open>>(graph, g(0, 7), "folder_open");
     clog::trace() << "on_paint finished";
   }));
 

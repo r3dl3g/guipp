@@ -69,285 +69,83 @@ namespace gui {
                                                   core::size::type radius1);
 
     // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT up_icon : public detail::icon_base {
-
-      up_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
+    enum class icon_t {
+      up, down, left, right,
+      remove, add, close, open,
+      check_off, check_on, radio_off, radio_on,
+      undo, redo, forward, backward,
+      okay, cancel, cross, restart,
+      off, clear, sync, reset,
+      play, pause, stop, back,
+      find, zoom_in, zoom_out, menu,
+      clock, stopwatch, timer, settings,
+      info, important, person, trash,
+      file, folder, folder_open
     };
+
     // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT down_icon : public detail::icon_base {
+    template<icon_t I>
+    void draw_icon (graphics& g, const pen& pn, const core::point& center, core::size::type radius);
 
-      down_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
     // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT left_icon : public detail::icon_base {
+    template<icon_t I>
+    struct icon : public detail::icon_base {
+      typedef detail::icon_base super;
 
-      left_icon (const core::point& center, core::size::type radius);
+      inline icon (const core::point& center, core::size::type radius)
+        : super(center, radius)
+      {}
 
-      void operator() (graphics& g, const pen& pn) const;
+      inline void operator() (graphics& g, const pen& pn) const {
+        draw_icon<I>(g, pn, center, radius);
+      }
 
     };
+
     // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT right_icon : public detail::icon_base {
-
-      right_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT clock_icon : public detail::icon_base {
-
-      clock_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT stopwatch_icon : public detail::icon_base {
-
-      stopwatch_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT timer_icon : public detail::icon_base {
-
-      timer_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT play_icon : public detail::icon_base {
-
-      play_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT back_icon : public detail::icon_base {
-
-      back_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT pause_icon : public detail::icon_base {
-
-      pause_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT stop_icon : public detail::icon_base {
-
-      stop_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT reset_icon : public detail::icon_base {
-
-      reset_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT add_icon : public detail::icon_base {
-
-      add_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT remove_icon : public detail::icon_base {
-
-      remove_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT cancel_icon : public detail::icon_base {
-
-      cancel_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT okay_icon : public detail::icon_base {
-
-      okay_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT close_icon : public detail::icon_base {
-
-      close_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT menu_icon : public detail::icon_base {
-
-      menu_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT clear_icon : public detail::icon_base {
-
-      clear_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT find_icon : public detail::icon_base {
-
-      find_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT undo_icon : public detail::icon_base {
-
-      undo_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT redo_icon : public detail::icon_base {
-
-      redo_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT info_icon : public detail::icon_base {
-
-      info_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT important_icon : public detail::icon_base {
-
-      important_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT sync_icon : public detail::icon_base {
-
-      sync_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT restart_icon : public detail::icon_base {
-
-      restart_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT zoom_in_icon : public detail::icon_base {
-
-      zoom_in_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT zoom_out_icon : public detail::icon_base {
-
-      zoom_out_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT off_icon : public detail::icon_base {
-
-      off_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT forward_icon : public detail::icon_base {
-
-      forward_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT backward_icon : public detail::icon_base {
-
-      backward_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT check_off_icon : public detail::icon_base {
-
-      check_off_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT check_on_icon : public detail::icon_base {
-
-      check_on_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT radio_off_icon : public detail::icon_base {
-
-      radio_off_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
-    // --------------------------------------------------------------------------
-    struct GUIPP_DRAW_EXPORT radio_on_icon : public detail::icon_base {
-
-      radio_on_icon (const core::point& center, core::size::type radius);
-
-      void operator() (graphics& g, const pen& pn) const;
-
-    };
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::up> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::down> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::left> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::right> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::add> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::remove> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::open> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::close> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::check_off> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::check_on> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::radio_off> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::radio_on> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::undo> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::redo> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::forward> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::backward> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::okay> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::cancel> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::cross> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::restart> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::off> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::clear> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::sync> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::reset> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::play> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::pause> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::stop> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::back> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::find> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::zoom_in> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::zoom_out> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::menu> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::clock> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::stopwatch> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::timer> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::info> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::important> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::person> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::trash> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::settings> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::file> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::folder> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::folder_open> (graphics&, const pen&, const core::point&, core::size::type);
 
     // --------------------------------------------------------------------------
   } //namespace draw

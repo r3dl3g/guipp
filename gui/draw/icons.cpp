@@ -81,7 +81,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<int I, typename = void>
     struct const_sinus {
-//      static constexpr double value = sin(radian(angle));
+//      static constexpr double value = sin(radian(I));
     };
     // --------------------------------------------------------------------------
     template<> struct const_sinus<0> { static constexpr double value = 0.0; };
@@ -162,117 +162,174 @@ namespace gui {
       auto p2 = calc_clock_point<330>(center, radius);
       return {p0, p1, p2};
     }
-
     // --------------------------------------------------------------------------
-    left_icon::left_icon (const point& center, size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void left_icon::operator() (graphics& g, const pen& pn) const {
-      g.fill(draw::polygon(left_points(center, radius)), pn.color());
+    template<int I, int O>
+    void draw_arrow_head (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      const auto p = calc_clock_point<I>(center, radius);
+      const auto l = calc_centerline<O>(center, radius * 0.8, radius * 1.2);
+      g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
     }
-
     // --------------------------------------------------------------------------
-    right_icon::right_icon (const point& center, size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void right_icon::operator() (graphics& g, const pen& pn) const {
-      g.fill(draw::polygon(right_points(center, radius)), pn.color());
-    }
-
-    // --------------------------------------------------------------------------
-    up_icon::up_icon (const point& center, size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void up_icon::operator() (graphics& g, const pen& pn) const {
+    template<>
+    void draw_icon<icon_t::up> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       auto p0 = calc_clock_point<120>(center, radius);
       auto p1 = calc_clock_point<240>(center, radius);
       auto p2 = calc_clock_point<0>(center, radius);
       g.fill(draw::polygon({p0, p1, p2}), pn.color());
     }
-
     // --------------------------------------------------------------------------
-    down_icon::down_icon (const point& center, size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void down_icon::operator() (graphics& g, const pen& pn) const {
+    template<>
+    void draw_icon<icon_t::down> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       auto p0 = calc_clock_point<60>(center, radius);
       auto p1 = calc_clock_point<180>(center, radius);
       auto p2 = calc_clock_point<300>(center, radius);
       g.fill(draw::polygon({p0, p1, p2}), pn.color());
     }
-
     // --------------------------------------------------------------------------
-    clock_icon::clock_icon (const point& center, size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void clock_icon::operator() (graphics& g, const pen& pn) const {
-      const auto r1 = radius * 0.5;
-      const auto r2 = radius * 0.8;
-      g.frame(draw::arc(center, radius, 0, 360), pn);
-      g.frame(calc_centerline<120>(center, r1), pn);
-      g.frame(calc_centerline<0>(center, r2), pn);
+    template<>
+    void draw_icon<icon_t::left> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.fill(draw::polygon(left_points(center, radius)), pn.color());
     }
-
     // --------------------------------------------------------------------------
-    stopwatch_icon::stopwatch_icon (const point& center, size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void stopwatch_icon::operator() (graphics& g, const pen& pn) const {
-      const auto r0 = radius * 1.2;
-      const auto r2 = radius * 0.8;
-      g.frame(draw::arc(center, radius, 0, 360), pn);
-      g.frame(calc_centerline<0>(center, r2), pn);
-      g.frame(draw::arc(center, r0, 80, 100), pn);
-      g.frame(draw::arc(center, r0, 138, 132), pn);
-      g.frame(draw::arc(center, r0, 48, 42), pn);
+    template<>
+    void draw_icon<icon_t::right> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.fill(draw::polygon(right_points(center, radius)), pn.color());
     }
-
     // --------------------------------------------------------------------------
-    timer_icon::timer_icon (const point& center, size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void timer_icon::operator() (graphics& g, const pen& pn) const {
-      const auto r0 = radius * 1.2;
-      const auto r1 = radius * 0.5;
-      const auto r2 = radius * 0.8;
-      g.frame(draw::arc(center, radius, 0, 360), pn);
-      g.frame(calc_centerline<90>(center, r1), pn);
-      g.frame(calc_centerline<0>(center, r2), pn);
-      g.frame(draw::arc(center, r0, 145, 125), pn);
-      g.frame(draw::arc(center, r0, 55, 35), pn);
+    template<>
+    void draw_icon<icon_t::add> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline({calc_clock_point<0>(center, radius), calc_clock_point<180>(center, radius)}), pn);
+      draw_icon<icon_t::remove>(g, pn, center, radius);
     }
-
     // --------------------------------------------------------------------------
-    play_icon::play_icon (const point& center, size::type radius)
-      : icon_base(center, radius)
-    {}
+    template<>
+    void draw_icon<icon_t::remove> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline({calc_clock_point<90>(center, radius), calc_clock_point<270>(center, radius)}), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::open> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      draw_icon<icon_t::check_off>(g, pn, center, radius);
+      draw_icon<icon_t::add>(g, pn, center, radius * 0.6);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::close> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      draw_icon<icon_t::check_off>(g, pn, center, radius);
+      draw_icon<icon_t::remove>(g, pn, center, radius * 0.6);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::check_off> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::round_rectangle({center - core::size{radius, radius},
+                                     core::size{radius+radius, radius+radius}}, radius/2), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::check_on> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      draw_icon<icon_t::check_off>(g, pn, center, radius);
+      draw_icon<icon_t::okay>(g, pn, center, radius);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::radio_off> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::arc(center, radius, 0, 360), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::radio_on> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      draw_icon<icon_t::radio_off>(g, pn, center, radius);
+      g.fill(draw::pie(center, radius / 2, 0, 360), pn.color());
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::undo> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::arc(center, radius, 0, 170), pn);
+      draw_arrow_head<-90, -70>(g, pn, center, radius);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::redo> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::arc(center, radius, 180, 350), pn);
+      draw_arrow_head<90, 110>(g, pn, center, radius);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::forward> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::arc(center, radius, 10, 180), pn);
+      draw_arrow_head<90, 70>(g, pn, center, radius);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::backward> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::arc(center, radius, 190, 360), pn);
+      draw_arrow_head<-90, -110>(g, pn, center, radius);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::okay> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline({calc_clock_point<270>(center, radius / 1.4),
+                              calc_clock_point<180>(center, radius / 1.4),
+                              calc_clock_point<45>(center, radius)}), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::cancel> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::arc(center, radius, 0, 360), pn);
+      g.frame(draw::line(calc_clock_point<45>(center, radius), calc_clock_point<225>(center, radius)), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::cross> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::line(calc_clock_point<45>(center, radius), calc_clock_point<225>(center, radius)), pn);
+      g.frame(draw::line(calc_clock_point<-45>(center, radius), calc_clock_point<135>(center, radius)), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::restart> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      const auto p = calc_clock_point<55>(center, radius);
+      const auto l = calc_centerline<35>(center, radius * 0.8, radius * 1.2);
+      g.frame(draw::arc(center, radius, 45, 330), pn);
+      g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::off> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::arc(center, radius * 0.9, 120, 60+360), pn);
+      g.frame(draw::line(calc_clock_point<0>(center, radius * 0.3), calc_clock_point<0>(center, radius)), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::clear> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      const auto r = radius * 0.7;
+      g.frame(draw::line(calc_clock_point<45>(center, r), calc_clock_point<225>(center, r)), pn);
+      g.frame(draw::line(calc_clock_point<-45>(center, r), calc_clock_point<135>(center, r)), pn);
+      g.frame(draw::arc(center, radius, 0, 360), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::sync> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::arc(center, radius, 10, 160), pn);
+      draw_arrow_head<90, 70>(g, pn, center, radius);
 
-    void play_icon::operator() (graphics& g, const pen& pn) const {
+      g.frame(draw::arc(center, radius, 190, 340), pn);
+      draw_arrow_head<270, 250>(g, pn, center, radius);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::reset> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::arc(center, radius, -145, 145), pn);
+      draw_arrow_head<-55, -35>(g, pn, center, radius);
+      g.fill(draw::pie(center, radius * 0.2, 0, 360), pn.color());
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::play> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       g.frame(draw::polygon(right_points(center, radius)), pn);
     }
-
     // --------------------------------------------------------------------------
-    back_icon::back_icon (const point& center, size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void back_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::polygon(left_points(center, radius)), pn);
-    }
-
-    // --------------------------------------------------------------------------
-    pause_icon::pause_icon (const point& center, size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void pause_icon::operator() (graphics& g, const pen& pn) const {
+    template<>
+    void draw_icon<icon_t::pause> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       const auto tll = calc_clock_point<315>(center, radius);
       const auto trr = calc_clock_point<45>(center, radius);
       const auto tl = calc_point_between(tll, trr, 0.333);
@@ -285,303 +342,194 @@ namespace gui {
       g.frame(draw::polygon({tll, tl, bl, bll}), pn);
       g.frame(draw::polygon({tr, trr, brr, br}), pn);
     }
-
     // --------------------------------------------------------------------------
-    stop_icon::stop_icon (const point& center, size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void stop_icon::operator() (graphics& g, const pen& pn) const {
+    template<>
+    void draw_icon<icon_t::stop> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       const auto tll = calc_clock_point<315>(center, radius);
       const auto trr = calc_clock_point<45>(center, radius);
       const auto brr = calc_clock_point<135>(center, radius);
       const auto bll = calc_clock_point<225>(center, radius);
       g.frame(draw::polygon({tll, trr, brr, bll}), pn);
     }
-
     // --------------------------------------------------------------------------
-    reset_icon::reset_icon (const point& center, size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void reset_icon::operator() (graphics& g, const pen& pn) const {
-      const auto p = calc_clock_point<-55>(center, radius);
-      const auto l = calc_centerline<-35>(center, radius * 0.8, radius * 1.2);
-      g.frame(draw::arc(center, radius, -145, 145), pn);
-      g.frame(draw::polyline({l.p0(), p, l.p1()}), pn);
-      g.fill(draw::pie(center, radius * 0.2, 0, 360), pn.color());
+    template<>
+    void draw_icon<icon_t::back> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polygon(left_points(center, radius)), pn);
     }
-
     // --------------------------------------------------------------------------
-    void draw_minus (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
-      g.frame(draw::polyline({calc_clock_point<90>(center, radius), calc_clock_point<270>(center, radius)}), pn);
-    }
+    template<>
+    void draw_icon<icon_t::find> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      core::point c = center - core::size(radius / 4, radius / 4);
+      core::size::type r = radius * 3 / 4;
 
-    void draw_plus (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
-      g.frame(draw::polyline({calc_clock_point<0>(center, radius), calc_clock_point<180>(center, radius)}), pn);
-      draw_minus(g, pn, center, radius);
+      g.frame(draw::arc(c, r, 0, 360), pn);
+      g.frame(draw::line(calc_clock_point<135>(c, r * 1.1), calc_clock_point<135>(c, r * 2)), pn);
     }
-
     // --------------------------------------------------------------------------
-    add_icon::add_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
+    template<>
+    void draw_icon<icon_t::zoom_in> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      draw_icon<icon_t::find>(g, pn, center, radius);
 
-    void add_icon::operator() (graphics& g, const pen& pn) const {
-      draw_plus(g, pn, center, radius);
+      core::point c = center - core::size(radius / 4, radius / 4);
+      draw_icon<icon_t::add>(g, pn, c, radius * 0.45);
     }
-
     // --------------------------------------------------------------------------
-    remove_icon::remove_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void remove_icon::operator() (graphics& g, const pen& pn) const {
-      draw_minus(g, pn, center, radius);
+    template<>
+    void draw_icon<icon_t::zoom_out> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      draw_icon<icon_t::find>(g, pn, center, radius);
+      core::point c = center - core::size(radius / 4, radius / 4);
+      draw_icon<icon_t::remove>(g, pn, c, radius * 0.45);
     }
-
     // --------------------------------------------------------------------------
-    cancel_icon::cancel_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
+    template<>
+    void draw_icon<icon_t::menu> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      const auto tl = calc_clock_point<315>(center, radius);
+      const auto br = calc_clock_point<135>(center, radius);
+      const auto mid = (tl.y() + br.y())/2;
 
-    void cancel_icon::operator() (graphics& g, const pen& pn) const {
+      g.frame(draw::line(tl, {br.x(), tl.y()}), pn);
+      g.frame(draw::line({tl.x(), mid}, {br.x(), mid}), pn);
+      g.frame(draw::line({tl.x(), br.y()}, br), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::clock> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      const auto r1 = radius * 0.5;
+      const auto r2 = radius * 0.8;
       g.frame(draw::arc(center, radius, 0, 360), pn);
-      g.frame(draw::line(calc_clock_point<45>(center, radius), calc_clock_point<225>(center, radius)), pn);
+      g.frame(calc_centerline<120>(center, r1), pn);
+      g.frame(calc_centerline<0>(center, r2), pn);
     }
-
     // --------------------------------------------------------------------------
-    okay_icon::okay_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void okay_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::polyline({calc_clock_point<-45>(center, radius), center,
-                              calc_clock_point<45>(center, radius * 1.4142)}), pn);
-    }
-
-    // --------------------------------------------------------------------------
-    close_icon::close_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void close_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::line(calc_clock_point<45>(center, radius), calc_clock_point<225>(center, radius)), pn);
-      g.frame(draw::line(calc_clock_point<-45>(center, radius), calc_clock_point<135>(center, radius)), pn);
-    }
-
-    // --------------------------------------------------------------------------
-    menu_icon::menu_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void menu_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::line(center - core::size(radius, radius),  center + core::size(radius, -radius)), pn);
-      g.frame(draw::line(center - core::size(radius, 0),       center + core::size(radius, 0)), pn);
-      g.frame(draw::line(center - core::size(radius, -radius), center + core::size(radius, radius)), pn);
-    }
-
-    // --------------------------------------------------------------------------
-    clear_icon::clear_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void clear_icon::operator() (graphics& g, const pen& pn) const {
-      const auto r = radius * 0.7;
-      g.frame(draw::line(calc_clock_point<45>(center, r), calc_clock_point<225>(center, r)), pn);
-      g.frame(draw::line(calc_clock_point<-45>(center, r), calc_clock_point<135>(center, r)), pn);
+    template<>
+    void draw_icon<icon_t::stopwatch> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      const auto r0 = radius * 1.2;
+      const auto r2 = radius * 0.8;
       g.frame(draw::arc(center, radius, 0, 360), pn);
+      g.frame(calc_centerline<0>(center, r2), pn);
+      g.frame(draw::arc(center, r0, 80, 100), pn);
+      g.frame(draw::arc(center, r0, 138, 132), pn);
+      g.frame(draw::arc(center, r0, 48, 42), pn);
     }
-
     // --------------------------------------------------------------------------
-    find_icon::find_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void draw_find (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+    template<>
+    void draw_icon<icon_t::timer> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      const auto r0 = radius * 1.2;
+      const auto r1 = radius * 0.5;
+      const auto r2 = radius * 0.8;
       g.frame(draw::arc(center, radius, 0, 360), pn);
-      g.frame(draw::line(calc_clock_point<135>(center, radius * 1.1), calc_clock_point<135>(center, radius * 2)), pn);
+      g.frame(calc_centerline<90>(center, r1), pn);
+      g.frame(calc_centerline<0>(center, r2), pn);
+      g.frame(draw::arc(center, r0, 145, 125), pn);
+      g.frame(draw::arc(center, r0, 55, 35), pn);
     }
-
-    void find_icon::operator() (graphics& g, const pen& pn) const {
-      draw_find(g, pn, center - core::size(radius / 4, radius / 4), radius * 3 / 4);
-    }
-
     // --------------------------------------------------------------------------
-    undo_icon::undo_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void undo_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::arc(center, radius, 0, 170), pn);
-      const auto p = calc_clock_point<-90>(center, radius);
-      const auto l = calc_centerline<-60>(center, radius * 0.8, radius * 1.2);
-      g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
-    }
-
-    // --------------------------------------------------------------------------
-    redo_icon::redo_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void redo_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::arc(center, radius, 180, 330), pn);
-      const auto p = calc_clock_point<90>(center, radius);
-      const auto l = calc_centerline<120>(center, radius * 0.8, radius * 1.2);
-      g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
-    }
-
-    // --------------------------------------------------------------------------
-    info_icon::info_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void info_icon::operator() (graphics& g, const pen& pn) const {
+    template<>
+    void draw_icon<icon_t::info> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       g.frame(draw::arc(center, radius, 0, 360), pn);
       g.draw(draw::pie(center - core::size(0, radius / 2), radius / 20, 0, 360), pn.color(), pn);
       g.frame(draw::line(center - core::size(0, radius / 4),  center + core::size(0, radius / 2)), pn);
     }
-
     // --------------------------------------------------------------------------
-    important_icon::important_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void important_icon::operator() (graphics& g, const pen& pn) const {
+    template<>
+    void draw_icon<icon_t::important> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       g.frame(draw::arc(center, radius, 0, 360), pn);
       g.draw(draw::pie(center + core::size(0, radius / 2), radius / 20, 0, 360), pn.color(), pn);
       g.frame(draw::line(center + core::size(0, radius / 4),  center - core::size(0, radius / 2)), pn);
     }
-
     // --------------------------------------------------------------------------
-    sync_icon::sync_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void sync_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::arc(center, radius, 10, 160), pn);
-      const auto p0 = calc_clock_point<90>(center, radius);
-      const auto l0 = calc_centerline<70>(center, radius * 0.8, radius * 1.2);
-      g.draw(draw::polygon({l0.p0(), p0, l0.p1()}), pn.color(), pn);
-
-      g.frame(draw::arc(center, radius, 190, 340), pn);
-      const auto p1 = calc_clock_point<270>(center, radius);
-      const auto l1 = calc_centerline<250>(center, radius * 0.8, radius * 1.2);
-      g.draw(draw::polygon({l1.p0(), p1, l1.p1()}), pn.color(), pn);
-    }
-
-    // --------------------------------------------------------------------------
-    restart_icon::restart_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void restart_icon::operator() (graphics& g, const pen& pn) const {
-      const auto p = calc_clock_point<55>(center, radius);
-      const auto l = calc_centerline<35>(center, radius * 0.8, radius * 1.2);
-      g.frame(draw::arc(center, radius, 45, 330), pn);
-      g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
-    }
-
-    // --------------------------------------------------------------------------
-    zoom_in_icon::zoom_in_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void zoom_in_icon::operator() (graphics& g, const pen& pn) const {
-      core::point c = center - core::size(radius / 4, radius / 4);
-      core::size::type r = radius * 3 / 4;
-      draw_find(g, pn, c, r);
-      draw_plus(g, pn, c, r * 0.6);
-    }
-
-    // --------------------------------------------------------------------------
-    zoom_out_icon::zoom_out_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void zoom_out_icon::operator() (graphics& g, const pen& pn) const {
-      core::point c = center - core::size(radius / 4, radius / 4);
-      core::size::type r = radius * 3 / 4;
-      draw_find(g, pn, c, r);
-      draw_minus(g, pn, c, r * 0.6);
-    }
-
-    // --------------------------------------------------------------------------
-    off_icon::off_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void off_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::arc(center, radius * 0.9, 120, 60+360), pn);
-      g.frame(draw::line(calc_clock_point<0>(center, radius * 0.3), calc_clock_point<0>(center, radius)), pn);
-    }
-
-    // --------------------------------------------------------------------------
-    forward_icon::forward_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void forward_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::arc(center, radius, 20, 180), pn);
-      const auto p = calc_clock_point<90>(center, radius);
-      const auto l = calc_centerline<60>(center, radius * 0.8, radius * 1.2);
-      g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
-    }
-
-    // --------------------------------------------------------------------------
-    backward_icon::backward_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void backward_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::arc(center, radius, 200, 360), pn);
-      const auto p = calc_clock_point<-90>(center, radius);
-      const auto l = calc_centerline<-120>(center, radius * 0.8, radius * 1.2);
-      g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
+    template<>
+    void draw_icon<icon_t::person> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::arc(center - core::size(0, radius / 3 * 2), radius / 3, 0, 360), pn);
+      g.frame(draw::arc(center + core::size(0, radius / 3 * 2), radius / 3 * 2, 10, 170), pn);
     }
     // --------------------------------------------------------------------------
-    check_off_icon::check_off_icon (const point& center, size::type radius)
-      : icon_base(center, radius)
-    {}
+    template<>
+    void draw_icon<icon_t::trash> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::arc(center, radius, 45 + 22.5, 135 - 22.5), pn);
 
-    void check_off_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::round_rectangle({center - core::size{radius, radius},
-                                     core::size{radius+radius, radius+radius}}, radius/2), pn);
+      const auto br = calc_clock_point<135>(center, radius);
+      const auto tl = calc_clock_point<315>(center, radius);
+      const auto dy = (br.y() - tl.y()) / 5;
+      const auto dx = (br.x() - tl.x()) / 5;
+      const auto steps = (br.x() - tl.x()) / 4;
+      const auto top = tl.y() + dy;
+      const auto bottom = br.y() - dy;
+      const auto left = tl.x() + dx;
+      const auto right = br.x() - dx;
+
+      for (auto x = tl.x(); x < br.x() + steps/2; x += steps) {
+        g.frame(draw::line({x, top}, {x, bottom}), pn);
+      }
+      g.frame(draw::line(tl, {br.x(), tl.y()}), pn);
+      g.frame(draw::line({left, br.y()}, {right, br.y()}), pn);
+      g.frame(draw::arc(core::point{left, bottom}, core::size{dx, dy}, 180, 270), pn);
+      g.frame(draw::arc(core::point{right, bottom}, core::size{dx, dy}, 270, 360), pn);
+
     }
-
     // --------------------------------------------------------------------------
-    check_on_icon::check_on_icon (const point& center, size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void check_on_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::round_rectangle({center - core::size{radius, radius},
-                                     core::size{radius+radius, radius+radius}}, radius/2), pn);
-      g.frame(draw::polyline({calc_clock_point<270>(center, radius / 1.4),
-                              calc_clock_point<180>(center, radius / 1.5),
-                              calc_clock_point<45>(center, radius / 1.2)}), pn);
+    template<int I>
+    void gear_part (std::vector<core::point>& pts, const core::point& center, core::size::type radius) {
+      const auto r8 = radius * 0.8;
+      const auto l0 = calc_centerline<I-15>(center, r8, radius);
+      const auto l1 = calc_centerline<I+15>(center, r8, radius);
+      const auto l2 = calc_centerline<I+45>(center, r8, radius);
+      const auto l3 = calc_centerline<I+75>(center, r8, radius);
+      pts.insert(pts.end(), {l0.p0(), l0.p1(), l1.p1(), l1.p0(), l2.p0(), l2.p1(), l3.p1(), l3.p0()});
     }
-
     // --------------------------------------------------------------------------
-    radio_off_icon::radio_off_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
-
-    void radio_off_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::arc(center, radius, 0, 360), pn);
+    template<>
+    void draw_icon<icon_t::settings> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::arc(center, radius * 0.4, 0, 360), pn);
+      std::vector<core::point> points;
+      points.reserve(24);
+      gear_part<0>(points, center, radius);
+      gear_part<120>(points, center, radius);
+      gear_part<240>(points, center, radius);
+      g.frame(draw::polygon(points), pn);
     }
-
     // --------------------------------------------------------------------------
-    radio_on_icon::radio_on_icon (const core::point& center, core::size::type radius)
-      : icon_base(center, radius)
-    {}
+    template<>
+    void draw_icon<icon_t::file> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      const auto tl = calc_clock_point<325>(center, radius);
+      const auto br = calc_clock_point<145>(center, radius);
+      const auto mid = (br.x() - tl.x())/2;
+      const core::point bl{tl.x(), br.y()};
+      const core::point tm{br.x() - mid, tl.y()};
+      const core::point rm{br.x(), tl.y() + mid};
+      const core::point mm{br.x() - mid, tl.y() + mid};
 
-    void radio_on_icon::operator() (graphics& g, const pen& pn) const {
-      g.frame(draw::arc(center, radius, 0, 360), pn);
-      g.fill(draw::pie(center, radius / 2, 0, 360), pn.color());
+      g.frame(draw::polygon({tm, tl, bl, br, rm, tm, mm, rm}), pn);
     }
-
-
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::folder> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      const auto tl = calc_clock_point<305>(center, radius).dx(-radius/10);
+      const auto br = calc_clock_point<125>(center, radius).dx(-radius/10);
+      const auto mid = (br.x() - tl.x())/2;
+      const auto top = tl.y() - radius / 5;
+      g.frame(draw::polyline({tl, {br.x(), tl.y()}, br, {tl.x(), br.y()}, tl, {tl.x() + mid / 4, top}, {tl.x() + mid * 3 / 4, top}, {tl.x() + mid, tl.y()}}), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::folder_open> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      const auto tl = calc_clock_point<305>(center, radius).dx(-radius/10);
+      const auto tr = calc_clock_point<80>(center, radius);
+      const auto br = calc_clock_point<125>(center, radius).dx(-radius/10);
+      const auto mid = (br.x() - tl.x())/2;
+      const auto top = tl.y() - radius / 5;
+      g.frame(draw::polyline({{tl.x(), br.y()},
+                              {tl.x() + (tr.x() - br.x()), tr.y()},
+                              tr,
+                              br,
+                              {tl.x(), br.y()},
+                              tl,
+                              {tl.x() + mid / 4, top},
+                              {tl.x() + mid * 3 / 4, top},
+                              {tl.x() + mid, tl.y()},
+                              {br.x(), tl.y()},
+                              {br.x(), tr.y()}}), pn);
+    }
     // --------------------------------------------------------------------------
   }
 

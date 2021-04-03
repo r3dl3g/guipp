@@ -39,6 +39,10 @@ namespace gui {
 
     class basic_datamap;
 
+    typedef void (drawable) (graphics&, const brush&, const pen&);
+    typedef void (frameable) (graphics&, const pen&);
+    typedef void (fillable) (graphics&, const brush&);
+
   } // namespace draw
 
 } // namespace gui

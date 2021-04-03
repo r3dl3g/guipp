@@ -53,14 +53,15 @@ namespace gui {
     template<>
     void arc_or_pie<arc_type::arc>::operator() (graphics& g,
                                                 const brush& b) const {
-      arc_or_pie<arc_type::arc>::operator()(g, pen(b.color()));
+      fill_arc<arc_type::arc>(g, arc_coords(g.context(), rect, start_angle, end_angle), b);
     }
 
     template<>
     void arc_or_pie<arc_type::arc>::operator() (graphics& g,
-                                                const brush&,
+                                                const brush& b,
                                                 const pen& p) const {
-      arc_or_pie<arc_type::arc>::operator()(g, p);
+      fill_arc<arc_type::arc>(g, arc_coords(g.context(), rect, start_angle, end_angle), b);
+      draw_arc<arc_type::arc>(g, arc_coords(g.context(), rect, start_angle, end_angle), p);
     }
 
     // --------------------------------------------------------------------------

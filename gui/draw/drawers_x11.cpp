@@ -344,7 +344,7 @@ namespace gui {
     template<>
     void fill_arc<arc_type::arc> (graphics& g, const arc_coords& c, const brush& b) {
       Use<brush> br(g, b);
-      XSetArcMode(get_instance(), g, ArcPieSlice);
+      XSetArcMode(get_instance(), g, ArcChord);
       XFillArc(get_instance(), g, g, c.x, c.y, c.w, c.h, c.start, c.end - c.start);
     }
 

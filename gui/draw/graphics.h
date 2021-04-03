@@ -43,9 +43,6 @@ namespace gui {
 
   namespace draw {
 
-    typedef void (drawable) (graphics&, const brush&, const pen&);
-    typedef void (frameable) (graphics&, const pen&);
-    typedef void (fillable) (graphics&, const brush&);
     typedef void (textable) (graphics&, const font& font, os::color color);
     typedef void (copyable) (graphics&, const core::point&);
 

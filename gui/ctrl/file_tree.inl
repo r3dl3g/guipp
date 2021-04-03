@@ -97,8 +97,8 @@ namespace gui {
         return n.filename();
       }
 
-      inline const gui::tree::tree_icon& path_info::icon (type const&, bool has_children, bool is_open, bool selected) {
-        return gui::tree::standard_icon(has_children, is_open, selected);
+      inline const gui::tree::icon_drawer* path_info::icon (type const&, bool has_children, bool is_open, bool selected) {
+        return gui::tree::standard_icon_drawer(has_children, is_open, selected);
       }
 
     } // path_tree
@@ -191,7 +191,7 @@ namespace gui {
 
     template<typename T>
     void file_column_list<T>::init () {
-      detail::init_file_list_layout(super::get_column_layout());
+      detail::init_file_list_layout(super::get_column_layout(), super::list.view.get_item_size());
       init_file_list_header(super::header);
       super::set_data(detail::file_list_row_data(current_dir, super::list));
       super::header.on_left_btn_down(util::bind_method(this, &file_column_list::handle_header_mouse_down));

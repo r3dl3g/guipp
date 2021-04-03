@@ -376,7 +376,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T, draw::frame::drawer F>
-    void cell_drawer (const T& t,
+    void cell_drawer (T t,
                       draw::graphics& graph,
                       const core::rectangle& place,
                       const draw::brush& background,

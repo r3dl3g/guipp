@@ -39,17 +39,17 @@ namespace gui {
 
       void draw_up_left_arrow (draw::graphics& g, bool horizontal, const core::rectangle& up, os::color col) {
         if (horizontal) {
-          g.frame(draw::left_icon(up.center(), up.max_radius() / 2), col);
+          g.frame(draw::icon<draw::icon_t::left>(up.center(), up.max_radius() / 2), col);
         } else {
-          g.frame(draw::up_icon(up.center(), up.max_radius() / 2), col);
+          g.frame(draw::icon<draw::icon_t::up>(up.center(), up.max_radius() / 2), col);
         }
       }
 
       void draw_down_right_arrow (draw::graphics& g, bool horizontal, const core::rectangle& up, os::color col) {
         if (horizontal) {
-          g.frame(draw::right_icon(up.center(), up.max_radius() / 2), col);
+          g.frame(draw::icon<draw::icon_t::right>(up.center(), up.max_radius() / 2), col);
         } else {
-          g.frame(draw::down_icon(up.center(), up.max_radius() / 2), col);
+          g.frame(draw::icon<draw::icon_t::down>(up.center(), up.max_radius() / 2), col);
         }
       }
 

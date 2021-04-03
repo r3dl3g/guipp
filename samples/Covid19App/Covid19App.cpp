@@ -279,8 +279,8 @@ struct region_tree_info {
     return n.name;
   }
 
-  static const gui::tree::tree_icon& icon (population_data const&, bool has_children, bool is_open, bool selected) {
-    return gui::tree::standard_icon(has_children, is_open, selected);
+  static const gui::tree::icon_drawer* icon (population_data const&, bool has_children, bool is_open, bool selected) {
+    return gui::tree::standard_icon_drawer(has_children, is_open, selected);
   }
 };
 // --------------------------------------------------------------------------

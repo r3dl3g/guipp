@@ -917,7 +917,7 @@ void my_main_window::created_children () {
     }
 
     my_column_list_drawer ()
-      : super([] (const int& v, draw::graphics& g, const core::rectangle& r,
+      : super([] (int v, draw::graphics& g, const core::rectangle& r,
                   const draw::brush&, ctrl::item_state state, text_origin_t) {
         gui::look::text_item(g, r, color::buttonColor(), ostreamfmt(v), state, text_origin_t::center);
         draw::frame::raised_relief(g, r);
@@ -927,7 +927,7 @@ void my_main_window::created_children () {
       ctrl::cell_drawer<float, draw::frame::sunken_relief>,
       ctrl::cell_drawer<int, draw::frame::sunken_relief>,
 
-      [] (const bool& v, draw::graphics& g, const core::rectangle& r,
+      [] (bool v, draw::graphics& g, const core::rectangle& r,
           const draw::brush& b, ctrl::item_state state, text_origin_t align) {
         std::string text = v ? IF_MSC_ELSE(u8"\x2660", u8"♠") : IF_MSC_ELSE(u8"\x2665", u8"♥");
         gui::look::text_item(g, r, b, text, state, align);

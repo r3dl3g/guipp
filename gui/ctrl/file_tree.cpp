@@ -31,7 +31,7 @@
 // Library includes
 //
 #include <util/time_util.h>
-#include <gui/draw/bitmap.h>
+#include <gui/draw/pen.h>
 #include <gui/ctrl/file_tree.h>
 
 
@@ -321,9 +321,9 @@ namespace gui {
 
     namespace detail {
 
-      void init_file_list_layout (layout::weight_column_list_layout& lay) {
+      void init_file_list_layout (layout::weight_column_list_layout& lay, core::size::type height) {
         lay.set_columns({
-          layout::weight_column_info {24, text_origin_t::center, 24, 0.0F},
+          layout::weight_column_info {height, text_origin_t::center, height, 0.0F},
           layout::weight_column_info {120, text_origin_t::vcenter_left, 20, 1.0F},
           layout::weight_column_info {80, text_origin_t::vcenter_right, 20, 0.0F},
           layout::weight_column_info {160, text_origin_t::vcenter_right, 20, 0.001F}
@@ -349,11 +349,13 @@ namespace gui {
       file_list_row_data::file_list_row_data (const std::vector<fs::file_info>& dir,
                                               const list_type& list)
         : super(
-          [] (const gui::tree::tree_icon* const& img, draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t) {
-            if (img) {
-              g.fill(draw::image<gui::tree::tree_icon>(*img, r), s.is_selected() ? color::highLightColor() : b);
-            } else {
-              g.fill(draw::rectangle(r), s.is_selected() ? color::highLightColor() : b);
+          [] (const gui::tree::icon_drawer* icon, draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t) {
+            if (!color::is_transparent(b.color())) {
+              g.fill(draw::rectangle(r), look::get_background_color(s, b.color()));
+            }
+            if (icon) {
+              draw::pen pn(look::get_text_color(s), 1, draw::pen::Style::solid, draw::pen::Cap::round, draw::pen::Join::round);
+              (*icon)(g, pn, r.center(), r.max_radius());
             }
             draw::frame::lines(g, r);
           },
@@ -386,8 +388,8 @@ namespace gui {
         bool selected = (idx == list->get_selection());
         const fs::file_info& f = data[idx];
 
-        const gui::tree::tree_icon& img = gui::tree::standard_icon(f.is_directory(), false, selected);
-        return std::make_tuple(&img, f, f, f.last_write_time);
+        const gui::tree::icon_drawer* icon = gui::tree::standard_icon_drawer(f.is_directory(), false, selected);
+        return row_type(icon, f, f, f.last_write_time);
       }
 
     } // detail

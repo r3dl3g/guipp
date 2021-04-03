@@ -46,7 +46,7 @@ else ()
   add_link_options(${GUIPP_EXE_LINKER_FLAGS})
 endif ()
 
-if (0)
+if (1)
 
   add_subdirectory(AttachAllLayoutApp)
   add_subdirectory(BorderLayoutApp)
@@ -77,6 +77,7 @@ else ()
   add_subdirectory(ClockApp)
   add_subdirectory(IconsApp)
   add_subdirectory(LookAndFeelApp)
+  add_subdirectory(FilemanagerApp)
   add_subdirectory(WindowTestApp)
 
 endif ()

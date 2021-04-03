@@ -38,14 +38,10 @@ namespace gui {
 
   namespace tree {
 
-    using tree_icon = draw::masked_bitmap;
+    typedef void (icon_drawer) (draw::graphics&, const draw::pen&, const core::point&, core::size::type);
 
     // --------------------------------------------------------------------------
-    GUIPP_LOOK_EXPORT const tree_icon& open_folder_icon (bool selected);
-    GUIPP_LOOK_EXPORT const tree_icon& closed_folder_icon (bool selected);
-    GUIPP_LOOK_EXPORT const tree_icon& file_icon (bool selected);
-
-    GUIPP_LOOK_EXPORT const tree_icon& standard_icon (bool has_children, bool is_open, bool selected);
+    GUIPP_LOOK_EXPORT const icon_drawer* standard_icon_drawer (bool has_children, bool is_open, bool selected);
 
   } // namespace tree
 
@@ -55,14 +51,14 @@ namespace gui {
     GUIPP_LOOK_EXPORT void tree_button (draw::graphics& graph,
                                         const core::rectangle& area,
                                         bool is_open,
-                                        bool is_disabled);
+                                        const draw::pen&);
 
     GUIPP_LOOK_EXPORT void tree_node (draw::graphics& graph,
                                       const core::rectangle& area,
                                       const draw::brush& background,
                                       std::size_t depth,
                                       const std::string& label,
-                                      const tree::tree_icon& icon,
+                                      const tree::icon_drawer* icon,
                                       bool has_children,
                                       bool is_open,
                                       ctrl::item_state state);

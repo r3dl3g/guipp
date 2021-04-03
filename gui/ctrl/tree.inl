@@ -103,8 +103,8 @@ namespace gui {
           int idx = super::get_index_at_point(pt);
           if ((idx > -1) && (idx < size())) {
             const depth_info& i = data.nodes[idx];
-            core::point::type x = core::point::type(i.depth * 16);
-            if ((x <= pt.x()) && (x + 16 >= pt.x())) {
+            core::point::type x = core::point::type(i.depth * super::get_item_size());
+            if ((x <= pt.x()) && (x + super::get_item_size() >= pt.x())) {
               toggle_node(idx);
             }
           }
@@ -401,8 +401,8 @@ namespace gui {
         return n.label;
       }
 
-      inline const gui::tree::tree_icon& default_node_info::icon (type const&, bool has_children, bool is_open, bool selected) {
-        return gui::tree::standard_icon(has_children, is_open, selected);
+      inline const gui::tree::icon_drawer* default_node_info::icon (type const&, bool has_children, bool is_open, bool selected) {
+        return gui::tree::standard_icon_drawer(has_children, is_open, selected);
       }
 
     } // tree

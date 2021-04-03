@@ -97,13 +97,6 @@ namespace gui {
       super::on_show([&] () {
         super::layout();
       });
-      view.on_selection_changed([&] (event_source) {
-        view.make_selection_visible();
-        const core::point& pos = view.get_scroll_pos();
-        hscroll.set_value(pos.x(), false);
-        vscroll.set_value(pos.y(), false);
-        super::layout();
-      });
       view.on_wheel_x([&] (const core::point::type delta, const core::native_point& pt) {
         hscroll.handle_wheel(delta, pt);
       });

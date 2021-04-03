@@ -267,7 +267,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T,
              draw::frame::drawer F = draw::frame::no_frame>
-    void cell_drawer (const T& t,
+    void cell_drawer (T t,
                       draw::graphics& graph,
                       const core::rectangle& place,
                       const draw::brush& background,
@@ -276,7 +276,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T>
-    using cell_drawer_t = void (*)(const T& t,
+    using cell_drawer_t = void (*)(T t,
                                    draw::graphics& g,
                                    const core::rectangle& place,
                                    const draw::brush& background,

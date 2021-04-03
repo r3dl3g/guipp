@@ -7,6 +7,7 @@
 #include <gui/draw/pen.h>
 #include <gui/draw/font.h>
 #include <gui/draw/bitmap.h>
+#include <gui/draw/icons.h>
 #include <gui/io/pnm.h>
 #include <gui/ctrl/tree.h>
 #include <testlib/testlib.h>
@@ -590,14 +591,13 @@ void test_file_icon () {
 void test_file_icon_selected () {
   core::global::set_scale_factor(1.0);
 
-  const draw::masked_bitmap& icon = gui::tree::file_icon(true);
   //auto sz = icon.native_size();
   draw::pixmap mem(20, 20);
   os::color highLight = color::highLightColor();
 
   draw::graphics g(mem);
   g.clear(highLight);
-  g.copy_from(icon);
+  g.frame(draw::icon<draw::icon_t::file>({10, 10}, 8), color::black);
 
   for (int32_t y = 0; y < 20; ++y) {
     for (int32_t x = 0; x < 20; ++x) {

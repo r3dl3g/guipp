@@ -170,15 +170,8 @@ namespace gui {
       g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
     }
     // --------------------------------------------------------------------------
-    void draw_icon_background (graphics& g, const pen&, const core::point& center, core::size::type radius) {
-      pen pn{color::gray, 0.5};
-      g.frame(draw::arc(center, radius, 0, 360), pn);
-      g.frame(draw::arc(center, radius/2, 0, 360), pn);
-      core::size sz{radius, radius};
-      g.frame(draw::line(center - sz, center + sz), pn);
-      core::size sz2{-radius, radius};
-      g.frame(draw::line(center - sz2, center + sz2), pn);
-      g.frame(draw::rectangle(center - sz, center + sz), pn);
+    template<>
+    void draw_icon<icon_t::none> (graphics&, const pen&, const core::point&, core::size::type) {
     }
     // --------------------------------------------------------------------------
     template<>
@@ -455,8 +448,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_t::person> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
-      g.frame(draw::arc(center - core::size(0, radius / 3 * 2), radius / 3, 0, 360), pn);
-      g.frame(draw::arc(center + core::size(0, radius / 3 * 2), radius / 3 * 2, 10, 170), pn);
+      g.frame(draw::arc(center - core::size(0, radius / 2), radius / 2, 0, 360), pn);
+      g.frame(draw::arc(center + core::size(0, radius), radius, 10, 170), pn);
     }
     // --------------------------------------------------------------------------
     template<>
@@ -469,7 +462,8 @@ namespace gui {
       const auto dx = (br.x() - tl.x()) / 5;
       const auto steps = (br.x() - tl.x()) / 4;
       const auto top = tl.y() + dy;
-      const auto bottom = br.y() - dy;
+      const auto bottom = br.y();
+      const auto bottom2 = center.y() +  radius;
       const auto left = tl.x() + dx;
       const auto right = br.x() - dx;
 
@@ -477,7 +471,7 @@ namespace gui {
         g.frame(draw::line({x, top}, {x, bottom}), pn);
       }
       g.frame(draw::line(tl, {br.x(), tl.y()}), pn);
-      g.frame(draw::line({left, br.y()}, {right, br.y()}), pn);
+      g.frame(draw::line({left, bottom2}, {right, bottom2}), pn);
       g.frame(draw::arc(core::point{left, bottom}, core::size{dx, dy}, 180, 270), pn);
       g.frame(draw::arc(core::point{right, bottom}, core::size{dx, dy}, 270, 360), pn);
 
@@ -550,14 +544,10 @@ namespace gui {
     void draw_icon<icon_t::list> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       const auto tl = calc_clock_point<315>(center, radius);
       const auto br = calc_clock_point<135>(center, radius);
-      const auto dx = br.x() - tl.x();
       const auto dy = (br.y() - tl.y()) / 3;
-      const auto x1 = tl.x() + dx / 16;
-      const auto x2 = tl.x() + dx / 4;
       auto y = tl.y();
       for (int i = 0; i < 4; ++i) {
-        g.frame(draw::line({tl.x(), y}, {x1, y}), pn);
-        g.frame(draw::line({x2, y}, {br.x(), y}), pn);
+        g.frame(draw::line({tl.x(), y}, {br.x(), y}), pn);
         y += dy;
       }
     }
@@ -568,15 +558,13 @@ namespace gui {
       const auto br = calc_clock_point<135>(center, radius);
       const auto dx = (br.x() - tl.x()) / 3;
       const auto dy = (br.y() - tl.y()) / 3;
-      core::size sz{dx, dy};
       auto y = tl.y();
-      for (int i = 0; i < 3; ++i) {
-        auto x = tl.x();
-        for (int j = 0; j < 3; ++j) {
-          g.frame(draw::rectangle({x, y}, sz), pn);
-          x += dx;
-        }
+      auto x = tl.x();
+      for (int i = 0; i < 4; ++i) {
+        g.frame(draw::line({x, tl.y()}, {x, br.y()}), pn);
+        g.frame(draw::line({tl.x(), y}, {br.x(), y}), pn);
         y += dy;
+        x += dx;
       }
     }
     // --------------------------------------------------------------------------
@@ -584,22 +572,21 @@ namespace gui {
     void draw_icon<icon_t::columns> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       const auto tl = calc_clock_point<315>(center, radius);
       const auto br = calc_clock_point<135>(center, radius);
+      g.frame(draw::line(tl, {br.x(), tl.y()}), pn);
+      g.frame(draw::line({tl.x(), br.y()}, br), pn);
       const auto dx = (br.x() - tl.x()) / 3;
-      const auto dy = (br.y() - tl.y());
-      core::size sz{dx, dy};
       auto x = tl.x();
-      for (int i = 0; i < 3; ++i) {
-        g.frame(draw::rectangle({x, tl.y()}, sz), pn);
+      for (int i = 0; i < 4; ++i) {
+        g.frame(draw::line({x, tl.y()}, {x, br.y()}), pn);
         x += dx;
       }
     }
     // --------------------------------------------------------------------------
-    void draw_padlock (graphics& g, const pen& pn, const core::point& center, core::size::type radius, int angle) {
+    void draw_padlock (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       const auto bl = calc_clock_point<225>(center, radius);
       const auto br = calc_clock_point<135>(center, radius);
       const auto top = center.y() - radius / 4;
       g.frame(draw::round_rectangle{{{bl.x(), top}, br}, radius / 5}, pn);
-      g.frame(draw::arc({center.x(), top}, radius / 2, angle, 180), pn);
       const auto dy = radius / 5;
       g.frame(draw::arc(center.dy(dy), radius / 20, 0, 360), pn);
       g.frame(draw::line(center.dy(dy), center.dy(dy*2)), pn);
@@ -607,12 +594,28 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_t::lock> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
-      draw_padlock(g, pn, center, radius, 0);
+      draw_padlock(g, pn, center, radius);
+      const auto top = center.y() - radius / 4;
+      g.frame(draw::arc({center.x(), top}, radius / 2, 0, 180), pn);
     }
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_t::unlock> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
-      draw_padlock(g, pn, center, radius, 45);
+      draw_padlock(g, pn, center.dy(radius / 5), radius);
+      const auto top = center.y() - radius / 4;
+      g.frame(draw::arc({center.x(), top}, radius / 2, 60, 200), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::background> (graphics& g, const pen&, const core::point& center, core::size::type radius) {
+      pen pn{color::gray, 0.333};
+      g.frame(draw::arc(center, radius, 0, 360), pn);
+      g.frame(draw::arc(center, radius/2, 0, 360), pn);
+      core::size sz{radius, radius};
+      g.frame(draw::line(center - sz, center + sz), pn);
+      core::size sz2{-radius, radius};
+      g.frame(draw::line(center - sz2, center + sz2), pn);
+      g.frame(draw::rectangle(center - sz, center + sz), pn);
     }
     // --------------------------------------------------------------------------
   }

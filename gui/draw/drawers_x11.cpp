@@ -78,8 +78,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     void line::operator() (graphics& g, const pen& p) const {
       gui::os::instance display = get_instance();
-      const short pw = p.os_size();
-      const short off = pw / 2;
+//      const short pw = p.os_size();
+//      const short off = pw / 2;
       Use<pen> pn(g, p);
 
       const auto x0 = from.os_x(g.context());
@@ -100,11 +100,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     void rectangle::operator() (graphics& g, const brush& b, const pen& p) const {
       gui::os::instance display = get_instance();
+      const os::rectangle r = rect.os(g.context());
 
+#ifdef OPTIMIZE_DRAW
       const auto pw = p.os_size();
       const auto off = pw / 2;
 
-      const os::rectangle r = rect.os(g.context());
       if ((r.width > pw) && (r.height > pw)) {
         Use<brush> br(g, b);
         XFillRectangle(display, g, g, r.x + pw, r.y + pw, r.width - pw * 2, r.height - pw * 2);
@@ -117,10 +118,17 @@ namespace gui {
         Use<pen> pn(g, p);
         XDrawPoint(display, g, g, r.x + off, r.y + off);
       }
+#else
+      Use<brush> br(g, b);
+      XFillRectangle(display, g, g, r.x, r.y, r.width, r.height);
+      Use<pen> pn(g, p);
+      XDrawRectangle(display, g, g, r.x, r.y, r.width, r.height);
+#endif
     }
 
     void rectangle::operator() (graphics& g, const pen& p) const {
       const os::rectangle r = rect.os(g.context());
+#ifdef OPTIMIZE_DRAW
       const auto pw = p.os_size();
       if (pw == 1) {
         Use<pen> pn(g, p);
@@ -138,6 +146,10 @@ namespace gui {
           XDrawPoint(get_instance(), g, g, r.x + off, r.y + off);
         }
       }
+#else
+      Use<pen> pn(g, p);
+      XDrawRectangle(get_instance(), g, g, r.x, r.y, r.width, r.height);
+#endif
     }
 
     void rectangle::operator() (graphics& g, const brush& b) const {

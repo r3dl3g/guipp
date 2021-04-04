@@ -18,7 +18,8 @@ void draw_icon (draw::graphics& g,
                 const std::string& str) {
   const auto radius = std::min(r.height(), r.width()) / 3;
   draw::pen icon_pen(color::black, radius/8, draw::pen::Style::solid, draw::pen::Cap::round, draw::pen::Join::round);
-  g.frame(icon<T, true>(r.center().dy(-radius/5), radius), icon_pen);
+  g.frame(icon<icon_t::background>(r.center().dy(-radius/5), radius), icon_pen);
+  g.frame(icon<T>(r.center().dy(-radius/5), radius), icon_pen);
   g.text(text_box(str, r, text_origin_t::bottom_hcenter), font::system().with_size(radius/2), color::black);
 }
 

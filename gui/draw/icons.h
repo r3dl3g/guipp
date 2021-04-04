@@ -80,15 +80,19 @@ namespace gui {
       find, zoom_in, zoom_out, menu,
       clock, stopwatch, timer, settings,
       info, important, person, trash,
-      file, folder, folder_open
+      file, folder, folder_open,
+      list, grid, columns,
+      lock, unlock
     };
 
     // --------------------------------------------------------------------------
     template<icon_t I>
     void draw_icon (graphics& g, const pen& pn, const core::point& center, core::size::type radius);
 
+    GUIPP_DRAW_EXPORT void draw_icon_background (graphics& g, const pen& pn, const core::point& center, core::size::type radius);
+
     // --------------------------------------------------------------------------
-    template<icon_t I>
+    template<icon_t I, bool B = false>
     struct icon : public detail::icon_base {
       typedef detail::icon_base super;
 
@@ -97,6 +101,21 @@ namespace gui {
       {}
 
       inline void operator() (graphics& g, const pen& pn) const {
+        draw_icon<I>(g, pn, center, radius);
+      }
+
+    };
+    // --------------------------------------------------------------------------
+    template<icon_t I>
+    struct icon<I, true> : public detail::icon_base {
+      typedef detail::icon_base super;
+
+      inline icon (const core::point& center, core::size::type radius)
+        : super(center, radius)
+      {}
+
+      inline void operator() (graphics& g, const pen& pn) const {
+        draw_icon_background(g, pn, center, radius);
         draw_icon<I>(g, pn, center, radius);
       }
 
@@ -146,7 +165,11 @@ namespace gui {
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::file> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::folder> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::folder_open> (graphics&, const pen&, const core::point&, core::size::type);
-
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::list> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::grid> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::columns> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::lock> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::unlock> (graphics&, const pen&, const core::point&, core::size::type);
     // --------------------------------------------------------------------------
   } //namespace draw
 

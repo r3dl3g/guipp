@@ -239,7 +239,10 @@ namespace gui {
     template<>
     void draw_icon<icon_t::check_on> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       draw_icon<icon_t::check_off>(g, pn, center, radius);
-      draw_icon<icon_t::okay>(g, pn, center, radius);
+      const auto r = radius / 1.5;
+      g.frame(draw::polyline({calc_clock_point<270>(center, r),
+                              calc_clock_point<190>(center, r),
+                              calc_clock_point<50>(center, radius / 1.3)}), pn);
     }
     // --------------------------------------------------------------------------
     template<>
@@ -279,9 +282,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_t::okay> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
-      g.frame(draw::polyline({calc_clock_point<270>(center, radius / 1.4),
-                              calc_clock_point<180>(center, radius / 1.4),
-                              calc_clock_point<45>(center, radius)}), pn);
+      const auto r = radius * 0.7;
+      g.frame(draw::polyline({calc_clock_point<270>(center, r),
+                              calc_clock_point<190>(center, r),
+                              calc_clock_point<50>(center, radius)}), pn);
     }
     // --------------------------------------------------------------------------
     template<>

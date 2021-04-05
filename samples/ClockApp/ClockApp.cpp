@@ -289,39 +289,25 @@ struct chronometer_page : group_window<stopwatch_layout, color::black, window&, 
   button_t start_stop_btn;
 };
 // --------------------------------------------------------------------------
-template<bool up>
-void draw_up_down_button (draw::graphics& g, const core::rectangle& r);
-
-template<>
-void draw_up_down_button<true> (draw::graphics& g, const core::rectangle& r) {
-  g.frame(draw::icon<draw::icon_t::up>(r.center(), r.max_radius() / 2), color::dark_gray);
-}
-
-template<>
-void draw_up_down_button<false> (draw::graphics& g, const core::rectangle& r) {
-  g.frame(draw::icon<draw::icon_t::down>(r.center(), r.max_radius() / 2), color::dark_gray);
-}
-
-// --------------------------------------------------------------------------
-template<bool up>
-struct direction_button : public custom_push_button {
+template<draw::icon_t I, gui::os::color F = color::dark_gray, gui::os::color B = color::very_very_dark_gray>
+struct icon_push_button : public custom_push_button {
   typedef custom_push_button super;
 
-  direction_button () {
+  icon_push_button () {
     super::set_drawer([&] (draw::graphics& g,
                       const core::rectangle& r,
                       const core::button_state::is&) {
-      g.erase(r, color::very_very_dark_gray);
-      draw_up_down_button<up>(g, r);
+      g.erase(r, B);
+      g.frame(draw::icon<I>(r.center(), r.max_radius() / 2), F);
     });
   }
 };
 // --------------------------------------------------------------------------
-struct icon_button : public custom_toggle_button<true> {
+struct icon_toggle_button : public custom_toggle_button<true> {
   typedef custom_toggle_button<true> super;
 
-  icon_button (const text_source&) {
-  }
+  icon_toggle_button (const text_source&)
+  {}
 };
 // --------------------------------------------------------------------------
 struct digit_label : public client_window<color::black> {
@@ -402,10 +388,10 @@ struct timerview_page : public chronometer_page<timerview> {
   }
 
   int seconds;
-  direction_button<true> inc_minutes;
-  direction_button<false> dec_minutes;
-  direction_button<true> inc_seconds;
-  direction_button<false> dec_seconds;
+  icon_push_button<draw::icon_t::up> inc_minutes;
+  icon_push_button<draw::icon_t::down> dec_minutes;
+  icon_push_button<draw::icon_t::up> inc_seconds;
+  icon_push_button<draw::icon_t::down> dec_seconds;
   digit_label minutes_label;
   digit_label seconds_label;
 
@@ -424,7 +410,7 @@ void icon_drawer (draw::graphics& g,
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
 
-  typedef icon_button button_t;
+  typedef icon_toggle_button button_t;
   typedef htoggle_group<color::white, color::black, button_t, layout::horizontal_adaption<>> tab_group_type;
   typedef tab_view<alignment_t::bottom, color::black, tab_group_type, layout::split_layout<alignment_t::bottom, 80>> tabs_t;
 

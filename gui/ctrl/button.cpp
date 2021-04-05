@@ -82,7 +82,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void push_button_traits::init (button_base& btn) {
+    push_button_traits::push_button_traits (button_base& btn) {
       btn.on_left_btn_up([&] (os::key_state, const core::native_point& pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
@@ -101,7 +101,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void toggle_button_traits<false>::init (button_base& btn) {
+    toggle_button_traits<false>::toggle_button_traits (button_base& btn) {
       btn.on_left_btn_up([&] (os::key_state, const core::native_point& pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
@@ -122,7 +122,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void toggle_button_traits<true>::init (button_base& btn) {
+    toggle_button_traits<true>::toggle_button_traits (button_base& btn) {
       btn.on_left_btn_up([&] (os::key_state, const core::native_point& pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
@@ -144,48 +144,37 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    basic_animated_button_traits::basic_animated_button_traits ()
-      : animation_step(1.0F)
+    basic_animated_button_traits::basic_animated_button_traits (button_base& btn)
+      : repeater(btn, std::chrono::milliseconds(20), [&] () {
+        animation_step += 0.2F;
+        btn.invalidate();
+        if (animation_step >= 1.0F) {
+          repeater.stop();
+        }
+      })
+      , animation_step(1.0F)
     {}
 
     basic_animated_button_traits::~basic_animated_button_traits () {
-      if (animation_thread.joinable()) {
-        animation_thread.join();
-      }
+      repeater.wait_for_finish ();
     }
 
-    void basic_animated_button_traits::prepare_animation () {
-      if (animation_thread.joinable()) {
-        animation_thread.join();
-      }
+    void basic_animated_button_traits::start_animation () {
+      repeater.stop();
+      repeater.wait_for_finish();
       animation_step = 0.0F;
-    }
-
-    void basic_animated_button_traits::start_animation (button_base& btn) {
-      animation_thread = std::thread([&] () {
-        while (animation_step < 1.0F) {
-          animation_step += 0.1F;
-          win::run_on_main(btn, [&] () {
-            btn.redraw();
-          });
-          std::this_thread::sleep_for(std::chrono::milliseconds(25));
-        }
-      });
-    }
-
-    void basic_animated_button_traits::set_checked (button_base& btn, bool f) {
-      prepare_animation();
-      start_animation(btn);
-      btn.set_checked(f);
+      repeater.start();
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void animated_button_traits<false>::init (button_base& btn) {
+    animated_button_traits<false>::animated_button_traits (button_base& btn)
+      : basic_animated_button_traits(btn) {
       btn.on_left_btn_up([&] (os::key_state, const core::native_point& pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
           if (btn.surface_geometry().is_inside(pos)) {
+            start_animation();
             btn.set_checked(!btn.is_checked());
             btn.notify_event(detail::BN_CLICKED_MESSAGE);
           }
@@ -194,6 +183,7 @@ namespace gui {
       btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
         if (((k == core::keys::enter) || (k == core::keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
+          start_animation();
           btn.set_checked(!btn.is_checked());
           btn.notify_event(detail::BN_CLICKED_MESSAGE);
         }
@@ -202,12 +192,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void animated_button_traits<true>::init (button_base& btn) {
+    animated_button_traits<true>::animated_button_traits (button_base& btn)
+      : basic_animated_button_traits(btn) {
       btn.on_left_btn_up([&] (os::key_state, const core::native_point& pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
           if (!btn.is_checked() && btn.surface_geometry().is_inside(pos)) {
             btn.set_checked(true);
+            start_animation();
             btn.notify_event(detail::BN_CLICKED_MESSAGE);
           }
         }
@@ -217,6 +209,7 @@ namespace gui {
           btn.set_pushed(false);
           if (!btn.is_checked()) {
             btn.set_checked(true);
+            start_animation();
             btn.notify_event(detail::BN_CLICKED_MESSAGE);
           }
         }

@@ -60,38 +60,38 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_CTRL_EXPORT void toggle_button_traits<false>::init (button_base&);
+    GUIPP_CTRL_EXPORT toggle_button_traits<false>::toggle_button_traits (button_base&);
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_CTRL_EXPORT void toggle_button_traits<true>::init (button_base&);
+    GUIPP_CTRL_EXPORT toggle_button_traits<true>::toggle_button_traits (button_base&);
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_CTRL_EXPORT void animated_button_traits<false>::init (button_base&);
+    GUIPP_CTRL_EXPORT animated_button_traits<false>::animated_button_traits (button_base&);
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_CTRL_EXPORT void animated_button_traits<true>::init (button_base&);
+    GUIPP_CTRL_EXPORT animated_button_traits<true>::animated_button_traits (button_base&);
 
     // --------------------------------------------------------------------------
     template<class T>
-    inline basic_button<T>::basic_button () {
-      traits.init(*this);
+    inline basic_button<T>::basic_button ()
+      : traits(*this) {
       init();
     }
 
     template<class T>
     inline basic_button<T>::basic_button (const basic_button& rhs)
-      : super(rhs) {
-      traits.init(*this);
+      : super(rhs)
+      , traits(*this) {
       init();
     }
 
     template<class T>
     inline basic_button<T>::basic_button (basic_button&& rhs) noexcept
-      : super(std::move(rhs)) {
-      traits.init(*this);
+      : super(std::move(rhs))
+      , traits(*this) {
       init();
     }
 

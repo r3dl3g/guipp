@@ -29,6 +29,7 @@
 // Library includes
 //
 #include <gui/win/window_event_handler.h>
+#include <gui/win/background_repeater.h>
 #include <gui/ctrl/look/button.h>
 #include <gui/ctrl/control.h>
 
@@ -125,11 +126,12 @@ namespace gui {
       void on_pushed (std::function<void()>&& f);
       void on_released (std::function<void()>&& f);
       void on_state_changed (std::function<void(bool)>&& f);
+
     };
 
     // --------------------------------------------------------------------------
     struct GUIPP_CTRL_EXPORT push_button_traits {
-      static void init (button_base&);
+      push_button_traits (button_base&);
 
       template<text_button_drawer& D>
       void draw (draw::graphics& g,
@@ -150,7 +152,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
     struct toggle_button_traits {
-      void init (button_base&);
+      toggle_button_traits (button_base&);
 
       template<text_button_drawer& D>
       void draw (draw::graphics& g,
@@ -171,7 +173,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct GUIPP_CTRL_EXPORT basic_animated_button_traits {
 
-      basic_animated_button_traits ();
+      basic_animated_button_traits (button_base&);
       ~basic_animated_button_traits ();
 
       template<animated_text_button_drawer& D>
@@ -189,21 +191,18 @@ namespace gui {
         D(g, r, s, animation_step);
       }
 
-      void prepare_animation ();
-      void start_animation (button_base&);
-
-      void set_checked (button_base&, bool b);
+      void start_animation ();
 
     protected:
+      win::background_repeater repeater;
       float animation_step;
 
-      std::thread animation_thread;
     };
 
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
     struct animated_button_traits : public basic_animated_button_traits {
-      void init (button_base&);
+      animated_button_traits (button_base&);
     };
 
     // --------------------------------------------------------------------------

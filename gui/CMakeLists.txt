@@ -17,7 +17,8 @@ option(GUIPP_BUILD_SHARED_MODULE_LIBS "On to build a shared library for each sub
 option(GUIPP_USE_XCB "On to make use of the xcb library. Default Off" OFF)
 option(GUIPP_STANDALONE_BUILD "On to make an installable standalone build, Off to build as part of a project. Default Off" OFF)
 option(GUIPP_BUILD_FOR_MOBILE "On to optimize for smartphone, Off to optimize for dekstop. Default Off" OFF)
-option(GUIPP_USE_QT "On to make use of the Qt library. Default Off" OFF)
+option(GUIPP_USE_QT5 "On to make use of the Qt5 library. Default Off" OFF)
+option(GUIPP_USE_QT6 "On to make use of the Qt6 library. Default Off" OFF)
 option(GUIPP_CXX_STANDARD "C++ standard to overwrite default cmake standard" ${CMAKE_CXX_STANDARD})
 option(VERBOSE "Print messages during cmake run" OFF)
 
@@ -157,7 +158,25 @@ if(NOT TARGET guipp)
     ${PROJECT_BINARY_DIR}
     )
 
-  if (GUIPP_USE_QT)
+  if (GUIPP_USE_QT6)
+    DebugPrint("GUIPP: build with Qt6!")
+
+    set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${Qt6Gui_LIBRARIES})
+    set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_QT ${Qt6Gui_DEFINITIONS})
+    if (APPLE)
+      set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -fPIC)
+    elseif (ANDROID)
+    elseif (UNIX)
+      set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -fPIC)
+      set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} stdc++fs)
+    endif()
+    set (GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${Qt6Gui_INCLUDE_DIRS})
+
+    DebugPrint("GUIPP: Qt6Gui_DEFINITIONS: " ${Qt6Gui_DEFINITIONS})
+    DebugPrint("GUIPP: Qt6Gui_INCLUDE_DIRS: " ${Qt6Gui_INCLUDE_DIRS})
+    DebugPrint("GUIPP: Qt6Gui_LIBRARIES: " ${Qt6Gui_LIBRARIES})
+
+  elseif (GUIPP_USE_QT5)
     DebugPrint("GUIPP: build with Qt5!")
 #    find_package(Qt5Gui REQUIRED)
 

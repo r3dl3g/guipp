@@ -12,7 +12,10 @@ endif()
 
 add_subdirectory(./../gui gui)
 
-if (GUIPP_USE_QT)
+if (GUIPP_USE_QT6)
+  DebugPrint("GUIPP tools: build with Qt6!")
+  find_package(Qt6Gui REQUIRED)
+elseif (GUIPP_USE_QT5)
   DebugPrint("GUIPP tools: build with Qt5!")
   find_package(Qt5Gui REQUIRED)
 endif()

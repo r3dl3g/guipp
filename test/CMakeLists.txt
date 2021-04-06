@@ -14,9 +14,12 @@ endif()
 
 add_subdirectory(./../gui gui)
 
-if (GUIPP_USE_QT AND NOT ANDROID)
+if (GUIPP_USE_QT6 AND NOT ANDROID)
+  DebugPrint("GUIPP test: build with Qt6!")
+  find_package(Qt6Gui REQUIRED)
+elseif (GUIPP_USE_QT5 AND NOT ANDROID)
   DebugPrint("GUIPP test: build with Qt5!")
-  find_package(Qt5Widgets REQUIRED)
+  find_package(Qt5Gui REQUIRED)
 endif()
 
 if (GUIPP_USE_BOOST)

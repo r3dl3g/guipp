@@ -116,7 +116,7 @@ void test_qimage2qpixmap () {
                    {W,W,W,W}}));
 
   std::vector<core::byte> buffer;
-  buffer.assign(img.constBits(), img.constBits() + img.byteCount());
+  buffer.assign(img.constBits(), img.constBits() + img.sizeInBytes());
 
   QImage img2((const core::byte*)buffer.data(), img.width(), img.height(), img.bytesPerLine(), img.format());
   pix.convertFromImage(img2);

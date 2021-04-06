@@ -801,7 +801,7 @@ namespace gui {
 
     font font::with_thickness (Thickness t) const {
       os::font f(id);
-      f.setWeight(static_cast<int>(t));
+      f.setWeight(static_cast<QFont::Weight>(t));
       return font(f);
     }
 

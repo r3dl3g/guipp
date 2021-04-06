@@ -481,7 +481,7 @@ namespace gui {
     }
 
     core::native_point::type get_wheel_delta_x (const core::event& e) {
-      auto we = e.cast<QWheelEvent>();
+      auto& we = e.cast<QWheelEvent>();
       os::point numPixels = we.pixelDelta();
       if (numPixels.isNull()) {
         return we.angleDelta().x() / 15;
@@ -490,7 +490,7 @@ namespace gui {
     }
 
     core::native_point::type get_wheel_delta_y (const core::event& e) {
-      auto we = e.cast<QWheelEvent>();
+      auto& we = e.cast<QWheelEvent>();
       os::point numPixels = we.pixelDelta();
       if (numPixels.isNull()) {
         return we.angleDelta().y() / 15;

@@ -12,12 +12,12 @@ endif()
 
 add_subdirectory(./../gui gui)
 
-if (GUIPP_USE_QT AND NOT ANDROID)
+if (GUIPP_USE_QT6 AND NOT ANDROID)
+  DebugPrint("GUIPP samples: build with Qt6!")
+  find_package(Qt6Gui REQUIRED)
+elseif (GUIPP_USE_QT5 AND NOT ANDROID)
   DebugPrint("GUIPP samples: build with Qt5!")
   find_package(Qt5Gui REQUIRED)
-#  find_package(ICU REQUIRED data i18n io lx uc)
-#  find_package(PNG REQUIRED)
-#  set(APP_SYS_LIBRARIES ${ICU_LIBRARIES} ${PNG_LIBRARIES})
 endif()
 
 if (GUIPP_USE_BOOST)

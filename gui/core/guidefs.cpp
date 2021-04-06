@@ -34,7 +34,7 @@
 #elif GUIPP_QT
 #include <QtWidgets/QApplication>
 #include <QtGui/QScreen>
-#include <QtWidgets/QDesktopWidget>
+//#include <QtWidgets/QDesktopWidget>
 #endif // GUIPP_QT
 
 

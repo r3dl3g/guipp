@@ -591,6 +591,21 @@ namespace gui {
     }
 
     template<typename T, typename S, coordinate_system C>
+    inline auto basic_rectangle<T, S, C>::dx (point_type dx) const -> self {
+      return self(*this).move_x(dx);
+    }
+
+    template<typename T, typename S, coordinate_system C>
+    inline auto  basic_rectangle<T, S, C>::dy (point_type dy) const -> self {
+      return self(*this).move_y(dy);
+    }
+
+    template<typename T, typename S, coordinate_system C>
+    inline auto  basic_rectangle<T, S, C>::dxy (point_type dx, point_type dy) const -> self {
+      return self(*this).move({dx, dy});
+    }
+
+    template<typename T, typename S, coordinate_system C>
     inline auto basic_rectangle<T, S, C>::set_center (const point_t& pt) -> self& {
       return set_position({ pt.x() - width() / point_type(2), pt.y() - height() / point_type(2) });
     }

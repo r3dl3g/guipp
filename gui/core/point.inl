@@ -222,19 +222,22 @@ namespace gui {
     }
 
     template<typename T, coordinate_system C>
-    inline void basic_point<T, C>::move (const self& pt) {
+    inline auto basic_point<T, C>::move (const self& pt) -> self& {
       x(x() + pt.x());
       y(y() + pt.y());
+      return *this;
     }
 
     template<typename T, coordinate_system C>
-    inline void basic_point<T, C>::move_x (type dx) {
+    inline auto basic_point<T, C>::move_x (type dx) -> self& {
       x(x() + dx);
+      return *this;
     }
 
     template<typename T, coordinate_system C>
-    inline void basic_point<T, C>::move_y (type dy) {
+    inline auto basic_point<T, C>::move_y (type dy) -> self& {
       y(y() + dy);
+      return *this;
     }
 
     template<typename T, coordinate_system C>

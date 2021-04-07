@@ -94,9 +94,9 @@ namespace gui {
 
       size_t diff (const self& pt) const;
 
-      void move (const self& pt);
-      void move_x (type dx);
-      void move_y (type dy);
+      self& move (const self& pt);
+      self& move_x (type dx);
+      self& move_y (type dy);
 
       self dx (type x) const;
       self dy (type y) const;

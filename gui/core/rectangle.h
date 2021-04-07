@@ -166,6 +166,10 @@ namespace gui {
       self& move_to_x (point_type x);
       self& move_to_y (point_type y);
 
+      self dx (point_type x) const;
+      self dy (point_type y) const;
+      self dxy (point_type x, point_type y) const;
+
       self& set_size (const size_t& sz);
       self& set_position (const point_t& pt);
       self& set_center (const point_t& pt);

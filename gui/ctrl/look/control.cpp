@@ -104,7 +104,7 @@ namespace gui {
       if (!color::is_transparent(background.color())) {
         g.fill(rectangle(place), get_background_color(state, background.color()));
       }
-      g.text(text_box(text, place, origin), font::system(), get_text_color(state));
+      g.text(text_box(text, place.shrinked(0, 0, 3, 3), origin), font::system(), get_text_color(state));
     }
 
   } // namespace look

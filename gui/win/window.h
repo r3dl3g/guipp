@@ -58,6 +58,8 @@ namespace gui {
 
       void set_parent (container& parent);
       container* get_parent () const;
+      void remove_from_parent ();
+
       const window& get_root_window () const;
       overlapped_window& get_overlapped_window () const;
       bool is_child_of (const container& parent) const;
@@ -143,13 +145,13 @@ namespace gui {
       void add_event_mask (os::event_id mask) override;
       virtual os::event_id collect_event_mask () const;
 
-    protected:
-      window (const window&);
-      window (window&&) noexcept;
-
       void create (const class_info&,
                    container&,
                    const core::rectangle& = core::rectangle::def);
+
+    protected:
+      window (const window&);
+      window (window&&) noexcept;
 
       void create_internal (const class_info&,
                             const core::rectangle&);

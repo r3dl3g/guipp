@@ -76,11 +76,7 @@ namespace gui {
     }
 
     window::~window () {
-      if (parent) {
-        parent->remove_child(this);
-        parent = nullptr;
-      }
-      set_state().created(false);
+      remove_from_parent();
     }
 
     void window::create (const class_info& type,
@@ -243,12 +239,17 @@ namespace gui {
     }
 
     void window::set_parent (container& p) {
+      remove_from_parent();
+      parent = &p;
+      p.add_child(this);
+    }
+
+    void window::remove_from_parent () {
       if (parent) {
         parent->remove_child(this);
         parent = nullptr;
       }
-      parent = &p;
-      p.add_child(this);
+      set_state().created(false);
     }
 
     void window::remove_parent () {

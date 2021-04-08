@@ -22,6 +22,7 @@
 //
 // Library includes
 //
+#include <gui/core/button_state.h>
 
 
 namespace gui {
@@ -34,12 +35,12 @@ namespace gui {
         normal                    = 0x0,
         hilited                   = 0x1,
         selected                  = 0x2,
-        hilited_selected          = 0x3,
+        hilited_selected          = hilited | selected,
 
         disabled                  = 0x4,
-        disabled_hilited          = 0x5,
-        disabled_selected         = 0x6,
-        disabled_hilited_selected = 0x7
+        disabled_hilited          = disabled | hilited,
+        disabled_selected         = disabled | selected,
+        disabled_hilited_selected = disabled | hilited | selected
       };
 
       inline item_state (states state)
@@ -48,6 +49,10 @@ namespace gui {
 
       inline item_state (bool hilite, bool select, bool disable)
         : state((states)((int)hilite | ((int)select << 1) | ((int)disable << 2)))
+      {}
+
+      inline item_state (const core::button_state::is& state)
+        : item_state(state.hilited(), state.pushed() || state.checked(), !state.enabled())
       {}
 
       inline item_state operator& (item_state r) const {

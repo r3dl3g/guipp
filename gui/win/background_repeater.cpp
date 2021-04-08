@@ -33,10 +33,29 @@ namespace gui {
       , delay(delay_ms)
       , action(action)
       , active(false)
-    {}
+    {
+      if (delay_ms < std::chrono::milliseconds(1)) {
+        throw std::runtime_error("Delay can not be smaller than 1 ms");
+      }
+    }
+
+    background_repeater::background_repeater (window& win, std::chrono::milliseconds delay_ms)
+      : win(win)
+      , delay(delay_ms)
+      , active(false)
+    {
+      if (delay_ms < std::chrono::milliseconds(1)) {
+        throw std::runtime_error("Delay can not be smaller than 1 ms");
+      }
+    }
 
     background_repeater::~background_repeater () {
       wait_for_finish();
+    }
+
+    void background_repeater::start (action_t a) {
+      action = a;
+      start();
     }
 
     void background_repeater::start () {

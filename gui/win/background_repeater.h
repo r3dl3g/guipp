@@ -18,6 +18,10 @@
 
 #pragma once
 
+// --------------------------------------------------------------------------
+//
+// Common includes
+//
 #include <functional>
 #include <chrono>
 #ifdef USE_MINGW
@@ -43,10 +47,12 @@ namespace gui {
       typedef std::function<void()> action_t;
 
       background_repeater (window& win, std::chrono::milliseconds delay_ms, action_t action);
+      background_repeater (window& win, std::chrono::milliseconds delay_ms);
 
       ~background_repeater ();
 
       void start ();
+      void start (action_t action);
       void stop ();
       void wait_for_finish ();
 

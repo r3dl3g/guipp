@@ -394,9 +394,9 @@ namespace gui {
         focus_window->handle_event(e, r);
       } else if (size_event::match(e)) {
         area.set_size(size_event::Caller::get_param<0>(e));
-//#ifndef BUILD_FOR_ARM
-//#endif
+#ifndef BUILD_FOR_ARM
         notify_event(core::WM_LAYOUT_WINDOW, client_geometry());
+#endif
         invalidate();
       } else if (move_event::match(e)) {
         area.set_position(move_event::Caller::get_param<0>(e));
@@ -420,13 +420,11 @@ namespace gui {
 #elif GUIPP_QT
       } else if (e.type() == QEvent::UpdateRequest) {
         redraw(invalid_rect);
-      } else if (e.type() == QEvent::Expose) {
+      } else if ((e.type() == QEvent::Expose) || (e.type() == QEvent::OrientationChange)) {
         const auto r = get_os_window()->geometry();
-        core::native_rect nr(r.x(), r.y(), r.width(), r.height());
+        const core::native_rect nr(r.x(), r.y(), r.width(), r.height());
         area = core::global::scale_from_native(nr);
         redraw(nr);
-      } else if (e.type() == QEvent::OrientationChange) {
-        invalidate();
 #endif // GUIPP_WIN
       }
       return super::handle_event(e, r);

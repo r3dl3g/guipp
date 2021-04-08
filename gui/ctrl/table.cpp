@@ -567,9 +567,11 @@ namespace gui {
       });
 
       data.on_any_key_down(util::bind_method(this, &table_view::handle_key));
+#ifndef GUIPP_BUILD_FOR_MOBILE
       data.on_left_btn_dblclk([&](os::key_state, const core::native_point&) {
         notify_event(detail::SELECTION_COMMIT_MESSAGE);
       });
+#endif // GUIPP_BUILD_FOR_MOBILE
 
       data.on_wheel<orientation_t::horizontal>([&](const core::native_point::type delta, const core::native_point& pt){
         hscroll.handle_wheel(delta, pt);
@@ -740,6 +742,10 @@ namespace gui {
           set_selection(new_selection, event_source::mouse);
         } else if (core::control_key_bit_mask::is_set(keys)) {
           clear_selection(event_source::mouse);
+#ifdef GUIPP_BUILD_FOR_MOBILE
+        } else {
+          notify_event(detail::SELECTION_COMMIT_MESSAGE);
+#endif // GUIPP_BUILD_FOR_MOBILE
         }
       }
       last_mouse_point = core::native_point::undefined;

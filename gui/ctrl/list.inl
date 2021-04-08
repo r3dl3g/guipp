@@ -165,9 +165,11 @@ namespace gui {
 
     template<orientation_t V, typename T>
     void basic_list<V, T>::init () {
+#ifndef GUIPP_BUILD_FOR_MOBILE
       super::on_left_btn_dblclk([&] (os::key_state, const core::native_point&) {
         super::notify_selection_commit();
       });
+#endif // GUIPP_BUILD_FOR_MOBILE
       super::on_mouse_leave([&] () {
         clear_hilite();
       });
@@ -323,6 +325,11 @@ namespace gui {
           }
         } else if (core::control_key_bit_mask::is_set(keys)) {
           clear_selection(event_source::mouse);
+#ifdef GUIPP_BUILD_FOR_MOBILE
+        } else {
+          // second selection -> commit
+          super::notify_selection_commit();
+#endif // GUIPP_BUILD_FOR_MOBILE
         }
       }
       super::set_cursor(win::cursor::arrow());

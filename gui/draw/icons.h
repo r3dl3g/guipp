@@ -72,6 +72,7 @@ namespace gui {
     enum class icon_t {
       none,
       up, down, left, right,
+      up_arrow, down_arrow, left_arrow, right_arrow,
       remove, add, close, open,
       check_off, check_on, radio_off, radio_on,
       undo, redo, forward, backward,
@@ -112,6 +113,10 @@ namespace gui {
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::down> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::left> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::right> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::up_arrow> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::down_arrow> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::left_arrow> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::right_arrow> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::add> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::remove> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_t::open> (graphics&, const pen&, const core::point&, core::size::type);

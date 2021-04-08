@@ -149,17 +149,31 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    std::vector<core::point> up_points (const point& center, size::type radius) {
+      const auto p0 = calc_clock_point<120>(center, radius);
+      const auto p1 = calc_clock_point<0>(center, radius);
+      const auto p2 = calc_clock_point<240>(center, radius);
+      return {p0, p1, p2};
+    }
+
+    std::vector<core::point> down_points (const point& center, size::type radius) {
+      const auto p0 = calc_clock_point<60>(center, radius);
+      const auto p1 = calc_clock_point<180>(center, radius);
+      const auto p2 = calc_clock_point<300>(center, radius);
+      return {p0, p1, p2};
+    }
+
     std::vector<core::point> left_points (const point& center, size::type radius) {
       const auto p0 = calc_clock_point<30>(center, radius);
-      const auto p1 = calc_clock_point<150>(center, radius);
-      const auto p2 = calc_clock_point<270>(center, radius);
+      const auto p1 = calc_clock_point<270>(center, radius);
+      const auto p2 = calc_clock_point<150>(center, radius);
       return {p0, p1, p2};
     }
 
     std::vector<core::point> right_points (const point& center, size::type radius) {
-      auto p0 = calc_clock_point<90>(center, radius);
-      auto p1 = calc_clock_point<210>(center, radius);
-      auto p2 = calc_clock_point<330>(center, radius);
+      const auto p0 = calc_clock_point<210>(center, radius);
+      const auto p1 = calc_clock_point<90>(center, radius);
+      const auto p2 = calc_clock_point<330>(center, radius);
       return {p0, p1, p2};
     }
     // --------------------------------------------------------------------------
@@ -176,18 +190,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_t::up> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
-      auto p0 = calc_clock_point<120>(center, radius);
-      auto p1 = calc_clock_point<240>(center, radius);
-      auto p2 = calc_clock_point<0>(center, radius);
-      g.fill(draw::polygon({p0, p1, p2}), pn.color());
+      g.fill(draw::polygon(up_points(center, radius)), pn.color());
     }
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_t::down> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
-      auto p0 = calc_clock_point<60>(center, radius);
-      auto p1 = calc_clock_point<180>(center, radius);
-      auto p2 = calc_clock_point<300>(center, radius);
-      g.fill(draw::polygon({p0, p1, p2}), pn.color());
+      g.fill(draw::polygon(down_points(center, radius)), pn.color());
     }
     // --------------------------------------------------------------------------
     template<>
@@ -198,6 +206,26 @@ namespace gui {
     template<>
     void draw_icon<icon_t::right> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       g.fill(draw::polygon(right_points(center, radius)), pn.color());
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::up_arrow> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline(up_points(center, radius)), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::down_arrow> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline(down_points(center, radius)), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::left_arrow> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline(left_points(center, radius)), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_t::right_arrow> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline(right_points(center, radius)), pn);
     }
     // --------------------------------------------------------------------------
     template<>

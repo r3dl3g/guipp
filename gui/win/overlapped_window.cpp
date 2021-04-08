@@ -394,9 +394,9 @@ namespace gui {
         focus_window->handle_event(e, r);
       } else if (size_event::match(e)) {
         area.set_size(size_event::Caller::get_param<0>(e));
-#ifndef BUILD_FOR_ARM
+//#ifndef BUILD_FOR_ARM
+//#endif
         notify_event(core::WM_LAYOUT_WINDOW, client_geometry());
-#endif
         invalidate();
       } else if (move_event::match(e)) {
         area.set_position(move_event::Caller::get_param<0>(e));

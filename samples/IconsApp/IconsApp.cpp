@@ -36,7 +36,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     auto area = main.client_geometry().shrink({5, 5});
     clog::trace() << "Draw graphs in area:" << area;
 
-    core::grid<6, 8> g(area);
+    core::grid<6, 9> g(area);
     draw_icon<icon_t::up>(graph, g(0, 0), "up");
     draw_icon<icon_t::down>(graph, g(1, 0), "down");
     draw_icon<icon_t::left>(graph, g(2, 0), "left");
@@ -92,6 +92,12 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     draw_icon<icon_t::columns>(graph, g(3, 7), "columns");
     draw_icon<icon_t::lock>(graph, g(4, 7), "lock");
     draw_icon<icon_t::unlock>(graph, g(5, 7), "unlock");
+
+    draw_icon<icon_t::up_arrow>(graph, g(0, 8), "up_arrow");
+    draw_icon<icon_t::down_arrow>(graph, g(1, 8), "down_arrow");
+    draw_icon<icon_t::left_arrow>(graph, g(2, 8), "left_arrow");
+    draw_icon<icon_t::right_arrow>(graph, g(3, 8), "right_arrow");
+
     clog::trace() << "on_paint finished";
   }));
 

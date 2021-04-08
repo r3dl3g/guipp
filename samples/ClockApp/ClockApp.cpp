@@ -289,24 +289,10 @@ struct chronometer_page : group_window<stopwatch_layout, color::black, window&, 
   button_t start_stop_btn;
 };
 // --------------------------------------------------------------------------
-template<draw::icon_t I, gui::os::color F = color::dark_gray, gui::os::color B = color::very_very_dark_gray>
-struct icon_push_button : public custom_push_button {
-  typedef custom_push_button super;
-
-  icon_push_button () {
-    super::set_drawer([&] (draw::graphics& g,
-                      const core::rectangle& r,
-                      const core::button_state::is&) {
-      g.erase(r, B);
-      g.frame(draw::icon<I>(r.center(), r.max_radius() / 2), F);
-    });
-  }
-};
-// --------------------------------------------------------------------------
-struct icon_toggle_button : public custom_toggle_button<true> {
+struct icon_text_toggle_button : public custom_toggle_button<true> {
   typedef custom_toggle_button<true> super;
 
-  icon_toggle_button (const text_source&)
+  icon_text_toggle_button (const text_source&)
   {}
 };
 // --------------------------------------------------------------------------
@@ -410,7 +396,7 @@ void icon_drawer (draw::graphics& g,
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
 
-  typedef icon_toggle_button button_t;
+  typedef icon_text_toggle_button button_t;
   typedef htoggle_group<color::white, color::black, button_t, layout::horizontal_adaption<>> tab_group_type;
   typedef tab_view<alignment_t::bottom, color::black, tab_group_type, layout::split_layout<alignment_t::bottom, 80>> tabs_t;
 

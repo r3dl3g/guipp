@@ -283,19 +283,15 @@ namespace gui {
     }
 
     void window::set_visible (bool s) {
-      if (is_valid()) {
-        if (set_state().visible(s)) {
-          invalidate();
-          notify_visibility(s);
-        }
+      if (is_valid() && set_state().visible(s)) {
+        invalidate();
+        notify_visibility(s);
       }
     }
 
     void window::enable (bool on) {
-      if (set_state().enable(on)) {
-        if (is_valid()) {
-          invalidate();
-        }
+      if (set_state().enable(on) && is_valid()) {
+        invalidate();
       }
     }
 

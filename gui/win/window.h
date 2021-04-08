@@ -180,6 +180,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    typedef std::shared_ptr<win::window> window_ptr;
+
+    // --------------------------------------------------------------------------
     template<os::color background = color::very_light_gray>
     class client_window : public window {
     public:

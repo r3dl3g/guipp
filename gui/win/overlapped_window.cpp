@@ -420,6 +420,8 @@ namespace gui {
 #elif GUIPP_QT
       } else if ((e.type() == QEvent::UpdateRequest) || (e.type() == QEvent::Expose)) {
         redraw(invalid_rect);
+      } else if (e.type() == QEvent::OrientationChange) {
+        invalidate();
 #endif // GUIPP_WIN
       }
       return super::handle_event(e, r);

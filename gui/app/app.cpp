@@ -165,6 +165,7 @@ int main (int argc, char* argv[]) {
   clog::info() << "Qt app display name: '" << qapplication.applicationDisplayName().toStdString() << "'";
   clog::info() << "Qt app desktop file name: '" << qapplication.desktopFileName().toStdString() << "'";
   clog::info() << "Qt app platform name: '" << qapplication.platformName().toStdString() << "'";
+  clog::info() << "Qt version: '" QT_VERSION_STR << "', runtime: '" << qVersion() << "'";
 #endif // GUIPP_QT
 
   int ret = 0;

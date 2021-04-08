@@ -110,7 +110,7 @@ namespace gui {
                                        bool grab_focus)
       : super(item_size, background, grab_focus)
     {
-      init ();
+      init();
     }
 
     template<typename T, file_item_drawer D>
@@ -118,7 +118,7 @@ namespace gui {
       : super(rhs)
       , current_dir(rhs.current_dir)
     {
-      init ();
+      init();
     }
 
     template<typename T, file_item_drawer D>
@@ -126,7 +126,7 @@ namespace gui {
       : super(std::move(rhs))
       , current_dir(std::move(rhs.current_dir))
     {
-      init ();
+      init();
     }
 
     template<typename T, file_item_drawer D>

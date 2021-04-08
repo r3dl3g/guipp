@@ -172,31 +172,73 @@ void stacked_view::finish_push (const window_ptr& view, const std::string& t) {
   layout();
   invalidate();
 }
+// --------------------------------------------------------------------------
+typedef std::vector<std::string> directory_entries;
+typedef std::map<std::string, directory_entries> directory;
 
-// --------------------------------------------------------------------------
-void my_file_item_drawer (const fs::file_info& path,
-                          draw::graphics& g,
-                          const core::rectangle& r,
-                          const draw::brush& b,
-                          item_state state) {
-  using namespace draw;
-  g.fill(rectangle(r), gui::look::get_background_color(state, b.color()));
-  g.text(text_box(path.filepath(), r.shrinked(0, 0, 3, 3), text_origin_t::vcenter_left), font::system(), color::invert(b.color()));
-}
-// --------------------------------------------------------------------------
-typedef file_list<path_tree::sorted_path_info> file_list_t;
+directory fake_fs;
+
+//// --------------------------------------------------------------------------
+//void my_file_item_drawer (const fs::file_info& path,
+//                          draw::graphics& g,
+//                          const core::rectangle& r,
+//                          const draw::brush& b,
+//                          item_state state) {
+//  using namespace draw;
+//  g.fill(rectangle(r), gui::look::get_background_color(state, b.color()));
+//  g.text(text_box(path.filepath(), r.shrinked(0, 0, 3, 3), text_origin_t::vcenter_left), font::system(), color::invert(b.color()));
+//}
+//// --------------------------------------------------------------------------
+//typedef file_list<path_tree::sorted_path_info> file_list_t;
+
+class fake_file_list : public vertical_list {
+public:
+  typedef vertical_list super;
+
+  fake_file_list (core::size::type item_size = list_defaults<>::item_size)
+  : super(item_size) {
+    init();
+  }
+
+  void set_path (const std::string& dir) {
+    current_path = dir;
+    current_dir = fake_fs[dir];
+    super::clear_selection(event_source::logic);
+    super::set_scroll_pos(core::point::zero);
+    super::invalidate();
+  }
+
+  std::string get_selected_path () const {
+    int selection = super::get_selection();
+    if (selection > -1) {
+      return current_path + current_dir[selection] + "/";
+    }
+    return {};
+  }
+
+private:
+  std::vector<std::string> current_dir;
+  std::string current_path;
+
+  void init () {
+    super::set_data(indirect_list_data<std::string>(current_dir));
+  }
+};
+
+
+typedef fake_file_list file_list_t;
 typedef virtual_view<file_list_t> sub_view_t;
 
 void init_sub_view (file_list_t& view, stacked_view_base& client) {
   view.set_background(color::very_light_gray);
   view.on_selection_commit([&] () {
     auto path = view.get_selected_path();
-    if (sys_fs::is_directory(path)) {
+    if (fake_fs.find(path) != fake_fs.end()) {
       std::shared_ptr<sub_view_t> sub_view = std::make_shared<sub_view_t>(50);
       sub_view_t::view_type& sub = sub_view->view;
       sub.set_path(path);
       init_sub_view(sub, client);
-      client.push(sub_view, path.string());
+      client.push(sub_view, path);
     }
   });
 }
@@ -206,6 +248,20 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::layout;
   using namespace gui::ctrl;
   using namespace gui::core;
+
+  fake_fs["/"] = {"bin", "dev", "etc", "home", "lib", "tmp", "usr", "var"};
+  fake_fs["/bin/"] = {"bash", "cat", "chmod", "date", "dd", "grep", "mount", "ping", "touch"};
+  fake_fs["/dev/"] = {"null", "zero", "tty"};
+  fake_fs["/etc/"] = {"crontab", "fstab", "group", "hosts", "passwd", "shadow", "timezone"};
+  fake_fs["/home/"] = {"user", "phablet"};
+  fake_fs["/home/user/"] = {".bashrc", ".profile"};
+  fake_fs["/home/phablet/"] = {".bashrc", ".profile", ".bash_history"};
+  fake_fs["/lib/"] = {"modules", "udev"};
+  fake_fs["/lib/udev/"] = {"hwclock-set"};
+  fake_fs["/tmp/"] = {"tmp.0", "tmp.1"};
+  fake_fs["/usr/"] = {"bin", "include", "lib", "local", "sbin", "share", "src"};
+  fake_fs["/usr/local/"] = {"bin", "etc", "include", "lib", "sbin", "share", "src"};
+  fake_fs["/var/"] = {"cache", "lib", "local", "log", "run", "tmp"};
 
   stacked_view client;
   layout_main_window<layout::border::zero_layout<stacked_view>, stacked_view&> main(client);

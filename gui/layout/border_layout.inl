@@ -300,6 +300,35 @@ namespace gui {
       }
 
       template<int TO, int BO, int LE, int RI, type_t T>
+      inline core::rectangle layouter<TO, BO, LE, RI, T>::get_center_geometry (const core::rectangle& r) const {
+        return r.shrinked(TO, BO, LE, RI);
+      }
+
+      template<int TO, int BO, int LE, int RI, type_t T>
+      inline core::rectangle layouter<TO, BO, LE, RI, T>::get_top_geometry (const core::rectangle& r) const {
+        const left_width pt = geometrie::get_top(r);
+        return core::rectangle(pt.left, r.y(), pt.width, TO);
+      }
+
+      template<int TO, int BO, int LE, int RI, type_t T>
+      inline core::rectangle layouter<TO, BO, LE, RI, T>::get_bottom_geometry (const core::rectangle& r) const {
+        const left_width pt = geometrie::get_bottom(r);
+        return core::rectangle(pt.left, r.y2() - BO, pt.width, BO);
+      }
+
+      template<int TO, int BO, int LE, int RI, type_t T>
+      inline core::rectangle layouter<TO, BO, LE, RI, T>::get_left_geometry (const core::rectangle& r) const {
+        const top_height pt = geometrie::get_left(r);
+        return core::rectangle(r.x(), pt.top, LE, pt.height);
+      }
+
+      template<int TO, int BO, int LE, int RI, type_t T>
+      inline core::rectangle layouter<TO, BO, LE, RI, T>::get_right_geometry (const core::rectangle& r) const {
+        const top_height pt = geometrie::get_right(r);
+        return core::rectangle(r.x2() - RI, pt.top, RI, pt.height);
+      }
+
+      template<int TO, int BO, int LE, int RI, type_t T>
       inline void layouter<TO, BO, LE, RI, T>::set_center_top_bottom_left_right (const layout_function& center,
                                                                                  const layout_function& top,
                                                                                  const layout_function& bottom,
@@ -316,23 +345,19 @@ namespace gui {
       void layouter<TO, BO, LE, RI, T>::layout (const core::rectangle& r) {
         clog::trace() << "border::layouter(" << r << ")";
         if (get_top()) {
-          const left_width pt = geometrie::get_top(r);
-          get_top()(core::rectangle(pt.left, r.y(), pt.width, TO));
+          get_top()(get_top_geometry(r));
         }
         if (get_bottom()) {
-          const left_width pt = geometrie::get_bottom(r);
-          get_bottom()(core::rectangle(pt.left, r.y2() - BO, pt.width, BO));
+          get_bottom()(get_bottom_geometry(r));
         }
         if (get_left()) {
-          const top_height pt = geometrie::get_left(r);
-          get_left()(core::rectangle(r.x(), pt.top, LE, pt.height));
+          get_left()(get_left_geometry(r));
         }
         if (get_right()) {
-          const top_height pt = geometrie::get_right(r);
-          get_right()(core::rectangle(r.x2() - RI, pt.top, RI, pt.height));
+          get_right()(get_right_geometry(r));
         }
         if (get_center()) {
-          get_center()(r.shrinked(TO, BO, LE, RI));
+          get_center()(get_center_geometry(r));
         }
       }
 

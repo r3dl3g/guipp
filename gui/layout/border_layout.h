@@ -111,6 +111,12 @@ namespace gui {
         int get_left_width () const;
         int get_right_width () const;
 
+        core::rectangle get_center_geometry (const core::rectangle& r) const;
+        core::rectangle get_top_geometry (const core::rectangle& r) const;
+        core::rectangle get_bottom_geometry (const core::rectangle& r) const;
+        core::rectangle get_left_geometry (const core::rectangle& r) const;
+        core::rectangle get_right_geometry (const core::rectangle& r) const;
+
         void layout (const core::rectangle& r);
 
       protected:

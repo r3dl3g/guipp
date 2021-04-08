@@ -418,8 +418,13 @@ namespace gui {
       } else if (core::event_handler<WM_PAINT>::match(e)) {
         redraw(invalid_rect);
 #elif GUIPP_QT
-      } else if ((e.type() == QEvent::UpdateRequest) || (e.type() == QEvent::Expose)) {
+      } else if (e.type() == QEvent::UpdateRequest) {
         redraw(invalid_rect);
+      } else if (e.type() == QEvent::Expose) {
+        const auto r = get_os_window()->geometry();
+        core::native_rect nr(r.x(), r.y(), r.width(), r.height());
+        area = core::global::scale_from_native(nr);
+        redraw(nr);
       } else if (e.type() == QEvent::OrientationChange) {
         invalidate();
 #endif // GUIPP_WIN

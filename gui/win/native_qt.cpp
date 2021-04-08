@@ -394,12 +394,16 @@ namespace gui {
         return static_cast<window*>(parent());
       }
 
+#define LOG_ALL_EVENTS
+
       bool window::event (QEvent* e) {
         gui::os::event_result result;
         gui::core::event ev = {this, e};
-//        if (e->type() != QEvent::MouseMove) {
-//          clog::info() << "window received event: " << ev;
-//        }
+#ifdef LOG_ALL_EVENTS
+        if (e->type() != QEvent::MouseMove) {
+          clog::info() << "window received event: " << ev;
+        }
+#endif // LOG_ALL_EVENTS
         if (win && win->handle_event(ev, result)) {
           return true;
         }

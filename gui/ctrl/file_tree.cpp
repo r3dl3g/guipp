@@ -165,6 +165,10 @@ namespace gui {
       return path.filename().string();
     }
 
+    std::string file_info::filepath () const {
+      return path.string();
+    }
+
   } // namespace fs
 
   namespace ctrl {
@@ -451,6 +455,22 @@ namespace gui {
       g.fill(draw::polygon({r.top_left(), r.top_right(), {r.center_x(), r.bottom()}}), col);
     }
 
+    // --------------------------------------------------------------------------
+    void default_file_item_drawer (const fs::file_info& path,
+                                   draw::graphics& g,
+                                   const core::rectangle& r,
+                                   const draw::brush& b,
+                                   item_state state) {
+      look::text_item(g, r, b, path.filename(), state, text_origin_t::vcenter_left);
+    }
+    // --------------------------------------------------------------------------
+    void filepath_item_drawer (const fs::file_info& path,
+                               draw::graphics& g,
+                               const core::rectangle& r,
+                               const draw::brush& b,
+                               item_state state) {
+      look::text_item(g, r, b, path.filepath(), state, text_origin_t::vcenter_left);
+    }
 
   } // ctrl
 

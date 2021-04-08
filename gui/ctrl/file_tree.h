@@ -84,6 +84,7 @@ namespace gui {
       bool is_directory () const;
       bool is_regular_file () const;
       std::string filename () const;
+      std::string filepath () const;
 
       bool operator== (const file_info& rhs) const;
       bool operator!= (const file_info& rhs) const;
@@ -199,7 +200,26 @@ namespace gui {
     } // detail
 
     // --------------------------------------------------------------------------
-    template<typename T = path_tree::sorted_file_info>
+    typedef void (file_item_drawer) (const fs::file_info&,
+                                     draw::graphics&,
+                                     const core::rectangle&,
+                                     const draw::brush&,
+                                     item_state);
+    // --------------------------------------------------------------------------
+    GUIPP_CTRL_EXPORT void default_file_item_drawer (const fs::file_info&,
+                                                     draw::graphics&,
+                                                     const core::rectangle&,
+                                                     const draw::brush&,
+                                                     item_state);
+    // --------------------------------------------------------------------------
+    GUIPP_CTRL_EXPORT void filepath_item_drawer (const fs::file_info&,
+                                                 draw::graphics&,
+                                                 const core::rectangle&,
+                                                 const draw::brush&,
+                                                 item_state);
+    // --------------------------------------------------------------------------
+    template<typename T = path_tree::sorted_file_info,
+             file_item_drawer D = default_file_item_drawer>
     class file_list : public vertical_list {
     public:
       typedef vertical_list super;
@@ -207,6 +227,7 @@ namespace gui {
       explicit file_list (core::size::type item_size = list_defaults<>::item_size,
                  os::color background = color::white,
                  bool grab_focus = true);
+
       file_list (const file_list&);
       file_list (file_list&&) noexcept ;
 

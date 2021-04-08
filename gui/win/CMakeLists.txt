@@ -9,6 +9,7 @@ if(NOT TARGET ${PROJECT_NAME})
   add_subdirectory(../core core)
 
   set(SOURCE_FILES
+      animation.cpp
       background_repeater.cpp
       clipboard.cpp
       container.cpp

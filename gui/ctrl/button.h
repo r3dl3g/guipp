@@ -30,8 +30,11 @@
 //
 #include <gui/win/window_event_handler.h>
 #include <gui/win/background_repeater.h>
+#include <gui/ctrl/look/control.h>
 #include <gui/ctrl/look/button.h>
 #include <gui/ctrl/control.h>
+#include <gui/draw/pen.h>
+#include <gui/draw/icons.h>
 
 
 namespace gui {
@@ -300,6 +303,25 @@ namespace gui {
                                          text_button_drawer&,
                                          look::aligned_tab_button<foreground, align> >;
     // --------------------------------------------------------------------------
+    template<class T, draw::icon_t I, os::color F = color::light_gray, os::color B = color::dark_gray>
+    struct icon_button : public basic_button<T> {
+      typedef basic_button<T> super;
+
+      icon_button ();
+      icon_button (const icon_button& rhs);
+      icon_button (icon_button&& rhs) noexcept ;
+
+    private:
+      void init ();
+    };
+    // --------------------------------------------------------------------------
+    template<draw::icon_t I, os::color F = color::light_gray, os::color B = color::dark_gray>
+    using icon_push_button = icon_button<push_button_traits, I, F, B>;
+    // --------------------------------------------------------------------------
+    template<draw::icon_t I, os::color F = color::light_gray, os::color B = color::dark_gray, bool keep_state = false>
+    using icon_toggle_button = icon_button<toggle_button_traits<keep_state>, I, F, B>;
+
+    // --------------------------------------------------------------------------
     template<class T>
     class custom_button : public basic_button<T> {
     public:
@@ -309,8 +331,6 @@ namespace gui {
       custom_button (const custom_button& rhs);
       custom_button (custom_button&& rhs) noexcept ;
 
-      void create (win::container& parent,
-                   const core::rectangle& place = core::rectangle::def);
       void set_drawer (std::function<button_drawer> d);
 
     private:

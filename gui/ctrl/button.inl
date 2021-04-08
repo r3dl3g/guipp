@@ -190,6 +190,35 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template<class T, draw::icon_t I, os::color F, os::color B>
+    inline icon_button<T, I, F, B>::icon_button () {
+      init();
+    }
+
+    template<class T, draw::icon_t I, os::color F, os::color B>
+    inline icon_button<T, I, F, B>::icon_button (const icon_button& rhs)
+      : super(rhs)
+    {
+      init();
+    }
+
+    template<class T, draw::icon_t I, os::color F, os::color B>
+    inline icon_button<T, I, F, B>::icon_button (icon_button&& rhs) noexcept
+      : super(std::move(rhs))
+    {
+      init();
+    }
+
+    template<class T, draw::icon_t I, os::color F, os::color B>
+    void icon_button<T, I, F, B>::init () {
+      super::on_paint(draw::paint([&] (draw::graphics& g) {
+        const auto r = super::client_geometry();
+        g.erase(r, look::get_background_color(super::get_state(), B));
+        g.frame(draw::icon<I>(r.center(), r.max_radius() / 2), look::get_text_color(super::get_state(), F));
+      }));
+    }
+
+    // --------------------------------------------------------------------------
     template<class T>
     inline custom_button<T>::custom_button () {
       init();
@@ -207,12 +236,6 @@ namespace gui {
       : super(std::move(rhs))
     {
       init();
-    }
-
-    template<class T>
-    inline void custom_button<T>::create (win::container& parent,
-                                          const core::rectangle& place) {
-      super::create(parent, place);
     }
 
     template<class T>

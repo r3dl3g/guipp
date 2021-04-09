@@ -20,12 +20,15 @@ if(NOT TARGET ${PROJECT_NAME})
       native_x11.cpp
       overlapped_window.cpp
       receiver.cpp
+      stacked_view_controller.cpp
       window.cpp
       window_class.cpp
       window_event_handler.cpp
       window_event_proc.cpp
   )
+
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
+
   set(LINKED_LIBRARIES
       guipp::core
       ${LOGGING_LIBRARIES}

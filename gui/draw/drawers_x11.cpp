@@ -464,8 +464,9 @@ namespace gui {
                            int(str.size()),
                            &extents);
 
+        const auto height = f.font_type()->ascent;
         px += extents.x;
-        py += extents.y;
+        py += height;
 
         if (origin_is_h_center(origin)) {
           px += (rect.os_width() - extents.width) / 2;
@@ -474,9 +475,9 @@ namespace gui {
         }
 
         if (origin_is_v_center(origin)) {
-          py += (rect.os_height() - extents.height) / 2;
+          py += (rect.os_height() - height) / 2;
         } else if (origin_is_bottom(origin)) {
-          py += rect.os_height() - extents.height;
+          py += rect.os_height() - height;
         }
 
       } else {
@@ -542,8 +543,9 @@ namespace gui {
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
+        const auto height = f.font_type()->ascent;
         os::point_type px = rect.os_x(g.context()) + extents.x;
-        os::point_type py = rect.os_y(g.context()) + extents.y - extents.height;
+        os::point_type py = rect.os_y(g.context()) + height;
 
         if (origin_is_h_center(origin)) {
           px += (rect.os_width() - extents.width) / 2;
@@ -552,13 +554,13 @@ namespace gui {
         }
 
         if (origin_is_v_center(origin)) {
-          py += (rect.os_height() - extents.height) / 2;
+          py += (rect.os_height() - height) / 2;
         } else if (origin_is_bottom(origin)) {
-          py += rect.os_height() - extents.height;
+          py += rect.os_height() - height;
         }
 
         rect.top_left(core::point(os::point{px, py}, g.context()));
-        rect.set_size(core::size(os::size{extents.width, extents.height}));
+        rect.set_size(core::size(os::size{extents.width, height}));
 
       } else {
         clog::error() << "font_type is zero!";
@@ -616,8 +618,9 @@ namespace gui {
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
+        const auto height = f.font_type()->ascent;
         px += extents.x;
-        py += extents.y;
+        py += height;
 
         if (origin_is_h_center(origin)) {
           px -= extents.width / 2;
@@ -626,9 +629,9 @@ namespace gui {
         }
 
         if (origin_is_v_center(origin)) {
-          py -= extents.height / 2;
+          py -= height / 2;
         } else if (origin_is_bottom(origin)) {
-          py -= extents.height;
+          py -= height;
         }
 
       } else {

@@ -26,7 +26,13 @@ namespace gui {
     template<orientation_t O, os::color FG, os::color BG, typename B, typename L>
     toggle_group<O, FG, BG, B, L>::toggle_group ()
       : selection(-1)
-    {}
+    {
+      super::on_create([&] () {
+        for (auto& b : buttons) {
+          b->create(*this);
+        }
+      });
+    }
 
     template<orientation_t O, os::color FG, os::color BG, typename B, typename L>
     toggle_group<O, FG, BG, B, L>::~toggle_group () {
@@ -51,6 +57,7 @@ namespace gui {
       b->on_clicked([&, b] () {
         uncheck_buttons(b);
       });
+      super::get_layout().add(gui::layout::lay(b.get()));
       buttons.push_back(std::move(b));
     }
 
@@ -80,16 +87,6 @@ namespace gui {
     template<orientation_t O, os::color FG, os::color BG, typename B, typename L>
     inline void toggle_group<O, FG, BG, B, L>::disable () {
       enable(false);
-    }
-
-    template<orientation_t O, os::color FG, os::color BG, typename B, typename L>
-    void toggle_group<O, FG, BG, B, L>::create (win::container& parent,
-                                                const core::rectangle& place) {
-      super::create(parent, place);
-      for (auto& b : buttons) {
-        b->create(*this);
-        super::get_layout().add([b] (const core::rectangle& r) { b->geometry(r); });
-      }
     }
 
     template<orientation_t O, os::color FG, os::color BG, typename B, typename L>

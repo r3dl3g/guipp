@@ -59,9 +59,6 @@ namespace gui {
       void enable (bool on = true);
       void disable ();
 
-      void create (win::container& parent,
-                   const core::rectangle& place = core::rectangle::def);
-
       void on_selection_changed (std::function<void(event_source)>&& f);
 
       int get_selection_index () const;

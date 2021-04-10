@@ -52,6 +52,7 @@ namespace gui {
       void add_button (const std::string& label);
       void add_button (const text_source& label);
 
+      std::size_t count () const;
       button_type& get_button (int idx);
       const button_type& get_button (int idx) const;
 

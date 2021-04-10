@@ -55,6 +55,11 @@ namespace gui {
     }
 
     template<orientation_t O, os::color FG, os::color BG, typename B, typename L>
+    inline std::size_t toggle_group<O, FG, BG, B, L>::count () const {
+      return buttons.size();
+    }
+
+    template<orientation_t O, os::color FG, os::color BG, typename B, typename L>
     inline auto toggle_group<O, FG, BG, B, L>::get_button (int idx) -> button_type& {
       return buttons[idx];
     }

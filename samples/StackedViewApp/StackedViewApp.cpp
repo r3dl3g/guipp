@@ -3,50 +3,22 @@
 
 #include <gui/layout/layout_container.h>
 #include <gui/layout/border_layout.h>
+#include <gui/layout/dynamic_border_layout.h>
 #include <gui/layout/weighted_layout.h>
 #include <gui/ctrl/virtual_view.h>
 #include <gui/ctrl/file_tree.h>
 #include <gui/ctrl/button.h>
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/look/control.h>
-#include <gui/win/stacked_view.h>
+#include <gui/ctrl/stacked_view.h>
+#include <gui/ctrl/title_view.h>
+#include <gui/ctrl/toggle_group.h>
 
 using namespace gui;
 using namespace gui::win;
 using namespace gui::ctrl;
 
-// --------------------------------------------------------------------------
-struct title_view : public group_window<layout::border::layouter<0, 0, 80, 0>, color::very_very_light_gray> {
-  typedef group_window<layout::border::layouter<0, 0, 80, 0>, color::very_very_light_gray> super;
 
-  title_view();
-
-  void set_title (const std::string& title) {
-    title_label.set_text(title);
-  }
-
-  void enable_back (bool b) {
-    back_btn.enable(b);
-  }
-
-  void on_back (std::function<notification_fn>&& fn) {
-    back_btn.on_clicked(std::move(fn));
-  }
-
-private:
-  icon_push_button<draw::icon_t::left_arrow, color::black, color::very_very_light_gray> back_btn;
-  label title_label;
-};
-// --------------------------------------------------------------------------
-title_view::title_view() {
-  get_layout().set_center(layout::lay(title_label));
-  get_layout().set_left(layout::lay(back_btn));
-  on_create([&] () {
-    back_btn.create(*this);
-    back_btn.set_visible(false);
-    title_label.create(*this);
-  });
-}
 // --------------------------------------------------------------------------
 typedef stacked_view<title_view> stacked_view_t;
 // --------------------------------------------------------------------------
@@ -61,6 +33,7 @@ directory fake_fs;
 class fake_file_list : public vertical_list {
 public:
   typedef vertical_list super;
+  typedef ctrl::htoggle_group<color::black, color::very_very_light_gray> toggle_group_t;
 
   fake_file_list (core::size::type item_size = list_defaults<>::item_size)
   : super(item_size) {
@@ -73,6 +46,11 @@ public:
     super::clear_selection(event_source::logic);
     super::set_scroll_pos(core::point::zero);
     super::invalidate();
+    for (const auto& p : util::string::split<'/'>(current_path)) {
+      if (!p.empty()) {
+        buttons.add_button(p);
+      }
+    }
   }
 
   std::string get_selected_path () const {
@@ -83,9 +61,14 @@ public:
     return {};
   }
 
+  toggle_group_t& get_buttons () {
+    return buttons;
+  }
+
 private:
   std::vector<std::string> current_dir;
   std::string current_path;
+  toggle_group_t buttons;
 
   void init () {
     super::set_data(indirect_list_data<std::string>(current_dir));
@@ -100,7 +83,7 @@ void init_sub_view (file_list_t& view, stacked_view_t& client) {
   view.on_selection_commit([&] () {
     auto path = view.get_selected_path();
     if (fake_fs.find(path) != fake_fs.end()) {
-      if (client.view_stack.top().title == path) {
+      if (client.get_data(client.view_stack.top()).title == path) {
         clog::warn() << "Double push same view on stacked_view with title: '" << path << "'!";
         return;
       }
@@ -108,7 +91,7 @@ void init_sub_view (file_list_t& view, stacked_view_t& client) {
       sub_view_t::view_type& sub = sub_view->view;
       sub.set_path(path);
       init_sub_view(sub, client);
-      client.push(sub_view, path);
+      client.push(sub_view, path, sub.get_buttons(), sub.get_buttons().count() * 50);
     }
   });
 }
@@ -139,7 +122,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   main.on_create([&] () {
     client.create(main);
-    client.view_stack.push(base_view, "/");
+    client.push(base_view, "/");
     sub_view_t::view_type& view = base_view->view;
     view.set_path("/");
 

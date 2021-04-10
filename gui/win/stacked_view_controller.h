@@ -40,9 +40,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct stacked_view_controller {
-      typedef std::function<void(const window_ptr&)> finish_push_fn;
-      typedef std::function<void(const window_ptr&)> prepare_pop_fn;
-      typedef std::function<void()> finish_pop_fn;
+      typedef std::function<void(const window_ptr&)> callback_fn;
 
       typedef animation::dual<animation::move> (animation_type) (const window_ptr& out,
                                                                  const window_ptr& in,
@@ -57,9 +55,9 @@ namespace gui {
       const window_ptr& top () const;
       std::size_t count () const;
 
-      void on_finish_push (finish_push_fn&&);
-      void on_prepare_pop (prepare_pop_fn&&);
-      void on_finish_pop (finish_pop_fn&&);
+      void on_finish_push (callback_fn&&);
+      void on_prepare_pop (callback_fn&&);
+      void on_finish_pop (callback_fn&&);
 
       void disable_animation (bool disable);
 
@@ -67,9 +65,9 @@ namespace gui {
       container& main;
       std::stack<window_ptr> view_stack;
       animation::engine animator;
-      finish_push_fn finish_push;
-      prepare_pop_fn prepare_pop;
-      finish_pop_fn finish_pop;
+      callback_fn finish_push;
+      callback_fn prepare_pop;
+      callback_fn finish_pop;
     };
 
     // --------------------------------------------------------------------------

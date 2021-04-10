@@ -32,6 +32,7 @@ if(NOT TARGET ${PROJECT_NAME})
       table.cpp
       textbox.cpp
       tile_view.cpp
+      title_view.cpp
   )
 
   file(GLOB INCLUDE_FILES "*.h" "*.inl")

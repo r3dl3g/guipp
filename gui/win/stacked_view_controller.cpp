@@ -70,31 +70,31 @@ namespace gui {
     void stacked_view_controller::pop (animation_type at) {
       if (view_stack.size() > 1) {
         window_ptr out(std::move(view_stack.top()));
+        if (prepare_pop) {
+          prepare_pop(out);
+        }
         view_stack.pop();
         window_ptr in = view_stack.top();
-        if (prepare_pop) {
-          prepare_pop(in);
-        }
         const auto r = out->geometry();
         animator.add(at(out, in, r));
-        animator.start([&, out] () {
+        animator.start([&, in, out] () {
           out->remove_from_parent();
           if (finish_pop) {
-            finish_pop();
+            finish_pop(in);
           }
         });
       }
     }
     // --------------------------------------------------------------------------
-    void stacked_view_controller::on_finish_push (finish_push_fn&& fn) {
+    void stacked_view_controller::on_finish_push (callback_fn&& fn) {
       finish_push = std::move(fn);
     }
     // --------------------------------------------------------------------------
-    void stacked_view_controller::on_prepare_pop (prepare_pop_fn&& fn) {
+    void stacked_view_controller::on_prepare_pop (callback_fn&& fn) {
       prepare_pop = std::move(fn);
     }
     // --------------------------------------------------------------------------
-    void stacked_view_controller::on_finish_pop (finish_pop_fn&& fn) {
+    void stacked_view_controller::on_finish_pop (callback_fn&& fn) {
       finish_pop = std::move(fn);
     }
     // --------------------------------------------------------------------------

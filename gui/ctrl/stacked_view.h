@@ -116,14 +116,14 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T, int H, animation::position P>
     void stacked_view<T, H, P>::push (const window_ptr& view, const std::string& title) {
-      view_data.insert_or_assign(view, win_data{title, nullptr, 0});
+      view_data[view] = win_data{title, nullptr, 0};
       view_stack.push(view, animation::push_from<P>);
       title_view.clear_right_view();
     }
     // --------------------------------------------------------------------------
     template<typename T, int H, animation::position P>
     void stacked_view<T, H, P>::push (const window_ptr& view, const std::string& title, window& right, core::size::type width) {
-      view_data.insert_or_assign(view, win_data{title, &right, width});
+      view_data[view] = win_data{title, &right, width};
       view_stack.push(view, animation::push_from<P>);
     }
     // --------------------------------------------------------------------------

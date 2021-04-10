@@ -545,7 +545,7 @@ namespace gui {
                            &extents);
         const auto height = f.font_type()->ascent;
         os::point_type px = rect.os_x(g.context()) + extents.x;
-        os::point_type py = rect.os_y(g.context()) + height;
+        os::point_type py = rect.os_y(g.context());
 
         if (origin_is_h_center(origin)) {
           px += (rect.os_width() - extents.width) / 2;

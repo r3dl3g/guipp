@@ -37,31 +37,30 @@ namespace gui {
       return view_stack.size();
     }
     // --------------------------------------------------------------------------
-    auto stacked_view_controller::top () const -> const stack_entry& {
+    const window_ptr& stacked_view_controller::top () const {
       return view_stack.top();
     }
     // --------------------------------------------------------------------------
     void stacked_view_controller::push (const window_ptr& in,
-                                        const std::string& t,
                                         animation_type at) {
       if (view_stack.empty()) {
         in->create(in->get_window_class(), main);
-        view_stack.push({in, t});
+        view_stack.push(in);
         if (finish_push) {
-          finish_push(in, t);
+          finish_push(in);
         }
         in->set_visible();
       } else {
-        window_ptr out = view_stack.top().view;
+        window_ptr out = view_stack.top();
         const auto r = out->geometry();
-        view_stack.push({in, t});
+        view_stack.push(in);
         in->create(in->get_window_class(), main, r);
         in->set_visible(false);
         animator.add(at(out, in, r));
-        animator.start([&, in, out, t] () {
+        animator.start([&, in, out] () {
           out->set_visible(false);
           if (finish_push) {
-            finish_push(in, t);
+            finish_push(in);
           }
           in->set_visible();
         });
@@ -70,9 +69,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     void stacked_view_controller::pop (animation_type at) {
       if (view_stack.size() > 1) {
-        window_ptr out(std::move(view_stack.top().view));
+        window_ptr out(std::move(view_stack.top()));
         view_stack.pop();
-        window_ptr in = view_stack.top().view;
+        window_ptr in = view_stack.top();
         if (prepare_pop) {
           prepare_pop(in);
         }

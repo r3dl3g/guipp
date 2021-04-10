@@ -125,7 +125,6 @@ namespace gui {
     void stacked_view<T, H, P>::push (const window_ptr& view, const std::string& title, window& right, core::size::type width) {
       view_data.insert_or_assign(view, win_data{title, &right, width});
       view_stack.push(view, animation::push_from<P>);
-      title_view.set_right_view(right, width);
     }
     // --------------------------------------------------------------------------
     template<typename T, int H, animation::position P>

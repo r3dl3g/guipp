@@ -137,15 +137,15 @@ namespace gui {
       typedef detail::dynamic_border_layout_geometrie<type> geometrie;
 
       dynamic_border_layout (win::container*,
-                             float top_height,
-                             float bottom_height,
-                             float left_width,
-                             float right_width);
+                             float top_height = 0,
+                             float bottom_height = 0,
+                             float left_width = 0,
+                             float right_width = 0);
 
-      dynamic_border_layout (float top_height,
-                             float bottom_height,
-                             float left_width,
-                             float right_width);
+      dynamic_border_layout (float top_height = 0,
+                             float bottom_height = 0,
+                             float left_width = 0,
+                             float right_width = 0);
 
       void layout (const core::rectangle& r);
     };

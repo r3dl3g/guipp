@@ -130,7 +130,7 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<border_layout_type type = border_layout_type::top_bottom_maximize>
+    template<border_layout_type type = border_layout_type::top_bottom_maximize, int F = 0>
     class dynamic_border_layout : public detail::dynamic_border_layout_base {
     public:
       typedef detail::dynamic_border_layout_base super;
@@ -150,8 +150,8 @@ namespace gui {
       void layout (const core::rectangle& r);
     };
 
-    template<border_layout_type T>
-    struct is_layout<dynamic_border_layout<T>> {
+    template<border_layout_type T, int F>
+    struct is_layout<dynamic_border_layout<T, F>> {
       enum {
         value = true
       };

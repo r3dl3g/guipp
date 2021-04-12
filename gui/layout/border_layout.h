@@ -159,6 +159,22 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
+      template<typename T, int TO = 0, int BO = 0, int LE = 0, int RI = 0>
+      class center_layout {
+      public:
+        center_layout (T& p)
+          : page(p)
+        {}
+
+        void layout (const gui::core::rectangle& r) {
+          page.geometry(r.shrinked(TO, BO, LE, RI));
+        }
+
+      private:
+        T& page;
+      };
+
+      // --------------------------------------------------------------------------
       template<typename T>
       class zero_layout {
       public:
@@ -175,6 +191,13 @@ namespace gui {
       };
 
     } // namespace border
+
+    template<typename T, int TO, int BO, int LE, int RI>
+    struct is_layout<border::center_layout<T, TO, BO, LE, RI>> {
+      enum {
+        value = true
+      };
+    };
 
     template<typename T>
     struct is_layout<border::zero_layout<T>> {

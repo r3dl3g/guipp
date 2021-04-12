@@ -213,8 +213,9 @@ namespace gui {
     void icon_button<T, I, F, B>::init () {
       super::on_paint(draw::paint([&] (draw::graphics& g) {
         const auto r = super::client_geometry();
-        g.erase(r, look::get_background_color(super::get_state(), B));
-        g.frame(draw::icon<I>(r.center(), r.max_radius() / 2), look::get_text_color(super::get_state(), F));
+        const auto st = super::get_state();
+        g.erase(r, look::get_button_background(st, B));
+        g.frame(draw::icon<I>(r.center(), r.max_radius() / 2), look::get_button_foreground(st, F, B));
       }));
     }
 

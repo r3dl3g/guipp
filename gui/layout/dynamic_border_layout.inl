@@ -379,26 +379,27 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<border_layout_type type>
-    dynamic_border_layout<type>::dynamic_border_layout (win::container*,
-                                        float top_height,
-                                        float bottom_height,
-                                        float left_width,
-                                        float right_width)
+    template<border_layout_type type, int F>
+    dynamic_border_layout<type, F>::dynamic_border_layout (win::container*,
+                                                           float top_height,
+                                                           float bottom_height,
+                                                           float left_width,
+                                                           float right_width)
       : super(top_height, bottom_height, left_width, right_width)
     {}
 
-    template<border_layout_type type>
-    dynamic_border_layout<type>::dynamic_border_layout (float top_height,
-                                        float bottom_height,
-                                        float left_width,
-                                        float right_width)
+    template<border_layout_type type, int F>
+    dynamic_border_layout<type, F>::dynamic_border_layout (float top_height,
+                                                           float bottom_height,
+                                                           float left_width,
+                                                           float right_width)
       : super(top_height, bottom_height, left_width, right_width)
     {}
 
-    template<border_layout_type type>
-    void dynamic_border_layout<type>::layout (const core::rectangle& r) {
-      clog::trace() << "dynamic_border_layout::layout(" << r << ")";
+    template<border_layout_type type, int F>
+    void dynamic_border_layout<type, F>::layout (const core::rectangle& r_) {
+      clog::trace() << "dynamic_border_layout::layout(" << r_ << ")";
+      const auto r = r_.shrinked(F, F, F, F);
       core::size top_left(super::get_left_width(), super::get_top_height());
       core::size bottom_right(super::get_right_width(), super::get_bottom_height());
       core::size size = r.size() - top_left - bottom_right;

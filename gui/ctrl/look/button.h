@@ -63,9 +63,9 @@ namespace gui {
 
     template<look_and_feel_t L = system_look_and_feel>
     void button_frame (draw::graphics& graph,
-                                             const core::rectangle& r,
-                                             bool enabled, bool pushed,
-                                             bool hilited, bool focused);
+                       const core::rectangle& r,
+                       bool enabled, bool pushed,
+                       bool hilited, bool focused);
 
     template<>
     GUIPP_LOOK_EXPORT void button_frame<look_and_feel_t::metal> (draw::graphics& graph,
@@ -105,6 +105,12 @@ namespace gui {
                                          bool hilite = false,
                                          uint32_t horizontal = 3,
                                          uint32_t vertical = 3);
+
+    GUIPP_LOOK_EXPORT os::color get_button_background (const core::button_state::is& state,
+                                                       os::color background);
+    GUIPP_LOOK_EXPORT os::color get_button_foreground (const core::button_state::is& state,
+                                                       os::color foreground,
+                                                       os::color background);
 
     GUIPP_LOOK_EXPORT void flat_button (draw::graphics& g,
                                         const core::rectangle& r,

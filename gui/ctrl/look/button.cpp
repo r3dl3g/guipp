@@ -357,6 +357,36 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    os::color get_button_background (const core::button_state::is& state, os::color background) {
+      if (state.enabled()) {
+        if (state.pushed()) {
+          return color::darker(background, 0.25);
+        } else if (state.hilited()) {
+          return color::lighter(background, 0.25);
+        }
+      }
+      return background;
+    }
+    // --------------------------------------------------------------------------
+    os::color get_button_foreground (const core::button_state::is& state, os::color foreground, os::color background) {
+      if (state.enabled()) {
+        if (state.pushed()) {
+          const os::color b2 = color::invert(background);
+          const os::color f2 = color::invert(foreground);
+          const int i1 = color::compare(background, b2);
+          const int i2 = color::compare(background, f2);
+          if (std::abs(i1) > std::abs(i2)) {
+            return b2;
+          } else {
+            return f2;
+          }
+        }
+        return foreground;
+      } else {
+        return color::darker(foreground);
+      }
+    }
+    // --------------------------------------------------------------------------
     void flat_button (draw::graphics& g,
                       const core::rectangle& r,
                       const std::string& text,
@@ -364,30 +394,10 @@ namespace gui {
                       os::color foreground,
                       os::color background) {
       bool enabled = state.enabled();
-      os::color b = background;
-      if (state.pushed() && enabled) {
-        b = color::darker(background, 0.25);
-      } else if (state.hilited() && enabled) {
-        b = color::lighter(background, 0.25);
-      }
+      os::color b = get_button_background(state, background);
       g.fill(draw::rectangle(r), b);
 
-      os::color f = foreground;
-      if (enabled) {
-        if (state.pushed()) {
-          os::color b2 = color::invert(b);
-          os::color f2 = color::invert(foreground);
-          int i1 = color::compare(b, b2);
-          int i2 = color::compare(b, f2);
-          if (std::abs(i1) > std::abs(i2)) {
-            f = b2;
-          } else {
-            f = f2;
-          }
-        }
-      } else {
-        f = color::darker(foreground);
-      }
+      os::color f = get_button_foreground(state, foreground, b);
       g.text(draw::text_box(text, r, text_origin_t::center), draw::font::system(), f);
 #ifndef GUIPP_BUILD_FOR_MOBILE
       if (enabled && state.focused()) {

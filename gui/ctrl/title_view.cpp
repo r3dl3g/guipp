@@ -28,8 +28,8 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-    title_view::title_view()
-      : super(0, 0, 50, 0)
+    title_view::title_view (int back_size)
+      : super(0, 0, back_size, 0)
     {
       get_layout().set_center(layout::lay(title_label));
       get_layout().set_left(layout::lay(back_btn));

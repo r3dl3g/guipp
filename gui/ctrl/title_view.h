@@ -32,10 +32,11 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-    struct GUIPP_CTRL_EXPORT title_view : public win::group_window<layout::dynamic_border_layout<>, color::very_very_light_gray, float, float, float, float> {
-      typedef win::group_window<layout::dynamic_border_layout<>, color::very_very_light_gray, float, float, float, float> super;
+    struct GUIPP_CTRL_EXPORT title_view : public
+        win::group_window<layout::dynamic_border_layout<layout::border_layout_type::left_right_maximize, 5>, color::very_very_light_gray, float, float, float, float> {
+      typedef win::group_window<layout::dynamic_border_layout<layout::border_layout_type::left_right_maximize, 5>, color::very_very_light_gray, float, float, float, float> super;
 
-      title_view ();
+      title_view (int back_size = 40);
 
       void set_title (const std::string& title);
 
@@ -46,7 +47,7 @@ namespace gui {
       void clear_right_view ();
 
     private:
-      icon_push_button<draw::icon_t::left_arrow, color::black, color::very_very_light_gray> back_btn;
+      icon_push_button<draw::icon_t::left_arrow> back_btn;
       label_center title_label;
     };
 

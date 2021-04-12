@@ -15,9 +15,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::core;
 
   using label_t = basic_label<text_origin_t::center,
-                              draw::frame::raised_deep_relief,
-                              color::black,
-                              color::very_light_gray>;
+                              draw::frame::raised_deep_relief>;
 
   layout_main_window<border::layouter</*50, 50, 50, 50*/>> main;
   typedef horizontal_split_view<label_t, label_t> labels;

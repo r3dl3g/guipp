@@ -30,17 +30,15 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      list_base::data::data (os::color background)
+      list_base::data::data ()
         : selection(-1)
         , hilite(-1)
         , last_mouse_point(core::native_point::undefined)
-        , background(background)
       {}
 
       // --------------------------------------------------------------------------
-      list_base::list_base (os::color background, bool grab_focus)
-        : data(background)
-      {
+      list_base::list_base (os::color background, bool grab_focus) {
+        set_background(background);
         set_state().grab_focus(grab_focus);
         init();
       }

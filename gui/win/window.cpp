@@ -41,10 +41,17 @@ namespace gui {
 
   namespace win {
 
+    namespace {
+
+      constexpr os::color white_transparent = color::rgba_gray<0xff, 0xff>::value;
+
+    }
+
     // --------------------------------------------------------------------------
     window::window ()
       : area(core::rectangle::def)
       , parent(nullptr)
+      , background(white_transparent)
       , class_name(nullptr)
     {}
 
@@ -52,6 +59,7 @@ namespace gui {
       : area(rhs.area)
       , parent(nullptr)
       , flags(rhs.flags)
+      , background(rhs.background)
       , class_name(nullptr)
     {
       if (rhs.is_valid()) {
@@ -66,8 +74,9 @@ namespace gui {
       : area(std::move(rhs.area))
       , parent(std::move(rhs.parent))
       , flags(std::move(rhs.flags))
-      , class_name(rhs.class_name)
       , cursor_(rhs.cursor_)
+      , background(rhs.background)
+      , class_name(rhs.class_name)
     {
       if (parent) {
         parent->remove_child(&rhs);
@@ -94,6 +103,9 @@ namespace gui {
       class_name = type.get_class_name();
       area = r;
 //      cursor_ = type.get_cursor();
+      if (white_transparent == background) {
+        background = type.get_background();
+      }
       native::register_window_class(type);
       auto s = set_state();
       s.created(true);
@@ -317,6 +329,14 @@ namespace gui {
 
     const cursor& window::get_cursor () const {
       return cursor_ ? cursor_ : get_window_class().get_cursor();
+    }
+
+    void window::set_background (os::color b) {
+      background = b;
+    }
+
+    os::color window::get_background () const {
+      return background;
     }
 
     void window::invalidate () const {

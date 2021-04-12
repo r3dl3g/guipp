@@ -150,7 +150,7 @@ namespace gui {
 class my_main_window : public win::layout_main_window<layout::attach> {
 public:
   typedef win::layout_main_window<layout::attach> super;
-  typedef win::group_window<layout::horizontal_adaption<5, 5>, color::dark_gray> group_group_t;
+  typedef win::group_window<layout::horizontal_adaption<5, 5>> group_group_t;
   typedef win::cls::main_window_class<my_main_window, color::very_very_light_gray> myclazz;
 
   my_main_window ();
@@ -188,7 +188,7 @@ private:
   ctrl::vertical_separator btn_sep1;
   ctrl::vertical_separator btn_sep2;
 
-  win::group_window<layout::horizontal_adaption<5, 10, 2, 50, 90, origin_t::end>, color::very_light_gray> btn_group;
+  win::group_window<layout::horizontal_adaption<5, 10, 2, 50, 90, origin_t::end>> btn_group;
   win::group_window<layout::vertical_adaption<2, 1>> chck_group;
 
   group_group_t group_group;
@@ -220,7 +220,7 @@ private:
   ctrl::horizontal_scroll_bar end_angle;
 
   ctrl::label label;
-  ctrl::basic_label<text_origin_t::center, draw::frame::no_frame, color::blue, color::light_gray> labelC;
+  ctrl::basic_label<text_origin_t::center, draw::frame::no_frame> labelC;
   ctrl::label_right labelR;
 
   ctrl::text_button min_button;
@@ -353,6 +353,8 @@ my_main_window::my_main_window ()
   main_split_view.second.second.list->set_item_size_and_background(16, color::very_light_gray);
   list1->set_item_size(25);
   list3->set_item_size_and_background(20, color::light_gray);
+  group_group.set_background(color::dark_gray);
+  btn_group.set_background(color::very_light_gray);
 
   on_destroy([] () {
     clog::debug() << "Destroyed!";
@@ -1031,6 +1033,8 @@ void my_main_window::created_children () {
 
   label.create(main, "Text", core::rectangle(50, 370, 120, 20));
   labelC.create(main, core::rectangle(50, 391, 120, 20));
+  labelC.set_foreground(color::blue);
+  labelC.set_background(color::light_gray);
   labelR.create(main, core::rectangle(50, 412, 120, 20));
 
   hsplitter.create(main, core::rectangle(5, 470, 500, 5));

@@ -70,14 +70,14 @@ namespace gui {
 
     template<int T, int L, int R>
     standard_dialog_base<T, L, R>::standard_dialog_base ()
-      : super()
     {}
 
     //-----------------------------------------------------------------------------
     template<typename C, int T, int L, int R>
-    inline standard_dialog<C, T, L, R>::standard_dialog ()
-      : super()
-    {}
+    inline standard_dialog<C, T, L, R>::standard_dialog () {
+      super::set_background(color::very_light_gray);
+      content_view.set_background(color::very_light_gray);
+    }
 
     template<typename C, int T, int L, int R>
     void standard_dialog<C, T, L, R>::create (win::overlapped_window& parent,

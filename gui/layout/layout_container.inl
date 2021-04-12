@@ -93,14 +93,14 @@ namespace gui {
 
     } // namespace detail
 
-    template<typename L, os::color B, typename ... A>
-    inline group_window<L, B, A...>::group_window (const A& ... args)
+    template<typename L, typename ... A>
+    inline group_window<L, A...>::group_window (const A& ... args)
       : super(args ...)
     {}
 
-    template<typename L, os::color B, typename ... A>
-    inline void group_window<L, B, A...>::create (container& parent,
-                                                  const core::rectangle& r) {
+    template<typename L, typename ... A>
+    inline void group_window<L, A...>::create (container& parent,
+                                               const core::rectangle& r) {
       super::create(clazz::get(), parent, r);
     }
 

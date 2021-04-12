@@ -33,8 +33,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct GUIPP_CTRL_EXPORT title_view : public
-        win::group_window<layout::dynamic_border_layout<layout::border_layout_type::left_right_maximize, 5>, color::very_very_light_gray, float, float, float, float> {
-      typedef win::group_window<layout::dynamic_border_layout<layout::border_layout_type::left_right_maximize, 5>, color::very_very_light_gray, float, float, float, float> super;
+        win::group_window<layout::dynamic_border_layout<layout::border_layout_type::left_right_maximize, 5>, float, float, float, float> {
+      typedef win::group_window<layout::dynamic_border_layout<layout::border_layout_type::left_right_maximize, 5>, float, float, float, float> super;
 
       title_view (int back_size = 40);
 

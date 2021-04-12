@@ -21,8 +21,9 @@ namespace gui {
 
   namespace ctrl {
 
-    template<alignment_t A, os::color B, typename G, typename L>
-    tab_view<A, B, G, L>::tab_view () {
+    template<alignment_t A, typename G, typename L>
+    tab_view<A, G, L>::tab_view () {
+      super::set_background(color::very_very_light_gray);
       super::get_layout().set_header(layout::lay(buttons));
 
       buttons.on_selection_changed([&] (event_source) {
@@ -32,9 +33,6 @@ namespace gui {
       super::on_create([&] () {
         buttons.create(*this);
       });
-      super::on_paint(draw::paint([&] (draw::graphics&  graph) {
-        graph.clear(B);
-      }));
       super::on_show([& ]() {
         if (!pages.empty()) {
           show_page(0);
@@ -42,8 +40,8 @@ namespace gui {
       });
     }
 
-    template<alignment_t A, os::color B, typename G, typename L>
-    void tab_view<A, B, G, L>::show_page (int idx) {
+    template<alignment_t A, typename G, typename L>
+    void tab_view<A, G, L>::show_page (int idx) {
       if ((idx >= 0) && (idx < pages.size())) {
         super::get_layout().set_body(layout::lay(pages[idx].get()));
         for (int i = 0; i < pages.size(); ++i) {
@@ -53,8 +51,8 @@ namespace gui {
       }
     }
 
-    template<alignment_t A, os::color B, typename G, typename L>
-    void tab_view<A, B, G, L>::add_page (const std::string& label, win::window& page) {
+    template<alignment_t A, typename G, typename L>
+    void tab_view<A, G, L>::add_page (const std::string& label, win::window& page) {
       buttons.add_button(label);
       if (pages.empty()) {
         super::get_layout().set_body(layout::lay(page));
@@ -66,13 +64,13 @@ namespace gui {
       pages.push_back(page);
     }
 
-    template<alignment_t A, os::color B, typename G, typename L>
-    void tab_view<A, B, G, L>::on_selection_changed (std::function<void(event_source)>&& f) {
+    template<alignment_t A, typename G, typename L>
+    void tab_view<A, G, L>::on_selection_changed (std::function<void(event_source)>&& f) {
       buttons.on_selection_changed(std::move(f));
     }
 
-    template<alignment_t A, os::color B, typename G, typename L>
-    int tab_view<A, B, G, L>::get_selection_index () const {
+    template<alignment_t A, typename G, typename L>
+    int tab_view<A, G, L>::get_selection_index () const {
       return buttons.get_selection_index();
     }
 

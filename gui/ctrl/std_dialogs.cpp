@@ -248,6 +248,8 @@ namespace gui {
       input_line.create(top_view, default_name, core::rectangle(0, 0, 100, 100));
       content_view.set_split_pos(0.5);
 
+      top_view.set_background(color::very_very_light_gray);
+
       sys_fs::path current = sys_fs::current_path();
       dir_tree.set_roots(fs::get_all_root_file_infos());
       for (auto next = current; next.has_root_path() && (next != next.root_path()); next = next.parent_path()) {

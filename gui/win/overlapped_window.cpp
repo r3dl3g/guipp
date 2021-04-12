@@ -91,7 +91,7 @@ namespace gui {
         gc->begin(get_drawable());
 #endif
         if (create_new) {
-          native::erase(get_drawable(), gc, core::native_rect(sz), w.get_window_class().get_background());
+          native::erase(get_drawable(), gc, core::native_rect(sz), w.get_background());
         }
       }
 
@@ -562,7 +562,7 @@ namespace gui {
         auto cntxt = surface.get_context();
 
         core::clip clp(cntxt, invalid_rect);
-        native::erase(cntxt.drawable(), cntxt.graphics(), invalid_rect, get_window_class().get_background());
+        native::erase(cntxt.drawable(), cntxt.graphics(), invalid_rect, get_background());
         notify_event(core::WM_PAINT_WINDOW, &cntxt, &invalid_rect);
         auto wctxt = surface.end(get_os_window());
 

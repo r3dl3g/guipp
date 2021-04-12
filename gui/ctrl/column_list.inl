@@ -174,8 +174,8 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-    template<typename Layout, os::color background>
-    column_list_header<Layout, background>::column_list_header ()
+    template<typename Layout>
+    column_list_header<Layout>::column_list_header ()
       : down_idx(-1)
       , layouter(this)
     {
@@ -185,8 +185,8 @@ namespace gui {
       init();
     }
 
-    template<typename Layout, os::color background>
-    column_list_header<Layout, background>::column_list_header (const column_list_header& rhs)
+    template<typename Layout>
+    column_list_header<Layout>::column_list_header (const column_list_header& rhs)
       : super(rhs)
       , cell_drawer(rhs.cell_drawer)
       , last_mouse_point(rhs.last_mouse_point)
@@ -196,8 +196,8 @@ namespace gui {
       init();
     }
 
-    template<typename Layout, os::color background>
-    column_list_header<Layout, background>::column_list_header (column_list_header&& rhs) noexcept
+    template<typename Layout>
+    column_list_header<Layout>::column_list_header (column_list_header&& rhs) noexcept
       : super(std::move(rhs))
       , cell_drawer(std::move(rhs.cell_drawer))
       , last_mouse_point(std::move(rhs.last_mouse_point))
@@ -207,8 +207,9 @@ namespace gui {
       init();
     }
 
-    template<typename Layout, os::color background>
-    void column_list_header<Layout, background>::init () {
+    template<typename Layout>
+    void column_list_header<Layout>::init () {
+      super::set_background(color::very_very_light_gray);
       using namespace win;
       super::register_event_handler(event_handler_function([&] (const core::event& e, gui::os::event_result& r) {
         if (!mouse_move_event::if_match_call(e, this, &column_list_header::handle_mouse_move)) {
@@ -221,13 +222,13 @@ namespace gui {
       super::on_paint(draw::paint(this, &column_list_header::paint));
     }
 
-    template<typename Layout, os::color background>
-    void column_list_header<Layout, background>::paint (draw::graphics& g) {
+    template<typename Layout>
+    void column_list_header<Layout>::paint (draw::graphics& g) {
       using namespace draw;
 
       core::rectangle area = this->client_geometry();
       core::rectangle r = area;
-      draw::brush back_brush(background);
+      draw::brush back_brush(get_background());
 
       auto count = layouter.get_column_count();
       for (decltype(count) i = 0;i < count;++i) {
@@ -244,19 +245,19 @@ namespace gui {
       }
     }
 
-    template<typename Layout, os::color background>
-    void column_list_header<Layout, background>::create (win::container& parent,
+    template<typename Layout>
+    void column_list_header<Layout>::create (win::container& parent,
                                                          const core::rectangle& place) {
       super::create(clazz::get(), parent, place);
     }
 
-    template<typename Layout, os::color background>
-    void column_list_header<Layout, background>::set_cell_drawer (std::function<cell_draw> cd) {
+    template<typename Layout>
+    void column_list_header<Layout>::set_cell_drawer (std::function<cell_draw> cd) {
       cell_drawer = cd;
     }
 
-    template<typename L, os::color B>
-    void column_list_header<L, B>::set_labels (std::initializer_list<std::string> args) {
+    template<typename L>
+    void column_list_header<L>::set_labels (std::initializer_list<std::string> args) {
       std::vector<std::string> labels(args);
       set_cell_drawer([labels] (std::size_t i,
                                 draw::graphics& g,
@@ -269,8 +270,8 @@ namespace gui {
       });
     }
 
-    template<typename Layout, os::color background>
-    void column_list_header<Layout, background>::handle_left_btn_down (os::key_state, const core::native_point& npt) {
+    template<typename Layout>
+    void column_list_header<Layout>::handle_left_btn_down (os::key_state, const core::native_point& npt) {
       auto pt = super::surface_to_client(npt);
       last_mouse_point = pt;
       down_idx = layouter.split_idx_at(pt.x(), 2.0F);
@@ -278,16 +279,16 @@ namespace gui {
       super::capture_pointer();
     }
 
-    template<typename Layout, os::color background>
-    void column_list_header<Layout, background>::handle_left_btn_up (os::key_state keys, const core::native_point& pt) {
+    template<typename Layout>
+    void column_list_header<Layout>::handle_left_btn_up (os::key_state keys, const core::native_point& pt) {
       last_mouse_point = core::point::undefined;
       down_idx = -1;
       super::set_cursor(win::cursor::arrow());
       super::uncapture_pointer();
     }
 
-    template<typename Layout, os::color background>
-    void column_list_header<Layout, background>::handle_mouse_move (os::key_state keys, const core::native_point& npt) {
+    template<typename Layout>
+    void column_list_header<Layout>::handle_mouse_move (os::key_state keys, const core::native_point& npt) {
       auto pt = super::surface_to_client(npt);
       if (core::left_button_bit_mask::is_set(keys)) {
         if (last_mouse_point != core::point::undefined) {
@@ -304,18 +305,18 @@ namespace gui {
       }
     }
 
-    template<typename Layout, os::color background>
-    inline auto column_list_header<Layout, background>::get_column_layout () -> layout_type& {
+    template<typename Layout>
+    inline auto column_list_header<Layout>::get_column_layout () -> layout_type& {
       return layouter;
     }
 
-    template<typename Layout, os::color background>
-    inline auto column_list_header<Layout, background>::get_column_layout () const -> const layout_type& {
+    template<typename Layout>
+    inline auto column_list_header<Layout>::get_column_layout () const -> const layout_type& {
       return layouter;
     }
 
-    template<typename Layout, os::color background>
-    inline void column_list_header<Layout, background>::layout (const core::rectangle& r) {
+    template<typename Layout>
+    inline void column_list_header<Layout>::layout (const core::rectangle& r) {
       clog::trace() << "column_list_header::layout(" << r << ")";
       layouter.layout(r);
     }

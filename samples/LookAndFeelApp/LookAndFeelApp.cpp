@@ -25,7 +25,7 @@ constexpr std::size_t size_of (const std::array<T, N>&) {
 const std::size_t COLUMNS = 4;
 
 typedef gui::layout::fixed_grid_lineup<120, IF_MOBILE_ELSE(40, 22), COLUMNS + 1, 10, 4> layout_t;
-typedef gui::win::group_window<layout_t, gui::color::very_very_light_gray> top_grid_t;
+typedef gui::win::group_window<layout_t> top_grid_t;
 
 template<typename T>
 typename std::enable_if<!std::is_base_of<gui::ctrl::button_base, T>::value>::type
@@ -87,13 +87,18 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   typedef layout::vertical_lineup<236, 10, 8> center_layout_t;
   typedef layout::vertical_lineup<IF_MOBILE_ELSE(80, 40), 0, 8> bottom_layout_t;
   typedef layout::horizontal_adaption<10, 4, 0, IF_MOBILE_ELSE(160, 80), IF_MOBILE_ELSE(400, 200)> center_grid_t;
-  typedef group_window<center_grid_t, color::very_very_light_gray> page_t;
+  typedef group_window<center_grid_t> page_t;
 
   main_window_t main;
   tab_view<alignment_t::top> tabs;
   top_grid_t first_view;
   page_t second_view;
   page_t third_view;
+
+  tabs.set_background(color::very_very_light_gray);
+  first_view.set_background(color::very_very_light_gray);
+  second_view.set_background(color::very_very_light_gray);
+  third_view.set_background(color::very_very_light_gray);
 
   tabs.add_page("First", first_view);
   tabs.add_page("Second", second_view);

@@ -183,7 +183,7 @@ namespace gui {
                                                        const draw::brush& background);
 
     // --------------------------------------------------------------------------
-    template<typename Layout, os::color background = color::very_very_light_gray>
+    template<typename Layout>
     class column_list_header : public control {
     public:
       typedef control super;
@@ -240,8 +240,8 @@ namespace gui {
         typedef no_erase_window_class<base_column_list> clazz;
 
         explicit base_column_list (core::size::type item_size = list_defaults<>::item_size,
-                          os::color background = color::white,
-                          bool grab_focus = true);
+                                   os::color background = color::white,
+                                   bool grab_focus = true);
         base_column_list (base_column_list&& rhs) noexcept ;
 
         layout_type& get_column_layout ();

@@ -49,34 +49,40 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<text_origin_t A, draw::frame::drawer D, os::color F, os::color B, os::color C>
-    inline basic_progress_bar<A, D, F, B, C>::basic_progress_bar () {
+    template<text_origin_t A, draw::frame::drawer D>
+    inline basic_progress_bar<A, D>::basic_progress_bar (os::color bc,
+                                                         os::color fg,
+                                                         os::color bg)
+      : bar_color(bc)
+      , foreground(fg)
+    {
+      super::set_background(bg);
       init();
     }
 
-    template<text_origin_t A, draw::frame::drawer D, os::color F, os::color B, os::color C>
-    inline basic_progress_bar<A, D, F, B, C>::basic_progress_bar (const basic_progress_bar& rhs)
+    template<text_origin_t A, draw::frame::drawer D>
+    inline basic_progress_bar<A, D>::basic_progress_bar (const basic_progress_bar& rhs)
       : super(rhs)
     {
       init();
     }
 
-    template<text_origin_t A, draw::frame::drawer D, os::color F, os::color B, os::color C>
-    inline basic_progress_bar<A, D, F, B, C>::basic_progress_bar (basic_progress_bar&& rhs) noexcept
+    template<text_origin_t A, draw::frame::drawer D>
+    inline basic_progress_bar<A, D>::basic_progress_bar (basic_progress_bar&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();
     }
 
-    template<text_origin_t align, draw::frame::drawer frame, os::color foreground, os::color background, os::color bar_color>
-    inline void basic_progress_bar<align, frame, foreground, background, bar_color>::paint (draw::graphics& graph) {
+    template<text_origin_t align, draw::frame::drawer frame>
+    inline void basic_progress_bar<align, frame>::paint (draw::graphics& graph) {
       gui::core::rectangle place = frame(graph, client_geometry());
       auto pos = (get_value() - get_min()) / (get_max() - get_min()) * place.width();
-      gui::look::progress_bar(graph, place, get_text(), foreground, background, align, bar_color, pos);
+      gui::look::progress_bar(graph, place, get_text(), foreground, super::get_background(), align, bar_color, pos);
     }
 
-    template<text_origin_t A, draw::frame::drawer D, os::color F, os::color B, os::color C>
-    inline void basic_progress_bar<A, D, F, B, C>::init () {
+    template<text_origin_t A, draw::frame::drawer D>
+    inline void basic_progress_bar<A, D>::init () {
       on_paint(draw::paint(this, &basic_progress_bar::paint));
     }
 

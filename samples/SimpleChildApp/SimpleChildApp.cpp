@@ -16,11 +16,11 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   layout_main_window<gui::layout::border::layouter<40, 10, 10, 10>> main;
 
   using my_label = basic_label<text_origin_t::center,
-                               draw::frame::raised_relief,
-                               color::red,
-                               color::light_gray>;
+                               draw::frame::raised_relief>;
 
   my_label label;
+  label.set_foreground(color::red);
+  label.set_background(color::light_gray);
   client_window<color::white> drawing;
 
   drawing.on_paint(draw::paint([&] (draw::graphics& g) {

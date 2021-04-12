@@ -56,8 +56,7 @@ namespace gui {
         typedef control super;
         typedef size_t pos_t;
 
-        template<typename T = edit_base, os::color C = color::white>
-        using clazz = win::window_class<T, C, win::cursor_type::ibeam>;
+        typedef win::window_class<edit_base, color::white, win::cursor_type::ibeam> clazz;
 
         typedef std::function<filter::text_filter_f> text_filter;
         typedef core::range<pos_t> range;

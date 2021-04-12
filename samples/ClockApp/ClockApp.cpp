@@ -227,14 +227,15 @@ size::type icon_size (const core::size& sz) {
 }
 // --------------------------------------------------------------------------
 template<typename T>
-struct chronometer_page : group_window<stopwatch_layout, color::black, window&, window&, window&> {
-  typedef group_window<stopwatch_layout, color::black, window&, window&, window&> super;
+struct chronometer_page : group_window<stopwatch_layout, window&, window&, window&> {
+  typedef group_window<stopwatch_layout, window&, window&, window&> super;
   typedef custom_push_button button_t;
   typedef T page_t;
 
   chronometer_page ()
     : super(page, reset_btn, start_stop_btn)
   {
+    set_background(color::black);
     on_create([&] () {
       page.create(*this);
       reset_btn.create(*this);
@@ -398,13 +399,15 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   typedef icon_text_toggle_button button_t;
   typedef htoggle_group<color::white, color::black, button_t, layout::horizontal_adaption<>> tab_group_type;
-  typedef tab_view<alignment_t::bottom, color::black, tab_group_type, layout::split_layout<alignment_t::bottom, 80>> tabs_t;
+  typedef tab_view<alignment_t::bottom, tab_group_type, layout::split_layout<alignment_t::bottom, 80>> tabs_t;
 
   tabs_t tabs;
   clockview page_0;
   chronometer_page<stopwatchview> page_1;
   timerview_page page_2;
   layout_main_window<border::zero_layout<tabs_t>, tabs_t&> main(tabs);
+
+  tabs.set_background(color::black);
 
   tabs.add_page("Clock", page_0);
   tabs.add_page("Stoppwatch", page_1);

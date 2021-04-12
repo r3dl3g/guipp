@@ -23,23 +23,26 @@ namespace gui {
 
   namespace ctrl {
 
-    template<draw::frame::drawer frame, os::color foreground, os::color background>
-    basic_editbox<frame, foreground, background>::basic_editbox () {
+    template<draw::frame::drawer frame>
+    basic_editbox<frame>::basic_editbox (os::color fg, os::color bg)
+      : foreground(fg)
+    {
+      super::set_background(bg);
       on_paint(draw::paint(this, &basic_editbox::handle_paint));
       enable_select_by_mouse();
     }
 
-    template<draw::frame::drawer frame, os::color foreground, os::color background>
-    void basic_editbox<frame, foreground, background>::handle_paint (draw::graphics& graph) {
+    template<draw::frame::drawer frame>
+    void basic_editbox<frame>::handle_paint (draw::graphics& graph) {
       const auto area = client_geometry();
       gui::look::text_box(graph, area, data.lines, data.font,
-                          foreground, background, text_origin_t::vcenter_left,
+                          foreground, super::get_background(), text_origin_t::vcenter_left,
                           data.selection, data.cursor_pos, data.offset, is_focused(), is_enabled());
       frame(graph, area);
     }
 
-    template<draw::frame::drawer frame, os::color fg, os::color bg>
-    inline void basic_editbox<frame, fg, bg>::enable_select_by_mouse () {
+    template<draw::frame::drawer frame>
+    inline void basic_editbox<frame>::enable_select_by_mouse () {
       super::enable_select_by_mouse(text_origin_t::top_left);
     }
 

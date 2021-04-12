@@ -124,6 +124,9 @@ namespace gui {
       void reset_cursor ();
       const cursor& get_cursor () const;
 
+      void set_background (os::color);
+      os::color get_background () const;
+
       void capture_pointer ();
       void uncapture_pointer ();
 
@@ -175,6 +178,7 @@ namespace gui {
     private:
       container* parent;
       cursor cursor_;
+      os::color background;
       const char* class_name;
 
     };
@@ -183,11 +187,11 @@ namespace gui {
     typedef std::shared_ptr<win::window> window_ptr;
 
     // --------------------------------------------------------------------------
-    template<os::color background = color::very_light_gray>
+    template<os::color B = color::very_light_gray>
     class client_window : public window {
     public:
       typedef window super;
-      typedef window_class<client_window, background> clazz;
+      typedef window_class<client_window, B> clazz;
 
       void create (container& parent,
                    const core::rectangle& r = core::rectangle::def);

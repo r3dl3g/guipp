@@ -25,24 +25,6 @@ namespace gui {
 
     namespace detail {
 
-      inline void label_base::create (win::container& parent,
-                                      const core::rectangle& place) {
-        super::create(clazz::get(), parent, place);
-      }
-
-      inline void label_base::create (win::container& parent,
-                                      const text_source& txt,
-                                      const core::rectangle& place) {
-        create(parent, place);
-        set_text(txt);
-      }
-
-      inline void label_base::create (win::container& parent,
-                                      const std::string& txt,
-                                      const core::rectangle& place) {
-        create(parent, const_text(txt), place);
-      }
-
       // --------------------------------------------------------------------------
       template<typename T>
       inline void label_base::operator<< (const T& t) {
@@ -62,45 +44,45 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<text_origin_t A, draw::frame::drawer D, os::color F, os::color B>
-    inline basic_label<A, D, F, B>::basic_label (const std::string& t)
+    template<text_origin_t A, draw::frame::drawer D>
+    inline basic_label<A, D>::basic_label (const std::string& t)
       : super(t) {
       init();
     }
 
-    template<text_origin_t A, draw::frame::drawer D, os::color F, os::color B>
-    inline basic_label<A, D, F, B>::basic_label (const text_source& t)
+    template<text_origin_t A, draw::frame::drawer D>
+    inline basic_label<A, D>::basic_label (const text_source& t)
       : super(t) {
       init();
     }
 
-    template<text_origin_t A, draw::frame::drawer D, os::color F, os::color B>
-    inline basic_label<A, D, F, B>::basic_label (const basic_label& rhs)
+    template<text_origin_t A, draw::frame::drawer D>
+    inline basic_label<A, D>::basic_label (const basic_label& rhs)
       : super(rhs)
     {
       init();
     }
 
-    template<text_origin_t A, draw::frame::drawer D, os::color F, os::color B>
-    inline basic_label<A, D, F, B>::basic_label (basic_label&& rhs) noexcept
+    template<text_origin_t A, draw::frame::drawer D>
+    inline basic_label<A, D>::basic_label (basic_label&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();
     }
 
-    template<text_origin_t align, draw::frame::drawer frame, os::color foreground, os::color background>
-    inline void basic_label<align, frame, foreground, background>::paint (draw::graphics& graph) {
+    template<text_origin_t align, draw::frame::drawer frame>
+    inline void basic_label<align, frame>::paint (draw::graphics& graph) {
       gui::core::rectangle place = frame(graph, client_geometry());
-      look::label(graph, place, get_text(), foreground, background, align);
+      look::label(graph, place, get_text(), get_foreground(), get_background(), align);
     }
 
-    template<text_origin_t A, draw::frame::drawer D, os::color F, os::color B>
-    inline void basic_label<A, D, F, B>::init () {
+    template<text_origin_t A, draw::frame::drawer D>
+    inline void basic_label<A, D>::init () {
       on_paint(draw::paint(this, &basic_label::paint));
     }
 
     // --------------------------------------------------------------------------
 
-  } // ctrl
+  } // namespace ctrl
 
-} // gui
+} // namespace gui

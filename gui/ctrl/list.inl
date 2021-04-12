@@ -54,14 +54,6 @@ namespace gui {
         return item_state(get_hilite() == idx, get_selection() == idx, !is_enabled());
       }
 
-      inline os::color list_base::get_background () const {
-        return data.background;
-      }
-
-      inline void list_base::set_background (os::color background) {
-        data.background = background;
-      }
-
       inline bool list_base::is_scroll_bar_enabled () const {
         return get_state().scroll_bar_enabled();
       }

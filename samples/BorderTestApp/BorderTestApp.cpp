@@ -76,8 +76,8 @@ private:
   std::thread background_action1;
   std::thread background_action2;
 
-  group_window<vertical_adaption<>, color::light_gray> top_view;
-  group_window<horizontal_lineup<80, 2, 0>, nero> tool_bar;
+  group_window<vertical_adaption<>> top_view;
+  group_window<horizontal_lineup<80, 2, 0>> tool_bar;
 
   main_menu menu;
   popup_menu file_sub_menu;
@@ -93,7 +93,7 @@ private:
   tool_bar_button buttons[10];
   basic_separator<orientation_t::vertical, true, nero> separators[2];
 
-  group_window<horizontal_adaption<2, 5>, color::rgb_gray<224>::value> status_bar;
+  group_window<horizontal_adaption<2, 5>> status_bar;
   typedef basic_label<text_origin_t::vcenter_left, frame::sunken_relief> StatusLabel;
   StatusLabel labels[4];
 
@@ -103,7 +103,7 @@ private:
   typedef ctrl::sorted_file_tree file_tree;
   ctrl::horizontal_split_view<simple_tree, file_tree> right_view;
 
-  group_window<attach, color::rgb_gray<224>::value> client_view;
+  group_window<attach> client_view;
 
   top_tab_group<origin_t::start, color::black, color::very_light_gray, 50, 80> hsegmented1;
   bottom_tab_group<origin_t::start, color::black, color::very_light_gray, 40, 70> hsegmented2;
@@ -241,6 +241,7 @@ masked_bitmap create_text_pixmap (const std::string& str,
 // --------------------------------------------------------------------------
 void my_main_window::onCreated () {
   top_view.create(*this);
+  top_view.set_background(color::light_gray);
 
   menu.data.add_entries({
     main_menu_entry("File", 'F', [&]() {
@@ -345,6 +346,7 @@ void my_main_window::onCreated () {
   });
 
   tool_bar.create(top_view);
+  tool_bar.set_background(nero);
 
   gui::win::global::register_hot_key(hot_key(keys::f7), util::bind_method(this, &my_main_window::test_rgb), this);
 
@@ -386,6 +388,7 @@ void my_main_window::onCreated () {
   }
 
   status_bar.create(*this);
+  status_bar.set_background(color::rgb_gray<224>::value);
 
   i = 1;
   for (StatusLabel& l : labels) {
@@ -459,6 +462,7 @@ void my_main_window::onCreated () {
   });
 
   client_view.create(*this, core::rectangle(100, 40, 100, 100));
+  client_view.set_background(color::rgb_gray<224>::value);
 
   window1.on_right_btn_up([&](gui::os::key_state, const core::native_point& pt){
     last_mouse_point = surface_to_screen(pt);
@@ -605,10 +609,10 @@ struct finally {
 };
 
 //-----------------------------------------------------------------------------
-class progress_dialog : public standard_dialog<win::group_window<layout::border::layouter<20, 15, 15, 15>, color::very_light_gray>> {
+class progress_dialog : public standard_dialog<win::group_window<layout::border::layouter<20, 15, 15, 15>>> {
 public:
   typedef ctrl::progress_bar progress_view_type;
-  typedef win::group_window<layout::border::layouter<20, 15, 15, 15>, color::very_light_gray> content_view_type;
+  typedef win::group_window<layout::border::layouter<20, 15, 15, 15>> content_view_type;
   typedef standard_dialog<content_view_type> super;
 
   progress_dialog () {
@@ -620,9 +624,9 @@ public:
                const std::string& message,
                const std::string& ok_label,
                const core::rectangle& rect) {
-      super::create(parent, title, rect, [&] (win::overlapped_window&, int) {
+    super::create(parent, title, rect, [&] (win::overlapped_window&, int) {
       end_modal();
-    }, {ok_label});
+    }, { ok_label });
     progress_view.create(content_view, message, rect);
   }
 

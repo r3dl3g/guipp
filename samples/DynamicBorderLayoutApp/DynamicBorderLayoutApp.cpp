@@ -16,9 +16,7 @@ using namespace gui::core;
 using namespace gui::draw;
 
 typedef basic_label<text_origin_t::center,
-                    draw::frame::raised_deep_relief,
-                    color::black,
-                    color::very_light_gray> label_t;
+                    draw::frame::raised_deep_relief> label_t;
 
 template<border_layout_type T>
 struct layout_group {

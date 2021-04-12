@@ -117,15 +117,13 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT message_dialog :
-        public standard_dialog<win::group_window<layout::border::layouter<20, 15, 15, 15>,
-                                                 color::very_light_gray>> {
+        public standard_dialog<win::group_window<layout::border::layouter<20, 15, 15, 15>>> {
     public:
       typedef basic_textbox<text_origin_t::center,
                             draw::frame::sunken_relief,
                             color::black,
                             color::very_light_gray> message_view_type;
-      typedef win::group_window<layout::border::layouter<20, 15, 15, 15>,
-                                color::very_light_gray> content_view_type;
+      typedef win::group_window<layout::border::layouter<20, 15, 15, 15>> content_view_type;
       typedef standard_dialog<content_view_type> super;
 
       message_dialog ();
@@ -147,15 +145,13 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT yes_no_dialog :
-        public standard_dialog<win::group_window<layout::border::layouter<20, 15, 15, 15>,
-                                                 color::very_light_gray>> {
+        public standard_dialog<win::group_window<layout::border::layouter<20, 15, 15, 15>>> {
     public:
       typedef basic_textbox<text_origin_t::center,
                             draw::frame::sunken_relief,
                             color::black,
                             color::very_light_gray> message_view_type;
-      typedef win::group_window<layout::border::layouter<20, 15, 15, 15>,
-                                color::very_light_gray> content_view_type;
+      typedef win::group_window<layout::border::layouter<20, 15, 15, 15>> content_view_type;
       typedef standard_dialog<content_view_type> super;
 
       yes_no_dialog ();
@@ -184,11 +180,9 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT input_dialog :
-        public standard_dialog<win::group_window<layout::vertical_lineup<20, 15, 2>,
-                                                 color::very_light_gray>> {
+        public standard_dialog<win::group_window<layout::vertical_lineup<20, 15, 2>>> {
     public:
-      typedef win::group_window<layout::vertical_lineup<20, 15, 2>,
-                                color::very_light_gray> content_view_type;
+      typedef win::group_window<layout::vertical_lineup<20, 15, 2>> content_view_type;
       typedef standard_dialog<content_view_type> super;
 
       input_dialog ();
@@ -217,17 +211,13 @@ namespace gui {
     //-----------------------------------------------------------------------------
     template<typename ... Arguments>
     class multi_input_dialog :
-        public standard_dialog<win::group_window<layout::vertical_lineup<20, 15, 2>,
-                                                 color::very_light_gray>> {
+        public standard_dialog<win::group_window<layout::vertical_lineup<20, 15, 2>>> {
     public:
-      typedef win::group_window<layout::vertical_lineup<20, 15, 2>,
-                                color::very_light_gray> content_view_type;
+      typedef win::group_window<layout::vertical_lineup<20, 15, 2>> content_view_type;
       typedef standard_dialog<content_view_type> super;
       static constexpr std::size_t N = sizeof...(Arguments);
       using label_t = basic_label<text_origin_t::bottom_left,
-                                  draw::frame::no_frame,
-                                  color::black,
-                                  color::very_light_gray>;
+                                  draw::frame::no_frame>;
 
       typedef void (action) (const std::tuple<Arguments...>&);
 
@@ -299,7 +289,7 @@ namespace gui {
         public standard_dialog<dir_file_view<>, 30> {
     public:
       typedef standard_dialog<dir_file_view<>, 30> super;
-      typedef win::group_window<layout::border::layouter<4, 4, 120, 4>, color::very_very_light_gray> top_view_type;
+      typedef win::group_window<layout::border::layouter<4, 4, 120, 4>> top_view_type;
 
       void create (win::overlapped_window& parent,
                    const std::string& title,
@@ -322,9 +312,7 @@ namespace gui {
       basic_edit<text_origin_t::vcenter_left,
                  draw::frame::sunken_deep_relief> input_line;
       basic_label<text_origin_t::vcenter_right,
-                  draw::frame::no_frame,
-                  color::black,
-                  color::very_very_light_gray> input_label;
+                  draw::frame::no_frame> input_label;
 
     };
 

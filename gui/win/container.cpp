@@ -192,7 +192,7 @@ namespace gui {
                 if (state.created() && state.visible() && !state.overlapped()) {
                   const auto crc = rect & *clip_rect;
                   core::clip clp(*cntxt, crc);
-                  native::erase(cntxt->drawable(), cntxt->graphics(), crc, w->get_window_class().get_background());
+                  native::erase(cntxt->drawable(), cntxt->graphics(), crc, w->get_background());
                   cntxt->set_offset(rect.x(), rect.y());
                   ret |= w->handle_event(e, r);
                 }

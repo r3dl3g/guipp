@@ -224,11 +224,11 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<os::color background = color::very_light_gray>
+    template<os::color B = color::very_light_gray>
     class client_control : public control {
     public:
       typedef control super;
-      typedef win::window_class<client_control, background> clazz;
+      typedef win::window_class<client_control, B> clazz;
 
       inline void create (win::container& parent,
                           const core::rectangle& r = core::rectangle::def) {

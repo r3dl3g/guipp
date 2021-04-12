@@ -27,6 +27,7 @@ namespace gui {
     toggle_group<O, FG, BG, B, L>::toggle_group ()
       : selection(-1)
     {
+      super::set_background(BG);
       super::on_create([&] () {
         for (auto& b : buttons) {
           b->create(*this);

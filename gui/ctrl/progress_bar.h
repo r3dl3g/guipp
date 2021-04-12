@@ -71,16 +71,14 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<text_origin_t origin,
-             draw::frame::drawer frame = draw::frame::no_frame,
-             os::color foreground = color::black,
-             os::color background = color::very_light_gray,
-             os::color bar_color = color::very_light_blue>
+    template<text_origin_t origin, draw::frame::drawer frame = draw::frame::no_frame>
     class basic_progress_bar : public detail::progress_bar_base {
     public:
       typedef detail::progress_bar_base super;
 
-      basic_progress_bar ();
+      basic_progress_bar (os::color bc = color::very_light_blue,
+                          os::color fg = color::black,
+                          os::color bg = color::very_light_gray);
       basic_progress_bar (const basic_progress_bar& rhs);
       basic_progress_bar (basic_progress_bar&& rhs) noexcept ;
 
@@ -88,6 +86,9 @@ namespace gui {
 
     private:
       void init ();
+
+      os::color bar_color;
+      os::color foreground;
 
     };
 

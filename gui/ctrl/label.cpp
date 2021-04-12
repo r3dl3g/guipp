@@ -32,16 +32,37 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
+      void label_base::create (win::container& parent,
+                               const core::rectangle& place) {
+        super::create(clazz::get(), parent, place);
+      }
+
+      void label_base::create (win::container& parent,
+                               const text_source& txt,
+                               const core::rectangle& place) {
+        create(parent, place);
+        set_text(txt);
+      }
+
+      void label_base::create (win::container& parent,
+                               const std::string& txt,
+                               const core::rectangle& place) {
+        create(parent, const_text(txt), place);
+      }
+
       label_base::label_base (const std::string& t)
         : text(const_text(t))
+        , foreground(color::black)
       {}
 
       label_base::label_base (const text_source& t)
         : text(t)
+        , foreground(color::black)
       {}
 
       label_base::label_base (text_source&& t) noexcept
         : text(std::move(t))
+        , foreground(color::black)
       {}
 
       void label_base::set_text (const std::string& t) {
@@ -55,6 +76,14 @@ namespace gui {
 
       std::string label_base::get_text () const {
         return text();
+      }
+
+      void label_base::set_foreground (os::color c) {
+        foreground = c;
+      }
+
+      os::color label_base::get_foreground () const {
+        return foreground;
       }
 
     } // detail

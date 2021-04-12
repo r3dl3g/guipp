@@ -59,19 +59,19 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<draw::frame::drawer frame = draw::frame::no_frame,
-             os::color foreground = color::black,
-             os::color background = color::white>
+    template<draw::frame::drawer frame = draw::frame::no_frame>
     class basic_editbox : public detail::editbox_base {
     public:
       typedef detail::editbox_base super;
 
-      basic_editbox ();
+      basic_editbox (os::color fg = color::black, os::color bg = color::white);
 
       void enable_select_by_mouse ();
 
       void handle_paint (draw::graphics& graph);
 
+    private:
+      os::color foreground;
     };
 
     // --------------------------------------------------------------------------

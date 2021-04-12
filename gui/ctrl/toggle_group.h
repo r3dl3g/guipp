@@ -38,9 +38,9 @@ namespace gui {
              os::color background = color::light_gray,
              typename B = flat_toggle_button<foreground, background, true>,
              typename L = layout::adaption_layout<O>>
-    class toggle_group : public win::group_window<L, background> {
+    class toggle_group : public win::group_window<L> {
     public:
-      typedef win::group_window<L, background> super;
+      typedef win::group_window<L> super;
       typedef L layout;
       typedef B button_t;
       typedef std::shared_ptr<B> button_type;

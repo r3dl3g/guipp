@@ -36,7 +36,7 @@ namespace gui {
       class GUIPP_CTRL_EXPORT label_base : public control {
       public:
         typedef control super;
-        typedef no_erase_window_class<label_base> clazz;
+        typedef win::window_class<label_base, color::very_very_light_gray> clazz;
 
         explicit label_base (const std::string& = std::string());
         explicit label_base (const text_source&);
@@ -70,8 +70,12 @@ namespace gui {
         template<typename T>
         void operator>> (T&& t) const;
 
+        void set_foreground (os::color);
+        os::color get_foreground () const;
+
       protected:
         text_source text;
+        os::color foreground;
 
       };
 
@@ -79,9 +83,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<text_origin_t origin,
-             draw::frame::drawer frame = draw::frame::no_frame,
-             os::color foreground = color::black,
-             os::color background = color::very_very_light_gray>
+             draw::frame::drawer frame = draw::frame::no_frame>
     class basic_label : public detail::label_base {
     public:
       typedef detail::label_base super;
@@ -100,24 +102,18 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     using label_left = basic_label<text_origin_t::vcenter_left,
-                                   draw::frame::no_frame,
-                                   color::black,
-                                   color::very_very_light_gray>;
+                                   draw::frame::no_frame>;
 
     using label = label_left;
 
     using label_right = basic_label<text_origin_t::vcenter_right,
-                                    draw::frame::no_frame,
-                                    color::black,
-                                    color::very_very_light_gray>;
+                                    draw::frame::no_frame>;
 
     using label_center = basic_label<text_origin_t::center,
-                                     draw::frame::no_frame,
-                                     color::black,
-                                     color::very_very_light_gray>;
+                                     draw::frame::no_frame>;
 
-  } // ctrl
+  } // namespace ctrl
 
-} // gui
+} // namespace gui
 
 #include <gui/ctrl/label.inl>

@@ -57,13 +57,13 @@ namespace gui {
       void pop ();
 
       stacked_view_controller view_stack;
+      title_view_t title_view;
 
       const win_data& get_data (const window_ptr& view) const;
 
     protected:
       void set_top_data (const window_ptr&);
 
-      title_view_t title_view;
       std::map<window_ptr, win_data> view_data;
     };
 

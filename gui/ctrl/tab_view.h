@@ -93,13 +93,12 @@ namespace gui {
     };
 
     template<alignment_t A = alignment_t::top,
-             os::color background = color::very_very_light_gray,
              typename B = typename tab_group_traits<A>::type,
              typename L = layout::split_layout<A, tab_group_traits<A>::size>
              >
-    class tab_view : public win::group_window<L, background> {
+    class tab_view : public win::group_window<L> {
     public:
-      typedef win::group_window<L, background> super;
+      typedef win::group_window<L> super;
       typedef B button_group_t;
       typedef L layout_t;
       typedef typename button_group_t::button_t button_t;

@@ -226,7 +226,6 @@ namespace gui {
 
         item_state get_item_state (int idx) const;
 
-        os::color get_background () const;
         core::native_point get_last_mouse_point () const;
 
         void set_scroll_pos (const core::point& pos);
@@ -235,8 +234,6 @@ namespace gui {
         bool is_valid_idx (int idx) const;
         bool is_scroll_bar_enabled () const;
         bool is_moved () const;
-
-        void set_background (os::color background);
 
         void draw_item (std::size_t idx,
                         draw::graphics&,
@@ -256,14 +253,13 @@ namespace gui {
 
       protected:
         struct data {
-          explicit data (os::color background = color::white);
+          explicit data ();
 
           std::function<list_data_provider> items;
           int selection;
           int hilite;
           core::point offset;
           core::native_point last_mouse_point;
-          os::color background;
         } data;
 
       private:

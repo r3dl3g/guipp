@@ -369,15 +369,11 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT table_view : public win::group_window<gui::layout::dynamic_border_layout<layout::border_layout_type::bottom_right_maximize>,
-        color::very_very_light_gray, float, float, float, float> {
+        float, float, float, float> {
     public:
-      typedef group_window<gui::layout::dynamic_border_layout<layout::border_layout_type::bottom_right_maximize>,
-      color::very_very_light_gray, float, float, float, float> super;
+      typedef group_window<gui::layout::dynamic_border_layout<layout::border_layout_type::bottom_right_maximize>, float, float, float, float> super;
 
-      typedef basic_label<text_origin_t::center,
-      draw::frame::raised_relief,
-      color::black,
-      color::very_very_light_gray> edge_view;
+      typedef basic_label<text_origin_t::center, draw::frame::raised_relief> edge_view;
 
       explicit table_view (core::size::type default_width = 80,
                            core::size::type default_height = 20,

@@ -32,8 +32,8 @@ namespace gui {
   namespace win {
 
     template<int delay_ms>
-    struct GUIPP_WIN_EXPORT auto_refresh_window : public client_window<color::black> {
-      typedef client_window<color::black> super;
+    struct GUIPP_WIN_EXPORT auto_refresh_window : public client_window<color::transparent> {
+      typedef client_window<color::transparent> super;
 
       auto_refresh_window ()
         : refresher(*this, std::chrono::milliseconds(delay_ms), [&] () { invalidate(); })

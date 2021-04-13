@@ -46,6 +46,10 @@ namespace gui {
       void set_right_view (window& right, core::size::type width);
       void clear_right_view ();
 
+      void set_foreground (os::color);
+      void set_background (os::color);
+      void set_fore_and_background (os::color fg, os::color bg);
+
     private:
       icon_push_button<draw::icon_t::left_arrow> back_btn;
       label_center title_label;

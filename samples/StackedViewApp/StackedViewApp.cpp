@@ -117,6 +117,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   stacked_view_t client;
   layout_main_window<layout::border::zero_layout<stacked_view_t>, stacked_view_t&> main(client);
+  client.title_view.set_fore_and_background(color::light_gray, color::dark_gray);
 
   std::shared_ptr<sub_view_t> base_view = std::make_shared<sub_view_t>(50);
 

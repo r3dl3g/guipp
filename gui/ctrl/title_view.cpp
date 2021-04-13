@@ -66,6 +66,20 @@ namespace gui {
       layout();
     }
 
+    void title_view::set_foreground (os::color fg) {
+      title_label.set_foreground(fg);
+    }
+
+    void title_view::set_background (os::color bg) {
+      super::set_background(bg);
+      title_label.set_background(bg);
+    }
+
+    void title_view::set_fore_and_background (os::color fg, os::color bg) {
+      set_background(bg);
+      set_foreground(fg);
+    }
+
   } // ctrl
 
 } // gui

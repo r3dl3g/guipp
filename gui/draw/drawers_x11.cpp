@@ -560,7 +560,7 @@ namespace gui {
         }
 
         rect.top_left(core::point(os::point{px, py}, g.context()));
-        rect.set_size(core::size(os::size{extents.width, height}));
+        rect.set_size(core::size(os::size{extents.width, static_cast<os::size_type>(height)}));
 
       } else {
         clog::error() << "font_type is zero!";

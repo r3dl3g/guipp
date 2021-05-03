@@ -76,7 +76,7 @@ add_subdirectory(gui)
 
 if (GUIPP_STANDALONE_BUILD)
   if (NOT ANDROID)
-    add_subdirectory(test)
+    add_subdirectory(tests)
     add_subdirectory(tools)
   endif ()
   add_subdirectory(samples)

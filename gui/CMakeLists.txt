@@ -126,8 +126,8 @@ if(NOT TARGET guipp)
 
   set (LOGGING_CXX_STANDARD ${GUIPP_CXX_STANDARD})
   set (UTIL_CXX_STANDARD ${GUIPP_CXX_STANDARD})
-  add_subdirectory(../../libs/logging logging)
-  add_subdirectory(../../libs/util util)
+  add_subdirectory(../libs/logging logging)
+  add_subdirectory(../libs/util util)
 
   if (WIN32)
     set (GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN -D_USE_MATH_DEFINES)

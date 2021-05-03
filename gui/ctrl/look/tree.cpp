@@ -85,7 +85,7 @@ namespace gui {
       r += core::point(radius*2, 0);
 
       if (icon) {
-        (*icon)(graph, pn, r.center(), radius);
+        (*icon)(graph, pn, {r.x() + radius, r.center_y()}, radius);
         r += core::point(radius * 2 + 5, 0);
       }
 

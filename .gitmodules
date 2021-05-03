@@ -1,15 +1,15 @@
 [submodule "testing"]
-	path = testing
+	path = libs/testing
 	url = git@red-space.de:/srv/git/testing.git
 [submodule "util"]
-	path = util
+	path = libs/util
 	url = git@red-space.de:/srv/git/util.git
 [submodule "logging"]
-	path = logging
+	path = libs/logging
 	url = git@red-space.de:/srv/git/logging.git
 [submodule "qt-android-cmake"]
 	path = libs/qt-android-cmake
 	url = https://github.com/LaurentGomila/qt-android-cmake.git
 [submodule "filesystem"]
-	path = filesystem
+	path = libs/filesystem
 	url = https://github.com/gulrak/filesystem.git

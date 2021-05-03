@@ -40,8 +40,8 @@ include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS})
 enable_testing()
 
 set (TESTING_CXX_STANDARD ${GUIPP_CXX_STANDARD})
-add_subdirectory(./../testlib testlib)
-add_subdirectory(./../testing testing)
+add_subdirectory(./../../libs/testlib testlib)
+add_subdirectory(./../../libs/testing testing)
 
 set(tests
     datamap_test

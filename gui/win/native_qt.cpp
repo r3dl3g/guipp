@@ -290,7 +290,7 @@ namespace gui {
 
       void erase (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
         const int sc = static_cast<int>(core::global::get_scale_factor());
-        gc->fillRect(r.x(), r.y(), r.width() - sc, r.height() - sc, c);
+        gc->fillRect(r.x(), r.y(), r.width(), r.height(), c);
       }
 
       void frame (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
@@ -394,7 +394,7 @@ namespace gui {
         return static_cast<window*>(parent());
       }
 
-#define LOG_ALL_EVENTS
+#define LOG_ALL_EVENTSx
 
       bool window::event (QEvent* e) {
         gui::os::event_result result;

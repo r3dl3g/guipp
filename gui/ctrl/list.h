@@ -286,21 +286,21 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation_t V, typename T>
-    class basic_list : public detail::list_base {
+    class uniform_list : public detail::list_base {
     public:
       typedef detail::list_base super;
       typedef T traits_type;
       typedef typename traits_type::size_type size_type;
       typedef typename super::pos_t pos_t;
       typedef basic_scroll_bar<V> scroll_bar_type;
-      typedef no_erase_window_class<basic_list> clazz;
+      typedef no_erase_window_class<uniform_list> clazz;
 
       const pos_t zero = pos_t(0);
 
-      explicit basic_list (size_type item_size,
+      explicit uniform_list (size_type item_size,
                   os::color background = color::white,
                   bool grab_focus = true);
-      basic_list (basic_list&& rhs) noexcept ;
+      uniform_list (uniform_list&& rhs) noexcept ;
 
       void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
@@ -388,9 +388,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation_t V>
-    class linear_list : public basic_list<V, linear_list_traits<V>> {
+    class linear_list : public uniform_list<V, linear_list_traits<V>> {
     public:
-      typedef basic_list<V, linear_list_traits<V>> super;
+      typedef uniform_list<V, linear_list_traits<V>> super;
 
       explicit linear_list (core::size::type item_size = list_defaults<>::item_size,
                    os::color background = color::white,

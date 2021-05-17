@@ -127,7 +127,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation_t V, typename T>
-    inline basic_list<V, T>::basic_list (size_type item_size,
+    inline uniform_list<V, T>::uniform_list (size_type item_size,
                                          os::color background,
                                          bool grab_focus)
       : super(background, grab_focus)
@@ -137,7 +137,7 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    inline basic_list<V, T>::basic_list (basic_list&& rhs) noexcept
+    inline uniform_list<V, T>::uniform_list (uniform_list&& rhs) noexcept
       : super(std::move(rhs))
       , traits(std::move(rhs.traits))
     {
@@ -145,18 +145,18 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    inline void basic_list<V, T>::create (win::container& parent,
+    inline void uniform_list<V, T>::create (win::container& parent,
                                           const core::rectangle& r) {
       super::create(clazz::get(), parent, r);
     }
 
     template<orientation_t V, typename T>
-    inline auto basic_list<V, T>::get_scroll_pos_1 () const -> pos_t {
+    inline auto uniform_list<V, T>::get_scroll_pos_1 () const -> pos_t {
       return traits.get_1(super::get_scroll_pos());
     }
 
     template<orientation_t V, typename T>
-    void basic_list<V, T>::init () {
+    void uniform_list<V, T>::init () {
 #ifndef GUIPP_BUILD_FOR_MOBILE
       super::on_left_btn_dblclk([&] (os::key_state, const core::native_point&) {
         super::notify_selection_commit();
@@ -165,18 +165,18 @@ namespace gui {
       super::on_mouse_leave([&] () {
         clear_hilite();
       });
-      super::on_left_btn_up(util::bind_method(this, &basic_list::handle_left_btn_up));
-      super::on_mouse_move(util::bind_method(this, &basic_list::handle_mouse_move));
+      super::on_left_btn_up(util::bind_method(this, &uniform_list::handle_left_btn_up));
+      super::on_mouse_move(util::bind_method(this, &uniform_list::handle_mouse_move));
     }
 
     template<orientation_t V, typename T>
-    inline auto basic_list<V, T>::get_list_size () const -> pos_t {
+    inline auto uniform_list<V, T>::get_list_size () const -> pos_t {
       return traits.get_1(super::client_size());
     }
 
     template<orientation_t V, typename T>
     template<typename U, list_item_drawer<U> F>
-    inline void basic_list<V, T>::create (win::container& parent,
+    inline void uniform_list<V, T>::create (win::container& parent,
                                           const core::rectangle& place,
                                           std::function<list_data_provider> data) {
       super::create(clazz::get(), parent, place);
@@ -185,47 +185,47 @@ namespace gui {
 
     template<orientation_t V, typename T>
     template<typename U, list_item_drawer<U> D>
-    inline void basic_list<V, T>::set_data (const std::vector<U>& data) {
+    inline void uniform_list<V, T>::set_data (const std::vector<U>& data) {
       super::data.items = indirect_list_data<U, D>(data);
       invalidate();
     }
 
     template<orientation_t V, typename T>
     template<typename U, list_item_drawer<U> D>
-    inline void basic_list<V, T>::set_data (std::initializer_list<U> args) {
+    inline void uniform_list<V, T>::set_data (std::initializer_list<U> args) {
       super::data.items = const_list_data<U, D>(args);
       invalidate();
     }
 
     template<orientation_t V, typename T>
-    inline void basic_list<V, T>::set_data (const std::function<list_data_provider>& dta) {
+    inline void uniform_list<V, T>::set_data (const std::function<list_data_provider>& dta) {
       super::data.items = dta;
       invalidate();
     }
 
     template<orientation_t V, typename T>
-    inline core::size::type basic_list<V, T>::get_item_dimension () const {
+    inline core::size::type uniform_list<V, T>::get_item_dimension () const {
       return traits.get_item_dimension();
     }
 
     template<orientation_t V, typename T>
-    inline auto basic_list<V, T>::get_item_size () const -> size_type{
+    inline auto uniform_list<V, T>::get_item_size () const -> size_type{
       return traits.item_size;
     }
 
     template<orientation_t V, typename T>
-    inline void basic_list<V, T>::set_item_size (size_type item_size) {
+    inline void uniform_list<V, T>::set_item_size (size_type item_size) {
       traits.item_size = item_size;
     }
 
     template<orientation_t V, typename T>
-    inline void basic_list<V, T>::set_item_size_and_background (size_type item_size, os::color background) {
+    inline void uniform_list<V, T>::set_item_size_and_background (size_type item_size, os::color background) {
       traits.item_size = item_size;
       super::set_background(background);
     }
 
     template<orientation_t V, typename T>
-    inline int basic_list<V, T>::get_index_at_point (const core::point& pt) {
+    inline int uniform_list<V, T>::get_index_at_point (const core::point& pt) {
       auto rect = super::client_geometry();
       if (rect.is_inside(pt)) {
         return traits.get_index_at_point(rect, pt - rect.position(), get_scroll_pos(), super::get_count());
@@ -234,7 +234,7 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    core::rectangle basic_list<V, T>::get_geometry_of_index (int idx) {
+    core::rectangle uniform_list<V, T>::get_geometry_of_index (int idx) {
       if (super::is_valid_idx(idx)) {
         return traits.get_geometry_of_index(super::client_geometry(), idx, get_scroll_pos());
       }
@@ -242,7 +242,7 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    void basic_list<V, T>::set_selection (int sel, event_source notify) {
+    void uniform_list<V, T>::set_selection (int sel, event_source notify) {
       const int new_selection = std::min(std::max(0, sel), static_cast<int>(super::get_count() - 1));
       if (super::data.selection != new_selection) {
         super::data.selection = new_selection;
@@ -255,7 +255,7 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    bool basic_list<V, T>::try_to_select (int sel, event_source notify) {
+    bool uniform_list<V, T>::try_to_select (int sel, event_source notify) {
       if ((sel >= 0) && (sel < super::get_count())) {
         set_selection(sel, notify);
         return true;
@@ -264,7 +264,7 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    void basic_list<V, T>::make_selection_visible () {
+    void uniform_list<V, T>::make_selection_visible () {
       if (super::has_selection()) {
         const auto list_size = super::client_size();
         const auto list_sz = traits.get_1(list_size);
@@ -281,7 +281,7 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    void basic_list<V, T>::set_scroll_pos_1 (pos_t pos) {
+    void uniform_list<V, T>::set_scroll_pos_1 (pos_t pos) {
       auto value = std::max(pos_t(0), std::min(pos, static_cast<pos_t>(get_item_dimension() * get_count() - traits.get_1(client_size()))));
       auto pt = super::get_scroll_pos();
       traits.set_1(pt, value);
@@ -289,7 +289,7 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    void basic_list<V, T>::handle_mouse_move (os::key_state keys, const core::native_point& pt) {
+    void uniform_list<V, T>::handle_mouse_move (os::key_state keys, const core::native_point& pt) {
       const auto r = surface_geometry();
       if (core::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if ((super::get_last_mouse_point() != core::native_point::undefined) &&
@@ -306,7 +306,7 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    void basic_list<V, T>::handle_left_btn_up (os::key_state keys, const core::native_point& pt) {
+    void uniform_list<V, T>::handle_left_btn_up (os::key_state keys, const core::native_point& pt) {
       if (!super::is_moved() && (super::get_last_mouse_point() != core::native_point::undefined)) {
         const int new_selection = get_index_at_point(super::surface_to_client(pt));
         if (new_selection != super::get_selection()) {
@@ -348,7 +348,7 @@ namespace gui {
     template<orientation_t V>
     inline core::rectangle linear_list<V>::get_virtual_geometry (const core::rectangle&) const {
       core::rectangle place;
-      super::traits.set_1(place, 0, super::get_item_dimension() * super::get_count());
+      super::traits.set_1(place, 0, super::traits.get_item_dimension() * super::get_count());
       super::traits.set_2(place, 0, 0);
       return place;
     }
@@ -356,7 +356,7 @@ namespace gui {
     template<orientation_t V>
     core::size linear_list<V>::get_scroll_steps () const {
       core::size sz;
-      super::traits.set_1(sz, super::get_item_dimension());
+      super::traits.set_1(sz, super::traits.get_item_dimension());
       super::traits.set_2(sz, 1);
       return sz;
     }

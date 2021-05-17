@@ -76,9 +76,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation_t V>
-    class basic_tile_view : public basic_list<V, tile_list_traits<V>> {
+    class basic_tile_view : public uniform_list<V, tile_list_traits<V>> {
     public:
-      typedef basic_list<V, tile_list_traits<V>> super;
+      typedef uniform_list<V, tile_list_traits<V>> super;
 
       explicit basic_tile_view (const core::size& item_size = { 20, 20 },
                                 os::color background = color::white,

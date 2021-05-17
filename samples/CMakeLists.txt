@@ -33,6 +33,7 @@ DebugPrint("samples GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
 #DebugPrint("samples GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
 DebugPrint("samples GUIPP_APP_LIBRARIES: ${GUIPP_APP_LIBRARIES}")
 DebugPrint("samples GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
+DebugPrint("samples GUIPP_EXE_LINKER_FLAGS: ${GUIPP_EXE_LINKER_FLAGS}")
 
 
 # add the binary tree to the search path for include files
@@ -40,13 +41,45 @@ DebugPrint("samples GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
 include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS})
 
 add_definitions(${GUIPP_CXX_FLAGS})
+
+if (EMSCRIPTEN)
+  set(CMAKE_EXECUTABLE_SUFFIX ".wasm.js")
+endif (EMSCRIPTEN)
+
 if (${CMAKE_VERSION} VERSION_LESS "3.13.0")
   set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${GUIPP_EXE_LINKER_FLAGS})
 else ()
   add_link_options(${GUIPP_EXE_LINKER_FLAGS})
 endif ()
 
-if (1)
+function(guipp_sample PROJECT_NAME)
+
+  if (ANDROID)
+    add_library(${PROJECT_NAME} SHARED ${PROJECT_NAME}.cpp)
+  elseif (EMSCRIPTEN)
+    add_executable(${PROJECT_NAME} ${PROJECT_NAME}.cpp)
+  else ()
+    add_executable(${PROJECT_NAME} WIN32 ${PROJECT_NAME}.cpp)
+  endif ()
+
+  target_link_libraries(${PROJECT_NAME} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
+  install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+  set_target_properties(${PROJECT_NAME} PROPERTIES
+                        FOLDER apps
+                        CXX_STANDARD ${GUIPP_CXX_STANDARD}
+                        )
+  if (EMSCRIPTEN)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+                          LINK_FLAGS "-s USE_PTHREADS=1")
+  endif ()
+  if (ANDROID)
+    add_qt_android_apk(${PROJECT_NAME}_apk ${PROJECT_NAME}
+                         PACKAGE_NAME "de.redspace.${PROJECT_NAME}"
+                         INSTALL)
+  endif ()
+endfunction(guipp_sample)
+
+if (0)
 
   add_subdirectory(AttachAllLayoutApp)
   add_subdirectory(BorderLayoutApp)

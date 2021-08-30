@@ -133,7 +133,7 @@ namespace gui {
 
     template<orientation_t O, typename F, typename S>
     void split_view<O, F, S>::layout (const core::rectangle& r) const {
-      clog::trace() << "split_view::layout(" << r << ") split_pos: " << split_pos;
+      logging::trace() << "split_view::layout(" << r << ") split_pos: " << split_pos;
       if (first) {
         first->geometry(traits::get_first_geometry(r, split_pos), true);
       }

@@ -50,7 +50,7 @@
 void fatal_error_handler(int signum) {
   ::signal(signum, SIG_DFL);
 //  boost::stacktrace::safe_dump_to("./backtrace.dump");
-  clog::fatal() << boost::stacktrace::stacktrace();
+  logging::fatal() << boost::stacktrace::stacktrace();
   ::raise(SIGABRT);
 }
 #endif // ENABLE_STACKTRACE
@@ -129,7 +129,7 @@ int main (int argc, char* argv[]) {
     return args[0].substr(begin, end - begin);
   }();
   android_log_stream android_logger(appname, logging::level::debug, logging::core::get_no_time_formatter());
-  clog::info() << "Found app name: '" << appname << "'";
+  logging::info() << "Found app name: '" << appname << "'";
 #endif // ANDROID
 
 #ifdef GUIPP_X11
@@ -141,7 +141,7 @@ int main (int argc, char* argv[]) {
       if (i < argc) {
         display = argv[i];
       } else {
-        clog::fatal() << "Missing display parameter after '-d'";
+        logging::fatal() << "Missing display parameter after '-d'";
         return 1;
       }
     }
@@ -153,33 +153,33 @@ int main (int argc, char* argv[]) {
   QGuiApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
 # ifdef GUIPP_QT_HIDPI
   if (QGuiApplication::testAttribute(Qt::AA_EnableHighDpiScaling)) {
-    clog::info() << "Qt HighDpiScaling is enabled";
+    logging::info() << "Qt HighDpiScaling is enabled";
   } else {
-    clog::info() << "Qt enable HighDpiScaling";
+    logging::info() << "Qt enable HighDpiScaling";
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
   }
 # endif // GUIPP_QT_HIDPI
   QGuiApplication qapplication(argc, argv);
   gui::core::global::init(&qapplication);
-  clog::info() << "Qt app name: '" << qapplication.applicationName().toStdString() << "'";
-  clog::info() << "Qt app display name: '" << qapplication.applicationDisplayName().toStdString() << "'";
-  clog::info() << "Qt app desktop file name: '" << qapplication.desktopFileName().toStdString() << "'";
-  clog::info() << "Qt app platform name: '" << qapplication.platformName().toStdString() << "'";
-  clog::info() << "Qt version: '" QT_VERSION_STR << "', runtime: '" << qVersion() << "'";
+  logging::info() << "Qt app name: '" << qapplication.applicationName().toStdString() << "'";
+  logging::info() << "Qt app display name: '" << qapplication.applicationDisplayName().toStdString() << "'";
+  logging::info() << "Qt app desktop file name: '" << qapplication.desktopFileName().toStdString() << "'";
+  logging::info() << "Qt app platform name: '" << qapplication.platformName().toStdString() << "'";
+  logging::info() << "Qt version: '" QT_VERSION_STR << "', runtime: '" << qVersion() << "'";
 #endif // GUIPP_QT
 
   int ret = 0;
   try {
     ret = gui_main(args);
-    clog::debug() << "gui_main finished width: " << ret;
+    logging::debug() << "gui_main finished width: " << ret;
   } catch (const std::exception& ex) {
-    clog::fatal() << "Excception: " << ex.what();
+    logging::fatal() << "Excception: " << ex.what();
     ret = 1;
   } catch (const std::string& s) {
-    clog::fatal() << "Excception: " << s;
+    logging::fatal() << "Excception: " << s;
     ret = 1;
   } catch (...) {
-    clog::fatal() << "Unknown Excception";
+    logging::fatal() << "Unknown Excception";
     ret = 1;
   }
 

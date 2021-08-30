@@ -41,7 +41,7 @@ namespace gui {
 
     namespace x11 {
 
-# define XLIB_ERROR_CODE(a) case a: clog::fatal() << # a;break;
+# define XLIB_ERROR_CODE(a) case a: logging::fatal() << # a;break;
 
       bool check_return (int r) {
         //# ifndef NDEBUG
@@ -75,7 +75,7 @@ namespace gui {
         if (s) {
           return true;
         }
-        //      clog::fatal() << "xlib Status failed";
+        //      logging::fatal() << "xlib Status failed";
         return false;
       }
 
@@ -412,10 +412,10 @@ namespace gui {
       void set_visible (os::window id, bool s) {
         if (id) {
           if (s) {
-            clog::trace() << "Show window:" << id;
+            logging::trace() << "Show window:" << id;
             x11::check_return(XMapWindow(core::global::get_instance(), id));
           } else {
-            clog::trace() << "Hide window:" << id;
+            logging::trace() << "Hide window:" << id;
             x11::check_return(XUnmapWindow(core::global::get_instance(), id));
           }
         }

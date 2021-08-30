@@ -524,10 +524,10 @@ namespace gui {
         } else {
           invalid_rect |= r;
         }
-        clog::trace() << "invalidate: region " << r << " -> " << invalid_rect << " in window " << this;
+        logging::trace() << "invalidate: region " << r << " -> " << invalid_rect << " in window " << this;
         native::invalidate(get_os_window(), invalid_rect);
       } else {
-        clog::trace() << "ignore invalidate request, state: " << get_state();
+        logging::trace() << "ignore invalidate request, state: " << get_state();
       }
     }
     // --------------------------------------------------------------------------
@@ -545,17 +545,17 @@ namespace gui {
           invalid_rect |= r;
         }
         if (invalid_rect.empty()) {
-          clog::trace() << "skip redraw, invalid_rect is empty " << this;
+          logging::trace() << "skip redraw, invalid_rect is empty " << this;
           return;
         }
 
 #ifdef GUIPP_QT
         if (!get_os_window()->isExposed()) {
-          clog::trace() << "skip redraw, window is not exposed " << this;
+          logging::trace() << "skip redraw, window is not exposed " << this;
           return;
         }
 #endif
-        clog::trace() << "redraw region " << r << " -> " << invalid_rect << " in window " << this;
+        logging::trace() << "redraw region " << r << " -> " << invalid_rect << " in window " << this;
 
         overlapped_context& surface = get_context();
         surface.begin(*this, invalid_rect);
@@ -591,7 +591,7 @@ namespace gui {
 
         invalid_rect = core::native_rect::zero;
       } else {
-        clog::trace() << "ignore redraw, state: " << get_state() << " in window " << this;
+        logging::trace() << "ignore redraw, state: " << get_state() << " in window " << this;
       }
     }
     // --------------------------------------------------------------------------
@@ -640,9 +640,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     void overlapped_window::capture_pointer (window* w) {
       if (is_valid()) {
-        clog::trace() << "capture_pointer:" << *w;
+        logging::trace() << "capture_pointer:" << *w;
         if (capture_stack.empty()) {
-          clog::trace() << "capture_pointer for overlapped_window " << this;
+          logging::trace() << "capture_pointer for overlapped_window " << this;
           native::capture_pointer(get_os_window());
         }
         capture_window = w;
@@ -654,21 +654,21 @@ namespace gui {
       if (is_valid()) {
         if (!capture_stack.empty()) {
           if (capture_stack.back() != w) {
-            clog::fatal() << "uncapture_pointer:" << w << " differs from stack back:(" << capture_stack.back() << ")";
+            logging::fatal() << "uncapture_pointer:" << w << " differs from stack back:(" << capture_stack.back() << ")";
           } else {
-            clog::trace() << "uncapture_pointer:" << w;
+            logging::trace() << "uncapture_pointer:" << w;
           }
           capture_stack.pop_back();
           if (!capture_stack.empty()) {
-            clog::trace() << "re-capture_pointer:" << capture_stack.back();
+            logging::trace() << "re-capture_pointer:" << capture_stack.back();
             capture_window = capture_stack.back();
           } else {
-            clog::trace() << "uncapture_pointer for overlapped_window " << this;
+            logging::trace() << "uncapture_pointer for overlapped_window " << this;
             native::uncapture_pointer(get_os_window());
             capture_window = nullptr;
           }
         } else {
-          clog::warn() << "uncapture_pointer with empty capture stack!";
+          logging::warn() << "uncapture_pointer with empty capture stack!";
         }
       }
     }
@@ -735,7 +735,7 @@ namespace gui {
     }
 
     void modal_window::run_modal (overlapped_window& parent, const std::vector<hot_key_action>& hot_keys) {
-      clog::debug() << *this << " Enter modal loop with hot keys";
+      logging::debug() << *this << " Enter modal loop with hot keys";
 
 #ifdef GUIPP_QT
 # ifndef GUIPP_BUILD_FOR_MOBILE
@@ -801,7 +801,7 @@ namespace gui {
       parent.enable();
       parent.take_focus();
 
-      clog::trace() << *this << " Exit modal loop";
+      logging::trace() << *this << " Exit modal loop";
     }
 
     // --------------------------------------------------------------------------

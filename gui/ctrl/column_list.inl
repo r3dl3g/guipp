@@ -71,7 +71,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       inline void base_column_list_layout::layout (const core::rectangle& r) const {
-        clog::trace() << "base_column_list_layout::layout(" << r << ")";
+        logging::trace() << "base_column_list_layout::layout(" << r << ")";
         data.header->geometry(header_pos(r), false);
         data.list->geometry(list_pos(r), false);
       }
@@ -317,7 +317,7 @@ namespace gui {
 
     template<typename Layout>
     inline void column_list_header<Layout>::layout (const core::rectangle& r) {
-      clog::trace() << "column_list_header::layout(" << r << ")";
+      logging::trace() << "column_list_header::layout(" << r << ")";
       layouter.layout(r);
     }
 

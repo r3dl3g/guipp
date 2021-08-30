@@ -92,7 +92,7 @@ namespace gui {
 #else
           s_font_scale = core::global::get_scale_factor();
 #endif // GUIPP_USE_XFT
-          clog::debug() << "Font scale = " << s_font_scale;
+          logging::debug() << "Font scale = " << s_font_scale;
         }
       }
     }
@@ -380,7 +380,7 @@ namespace gui {
       s << "-" << (italic ? "i" : "r") << "-*--" << size << "-*";
 
       std::string str = s.str();
-      clog::debug() << "Font name:" << str;
+      logging::debug() << "Font name:" << str;
       //std::transform(str.begin(), str.end(), str.begin(), tolower);
       return str;
     }
@@ -400,7 +400,7 @@ namespace gui {
                        bool* italic = nullptr) {
 
       std::vector<std::string> strs = tokenize(full_name);
-      clog::debug() << "Font:'" << full_name << "' parts:" << strs;
+      logging::debug() << "Font:'" << full_name << "' parts:" << strs;
       if (name && strs.size() > 2) {
         *name = strs[2];
       }
@@ -422,10 +422,10 @@ namespace gui {
         *italic = (strs[4] == "i") || (strs[4] == "I");
       }
       if (size && (strs.size() > 8) && (!strs[8].empty())) {
-        clog::debug() << "Font size:" << strs[8];
+        logging::debug() << "Font size:" << strs[8];
         *size = std::stoi(strs[8]) / 10;
       } else if (size && (strs.size() > 7) && (!strs[7].empty())) {
-        clog::debug() << "Font size:" << strs[7];
+        logging::debug() << "Font size:" << strs[7];
         *size = std::stoi(strs[7]);
       }
     }
@@ -460,7 +460,7 @@ namespace gui {
         }
       }
       info = f;
-      clog::debug() << "Load font:" << get_full_name();
+      logging::debug() << "Load font:" << get_full_name();
 #endif // GUIPP_USE_XFT
     }
 

@@ -45,7 +45,7 @@ namespace gui {
 
     template<orientation_t H, unsigned B, unsigned G, origin_t R>
     void weighted_layout<H, B, G, R>::layout (const core::rectangle& r) const {
-      clog::trace() << "weighted_layout::layout(" << r << ")";
+      logging::trace() << "weighted_layout::layout(" << r << ")";
 
       typedef detail::origin_layout<H, R> layout;
 

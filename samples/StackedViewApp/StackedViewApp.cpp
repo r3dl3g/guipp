@@ -84,7 +84,7 @@ void init_sub_view (file_list_t& view, stacked_view_t& client) {
     auto path = view.get_selected_path();
     if (fake_fs.find(path) != fake_fs.end()) {
       if (client.get_data(client.view_stack.top()).title == path) {
-        clog::warn() << "Double push same view on stacked_view with title: '" << path << "'!";
+        logging::warn() << "Double push same view on stacked_view with title: '" << path << "'!";
         return;
       }
       std::shared_ptr<sub_view_t> sub_view = std::make_shared<sub_view_t>(50);

@@ -25,6 +25,7 @@
 #include <functional>
 #include <chrono>
 #include <vector>
+#include <memory>
 
 // --------------------------------------------------------------------------
 //

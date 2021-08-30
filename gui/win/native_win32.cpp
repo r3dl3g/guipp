@@ -165,7 +165,7 @@ namespace gui {
         if (!cls_id) {
           auto error_no = GetLastError();
           if (error_no != 1410) {
-            clog::trace() << getLastErrorText() << " class name length: " << name.length();
+            logging::trace() << getLastErrorText() << " class name length: " << name.length();
           }
         }
         const auto nr = core::global::scale_to_native(r);

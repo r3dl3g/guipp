@@ -30,11 +30,11 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main_window main;
 
   main.on_paint(draw::paint([&](graphics& graph) {
-    clog::trace() << "Received on_paint, clear white";
+    logging::trace() << "Received on_paint, clear white";
     graph.clear(color::white);
 
     auto area = main.client_geometry().shrink({5, 5});
-    clog::trace() << "Draw graphs in area:" << area;
+    logging::trace() << "Draw graphs in area:" << area;
 
     core::grid<6, 9> g(area);
     draw_icon<icon_t::up>(graph, g(0, 0), "up");
@@ -98,7 +98,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     draw_icon<icon_t::left_arrow>(graph, g(2, 8), "left_arrow");
     draw_icon<icon_t::right_arrow>(graph, g(3, 8), "right_arrow");
 
-    clog::trace() << "on_paint finished";
+    logging::trace() << "on_paint finished";
   }));
 
   main.create({50, 50, 800, 600});

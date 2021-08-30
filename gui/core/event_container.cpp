@@ -65,9 +65,9 @@ namespace gui {
         try {
           result |= event_handlers[i](ev, resultValue);
         } catch (std::exception& e) {
-          clog::fatal() << "exception in event_container::handle_event: " << e;
+          logging::fatal() << "exception in event_container::handle_event: " << e;
         } catch (...) {
-          clog::fatal() << "Unknown exception in event_container::handle_event()";
+          logging::fatal() << "Unknown exception in event_container::handle_event()";
         }
       }
 

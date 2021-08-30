@@ -25,6 +25,7 @@
 #include <array>
 #include <cmath>
 #include <algorithm>
+#include <cstring>
 
 // --------------------------------------------------------------------------
 //
@@ -481,7 +482,7 @@ namespace gui {
         }
 
       } else {
-        clog::error() << "font_type is zero!";
+        logging::error() << "font_type is zero!";
       }
 
       xft_color xftcolor(c, g);
@@ -501,7 +502,7 @@ namespace gui {
         XTextExtents(f.font_type(), str.c_str(), int(str.size()),
                      &direction, &ascent, &descent, &overall);
       } else {
-        clog::error() << "font_type is zero!";
+        logging::error() << "font_type is zero!";
       }
 
       int width = overall.width;
@@ -563,7 +564,7 @@ namespace gui {
         rect.set_size(core::size(os::size{extents.width, static_cast<os::size_type>(height)}));
 
       } else {
-        clog::error() << "font_type is zero!";
+        logging::error() << "font_type is zero!";
       }
 
 #else
@@ -578,11 +579,13 @@ namespace gui {
         XTextExtents(f.font_type(), str.c_str(), int(str.size()),
                      &direction, &ascent, &descent, &overall);
       } else {
-        clog::error() << "font_type is zero!";
+        logging::error() << "font_type is zero!";
       }
 
       int width = overall.width;
       int height = (ascent - descent);
+      os::point_type px = rect.os_x(g.context());
+      os::point_type py = rect.os_y(g.context());
 
       if (origin_is_h_center(origin)) {
         px += (rect.os_width() - width) / 2;
@@ -635,7 +638,7 @@ namespace gui {
         }
 
       } else {
-        clog::error() << "font_type is zero!";
+        logging::error() << "font_type is zero!";
       }
 
       xft_color xftcolor(c, g);
@@ -653,7 +656,7 @@ namespace gui {
         XTextExtents(f.font_type(), str.c_str(), int(str.size()),
                      &direction, &ascent, &descent, &overall);
       } else {
-        clog::error() << "font_type is zero!";
+        logging::error() << "font_type is zero!";
       }
 
       if (origin_is_h_center(origin)) {

@@ -52,9 +52,9 @@ namespace gui {
           key = tolower(key);
         }
       } catch (std::exception& ex) {
-        clog::fatal() << "Exception in isupper(0x" << std::hex << (int)key << "):" << ex.what();
+        logging::fatal() << "Exception in isupper(0x" << std::hex << (int)key << "):" << ex.what();
       } catch (...) {
-        clog::fatal() << "Unknown exception in isupper(0x" << std::hex << (int)key << "):";
+        logging::fatal() << "Unknown exception in isupper(0x" << std::hex << (int)key << "):";
       }
 #endif // GUIPP_X11
     }

@@ -114,7 +114,7 @@ namespace gui {
         char buffer[256];
         XGetErrorText(dpy, errev->error_code, buffer, sizeof (buffer));
 
-        clog::fatal() << "Error occured somewhere in X!"
+        logging::fatal() << "Error occured somewhere in X!"
                     " ResourceID: " << errev->resourceid <<
                     " Serial: " << errev->serial <<
                     " Error_code: " << (int)errev->error_code <<
@@ -126,7 +126,7 @@ namespace gui {
       }
 
       int IOErrorHandler (Display*) {
-        clog::fatal() << "IO Error occured somewhere in X!";
+        logging::fatal() << "IO Error occured somewhere in X!";
         return 0;
       }
 
@@ -152,7 +152,7 @@ namespace gui {
             XSetErrorHandler(ErrorHandler);
             XSetIOErrorHandler(IOErrorHandler);
           } else {
-            clog::fatal() << "X server instance is 0!";
+            logging::fatal() << "X server instance is 0!";
           }
 # ifdef GUIPP_USE_XCB
           xcb_connection = XGetXCBConnection(instance);
@@ -191,12 +191,12 @@ namespace gui {
 
       void init (gui::os::instance instance) {
         gui_static.init(instance);
-        clog::info() << "os::bitmap_bit_order_t: " << core::os::bitmap_bit_order;
-        clog::info() << "os::bitmap_byte_order_t: " << core::os::bitmap_byte_order;
-        clog::info() << "os::platform_t: " << core::os::system_platform;
-        clog::info() << "os::ui_t: " << core::os::system_ui;
-        clog::info() << "global::scale_factor: " << scale_factor;
-        clog::info() << "color::part: RGBA=" << static_cast<unsigned int>(color::part::red)
+        logging::info() << "os::bitmap_bit_order_t: " << core::os::bitmap_bit_order;
+        logging::info() << "os::bitmap_byte_order_t: " << core::os::bitmap_byte_order;
+        logging::info() << "os::platform_t: " << core::os::system_platform;
+        logging::info() << "os::ui_t: " << core::os::system_ui;
+        logging::info() << "global::scale_factor: " << scale_factor;
+        logging::info() << "color::part: RGBA=" << static_cast<unsigned int>(color::part::red)
                      << ":" << static_cast<unsigned int>(color::part::green)
                      << ":" << static_cast<unsigned int>(color::part::blue)
                      << ":" << static_cast<unsigned int>(color::part::alpha);
@@ -344,16 +344,16 @@ namespace gui {
         if (xrm_db != NULL) {
           int i = xcb_xrm_resource_get_long(xrm_db, "Xft.dpi", NULL, &dpi);
           xcb_xrm_database_free(xrm_db);
-          clog::info() << "Xcb xrm_resource Xft.dpi: " << dpi;
+          logging::info() << "Xcb xrm_resource Xft.dpi: " << dpi;
         } else {
-          clog::warn() << "Could not open Xresources database falling back to highest dpi found";
+          logging::warn() << "Could not open Xresources database falling back to highest dpi found";
 
           for (xcb_screen_iterator_t i = xcb_setup_roots_iterator(xcb_get_setup(gui_static.xcb_connection)); i.rem; xcb_screen_next(&i)) {
             if (i.data != NULL) {
               const long xdpi = static_cast<int>((i.data->width_in_pixels * 254) / (i.data->width_in_millimeters * 10));
               const long ydpi = static_cast<int>((i.data->height_in_pixels * 254) / (i.data->height_in_millimeters * 10));
 
-              clog::info() << "Xcb Screen " << i.index << ": "
+              logging::info() << "Xcb Screen " << i.index << ": "
                            << " pix WxH: " << i.data->width_in_pixels << " x " << i.data->height_in_pixels
                            << " mm WxH: " << i.data->width_in_millimeters << " x " << i.data->height_in_millimeters
                            << " X-DPI: " << xdpi << " Y-DPI: " << ydpi;
@@ -363,7 +363,7 @@ namespace gui {
           }
         }
 
-       clog::info() << "XCB.dpi = " << dpi;
+       logging::info() << "XCB.dpi = " << dpi;
 
         return static_cast<int>(dpi);
       }
@@ -382,7 +382,7 @@ namespace gui {
           XRROutputInfo* rroi = XRRGetOutputInfo(dpy, res, res->outputs[i]);
 
           if (rroi && !rroi->connection) {
-            clog::info() << "Xrandr Screen " << i << " (" << rroi->name
+            logging::info() << "Xrandr Screen " << i << " (" << rroi->name
                          << "): connection: " << rroi->connection
                          << ", WxH: " << rroi->mm_width << " x " << rroi->mm_height;
 
@@ -391,7 +391,7 @@ namespace gui {
               if (rrci && rrci->noutput) {
                 const int xdpi = ((int)rrci->width * 254) / ((int)rroi->mm_width * 10);
                 const int ydpi = ((int)rrci->height * 254) / ((int)rroi->mm_height * 10);
-                clog::info() << "Xrandr Crtc " << j << " XxY-WxH:" << rrci->x << " y " << rrci->y
+                logging::info() << "Xrandr Crtc " << j << " XxY-WxH:" << rrci->x << " y " << rrci->y
                              << " - " << rrci->width << " x " << rrci->height
                              << " X-DPI: " << xdpi << " Y-DPI: " << ydpi;
                 dpi = std::max(dpi, std::max(xdpi, ydpi));
@@ -402,7 +402,7 @@ namespace gui {
           XRRFreeOutputInfo(rroi);
         }
         XRRFreeScreenResources(res);
-        clog::info() << "Xrandr.dpi = " << dpi;
+        logging::info() << "Xrandr.dpi = " << dpi;
         return dpi;
       }
 #pragma clang diagnostic pop
@@ -416,14 +416,14 @@ namespace gui {
           const int xdpi = (screen->width * 254) / (screen->mwidth * 10);
           const int ydpi = (screen->height * 254) / (screen->mheight * 10);
 
-          clog::info() << "Xlib Screen " << i << ": "
+          logging::info() << "Xlib Screen " << i << ": "
                        << " pix WxH: " << screen->width << " x " << screen->height
                        << " mm WxH: " << screen->mwidth << " x " << screen->mheight
                        << " X-DPI: " << xdpi << " Y-DPI: " << ydpi;
 
           dpi = std::max(dpi, std::max(xdpi, ydpi));
         }
-        clog::info() << "Xlib.dpi = " << dpi;
+        logging::info() << "Xlib.dpi = " << dpi;
         return dpi;
       }
 
@@ -442,7 +442,7 @@ namespace gui {
           dpi = std::max(dpi, get_xrandr_dpi());
 # endif // GUIPP_USE_XRANDR
           if (dpi == 0) {
-            clog::error() <<  "Could get highest dpi, using 96 as default";
+            logging::error() <<  "Could get highest dpi, using 96 as default";
             dpi = 96;
           }
 
@@ -467,7 +467,7 @@ namespace gui {
         } else {
           QScreen* d = QGuiApplication::primaryScreen();
           auto r =  std::max(ceil((double)d->logicalDotsPerInchX() * 2.0 / 96.0) / 2.0, 0.5);
-          clog::info()  << "Display "
+          logging::info()  << "Display "
                            "W:" << d->size().width() << ", H:" << d->size().height()
                         << ", MM-W:" << d->physicalSize().width() << ", MM-H:" << d->physicalSize().height()
                         << ", LogDPI-X:" << d->logicalDotsPerInchX() << ", LogDPI-Y:" << d->logicalDotsPerInchY()

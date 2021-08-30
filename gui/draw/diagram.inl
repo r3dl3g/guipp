@@ -80,7 +80,7 @@ namespace gui {
             const T abs_min = std::abs(min);
             return (i < -abs_min ? i / step : i >= abs_min ? i * step : i + min);
             // armhf build return always 0 for abs(min). std::abs() solves the problem
-//            clog::info() << "scale_fn<scaling::symlog>::inc(i:" << i << ", step:" << step << ", min:" << min << "), abs(min):" << abs_min;
+//            logging::info() << "scale_fn<scaling::symlog>::inc(i:" << i << ", step:" << step << ", min:" << min << "), abs(min):" << abs_min;
 //            if (i < -abs_min) {
 //              return i / step;
 //            } else if (i >= abs_min) {

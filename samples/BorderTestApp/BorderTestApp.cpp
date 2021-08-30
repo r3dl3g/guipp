@@ -186,7 +186,7 @@ my_main_window::my_main_window ()
           graph.copy_from(bws[i], core::point(x, 1));
         }
       } catch (std::exception& ex) {
-        clog::fatal() << ex;
+        logging::fatal() << ex;
       }
       x += 110;
       try {
@@ -194,7 +194,7 @@ my_main_window::my_main_window ()
           graph.copy_from(grays[i], core::point(x, 1));
         }
       } catch (std::exception& ex) {
-        clog::fatal() << ex;
+        logging::fatal() << ex;
       }
       x += 110;
       try {
@@ -202,7 +202,7 @@ my_main_window::my_main_window ()
           graph.copy_from(rgbs[i], core::point(x, 1));
         }
       } catch (std::exception& ex) {
-        clog::fatal() << ex;
+        logging::fatal() << ex;
       }
       x += 110;
       try {
@@ -210,7 +210,7 @@ my_main_window::my_main_window ()
           graph.copy_from(rgbas[i], core::point(x, 1));
         }
       } catch (std::exception& ex) {
-        clog::fatal() << ex;
+        logging::fatal() << ex;
       }
       x += 110;
     }
@@ -790,7 +790,7 @@ void read_write (datamap<io::PNM2BPP<P>::px_fmt>& bm) {
     io::ofpnm<P>(oname) << bm;
   }
   catch (std::exception& ex) {
-    clog::fatal() << ex;
+    logging::fatal() << ex;
   }
 }
 
@@ -805,7 +805,7 @@ void read_write_rgba (datamap<pixel_format_t::RGBA>& bm) {
     std::ofstream(oname) << io::opnm<io::PNM2BPP<P>::bin, pixel_format_t::RGBA>(bm);
   }
   catch (std::exception& ex) {
-    clog::fatal() << ex;
+    logging::fatal() << ex;
   }
 }
 

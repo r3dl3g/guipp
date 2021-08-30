@@ -214,7 +214,7 @@ namespace gui {
     }
 
     void weight_column_list_layout::layout (const core::rectangle& r) {
-      clog::trace() << "weight_column_list_layout::layout(" << r << ")";
+      logging::trace() << "weight_column_list_layout::layout(" << r << ")";
       auto count = get_column_count();
 
       float full_weight = 0.0F;

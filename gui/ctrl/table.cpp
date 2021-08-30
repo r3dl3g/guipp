@@ -163,7 +163,7 @@ namespace gui {
         const int startidx = std::max(0, static_cast<int>(positions.size()));
         core::point::type pos = startidx == 0 ? 0 : positions[startidx - 1];
         positions.resize(idx);
-        clog::trace() << "Calc position for idx " << startidx << " to " << idx;
+        logging::trace() << "Calc position for idx " << startidx << " to " << idx;
         for (int i = startidx; i < idx; ++i) {
           pos += get_size(i);
           positions[i] = pos;

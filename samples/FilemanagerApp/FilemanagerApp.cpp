@@ -77,7 +77,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
         std::string path_str = path.c_str();
 #endif // GUIPP_X11
 
-        clog::debug() << "exec return:" << std::system(path_str.c_str());
+        logging::debug() << "exec return:" << std::system(path_str.c_str());
       }
     });
   });

@@ -39,7 +39,7 @@ namespace gui {
 
     template<typename T>
     inline void virtual_layout<T>::layout (const core::rectangle& r) const {
-      clog::trace() << "virtual_layout::layout()";
+      logging::trace() << "virtual_layout::layout()";
       if (client) {
         auto available = super::layout(r, client->get_virtual_geometry(r));
         client->geometry(available);

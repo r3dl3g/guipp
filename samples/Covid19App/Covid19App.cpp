@@ -212,7 +212,7 @@ namespace calc {
         v[i].y += s[i].y;
 #ifdef DEBUG
         if (v[i].x != s[i].x) {
-          clog::debug() << "X-Value differs (" << v[i].x << " != " << s[i].x << ") at " << i;
+          logging::debug() << "X-Value differs (" << v[i].x << " != " << s[i].x << ") at " << i;
         }
 #endif
       }
@@ -496,22 +496,22 @@ void check_points (const diagram::scaler<X, SX>& sx,
                    const std::vector<point>& points) {
   for (auto& pt : points) {
     if (pt.x < sx.get_source().begin()) {
-      clog::warn() << "Point " << pt << " x is lower than min (" << sx.get_source().begin() << ")";
+      logging::warn() << "Point " << pt << " x is lower than min (" << sx.get_source().begin() << ")";
     }
     if (pt.x > sx.get_source().end()) {
-      clog::warn() << "Point " << pt << " x is greater than max (" << sx.get_source().end() << ")";
+      logging::warn() << "Point " << pt << " x is greater than max (" << sx.get_source().end() << ")";
     }
     if (std::isinf(pt.y)) {
-      clog::warn() << "Point " << pt << " y is inf";
+      logging::warn() << "Point " << pt << " y is inf";
     }
     if (std::isnan(pt.y)) {
-      clog::warn() << "Point " << pt << " y is nan";
+      logging::warn() << "Point " << pt << " y is nan";
     }
     if (pt.y < sy.get_source().begin()) {
-      clog::warn() << "Point " << pt << " y is lower than min (" << sy.get_source().begin() << ")";
+      logging::warn() << "Point " << pt << " y is lower than min (" << sy.get_source().begin() << ")";
     }
     if (pt.y > sy.get_source().end()) {
-      clog::warn() << "Point " << pt << " y is greater than max (" << sy.get_source().end() << ")";
+      logging::warn() << "Point " << pt << " y is greater than max (" << sy.get_source().end() << ")";
     }
   }
 }
@@ -940,7 +940,7 @@ void covid19main::select_country (int sel) {
     option_data[absolute_cumulated].positives = calc::accumulated(c.positives);
     option_data[absolute_cumulated].deaths = calc::accumulated(c.deaths);
 //    });
-//    clog::info() << "Duration for accumulation: " << d;
+//    logging::info() << "Duration for accumulation: " << d;
 
   option_data[increase_median_7].positives = calc::rolling_mean(c.positives, 7);
   option_data[increase_median_7].deaths = calc::rolling_mean(c.deaths, 7);
@@ -978,7 +978,7 @@ void covid19main::refresh () {
 }
 // --------------------------------------------------------------------------
 void covid19main::clear_cache () {
-  clog::debug() << "Clear pixmap cache";
+  logging::debug() << "Clear pixmap cache";
   pixmap_cache.clear();
 }
 // --------------------------------------------------------------------------
@@ -1048,7 +1048,7 @@ void covid19main::draw_at (std::size_t idx,
         graph.copy_from(i->second, area.top_left());
 //      });
 
-//      clog::info() << "Draw " << idx << " from cache (avg " << cached.average_duration() << " s";
+//      logging::info() << "Draw " << idx << " from cache (avg " << cached.average_duration() << " s";
       return;
     } else {
       clear_cache();
@@ -1062,7 +1062,7 @@ void covid19main::draw_at (std::size_t idx,
 //  });
   graph.copy_from(px, area.top_left());
 
-//  clog::info() << "Insert " << idx << " into cache (avg " << uncached.average_duration() << " s";
+//  logging::info() << "Insert " << idx << " into cache (avg " << uncached.average_duration() << " s";
   pixmap_cache[idx] = std::move(px);
 }
 // --------------------------------------------------------------------------
@@ -1292,7 +1292,7 @@ void covid19main::load_tests_data (std::istream& in, const double file_size, boo
     });
   }
 
-  clog::info() << "Duration for parsing: " << stopwatch;
+  logging::info() << "Duration for parsing: " << stopwatch;
   std::size_t count = x_range.size() / (60*60*24) + 1;
 
   for (auto& i : country_map) {
@@ -1365,7 +1365,7 @@ void covid19main::load_cases_data (std::istream& in, const double file_size, boo
       auto month = std::get<2>(t);
       auto day = std::get<1>(t);
       if ((year != 2020) && (year != 2019)) {
-        clog::info() << "Unexpected year:" << year;
+        logging::info() << "Unexpected year:" << year;
       }
       const auto x = time::tm2time_t(time::mktm(year, month, day));
 
@@ -1392,9 +1392,9 @@ void covid19main::load_cases_data (std::istream& in, const double file_size, boo
 
   }
 
-  clog::info() << "Duration for parsing: " << stopwatch;
+  logging::info() << "Duration for parsing: " << stopwatch;
 
-  clog::info() << "Inspected range: " << data.x_range;
+  logging::info() << "Inspected range: " << data.x_range;
   std::size_t count = data.x_range.size() / (60*60*24) + 1;
   region world, favorites;
   world.name = "World";
@@ -1407,14 +1407,14 @@ void covid19main::load_cases_data (std::istream& in, const double file_size, boo
 
 #ifdef DEBUG
     if (cntry.name == "San_Marino") {
-      clog::debug() << "Fill up " << cntry.name;
+      logging::debug() << "Fill up " << cntry.name;
     }
 #endif
 
     calc::fill_up(cntry.positives, count, data.x_range);
     calc::fill_up(cntry.deaths, count, data.x_range);
 
-    //    clog::debug() << "Add " << cntry.name << " to world";
+    //    logging::debug() << "Add " << cntry.name << " to world";
     calc::add(world.positives, cntry.positives);
     calc::add(world.deaths, cntry.deaths);
 
@@ -1426,7 +1426,7 @@ void covid19main::load_cases_data (std::istream& in, const double file_size, boo
       auto& region = data.region_map[name];
       region.name = name;
 
-      //    clog::debug() << "Add " << cntry.name << " to region - " << cntry.region;
+      //    logging::debug() << "Add " << cntry.name << " to region - " << cntry.region;
       calc::add(region.positives, cntry.positives);
       calc::add(region.deaths, cntry.deaths);
 
@@ -1494,7 +1494,7 @@ void covid19main::load_jhu_global (std::istream& in, const double file_size, boo
       world.country_list.emplace_back(std::ref(cntry));
     }
   });
-  clog::info() << "Duration for parsing: " << stopwatch;
+  logging::info() << "Duration for parsing: " << stopwatch;
 
   full_data.x_range = { t0, t_max };
 
@@ -1526,12 +1526,12 @@ void covid19main::load_data (const std::vector<std::string>& args) {
   loading_thread = std::thread([&, args] () {
 
     for (auto& p : args) {
-      clog::info() << "Load CSV data from '" << p << "'";
+      logging::info() << "Load CSV data from '" << p << "'";
 
       std::ifstream in(p);
 
       if (!in.is_open()) {
-        clog::warn() << "Could not open file '" << p << "'";
+        logging::warn() << "Could not open file '" << p << "'";
       }
 
       const double file_size = static_cast<double>(sys_fs::file_size(p));
@@ -1558,7 +1558,7 @@ void covid19main::load_data (const std::vector<std::string>& args) {
       } else if (starts_with(header, covid19_jhu_confirmed_us_header)) {
         load_jhu_confirmed_us(in, file_size);
       } else {
-        clog::warn() << "Found unknown header:" << header;
+        logging::warn() << "Found unknown header:" << header;
         win::run_on_main(*this, [&] () {
           ctrl::message_dialog::show(*this, "Warning!", "Type of csv file could not be recognized", "Ok");
         });
@@ -1653,7 +1653,7 @@ void test_week2day () {
 //    for (int week = 1; week < 4; ++week) {
 //      const auto t = time::mktm(2020, 1, week * 7 - offset);
 //      const auto day = time::tm2time_t(t);
-//      clog::debug() << "Offset: " << offset << ", Week: " << week << ", day: " << util::time::format_date(day);
+//      logging::debug() << "Offset: " << offset << ", Week: " << week << ", day: " << util::time::format_date(day);
 
 //    }
 //  }
@@ -1665,7 +1665,7 @@ void test_week2day () {
       const int week = time::week_of_year(tm);
 
       if (day == 1) {
-        clog::debug() << "   Day: " << util::time::format_date(tm) << ", Week: " << week << ", Year-day: " << tm.tm_yday << ", Week-day: " << weekday[tm.tm_wday];
+        logging::debug() << "   Day: " << util::time::format_date(tm) << ", Week: " << week << ", Year-day: " << tm.tm_yday << ", Week-day: " << weekday[tm.tm_wday];
       }
 
       if (tm.tm_wday == 1) { // Monday
@@ -1673,7 +1673,7 @@ void test_week2day () {
 
         if (fd != t) {
           const auto fdtm = time::time_t2tm(fd);
-          clog::debug() << "Firstday: " << util::time::format_date(tm) << ", Week-day: " << weekday[tm.tm_wday]
+          logging::debug() << "Firstday: " << util::time::format_date(tm) << ", Week-day: " << weekday[tm.tm_wday]
                         << ", First Week-day: " << util::time::format_date(fdtm) << ", Week-day: " << weekday[fdtm.tm_wday];
         }
       }
@@ -1689,7 +1689,7 @@ int gui_main(const std::vector<std::string>& args) {
 //  test_week2day();
 //  return 0;
 
-  clog::info() << "Current working dir:" << sys_fs::current_path();
+  logging::info() << "Current working dir:" << sys_fs::current_path();
 
   covid19main main;
 

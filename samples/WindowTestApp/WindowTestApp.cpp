@@ -54,7 +54,7 @@ public:
   bool operator()(const core::event& e, gui::os::event_result&) {
     if (!win::is_none_client_event(e) &&
         !win::is_frequent_event(e) ) {
-      clog::debug() << "Message: " << e << IF_WIN32_ELSE(" (" << std::hex << e.wParam << ", " << e.lParam << ")", "");
+      logging::debug() << "Message: " << e << IF_WIN32_ELSE(" (" << std::hex << e.wParam << ", " << e.lParam << ")", "");
     }
     return false;
   }
@@ -304,8 +304,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   my_main_window main;
 
-  clog::debug() << "window size:" << sizeof(main)  << ", window_class_info size:" << sizeof(win::class_info);
-  clog::debug() << "long size:" << sizeof(long)<< ", pointer size:" << sizeof(void*);
+  logging::debug() << "window size:" << sizeof(main)  << ", window_class_info size:" << sizeof(win::class_info);
+  logging::debug() << "long size:" << sizeof(long)<< ", pointer size:" << sizeof(void*);
   size_t str_size = sizeof(std::string);
   size_t evc_size = sizeof(core::event_container);
   size_t win_size = sizeof(win::window);
@@ -316,7 +316,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   size_t tbtn_size = sizeof(ctrl::text_button);
   size_t pnt_size = sizeof(ctrl::paint_function);
 
-  clog::info() << "Sizes: "
+  logging::info() << "Sizes: "
           <<   "std::string:" << str_size
           << ", event_container:" << evc_size
           << ", window:" << win_size
@@ -328,7 +328,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
           << ", paint_event:" << pnt_size;
 
   const core::rectangle r = core::rectangle(50, 50, 1500, 800);
-  clog::debug() << "Create Main: " << r;
+  logging::debug() << "Create Main: " << r;
   main.create(r);
   main.set_title("Window Test");
 
@@ -357,7 +357,7 @@ my_main_window::my_main_window ()
   btn_group.set_background(color::very_light_gray);
 
   on_destroy([] () {
-    clog::debug() << "Destroyed!";
+    logging::debug() << "Destroyed!";
     win::quit_main_loop();
   });
 
@@ -371,64 +371,64 @@ my_main_window::my_main_window ()
 
 //#ifdef GUIPP_WIN
 //  on_close([&]() {
-//    clog::debug() << "Close!";
+//    logging::debug() << "Close!";
 //    destroy();
 //  });
 //  on_enable([](bool on) {
-//    clog::debug() << (on ? "Enableed" : "Disabled");
+//    logging::debug() << (on ? "Enableed" : "Disabled");
 //  });
 //  on_activate([](bool on, win::window* win) {
-//    clog::debug() << "Main " << (on ? "activate" : "deactivate");
+//    logging::debug() << "Main " << (on ? "activate" : "deactivate");
 //  });
-//  on_begin_size_or_move([]() { clog::debug() << "Start Move/Size"; });
-//  on_end_size_or_move([]() { clog::debug() << "Finish Move/Size"; });
+//  on_begin_size_or_move([]() { logging::debug() << "Start Move/Size"; });
+//  on_end_size_or_move([]() { logging::debug() << "Finish Move/Size"; });
 //  on_activate_app([](bool on) {
-//    clog::debug() << (on ? "A" : "Dea") << "ctivate App";
+//    logging::debug() << (on ? "A" : "Dea") << "ctivate App";
 //  });
 
 //#endif
 
   on_move([] (const core::point& p) {
-    clog::debug() << "Main move: " << p;
+    logging::debug() << "Main move: " << p;
   });
   on_size([] (const core::size& s) {
-    clog::debug() << "Main size: " << s;
+    logging::debug() << "Main size: " << s;
   });
 
 //#ifdef GUIPP_WIN
 //  ok_button.on_activate([](bool on, win::window* win) {
-//    clog::debug() << "Button " << (on ? "" : "de") << "activate";
+//    logging::debug() << "Button " << (on ? "" : "de") << "activate";
 //  });
 //#endif
 //  ok_button.on_set_focus([] () {
-//    clog::debug() << "Button Set Focus";
+//    logging::debug() << "Button Set Focus";
 //  });
 //  ok_button.on_lost_focus([&] () {
-//    clog::debug() << "Button Lost Focus";
+//    logging::debug() << "Button Lost Focus";
 //  });
 
   on_left_btn_down([&] (os::key_state, const core::native_point& p) {
-    clog::debug() << "Left Button Down at " << p;
+    logging::debug() << "Left Button Down at " << p;
   });
   on_left_btn_up([&] (os::key_state, const core::native_point& p) {
-    clog::debug() << "Left Button Up at " << p;
+    logging::debug() << "Left Button Up at " << p;
   });
   on_right_btn_down([&] (os::key_state, const core::native_point& p) {
-    clog::debug() << "Right Button Down at " << p;
+    logging::debug() << "Right Button Down at " << p;
   });
   on_right_btn_up([&] (os::key_state, const core::native_point& p) {
-    clog::debug() << "Right Button Up at " << p;
+    logging::debug() << "Right Button Up at " << p;
   });
   window1.on_wheel<orientation_t::horizontal>([&] (core::native_point::type delta,
                                                    const core::native_point& p) {
-    clog::debug() << "Wheel-X: " << delta << " at " << p;
+    logging::debug() << "Wheel-X: " << delta << " at " << p;
     if (window1.surface_geometry().is_inside(p)) {
       window1.position(window1.position() + core::size(delta, 0));
     }
   });
   window1.on_wheel<orientation_t::vertical>([&] (core::native_point::type delta,
                                                  const core::native_point& p) {
-    clog::debug() << "Wheel-Y: " << delta << " at " << p;
+    logging::debug() << "Wheel-Y: " << delta << " at " << p;
     if (window1.surface_geometry().is_inside(p)) {
       window1.position(window1.position() + core::size(0, delta));
     }
@@ -438,28 +438,28 @@ my_main_window::my_main_window ()
     at_drag = true;
     last_pos = p;
     window1.capture_pointer();
-    clog::debug() << "Window1 Mouse down at " << p;
+    logging::debug() << "Window1 Mouse down at " << p;
   });
   window1.on_left_btn_up([&](os::key_state, const core::native_point& p) {
     window1.uncapture_pointer();
     at_drag = false;
-    clog::debug() << "Window1 Mouse up at " << p;
+    logging::debug() << "Window1 Mouse up at " << p;
   });
 
   window2.on_left_btn_down([&](os::key_state, const core::native_point& p) {
     at_drag = true;
     last_pos = p;
     window2.capture_pointer();
-    clog::debug() << "Window2 Mouse down at " << p;
+    logging::debug() << "Window2 Mouse down at " << p;
   });
   window2.on_left_btn_up([&](os::key_state, const core::native_point& p) {
     window2.uncapture_pointer();
     at_drag = false;
-    clog::debug() << "Window2 Mouse up at " << p;
+    logging::debug() << "Window2 Mouse up at " << p;
   });
 
   window1.on_mouse_move([&] (os::key_state, const core::native_point& p) {
-    //clog::debug() << "Window1 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
+    //logging::debug() << "Window1 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
       auto delta = p - last_pos;
       last_pos = p;
@@ -467,7 +467,7 @@ my_main_window::my_main_window ()
     }
   });
   window2.on_mouse_move([&] (os::key_state, const core::native_point& p) {
-    //clog::debug() << "Window2 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
+    //logging::debug() << "Window2 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
       auto delta = p - last_pos;
       last_pos = p;
@@ -477,29 +477,29 @@ my_main_window::my_main_window ()
   });
 
   window1.on_left_btn_dblclk([&] (os::key_state, const core::native_point& p) {
-    clog::debug() << "Window1 Double Click up at " << p;
+    logging::debug() << "Window1 Double Click up at " << p;
     window2.set_visible(!window2.is_visible());
     scroll_view.invalidate();
   });
 
   on_left_btn_dblclk([&] (os::key_state, const core::native_point& p) {
-    clog::debug() << "Double Click up at " << p;
+    logging::debug() << "Double Click up at " << p;
 
     core::point pos = window1.position();
     core::size sz = window1.size();
-    clog::debug() << "Pos: " << pos << " Size " << sz;
+    logging::debug() << "Pos: " << pos << " Size " << sz;
 
     core::rectangle pl = window1.geometry();
-    clog::debug() << "Place: " << pl;
+    logging::debug() << "Place: " << pl;
 
     core::rectangle apl = window1.absolute_geometry();
-    clog::debug() << "Abs Place: " << apl;
+    logging::debug() << "Abs Place: " << apl;
 
     core::point apos = window1.absolute_position();
-    clog::debug() << "Abs Pos: " << apos;
+    logging::debug() << "Abs Pos: " << apos;
 
     core::rectangle car = window1.client_geometry();
-    clog::debug() << "Client: " << car;
+    logging::debug() << "Client: " << car;
   });
   on_right_btn_dblclk([&] (os::key_state, const core::native_point&) {
     window1.position({50, 50});
@@ -510,7 +510,7 @@ my_main_window::my_main_window ()
   at_paint1 = true;
 
   window2.on_left_btn_dblclk([&] (os::key_state, const core::native_point& p) {
-    clog::debug() << "Window2 Double Click up at " << p;
+    logging::debug() << "Window2 Double Click up at " << p;
     if (at_paint1) {
       at_paint1 = false;
       window2.unregister_event_handler<win::paint_event>(draw::paint(paint1));
@@ -523,42 +523,42 @@ my_main_window::my_main_window ()
     window2.invalidate();
   });
   window2.on_show([] () {
-    clog::debug() << "Window2 show:";
+    logging::debug() << "Window2 show:";
   });
   window2.on_hide([] () {
-    clog::debug() << "Window2 hide:";
+    logging::debug() << "Window2 hide:";
   });
 
 //#ifdef GUIPP_WIN
 //  ok_button.on_state_changed([](bool state) {
-//    clog::debug() << "Button " << (state ? "hilited" : "unhilited");
+//    logging::debug() << "Button " << (state ? "hilited" : "unhilited");
 //  });
 //#endif // GUIPP_WIN
 
   ok_button.on_pushed([&] () {
-    clog::debug() << "Button pushed";
+    logging::debug() << "Button pushed";
     label.set_text("Pushed!");
   });
   ok_button.on_released([&] () {
-    clog::debug() << "Button released";
+    logging::debug() << "Button released";
     label.set_text("Released!");
   });
   radio_button.on_clicked([&] () {
-    clog::debug() << "Radio clicked";
+    logging::debug() << "Radio clicked";
     labelR.set_text("Radio clicked!");
     bool check = radio_button.is_checked();
 //    radio_button.set_checked(!check);
     radio_button2.set_checked(!check);
   });
   radio_button2.on_clicked([&] () {
-    clog::debug() << "Radio2 clicked";
+    logging::debug() << "Radio2 clicked";
     labelR.set_text("Radio2 clicked!");
     bool check = radio_button2.is_checked();
 //    radio_button2.set_checked(!check);
     radio_button.set_checked(!check);
   });
   check_box.on_state_changed([&] (bool on) {
-    clog::debug() << "Check clicked";
+    logging::debug() << "Check clicked";
     label.set_text("Check clicked!");
     radio_button.enable(on);
     radio_button2.enable(on);
@@ -572,32 +572,32 @@ my_main_window::my_main_window ()
   });
 
   min_button.on_clicked([&] () {
-    clog::debug() << "Min clicked";
+    logging::debug() << "Min clicked";
     minimize();
     query_state();
   });
   max_button.on_clicked([&] () {
-    clog::debug() << "Max clicked";
+    logging::debug() << "Max clicked";
     maximize();
     query_state();
   });
   norm_button.on_clicked([&] () {
-    clog::debug() << "Norm clicked";
+    logging::debug() << "Norm clicked";
     restore();
     query_state();
   });
   info_button.on_clicked([&] () {
-    clog::debug() << "Info clicked";
+    logging::debug() << "Info clicked";
     query_state();
     textbox->set_text(editor->get_selected_text());
     textbox.layout();
   });
   null_button.on_clicked([&] () {
-    clog::debug() << "0 clicked";
+    logging::debug() << "0 clicked";
     vsplitter.set_value(vsplitter.get_min());
   });
   full_button.on_clicked([&] () {
-    clog::debug() << "Full clicked";
+    logging::debug() << "Full clicked";
     vsplitter.set_value(size().width() - 15);
   });
 
@@ -661,14 +661,14 @@ my_main_window::my_main_window ()
   });
 
   ok_button.on_clicked([&] () {
-    clog::debug() << "Ok Button clicked";
+    logging::debug() << "Ok Button clicked";
     label.set_text("OK Clicked!");
     data.insert(data.end(), { "Sechs", "Sieben", "Acht", "Neun", "Zehn" });
     list2.invalidate();
   });
 
   del_button.on_clicked([&] () {
-    clog::debug() << "Del Button clicked";
+    logging::debug() << "Del Button clicked";
     label.set_text("Del Clicked!");
     if (!data.empty()) {
       data.erase(data.begin());
@@ -677,7 +677,7 @@ my_main_window::my_main_window ()
   });
 
   clear_button.on_clicked([&] () {
-    clog::debug() << "Clear Button clicked";
+    logging::debug() << "Clear Button clicked";
     label.set_text("Clear Clicked!");
     data.clear();
     list2.invalidate();
@@ -773,16 +773,16 @@ my_main_window::my_main_window ()
   });
 
   window2.on_mouse_enter([]() {
-    clog::debug() << "Window2 mouse enter";
+    logging::debug() << "Window2 mouse enter";
   });
   window2.on_mouse_leave([]() {
-    clog::debug() << "Window2 mouse leave";
+    logging::debug() << "Window2 mouse leave";
   });
   window1.on_move([](const core::point& p) {
-    clog::debug() << "Window1 move: " << p;
+    logging::debug() << "Window1 move: " << p;
   });
   window1.on_size([](const core::size& s) {
-    clog::debug() << "Window1 size: " << s;
+    logging::debug() << "Window1 size: " << s;
   });
   window1.on_paint(draw::paint([] (draw::graphics& g) {
     g.clear(color::gray);
@@ -833,9 +833,9 @@ void my_main_window::query_state () {
 }
 
 void my_main_window::onCreated () {
-  clog::debug() << "Main created: this: " << *this;
+  logging::debug() << "Main created: this: " << *this;
   created_children();
-  clog::debug() << "Children created: this:" << *this << ", count:" << get_children().size();
+  logging::debug() << "Children created: this:" << *this << ", count:" << get_children().size();
 }
 
 template<int T, typename C>
@@ -979,7 +979,7 @@ void my_main_window::created_children () {
   table_view.enable_size(true, true);
 
   editor.create(main, core::rectangle(740, 320, 150, 250));
-  clog::debug() << "Create editor: " << editor;
+  logging::debug() << "Create editor: " << editor;
   editor->set_text("1. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
                    "2. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
                    "3. magna aliquyam erat, sed diam voluptua.\n"
@@ -1169,7 +1169,7 @@ void my_main_window::created_children () {
 
 ctrl::paint_function my_main_window::create_paint1 () {
   return [&](draw::graphics& graph) {
-    //clog::debug() << "win::look 1";
+    //logging::debug() << "win::look 1";
 
     using namespace draw;
 
@@ -1256,7 +1256,7 @@ ctrl::paint_function my_main_window::create_paint1 () {
 
 ctrl::paint_function my_main_window::create_paint2 () {
   return [&](draw::graphics& graph) {
-    //clog::debug() << "win::look 2";
+    //logging::debug() << "win::look 2";
     using namespace draw;
 
     auto area = window2.client_geometry();

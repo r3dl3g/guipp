@@ -230,7 +230,7 @@ namespace gui {
 
     void scroll_bar::handle_wheel (const core::point::type delta, const core::native_point&) {
       if (is_enabled()) {
-        clog::trace() << "scroll_bar::handle_wheel(" << delta << ") step: " << get_step();
+        logging::trace() << "scroll_bar::handle_wheel(" << delta << ") step: " << get_step();
         set_value(get_value() - delta * get_step(), true);
       }
     }

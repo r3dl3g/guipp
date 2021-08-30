@@ -31,7 +31,7 @@ namespace gui {
 
     template<unsigned W, unsigned H, unsigned B, unsigned G>
     void grid_lineup<W, H, B, G>::layout (const core::rectangle& r) const {
-      clog::trace() << "grid_lineup::layout(" << r << ")";
+      logging::trace() << "grid_lineup::layout(" << r << ")";
 
       typedef core::rectangle::point_type ptype;
       typedef core::rectangle::size_type stype;
@@ -75,7 +75,7 @@ namespace gui {
 
     template<unsigned W, unsigned H, unsigned C, unsigned B, unsigned G>
     void fixed_grid_lineup<W, H, C, B, G>::layout (const core::rectangle& r) const {
-      clog::trace() << "fixed_grid_lineup::layout(" << r << ")";
+      logging::trace() << "fixed_grid_lineup::layout(" << r << ")";
 
       typedef core::rectangle::point_type ptype;
       typedef core::rectangle::size_type stype;
@@ -123,7 +123,7 @@ namespace gui {
 
     template<unsigned columns, unsigned rows, unsigned border, unsigned gap>
     void grid_adaption<columns, rows, border, gap>::layout (const core::rectangle& r) const {
-      clog::trace() << "grid_adaption::layout(" << r << ")";
+      logging::trace() << "grid_adaption::layout(" << r << ")";
       const auto& elements = super::get_elements();
       const type border2 = (border * 2);
       const type xspace = r.width() - border2;

@@ -40,10 +40,10 @@ struct test_initializer {
   {
 #ifdef GUIPP_WIN
     testing::set_error_log([] (const std::string& s) {
-      clog::error().raw() << s;
+      logging::error().raw() << s;
     });
     testing::set_info_log([] (const std::string& s) {
-      clog::info().raw() << s;
+      logging::info().raw() << s;
     });
     testing::set_test_init([&] () {
       dbgStrm = new logging::odebugstream(logging::level::debug, logging::core::get_console_formatter());

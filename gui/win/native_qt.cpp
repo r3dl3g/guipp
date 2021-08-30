@@ -109,7 +109,7 @@ namespace gui {
         os::window id = new os::qt::window(parent_id, type.get_style(), &data);
         Qt::WindowFlags style = id->flags();
         const auto nr = core::global::scale_to_native(r);
-        //clog::debug() << "Expected style: " << std::hex << type.get_style() << ", current style: " << std::hex << style;
+        //logging::debug() << "Expected style: " << std::hex << type.get_style() << ", current style: " << std::hex << style;
 
         id->setGeometry(nr.x(), nr.y(), nr.width(), nr.height());
         id->setCursor(type.get_cursor());
@@ -401,7 +401,7 @@ namespace gui {
         gui::core::event ev = {this, e};
 #ifdef LOG_ALL_EVENTS
         if (e->type() != QEvent::MouseMove) {
-          clog::info() << "window received event: " << ev;
+          logging::info() << "window received event: " << ev;
         }
 #endif // LOG_ALL_EVENTS
         if (win && win->handle_event(ev, result)) {

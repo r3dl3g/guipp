@@ -343,7 +343,7 @@ namespace gui {
 
       template<int TO, int BO, int LE, int RI, type_t T>
       void layouter<TO, BO, LE, RI, T>::layout (const core::rectangle& r) {
-        clog::trace() << "border::layouter(" << r << ")";
+        logging::trace() << "border::layouter(" << r << ")";
         if (get_top()) {
           get_top()(get_top_geometry(r));
         }
@@ -409,7 +409,7 @@ namespace gui {
 
       template<int TO, int BO, int LE, int RI>
       void sym_layouter<TO, BO, LE, RI>::layout (const core::rectangle& r) {
-        clog::trace() << "border::sym_layouter(" << r << ")";
+        logging::trace() << "border::sym_layouter(" << r << ")";
         if (get_top_left()) {
           get_top_left()(core::rectangle(r.x(), r.y(), LE, TO));
         }

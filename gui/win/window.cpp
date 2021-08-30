@@ -188,11 +188,11 @@ namespace gui {
       auto_quard active_handler(this, IF_QT_ELSE(e.type(), e.type));
 
       if (!active_handler.insert()) {
-        clog::warn() << "already in handle_event for window: " << this << " " << e;
+        logging::warn() << "already in handle_event for window: " << this << " " << e;
         return false;
       }
 
-//      clog::trace() << "handle_event: for window: " << this << " " << e;
+//      logging::trace() << "handle_event: for window: " << this << " " << e;
       bool res = false;
       if (is_enabled() || paint_event::match(e) ||!is_mouse_event(e)) {
         res = events.handle_event(e, result);
@@ -341,7 +341,7 @@ namespace gui {
 
     void window::invalidate () const {
       if (is_valid() && is_visible()) {
-        clog::trace() << "invalidate: " << *this;
+        logging::trace() << "invalidate: " << *this;
         if (get_parent() && !get_state().overlapped()) {
           get_parent()->invalidate(surface_geometry());
         } else {
@@ -352,7 +352,7 @@ namespace gui {
 
     void window::redraw () const {
       if (is_visible() && !get_state().redraw_disabled()) {
-        clog::trace() << "redraw: " << *this;
+        logging::trace() << "redraw: " << *this;
         get_overlapped_window().redraw(surface_geometry());
       }
     }

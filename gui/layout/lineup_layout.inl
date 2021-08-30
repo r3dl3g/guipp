@@ -30,7 +30,7 @@ namespace gui {
 
     template<orientation_t height, unsigned dim1, unsigned border, unsigned gap, unsigned sep, origin_t rows>
     void lineup_layout<height, dim1, border, gap, sep, rows>::layout (const core::rectangle& r) const {
-      clog::trace() << "lineup_layout::layout(" << r << ")";
+      logging::trace() << "lineup_layout::layout(" << r << ")";
       const auto& elements = super::get_elements();
       const std::size_t count = elements.size();
       const std::size_t sep_count = super::separator_count();

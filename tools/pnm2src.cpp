@@ -56,14 +56,14 @@ int gui_main(const std::vector<std::string>& args) {
       case Target::Source: {
         p.replace_extension("h");
         auto src = p.string();
-        clog::info() << "Convert " << f << " to " << src;
+        logging::info() << "Convert " << f << " to " << src;
         src::save_pnm_src(src, bmp, stem);
         break;
       }
       case Target::Ascii: {
         p.replace_extension(".ascii" + p.extension().string());
         auto out = p.string();
-        clog::info() << "Convert " << f << " to " << out;
+        logging::info() << "Convert " << f << " to " << out;
         switch (bmp.pixel_format()) {
           case F::BW: io::save_pnm(out, bmp.const_reinterpret<F::BW>(), false); break;
           case F::GRAY: io::save_pnm(out, bmp.const_reinterpret<F::GRAY>(), false); break;
@@ -76,7 +76,7 @@ int gui_main(const std::vector<std::string>& args) {
       case Target::Binary: {
         p.replace_extension(".bin" + p.extension().string());
         auto out = p.string();
-        clog::info() << "Convert " << f << " to " << out;
+        logging::info() << "Convert " << f << " to " << out;
         switch (bmp.pixel_format()) {
           case F::BW: io::save_pnm(out, bmp.const_reinterpret<F::BW>(), true); break;
           case F::GRAY: io::save_pnm(out, bmp.const_reinterpret<F::GRAY>(), true); break;

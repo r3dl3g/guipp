@@ -176,7 +176,7 @@ namespace gui {
 #ifdef GUIPP_QT
           if (e.type() != QEvent::Type::MouseMove) {
 #endif // GUIPP_QT
-            clog::trace() << "Call " << e;
+            logging::trace() << "Call " << e;
           }
           caller(e);
           result = R;

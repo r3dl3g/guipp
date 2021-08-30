@@ -125,19 +125,19 @@ namespace gui {
           break;
         case WM_CREATE: {
           CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
-//          clog::trace() << "WM_CREATE: " << " (" << std::hex << wParam << ", " << lParam << ") CreateParams: " << cs->lpCreateParams;
+//          logging::trace() << "WM_CREATE: " << " (" << std::hex << wParam << ", " << lParam << ") CreateParams: " << cs->lpCreateParams;
           detail::set_window_id((LONG_PTR)cs->lpCreateParams, hwnd);
           break;
         }
 # ifdef KEY_DEBUG
         case WM_KEYDOWN:
-          clog::debug() << "Key down 0x" << std::hex << wParam << " received (0x" << lParam << ")";
+          logging::debug() << "Key down 0x" << std::hex << wParam << " received (0x" << lParam << ")";
           break;
         case WM_KEYUP:
-          clog::debug() << "Key up 0x" << std::hex << wParam << " received (0x" << lParam << ")";
+          logging::debug() << "Key up 0x" << std::hex << wParam << " received (0x" << lParam << ")";
           break;
         case WM_CHAR:
-          clog::debug() << "Char 0x" << std::hex << wParam << " received (0x" << lParam << ")";
+          logging::debug() << "Char 0x" << std::hex << wParam << " received (0x" << lParam << ")";
           break;
 # endif // KEY_DEBUG
         }
@@ -145,7 +145,7 @@ namespace gui {
         gui::os::event_result result = 0;
         overlapped_window* w = detail::get_window(hwnd);
         if (w) {
-//          clog::trace() << "window state:" << w->get_state();
+//          logging::trace() << "window state:" << w->get_state();
           if (w->is_valid()) {
             w->handle_event(core::event(hwnd, msg, wParam, lParam), result);
             if (result) {
@@ -183,7 +183,7 @@ namespace gui {
       window_rectangle_map s_invalidated_windows;
 
       void invalidate_window (os::window id, const core::native_rect& r) {
-        clog::trace() << "invalidate_window: " << id;
+        logging::trace() << "invalidate_window: " << id;
         if (!r.empty()) {
           auto& old = s_invalidated_windows[id];
           if (old.empty()) {
@@ -195,7 +195,7 @@ namespace gui {
       }
 
       void validate_window (os::window id) {
-        clog::trace() << "validate_window: " << id;
+        logging::trace() << "validate_window: " << id;
         s_invalidated_windows.erase(id);
       }
 
@@ -244,7 +244,7 @@ namespace gui {
                                               &nitems, &bytes, &data);
         if ((Success == status) && (nitems == sizeof(overlapped_window*))) {
 #ifdef LOG_GET_WINDOW_PROPERTY
-          clog::debug() << "get window " << id << ": "
+          logging::debug() << "get window " << id << ": "
                    << (int)data[0] << ' ' << (int)data[1] << ' ' << (int)data[2] << ' ' << (int)data[3] << ' '
                    << (int)data[4] << ' ' << (int)data[5] << ' ' << (int)data[6] << ' ' << (int)data[7];
 #endif //LOG_GET_WINDOW_PROPERTY
@@ -259,7 +259,7 @@ namespace gui {
       void set_os_window (overlapped_window* win, os::window id) {
         const auto* data = (const unsigned char*)&win;
 #ifdef LOG_GET_WINDOW_PROPERTY
-        clog::debug() << "set window " << id << ": "
+        logging::debug() << "set window " << id << ": "
                  << (int)data[0] << ' ' << (int)data[1] << ' ' << (int)data[2] << ' ' << (int)data[3] << ' '
                  << (int)data[4] << ' ' << (int)data[5] << ' ' << (int)data[6] << ' ' << (int)data[7];
 #endif //LOG_GET_WINDOW_PROPERTY
@@ -430,21 +430,21 @@ namespace gui {
       }
 
       int register_message_filter (const detail::filter_call& filter) {
-        clog::trace() << "Register nessage filter";
+        logging::trace() << "Register nessage filter";
         detail::install_message_filter();
         detail::message_filters.emplace_back(std::make_pair(detail::g_next_filter_id, filter));
         return detail::g_next_filter_id++;
       }
 
       void unregister_message_filter (int id) {
-        clog::trace() << "Try unregister nessage filter";
+        logging::trace() << "Try unregister nessage filter";
         auto e = detail::message_filters.end();
         auto b = detail::message_filters.begin();
         auto i = std::find_if(b, e, [id](const detail::filter_call_entry & e)->bool {
                                 return e.first == id;
                               });
         if (i != e) {
-          clog::trace() << "Unregister nessage filter";
+          logging::trace() << "Unregister nessage filter";
           detail::message_filters.erase(i);
         }
       }
@@ -672,9 +672,9 @@ namespace gui {
         try {
           win->handle_event(e, resultValue);
         } catch (std::exception& ex) {
-          clog::fatal() << "exception in run_main_loop: " << ex;
+          logging::fatal() << "exception in run_main_loop: " << ex;
         } catch (...) {
-          clog::fatal() << "Unknown exception in run_main_loop()";
+          logging::fatal() << "Unknown exception in run_main_loop()";
         }
       }
     }
@@ -742,7 +742,7 @@ namespace gui {
         }
 
 //        if (!win::is_frequent_event(e)) {
-//          clog::trace() << e;
+//          logging::trace() << e;
 //        }
 
         if (filter && filter(e)) {
@@ -798,7 +798,7 @@ namespace gui {
     }
 
     void quit_main_loop () {
-      clog::debug() << "Received quit_main_loop()";
+      logging::debug() << "Received quit_main_loop()";
       main_loop_is_running = false;
       core::global::fini();
 #ifdef GUIPP_QT

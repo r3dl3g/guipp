@@ -71,7 +71,7 @@ namespace gui {
       sort_dir = util::sort::order::up;
 
       super::header.set_cell_drawer([&] (std::size_t i,
-                                         const gui::draw::graphics& g,
+                                         gui::draw::graphics& g,
                                          const gui::core::rectangle& r,
                                          const draw::brush& background) {
         g.fill(draw::rectangle(r), background);

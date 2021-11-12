@@ -25,8 +25,8 @@ namespace gui {
   namespace ctrl {
 
     template<typename F>
-    inline void drop_down_list::set_data (const std::vector<F>& data) {
-      data.items->set_data(indirect_dropdown_data<F>(data));
+    inline void drop_down_list::set_data (const std::vector<F>& dt) {
+      data.items->set_data(indirect_dropdown_data<F>(dt));
     }
 
     template<typename F>

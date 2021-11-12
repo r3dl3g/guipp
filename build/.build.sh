@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 . ./.get_compiler_ver.sh
 

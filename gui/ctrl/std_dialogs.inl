@@ -108,7 +108,7 @@ namespace gui {
                                                    const std::string& cancel_label,
                                                    const core::rectangle& rect,
                                                    std::function<action> action) {
-      super::create(parent, title, rect, [&, action] (int i) {
+      super::create(parent, title, rect, [&, action] (win::overlapped_window&, int i) {
         if (i == 1) {
           std::vector<std::string> strings;
           for (int n = 0; n < N; ++n) {

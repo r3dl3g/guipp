@@ -17,6 +17,15 @@
  */
 
 
+// --------------------------------------------------------------------------
+namespace std {
+  template<typename T, typename std::enable_if<std::is_unsigned<T>::value>::type* = nullptr>
+  inline T abs (T t) {
+    return t;
+  }
+}
+
+// --------------------------------------------------------------------------
 namespace gui {
 
   namespace draw {
@@ -146,16 +155,16 @@ namespace gui {
         auto ymin = i;
         auto ymax = i;
         while (++i < last) {
-          if (lower(get_x<X, Y>(*i), get_x<X>(*xmin))) {
+          if (lower(get_x<X, Y>(*i), get_x<X, Y>(*xmin))) {
             xmin = i;
           }
-          if (lower(get_x<X, Y>(*xmax), get_x<X>(*i))) {
+          if (lower(get_x<X, Y>(*xmax), get_x<X, Y>(*i))) {
             xmax = i;
           }
-          if (lower(get_y<X, Y>(*i), get_y<Y>(*ymin))) {
+          if (lower(get_y<X, Y>(*i), get_y<X, Y>(*ymin))) {
             ymin = i;
           }
-          if (lower(get_y<X, Y>(*ymax), get_y<Y>(*i))) {
+          if (lower(get_y<X, Y>(*ymax), get_y<X, Y>(*i))) {
             ymax = i;
           }
         }

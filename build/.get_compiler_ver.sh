@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 compiler_ver () {
   sys_cxx=def_cxx

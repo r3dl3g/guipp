@@ -42,29 +42,6 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-#ifdef GUIPP_WIN
-    using scroll_event = core::event_handler<detail::SCROLLBAR_MESSAGE, 0,
-                                             core::params<core::point::type>::
-                                             getter<win::get_param<0, core::point::type>>>;
-
-#endif //GUIPP_WIN
-
-#ifdef GUIPP_X11
-    using scroll_event = core::event_handler<ClientMessage, 0,
-                                             core::params<core::point::type>::
-                                             getter<win::get_client_data<0, core::point::type>>,
-                                             0,
-                                             win::event::functor<win::client_message_matcher<detail::SCROLLBAR_MESSAGE>>>;
-#endif // GUIPP_X11
-#ifdef GUIPP_QT
-    GUIPP_CTRL_EXPORT core::point::type get_scroll_value (const core::event&);
-
-    using scroll_event = core::event_handler<detail::SCROLLBAR_MESSAGE, 0,
-                                             core::params<core::point::type>::
-                                             getter<get_scroll_value>>;
-#endif // GUIPP_QT
-
-    // --------------------------------------------------------------------------
     struct GUIPP_CTRL_EXPORT scroll_bar_data {
       typedef core::point::type type;
 
@@ -120,7 +97,7 @@ namespace gui {
       scrollbar_item get_selection () const;
       scrollbar_item get_hilite () const;
 
-      void send_notify ();
+      void notify_scroll ();
 
       void on_scroll (std::function<void(core::point::type)>&& f);
 

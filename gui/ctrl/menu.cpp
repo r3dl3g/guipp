@@ -36,7 +36,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     menu_entry::menu_entry (const text_source& label,
                             char menu_key,
-                            const std::function<menu_action>& action,
+                            std::function<menu_action> action,
                             const core::hot_key& hotkey,
                             bool separator,
                             const icon_type& icon,
@@ -44,7 +44,7 @@ namespace gui {
       : label(label)
       , hotkey(hotkey)
       , icon(icon)
-      , action(action)
+      , action(std::move(action))
       , menu_key(menu_key)
       , width(0)
       , separator(separator)
@@ -54,7 +54,7 @@ namespace gui {
 
     menu_entry::menu_entry (const std::string& label,
                             char menu_key,
-                            const std::function<menu_action>& action,
+                            std::function<menu_action> action,
                             const core::hot_key& hotkey,
                             bool separator,
                             const icon_type& icon,
@@ -62,7 +62,7 @@ namespace gui {
       : label(const_text(label))
       , hotkey(hotkey)
       , icon(icon)
-      , action(action)
+      , action(std::move(action))
       , menu_key(menu_key)
       , width(0)
       , separator(separator)
@@ -73,7 +73,7 @@ namespace gui {
     menu_entry::menu_entry (bool sub_menu,
                             const text_source& label,
                             char menu_key,
-                            const std::function<menu_action>& action,
+                            std::function<menu_action> action,
                             const core::hot_key& hotkey,
                             bool separator,
                             const icon_type& icon,
@@ -81,7 +81,7 @@ namespace gui {
       : label(label)
       , hotkey(hotkey)
       , icon(icon)
-      , action(action)
+      , action(std::move(action))
       , menu_key(menu_key)
       , width(0)
       , separator(separator)
@@ -775,6 +775,58 @@ namespace gui {
       pos.text = 36;
       pos.hotkey = pos.text + label_width + 20;
       return pos.hotkey + (hotkey_width ? hotkey_width + 10 : 0) + (has_sub ? 20 : 0);
+    }
+
+    // --------------------------------------------------------------------------
+    menu_entry sub_menu_entry (const text_source& label,
+                               char menu_key,
+                               std::function<menu_action> action,
+                               bool separator,
+                               const menu_entry::icon_type& icon,
+                               menu_state state) {
+      return menu_entry(true, label, menu_key, std::move(action), core::hot_key(), separator, icon, state);
+    }
+
+    menu_entry sub_menu_entry (const std::string& label,
+                               char menu_key,
+                               std::function<menu_action> action,
+                               bool separator,
+                               const menu_entry::icon_type& icon,
+                               menu_state state) {
+      return menu_entry(true, const_text(label), menu_key, std::move(action), core::hot_key(), separator, icon, state);
+    }
+
+    // --------------------------------------------------------------------------
+    menu_entry main_menu_entry (const text_source& label,
+                                char menu_key,
+                                std::function<menu_action> action,
+                                menu_state state) {
+      return menu_entry(true, label, menu_key, std::move(action), core::hot_key(), false, menu_entry::icon_type(), state);
+    }
+
+    menu_entry main_menu_entry (const std::string& label,
+                                char menu_key,
+                                std::function<menu_action> action,
+                                menu_state state) {
+      return menu_entry(true, const_text(label), menu_key, std::move(action), core::hot_key(), false, menu_entry::icon_type(), state);
+    }
+
+    menu_entry main_menu_entry (const text_source& label,
+                                char menu_key,
+                                main_menu& main,
+                                popup_menu& sub) {
+      return menu_entry(true, label, menu_key, [&] () {
+        sub.popup(main);
+      });
+    }
+
+    menu_entry main_menu_entry (const std::string& label,
+                                char menu_key,
+                                main_menu& main,
+                                popup_menu& sub) {
+      return menu_entry(true, const_text(label), menu_key, [&] () {
+        sub.popup(main);
+      });
     }
 
     // --------------------------------------------------------------------------

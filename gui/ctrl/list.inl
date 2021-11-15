@@ -165,6 +165,10 @@ namespace gui {
       super::on_mouse_leave([&] () {
         clear_hilite();
       });
+      super::on_size ([&] (const core::size&) {
+        make_selection_visible();
+      });
+
       super::on_left_btn_up(util::bind_method(this, &uniform_list::handle_left_btn_up));
       super::on_mouse_move(util::bind_method(this, &uniform_list::handle_mouse_move));
     }
@@ -275,7 +279,7 @@ namespace gui {
         if (sel_pos < scroll_pos) {
           set_scroll_pos_1(sel_pos);
         } else if (sel_pos + line_size - scroll_pos > list_sz) {
-          set_scroll_pos_1(sel_pos + line_size - list_sz);
+          set_scroll_pos_1(sel_pos - list_sz + line_size);
         }
       }
     }
@@ -286,6 +290,7 @@ namespace gui {
       auto pt = super::get_scroll_pos();
       traits.set_1(pt, value);
       super::set_scroll_pos(pt);
+      notify_scroll();
     }
 
     template<orientation_t V, typename T>
@@ -326,6 +331,16 @@ namespace gui {
       }
       super::set_cursor(win::cursor::arrow());
       super::data.last_mouse_point = core::native_point::undefined;
+    }
+
+    template<orientation_t V, typename T>
+    void uniform_list<V, T>::notify_scroll () {
+      notify_event_float(detail::SCROLLBAR_MESSAGE, get_scroll_pos_1());
+    }
+
+    template<orientation_t V, typename T>
+    void uniform_list<V, T>::on_scroll (std::function<void(core::point::type)>&& f) {
+      on<scroll_event>(std::move(f));
     }
 
     // --------------------------------------------------------------------------

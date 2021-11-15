@@ -332,11 +332,15 @@ namespace gui {
       void set_selection (int sel, event_source notify);
       void make_selection_visible ();
 
+      void set_scroll_pos_1 (pos_t pos);
+      pos_t get_scroll_pos_1 () const;
+
       void handle_mouse_move (os::key_state keys, const core::native_point& pt);
       void handle_left_btn_up (os::key_state keys, const core::native_point& pt);
 
-      void set_scroll_pos_1 (pos_t pos);
-      pos_t get_scroll_pos_1 () const;
+      void on_scroll (std::function<void(core::point::type)>&& f);
+
+      void notify_scroll ();
 
     protected:
       pos_t get_list_size () const;

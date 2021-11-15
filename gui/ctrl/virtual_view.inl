@@ -94,6 +94,11 @@ namespace gui {
       view.on_content_changed([&] () {
         super::layout();
       });
+      view.on_selection_changed([&] (event_source) {
+        const core::point& pt = view.get_scroll_pos();
+        vscroll.set_value(pt.y());
+        hscroll.set_value(pt.x());
+      });
       super::on_show([&] () {
         super::layout();
       });

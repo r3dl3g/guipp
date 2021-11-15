@@ -121,6 +121,8 @@ namespace gui {
       logic
     };
 
+    // --------------------------------------------------------------------------
+
 #ifdef GUIPP_WIN
   } // namespace ctrl
 
@@ -145,6 +147,10 @@ namespace gui {
                                                      core::params<bool>::getter<win::get_param<0, bool> > >;
 
     using content_changed_event = core::event_handler<detail::CONTENT_CHANGED_MESSAGE>;
+
+    using scroll_event = core::event_handler<detail::SCROLLBAR_MESSAGE, 0,
+                                             core::params<core::point::type>::
+                                             getter<win::get_param<0, core::point::type>>>;
 
 #endif //GUIPP_WIN
 
@@ -184,6 +190,11 @@ namespace gui {
                                                       0,
                                                       win::event::functor<win::client_message_matcher<detail::CONTENT_CHANGED_MESSAGE>>>;
 
+    using scroll_event = core::event_handler<ClientMessage, 0,
+                                             core::params<core::point::type>::
+                                             getter<win::get_client_data<0, core::point::type>>,
+                                             0,
+                                             win::event::functor<win::client_message_matcher<detail::SCROLLBAR_MESSAGE>>>;
 #endif // GUIPP_X11
        // --------------------------------------------------------------------------
 #ifdef GUIPP_QT
@@ -202,6 +213,11 @@ namespace gui {
                                                      core::params<bool>::
                                                      getter<get_hilite_changed>>;
 
+    GUIPP_CTRL_EXPORT core::point::type get_scroll_value (const core::event&);
+
+    using scroll_event = core::event_handler<detail::SCROLLBAR_MESSAGE, 0,
+                                             core::params<core::point::type>::
+                                             getter<get_scroll_value>>;
 #endif // GUIPP_QT
 
     // --------------------------------------------------------------------------

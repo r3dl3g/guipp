@@ -195,7 +195,7 @@ namespace gui {
         data.value = v;
         invalidate();
         if (notify) {
-          send_notify();
+          notify_scroll();
         }
       }
     }
@@ -224,7 +224,7 @@ namespace gui {
       data.last_mouse_point = last_mouse_point;
     }
 
-    void scroll_bar::send_notify () {
+    void scroll_bar::notify_scroll () {
       super::notify_event_float(detail::SCROLLBAR_MESSAGE, data.value);
     }
 

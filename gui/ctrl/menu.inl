@@ -86,40 +86,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline sub_menu_entry::sub_menu_entry (const text_source& label,
-                                           char menu_key,
-                                           const std::function<menu_action>& action,
-                                           bool separator,
-                                           const icon_type& icon,
-                                           menu_state state)
-      : menu_entry(true, label, menu_key, action, core::hot_key(), separator, icon, state)
-    {}
-
-    inline sub_menu_entry::sub_menu_entry (const std::string& label,
-                                           char menu_key,
-                                           const std::function<menu_action>& action,
-                                           bool separator,
-                                           const icon_type& icon,
-                                           menu_state state)
-      : menu_entry(true, const_text(label), menu_key, action, core::hot_key(), separator, icon, state)
-    {}
-
-    // --------------------------------------------------------------------------
-    inline main_menu_entry::main_menu_entry (const text_source& label,
-                                             char menu_key,
-                                             const std::function<menu_action>& action,
-                                             menu_state state)
-      : menu_entry(true, label, menu_key, action, core::hot_key(), false, icon_type(), state)
-    {}
-
-    inline main_menu_entry::main_menu_entry (const std::string& label,
-                                             char menu_key,
-                                             const std::function<menu_action>& action,
-                                             menu_state state)
-      : menu_entry(true, const_text(label), menu_key, action, core::hot_key(), false, icon_type(), state)
-    {}
-
-    // --------------------------------------------------------------------------
     inline menu_data::menu_data (win::window* win)
       : win(win)
     {}

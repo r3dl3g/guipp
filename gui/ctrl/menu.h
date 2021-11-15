@@ -36,14 +36,15 @@ namespace gui {
       enabled
     };
 
+    typedef void (menu_action)();
+
     // --------------------------------------------------------------------------
     struct GUIPP_CTRL_EXPORT menu_entry {
-      typedef void (menu_action)();
       typedef draw::masked_bitmap icon_type;
 
       menu_entry (const text_source& label,
                   char menu_key,
-                  const std::function<menu_action>& action,
+                  std::function<menu_action> action,
                   const core::hot_key& hotkey = core::hot_key(),
                   bool separator = false,
                   const icon_type& icon = icon_type(),
@@ -51,7 +52,7 @@ namespace gui {
 
       menu_entry (const std::string& label,
                   char menu_key,
-                  const std::function<menu_action>& action,
+                  std::function<menu_action> action,
                   const core::hot_key& hotkey = core::hot_key(),
                   bool separator = false,
                   const icon_type& icon = icon_type(),
@@ -84,15 +85,14 @@ namespace gui {
 
       void check_hot_key (os::key_state, os::key_symbol);
 
-    protected:
       menu_entry (bool sub_menu,
                   const text_source& label,
                   char menu_key,
-                  const std::function<menu_action>& action,
-                  const core::hot_key& hotkey,
-                  bool separator,
-                  const icon_type& icon,
-                  menu_state state);
+                  std::function<menu_action> action,
+                  const core::hot_key& hotkey = core::hot_key(),
+                  bool separator = false,
+                  const icon_type& icon = icon_type(),
+                  menu_state state = menu_state::enabled);
 
       menu_entry ();
 
@@ -106,38 +106,6 @@ namespace gui {
       bool separator;
       menu_state state;
       bool sub_menu;
-    };
-
-    // --------------------------------------------------------------------------
-    struct GUIPP_CTRL_EXPORT sub_menu_entry : public menu_entry {
-    public:
-      sub_menu_entry (const text_source& label,
-                      char menu_key,
-                      const std::function<menu_action>& action,
-                      bool separator = false,
-                      const icon_type& icon = icon_type(),
-                      menu_state state = menu_state::enabled);
-
-      sub_menu_entry (const std::string& label,
-                      char menu_key,
-                      const std::function<menu_action>& action,
-                      bool separator = false,
-                      const icon_type& icon = icon_type(),
-                      menu_state state = menu_state::enabled);
-    };
-
-    // --------------------------------------------------------------------------
-    struct GUIPP_CTRL_EXPORT main_menu_entry : public menu_entry {
-    public:
-      main_menu_entry (const text_source& label,
-                       char menu_key,
-                       const std::function<menu_action>& action,
-                       menu_state state = menu_state::enabled);
-
-      main_menu_entry (const std::string& label,
-                       char menu_key,
-                       const std::function<menu_action>& action,
-                       menu_state state = menu_state::enabled);
     };
 
     // --------------------------------------------------------------------------
@@ -315,6 +283,48 @@ namespace gui {
 
       int message_filter_id;
     };
+
+    // --------------------------------------------------------------------------
+    GUIPP_CTRL_EXPORT
+    menu_entry sub_menu_entry (const text_source& label,
+                               char menu_key,
+                               std::function<menu_action> action,
+                               bool separator = false,
+                               const menu_entry::icon_type& icon = menu_entry::icon_type(),
+                               menu_state state = menu_state::enabled);
+
+    GUIPP_CTRL_EXPORT
+    menu_entry sub_menu_entry (const std::string& label,
+                               char menu_key,
+                               std::function<menu_action> action,
+                               bool separator = false,
+                               const menu_entry::icon_type& icon = menu_entry::icon_type(),
+                               menu_state state = menu_state::enabled);
+
+    // --------------------------------------------------------------------------
+    GUIPP_CTRL_EXPORT
+    menu_entry main_menu_entry (const text_source& label,
+                                char menu_key,
+                                std::function<menu_action> action,
+                                menu_state state = menu_state::enabled);
+
+    GUIPP_CTRL_EXPORT
+    menu_entry main_menu_entry (const std::string& label,
+                                char menu_key,
+                                std::function<menu_action> action,
+                                menu_state state = menu_state::enabled);
+
+    GUIPP_CTRL_EXPORT
+    menu_entry main_menu_entry (const text_source& label,
+                                char menu_key,
+                                main_menu& main,
+                                popup_menu& sub);
+
+    GUIPP_CTRL_EXPORT
+    menu_entry main_menu_entry (const std::string& label,
+                                char menu_key,
+                                main_menu& main,
+                                popup_menu& sub);
 
   } // ctrl
 

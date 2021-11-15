@@ -111,3 +111,6 @@ if (1)
   add_subdirectory(ColumnListViewApp)
 endif ()
 
+IF (IN_DEVELOP)
+add_subdirectory(MultiControlDialogApp)
+endif ()

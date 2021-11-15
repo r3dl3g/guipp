@@ -222,7 +222,7 @@ namespace gui {
         if (get_selection() != scrollbar_item::nothing) {
           set_selection(scrollbar_item::nothing);
           uncapture_pointer();
-          send_notify();
+          notify_scroll();
           invalidate();
         }
       }

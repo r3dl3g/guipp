@@ -162,32 +162,50 @@ namespace gui {
       template<typename T, int TO = 0, int BO = 0, int LE = 0, int RI = 0>
       class center_layout {
       public:
+        center_layout ()
+        {}
+
         center_layout (T& p)
-          : page(p)
+          : center(lay(p))
         {}
 
         void layout (const gui::core::rectangle& r) {
-          page.geometry(r.shrinked(TO, BO, LE, RI));
+          if (center) {
+            center(r.shrinked(TO, BO, LE, RI));
+          }
+        }
+
+        void set_center (const layout_function& c) {
+          center = c;
         }
 
       private:
-        T& page;
+        layout_function center;
       };
 
       // --------------------------------------------------------------------------
       template<typename T>
       class zero_layout {
       public:
+        zero_layout ()
+        {}
+
         zero_layout (T& p)
-          : page(p)
+          : center(lay(p))
         {}
 
         void layout (const gui::core::rectangle& r) {
-          page.geometry(r);
+          if (center) {
+            center(r);
+          }
+        }
+
+        void set_center (const layout_function& c) {
+          center = c;
         }
 
       private:
-        T& page;
+        layout_function center;
       };
 
     } // namespace border

@@ -32,6 +32,7 @@
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/split_view.h>
 #include <gui/ctrl/textbox.h>
+#include <gui/ctrl/list.h>
 
 #include <util/tuple_util.h>
 
@@ -242,6 +243,37 @@ namespace gui {
 
       label_t labels[N];
       edit_left edits[N];
+    };
+
+    //-----------------------------------------------------------------------------
+    template<typename T>
+    class select_dialog :
+        public standard_dialog<win::group_window<layout::border::center_layout<vertical_list, 15, 15, 15, 15>>> {
+    public:
+      typedef win::group_window<layout::border::center_layout<vertical_list, 15, 15, 15, 15>> content_view_type;
+      typedef standard_dialog<content_view_type> super;
+      typedef void (select_action) (win::overlapped_window&, T);
+
+      select_dialog ();
+
+      void create (win::overlapped_window& parent,
+                   const std::string& title,
+                   const std::vector<T>& data,
+                   const T initial,
+                   const std::string& ok_label,
+                   const std::string& cancel_label,
+                   const core::rectangle& rect,
+                   std::function<select_action> action);
+
+      static void ask (win::overlapped_window& parent,
+                       const std::string& title,
+                       const std::vector<T>& list,
+                       const T initial,
+                       const std::string& ok_label,
+                       const std::string& cancel_label,
+                       std::function<select_action> action);
+
+      vertical_scrollable_list vlist;
     };
 
     //-----------------------------------------------------------------------------

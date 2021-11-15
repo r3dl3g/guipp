@@ -140,6 +140,50 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     template<typename T>
+    select_dialog<T>::select_dialog () {
+      content_view.get_layout().set_center(layout::lay(vlist));
+    }
+
+    template<typename T>
+    void select_dialog<T>::create (win::overlapped_window& parent,
+                                   const std::string& title,
+                                   const std::vector<T>& data,
+                                   const T initial,
+                                   const std::string& ok_label,
+                                   const std::string& cancel_label,
+                                   const core::rectangle& rect,
+                                   std::function<select_action> action) {
+      super::create(parent, title, rect, [&, action] (win::overlapped_window& dlg, int i) {
+        if ((i == 1) && (vlist->has_selection())) {
+          action(dlg, data[vlist->get_selection()]);
+        }
+      }, {cancel_label, ok_label});
+      vlist->set_data(data);
+      auto it = std::find(data.begin(), data.end(), initial);
+      if (it != data.end()) {
+        int idx = std::distance(data.begin(), it);
+        vlist->set_selection(idx, event_source::logic);
+      }
+      vlist.create(super::content_view);
+    }
+
+    template<typename T>
+    void select_dialog<T>::ask (win::overlapped_window& parent,
+                                const std::string& title,
+                                const std::vector<T>& list,
+                                const T initial,
+                                const std::string& ok_label,
+                                const std::string& cancel_label,
+                                std::function<select_action> action) {
+      select_dialog dialog;
+      dialog.create(parent, title, list, initial, ok_label, cancel_label,
+                    gui::ctrl::detail::std_multi_input_dialog_size<>(parent.geometry(), 5),
+                    action);
+      dialog.show(parent);
+    }
+
+    //-----------------------------------------------------------------------------
+    template<typename T>
     void dir_file_view<T>::init (std::function<file_selected> action,
                                  std::function<fs::filter_fn> filter) {
       super::first->on_selection_changed([&,filter](event_source) {

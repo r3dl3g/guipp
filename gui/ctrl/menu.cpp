@@ -556,7 +556,8 @@ namespace gui {
         if (idx > -1) {
           logging::trace() << "popup_menu::on_selection_changed() -> select(" << idx << ")";
           if (!data[idx].is_sub_menu()) {
-            data.handle_mouse(true, core::native_point::zero);
+            close();
+//            data.handle_mouse(true, core::native_point::zero);
           }
           data[idx].select();
         }

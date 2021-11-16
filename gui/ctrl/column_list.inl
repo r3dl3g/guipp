@@ -117,11 +117,6 @@ namespace gui {
       super::set_column_width(i, std::max(w, get_column_min_width(i)), update);
     }
 
-    inline void simple_column_list_layout::set_column_count (std::size_t i) {
-      min_widths.resize(i);
-      super::set_column_count(i);
-    }
-
     inline void simple_column_list_layout::set_column_min_width (std::size_t i, const column_size_type w) {
       min_widths[i] = w;
       if (get_column_width(i) < get_column_min_width(i)) {
@@ -153,11 +148,6 @@ namespace gui {
       main->on_show([&] () {
         layout(list->client_geometry());
       });
-    }
-
-    inline void weight_column_list_layout::set_column_count (std::size_t i) {
-      weights.resize(i, 1.0F / i);
-      super::set_column_count(i);
     }
 
     inline void weight_column_list_layout::set_column_weight (std::size_t i, float w) {

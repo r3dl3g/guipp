@@ -36,6 +36,12 @@ namespace gui {
     struct column_info {
       column_size_type width;
       text_origin_t align;
+
+      inline column_info (column_size_type w = 1, text_origin_t a = text_origin_t::vcenter_left)
+        : width(w)
+        , align(a)
+      {}
+
     };
 
     namespace detail {
@@ -88,10 +94,15 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    struct simple_column_info {
-      column_size_type width;
-      text_origin_t align;
+    struct simple_column_info : public column_info {
       column_size_type min_width;
+
+      inline simple_column_info (column_size_type w = 1,
+                                 text_origin_t a = text_origin_t::vcenter_left,
+                                 column_size_type m = 1)
+        : column_info(w, a)
+        , min_width(m)
+      {}
     };
 
     // --------------------------------------------------------------------------
@@ -116,11 +127,16 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct weight_column_info {
-      column_size_type width;
-      text_origin_t align;
-      column_size_type min_width;
+    struct weight_column_info : public simple_column_info {
       float weight;
+
+      inline weight_column_info (column_size_type w = 1,
+                                 text_origin_t a = text_origin_t::vcenter_left,
+                                 column_size_type m = 1,
+                                 float g = 1.0F)
+        : simple_column_info(w, a, m)
+        , weight(g)
+      {}
     };
 
     // --------------------------------------------------------------------------
@@ -467,8 +483,30 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename Layout, typename ... Arguments>
-    using indirect_column_list_data = column_list_data_t<const std::vector<std::tuple<Arguments...>>&, Arguments...>;
+    template<typename ... Arguments>
+    struct indirect_column_list_data : public column_list_data_t<Arguments...> {
+      typedef column_list_data_t<Arguments...> super;
+      typedef typename super::row_type row_type;
+      typedef std::function<row_type(std::size_t)> provider_fn;
+
+      indirect_column_list_data (std::size_t cnt, provider_fn p)
+        : super(std::make_tuple(ctrl::cell_drawer<Arguments>...))
+        , provider(p)
+        , count(cnt)
+      {}
+
+      row_type at (std::size_t i) const override {
+        return provider(i);
+      }
+
+      std::size_t size () const override {
+        return count;
+      }
+
+    private:
+      provider_fn provider;
+      std::size_t count;
+    };
 
     // --------------------------------------------------------------------------
     template<typename Layout, typename ... Arguments>

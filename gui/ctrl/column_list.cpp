@@ -135,6 +135,11 @@ namespace gui {
     } // detail
 
     // --------------------------------------------------------------------------
+    void simple_column_list_layout::set_column_count (std::size_t i) {
+      min_widths.resize(i);
+      super::set_column_count(i);
+    }
+
     void simple_column_list_layout::set_columns (std::initializer_list<simple_column_info> infos, bool update) {
       set_column_count(infos.size());
 
@@ -151,6 +156,11 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    void weight_column_list_layout::set_column_count (std::size_t i) {
+      weights.resize(i, 1.0F / i);
+      super::set_column_count(i);
+    }
+
     void weight_column_list_layout::set_columns (std::initializer_list<weight_column_info> infos, bool update) {
       set_column_count(infos.size());
 

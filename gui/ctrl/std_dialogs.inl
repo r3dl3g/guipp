@@ -164,6 +164,12 @@ namespace gui {
         int idx = std::distance(data.begin(), it);
         vlist->set_selection(idx, event_source::logic);
       }
+      vlist->on_selection_commit([&] () {
+        super::end_modal();
+        if (action) {
+          action(*this, data[vlist->get_selection()]);
+        }
+      });
       vlist.create(super::content_view);
     }
 
@@ -179,6 +185,57 @@ namespace gui {
       dialog.create(parent, title, list, initial, ok_label, cancel_label,
                     gui::ctrl::detail::std_multi_input_dialog_size<>(parent.geometry(), 5),
                     action);
+      dialog.show(parent);
+    }
+
+    //-----------------------------------------------------------------------------
+    template<typename ... Arguments>
+    select_from_columnlist_dialog<Arguments...>::select_from_columnlist_dialog () {
+      content_view.get_layout().set_center(layout::lay(vlist));
+    }
+
+    template<typename ... Arguments>
+    void select_from_columnlist_dialog<Arguments...>::create (win::overlapped_window& parent,
+                 const std::string& title,
+                 data_t& data,
+                 const int initial,
+                 std::initializer_list<std::string> labels,
+                 const std::string& ok_label,
+                 const std::string& cancel_label,
+                 const core::rectangle& rect,
+                 std::function<select_action> action) {
+      super::create(parent, title, rect, [&, action] (win::overlapped_window& dlg, int i) {
+        if ((i == 1) && (vlist.list->has_selection())) {
+          action(dlg, data.at(vlist.list->get_selection()));
+        }
+      }, {cancel_label, ok_label});
+      vlist.get_column_layout().set_column_count(labels.size());
+      vlist.set_data([&] () -> data_t& { return data; });
+      vlist.header.set_labels(std::move(labels));
+      vlist.list->set_selection(initial, event_source::logic);
+      vlist.list->on_selection_commit([&] () {
+        super::end_modal();
+        if (action) {
+          action(*this, data.at(vlist.list->get_selection()));
+        }
+      });
+      vlist.create(super::content_view);
+    }
+
+    template<typename ... Arguments>
+    void select_from_columnlist_dialog<Arguments...>::ask (win::overlapped_window& parent,
+                     const std::string& title,
+                     data_t& data,
+                     const int initial,
+                     std::initializer_list<std::string> labels,
+                     const std::string& ok_label,
+                     const std::string& cancel_label,
+                     std::function<select_action> action) {
+      select_from_columnlist_dialog<Arguments...> dialog;
+      dialog.create(parent, title, data, initial, std::move(labels),
+                    ok_label, cancel_label,
+                    gui::ctrl::detail::std_multi_input_dialog_size<>(parent.geometry(), 5),
+                    std::move(action));
       dialog.show(parent);
     }
 

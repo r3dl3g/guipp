@@ -267,13 +267,50 @@ namespace gui {
 
       static void ask (win::overlapped_window& parent,
                        const std::string& title,
-                       const std::vector<T>& list,
+                       const std::vector<T>& data,
                        const T initial,
                        const std::string& ok_label,
                        const std::string& cancel_label,
                        std::function<select_action> action);
 
       vertical_scrollable_list vlist;
+    };
+
+    //-----------------------------------------------------------------------------
+    template<typename ... Arguments>
+    class select_from_columnlist_dialog :
+        public standard_dialog<win::group_window<layout::border::center_layout<vertical_list, 15, 15, 15, 15>>> {
+    public:
+      typedef win::group_window<layout::border::center_layout<vertical_list, 15, 15, 15, 15>> content_view_type;
+      typedef standard_dialog<content_view_type> super;
+      typedef layout::weight_column_list_layout layout_t;
+      typedef ctrl::column_list_t<layout_t, Arguments ...> list_t;
+      typedef column_list_data_t<Arguments...> data_t;
+      typedef typename data_t::row_type row_type;
+      typedef void (select_action) (win::overlapped_window&, row_type);
+
+      select_from_columnlist_dialog ();
+
+      void create (win::overlapped_window& parent,
+                   const std::string& title,
+                   data_t& data,
+                   const int initial,
+                   std::initializer_list<std::string> labels,
+                   const std::string& ok_label,
+                   const std::string& cancel_label,
+                   const core::rectangle& rect,
+                   std::function<select_action> action);
+
+      static void ask (win::overlapped_window& parent,
+                       const std::string& title,
+                       data_t& data,
+                       const int initial,
+                       std::initializer_list<std::string> labels,
+                       const std::string& ok_label,
+                       const std::string& cancel_label,
+                       std::function<select_action> action);
+
+      list_t vlist;
     };
 
     //-----------------------------------------------------------------------------

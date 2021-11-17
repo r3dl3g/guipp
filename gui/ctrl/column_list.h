@@ -486,13 +486,21 @@ namespace gui {
     template<typename ... Arguments>
     struct indirect_column_list_data : public column_list_data_t<Arguments...> {
       typedef column_list_data_t<Arguments...> super;
+      typedef typename super::drawer_type drawer_type;
       typedef typename super::row_type row_type;
       typedef std::function<row_type(std::size_t)> provider_fn;
+      typedef std::function<std::size_t()> size_fn;
 
-      indirect_column_list_data (std::size_t cnt, provider_fn p)
+      indirect_column_list_data (size_fn sfn, provider_fn pfn)
         : super(std::make_tuple(ctrl::cell_drawer<Arguments>...))
-        , provider(p)
-        , count(cnt)
+        , provider(std::move(pfn))
+        , sizer(std::move(sfn))
+      {}
+
+      indirect_column_list_data (size_fn sfn, provider_fn pfn, drawer_type drawer)
+        : super(std::move(drawer))
+        , provider(std::move(pfn))
+        , sizer(std::move(sfn))
       {}
 
       row_type at (std::size_t i) const override {
@@ -500,25 +508,30 @@ namespace gui {
       }
 
       std::size_t size () const override {
-        return count;
+        return sizer();
       }
 
     private:
       provider_fn provider;
-      std::size_t count;
+      size_fn sizer;
     };
 
     // --------------------------------------------------------------------------
     template<typename Layout, typename ... Arguments>
     class column_list_t : public detail::base_column_list<Layout> {
     public:
+      typedef detail::base_column_list<Layout> super;
       typedef Layout layout_type;
-      typedef detail::base_column_list<layout_type> super;
 
       typedef std::tuple<Arguments ...> row_type;
-      typedef const_column_list_data<Arguments ...> standard_data;
       typedef column_list_row_drawer_t<Arguments ...> row_drawer;
+
+      typedef column_list_data_t<Arguments...> list_data;
+      typedef const_column_list_data<Arguments ...> standard_data;
+      typedef indirect_column_list_data<Arguments ...> indirect_data;
+
       typedef row_type (get_row_data_t)(std::size_t idy);
+
       typedef void (draw_row_data_t)(const row_type&,        // r
                                      const layout_type&,     // l
                                      draw::graphics&,  // g

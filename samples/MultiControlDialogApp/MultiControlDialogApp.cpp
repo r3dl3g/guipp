@@ -3,6 +3,46 @@
 #include <ctrl/std_dialogs.h>
 
 //-----------------------------------------------------------------------------
+namespace controls {
+
+  //-----------------------------------------------------------------------------
+  template<typename L, typename E, int N, int I, typename T>
+  struct add {
+    static void to (L& layout, std::array<E, N>& labels, T& controls) {
+      layout.add(layout::lay(labels[I]));
+      layout.add(layout::lay(std::get<I>(controls)));
+      add<L, E, N, I + 1, T>::to(layout, labels, controls);
+    }
+  };
+
+  template<typename L, typename E, int N, typename T>
+  struct add<L, E, N, N, T> {
+    static void to (L&, std::array<E, N>&, T&) {
+    }
+  };
+
+  template<typename E>
+  using init_function = std::function<void(E&e)>;
+
+  //-----------------------------------------------------------------------------
+  template<typename E, int N, int I, typename T, typename Initials>
+  struct create {
+    static void in (container& main, std::array<E, N>& labels, const std::vector<std::string>& message, T& ctrls, const Initials& initials) {
+      labels[I].create(main, message[I]);
+      std::get<I>(ctrls).create(main);
+      std::get<I>(initials)(std::get<I>(ctrls));
+      create<E, N, I + 1, T, Initials>::in(main, labels, message, ctrls, initials);
+    }
+  };
+
+  template<typename E, int N, typename T, typename Initials>
+  struct create<E, N, N, T, Initials> {
+    static void in (container&, std::array<E, N>&, const std::vector<std::string>&, T&, const Initials&) {
+    }
+  };
+}
+
+//-----------------------------------------------------------------------------
 template<typename T>
 class /*GUIPP_CTRL_EXPORT*/ multi_control_dialog :
     public standard_dialog<win::group_window<layout::vertical_lineup<20, 15, 2>>> {

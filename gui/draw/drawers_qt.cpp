@@ -23,7 +23,7 @@
 // Common includes
 //
 #include <array>
-#include <qpainterpath.h>
+#include <QtGui/qpainterpath.h>
 
 // --------------------------------------------------------------------------
 //
@@ -44,7 +44,18 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace draw {
 
+    inline bool is_transparent (const pen& p) {
+      return color::is_transparent(p.color()) || (p.style() == pen::Style::invisible);
+    }
+
+    inline bool is_transparent (const brush& p) {
+      return color::is_transparent(p.color()) || (p.style() == brush::Style::invisible);
+    }
+
     void line::operator() (graphics& g, const pen& p) const {
+      if (is_transparent(p)) {
+        return;
+      }
 
       const auto pw = p.os_size();
 
@@ -102,6 +113,9 @@ namespace gui {
     void rectangle::operator() (graphics& g,
                                 const brush& b,
                                 const pen& p) const {
+      if (is_transparent(b) && is_transparent(p)) {
+        return;
+      }
       const os::rectangle r = rect.os(g.context());
       const auto pw = p.os_size();
       const auto off = pw / 2;
@@ -119,6 +133,9 @@ namespace gui {
 
     void rectangle::operator() (graphics& g,
                                 const pen& p) const {
+      if (is_transparent(p)) {
+        return;
+      }
       os::rectangle r = rect.os(g.context());
       const auto pw = p.os_size();
       const auto off = pw / 2;
@@ -142,6 +159,9 @@ namespace gui {
     void ellipse::operator() (graphics& g,
                               const brush& b,
                               const pen& p) const {
+      if (is_transparent(b) && is_transparent(p)) {
+        return;
+      }
       os::rectangle r = rect.os(g.context());
       Use<pen> upn(g, p);
       Use<brush> ubr(g, b);
@@ -179,6 +199,9 @@ namespace gui {
     void round_rectangle::operator() (graphics& g,
                                       const brush& b,
                                       const pen& p) const {
+      if (is_transparent(b) && is_transparent(p)) {
+        return;
+      }
       os::rectangle r = rect.os(g.context());
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
@@ -196,6 +219,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void draw_arc<arc_type::pie> (graphics& g, const arc_coords& c, const pen& p) {
+      if (is_transparent(p)) {
+        return;
+      }
       Use<pen> pn(g, p);
 
       QRectF r(c.x, c.y, c.w, c.h);
@@ -208,6 +234,9 @@ namespace gui {
 
     template<>
     void draw_arc<arc_type::arc> (graphics& g, const arc_coords& c, const pen& p) {
+      if (is_transparent(p)) {
+        return;
+      }
       Use<pen> pn(g, p);
 
       QRectF r(c.x, c.y, c.w, c.h);
@@ -220,6 +249,9 @@ namespace gui {
 
     template<>
     void fill_arc<arc_type::pie> (graphics& g, const arc_coords& c, const brush& b) {
+      if (is_transparent(b)) {
+        return;
+      }
       Use<brush> br(g, b);
 
       QRectF r(c.x, c.y, c.w, c.h);
@@ -232,6 +264,9 @@ namespace gui {
 
     template<>
     void fill_arc<arc_type::arc> (graphics& g, const arc_coords& c, const brush& b) {
+      if (is_transparent(b)) {
+        return;
+      }
       Use<brush> br(g, b);
 
       QRectF r(c.x, c.y, c.w, c.h);
@@ -246,6 +281,9 @@ namespace gui {
     void polyline::operator() (graphics& g,
                               const brush& b,
                               const pen& p) const {
+      if (is_transparent(b) && is_transparent(p)) {
+        return;
+      }
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
       auto pts = convert(g);
@@ -266,6 +304,9 @@ namespace gui {
     void polygon::operator() (graphics& g,
                                const brush& b,
                                const pen& p) const {
+      if (is_transparent(b) && is_transparent(p)) {
+        return;
+      }
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
       auto pts = convert(g);
@@ -286,6 +327,9 @@ namespace gui {
     void text_box::operator() (graphics& g,
                                const font& f,
                                os::color c) const {
+      if (color::is_transparent(c)) {
+        return;
+      }
       Use<font> fn(g, f);
       Use<pen> pn(g, c);
 
@@ -303,6 +347,9 @@ namespace gui {
     void text::operator() (graphics& g,
                            const font& f,
                            os::color c) const {
+      if (color::is_transparent(c)) {
+        return;
+      }
       Use<font> fn(g, f);
       Use<pen> pn(g, c);
 

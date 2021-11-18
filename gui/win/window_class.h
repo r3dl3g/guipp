@@ -64,7 +64,7 @@ namespace gui {
     struct window_class_defaults<core::os::platform_t::qt> {
       static constexpr win::cursor_type cursor = win::cursor_type::arrow;
       static constexpr os::style style = static_cast<os::style>(IF_QT_ELSE((Qt::WindowFlags::Int)(Qt::Window), 0));
-      static constexpr os::style style_no_focus = static_cast<os::style>(0);
+      static constexpr os::style style_no_focus = static_cast<os::style>(IF_QT_ELSE((Qt::WindowFlags::Int)(Qt::Window)|Qt::WindowDoesNotAcceptFocus, 0));
       static constexpr os::style ex_style = static_cast<os::style>(0);
       static constexpr os::style class_style = static_cast<os::style>(0);
     };

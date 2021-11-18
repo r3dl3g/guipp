@@ -37,6 +37,9 @@
 //
 #include <gui/core/bits.h>
 
+#ifndef WS_TABSTOP
+# define WS_TABSTOP (~Qt::WindowDoesNotAcceptFocus)
+#endif // WS_TABSTOP
 
 namespace gui {
 

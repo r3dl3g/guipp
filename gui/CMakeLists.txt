@@ -105,6 +105,16 @@ function(define_guipp_subpackage PROJECT_NAME BASE_NAME SOURCE_FILES INCLUDE_FIL
 
 endfunction(define_guipp_subpackage)
 
+if (GUIPP_USE_QT6)
+    message(STATUS "GUIPP: build with Qt6!")
+    find_package(Qt6Core)
+    find_package(Qt6Gui)
+elseif (GUIPP_USE_QT5)
+    message(STATUS "GUIPP: build with Qt5!")
+    find_package(Qt5Gui REQUIRED)
+endif ()
+
+
 if(NOT TARGET guipp)
 
   set (GUIPP_VERSION_MAJOR 0)

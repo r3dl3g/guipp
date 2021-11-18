@@ -23,6 +23,7 @@
 // Library includes
 //
 #include <gui/layout/layout_container.h>
+#include <gui/layout/split_layout.h>
 #include <gui/ctrl/splitter.h>
 
 
@@ -121,6 +122,27 @@ namespace gui {
 
     template<typename First, typename Second>
     using horizontal_split_view = split_view<orientation_t::horizontal, First, Second>;
+
+    // --------------------------------------------------------------------------
+    template<typename Header, typename Body, alignment_t A = alignment_t::top, int S = 25>
+    class fix_split_view : public win::layout_container<layout::split_layout<A, S> > {
+    public:
+      typedef win::layout_container<layout::split_layout<A, S>> super;
+      typedef typename super::layout_type layout_type;
+      typedef win::window_class<fix_split_view, IF_WIN32_ELSE((os::color)(COLOR_WINDOW + 1), color::white)> clazz;
+
+      fix_split_view ();
+      fix_split_view (fix_split_view&& rhs) noexcept;
+      fix_split_view (Header&& header, Body&& body);
+
+      void create (win::container& parent,
+                   const core::rectangle& place = core::rectangle::def);
+
+      Header header;
+      Body body;
+    };
+
+    // --------------------------------------------------------------------------
 
   } // ctrl
 

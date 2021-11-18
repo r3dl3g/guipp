@@ -217,6 +217,44 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 
+    template<typename H, typename B, alignment_t A, int S>
+    fix_split_view<H, B, A, S>::fix_split_view () {
+      super::get_layout().set_header(lay(header));
+      super::get_layout().set_body(lay(body));
+    }
+
+    template<typename H, typename B, alignment_t A, int S>
+    fix_split_view<H, B, A, S>::fix_split_view (fix_split_view&& rhs) noexcept
+      : super(std::move(rhs))
+      , header(std::move(rhs.header))
+      , body(std::move(rhs.body))
+    {
+      super::get_layout().set_header(lay(header));
+      super::get_layout().set_body(lay(body));
+    }
+
+    template<typename H, typename B, alignment_t A, int S>
+    fix_split_view<H, B, A, S>::fix_split_view (H&& header, B&& body)
+      : header(std::move(header))
+      , body(std::move(body))
+    {
+      super::get_layout().set_header(lay(header));
+      super::get_layout().set_body(lay(body));
+    }
+
+    template<typename H, typename B, alignment_t A, int S>
+    void fix_split_view<H, B, A, S>::create (win::container& parent,
+                                             const core::rectangle& place) {
+      super::create(clazz::get(), parent, place);
+
+      header.create(*this);
+      body.create(*this);
+      header.set_visible();
+      body.set_visible();
+    }
+
+    // --------------------------------------------------------------------------
+
   } // ctrl
 
 } // gui

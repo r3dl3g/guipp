@@ -78,7 +78,7 @@ namespace gui {
         const state_type& flags;
       };
 
-      struct GUIPP_CORE_EXPORT set {
+      struct GUIPP_CORE_EXPORT set : public is {
 
         explicit set (state_type& state);
 

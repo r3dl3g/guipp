@@ -243,7 +243,7 @@ void my_main_window::onCreated () {
   top_view.create(*this);
   top_view.set_background(color::light_gray);
 
-  menu.data.add_entries({
+  menu.add_entries({
     main_menu_entry("File", 'F', [&]() {
       labels[0].set_text("File...");
       file_sub_menu.popup(menu);
@@ -266,7 +266,7 @@ void my_main_window::onCreated () {
   });
 
   using namespace gui::core;
-  file_sub_menu.data.add_entries({
+  file_sub_menu.add_entries({
     menu_entry("Open", 'O', util::bind_method(this, &my_main_window::open), hot_key('O', state::control)),
     menu_entry("Save As", 'S', util::bind_method(this, &my_main_window::save_as), hot_key('S', state::control)),
     menu_entry("Wipe empty space", 'W', util::bind_method(this, &my_main_window::wipe_space), hot_key('W', state::control)),
@@ -278,9 +278,9 @@ void my_main_window::onCreated () {
     menu_entry("Info", 'I', [&]() { labels[0].set_text("info"); }, hot_key('I', state::system)),
     menu_entry("Exit", 'x', util::bind_method(this, &my_main_window::quit), hot_key(keys::f4, state::alt), true)
   });
-  file_sub_menu.data.register_hot_keys(this);
+  file_sub_menu.register_hot_keys(this);
 
-  select_sub_menu.data.add_entries({
+  select_sub_menu.add_entries({
     menu_entry( "item 1", '1', [&]() { labels[0].set_text("item 1"); }),
     menu_entry("item 2", '2', [&]() { labels[0].set_text("item 2"); }),
     sub_menu_entry("item 3", '3', [&]() {
@@ -292,7 +292,7 @@ void my_main_window::onCreated () {
       sub_sub_menu4.popup(select_sub_menu);
     })
   });
-  sub_sub_menu.data.add_entries({
+  sub_sub_menu.add_entries({
     menu_entry("item 3-1", '1', [&]() { labels[0].set_text("item 3-1"); }),
     menu_entry("item 3-2", '2', [&]() { labels[0].set_text("item 3-2"); }),
     sub_menu_entry("item 3-3", '3', [&]() {
@@ -301,14 +301,14 @@ void my_main_window::onCreated () {
     }),
     menu_entry("item 3-4", '4', [&]() { labels[0].set_text("item 3-4"); })
   });
-  sub_sub_menu3.data.add_entry(
+  sub_sub_menu3.add_entry(
     menu_entry("item 3-3-1", '1', [&]() { labels[0].set_text("item 3-3-1"); })
   );
-  sub_sub_menu4.data.add_entry(
+  sub_sub_menu4.add_entry(
     menu_entry("item 4-1", '1', [&]() { labels[0].set_text("item 4-1"); })
   );
 
-  help_sub_menu.data.add_entry(
+  help_sub_menu.add_entry(
     menu_entry("About", 'A', [&] () {
       labels[0].set_text("about");
       message_dialog::show(*this, "About", "BorderTest Version 0.0.1", "ok");
@@ -316,7 +316,7 @@ void my_main_window::onCreated () {
   );
 
   menu.create(top_view);
-  menu.set_visible();
+  menu.view().set_visible();
 
   const float icn_sz = core::global::scale_from_native<float>(16);
   core::rectangle icon_rect(0, 0, icn_sz, icn_sz);
@@ -325,15 +325,15 @@ void my_main_window::onCreated () {
   auto copy_icon = create_text_pixmap(IF_MSC_ELSE(u8"\x2663", u8"♣"), icon_rect, color::dark_blue);
   auto paste_icon = create_text_pixmap(IF_MSC_ELSE(u8"\x2665", u8"♥"), icon_rect, color::dark_green);
 
-  edit_sub_menu.data.add_entry(menu_entry("Cut", 't', util::bind_method(this, &my_main_window::cut), hot_key('X', state::control), false, cut_icon));
-  edit_sub_menu.data.add_entry(menu_entry("Copy", 'C', util::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));
-  edit_sub_menu.data.add_entry(menu_entry("Paste", 'P', util::bind_method(this, &my_main_window::paste), hot_key('V', state::control), false, paste_icon));
-  edit_sub_menu.data.add_entry(menu_entry("Del", 'D', util::bind_method(this, &my_main_window::del), hot_key(keys::del)));
-  edit_sub_menu.data.add_entry(menu_entry("Settings", 'S', util::bind_method(this, &my_main_window::settings), hot_key(), true));
-  edit_sub_menu.data.add_entry(menu_entry("Options", 'O', [&]() { labels[0].set_text("options"); }, hot_key(), false, masked_bitmap(), menu_state::disabled));
-  edit_sub_menu.data.register_hot_keys(this);
+  edit_sub_menu.add_entry(menu_entry("Cut", 't', util::bind_method(this, &my_main_window::cut), hot_key('X', state::control), false, cut_icon));
+  edit_sub_menu.add_entry(menu_entry("Copy", 'C', util::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));
+  edit_sub_menu.add_entry(menu_entry("Paste", 'P', util::bind_method(this, &my_main_window::paste), hot_key('V', state::control), false, paste_icon));
+  edit_sub_menu.add_entry(menu_entry("Del", 'D', util::bind_method(this, &my_main_window::del), hot_key(keys::del)));
+  edit_sub_menu.add_entry(menu_entry("Settings", 'S', util::bind_method(this, &my_main_window::settings), hot_key(), true));
+  edit_sub_menu.add_entry(menu_entry("Options", 'O', [&]() { labels[0].set_text("options"); }, hot_key(), false, masked_bitmap(), menu_state::disabled));
+  edit_sub_menu.register_hot_keys(this);
 
-  scale_sub_menu.data.add_entries({
+  scale_sub_menu.add_entries({
     menu_entry{"Scale 0.5", '5', [&]() {set_scale(0.5); }},
     menu_entry{"Scale 0.666", '6', [&] () {set_scale(0.6666); }},
     menu_entry{"Scale 0.75", '7', [&] () {set_scale(0.75); }},
@@ -534,7 +534,7 @@ void my_main_window::onCreated () {
   client_view.get_layout().attach_fix<What::right, Where::width, -79>(&window1, &client_view);
   client_view.get_layout().attach_fix<What::bottom, Where::height, -34>(&window1, &client_view);
 
-  top_view.get_layout().add({layout::lay(menu), layout::lay(tool_bar)});
+  top_view.get_layout().add({layout::lay(menu.view()), layout::lay(tool_bar)});
   get_layout().set_center_top_bottom_left_right(layout::lay(client_view),
                                                 layout::lay(top_view),
                                                 layout::lay(status_bar),

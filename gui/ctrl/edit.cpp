@@ -157,28 +157,6 @@ namespace gui {
         , last_mouse_point(core::native_point::undefined)
       {}
 
-      edit_base::edit_base () {
-        init();
-      }
-
-      edit_base::edit_base (const edit_base& rhs)
-        : super(rhs)
-        , data(rhs.data)
-      {
-        init();
-      }
-
-      edit_base::edit_base (edit_base&& rhs) noexcept
-        : super(std::move(rhs))
-        , data(std::move(rhs.data))
-      {
-        init();
-      }
-
-      void edit_base::init () {
-        set_accept_focus(true);
-      }
-
       edit_base::~edit_base () {
         if (is_valid()) {
           win::global::unregister_utf8_window(*this);

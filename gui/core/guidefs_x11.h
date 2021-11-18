@@ -42,6 +42,9 @@
 //
 #include <gui/core/bits.h>
 
+#ifndef WS_TABSTOP
+# define WS_TABSTOP 0x00010000
+#endif // WS_TABSTOP
 
 namespace gui {
 

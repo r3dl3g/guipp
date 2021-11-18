@@ -60,7 +60,6 @@ namespace gui {
         (void)initialized;
 #endif // GUIPP_X11
 
-        set_accept_focus(true);
         on_left_btn_down([&] (os::key_state, const core::native_point& pt) {
           data.last_mouse_point = pt;
           set_state().moved(false);

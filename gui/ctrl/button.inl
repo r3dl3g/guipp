@@ -102,8 +102,6 @@ namespace gui {
       (void)initialized;
 #endif // GUIPP_X11
 
-      set_accept_focus(true);
-
       using namespace win;
       super::on_set_focus([&] () { invalidate(); });
       super::on_lost_focus([&] () { invalidate(); });

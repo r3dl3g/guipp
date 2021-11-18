@@ -169,7 +169,6 @@ namespace gui {
       : down_idx(-1)
       , layouter(this)
     {
-      super::set_accept_focus(false);
       set_cell_drawer(default_header_cell_drawer);
       layouter.init_auto_layout();
       init();

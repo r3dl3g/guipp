@@ -381,7 +381,6 @@ namespace gui {
       }
 
       void data_view::init () {
-        set_accept_focus(true);
         super::on_paint(draw::paint([&](draw::graphics&  graph){
           paint::draw_table_data(graph, client_geometry(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
         }));

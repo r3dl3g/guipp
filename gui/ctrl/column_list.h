@@ -204,7 +204,7 @@ namespace gui {
     public:
       typedef control super;
       typedef Layout layout_type;
-      typedef no_erase_window_class<column_list_header> clazz;
+      typedef no_focus_window_class<column_list_header> clazz;
       typedef void (cell_draw)(std::size_t,            // idx
                                draw::graphics&,  // gc
                                const core::rectangle&, // place

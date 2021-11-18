@@ -61,10 +61,6 @@ namespace gui {
         typedef std::function<filter::text_filter_f> text_filter;
         typedef core::range<pos_t> range;
 
-        edit_base ();
-        edit_base (const edit_base&);
-        edit_base (edit_base&&) noexcept ;
-
         ~edit_base ();
 
         void create (win::container& parent,
@@ -115,9 +111,6 @@ namespace gui {
           core::native_point last_mouse_point;
           text_filter filter;
         } data;
-
-      private:
-        void init ();
 
       };
     } // detail

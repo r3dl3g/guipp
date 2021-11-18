@@ -101,10 +101,10 @@ namespace gui {
       core::hot_key hotkey;
       icon_type icon;
       std::function<menu_action> action;
-      char menu_key;
       core::size::type width;
-      bool separator;
+      char menu_key;
       menu_state state;
+      bool separator;
       bool sub_menu;
     };
 
@@ -115,26 +115,14 @@ namespace gui {
       typedef vector::iterator iterator;
       typedef vector::const_iterator const_iterator;
 
-      typedef void (close_fn)();
-      typedef void (mouse_fn)(bool, const core::native_point&);
-      typedef bool (key_fn)(os::key_symbol);
-
-      typedef std::function<close_fn> close_call;
-      typedef std::function<mouse_fn> mouse_call;
-      typedef std::function<key_fn> key_call;
-
-      explicit menu_data (win::window* win);
-      menu_data (win::window* win, const menu_data& rhs);
-      menu_data (win::window* win, menu_data&& rhs);
-
       ~menu_data ();
 
       void add_entries (std::initializer_list<menu_entry> menu_entries);
       void add_entry (const menu_entry& entry);
       void add_entry (menu_entry&& entry);
 
-      menu_entry& operator[] (std::size_t i);
-      const menu_entry& operator[] (std::size_t i) const;
+      menu_entry& at (std::size_t i);
+      const menu_entry& at (std::size_t i) const;
 
       inline std::size_t size () const;
 
@@ -155,19 +143,19 @@ namespace gui {
 
       item_state get_item_state (int idx) const;
 
-      void set_close_function(close_call);
-      void clear_close_function ();
+      void set_parent (menu_data*);
+      void clear_parent ();
 
-      void set_mouse_function(mouse_call);
-      void clear_mouse_function ();
-
-      void set_key_function(key_call);
+      void set_current_child (menu_data*);
+      void clear_current_child (menu_data*);
 
       bool is_open () const;
+      bool has_parent () const;
 
-      void close ();
-      void handle_mouse (bool, const core::native_point&) const;
-      bool handle_key (os::key_symbol) const;
+      virtual void close ();
+
+      void close_current_child ();
+      void close_parent ();
 
       void init ();
 
@@ -179,8 +167,12 @@ namespace gui {
 
       void check_hot_key (os::key_state st, os::key_symbol sym);
 
-    private:
-      win::window* win;
+      virtual win::window& view () = 0;
+      virtual bool handle_key (os::key_symbol) = 0;
+
+    protected:
+      void handle_mouse (bool, const core::native_point&);
+      virtual int get_index_at_point (const core::point& pt) const = 0;
 
       struct data {
         data ();
@@ -190,68 +182,59 @@ namespace gui {
         int selection;
         int hilite;
 
-        close_call close_caller;
-        mouse_call mouse_caller;
-        key_call key_caller;
+        menu_data* parent;
+        menu_data* current_child;
 
       } data;
 
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT main_menu : public control {
+    class GUIPP_CTRL_EXPORT main_menu : public menu_data {
     public:
-      typedef control super;
+      typedef menu_data super;
       typedef no_erase_window_class<main_menu> clazz;
 
       main_menu ();
-      main_menu (const main_menu&);
-      main_menu (main_menu&&) noexcept ;
 
-      using control::create;
       void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       void paint (draw::graphics& g);
-      bool handle_key (os::key_symbol);
-      void handle_mouse (bool, const core::native_point&);
 
       core::point sub_menu_position (std::size_t idx) const;
-      int get_index_at_point (const core::point& pt) const;
+      int get_index_at_point (const core::point& pt) const override;
 
-      int get_selection () const;
       core::point get_selection_position () const;
 
-      menu_data data;
+      win::window& view () override;
+      bool handle_key (os::key_symbol) override;
 
     private:
+      ctrl::control window;
+
       void init ();
 
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT popup_menu : public win::popup_window {
+    class GUIPP_CTRL_EXPORT popup_menu : public menu_data {
     public:
-      typedef win::popup_window super;
+      typedef menu_data super;
 
       static const int item_height = 20;
 
       popup_menu ();
-      popup_menu (const popup_menu&);
-      popup_menu (popup_menu&&) noexcept ;
       popup_menu (std::initializer_list<menu_entry> entries);
       ~popup_menu ();
 
-      void close ();
+      void close () override;
 
       void paint (draw::graphics& g);
-      bool handle_key (os::key_symbol);
-      void handle_mouse (bool, const core::native_point&);
 
       core::point sub_menu_position (int idx) const;
-      int get_index_at_point (const core::point& pt) const;
+      int get_index_at_point (const core::point& pt) const override;
 
-      int get_selection () const;
       core::point get_selection_position () const;
 
       void popup (popup_menu& parent);
@@ -261,9 +244,12 @@ namespace gui {
       void popup_at (const core::point& pt, main_menu& parent);
       void popup_at (const core::point& pt, win::window& parent);
 
-      menu_data data;
+      win::window& view () override;
+      bool handle_key (os::key_symbol) override;
 
     private:
+      win::popup_window window;
+
       void init ();
 
       void popup_at (win::container& parent, menu_data& parent_data, const core::point& pt);

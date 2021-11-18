@@ -30,7 +30,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   popup_menu edit_sub_menu;
   popup_menu help_sub_menu;
 
-  menu.data.add_entries({
+  menu.add_entries({
     main_menu_entry("File", 'F', [&]() {
       file_sub_menu.popup(menu);
     }),
@@ -42,7 +42,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     })
   });
 
-  file_sub_menu.data.add_entries({
+  file_sub_menu.add_entries({
     menu_entry("Open", 'o', [&]() {
       file_open_dialog::show(main, "Open File", "Open", "Cancel", [&] (container&, const sys_fs::path& name) {
         if (sys_fs::exists(name)) {
@@ -53,9 +53,9 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     }, hot_key(keys::o, state::control), true),
     menu_entry("Exit", 'x', &gui::win::quit_main_loop, hot_key(keys::f4, state::alt), true)
   });
-  file_sub_menu.data.register_hot_keys(&main);
+  file_sub_menu.register_hot_keys(&main);
 
-  edit_sub_menu.data.add_entries({
+  edit_sub_menu.add_entries({
     menu_entry("Cut", 't', [&] () {
       clipboard::get().set_text(main, client.view.get_selected_text());
       client.view.replace_selection({});
@@ -69,15 +69,15 @@ int gui_main(const std::vector<std::string>& /*args*/) {
       });
     }, hot_key('V', state::control), false),
   });
-  edit_sub_menu.data.register_hot_keys(&main);
+  edit_sub_menu.register_hot_keys(&main);
 
-  help_sub_menu.data.add_entry(
+  help_sub_menu.add_entry(
     menu_entry("About", 'A', [&]() {
       message_dialog::show(main, "About gui++ editor", "gui++ editor version 0.0.1", "Ok");
     })
   );
 
-  main.get_layout().set_top(lay(menu));
+  main.get_layout().set_top(lay(menu.view()));
   main.get_layout().set_center(lay(client));
 
   main.on_create([&] () {

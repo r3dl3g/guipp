@@ -20,7 +20,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   popup_menu edit_sub_menu;
   popup_menu help_sub_menu;
 
-  menu.data.add_entries({
+  menu.add_entries({
     main_menu_entry("File", 'F', [&]() {
       file_sub_menu.popup(menu);
     }),
@@ -34,17 +34,17 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     })
   });
 
-  file_sub_menu.data.add_entry(
+  file_sub_menu.add_entry(
     menu_entry("Exit", 'x', &gui::win::quit_main_loop, hot_key(keys::f4, state::alt), true)
   );
 
-  edit_sub_menu.data.add_entries({
+  edit_sub_menu.add_entries({
     menu_entry("Cut", 't', [](){}, hot_key('X', state::control), false),
     menu_entry("Copy", 'C', [](){}, hot_key('C', state::control), false),
     menu_entry("Paste", 'P', [](){}, hot_key('V', state::control), false),
   });
 
-  help_sub_menu.data.add_entry(
+  help_sub_menu.add_entry(
     menu_entry("About", 'A', [&]() {
       message_dialog::show(main, "About Filemanager", "Filemanager Version 0.0.1", "Ok");
     })
@@ -52,11 +52,11 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   main.on_create([&] () {
     menu.create(main);
-    menu.set_visible();
+    menu.view().set_visible();
 
     client.create(main, main.client_geometry());
     client.set_split_pos(0.5);
-    main.get_layout().set_top(lay(menu));
+    main.get_layout().set_top(lay(menu.view()));
     main.get_layout().set_center(lay(client));
 
     sys_fs::path current = sys_fs::current_path();

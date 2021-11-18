@@ -91,8 +91,6 @@ namespace gui {
         set_hilite(scrollbar_item::nothing);
         invalidate();
       });
-
-      set_accept_focus(true);
     }
 
     void scroll_bar::create (const win::class_info& type,

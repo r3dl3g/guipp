@@ -86,25 +86,11 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline menu_data::menu_data (win::window* win)
-      : win(win)
-    {}
-
-    inline menu_data::menu_data (win::window* win, const menu_data& rhs)
-      : win(win)
-      , data(rhs.data)
-    {}
-
-    inline menu_data::menu_data (win::window* win, menu_data&& rhs)
-      : win(win)
-      , data(std::move(rhs.data))
-    {}
-
-    inline menu_entry& menu_data::operator[] (std::size_t i) {
+    inline menu_entry& menu_data::at (std::size_t i) {
       return data.items[i];
     }
 
-    inline const menu_entry& menu_data::operator[] (std::size_t i) const {
+    inline const menu_entry& menu_data::at (std::size_t i) const {
       return data.items[i];
     }
 
@@ -132,44 +118,43 @@ namespace gui {
       return data.hilite;
     }
 
-    inline void menu_data::set_close_function (close_call fn) {
-      data.close_caller = fn;
+    inline void menu_data::set_parent (menu_data* m) {
+      data.parent = m;
     }
 
-    inline void menu_data::clear_close_function () {
-      data.close_caller = nullptr;
-      data.key_caller = nullptr;
+    inline void menu_data::clear_parent () {
+      data.parent = nullptr;
     }
 
-    inline void menu_data::set_mouse_function (mouse_call fn) {
-      data.mouse_caller = fn;
+    inline void menu_data::set_current_child (menu_data* m) {
+      data.current_child = m;
     }
 
-    inline void menu_data::clear_mouse_function () {
-      data.mouse_caller = nullptr;
-    }
-
-    inline void menu_data::set_key_function (key_call fn) {
-      data.key_caller = fn;
+    inline void menu_data::clear_current_child (menu_data* m) {
+      if (data.current_child == m) {
+        data.current_child = nullptr;
+      }
     }
 
     inline bool menu_data::is_open () const {
-      return (bool)data.close_caller;
+      return (bool)data.current_child;
+    }
+
+    inline bool menu_data::has_parent () const {
+      return (bool)data.parent;
     }
 
     inline menu_data::data::data ()
       : selection(-1)
       , hilite(-1)
+      , parent(nullptr)
+      , current_child(nullptr)
     {}
 
     // --------------------------------------------------------------------------
     inline void main_menu::create (win::container& parent,
                                    const core::rectangle& place) {
-      create(clazz::get(), parent, place);
-    }
-
-    inline int main_menu::get_selection () const {
-      return data.get_selection();
+      window.create(clazz::get(), parent, place);
     }
 
     inline core::point main_menu::get_selection_position () const {
@@ -179,11 +164,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     inline popup_menu::popup_menu (std::initializer_list<menu_entry> entries)
       : popup_menu() {
-      data.add_entries(entries);
-    }
-
-    inline int popup_menu::get_selection () const {
-      return data.get_selection();
+      add_entries(entries);
     }
 
     inline core::point popup_menu::get_selection_position () const {
@@ -199,11 +180,11 @@ namespace gui {
     }
 
     inline void popup_menu::popup_at (const core::point& pt, popup_menu& parent) {
-      popup_at(parent, parent.data, pt);
+      popup_at(*parent.view().get_parent(), parent, pt);
     }
 
     inline void popup_menu::popup_at (const core::point& pt, main_menu& parent) {
-      popup_at(*parent.get_parent(), parent.data, pt);
+      popup_at(*parent.view().get_parent(), parent, pt);
     }
 
     inline popup_menu::positions::positions ()

@@ -90,6 +90,13 @@ namespace gui {
       os::style CS = win::window_class_defaults<>::class_style>
       using no_erase_window_class = win::window_class<T, color::transparent, C, S, ES, CS>;
 
+    template<typename T,
+      win::cursor_type C = win::window_class_defaults<>::cursor,
+      os::style S = win::window_class_defaults<>::style_no_focus,
+      os::style ES = win::window_class_defaults<>::ex_style,
+      os::style CS = win::window_class_defaults<>::class_style>
+      using no_focus_window_class = win::window_class<T, color::transparent, C, S, ES, CS>;
+
     // --------------------------------------------------------------------------
     typedef std::string (text_source_fn)();
     typedef std::function<text_source_fn> text_source;

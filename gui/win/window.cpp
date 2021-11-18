@@ -110,6 +110,7 @@ namespace gui {
       auto s = set_state();
       s.created(true);
       s.visible(true);
+      s.accept_focus(type.get_style() & WS_TABSTOP);
       notify_event(core::WM_CREATE_WINDOW);
     }
 

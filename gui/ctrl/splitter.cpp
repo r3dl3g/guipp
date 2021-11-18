@@ -201,8 +201,6 @@ namespace gui {
         (void)initialized;
 #endif // GUIPP_X11
 
-        set_accept_focus(true);
-
         on_left_btn_down([&] (os::key_state, const core::native_point& pt) {
           capture_pointer();
           start_mouse_point = pt;//client_to_screen(pt);

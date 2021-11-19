@@ -353,7 +353,7 @@ namespace gui {
       file_list_row_data::file_list_row_data (const std::vector<fs::file_info>& dir,
                                               const list_type& list)
         : super(
-          [] (const gui::tree::icon_drawer* icon, draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t) {
+          [] (gui::tree::icon_drawer* icon, draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t) {
             if (!color::is_transparent(b.color())) {
               g.fill(draw::rectangle(r), look::get_background_color(s, b.color()));
             }
@@ -392,7 +392,7 @@ namespace gui {
         bool selected = (idx == list->get_selection());
         const fs::file_info& f = data[idx];
 
-        const gui::tree::icon_drawer* icon = gui::tree::standard_icon_drawer(f.is_directory(), false, selected);
+        gui::tree::icon_drawer* icon = gui::tree::standard_icon_drawer(f.is_directory(), false, selected);
         return row_type(icon, f, f, f.last_write_time);
       }
 

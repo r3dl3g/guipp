@@ -514,11 +514,11 @@ namespace gui {
       window.on_paint(draw::paint(this, &popup_menu::paint));
 
       window.on_lost_focus([&] () {
-        window.invalidate();
+        this->window.invalidate();
       });
 
       window.on_show([&] () {
-        window.invalidate();
+        this->window.invalidate();
         register_message_filter();
       });
     }

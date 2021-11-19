@@ -27,18 +27,6 @@
 
 namespace gui {
 
-#ifdef GUIPP_WIN
-  namespace win {
-
-    template<>
-    float get_param<0, core::point::type>(const core::event& e) {
-      return *(float*)e.wParam;
-    }
-
-  } // namespace win
-
-#endif //GUIPP_WIN
-
   namespace ctrl {
 
 #ifdef GUIPP_QT
@@ -54,8 +42,8 @@ namespace gui {
       , hilite(scrollbar_item::nothing)
       , min(0)
       , max(1)
-      , step(0.01)
-      , page(0.1)
+      , step(0.01F)
+      , page(0.1F)
       , value(0)
       , last_value(0)
     {}

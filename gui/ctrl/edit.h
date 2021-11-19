@@ -99,7 +99,7 @@ namespace gui {
         void prepare_input ();
         pos_t get_position_at_point (const core::point& pt) const;
 
-        struct data {
+        struct GUIPP_CTRL_EXPORT data {
           data ();
 
           std::string text;

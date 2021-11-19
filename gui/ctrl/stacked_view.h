@@ -73,14 +73,14 @@ namespace gui {
       : view_stack(*this)
     {
       super::on_create([&] () {
-        title_view.create(*this);
+        this->title_view.create(*this);
       });
       title_view.on_back([&] () {
         pop();
       });
       view_stack.on_finish_push([&] (const window_ptr& in) {
         set_top_data(in);
-        title_view.enable_back(view_stack.count() > 1);
+        this->title_view.enable_back(view_stack.count() > 1);
         super::get_layout().set_center(layout::lay(in.get()));
         super::layout();
         super::invalidate();
@@ -96,7 +96,7 @@ namespace gui {
       view_stack.on_finish_pop([&] (const window_ptr& in) {
         super::get_layout().set_center(layout::lay(in.get()));
         set_top_data(in);
-        title_view.enable_back(view_stack.count() > 1);
+        this->title_view.enable_back(view_stack.count() > 1);
         super::layout();
         super::invalidate();
       });

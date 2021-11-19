@@ -39,7 +39,7 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-    struct stacked_view_controller {
+    struct GUIPP_WIN_EXPORT stacked_view_controller {
       typedef std::function<void(const window_ptr&)> callback_fn;
 
       typedef animation::dual<animation::move> (animation_type) (const window_ptr& out,
@@ -49,8 +49,10 @@ namespace gui {
       stacked_view_controller (container& main);
 
       void push (const window_ptr& view,
-                 animation_type at = animation::push_from<animation::position::right>);
-      void pop (animation_type at = animation::pop_to<animation::position::right>);
+                 animation_type at);
+      void push (const window_ptr& view);
+      void pop (animation_type at);
+      void pop ();
 
       const window_ptr& top () const;
       std::size_t count () const;

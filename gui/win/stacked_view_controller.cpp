@@ -86,6 +86,14 @@ namespace gui {
       }
     }
     // --------------------------------------------------------------------------
+    void stacked_view_controller::push (const window_ptr& in) {
+      push(in, animation::pop_to<animation::position::right>);
+    }
+    // --------------------------------------------------------------------------
+    void stacked_view_controller::pop () {
+      pop(animation::pop_to<animation::position::right>);
+    }
+    // --------------------------------------------------------------------------
     void stacked_view_controller::on_finish_push (callback_fn&& fn) {
       finish_push = std::move(fn);
     }

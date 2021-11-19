@@ -401,7 +401,7 @@ namespace gui {
         return n.label;
       }
 
-      inline const gui::tree::icon_drawer* default_node_info::icon (type const&, bool has_children, bool is_open, bool selected) {
+      inline gui::tree::icon_drawer* default_node_info::icon (type const&, bool has_children, bool is_open, bool selected) {
         return gui::tree::standard_icon_drawer(has_children, is_open, selected);
       }
 

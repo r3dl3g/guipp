@@ -82,12 +82,12 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     clock_minutes::clock_minutes (const core::point& center, core::size::type radius)
-      : centerlines(center, radius * 0.95, radius, 360 / 60)
+      : centerlines(center, radius * 0.95F, radius, 360 / 60)
     {}
 
     // --------------------------------------------------------------------------
     clock_hours::clock_hours (const core::point& center, core::size::type radius)
-      : centerlines(center, radius * 0.95, radius, 360 / 12)
+      : centerlines(center, radius * 0.95F, radius, 360 / 12)
     {}
 
     // --------------------------------------------------------------------------
@@ -98,7 +98,7 @@ namespace gui {
     void clock_numbers::operator() (graphics& g, const font& font, gui::os::color color) const {
       for (int i = 1; i < 13; ++i) {
         g.text(draw::text(util::string::convert::from(i),
-                          calc_clock_point(center, i * 360 / 12, radius),
+                          calc_clock_point(center, i * 360.0F / 12.0F, radius),
                           text_origin_t::center),
                font, color);
       }
@@ -109,15 +109,15 @@ namespace gui {
     {}
 
     void clock_face::operator() (graphics& g, const font& font, gui::os::color col) const {
-      const auto rt = radius * 0.8;
+      const auto rt = radius * 0.8F;
 
       g.frame(clock_minutes(center, radius), draw::pen(color::darker(col, 0.5), 3));
       g.frame(clock_hours(center, radius), draw::pen(col, 5));
 
-      draw::font fnt = font.with_size(radius / 9);
+      draw::font fnt = font.with_size(radius / 9.0F);
       for (int i = 1; i < 13; ++i) {
         g.text(draw::text(util::string::convert::from(i),
-                          calc_clock_point(center, i * 360 / 12, rt),
+                          calc_clock_point(center, i * 360.0F / 12.0F, rt),
                           text_origin_t::center),
                fnt, col);
       }
@@ -136,18 +136,18 @@ namespace gui {
     {}
 
     void clock_hands::operator() (graphics& g, const pen& p) const {
-      const auto w = radius * 0.03;
+      const auto w = radius * 0.03F;
 
       draw::pen pn(p.color(), w, draw::pen::Style::solid, draw::pen::Cap::round);
 
       const auto hangle = ((hour % 12) + min / 60.0F) * 360 / 12;
-      g.frame(calc_centerline(center, hangle, radius * 0.1, radius * 0.6), pn);
-      g.frame(calc_centerline(center, hangle, radius * 0.1), pn.with_size(w / 3));
+      g.frame(calc_centerline(center, hangle, radius * 0.1F, radius * 0.6F), pn);
+      g.frame(calc_centerline(center, hangle, radius * 0.1F), pn.with_size(w / 3.0F));
       const auto mangle = min * 360 / 60;
-      g.frame(calc_centerline(center, mangle, radius * 0.1, radius * 0.9), pn);
-      g.frame(calc_centerline(center, mangle, radius * 0.1), pn.with_size(w / 3));
-      draw::pen pn2(second_color, w / 2, draw::pen::Style::solid, draw::pen::Cap::round);
-      g.frame(calc_centerline(center, sec * 360 / 60, radius), pn2);
+      g.frame(calc_centerline(center, mangle, radius * 0.1F, radius * 0.9F), pn);
+      g.frame(calc_centerline(center, mangle, radius * 0.1F), pn.with_size(w / 3.0F));
+      draw::pen pn2(second_color, w / 2.0F, draw::pen::Style::solid, draw::pen::Cap::round);
+      g.frame(calc_centerline(center, sec * 360.0F / 60.0F, radius), pn2);
 
       g.fill(draw::pie(center, w, 0, 360), p.color());
     }
@@ -162,13 +162,13 @@ namespace gui {
     {}
 
     void clock_simple_hands::operator() (graphics& g, const pen& p) const {
-      const auto w = radius * 0.03;
+      const auto w = radius * 0.03F;
 
       draw::pen pn(p.color(), w, draw::pen::Style::solid, draw::pen::Cap::round);
 
-      const auto hangle = ((hour % 12) + min / 60.0F) * 360 / 12;
-      g.frame(calc_centerline(center, hangle, radius * 0.6), pn);
-      const auto mangle = min * 360 / 60;
+      const auto hangle = ((hour % 12) + min / 60.0F) * 360.0F / 12.0F;
+      g.frame(calc_centerline(center, hangle, radius * 0.6F), pn);
+      const auto mangle = min * 360.0F / 60.0F;
       g.frame(calc_centerline(center, mangle, radius), pn);
 
       g.fill(draw::pie(center, w, 0, 360), p.color());
@@ -180,16 +180,16 @@ namespace gui {
     {}
 
     void stopwatch_seconds_face::operator() (graphics& g, const font& font, gui::os::color col) const {
-      const auto r0 = radius * 0.975;
-      const auto r1 = radius * 0.95;
-      const auto rt = radius * 0.825;
-      g.frame(draw::centerlines(center, r0, radius, 360.0F / 60.0F / 5.0F), draw::pen(color::darker(col, 0.5), 2));
-      g.frame(draw::centerlines(center, r1, radius, 360 / 60), draw::pen(color::darker(col, 0.5), 2));
-      g.frame(draw::centerlines(center, r1, radius, 360 / 12), draw::pen(col, 3));
-      draw::font fnt = font.with_size(radius / 9);
+      const auto r0 = radius * 0.975F;
+      const auto r1 = radius * 0.95F;
+      const auto rt = radius * 0.825F;
+      g.frame(draw::centerlines(center, r0, radius, 360.0F / 60.0F / 5.0F), draw::pen(color::darker(col, 0.5F), 2));
+      g.frame(draw::centerlines(center, r1, radius, 360.0F / 60.0F), draw::pen(color::darker(col, 0.5F), 2));
+      g.frame(draw::centerlines(center, r1, radius, 360.0F / 12.0F), draw::pen(col, 3));
+      draw::font fnt = font.with_size(radius / 9.0F);
       for (int i = 5; i < 61; i += 5) {
         g.text(draw::text(util::string::convert::from(i),
-                          draw::calc_clock_point(center, i * 360 / 60, rt),
+                          draw::calc_clock_point(center, i * 360.0F / 60.0F, rt),
                           text_origin_t::center),
                fnt, col);
       }
@@ -202,18 +202,18 @@ namespace gui {
 
     void stopwatch_minutes_face::operator() (graphics& g, const font& font, gui::os::color col) const {
 
-      const auto rt = radius * 0.5;
-      const auto r0 = radius * 0.9;
-      const auto r1 = radius * 0.8;
+      const auto rt = radius * 0.5F;
+      const auto r0 = radius * 0.9F;
+      const auto r1 = radius * 0.8F;
 
-      g.frame(draw::centerlines(center, r0, radius, 360 / 30 / 2), draw::pen(color::darker(col, 0.5), 1));
-      g.frame(draw::centerlines(center, r1, radius, 360 / 30), draw::pen(color::darker(col, 0.5), 1));
-      g.frame(draw::centerlines(center, r1, radius, 360 / 6), draw::pen(col, 3));
+      g.frame(draw::centerlines(center, r0, radius, 360.0F / 30.0F / 2.0F), draw::pen(color::darker(col, 0.5F), 1));
+      g.frame(draw::centerlines(center, r1, radius, 360.0F / 30.0F), draw::pen(color::darker(col, 0.5F), 1));
+      g.frame(draw::centerlines(center, r1, radius, 360.0F / 6.0F), draw::pen(col, 3));
 
-      draw::font fnt = font.with_size(radius / 5);
+      draw::font fnt = font.with_size(radius / 5.0F);
       for (int i = 5; i < 31; i += 5) {
         g.text(draw::text(util::string::convert::from(i),
-                          draw::calc_clock_point(center, i * 360 / 30, rt),
+                          draw::calc_clock_point(center, i * 360.0F / 30.0F, rt),
                           text_origin_t::center),
                fnt, col);
       }
@@ -236,7 +236,7 @@ namespace gui {
       out << std::setfill('0') << std::setw(2) << (secs.count() % 60) << ",";
       out << std::setfill('0') << std::setw(2) << (duration.count() % 1000) / 10;
 
-      draw::font fnt = font.with_size(radius / 10);
+      draw::font fnt = font.with_size(radius / 10.0F);
       g.text(draw::text(out.str(), center, text_origin_t::center), fnt, col);
     }
     // --------------------------------------------------------------------------
@@ -248,9 +248,9 @@ namespace gui {
     {}
 
     void stopwatch_seconds_hands::operator() (graphics& g, const pen& pn) const {
-      const auto secs = duration.count() / 1000.0;
-      g.frame(draw::calc_centerline(center, secs * 360 / 60, -radius / 5, radius), pn);
-      g.draw(draw::pie(center, radius * 0.02, 0, 360), color::black, pn);
+      const auto secs = duration.count() / 1000.0F;
+      g.frame(draw::calc_centerline(center, secs * 360.0F / 60.0F, -radius / 5.0F, radius), pn);
+      g.draw(draw::pie(center, radius * 0.02F, 0, 360), color::black, pn);
     }
 
     // --------------------------------------------------------------------------
@@ -263,9 +263,9 @@ namespace gui {
 
     void stopwatch_minutes_hands::operator() (graphics& g, const pen& pn) const {
 
-      const auto minutes = duration.count() / 60000.0;
-      g.frame(draw::calc_centerline(center, minutes * 360 / 30, radius), pn);
-      g.draw(draw::pie(center, radius * 0.05, 0, 360), color::black, pn);
+      const auto minutes = duration.count() / 60000.0F;
+      g.frame(draw::calc_centerline(center, minutes * 360.0F / 30.0F, radius), pn);
+      g.draw(draw::pie(center, radius * 0.05F, 0, 360), color::black, pn);
     }
 
     // --------------------------------------------------------------------------

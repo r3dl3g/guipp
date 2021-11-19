@@ -75,6 +75,11 @@ namespace gui {
       return ctrl::event_source(e.wParam);
     }
 
+    template<>
+    float get_param<0, float>(const core::event& e) {
+      return *(float*)e.wParam;
+    }
+
   } // namespace win
 
   namespace ctrl {

@@ -27,8 +27,7 @@ namespace gui {
 
       template<typename B, typename L, typename ... A>
       inline layout_container_base<B, L, A...>::layout_container_base (const A& ... args)
-        : layouter(args ...)
-      {
+        : layouter(args ...) {
         init();
       }
 

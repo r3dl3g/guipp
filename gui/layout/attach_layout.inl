@@ -117,16 +117,22 @@ namespace gui {
     } //namespace detail
 
     // --------------------------------------------------------------------------
+    attach::attach (const attach& rhs) {
+      for (const auto& a : rhs.attachments) {
+        attachments.push_back(a->clone());
+      }
+    }
+    
     template<What what, Where where, int offset, typename T, typename S>
     inline void attach::attach_fix (T target, S source)  {
       auto fkt = detail::target<what, where, offset, 10000>::adjust;
-      attachments.push_back(std::unique_ptr<attachment_t<T, S>>(new attachment_t<T, S>(target, source, fkt)));
+      attachments.push_back(std::unique_ptr<attachment>(new attachment_t<T, S>(target, source, fkt)));
     }
 
     template<What what, int relativ, int offset, typename T, typename S>
     inline void attach::attach_relative (T target, S source) {
       auto fkt = detail::target<what, detail::convert_from<what>::where, offset, relativ>::adjust;
-      attachments.push_back(std::unique_ptr<attachment_t<T, S>>(new attachment_t<T, S>(target, source, fkt)));
+      attachments.push_back(std::unique_ptr<attachment>(new attachment_t<T, S>(target, source, fkt)));
     }
 
     // --------------------------------------------------------------------------

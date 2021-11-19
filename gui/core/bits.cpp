@@ -31,38 +31,6 @@
 #include <gui/core/bits.h>
 
 
-namespace gui {
-
-  namespace core {
-
-    GUIPP_CORE_EXPORT byte bw_bits<false>::value[2] = {0xff, 0};
-    GUIPP_CORE_EXPORT byte bw_bits<true>::value[2] = {0, 0xff};
-
-    GUIPP_CORE_EXPORT byte system_bw_bits::mask[8] = {
-      system_bit_mask<0>::value,
-      system_bit_mask<1>::value,
-      system_bit_mask<2>::value,
-      system_bit_mask<3>::value,
-      system_bit_mask<4>::value,
-      system_bit_mask<5>::value,
-      system_bit_mask<6>::value,
-      system_bit_mask<7>::value
-    };
-    GUIPP_CORE_EXPORT byte system_bw_bits::shift[8] = {
-      system_bit_mask<0>::shift,
-      system_bit_mask<1>::shift,
-      system_bit_mask<2>::shift,
-      system_bit_mask<3>::shift,
-      system_bit_mask<4>::shift,
-      system_bit_mask<5>::shift,
-      system_bit_mask<6>::shift,
-      system_bit_mask<7>::shift
-    };
-
-  } // namespace core
-
-} // namespace gui
-
 namespace std {
 
   namespace {

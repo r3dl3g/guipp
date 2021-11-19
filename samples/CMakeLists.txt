@@ -25,7 +25,7 @@ if (GUIPP_USE_BOOST)
 endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} "/Y- /bigobj")
+  add_compile_options(/Y- /bigobj)
 endif()
 
 add_definitions(${GUIPP_CXX_FLAGS})

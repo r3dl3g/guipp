@@ -36,6 +36,10 @@
 //
 #include <gui/win/gui++-win-export.h>
 
+#ifdef WIN32
+#pragma warning(push)
+#pragma warning(disable: 4251)
+#endif // WIN32
 
 namespace gui {
 
@@ -71,3 +75,7 @@ namespace gui {
   } // win
 
 } // gui
+
+#ifdef WIN32
+#pragma warning(pop)
+#endif // WIN32

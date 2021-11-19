@@ -28,7 +28,7 @@ double round_to_step (double value, double step) {
 std::pair<point, size::type> get_center (const rectangle& r) {
   const auto square = r.squared();
   if (square.width() > 10) {
-     return {{r.center_x(), square.center_y()}, square.width() * 0.45};
+     return {{r.center_x(), square.center_y()}, square.width() * 0.45F};
   }
   return {};
 }
@@ -116,13 +116,13 @@ struct stopwatchview : public chronometerview {
       if (c.second > 10) {
         const std::chrono::milliseconds d = duration();
 
-        const auto min_center = c.first.dy(-c.second * 0.40);
+        const auto min_center = c.first.dy(-c.second * 0.40F);
         g.text(draw::stopwatch_seconds_face(c.first, c.second), draw::font::system(), color::white);
-        g.text(draw::stopwatch_minutes_face(min_center, c.second * 0.3), draw::font::system(), color::white);
-        g.text(draw::stopwatch_digits(c.first.dy(c.second * 0.4), c.second, d), draw::font::system(), color::white);
+        g.text(draw::stopwatch_minutes_face(min_center, c.second * 0.3F), draw::font::system(), color::white);
+        g.text(draw::stopwatch_digits(c.first.dy(c.second * 0.4F), c.second, d), draw::font::system(), color::white);
 
         draw::pen pn(color::orange, 3, draw::pen::Style::solid, draw::pen::Cap::round);
-        g.frame(draw::stopwatch_minutes_hands(min_center, c.second * 0.3, d), pn);
+        g.frame(draw::stopwatch_minutes_hands(min_center, c.second * 0.3F, d), pn);
         g.frame(draw::stopwatch_seconds_hands(c.first, c.second, d), pn);
       }
     }));
@@ -146,18 +146,18 @@ struct timerview : public chronometerview {
         const auto d = duration();
         if (d > countdown) {
           if (active()) {
-            g.frame(draw::centerlines(c.first, r0, c.second, step, 0, 360.0), draw::pen(color::dark_green, 2));
+            g.frame(draw::centerlines(c.first, r0, c.second, step, 0, 360), draw::pen(color::dark_green, 2));
             g.text(draw::stopwatch_digits(c.first.dy(r1), c.second, std::chrono::milliseconds::zero()),
                    draw::font::system(), color::white);
           } else {
-            g.frame(draw::centerlines(c.first, r0, c.second, step, 0, 360.0), draw::pen(color::dark_gray, 2));
+            g.frame(draw::centerlines(c.first, r0, c.second, step, 0, 360), draw::pen(color::dark_gray, 2));
             g.text(draw::stopwatch_digits(c.first.dy(r1), c.second, countdown),
                    draw::font::system(), color::white);
           }
         } else {
           const auto pos = round_to_step(360.0 * d / countdown, step);
           g.frame(draw::centerlines(c.first, r0, c.second, step, 0, pos), draw::pen(color::dark_gray, 2));
-          g.frame(draw::centerlines(c.first, r0, c.second, step, pos, 360.0), draw::pen(color::orange, 2));
+          g.frame(draw::centerlines(c.first, r0, c.second, step, pos, 360), draw::pen(color::orange, 2));
           g.text(draw::stopwatch_digits(c.first.dy(r1), c.second, (countdown - d)),
                  draw::font::system(), color::white);
         }

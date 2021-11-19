@@ -97,7 +97,7 @@ namespace gui {
         return n.filename();
       }
 
-      inline const gui::tree::icon_drawer* path_info::icon (type const&, bool has_children, bool is_open, bool selected) {
+      inline gui::tree::icon_drawer* path_info::icon (type const&, bool has_children, bool is_open, bool selected) {
         return gui::tree::standard_icon_drawer(has_children, is_open, selected);
       }
 

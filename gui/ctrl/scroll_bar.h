@@ -30,15 +30,6 @@
 
 namespace gui {
 
-#ifdef GUIPP_WIN
-  namespace win {
-
-    template<>
-    GUIPP_CTRL_EXPORT float get_param<0, float>(const core::event& e);
-
-  } // namespace win
-#endif //GUIPP_WIN
-
   namespace ctrl {
 
     // --------------------------------------------------------------------------

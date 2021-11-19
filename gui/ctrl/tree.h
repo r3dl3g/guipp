@@ -183,7 +183,7 @@ namespace gui {
         static reference make_reference (node const& n);
         static type const& dereference (reference const& r);
         static std::string label (node const& n);
-        static const gui::tree::icon_drawer* icon (type const&, bool has_children, bool is_open, bool selected);
+        static gui::tree::icon_drawer* icon (type const&, bool has_children, bool is_open, bool selected);
 
       };
 

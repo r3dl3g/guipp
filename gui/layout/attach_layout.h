@@ -228,6 +228,7 @@ namespace gui {
       virtual core::rectangle target_geometry () const = 0;
       virtual const void* target_key () const = 0;
       virtual void geometry (const core::rectangle&) const = 0;
+      virtual std::unique_ptr<attachment> clone () const = 0;
     };
 
     // --------------------------------------------------------------------------
@@ -263,11 +264,17 @@ namespace gui {
         detail::geometry(target, r);
       }
 
+      std::unique_ptr<attachment> clone () const override {
+        return std::unique_ptr<attachment>(new attachment_t(target, source, adjust));
+      }
     };
 
     // --------------------------------------------------------------------------
     class GUIPP_LAYOUT_EXPORT attach {
     public:
+      attach () = default;
+      attach (const attach&);
+      attach (attach&&) = default;
 
       template<What what, Where where, int offset = 0, typename T, typename S>
       void attach_fix (T target, S source);

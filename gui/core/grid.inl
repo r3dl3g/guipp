@@ -54,6 +54,15 @@ namespace gui {
       return { d.position() + size{d.width() * x, d.height() * y}, d.size() };
     }
 
+    template<std::size_t X, std::size_t Y>
+    void grid<X, Y>::for_each (std::function<void(std::size_t, std::size_t, rectangle)> fn) {
+      for (std::size_t y = 0; y < Y; ++y) {
+        for (std::size_t x = 0; x < X; ++x) {
+          fn(x, y, operator()(x, y));
+        }
+      }
+    }
+
   } // namespace core
 
 } // namespace gui

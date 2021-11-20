@@ -43,6 +43,18 @@ namespace gui {
 
       rectangle operator() (std::size_t x, std::size_t y) const;
 
+      void for_each (std::function<void(std::size_t, std::size_t, rectangle)> fn);
+
+      template<typename I = int>
+      void for_each (std::function<void(I, rectangle)> fn) {
+        for (std::size_t y = 0; y < Y; ++y) {
+          const std::size_t dy = y * X;
+          for (std::size_t x = 0; x < X; ++x) {
+            fn(I(x + dy), operator()(x, y));
+          }
+        }
+      }
+
     private:
       rectangle d;
     };

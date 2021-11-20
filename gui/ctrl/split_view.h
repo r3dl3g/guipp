@@ -124,7 +124,7 @@ namespace gui {
     using horizontal_split_view = split_view<orientation_t::horizontal, First, Second>;
 
     // --------------------------------------------------------------------------
-    template<typename Header, typename Body, alignment_t A = alignment_t::top, int S = 25>
+    template<typename Header, typename Body, int S = 25, alignment_t A = alignment_t::top>
     class fix_split_view : public win::layout_container<layout::split_layout<A, S> > {
     public:
       typedef win::layout_container<layout::split_layout<A, S>> super;

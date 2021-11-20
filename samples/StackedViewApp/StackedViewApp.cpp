@@ -33,7 +33,7 @@ directory fake_fs;
 class fake_file_list : public vertical_list {
 public:
   typedef vertical_list super;
-  typedef ctrl::htoggle_group<color::light_gray, color::dark_gray> toggle_group_t;
+  typedef ctrl::htoggle_group<> toggle_group_t;
 
   fake_file_list (core::size::type item_size = list_defaults<>::item_size)
   : super(item_size) {
@@ -72,6 +72,8 @@ private:
 
   void init () {
     super::set_data(indirect_list_data<std::string>(current_dir));
+    buttons.set_foreground(color::light_gray);
+    buttons.set_background(color::dark_gray);
   }
 };
 // --------------------------------------------------------------------------

@@ -596,6 +596,7 @@ namespace gui {
       rows.on_left_btn_down(util::bind_method(this, &table_view::handle_row_left_btn_down));
       rows.on_left_btn_up(util::bind_method(this, &table_view::handle_row_left_btn_up));
 
+      edge.set_background(columns.get_default_background());
       on_layout([&] (const core::rectangle& r) {
         edge.position(r.top_left());
       });

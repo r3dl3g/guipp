@@ -40,6 +40,7 @@
 #include <gui/draw/font.h>
 #include <gui/draw/use.h>
 
+#define OPTIMIZE_DRAW
 
 namespace gui {
 

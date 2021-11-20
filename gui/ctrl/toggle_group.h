@@ -34,9 +34,7 @@ namespace gui {
   namespace ctrl {
 
     template<orientation_t O,
-             os::color foreground = color::dark_gray,
-             os::color background = color::light_gray,
-             typename B = flat_toggle_button<foreground, background, true>,
+             typename B = flat_toggle_button<true>,
              typename L = layout::adaption_layout<O>>
     class toggle_group : public win::group_window<L> {
     public:
@@ -48,9 +46,19 @@ namespace gui {
       toggle_group ();
       ~toggle_group ();
 
-      void add_buttons (const std::initializer_list<std::string>& labels);
+      void add_button (button_type btn);
       void add_button (const std::string& label);
       void add_button (const text_source& label);
+
+      void add_buttons (std::initializer_list<button_type> buttons);
+      void add_buttons (std::initializer_list<const_text> labels);
+
+      template<typename T = B, typename I>
+      void add_custom_buttons (std::initializer_list<I> items) {
+        for (const I& item : items) {
+          add_button(std::make_shared<T>(item));
+        }
+      }
 
       std::size_t count () const;
       button_type& get_button (int idx);
@@ -64,25 +72,25 @@ namespace gui {
       int get_selection_index () const;
       void set_selection_index (int i);
 
+      void set_foreground (os::color);
+      os::color get_foreground () const;
+
     private:
       void uncheck_buttons (button_type except);
 
       std::vector<button_type> buttons;
       int selection;
+      os::color foreground;
     };
 
     // --------------------------------------------------------------------------
-    template<os::color foreground = color::dark_gray,
-             os::color background = color::light_gray,
-             typename button_type = flat_toggle_button<foreground, background, true>,
+    template<typename button_type = flat_toggle_button<true>,
              typename layout_type = layout::horizontal_adaption<>>
-    using htoggle_group = toggle_group<orientation_t::horizontal, foreground, background, button_type, layout_type>;
+    using htoggle_group = toggle_group<orientation_t::horizontal, button_type, layout_type>;
 
-    template<os::color foreground = color::dark_gray,
-             os::color background = color::light_gray,
-             typename button_type = flat_toggle_button<foreground, background, true>,
+    template<typename button_type = flat_toggle_button<true>,
              typename layout_type = layout::vertical_adaption<>>
-    using vtoggle_group = toggle_group<orientation_t::vertical, foreground, background, button_type, layout_type>;
+    using vtoggle_group = toggle_group<orientation_t::vertical, button_type, layout_type>;
 
   } // ctrl
 

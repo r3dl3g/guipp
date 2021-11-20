@@ -40,7 +40,9 @@ namespace gui {
                 os::color background,
                 const text_origin_t& origin) {
       using namespace gui::draw;
-      graph.fill(draw::rectangle(area), background);
+      if (!color::is_transparent(background)) {
+        graph.fill(draw::rectangle(area), background);
+      }
       graph.text(draw::text_box(text, area, origin),
                  font::system(),
                  foreground);

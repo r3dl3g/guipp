@@ -105,12 +105,16 @@ namespace gui {
     struct const_text {
       const_text () = default;
 
-      explicit const_text (const std::string& text)
+      const_text (const std::string& text)
         : text(text)
       {}
 
-      explicit const_text (std::string&& text)
+      const_text (std::string&& text)
         : text(std::move(text))
+      {}
+
+      const_text (const char* text)
+        : text(text)
       {}
 
       const std::string& operator() () const {
@@ -250,11 +254,14 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<os::color B = color::very_light_gray>
     class client_control : public control {
     public:
       typedef control super;
-      typedef win::window_class<client_control, B> clazz;
+      typedef win::window_class<client_control, color::very_light_gray> clazz;
+
+      client_control (os::color bg = color::very_light_gray) {
+        set_background(bg);
+      }
 
       inline void create (win::container& parent,
                           const core::rectangle& r = core::rectangle::def) {

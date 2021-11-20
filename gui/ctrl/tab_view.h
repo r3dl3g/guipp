@@ -34,8 +34,6 @@ namespace gui {
     template<look::look_and_feel_t L = look::system_look_and_feel>
     struct tab_view_button_origin {
       static constexpr origin_t origin = origin_t::start;
-      static constexpr os::color foreground = color::black;
-      static constexpr os::color background = color::very_light_gray;
       static constexpr uint32_t min = 60;
       static constexpr uint32_t max = std::numeric_limits<uint32_t>::max();
     };
@@ -43,8 +41,6 @@ namespace gui {
     template<>
     struct tab_view_button_origin<look::look_and_feel_t::osx> {
       static constexpr origin_t origin = origin_t::center;
-      static constexpr os::color foreground = color::black;
-      static constexpr os::color background = color::very_light_gray;
       static constexpr uint32_t min = 60;
       static constexpr uint32_t max = 180;
     };
@@ -55,8 +51,6 @@ namespace gui {
     template<>
     struct tab_group_traits<alignment_t::top> {
       typedef top_tab_group<tab_view_button_origin<>::origin,
-                            tab_view_button_origin<>::foreground,
-                            tab_view_button_origin<>::background,
                             tab_view_button_origin<>::min,
                             tab_view_button_origin<>::max> type;
       static constexpr int size = IF_MOBILE_ELSE(80, 25);
@@ -65,8 +59,6 @@ namespace gui {
     template<>
     struct tab_group_traits<alignment_t::bottom> {
       typedef bottom_tab_group<tab_view_button_origin<>::origin,
-                              tab_view_button_origin<>::foreground,
-                              tab_view_button_origin<>::background,
                               tab_view_button_origin<>::min,
                               tab_view_button_origin<>::max> type;
       static constexpr int size = IF_MOBILE_ELSE(80, 25);
@@ -75,8 +67,6 @@ namespace gui {
     template<>
     struct tab_group_traits<alignment_t::left> {
       typedef left_tab_group<tab_view_button_origin<>::origin,
-                              tab_view_button_origin<>::foreground,
-                              tab_view_button_origin<>::background,
                               tab_view_button_origin<>::min,
                               tab_view_button_origin<>::max> type;
       static constexpr int size = 80;
@@ -85,8 +75,6 @@ namespace gui {
     template<>
     struct tab_group_traits<alignment_t::right> {
       typedef right_tab_group<tab_view_button_origin<>::origin,
-                              tab_view_button_origin<>::foreground,
-                              tab_view_button_origin<>::background,
                               tab_view_button_origin<>::min,
                               tab_view_button_origin<>::max> type;
       static constexpr int size = 80;

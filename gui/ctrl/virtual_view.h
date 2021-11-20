@@ -78,7 +78,7 @@ namespace gui {
       view_type             view;
       horizontal_scroll_bar hscroll;
       vertical_scroll_bar   vscroll;
-      client_control<>      edge;
+      client_control        edge;
 
     private:
       void init ();

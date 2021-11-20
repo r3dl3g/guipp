@@ -597,7 +597,7 @@ void test_file_icon_selected () {
 
   draw::graphics g(mem);
   g.clear(highLight);
-  g.frame(draw::icon<draw::icon_t::file>({10, 10}, 8), color::black);
+  g.frame(draw::icon_t<draw::icon_type::file>({10, 10}, 8), color::black);
 
   for (int32_t y = 0; y < 20; ++y) {
     for (int32_t x = 0; x < 20; ++x) {

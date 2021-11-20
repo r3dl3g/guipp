@@ -37,9 +37,9 @@ namespace gui {
 
     icon_drawer* standard_icon_drawer (bool has_children, bool is_open, bool selected) {
       if (has_children) {
-        return is_open ? &draw::draw_icon<draw::icon_t::folder_open> : &draw::draw_icon<draw::icon_t::folder>;
+        return is_open ? &draw::draw_icon<draw::icon_type::folder_open> : &draw::draw_icon<draw::icon_type::folder>;
       }
-      return &draw::draw_icon<draw::icon_t::file>;
+      return &draw::draw_icon<draw::icon_type::file>;
     }
 
   } // tree
@@ -52,9 +52,9 @@ namespace gui {
                       const draw::pen& pn) {
       const auto radius = area.max_radius()/ 2;
       if (is_open) {
-        graph.frame(draw::icon<draw::icon_t::down>(area.center(), radius), pn);
+        graph.frame(draw::icon_t<draw::icon_type::down>(area.center(), radius), pn);
       } else {
-        graph.frame(draw::icon<draw::icon_t::right>(area.center(), radius), pn);
+        graph.frame(draw::icon_t<draw::icon_type::right>(area.center(), radius), pn);
       }
     }
 

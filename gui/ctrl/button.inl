@@ -76,8 +76,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<class T>
-    inline basic_button<T>::basic_button ()
-      : traits(*this) {
+    inline basic_button<T>::basic_button (os::color f)
+      : super(f)
+      , traits(*this) {
       init();
     }
 
@@ -183,37 +184,84 @@ namespace gui {
         auto r = super::client_geometry();
         auto t = get_text();
         auto s = super::get_state();
-        super::traits.template draw<D>(graph, r, t, s);
+        super::traits.template draw<D>(graph, r, t, s, super::get_foreground(), super::get_background());
       }));
     }
 
     // --------------------------------------------------------------------------
-    template<class T, draw::icon_t I, os::color F, os::color B>
-    inline icon_button<T, I, F, B>::icon_button () {
+    template<class T, draw::icon_type I>
+    inline icon_button_t<T, I>::icon_button_t (os::color f)
+      : super(f) {
       init();
     }
 
-    template<class T, draw::icon_t I, os::color F, os::color B>
-    inline icon_button<T, I, F, B>::icon_button (const icon_button& rhs)
+    template<class T, draw::icon_type I>
+    inline icon_button_t<T, I>::icon_button_t (const icon_button_t& rhs)
       : super(rhs)
     {
       init();
     }
 
-    template<class T, draw::icon_t I, os::color F, os::color B>
-    inline icon_button<T, I, F, B>::icon_button (icon_button&& rhs) noexcept
+    template<class T, draw::icon_type I>
+    inline icon_button_t<T, I>::icon_button_t (icon_button_t&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();
     }
 
-    template<class T, draw::icon_t I, os::color F, os::color B>
-    void icon_button<T, I, F, B>::init () {
+    template<class T, draw::icon_type I>
+    void icon_button_t<T, I>::init () {
+      super::set_background(color::dark_gray);
       super::on_paint(draw::paint([&] (draw::graphics& g) {
         const auto r = super::client_geometry();
         const auto st = super::get_state();
-        g.erase(r, look::get_button_background(st, B));
-        g.frame(draw::icon<I>(r.center(), r.max_radius() / 2), look::get_button_foreground(st, F, B));
+        g.erase(r, look::get_button_background(st, super::get_background()));
+        g.frame(draw::icon_t<I>(r.center(), r.max_radius() * 3 / 4),
+                look::get_button_foreground(st, super::get_foreground(), super::get_background()));
+      }));
+    }
+
+    // --------------------------------------------------------------------------
+    template<class T>
+    inline icon_button<T>::icon_button (draw::icon_type icon, os::color f)
+      : super(f)
+      , icon(icon) {
+      super::set_background(color::dark_gray);
+      init();
+    }
+
+    template<class T>
+    inline icon_button<T>::icon_button (const icon_button& rhs)
+      : super(rhs)
+      , icon(rhs.icon) {
+      init();
+    }
+
+    template<class T>
+    inline icon_button<T>::icon_button (icon_button&& rhs) noexcept
+      : super(std::move(rhs))
+      , icon(rhs.icon) {
+      init();
+    }
+
+    template<class T>
+    void icon_button<T>::set_icon (draw::icon_type i) {
+      icon = i;
+    }
+
+    template<class T>
+    draw::icon_type icon_button<T>::get_icon () const {
+      return icon;
+    }
+
+    template<class T>
+    void icon_button<T>::init () {
+      super::on_paint(draw::paint([&] (draw::graphics& g) {
+        const auto r = super::client_geometry();
+        const auto st = super::get_state();
+        g.erase(r, look::get_button_background(st, super::get_background()));
+        g.frame(draw::icon(icon, r.center(), r.max_radius() * 3 / 4),
+                look::get_button_foreground(st, super::get_foreground(), super::get_background()));
       }));
     }
 
@@ -246,7 +294,8 @@ namespace gui {
     void custom_button<T>::init () {
       super::on_paint(draw::paint([&] (draw::graphics&  graph) {
         if (drawer) {
-          drawer(graph, super::client_geometry(), super::get_state());
+          drawer(graph, super::client_geometry(), super::get_state(),
+                 super::get_foreground(), super::get_background());
         }
       }));
     }

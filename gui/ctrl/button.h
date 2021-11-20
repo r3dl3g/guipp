@@ -83,22 +83,30 @@ namespace gui {
     // --------------------------------------------------------------------------
     typedef void (button_drawer) (draw::graphics&,
                                   const core::rectangle&,
-                                  const core::button_state::is&);
+                                  const core::button_state::is&,
+                                  os::color,  // foreground
+                                  os::color); // background
     // --------------------------------------------------------------------------
     typedef void (text_button_drawer) (draw::graphics&,
                                        const core::rectangle&,
                                        const std::string&,
-                                       const core::button_state::is&);
+                                       const core::button_state::is&,
+                                       os::color,  // foreground
+                                       os::color); // background
     // --------------------------------------------------------------------------
     typedef void (animated_button_drawer) (draw::graphics&,
                                            const core::rectangle&,
                                            const core::button_state::is&,
+                                           os::color,  // foreground
+                                           os::color, // background
                                            float); // animation_step
     // --------------------------------------------------------------------------
     typedef void (animated_text_button_drawer) (draw::graphics&,
                                                 const core::rectangle&,
                                                 const std::string&,
                                                 const core::button_state::is&,
+                                                os::color,  // foreground
+                                                os::color, // background
                                                 float); // animation_step
 
     // --------------------------------------------------------------------------
@@ -107,7 +115,7 @@ namespace gui {
       typedef control super;
       typedef no_erase_window_class<button_base> clazz;
 
-      button_base () = default;
+      button_base (os::color foreground = color::black);
       button_base (const button_base&) = default;
       button_base (button_base&&) noexcept ;
 
@@ -130,6 +138,12 @@ namespace gui {
       void on_released (std::function<void()>&& f);
       void on_state_changed (std::function<void(bool)>&& f);
 
+      void set_foreground (os::color c);
+      os::color get_foreground () const;
+
+    protected:
+      os::color foreground;
+
     };
 
     // --------------------------------------------------------------------------
@@ -140,15 +154,19 @@ namespace gui {
       void draw (draw::graphics& g,
                  const core::rectangle& r,
                  const std::string& t,
-                 const core::button_state::is& s) {
-        D(g, r, t, s);
+                 const core::button_state::is& s,
+                 os::color foreground,
+                 os::color background) {
+        D(g, r, t, s, foreground, background);
       }
 
       template<button_drawer& D>
       void draw (draw::graphics& g,
                  const core::rectangle& r,
-                 const core::button_state::is& s) {
-        D(g, r, s);
+                 const core::button_state::is& s,
+                 os::color foreground,
+                 os::color background) {
+        D(g, r, s, foreground, background);
       }
     };
 
@@ -161,15 +179,19 @@ namespace gui {
       void draw (draw::graphics& g,
                  const core::rectangle& r,
                  const std::string& t,
-                 const core::button_state::is& s) {
-        D(g, r, t, s);
+                 const core::button_state::is& s,
+                 os::color foreground,
+                 os::color background) {
+        D(g, r, t, s, foreground, background);
       }
 
       template<button_drawer& D>
       void draw (draw::graphics& g,
                  const core::rectangle& r,
-                 const core::button_state::is& s) {
-        D(g, r, s);
+                 const core::button_state::is& s,
+                 os::color foreground,
+                 os::color background) {
+        D(g, r, s, foreground, background);
       }
     };
 
@@ -183,15 +205,19 @@ namespace gui {
       void draw (draw::graphics& g,
                  const core::rectangle& r,
                  const std::string& t,
-                 const core::button_state::is& s) {
-        D(g, r, t, s, animation_step);
+                 const core::button_state::is& s,
+                 os::color foreground,
+                 os::color background) {
+        D(g, r, t, s, foreground, background, animation_step);
       }
 
       template<animated_button_drawer& D>
       void draw (draw::graphics& g,
                  const core::rectangle& r,
-                 const core::button_state::is& s) {
-        D(g, r, s, animation_step);
+                 const core::button_state::is& s,
+                 os::color foreground,
+                 os::color background) {
+        D(g, r, s, foreground, background, animation_step);
       }
 
       void start_animation ();
@@ -215,7 +241,7 @@ namespace gui {
       typedef button_base super;
       typedef T traits_type;
 
-      basic_button ();
+      basic_button (os::color foreground = color::black);
       basic_button (const basic_button& rhs);
       basic_button (basic_button&& rhs) noexcept ;
 
@@ -264,10 +290,9 @@ namespace gui {
                                           text_button_drawer&,
                                           look::push_button>;
     // --------------------------------------------------------------------------
-    template<os::color foreground = color::light_gray, os::color background = color::dark_gray>
     using flat_button = basic_text_button<push_button_traits,
                                           text_button_drawer&,
-                                          look::color_flat_button<foreground, background> >;
+                                          look::flat_button>;
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
     using radio_button = basic_text_button<toggle_button_traits<keep_state>,
@@ -280,46 +305,85 @@ namespace gui {
                                         look::check_box>;
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
-    using switch_button = basic_text_button<toggle_button_traits<keep_state>,
-                                            text_button_drawer&,
-                                            look::switch_button>;
+    class switch_button : public basic_text_button<toggle_button_traits<keep_state>,
+                                                   text_button_drawer&,
+                                                   look::switch_button> {
+    public:
+      typedef basic_text_button<toggle_button_traits<keep_state>,
+                                text_button_drawer&, look::switch_button> super;
+
+      switch_button (const text_source& t = const_text())
+        : super(t) {
+        super::set_foreground(color::highLightColor());
+        super::set_background(color::buttonColor());
+      }
+    };
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
-    using animated_switch_button = basic_text_button<animated_button_traits<keep_state>,
-                                                     animated_text_button_drawer&,
-                                                     look::animated_switch_button>;
+    class animated_switch_button : public basic_text_button<animated_button_traits<keep_state>,
+                                                            animated_text_button_drawer&,
+                                                            look::animated_switch_button> {
+    public:
+      typedef basic_text_button<animated_button_traits<keep_state>,
+                                animated_text_button_drawer&, look::animated_switch_button> super;
+
+      animated_switch_button (const text_source& t = const_text())
+        : super(t) {
+        super::set_foreground(color::highLightColor());
+        super::set_background(color::buttonColor());
+      }
+    };
     // --------------------------------------------------------------------------
-    template<os::color foreground = color::light_gray,
-             os::color background = color::dark_gray,
-             bool keep_state = false>
+    template<bool keep_state = false>
     using flat_toggle_button = basic_text_button<toggle_button_traits<keep_state>,
                                                  text_button_drawer&,
-                                                 look::color_flat_button<foreground, background> >;
+                                                 look::flat_button>;
     // --------------------------------------------------------------------------
-    template<os::color foreground = color::light_gray,
-             alignment_t align = alignment_t::top,
-             bool keep_state = false>
+    template<alignment_t align = alignment_t::top, bool keep_state = false>
     using tab_button = basic_text_button<toggle_button_traits<keep_state>,
                                          text_button_drawer&,
-                                         look::aligned_tab_button<foreground, align> >;
+                                         look::aligned_tab_button<align> >;
     // --------------------------------------------------------------------------
-    template<class T, draw::icon_t I, os::color F = color::light_gray, os::color B = color::dark_gray>
-    struct icon_button : public basic_button<T> {
+    template<class T, draw::icon_type I>
+    struct icon_button_t : public basic_button<T> {
       typedef basic_button<T> super;
 
-      icon_button ();
-      icon_button (const icon_button& rhs);
-      icon_button (icon_button&& rhs) noexcept ;
+      icon_button_t (os::color foreground = color::light_gray);
+      icon_button_t (const icon_button_t& rhs);
+      icon_button_t (icon_button_t&& rhs) noexcept ;
 
     private:
       void init ();
     };
     // --------------------------------------------------------------------------
-    template<draw::icon_t I, os::color F = color::light_gray, os::color B = color::dark_gray>
-    using icon_push_button = icon_button<push_button_traits, I, F, B>;
+    template<draw::icon_type I>
+    using icon_push_button_t = icon_button_t<push_button_traits, I>;
     // --------------------------------------------------------------------------
-    template<draw::icon_t I, os::color F = color::light_gray, os::color B = color::dark_gray, bool keep_state = false>
-    using icon_toggle_button = icon_button<toggle_button_traits<keep_state>, I, F, B>;
+    template<draw::icon_type I, bool keep_state = false>
+    using icon_toggle_button_t = icon_button_t<toggle_button_traits<keep_state>, I>;
+
+    // --------------------------------------------------------------------------
+    template<class T>
+    struct icon_button : public basic_button<T> {
+      typedef basic_button<T> super;
+
+      icon_button (draw::icon_type icon = draw::icon_type::none, os::color foreground = color::light_gray);
+      icon_button (const icon_button& rhs);
+      icon_button (icon_button&& rhs) noexcept ;
+
+      void set_icon (draw::icon_type icon);
+      draw::icon_type get_icon () const;
+
+    private:
+      void init ();
+
+      draw::icon_type icon;
+    };
+    // --------------------------------------------------------------------------
+    using icon_push_button = icon_button<push_button_traits>;
+    // --------------------------------------------------------------------------
+    template<bool keep_state = false>
+    using icon_toggle_button = icon_button<toggle_button_traits<keep_state>>;
 
     // --------------------------------------------------------------------------
     template<class T>

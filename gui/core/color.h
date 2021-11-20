@@ -322,7 +322,7 @@ namespace gui {
       return get_alpha(c) == 0xff;
     }
 
-    constexpr os::color transparent = rgba_gray<0, 0xff>::value;
+    constexpr os::color transparent = rgba_gray<0xff, 0xff>::value;
 
     constexpr os::color black = rgb_gray<0>::value;
     constexpr os::color very_very_dark_gray = rgb_gray<0x10>::value;

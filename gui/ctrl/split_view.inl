@@ -217,14 +217,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 
-    template<typename H, typename B, alignment_t A, int S>
-    fix_split_view<H, B, A, S>::fix_split_view () {
+    template<typename H, typename B, int S, alignment_t A>
+    fix_split_view<H, B, S, A>::fix_split_view () {
       super::get_layout().set_header(lay(header));
       super::get_layout().set_body(lay(body));
     }
 
-    template<typename H, typename B, alignment_t A, int S>
-    fix_split_view<H, B, A, S>::fix_split_view (fix_split_view&& rhs) noexcept
+    template<typename H, typename B, int S, alignment_t A>
+    fix_split_view<H, B, S, A>::fix_split_view (fix_split_view&& rhs) noexcept
       : super(std::move(rhs))
       , header(std::move(rhs.header))
       , body(std::move(rhs.body))
@@ -233,8 +233,8 @@ namespace gui {
       super::get_layout().set_body(lay(body));
     }
 
-    template<typename H, typename B, alignment_t A, int S>
-    fix_split_view<H, B, A, S>::fix_split_view (H&& header, B&& body)
+    template<typename H, typename B, int S, alignment_t A>
+    fix_split_view<H, B, S, A>::fix_split_view (H&& header, B&& body)
       : header(std::move(header))
       , body(std::move(body))
     {
@@ -242,8 +242,8 @@ namespace gui {
       super::get_layout().set_body(lay(body));
     }
 
-    template<typename H, typename B, alignment_t A, int S>
-    void fix_split_view<H, B, A, S>::create (win::container& parent,
+    template<typename H, typename B, int S, alignment_t A>
+    void fix_split_view<H, B, S, A>::create (win::container& parent,
                                              const core::rectangle& place) {
       super::create(clazz::get(), parent, place);
 

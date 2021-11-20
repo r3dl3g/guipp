@@ -89,8 +89,7 @@ private:
   popup_menu scale_sub_menu;
   popup_menu help_sub_menu;
 
-  typedef flat_button<silver, nero> tool_bar_button;
-  tool_bar_button buttons[10];
+  flat_button buttons[10];
   basic_separator<orientation_t::vertical, true, nero> separators[2];
 
   group_window<horizontal_adaption<2, 5>> status_bar;
@@ -105,12 +104,12 @@ private:
 
   group_window<attach> client_view;
 
-  top_tab_group<origin_t::start, color::black, color::very_light_gray, 50, 80> hsegmented1;
-  bottom_tab_group<origin_t::start, color::black, color::very_light_gray, 40, 70> hsegmented2;
-  left_tab_group<origin_t::start, color::black, color::very_light_gray, 30, 100> vsegmented1;
-  right_tab_group<origin_t::start, color::black, color::very_light_gray, 50, 80> vsegmented2;
+  top_tab_group<origin_t::start, 50, 80> hsegmented1;
+  bottom_tab_group<origin_t::start, 40, 70> hsegmented2;
+  left_tab_group<origin_t::start, 30, 100> vsegmented1;
+  right_tab_group<origin_t::start, 50, 80> vsegmented2;
 
-  client_control<color::very_very_light_gray> window1;
+  client_control window1;
   rgbamap rgbas[2];
   rgbmap rgbs[2];
   graymap grays[2];
@@ -351,7 +350,9 @@ void my_main_window::onCreated () {
   gui::win::global::register_hot_key(hot_key(keys::f7), util::bind_method(this, &my_main_window::test_rgb), this);
 
   int i = 0;
-  for (tool_bar_button& b : buttons) {
+  for (auto& b : buttons) {
+    b.set_foreground(silver);
+    b.set_background(nero);
     b.create(tool_bar);
     tool_bar.get_layout().add(layout::lay(b));
     if (i % 4 == 3) {
@@ -471,6 +472,15 @@ void my_main_window::onCreated () {
 
   window1.create(client_view, core::rectangle(69, 40, 600, 400));
   window1.set_visible();
+
+  hsegmented1.set_foreground(color::black);
+  hsegmented1.set_background(color::very_light_gray);
+  hsegmented2.set_foreground(color::black);
+  hsegmented2.set_background(color::very_light_gray);
+  vsegmented1.set_foreground(color::black);
+  vsegmented1.set_background(color::very_light_gray);
+  vsegmented2.set_foreground(color::black);
+  vsegmented2.set_background(color::very_light_gray);
 
   hsegmented1.add_buttons({"first", "second", "third", "fourth"});
   hsegmented1.create(client_view, core::rectangle(75, 16, 300, 25));

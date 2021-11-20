@@ -243,27 +243,31 @@ struct chronometer_page : group_window<stopwatch_layout, window&, window&, windo
     });
     reset_btn.set_drawer([&] (draw::graphics& g,
                               const core::rectangle& r,
-                              const core::button_state::is& s) {
+                              const core::button_state::is& s,
+                              gui::os::color fg,
+                              gui::os::color bg) {
       if (r.width() > 8) {
         const auto col = page.can_reset() ? color::gray : color::very_dark_gray;
         draw::pen pn(col, 3, draw::pen::Style::solid, draw::pen::Cap::round);
         g.draw(draw::round_rectangle(r, roundness(r.size())), color::very_very_dark_gray, pn.with_size(1));
-        g.frame(draw::icon<draw::icon_t::reset>(r.center(), icon_size(r.size())), pn);
+        g.frame(draw::icon_t<draw::icon_type::reset>(r.center(), icon_size(r.size())), pn);
       }
     });
     start_stop_btn.set_drawer([&] (draw::graphics& g,
                               const core::rectangle& r,
-                              const core::button_state::is& s) {
+                              const core::button_state::is& s,
+                              gui::os::color fg,
+                              gui::os::color bg) {
       if (r.width() > 8) {
         const auto col = page.active() ? color::dark_red : color::dark_green;
         draw::pen pn(col, 3, draw::pen::Style::solid, draw::pen::Cap::round);
         g.draw(draw::round_rectangle(r, roundness(r.size())), color::darker(col, 0.85), pn.with_size(1));
         if (page.active()) {
-          g.frame(draw::icon<draw::icon_t::stop>(r.center(), icon_size(r.size())), pn);
+          g.frame(draw::icon_t<draw::icon_type::stop>(r.center(), icon_size(r.size())), pn);
         } else if (page.can_reset()) {
-          g.frame(draw::icon<draw::icon_t::pause>(r.center(), icon_size(r.size())), pn);
+          g.frame(draw::icon_t<draw::icon_type::pause>(r.center(), icon_size(r.size())), pn);
         } else {
-          g.frame(draw::icon<draw::icon_t::play>(r.center(), icon_size(r.size())), pn);
+          g.frame(draw::icon_t<draw::icon_type::play>(r.center(), icon_size(r.size())), pn);
         }
       }
     });
@@ -375,10 +379,10 @@ struct timerview_page : public chronometer_page<timerview> {
   }
 
   int seconds;
-  icon_push_button<draw::icon_t::up> inc_minutes;
-  icon_push_button<draw::icon_t::down> dec_minutes;
-  icon_push_button<draw::icon_t::up> inc_seconds;
-  icon_push_button<draw::icon_t::down> dec_seconds;
+  icon_push_button_t<draw::icon_type::up> inc_minutes;
+  icon_push_button_t<draw::icon_type::down> dec_minutes;
+  icon_push_button_t<draw::icon_type::up> inc_seconds;
+  icon_push_button_t<draw::icon_type::down> dec_seconds;
   digit_label minutes_label;
   digit_label seconds_label;
 
@@ -389,16 +393,18 @@ struct timerview_page : public chronometer_page<timerview> {
 template<typename T>
 void icon_drawer (draw::graphics& g,
                   const core::rectangle& r,
-                  const core::button_state::is& s) {
+                  const core::button_state::is& s,
+                  gui::os::color fg = color::orange,
+                  gui::os::color bg = color::very_very_dark_gray) {
   static draw::pen icon_pen(color::white, 3, draw::pen::Style::solid, draw::pen::Cap::round);
-  g.erase(r, color::very_very_dark_gray);
-  g.frame(T(r.center(), r.height() / 4), icon_pen.with_color(s.checked() ? color::orange : color::dark_gray));
+  g.erase(r, bg);
+  g.frame(T(r.center(), r.height() / 4), icon_pen.with_color(s.checked() ? fg : color::dark_gray));
 }
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
 
   typedef icon_text_toggle_button button_t;
-  typedef htoggle_group<color::white, color::black, button_t, layout::horizontal_adaption<>> tab_group_type;
+  typedef htoggle_group<button_t, layout::horizontal_adaption<>> tab_group_type;
   typedef tab_view<alignment_t::bottom, tab_group_type, layout::split_layout<alignment_t::bottom, 80>> tabs_t;
 
   tabs_t tabs;
@@ -408,14 +414,16 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   layout_main_window<border::zero_layout<tabs_t>, tabs_t&> main(tabs);
 
   tabs.set_background(color::black);
+  tabs.get_buttons().set_background(color::black);
+  tabs.get_buttons().set_foreground(color::white);
 
   tabs.add_page("Clock", page_0);
   tabs.add_page("Stoppwatch", page_1);
   tabs.add_page("Timer", page_2);
 
-  tabs.get_buttons().get_button(0)->set_drawer(icon_drawer<draw::icon<draw::icon_t::clock>>);
-  tabs.get_buttons().get_button(1)->set_drawer(icon_drawer<draw::icon<draw::icon_t::stopwatch>>);
-  tabs.get_buttons().get_button(2)->set_drawer(icon_drawer<draw::icon<draw::icon_t::timer>>);
+  tabs.get_buttons().get_button(0)->set_drawer(icon_drawer<draw::icon_t<draw::icon_type::clock>>);
+  tabs.get_buttons().get_button(1)->set_drawer(icon_drawer<draw::icon_t<draw::icon_type::stopwatch>>);
+  tabs.get_buttons().get_button(2)->set_drawer(icon_drawer<draw::icon_t<draw::icon_type::timer>>);
 
   main.on_create([&] () {
     tabs.create(main);

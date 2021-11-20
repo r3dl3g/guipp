@@ -170,8 +170,8 @@ public:
 private:
   ctrl::scroll_view<> scroll_view;
 
-  ctrl::client_control<> window1;
-  ctrl::client_control<> window2;
+  ctrl::client_control window1;
+  ctrl::client_control window2;
 
   ctrl::horizontal_separator hseparator;
   ctrl::vertical_separator vseparator;
@@ -309,7 +309,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   size_t str_size = sizeof(std::string);
   size_t evc_size = sizeof(core::event_container);
   size_t win_size = sizeof(win::window);
-  size_t cln_size = sizeof(ctrl::client_control<>);
+  size_t cln_size = sizeof(ctrl::client_control);
   size_t btn_size = sizeof(ctrl::button_base);
   size_t push_size = sizeof(ctrl::button_base);
   size_t tgl_size = sizeof(ctrl::basic_button<ctrl::push_button_traits>);
@@ -843,6 +843,7 @@ void create_buttons (C& m, ctrl::label labels[T]) {
   for (int i = 0; i < T; ++i) {
     labels[i].create(m, ctrl::const_text(ostreamfmt("No. " << (i + 1))));
     m.get_layout().add(layout::lay(labels[i]));
+    labels[i].set_background(color::light_gray);
   }
 }
 
@@ -1065,8 +1066,10 @@ void my_main_window::created_children () {
 
   custom_button.set_drawer([] (draw::graphics& g,
                                const core::rectangle& r,
-                               const core::button_state::is& s) {
-    gui::look::flat_button(g, r, "Custom", s);
+                               const core::button_state::is& s,
+                               os::color fg,
+                               os::color bg) {
+    gui::look::flat_button(g, r, "Custom", s, fg, bg);
   });
 
   custom_button.create(main, core::rectangle(290, 410, 100, 25));

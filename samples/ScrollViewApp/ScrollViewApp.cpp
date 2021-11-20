@@ -23,9 +23,9 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   layout_main_window<border::layouter<50, 50, 50, 50>> main;
   ctrl::scroll_view<color::very_light_gray> scroll_view;
-  ctrl::client_control<color::very_very_light_gray> window1;
-  ctrl::client_control<color::gray> window2;
-  ctrl::client_control<color::white> bottom;
+  ctrl::client_control window1(color::very_very_light_gray);
+  ctrl::client_control window2(color::gray);
+  ctrl::client_control bottom(color::white);
 
   bool at_paint1 = true;
   bool at_drag = false;

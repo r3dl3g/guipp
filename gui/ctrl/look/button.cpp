@@ -410,11 +410,13 @@ namespace gui {
     void push_button (draw::graphics& graph,
                       const core::rectangle& r,
                       const std::string& text,
-                      const core::button_state::is& state) {
+                      const core::button_state::is& state,
+                      os::color foreground = color::windowTextColor(),
+                      os::color background = color::transparent) {
       button_frame<>(graph, r, state);
       using namespace draw;
       graph.text(text_box(text, r, text_origin_t::center), font::system(),
-                 state.enabled() ? color::windowTextColor() : color::disabledTextColor());
+                 state.enabled() ? foreground : color::disabledTextColor());
     }
 
     // --------------------------------------------------------------------------
@@ -467,8 +469,10 @@ namespace gui {
     void switch_button (draw::graphics& graph,
                         const core::rectangle& rect,
                         const std::string& text,
-                        const core::button_state::is& state) {
-      animated_switch_button(graph, rect, text, state);
+                        const core::button_state::is& state,
+                        os::color fg,
+                        os::color bg) {
+      animated_switch_button(graph, rect, text, state, fg, bg);
     }
 
     // --------------------------------------------------------------------------
@@ -476,18 +480,20 @@ namespace gui {
                                  const core::rectangle& rect,
                                  const std::string& text,
                                  const core::button_state::is& state,
+                                 os::color foreground,
+                                 os::color background,
                                  float animation_step) {
       bool enabled = state.enabled();
       core::size::type height = rect.height();
       core::size::type width = height * 2;
       core::size::type edge = height / 2;
-      graph.fill(draw::rectangle(rect), color::buttonColor());
+      graph.fill(draw::rectangle(rect), background);
 
       float step = state.checked() ? animation_step : 1.0F - animation_step;
 
       core::rectangle switch_rect{rect.top_left(), core::size(width, height)};
-      os::color thumb_col = enabled && state.hilited() ? color::lighter(color::buttonColor()) : color::buttonColor();
-      os::color fill_col = color::merge(color::highLightColor(), color::very_light_gray, 1.0F - step);
+      os::color thumb_col = enabled && state.hilited() ? color::lighter(background) : background;
+      os::color fill_col = color::merge(foreground, color::very_light_gray, 1.0F - step);
       core::rectangle thumb = {core::point{rect.x() + height * step, rect.y()}, core::size(height)};
 
       graph.draw(draw::round_rectangle(switch_rect, core::size(edge)), fill_col, color::medium_gray);
@@ -506,7 +512,9 @@ namespace gui {
     void radio_button_t<look_and_feel_t::w95> (draw::graphics& graph,
                                                const core::rectangle& rec,
                                                const std::string& text,
-                                               const core::button_state::is& state) {
+                                               const core::button_state::is& state,
+                                               os::color foreground,
+                                               os::color background) {
       using namespace draw;
 
       core::rectangle area = rec;
@@ -548,7 +556,9 @@ namespace gui {
     void radio_button_t<look_and_feel_t::w10> (draw::graphics& graph,
                                                const core::rectangle& rec,
                                                const std::string& text,
-                                               const core::button_state::is& state) {
+                                               const core::button_state::is& state,
+                                               os::color foreground,
+                                               os::color background) {
       using namespace draw;
 
       auto area = rec;
@@ -573,7 +583,9 @@ namespace gui {
     void radio_button_t<look_and_feel_t::metal> (draw::graphics& graph,
                                                  const core::rectangle& rec,
                                                  const std::string& text,
-                                                 const core::button_state::is& state) {
+                                                 const core::button_state::is& state,
+                                                 os::color foreground,
+                                                 os::color background) {
       core::rectangle area = rec;
       const auto& img = detail::get_metal_radio(state.checked(), !state.enabled());
       graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
@@ -587,7 +599,9 @@ namespace gui {
     void radio_button_t<look_and_feel_t::osx> (draw::graphics& graph,
                                                const core::rectangle& rec,
                                                const std::string& text,
-                                               const core::button_state::is& state) {
+                                               const core::button_state::is& state,
+                                               os::color foreground,
+                                               os::color background) {
       core::rectangle area = rec;
       const auto& img = detail::get_osx_radio(state.checked(), !state.enabled());
       graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
@@ -600,8 +614,10 @@ namespace gui {
     void radio_button (draw::graphics& graph,
                        const core::rectangle& rec,
                        const std::string& text,
-                       const core::button_state::is& state) {
-      radio_button_t<>(graph, rec, text, state);
+                       const core::button_state::is& state,
+                       os::color foreground,
+                       os::color background) {
+      radio_button_t<>(graph, rec, text, state, foreground, background);
     }
 
     // --------------------------------------------------------------------------
@@ -609,7 +625,9 @@ namespace gui {
     void check_box_t<look_and_feel_t::w95> (draw::graphics& graph,
                                             const core::rectangle& rec,
                                             const std::string& text,
-                                            const core::button_state::is& state) {
+                                            const core::button_state::is& state,
+                                            os::color foreground,
+                                            os::color background) {
       using namespace draw;
 
       core::rectangle area = rec;
@@ -645,7 +663,9 @@ namespace gui {
     void check_box_t<look_and_feel_t::w10> (draw::graphics& graph,
                                             const core::rectangle& rec,
                                             const std::string& text,
-                                            const core::button_state::is& state) {
+                                            const core::button_state::is& state,
+                                            os::color foreground,
+                                            os::color background) {
       using namespace draw;
 
       auto area = rec;
@@ -669,7 +689,9 @@ namespace gui {
     void check_box_t<look_and_feel_t::metal> (draw::graphics& graph,
                                               const core::rectangle& rec,
                                               const std::string& text,
-                                              const core::button_state::is& state) {
+                                              const core::button_state::is& state,
+                                              os::color foreground,
+                                              os::color background) {
       core::rectangle area = rec;
       const auto& img = detail::get_metal_checkbox(state.checked(), !state.enabled());
       graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
@@ -683,7 +705,9 @@ namespace gui {
     void check_box_t<look_and_feel_t::osx> (draw::graphics& graph,
                                             const core::rectangle& rec,
                                             const std::string& text,
-                                            const core::button_state::is& state) {
+                                            const core::button_state::is& state,
+                                            os::color foreground,
+                                            os::color background) {
       core::rectangle area = rec;
       const auto& img = detail::get_osx_checkbox(state.checked(), !state.enabled());
       graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
@@ -696,8 +720,10 @@ namespace gui {
     void check_box (draw::graphics& graph,
                     const core::rectangle& rec,
                     const std::string& text,
-                    const core::button_state::is& state) {
-      check_box_t<>(graph, rec, text, state);
+                    const core::button_state::is& state,
+                    os::color foreground,
+                    os::color background) {
+      check_box_t<>(graph, rec, text, state, foreground, background);
     }
 
   } // look

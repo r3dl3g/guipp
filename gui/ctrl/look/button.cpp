@@ -373,8 +373,8 @@ namespace gui {
         if (state.pushed()) {
           const os::color b2 = color::invert(background);
           const os::color f2 = color::invert(foreground);
-          const int i1 = color::compare(background, b2);
-          const int i2 = color::compare(background, f2);
+          const int i1 = color::compare_weight(background, b2);
+          const int i2 = color::compare_weight(background, f2);
           if (std::abs(i1) > std::abs(i2)) {
             return b2;
           } else {

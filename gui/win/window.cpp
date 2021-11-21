@@ -159,14 +159,48 @@ namespace gui {
       return get_event_mask();
     }
 
-    struct GUIPP_WIN_EXPORT auto_quard : public std::pair<const window*, os::event_id> {
-      typedef std::pair<const window*, os::event_id> super;
+    os::event_id get_event_id (const core::event& e) {
+      return IF_QT_ELSE(e.type(), e.type);
+    }
 
-      auto_quard (const window* win, os::event_id id)
-        : super(win, id)
+#ifdef GUIPP_X11
+    os::event_id get_event_sub_id (const core::event& e) {
+      return (e.type == ClientMessage) ? e.xclient.message_type : 0;
+    }
+#endif //GUIPP_X11
+
+    struct GUIPP_WIN_EXPORT event_type {
+      inline event_type (const core::event& e)
+        : id(get_event_id(e))
+#ifdef GUIPP_X11
+        , sub_id(get_event_sub_id(e))
+#endif
       {}
 
-      ~auto_quard () {
+      inline bool operator< (const event_type& rhs) const {
+        return (id < rhs.id)
+#ifdef GUIPP_X11
+          || ((id == rhs.id) && (sub_id < rhs.sub_id))
+#endif
+        ;
+      }
+
+    private:
+      const os::event_id id;
+#ifdef GUIPP_X11
+      const os::event_id sub_id;
+#endif
+
+    };
+
+    struct GUIPP_WIN_EXPORT event_guard {
+
+      event_guard (const window* win, const core::event& e)
+        : win(win)
+        , id(e)
+      {}
+
+      ~event_guard () {
         if (iter.second) {
           active_events.erase(iter.first);
         }
@@ -177,18 +211,27 @@ namespace gui {
         return iter.second;
       }
 
+      bool operator< (const event_guard& rhs) const {
+        return (win < rhs.win) || ((win == rhs.win) && (id < rhs.id));
+      }
+
     private:
-      std::pair<std::set<auto_quard>::iterator, bool> iter;
-      static std::set<auto_quard> active_events;
+      const window* win;
+      const event_type id;
+
+      typedef std::set<event_guard> set_t;
+      std::pair<set_t::iterator, bool> iter;
+
+      static set_t active_events;
     };
 
-    std::set<auto_quard> auto_quard::active_events;
+    std::set<event_guard> event_guard::active_events;
 
     bool window::handle_event (const core::event& e, gui::os::event_result& result) {
 
-      auto_quard active_handler(this, IF_QT_ELSE(e.type(), e.type));
+      event_guard active_event_guard(this, e);
 
-      if (!active_handler.insert()) {
+      if (!active_event_guard.insert()) {
         logging::warn() << "already in handle_event for window: " << this << " " << e;
         return false;
       }

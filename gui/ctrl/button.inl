@@ -216,7 +216,7 @@ namespace gui {
         const auto r = super::client_geometry();
         const auto st = super::get_state();
         g.erase(r, look::get_button_background(st, super::get_background()));
-        g.frame(draw::icon_t<I>(r.center(), r.max_radius() * 3 / 4),
+        g.frame(draw::icon_t<I>(r.center(), r.max_radius() * 2 / 3),
                 look::get_button_foreground(st, super::get_foreground(), super::get_background()));
       }));
     }
@@ -260,7 +260,7 @@ namespace gui {
         const auto r = super::client_geometry();
         const auto st = super::get_state();
         g.erase(r, look::get_button_background(st, super::get_background()));
-        g.frame(draw::icon(icon, r.center(), r.max_radius() * 3 / 4),
+        g.frame(draw::icon(icon, r.center(), r.max_radius() * 2 / 3),
                 look::get_button_foreground(st, super::get_foreground(), super::get_background()));
       }));
     }

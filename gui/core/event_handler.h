@@ -55,7 +55,7 @@ namespace gui {
     template<typename ... T>
     struct params {
 
-      template<param_getter<T>... F>
+      template<param_getter<T>... PG>
       struct getter {
 
         using callback = void(T...);
@@ -82,20 +82,20 @@ namespace gui {
         }
 
         void operator() (const event& e) {
-          f(F(e) ...);
+          f(PG(e) ...);
         }
 
         template<typename C, typename Fkt>
         static void call (const event& e, C* t, Fkt f) {
-          (t->*f)(F(e) ...);
+          (t->*f)(PG(e) ...);
         }
 
         static void call_fn (const event& e, function f) {
-          f(F(e) ...);
+          f(PG(e) ...);
         }
 
         static std::tuple<T...> get_params (const event& e) {
-          return std::make_tuple(F(e) ...);
+          return std::make_tuple(PG(e) ...);
         }
 
         template<std::size_t N>

@@ -37,7 +37,10 @@ namespace gui {
 
     icon_drawer* standard_icon_drawer (bool has_children, bool is_open, bool selected) {
       if (has_children) {
-        return is_open ? &draw::draw_icon<draw::icon_type::folder_open> : &draw::draw_icon<draw::icon_type::folder>;
+        if (is_open) { }
+          return &draw::draw_icon<draw::icon_type::folder_open>;
+      } else {
+        return &draw::draw_icon<draw::icon_type::folder>;
       }
       return &draw::draw_icon<draw::icon_type::file>;
     }

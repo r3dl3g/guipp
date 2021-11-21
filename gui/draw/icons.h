@@ -111,7 +111,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    void draw_icon (graphics& g, icon_type type, const pen& pn, const core::point& center, core::size::type radius);
+    GUIPP_DRAW_EXPORT void draw_icon (graphics& g, icon_type type, const pen& pn, const core::point& center, core::size::type radius);
 
     // --------------------------------------------------------------------------
     struct icon : public detail::icon_base {

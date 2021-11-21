@@ -118,7 +118,7 @@ namespace gui {
     }
 
     const font& font::system () {
-      static font f = font((os::font)GetStockObject(SYSTEM_FONT)).with_size(font_scale(f.size()));
+      static font f = font((os::font)GetStockObject(SYSTEM_FONT));
       return f;
     }
 
@@ -221,7 +221,7 @@ namespace gui {
     }
 
     core::size::type font::line_height () const {
-      return core::global::scale_to_native<core::size::type>(native_line_height());
+      return core::global::scale_from_native<core::size::type>(native_line_height());
     }
 
     font::size_type font::native_line_height () const {

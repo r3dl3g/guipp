@@ -63,6 +63,8 @@ namespace gui {
       ~overlapped_window ();
 
       void close ();
+      void destroy();
+
       bool is_valid () const;
 
       operator os::drawable() const;
@@ -126,8 +128,6 @@ namespace gui {
       void create_internal (const class_info&,
                             os::window parent,
                             const core::rectangle&);
-
-      void destroy ();
 
       void set_accept_focus (bool a);
       void set_mouse_window (window* w);

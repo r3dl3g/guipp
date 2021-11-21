@@ -660,7 +660,7 @@ namespace gui {
       super::close();
       unregister_message_filter();
       window.set_visible(false);
-      window.close();
+      window.destroy();
     }
 
     void popup_menu::paint (draw::graphics& g) {

@@ -35,6 +35,7 @@ std::pair<point, size::type> get_center (const rectangle& r) {
 // --------------------------------------------------------------------------
 struct clockview : public auto_refresh_window<1000> {
   clockview () {
+    set_background(color::black);
     on_paint(draw::paint([&] (draw::graphics& g) {
       const auto c = get_center(client_geometry());
       if (c.second > 10) {
@@ -111,6 +112,7 @@ struct stopwatchview : public chronometerview {
   typedef chronometerview super;
 
   stopwatchview () {
+    set_background(color::black);
     on_paint(draw::paint([&] (draw::graphics& g) {
       auto c = get_center(client_geometry());
       if (c.second > 10) {
@@ -137,6 +139,7 @@ struct timerview : public chronometerview {
     : super([&] () { refresh(); })
     , countdown(std::chrono::seconds(90))
   {
+    set_background(color::black);
     on_paint(draw::paint([&] (draw::graphics& g) {
       auto c = get_center(client_geometry());
       if (c.second > 10) {
@@ -236,6 +239,8 @@ struct chronometer_page : group_window<stopwatch_layout, window&, window&, windo
     : super(page, reset_btn, start_stop_btn)
   {
     set_background(color::black);
+    reset_btn.set_background(color::black);
+    start_stop_btn.set_background(color::black);
     on_create([&] () {
       page.create(*this);
       reset_btn.create(*this);

@@ -41,17 +41,11 @@ namespace gui {
 
   namespace win {
 
-    namespace {
-
-      constexpr os::color white_transparent = color::rgba_gray<0xff, 0xff>::value;
-
-    }
-
     // --------------------------------------------------------------------------
     window::window ()
       : area(core::rectangle::def)
       , parent(nullptr)
-      , background(white_transparent)
+      , background(color::transparent)
       , class_name(nullptr)
     {}
 
@@ -103,7 +97,7 @@ namespace gui {
       class_name = type.get_class_name();
       area = r;
 //      cursor_ = type.get_cursor();
-      if (white_transparent == background) {
+      if (color::transparent == background) {
         background = type.get_background();
       }
       native::register_window_class(type);

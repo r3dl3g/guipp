@@ -62,7 +62,6 @@ namespace gui {
       overlapped_window (overlapped_window&&);
       ~overlapped_window ();
 
-      void close ();
       void destroy();
 
       bool is_valid () const;

@@ -125,12 +125,6 @@ namespace gui {
         }
       }
 
-      void close (os::window id) {
-        if (id) {
-          id->close();
-        }
-      }
-
       void notify_close (window& w) {
         w.notify_event(QEvent::Close);
       }

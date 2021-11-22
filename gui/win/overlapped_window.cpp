@@ -221,11 +221,6 @@ namespace gui {
       s.created(false);
       id = 0;
     }
-    // --------------------------------------------------------------------------
-    void overlapped_window::close () {
-      super::close();
-      native::close(get_os_window());
-    }
    // --------------------------------------------------------------------------
     overlapped_window::operator os::drawable() const {
 #ifdef GUIPP_QT

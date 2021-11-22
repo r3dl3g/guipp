@@ -194,13 +194,9 @@ namespace gui {
         }
       }
 
-      void close (os::window id) {
-        if (id) {
-          CloseWindow(id);
-        }
+      void notify_close (window& w) {
+        w.notify_event(WM_CLOSE);
       }
-
-      void notify_close (window&) {}
 
       void prepare_win_for_event (const overlapped_window&) {}
 

@@ -63,7 +63,6 @@ namespace gui {
                                           overlapped_window& data);
       GUIPP_WIN_EXPORT void destroy (os::window w);
 
-      GUIPP_WIN_EXPORT void close (os::window id);
       GUIPP_WIN_EXPORT void notify_close (window& w);
 
       GUIPP_WIN_EXPORT void prepare_win_for_event (const overlapped_window& win);

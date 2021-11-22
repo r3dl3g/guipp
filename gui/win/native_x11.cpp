@@ -386,9 +386,6 @@ namespace gui {
         }
       }
 
-      void close (os::window id) {
-      }
-
       void notify_close (window& w) {
         w.notify_event(core::x11::WM_PROTOCOLS, core::x11::WM_DELETE_WINDOW);
       }

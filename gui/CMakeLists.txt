@@ -279,7 +279,7 @@ if(NOT TARGET guipp)
   elseif (CMAKE_CXX_PLATFORM_ID STREQUAL MinGW)
     DebugPrint("GUIPP: build with MinGW for Win32!")
     set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_WIN -DUSE_MINGW -D_WIN32_WINNT=0x0601)
-    set (GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} "-static-libgcc -static-libstdc++ -static")
+    set (GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++ -static)
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} mingw32)
   elseif (WIN32)
     DebugPrint("GUIPP: build for Win32!")
@@ -422,6 +422,7 @@ if(NOT TARGET guipp)
       gui.cpp
       )
 
+    target_link_options(guipp PRIVATE ${GUIPP_EXE_LINKER_FLAGS})
     target_link_libraries(guipp PRIVATE ${LOGGING_LIBRARIES} ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
 
   elseif(GUIPP_BUILD_SHARED_MODULE_LIBS)
@@ -431,6 +432,7 @@ if(NOT TARGET guipp)
 
     add_library(guipp SHARED gui.cpp)
 
+    target_link_options(guipp PRIVATE ${GUIPP_EXE_LINKER_FLAGS})
     target_link_libraries(guipp PRIVATE ${GUIPP_SYS_LIBRARIES})
 
     if (UTIL_BUILD_STATIC_MODULE_LIB)

@@ -24,7 +24,7 @@
 //
 #include <functional>
 #include <chrono>
-#ifdef USE_MINGW
+#if defined USE_MINGW && __MINGW_GCC_VERSION < 100000
 #include <mingw/mingw.thread.h>
 #else
 #include <thread>

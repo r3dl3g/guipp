@@ -53,35 +53,39 @@ namespace gui {
 
     template<typename F>
     inline graphics& graphics::frame (F drawer, const pen& p) {
-      drawer(*this, p);
+      if (!is_transparent(p)) {
+        drawer(*this, p);
+      }
       return *this;
     }
 
     template<typename F>
     inline graphics& graphics::fill (F drawer, const brush& b) {
-      drawer(*this, b);
+      if (!is_transparent(b)) {
+        drawer(*this, b);
+      }
       return *this;
     }
 
     template<typename F>
-    inline graphics& graphics::draw (F drawer,
-                                           const brush& b,
-                                           const pen& p) {
+    inline graphics& graphics::draw (F drawer, const brush& b, const pen& p) {
+      if (is_transparent(b) && is_transparent(p)) {
+        return *this;
+      }
       drawer(*this, b, p);
       return *this;
     }
 
     template<typename F>
-    inline graphics& graphics::text (F drawer,
-                                           const font& f,
-                                           os::color c) {
-      drawer(*this, f, c);
+    inline graphics& graphics::text (F drawer, const font& f, os::color c) {
+      if (!color::is_transparent(c)) {
+        drawer(*this, f, c);
+      }
       return *this;
     }
 
     template<typename F>
-    inline graphics& graphics::copy (F drawer,
-                                           const core::point& pt) {
+    inline graphics& graphics::copy (F drawer, const core::point& pt) {
       drawer(*this, pt);
       return *this;
     }

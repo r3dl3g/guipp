@@ -117,12 +117,12 @@ namespace gui {
     } //namespace detail
 
     // --------------------------------------------------------------------------
-    attach::attach (const attach& rhs) {
+    inline attach::attach (const attach& rhs) {
       for (const auto& a : rhs.attachments) {
         attachments.push_back(a->clone());
       }
     }
-    
+
     template<What what, Where where, int offset, typename T, typename S>
     inline void attach::attach_fix (T target, S source)  {
       auto fkt = detail::target<what, where, offset, 10000>::adjust;

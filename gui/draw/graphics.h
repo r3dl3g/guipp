@@ -62,6 +62,10 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    GUIPP_DRAW_EXPORT bool is_transparent (const pen& p);
+    GUIPP_DRAW_EXPORT bool is_transparent (const brush& p);
+
+    // --------------------------------------------------------------------------
     class GUIPP_DRAW_EXPORT graphics {
     public:
       graphics (core::context* ctx);

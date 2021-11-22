@@ -45,7 +45,7 @@ namespace gui {
         dashDotDot =  IF_WIN32_X11_QT_ELSE(PS_DASHDOTDOT,     LineOnOffDash | 0x030,  Qt::PenStyle::DashDotDotLine, 5),
         hairLine =    IF_WIN32_X11_QT_ELSE(PS_NULL,           LineSolid | 0x040,      Qt::PenStyle::SolidLine,      6),
         insideFrame = IF_WIN32_X11_QT_ELSE(PS_INSIDEFRAME,    LineSolid | 0x050,      Qt::PenStyle::SolidLine,      7),
-        invisible =   IF_WIN32_X11_QT_ELSE(PS_NULL,           0x0,                    Qt::PenStyle::NoPen,          0)
+        invisible =   IF_WIN32_X11_QT_ELSE(PS_NULL,           0x8000,                 Qt::PenStyle::NoPen,          0)
       };
 
       enum struct Cap : int {

@@ -80,6 +80,14 @@ namespace gui {
 
   namespace draw {
 
+    bool is_transparent (const pen& p) {
+      return color::is_transparent(p.color()) || (p.style() == pen::Style::invisible);
+    }
+
+    bool is_transparent (const brush& p) {
+      return color::is_transparent(p.color()) || (p.style() == brush::Style::invisible);
+    }
+
 #ifdef GUIPP_WIN
     // --------------------------------------------------------------------------
     graphics::graphics (core::context* ctx)

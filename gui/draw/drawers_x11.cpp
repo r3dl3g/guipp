@@ -40,7 +40,7 @@
 #include <gui/draw/font.h>
 #include <gui/draw/use.h>
 
-#define OPTIMIZE_DRAW
+#define OPTIMIZE_DRAWxx
 
 namespace gui {
 
@@ -79,9 +79,6 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     void line::operator() (graphics& g, const pen& p) const {
-      if (color::is_transparent(p.color())) {
-        return;
-      }
       gui::os::instance display = get_instance();
 //      const short pw = p.os_size();
 //      const short off = pw / 2;
@@ -124,11 +121,11 @@ namespace gui {
         XDrawPoint(display, g, g, r.x + off, r.y + off);
       }
 #else
-      if (!color::is_transparent(b.color())) {
+      if (!is_transparent(b)) {
         Use<brush> br(g, b);
         XFillRectangle(display, g, g, r.x, r.y, r.width, r.height);
       }
-      if (!color::is_transparent(p.color())) {
+      if (!is_transparent(p)) {
         Use<pen> pn(g, p);
         XDrawRectangle(display, g, g, r.x, r.y, r.width, r.height);
       }
@@ -136,9 +133,6 @@ namespace gui {
     }
 
     void rectangle::operator() (graphics& g, const pen& p) const {
-      if (color::is_transparent(p.color())) {
-        return;
-      }
       const os::rectangle r = rect.os(g.context());
 #ifdef OPTIMIZE_DRAW
       const auto pw = p.os_size();
@@ -181,7 +175,7 @@ namespace gui {
       const auto off = pw/*(pw - 1)*/ / 2;
       const os::rectangle r = rect.os(g.context());
       if ((r.width == 0) && (r.height == 0)) {
-        if (!color::is_transparent(p.color())) {
+        if (!is_transparent(p)) {
           if (pw < 2) {
             Use<pen> pn(g, p);
             XDrawPoint(display, g, g, r.x + off, r.y + off);
@@ -192,12 +186,12 @@ namespace gui {
         }
       } else {
         const auto soff = pw;//-(pw + 1) % 2;
-        if (!color::is_transparent(b.color())) {
+        if (!is_transparent(b)) {
           Use<brush> br(g, b);
           XSetArcMode(display, g, ArcPieSlice);
           XFillArc(display, g, g, r.x + off, r.y + off, r.width - soff, r.height - soff, 0, degree_360);
         }
-        if (!color::is_transparent(p.color())) {
+        if (!is_transparent(p)) {
           Use<pen> pn(g, p);
           XSetArcMode(display, g, ArcChord);
           XDrawArc(display, g, g, r.x + off, r.y + off, r.width - soff, r.height - soff, 0, degree_360);
@@ -207,9 +201,6 @@ namespace gui {
 
     void ellipse::operator() (graphics& g,
                               const pen& p) const {
-      if (color::is_transparent(p.color())) {
-        return;
-      }
       gui::os::instance display = get_instance();
       const auto pw = p.os_size();
       const auto off = pw/*(pw - 1)*/ / 2;
@@ -292,9 +283,6 @@ namespace gui {
     // --------------------------------------------------------------------------
     void round_rectangle::operator() (graphics& g,
                                       const pen& p) const {
-      if (color::is_transparent(p.color())) {
-        return;
-      }
       Use<pen> pn(g, p);
       gui::os::instance display = get_instance();
       XSetArcMode(display, g, ArcChord);
@@ -310,9 +298,6 @@ namespace gui {
 
     void round_rectangle::operator() (graphics& g,
                                       const brush& b) const {
-      if (color::is_transparent(b.color())) {
-        return;
-      }
       Use<brush> br(g, b);
       gui::os::instance display = get_instance();
       XSetArcMode(display, g, ArcPieSlice);
@@ -333,23 +318,20 @@ namespace gui {
     void round_rectangle::operator() (graphics& g,
                                       const brush& b,
                                       const pen& p) const {
-      if (color::is_transparent(b.color()) && color::is_transparent(p.color())) {
-        return;
-      }
       std::array<XArc, 4> arcs{};
       std::array<XSegment, 4> segments{};
       std::array<XRectangle, 3> rects{};
       calc_arcs<XArc, XSegment, XRectangle>(g.context(), rect - core::size::one, radius, &arcs, &segments, &rects, degree_90);
 
       gui::os::instance display = get_instance();
-      if (!color::is_transparent(b.color())) {
+      if (!is_transparent(b)) {
         Use<brush> br(g, b);
         XSetArcMode(display, g, ArcPieSlice);
 
         XFillArcs(display, g, g, arcs.data(), (int)arcs.size());
         XFillRectangles(display, g, g, rects.data(), (int)rects.size());
       }
-      if (!color::is_transparent(p.color())) {
+      if (!is_transparent(p)) {
         Use<pen> pn(g, p);
         XSetArcMode(display, g, ArcChord);
 
@@ -361,9 +343,6 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void draw_arc<arc_type::arc> (graphics& g, const arc_coords& c, const pen& p) {
-      if (color::is_transparent(p.color())) {
-        return;
-      }
       Use<pen> pn(g, p);
 
       gui::os::instance display = get_instance();
@@ -374,9 +353,6 @@ namespace gui {
 
     template<>
     void draw_arc<arc_type::pie> (graphics& g, const arc_coords& c, const pen& p) {
-      if (color::is_transparent(p.color())) {
-        return;
-      }
       Use<pen> pn(g, p);
 
       gui::os::instance display = get_instance();
@@ -394,9 +370,6 @@ namespace gui {
 
     template<>
     void fill_arc<arc_type::arc> (graphics& g, const arc_coords& c, const brush& b) {
-      if (color::is_transparent(b.color())) {
-        return;
-      }
       Use<brush> br(g, b);
       XSetArcMode(get_instance(), g, ArcChord);
       XFillArc(get_instance(), g, g, c.x, c.y, c.w, c.h, c.start, c.end - c.start);
@@ -404,9 +377,6 @@ namespace gui {
 
     template<>
     void fill_arc<arc_type::pie> (graphics& g, const arc_coords& c, const brush& b) {
-      if (color::is_transparent(b.color())) {
-        return;
-      }
       Use<brush> br(g, b);
       XSetArcMode(get_instance(), g, ArcPieSlice);
       XFillArc(get_instance(), g, g, c.x, c.y, c.w, c.h, c.start, c.end - c.start);
@@ -417,7 +387,7 @@ namespace gui {
                                const brush& b,
                                const pen& p) const {
       auto pts = convert(g);
-      if (!color::is_transparent(b.color())) {
+      if (!is_transparent(b)) {
         Use<brush> br(g, b);
         XFillPolygon(get_instance(),
                      g,
@@ -427,18 +397,14 @@ namespace gui {
                      0,
                      CoordModeOrigin);
       }
-      if (color::is_transparent(p.color())) {
-        return;
+      if (!is_transparent(p)) {
+        Use<pen> pn(g, p);
+        XDrawLines(get_instance(), g, g, const_cast<XPoint*>(pts.data()), (int)pts.size(), CoordModeOrigin);
       }
-      Use<pen> pn(g, p);
-      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(pts.data()), (int)pts.size(), CoordModeOrigin);
     }
 
     void polyline::operator() (graphics& g,
                                const pen& p) const {
-      if (color::is_transparent(p.color())) {
-        return;
-      }
       auto pts = convert(g);
       Use<pen> pn(g, p);
       XDrawLines(get_instance(), g, g, const_cast<XPoint*>(pts.data()), (int)pts.size(), CoordModeOrigin);
@@ -446,9 +412,6 @@ namespace gui {
 
     void polyline::operator() (graphics& g,
                                const brush& b) const {
-      if (color::is_transparent(b.color())) {
-        return;
-      }
       auto pts = convert(g);
       Use<brush> br(g, b);
       XFillPolygon(get_instance(),
@@ -468,26 +431,24 @@ namespace gui {
                               const brush& b,
                               const pen& p) const {
       auto pts = convert(g);
-      Use<brush> br(g, b);
-      XFillPolygon(get_instance(),
-                   g,
-                   g,
-                   (XPoint*)pts.data(),
-                   (int)pts.size(),
-                   0,
-                   CoordModeOrigin);
-      if (color::is_transparent(p.color())) {
-        return;
+      if (!is_transparent(b)) {
+        Use<brush> br(g, b);
+        XFillPolygon(get_instance(),
+                     g,
+                     g,
+                     (XPoint*)pts.data(),
+                     (int)pts.size(),
+                     0,
+                     CoordModeOrigin);
       }
-      Use<pen> pn(g, p);
-      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(pts.data()), (int)pts.size(), CoordModeOrigin);
+      if (!is_transparent(p)) {
+        Use<pen> pn(g, p);
+        XDrawLines(get_instance(), g, g, const_cast<XPoint*>(pts.data()), (int)pts.size(), CoordModeOrigin);
+      }
     }
 
     void polygon::operator() (graphics& g,
                               const pen& p) const {
-      if (color::is_transparent(p.color())) {
-        return;
-      }
       auto pts = convert(g);
       Use<pen> pn(g, p);
       XDrawLines(get_instance(), g, g, const_cast<XPoint*>(pts.data()), (int)pts.size(), CoordModeOrigin);
@@ -495,9 +456,6 @@ namespace gui {
 
     void polygon::operator() (graphics& g,
                               const brush& b) const {
-      if (color::is_transparent(b.color())) {
-        return;
-      }
       auto pts = convert(g);
       Use<brush> br(g, b);
       XFillPolygon(get_instance(),
@@ -516,9 +474,6 @@ namespace gui {
     void text_box::operator() (graphics& g,
                                const font& f,
                                os::color c) const {
-      if (color::is_transparent(c)) {
-        return;
-      }
       gui::os::instance display = get_instance();
 
       int px = rect.os_x(g.context());
@@ -601,9 +556,6 @@ namespace gui {
     void bounding_box::operator() (graphics& g,
                                    const font& f,
                                    os::color c) const {
-      if (color::is_transparent(c)) {
-        return;
-      }
       gui::os::instance display = get_instance();
 
 #ifdef GUIPP_USE_XFT
@@ -679,9 +631,6 @@ namespace gui {
     void text::operator() (graphics& g,
                            const font& f,
                            os::color c) const {
-      if (color::is_transparent(c)) {
-        return;
-      }
       gui::os::instance display = get_instance();
 
       int px = pos.os_x(g.context());

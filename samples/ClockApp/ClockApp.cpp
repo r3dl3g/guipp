@@ -420,7 +420,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   tabs.set_background(color::black);
   tabs.get_buttons().set_background(color::black);
-  tabs.get_buttons().set_foreground(color::white);
+  tabs.get_buttons().set_foreground(color::orange);
 
   tabs.add_page("Clock", page_0);
   tabs.add_page("Stoppwatch", page_1);

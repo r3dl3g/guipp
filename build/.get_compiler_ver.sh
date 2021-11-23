@@ -10,19 +10,13 @@ compiler_ver () {
     cdir=$PWD
     mkdir -p tmp
     cd tmp
-      cmake .. $* > $sys_info_file
+      cmake .. $cmakeFlags $* > $sys_info_file
     cd $cdir
     rm -r ./tmp
   fi
-  ver=$(cat $sys_info_file | grep "CMAKE_CXX_COMPILER_VERSION" | awk '{ gsub("\"",""); print $3 }')
-  platform=$(cat $sys_info_file | grep "CMAKE_CXX_PLATFORM_ID" | awk '{ gsub("\"",""); print $3 }')
-  id=$(cat $sys_info_file | grep "CMAKE_CXX_COMPILER_ID" | awk '{ gsub("\"",""); print $3 }')
-  echo $platform-$id-$ver
-
-#  if [ "$CXX" == "" ]; then
-#    echo $(c++ --version | { read first rest ; echo $first ; })$(c++ -dumpversion)
-#  else
-#    echo $($CXX --version | { read first rest ; echo $first ; })$($CXX -dumpversion)
-#  fi
+  ver=$(cat $sys_info_file | grep "CMAKE_CXX_COMPILER_VERSION " | head -n1 | awk '{ gsub("\"",""); print $3 }')
+  library=$(cat $sys_info_file | grep "COMPILER_BASENAME " | head -n1 | awk '{ gsub("\"",""); print $3 }')
+  system=$(cat $sys_info_file | grep "CMAKE_SYSTEM " | head -n1 | awk '{ gsub("\"",""); print $3 }')
+  processor=$(cat $sys_info_file | grep "CMAKE_SYSTEM_PROCESSOR " | head -n1 | awk '{ gsub("\"",""); print $3 }')
+  echo ${system}-${processor}_${library}-${ver}
 }
-

@@ -159,7 +159,9 @@ namespace gui {
     void uniform_list<V, T>::init () {
 #ifndef GUIPP_BUILD_FOR_MOBILE
       super::on_left_btn_dblclk([&] (os::key_state, const core::native_point&) {
-        super::notify_selection_commit();
+        if (super::has_selection()) {
+          super::notify_selection_commit();
+        }
       });
 #endif // GUIPP_BUILD_FOR_MOBILE
       super::on_mouse_leave([&] () {
@@ -438,7 +440,9 @@ namespace gui {
                       event_source::keyboard);
         break;
       case core::keys::enter:
-        super::notify_selection_commit();
+        if (super::has_selection()) {
+          super::notify_selection_commit();
+        }
         break;
       }
     }

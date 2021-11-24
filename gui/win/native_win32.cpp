@@ -348,9 +348,13 @@ namespace gui {
 //        const int sc = static_cast<int>(core::global::get_scale_factor());
         if (!color::is_transparent(c)) {
           auto brush = CreateSolidBrush(c);
-          auto old = SelectObject(gc, brush);
+          auto oldBrush = SelectObject(gc, brush);
+          auto pen = CreatePen(PS_SOLID, 1, c);
+          auto oldPen = SelectObject(gc, pen);
           Rectangle(gc, r.x(), r.y(), r.x2(), r.y2());
-          SelectObject(gc, old);
+          SelectObject(gc, oldPen);
+          DeleteObject(pen);
+          SelectObject(gc, oldBrush);
           DeleteObject(brush);
         }
       }

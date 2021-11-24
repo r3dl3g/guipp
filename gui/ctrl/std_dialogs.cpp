@@ -108,7 +108,7 @@ namespace gui {
       super::create(parent, title, rect, [action] (win::overlapped_window& dlg, int i) {
         action(dlg, i == 1);
       }, {no_label, yes_label});
-      message_view.create(content_view, message, rect);
+      message_view.create(content_view, message);
     }
 
     void yes_no_dialog::ask (win::overlapped_window& parent,
@@ -155,7 +155,7 @@ namespace gui {
       super::create(parent, title, rect, [&] (win::overlapped_window&, int) {
         end_modal();
       }, {ok_label});
-      message_view.create(content_view, message, rect);
+      message_view.create(content_view, message);
     }
 
     void message_dialog::show (win::overlapped_window& parent,

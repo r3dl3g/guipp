@@ -87,7 +87,7 @@ namespace gui {
                                               const std::initializer_list<std::string>& labels) {
       super::get_layout().set_center(layout::lay(content_view));
       super::create(parent, title, rect, action, labels);
-      content_view.create(*this, rect);
+      content_view.create(*this);
     }
 
     //-----------------------------------------------------------------------------

@@ -164,7 +164,7 @@ namespace gui {
         int idx = std::distance(data.begin(), it);
         vlist->set_selection(idx, event_source::logic);
       }
-      vlist->on_selection_commit([&] () {
+      vlist->on_selection_commit([&, action] () {
         super::end_modal();
         if (action) {
           action(*this, data[vlist->get_selection()]);
@@ -213,7 +213,7 @@ namespace gui {
       vlist.set_data([&] () -> data_t& { return data; });
       vlist.header.set_labels(std::move(labels));
       vlist.list->set_selection(initial, event_source::logic);
-      vlist.list->on_selection_commit([&] () {
+      vlist.list->on_selection_commit([&, action] () {
         super::end_modal();
         if (action) {
           action(*this, data.at(vlist.list->get_selection()));

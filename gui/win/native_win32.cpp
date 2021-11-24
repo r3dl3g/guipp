@@ -346,11 +346,13 @@ namespace gui {
 
       void erase (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
 //        const int sc = static_cast<int>(core::global::get_scale_factor());
-        auto brush = CreateSolidBrush(c);
-        auto old = SelectObject(gc, brush);
-        Rectangle(gc, r.x(), r.y(), r.x2(), r.y2());
-        SelectObject(gc, old);
-        DeleteObject(brush);
+        if (!color::is_transparent(c)) {
+          auto brush = CreateSolidBrush(c);
+          auto old = SelectObject(gc, brush);
+          Rectangle(gc, r.x(), r.y(), r.x2(), r.y2());
+          SelectObject(gc, old);
+          DeleteObject(brush);
+        }
       }
 
       void frame (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {

@@ -155,7 +155,8 @@ namespace gui {
                                    std::function<select_action> action) {
       super::create(parent, title, rect, [&, action] (win::overlapped_window& dlg, int i) {
         if ((i == 1) && (vlist->has_selection())) {
-          action(dlg, data[vlist->get_selection()]);
+          const int sel = vlist->get_selection();
+          action(dlg, sel, data[sel]);
         }
       }, {cancel_label, ok_label});
       vlist->set_data(data);
@@ -167,7 +168,8 @@ namespace gui {
       vlist->on_selection_commit([&, action] () {
         super::end_modal();
         if (action) {
-          action(*this, data[vlist->get_selection()]);
+          const int sel = vlist->get_selection();
+          action(*this, sel, data[sel]);
         }
       });
       vlist.create(super::content_view);
@@ -206,7 +208,8 @@ namespace gui {
                  std::function<select_action> action) {
       super::create(parent, title, rect, [&, action] (win::overlapped_window& dlg, int i) {
         if ((i == 1) && (vlist.list->has_selection())) {
-          action(dlg, data.at(vlist.list->get_selection()));
+          const int sel = vlist.list->get_selection();
+          action(dlg, sel, data.at(sel));
         }
       }, {cancel_label, ok_label});
       vlist.get_column_layout().set_column_count(labels.size());
@@ -216,7 +219,8 @@ namespace gui {
       vlist.list->on_selection_commit([&, action] () {
         super::end_modal();
         if (action) {
-          action(*this, data.at(vlist.list->get_selection()));
+          const int sel = vlist.list->get_selection();
+          action(*this, sel, data.at(sel));
         }
       });
       vlist.create(super::content_view);

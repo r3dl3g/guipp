@@ -252,7 +252,7 @@ namespace gui {
     public:
       typedef win::group_window<layout::border::center_layout<vertical_list, 15, 15, 15, 15>> content_view_type;
       typedef standard_dialog<content_view_type> super;
-      typedef void (select_action) (win::overlapped_window&, T);
+      typedef void (select_action) (win::overlapped_window&, int, T);
 
       select_dialog ();
 
@@ -287,7 +287,7 @@ namespace gui {
       typedef ctrl::column_list_t<layout_t, Arguments ...> list_t;
       typedef column_list_data_t<Arguments...> data_t;
       typedef typename data_t::row_type row_type;
-      typedef void (select_action) (win::overlapped_window&, row_type);
+      typedef void (select_action) (win::overlapped_window&, int, row_type);
 
       select_from_columnlist_dialog ();
 

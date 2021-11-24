@@ -390,7 +390,7 @@ namespace gui {
         Rect.top = ((rect.size().os_height() - h) / 2);
         Rect.bottom = Rect.top + h;
       }
-      DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, o);
+      DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, o | DT_NOPREFIX);
       SetBkMode(g, old_mode);
       SetTextColor(g, old_color);
     }

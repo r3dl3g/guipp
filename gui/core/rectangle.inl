@@ -276,12 +276,12 @@ namespace gui {
 
     template<typename T, typename S, coordinate_system C>
     inline gui::os::point_type basic_rectangle<T, S, C>::os_right (const context& ctx) const {
-      return convert::point<T, C>::to_os(right(), ctx);
+      return convert::point<T, C>::to_os_x(right(), ctx);
     }
 
     template<typename T, typename S, coordinate_system C>
     inline gui::os::point_type basic_rectangle<T, S, C>::os_bottom (const context& ctx) const {
-      return convert::point<T, C>::to_os(bottom(), ctx);
+      return convert::point<T, C>::to_os_y(bottom(), ctx);
     }
 
     template<typename T, typename S, coordinate_system C>

@@ -16,6 +16,7 @@
  * @file
  */
 
+//#define GUIPP_X11
 #ifdef GUIPP_X11
 
 // --------------------------------------------------------------------------
@@ -238,45 +239,43 @@ namespace gui {
 
       using namespace os;
 
-      constexpr auto two = size_type(2);
+      const auto sz = size.min(rect.size() / 2);
+      const auto sz2 = sz * 2;
+      const auto in = rect.shrinked(sz);
+      const auto br = rect.x2y2() - sz2;
 
-      const os::rectangle r = rect.os(ctx);
-      const os::size s = size.os();
+      const point_type x0 = rect.os_x(ctx);
+      const point_type y0 = rect.os_y(ctx);
+      const point_type x4 = rect.os_x2(ctx);
+      const point_type y4 = rect.os_y2(ctx);
+      const point_type x1 = in.os_x(ctx);
+      const point_type y1 = in.os_y(ctx);
+      const point_type x3 = in.os_x2(ctx);
+      const point_type y3 = in.os_y2(ctx);
+      const point_type x2 = br.os_x(ctx);
+      const point_type y2 = br.os_y(ctx);
 
-      const size_type w = std::min(os::get_width(s), static_cast<size_type>(os::get_width(r) / 2));
-      const size_type h = std::min(os::get_height(s), static_cast<size_type>(os::get_height(r) / 2));
-
-      const point_type x0 = get_x(r);
-      const point_type x3 = get_x(r) + os::get_width(r);
-      const point_type x1 = x0 + w;
-      const point_type x2 = x3 - w;
-
-      const point_type y0 = get_y(r);
-      const point_type y3 = get_y(r) + os::get_height(r);
-      const point_type y1 = y0 + h;
-      const point_type y2 = y3 - h;
-
-      const size_type w2 = w * two;
-      const size_type h2 = h * two;
+      const size_type w2 = sz2.os_width();
+      const size_type h2 = sz2.os_height();
 
       if (arcs) {
         (*arcs)[0] = {x0, y0, w2, h2, angle90, angle90};
-        (*arcs)[1] = {point_type(x3 - w2), y0, w2, h2, 0, angle90};
-        (*arcs)[2] = {x0, point_type(y3 - h2), w2, h2, static_cast<Angle>(angle90 * 2), angle90};
-        (*arcs)[3] = {point_type(x3 - w2), point_type(y3 - h2), w2, h2, static_cast<Angle>(angle90 * 3), angle90};
+        (*arcs)[1] = {x2, y0, w2, h2, 0, angle90};
+        (*arcs)[2] = {x0, y2, w2, h2, (Angle)(angle90 * 2), angle90};
+        (*arcs)[3] = {x2, y2, w2, h2, (Angle)(angle90 * 3), angle90};
       }
 
       if (segments) {
-        (*segments)[0] = {x1, y0, x2, y0};
-        (*segments)[1] = {x3, y1, x3, y2};
-        (*segments)[2] = {x1, y3, x2, y3};
-        (*segments)[3] = {x0, y1, x0, y2};
+        (*segments)[0] = {x1, y0, x3, y0};
+        (*segments)[1] = {x4, y1, x4, y3};
+        (*segments)[2] = {x1, y4, x3, y4};
+        (*segments)[3] = {x0, y1, x0, y3};
       }
 
       if (rects) {
-        (*rects)[0] = {x0, y1, w, size_type(y2 - y1)};
-        (*rects)[1] = {x2, y1, size_type(w + 1), size_type(y2 - y1)};
-        (*rects)[2] = {x1, y0, size_type(x2 - x1), size_type(y3 - y0 + 1)};
+        (*rects)[0] = {x0, y1, rect.os_width(), in.os_height()};
+        (*rects)[1] = {x1, y0, in.os_width(), sz.os_height()};
+        (*rects)[2] = {x3, y1, in.os_width(), sz.os_height()};
       }
     }
 
@@ -348,7 +347,7 @@ namespace gui {
       gui::os::instance display = get_instance();
 
       XSetArcMode(get_instance(), g, ArcPieSlice);
-      XDrawArc(display, g, g, c.x, c.y, c.w, c.h, c.start, c.end - c.start);
+      XDrawArc(display, g, g, c.x, c.y, c.w, c.h, c.start.os(), (c.end - c.start).os());
     }
 
     template<>
@@ -358,7 +357,7 @@ namespace gui {
       gui::os::instance display = get_instance();
 
       XSetArcMode(get_instance(), g, ArcPieSlice);
-      XDrawArc(display, g, g, c.x, c.y, c.w, c.h, c.start, c.end - c.start);
+      XDrawArc(display, g, g, c.x, c.y, c.w, c.h, c.start.os(), (c.end - c.start).os());
 
       if (!c.full()) {
         auto pt = c.calc_points();
@@ -372,14 +371,14 @@ namespace gui {
     void fill_arc<arc_type::arc> (graphics& g, const arc_coords& c, const brush& b) {
       Use<brush> br(g, b);
       XSetArcMode(get_instance(), g, ArcChord);
-      XFillArc(get_instance(), g, g, c.x, c.y, c.w, c.h, c.start, c.end - c.start);
+      XFillArc(get_instance(), g, g, c.x, c.y, c.w, c.h, c.start.os(), (c.end - c.start).os());
     }
 
     template<>
     void fill_arc<arc_type::pie> (graphics& g, const arc_coords& c, const brush& b) {
       Use<brush> br(g, b);
       XSetArcMode(get_instance(), g, ArcPieSlice);
-      XFillArc(get_instance(), g, g, c.x, c.y, c.w, c.h, c.start, c.end - c.start);
+      XFillArc(get_instance(), g, g, c.x, c.y, c.w, c.h, c.start.os(), (c.end - c.start).os());
     }
 
     // --------------------------------------------------------------------------

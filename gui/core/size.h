@@ -93,6 +93,9 @@ namespace gui {
 
       self operator- () const;
 
+      self min (const self& rhs) const;
+      self max (const self& rhs) const;
+
     private:
       type w;
       type h;

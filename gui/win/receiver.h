@@ -51,6 +51,8 @@ namespace gui {
       typedef void(move_fn)(core::point);
       typedef void(size_fn)(core::size);
       typedef void(place_fn)(core::rectangle);
+      typedef void(key_down_fn)(os::key_state, os::key_symbol, std::string);
+      typedef void(key_up_fn)(os::key_state, os::key_symbol);
 
       template<orientation_t V>
       void on_wheel (std::function<wheel_fn>&& f);
@@ -67,9 +69,9 @@ namespace gui {
 
       void on_destroy (std::function<notification_fn>&& f);
 
-      void on_any_key_down (std::function<void(os::key_state, os::key_symbol, std::string)>&& f);
+      void on_any_key_down (std::function<key_down_fn>&& f);
 
-      void on_any_key_up (std::function<void(os::key_state, os::key_symbol)>&& f);
+      void on_any_key_up (std::function<key_up_fn>&& f);
 
       void on_mouse_move (std::function<mouse_fn>&& f);
 

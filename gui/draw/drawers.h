@@ -218,6 +218,7 @@ namespace gui {
              text_origin_t origin = text_origin_t::center);
 
       void operator() (graphics& g, const brush& b) const;
+      void operator() (graphics& g, const core::point&) const;
 
     private:
       const I& img;

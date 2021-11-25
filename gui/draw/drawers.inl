@@ -169,10 +169,14 @@ namespace gui {
     template<typename I>
     inline void image<I>::operator() (graphics& g, const brush& b) const {
       g.fill(draw::rectangle(rect), b);
+      operator()(g, rect.top_left());
+    }
 
+    template<typename I>
+    inline void image<I>::operator() (graphics& g, const core::point& pt) const {
       auto sz = img.scaled_size();
-      core::point::type px = rect.x();
-      core::point::type py = rect.y();
+      core::point::type px = pt.x();
+      core::point::type py = pt.y();
 
       if (origin_is_h_center(origin)) {
         px += (rect.width() - sz.width()) / 2;

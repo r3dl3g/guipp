@@ -694,9 +694,9 @@ namespace gui {
                                               os::color background) {
       core::rectangle area = rec;
       const auto& img = detail::get_metal_checkbox(state.checked(), !state.enabled());
-      graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
+      graph.copy(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), area.top_left());
       area.move_x(20);
-      os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
+      os::color col = state.enabled() ? foreground : color::disabledTextColor();
       graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
     }
 
@@ -710,9 +710,9 @@ namespace gui {
                                             os::color background) {
       core::rectangle area = rec;
       const auto& img = detail::get_osx_checkbox(state.checked(), !state.enabled());
-      graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
+      graph.copy(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), area.top_left());
       area.move_x(20);
-      os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
+      os::color col = state.enabled() ? foreground : color::disabledTextColor();
       graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
     }
 

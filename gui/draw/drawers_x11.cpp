@@ -235,7 +235,8 @@ namespace gui {
                     std::array<Arc, 4>* arcs,
                     std::array<Line, 4>* segments,
                     std::array<Rectangle, 3>* rects,
-                    Angle angle90) {
+                    Angle angle90,
+                    os::size_type pen_size) {
 
       using namespace os;
 
@@ -266,10 +267,13 @@ namespace gui {
       }
 
       if (segments) {
-        (*segments)[0] = {x1, y0, x3, y0};
+        const int offs = 1 - (pen_size % 2);
+        const point_type y0o = (point_type)(y0 + offs);
+        const point_type x0o = (point_type)(x0 + offs);
+        (*segments)[0] = {x1, y0o, x3, y0o};
         (*segments)[1] = {x4, y1, x4, y3};
-        (*segments)[2] = {x1, y4, x3, y4};
-        (*segments)[3] = {x0, y1, x0, y3};
+        (*segments)[2] = {x3, y4, x1, y4};
+        (*segments)[3] = {x0o, y3, x0o, y1};
       }
 
       if (rects) {
@@ -289,7 +293,7 @@ namespace gui {
       std::array<XArc, 4> arcs{};
       std::array<XSegment, 4> segments{};
 
-      calc_arcs<XArc, XSegment, XRectangle>(g.context(), rect - core::size::one, radius, &arcs, &segments, nullptr, degree_90);
+      calc_arcs<XArc, XSegment, XRectangle>(g.context(), rect - core::size::one, radius, &arcs, &segments, nullptr, degree_90, p.os_size());
 
       XDrawArcs(display, g, g, arcs.data(), (int)arcs.size());
       XDrawSegments(display, g, g, segments.data(), (int)segments.size());
@@ -297,16 +301,17 @@ namespace gui {
 
     void round_rectangle::operator() (graphics& g,
                                       const brush& b) const {
+      pen p(b.color());
+
       Use<brush> br(g, b);
       gui::os::instance display = get_instance();
       XSetArcMode(display, g, ArcPieSlice);
 
       std::array<XArc, 4> arcs{};
       std::array<XRectangle, 3> rects{};
-      calc_arcs<XArc, XSegment, XRectangle>(g.context(), rect - core::size::one, radius, &arcs, nullptr, &rects, degree_90);
+      calc_arcs<XArc, XSegment, XRectangle>(g.context(), rect - core::size::one, radius, &arcs, nullptr, &rects, degree_90, p.os_size());
 
       XFillArcs(display, g, g, arcs.data(), (int)arcs.size());
-      pen p(b.color());
       Use<pen> pn(g, p);
       XSetArcMode(display, g, ArcChord);
       XDrawArcs(display, g, g, arcs.data(), (int)arcs.size());
@@ -320,7 +325,7 @@ namespace gui {
       std::array<XArc, 4> arcs{};
       std::array<XSegment, 4> segments{};
       std::array<XRectangle, 3> rects{};
-      calc_arcs<XArc, XSegment, XRectangle>(g.context(), rect - core::size::one, radius, &arcs, &segments, &rects, degree_90);
+      calc_arcs<XArc, XSegment, XRectangle>(g.context(), rect - core::size::one, radius, &arcs, &segments, &rects, degree_90, p.os_size());
 
       gui::os::instance display = get_instance();
       if (!is_transparent(b)) {

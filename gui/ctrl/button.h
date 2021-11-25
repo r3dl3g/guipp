@@ -115,7 +115,7 @@ namespace gui {
       typedef control super;
       typedef no_erase_window_class<button_base> clazz;
 
-      button_base (os::color foreground = color::black);
+      button_base (os::color foreground = color::windowTextColor());
       button_base (const button_base&) = default;
       button_base (button_base&&) noexcept ;
 

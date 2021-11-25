@@ -44,13 +44,20 @@ namespace gui {
       float rad () const;
 
       int os () const;
-      operator int () const;
 
       angle operator+ (const angle&) const;
       angle operator- (const angle&) const;
+      angle operator* (int) const;
+      angle operator/ (int) const;
+      angle operator* (float) const;
+      angle operator/ (float) const;
 
       void operator+= (const angle&);
       void operator-= (const angle&);
+      void operator*= (int);
+      void operator/= (int);
+      void operator*= (float);
+      void operator/= (float);
 
       bool operator< (const angle&) const;
       bool operator<= (const angle&) const;

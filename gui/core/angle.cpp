@@ -63,10 +63,6 @@ namespace gui {
       return static_cast<int>(degrees * IF_WIN32_X11_QT_ELSE(1.0F, 64.0F, 16.0F, 1.0F));
     }
 
-    angle::operator int () const {
-      return os();
-    }
-
     angle angle::operator+ (const angle& rhs) const {
       return {degrees + rhs.degrees};
     }
@@ -75,12 +71,44 @@ namespace gui {
       return {degrees - rhs.degrees};
     }
 
+    angle angle::operator* (int i) const {
+      return {degrees * i};
+    }
+
+    angle angle::operator/ (int i) const {
+      return {degrees / i};
+    }
+
+    angle angle::operator* (float f) const {
+      return {degrees * f};
+    }
+
+    angle angle::operator/ (float f) const {
+      return {degrees / f};
+    }
+
     void angle::operator+= (const angle& rhs) {
       degrees += rhs.degrees;
     }
 
     void angle::operator-= (const angle& rhs) {
       degrees -= rhs.degrees;
+    }
+
+    void angle::operator*= (int i) {
+      degrees *= i;
+    }
+
+    void angle::operator/= (int i) {
+      degrees /= i;
+    }
+
+    void angle::operator*= (float f) {
+      degrees *= f;
+    }
+
+    void angle::operator/= (float f) {
+      degrees /= f;
     }
 
     bool angle::operator< (const angle& rhs) const {

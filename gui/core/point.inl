@@ -34,11 +34,11 @@ namespace gui {
 
       template<typename T>
       struct point<T, coordinate_system::local> {
-        static inline gui::os::point_type to_os_x (const T& v, const context& ctx) {
+        static inline gui::os::point_type to_os_x (T v, const context& ctx) {
           return global::scale_to_native<gui::os::point_type>(v) + ctx.offset_x();
         }
 
-        static inline gui::os::point_type to_os_y (const T& v, const context& ctx) {
+        static inline gui::os::point_type to_os_y (T v, const context& ctx) {
           return global::scale_to_native<gui::os::point_type>(v) + ctx.offset_y();
         }
 

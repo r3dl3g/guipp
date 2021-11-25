@@ -1,5 +1,11 @@
 
+#include <gui/ctrl/scroll_bar.h>
+#include <gui/ctrl/label.h>
+#include <gui/ctrl/button.h>
 #include <gui/win/overlapped_window.h>
+#include <gui/layout/layout_container.h>
+#include <gui/layout/adaption_layout.h>
+#include <gui/layout/border_layout.h>
 #include <gui/draw/icons.h>
 #include <gui/draw/pen.h>
 #include <gui/draw/font.h>
@@ -10,25 +16,85 @@
 
 
 using namespace gui;
+using namespace gui::win;
+using namespace gui::layout;
+using namespace gui::ctrl;
 using namespace gui::draw;
+using namespace gui::core;
 
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::win;
 
-  main_window main;
+  constexpr int COLUMNS = 12;
+  constexpr int ROWS = 5;
 
-  main.on_paint(draw::paint([&](graphics& graph) {
+  layout_main_window<border::layouter<0, 26, 0, 20, border::type_t::all_symmetric>> main;
+  vertical_scroll_bar scrollbar;
+  client_control icons_view;
+  group_window<horizontal_adaption<2, 10>> statusbar;
+  label current_size;
+  text_button adjust_button(const_text("Adjust"));
+  check_box<> autoadjust_button(const_text("Auto adjust"));
+
+  scrollbar.set_min_max_step_value(1, 100, 1, 10);
+
+  main.get_layout().set_right(lay(scrollbar));
+  main.get_layout().set_center(lay(icons_view));
+  main.get_layout().set_bottom(lay(statusbar));
+
+  statusbar.get_layout().add({&current_size, &adjust_button, &autoadjust_button});
+
+  statusbar.on_create([&] () {
+    current_size.create(statusbar);
+    adjust_button.create(statusbar);
+    autoadjust_button.create(statusbar);
+  });
+  main.on_create([&] () {
+    scrollbar.create(main);
+    icons_view.create(main);
+    statusbar.create(main);
+  });
+  current_size.set_text([&] () {
+    return ostreamfmt("Current size: " << scrollbar.get_value());
+  });
+  auto adjust = [&] () {
+    const auto area = icons_view.client_geometry();
+    scrollbar.set_value(std::min(area.width()/(COLUMNS*2)-10, area.height()/(ROWS*2)-20));
+  };
+
+  adjust_button.on_clicked(adjust);
+  autoadjust_button.on_clicked([&] () {
+    if (autoadjust_button.is_checked()) {
+      icons_view.invalidate();
+    }
+  });
+
+  scrollbar.on_scroll([&] (point::type) {
+    icons_view.invalidate();
+    current_size.invalidate();
+  });
+  main.on_key_up<keys::up>([&] () {
+    scrollbar.set_value(scrollbar.get_value() + 1);
+  });
+  main.on_key_up<keys::down>([&] () {
+    scrollbar.set_value(scrollbar.get_value() - 1);
+  });
+
+  icons_view.on_paint(draw::paint([&](graphics& graph) {
     logging::trace() << "Received on_paint, clear white";
     graph.clear(color::white);
 
-    auto area = main.client_geometry();
+    const auto area = icons_view.client_geometry();
+    if (autoadjust_button.is_checked()) {
+      adjust();
+    }
+    const auto radius =  scrollbar.get_value();
     logging::trace() << "Draw graphs in area:" << area;
 
-    core::grid<11, 5> g(area);
+    core::grid<COLUMNS, ROWS> g(area);
     g.for_each<icon_type>([&] (icon_type i, const core::rectangle& r) {
       if (i < icon_type::background) {
-        const auto radius = std::min(r.height(), r.width()) / 3;
         const auto center = r.center().dy(-radius/3);
         draw::pen icon_pen(color::black, radius/8, draw::pen::Style::solid, draw::pen::Cap::round, draw::pen::Join::round);
         graph.frame(icon_t<icon_type::background>(center, radius), icon_pen);

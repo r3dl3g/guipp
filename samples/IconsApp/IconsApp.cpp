@@ -5,7 +5,7 @@
 #include <gui/win/overlapped_window.h>
 #include <gui/layout/layout_container.h>
 #include <gui/layout/adaption_layout.h>
-#include <gui/layout/border_layout.h>
+#include <gui/layout/split_layout.h>
 #include <gui/draw/icons.h>
 #include <gui/draw/pen.h>
 #include <gui/draw/font.h>
@@ -29,8 +29,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   constexpr int COLUMNS = 12;
   constexpr int ROWS = 5;
 
-  layout_main_window<border::layouter<0, 26, 0, 20, border::type_t::all_symmetric>> main;
-  vertical_scroll_bar scrollbar;
+  layout_main_window<footer_layout> main;
+  horizontal_scroll_bar scrollbar;
   client_control icons_view;
   group_window<horizontal_adaption<2, 10>> statusbar;
   label current_size;
@@ -39,19 +39,17 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   scrollbar.set_min_max_step_value(1, 100, 1, 10);
 
-  main.get_layout().set_right(lay(scrollbar));
-  main.get_layout().set_center(lay(icons_view));
-  main.get_layout().set_bottom(lay(statusbar));
+  main.get_layout().set_header_and_body(lay(statusbar), lay(icons_view));
 
-  statusbar.get_layout().add({&current_size, &adjust_button, &autoadjust_button});
+  statusbar.get_layout().add({&current_size, &scrollbar, &adjust_button, &autoadjust_button});
 
   statusbar.on_create([&] () {
     current_size.create(statusbar);
+    scrollbar.create(statusbar);
     adjust_button.create(statusbar);
     autoadjust_button.create(statusbar);
   });
   main.on_create([&] () {
-    scrollbar.create(main);
     icons_view.create(main);
     statusbar.create(main);
   });

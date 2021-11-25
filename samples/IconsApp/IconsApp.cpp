@@ -22,24 +22,25 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     logging::trace() << "Received on_paint, clear white";
     graph.clear(color::white);
 
-    auto area = main.client_geometry().shrink({5, 5});
+    auto area = main.client_geometry();
     logging::trace() << "Draw graphs in area:" << area;
 
-    core::grid<6, 10> g(area);
+    core::grid<11, 5> g(area);
     g.for_each<icon_type>([&] (icon_type i, const core::rectangle& r) {
       if (i < icon_type::background) {
         const auto radius = std::min(r.height(), r.width()) / 3;
+        const auto center = r.center().dy(-radius/3);
         draw::pen icon_pen(color::black, radius/8, draw::pen::Style::solid, draw::pen::Cap::round, draw::pen::Join::round);
-        graph.frame(icon_t<icon_type::background>(r.center().dy(-radius/5), radius), icon_pen);
-        graph.frame(icon(i, r.center().dy(-radius/5), radius), icon_pen);
-        graph.text(text_box(icon_name(i), r, text_origin_t::bottom_hcenter), font::system().with_size(radius/2), color::black);
+        graph.frame(icon_t<icon_type::background>(center, radius), icon_pen);
+        graph.frame(icon(i, center, radius), icon_pen);
+        graph.text(text_box(icon_name(i), r.dy(-radius/3), text_origin_t::bottom_hcenter), font::system().with_size(radius/2), color::black);
       }
     });
 
     logging::trace() << "on_paint finished";
   }));
 
-  main.create({50, 50, 800, 600});
+  main.create({50, 50, 480, 360});
   main.on_destroy(&quit_main_loop);
   main.set_title("Icons");
   main.set_visible();

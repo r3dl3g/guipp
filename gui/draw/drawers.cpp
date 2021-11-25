@@ -47,21 +47,21 @@ namespace gui {
     void arc_or_pie<arc_type::arc>::operator() (graphics& g,
                                                 const pen& p) const {
       Use<brush> br(g, brush::invisible);
-      draw_arc<arc_type::arc>(g, arc_coords(g.context(), rect, start_angle, end_angle), p);
+      draw_arc<arc_type::arc>(g, arc_coords(g.context(), rect - core::size::one, start_angle, end_angle), p);
     }
 
     template<>
     void arc_or_pie<arc_type::arc>::operator() (graphics& g,
                                                 const brush& b) const {
-      fill_arc<arc_type::arc>(g, arc_coords(g.context(), rect, start_angle, end_angle), b);
+      fill_arc<arc_type::arc>(g, arc_coords(g.context(), rect - core::size::one, start_angle, end_angle), b);
     }
 
     template<>
     void arc_or_pie<arc_type::arc>::operator() (graphics& g,
                                                 const brush& b,
                                                 const pen& p) const {
-      fill_arc<arc_type::arc>(g, arc_coords(g.context(), rect, start_angle, end_angle), b);
-      draw_arc<arc_type::arc>(g, arc_coords(g.context(), rect, start_angle, end_angle), p);
+      fill_arc<arc_type::arc>(g, arc_coords(g.context(), rect - core::size::one, start_angle, end_angle), b);
+      draw_arc<arc_type::arc>(g, arc_coords(g.context(), rect - core::size::one, start_angle, end_angle), p);
     }
 
     // --------------------------------------------------------------------------
@@ -69,13 +69,13 @@ namespace gui {
     void arc_or_pie<arc_type::pie>::operator() (graphics& g,
                                                 const pen& p) const {
       Use<brush> br(g, brush::invisible);
-      draw_arc<arc_type::pie>(g, arc_coords(g.context(), rect, start_angle, end_angle), p);
+      draw_arc<arc_type::pie>(g, arc_coords(g.context(), rect - core::size::one, start_angle, end_angle), p);
     }
 
     template<>
     void arc_or_pie<arc_type::pie>::operator() (graphics& g,
                                                 const brush& b) const {
-      arc_coords c(g.context(), rect, start_angle, end_angle);
+      arc_coords c(g.context(), rect - core::size::one, start_angle, end_angle);
       pen pn(b.color());
       Use<pen> upn(g, pn);
       fill_arc<arc_type::pie>(g, c, b);
@@ -87,7 +87,7 @@ namespace gui {
     void arc_or_pie<arc_type::pie>::operator() (graphics& g,
                                                 const brush& b,
                                                 const pen& p) const {
-      arc_coords c(g.context(), rect, start_angle, end_angle);
+      arc_coords c(g.context(), rect - core::size::one, start_angle, end_angle);
       Use<pen> pn(g, pen::invisible);
       fill_arc<arc_type::pie>(g, c, b);
       Use<brush> br(g, brush::invisible);

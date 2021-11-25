@@ -53,8 +53,8 @@ namespace gui {
     template<typename T, typename S, coordinate_system C>
     inline basic_rectangle<T, S, C>::basic_rectangle (const point_t& topleft,
                                                       const point_t& bottomright)
-      : pos(std::min(topleft.x(), bottomright.x()), std::min(topleft.y(), bottomright.y()))
-      , sz(std::abs(bottomright.x() - topleft.x()) + 1, std::abs(bottomright.y() - topleft.y()) + 1)
+      : pos(topleft)
+      , sz(std::max<T>(0, bottomright.x() - topleft.x() + 1), std::max<T>(0, bottomright.y() - topleft.y() + 1))
     {}
 
     template<typename T, typename S, coordinate_system C>

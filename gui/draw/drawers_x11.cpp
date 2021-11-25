@@ -102,7 +102,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     void rectangle::operator() (graphics& g, const brush& b, const pen& p) const {
       gui::os::instance display = get_instance();
-      const os::rectangle r = rect.os(g.context());
+      const os::rectangle r = (rect - core::size::one).os(g.context());
 
 #ifdef OPTIMIZE_DRAW
       const auto pw = p.os_size();
@@ -133,7 +133,7 @@ namespace gui {
     }
 
     void rectangle::operator() (graphics& g, const pen& p) const {
-      const os::rectangle r = rect.os(g.context());
+      const os::rectangle r = (rect - core::size::one).os(g.context());
 #ifdef OPTIMIZE_DRAW
       const auto pw = p.os_size();
       if (pw == 1) {
@@ -173,7 +173,7 @@ namespace gui {
       gui::os::instance display = get_instance();
       const auto pw = p.os_size();
       const auto off = pw/*(pw - 1)*/ / 2;
-      const os::rectangle r = rect.os(g.context());
+      const os::rectangle r = (rect - core::size::one).os(g.context());
       if ((r.width == 0) && (r.height == 0)) {
         if (!is_transparent(p)) {
           if (pw < 2) {
@@ -204,7 +204,7 @@ namespace gui {
       gui::os::instance display = get_instance();
       const auto pw = p.os_size();
       const auto off = pw/*(pw - 1)*/ / 2;
-      const os::rectangle r = rect.os(g.context());
+      const os::rectangle r = (rect - core::size::one).os(g.context());
       if ((r.width == 0) && (r.height == 0)) {
         if (pw < 2) {
           Use<pen> pn(g, p);
@@ -465,7 +465,7 @@ namespace gui {
                    (int)pts.size(),
                    0,
                    CoordModeOrigin);
-      pen p(b.color());
+      pen p = pen(b.color()).with_os_size(1);
       Use<pen> pn(g, p);
       XDrawLines(get_instance(), g, g, const_cast<XPoint*>(pts.data()), (int)pts.size(), CoordModeOrigin);
     }

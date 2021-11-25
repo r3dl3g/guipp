@@ -278,7 +278,7 @@ namespace gui {
     template<>
     void draw_icon<icon_type::check_off> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       g.frame(draw::round_rectangle({center - core::size{radius, radius},
-                                     core::size{radius+radius, radius+radius}}, radius/2), pn);
+                                     core::size{radius+radius+1, radius+radius+1}}, radius/2), pn);
     }
     // --------------------------------------------------------------------------
     template<>
@@ -406,10 +406,8 @@ namespace gui {
     template<>
     void draw_icon<icon_type::stop> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       const auto tll = calc_clock_point<315>(center, radius);
-      const auto trr = calc_clock_point<45>(center, radius);
       const auto brr = calc_clock_point<135>(center, radius);
-      const auto bll = calc_clock_point<225>(center, radius);
-      g.frame(draw::polygon({tll, trr, brr, bll}), pn);
+      g.frame(draw::rectangle(core::rectangle{tll, brr}), pn);
     }
     // --------------------------------------------------------------------------
     template<>
@@ -661,12 +659,23 @@ namespace gui {
     template<>
     void draw_icon<icon_type::background> (graphics& g, const pen&, const core::point& center, core::size::type radius) {
       pen pn{color::gray, 0.333F};
+      core::size sz{radius, radius};
+//      core::size sz2{radius/2, radius/2};
       g.frame(draw::arc(center, radius, 0, 360), pn);
       g.frame(draw::arc(center, radius/2, 0, 360), pn);
-      core::size sz{radius, radius};
-      g.frame(draw::line(center - sz, center + sz), pn);
-      core::size sz2{-radius, radius};
-      g.frame(draw::line(center - sz2, center + sz2), pn);
+//      g.frame(draw::ellipse(center - sz, center + sz), pn);
+//      g.frame(draw::ellipse(center - sz2, center + sz2), pn);
+
+      const auto tl = center.dxy(-radius, -radius);
+      const auto tr = center.dxy(radius, -radius);
+      const auto bl = center.dxy(-radius, radius);
+      const auto br = center.dxy(radius, radius);
+      g.frame(draw::line(tl, br), pn);
+      g.frame(draw::line(bl, tr), pn);
+//      g.frame(draw::line(tl, tr), pn);
+//      g.frame(draw::line(tr, br), pn);
+//      g.frame(draw::line(bl, br), pn);
+//      g.frame(draw::line(tl, bl), pn);
       g.frame(draw::rectangle(center - sz, center + sz), pn);
     }
     // --------------------------------------------------------------------------

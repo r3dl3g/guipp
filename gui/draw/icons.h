@@ -52,8 +52,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     GUIPP_DRAW_EXPORT core::point calc_clock_point (const core::point& center,
-                                                    const core::angle& clock_angle,
-                                                    core::size::type radius);
+                                                    core::size::type radius,
+                                                    const core::angle& clock_angle);
 
     GUIPP_DRAW_EXPORT core::point calc_point_between (const core::point& p0,
                                                       const core::point& p1,
@@ -79,10 +79,11 @@ namespace gui {
       okay, cancel, cross, restart,
       off, clear, sync, reset,
       play, pause, stop, back,
+      fast_forwad, fast_back, first, last,
       find, zoom_in, zoom_out, menu,
-      clock, stopwatch, timer, settings,
-      info, important, person, trash,
-      file, folder, folder_open,
+      clock, stopwatch, timer, settings, settings2,
+      info, important, person, group,
+      trash, file, folder, folder_open,
       list, grid, columns,
       lock, unlock,
       background,
@@ -164,6 +165,10 @@ namespace gui {
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::pause> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::stop> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::back> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::fast_forwad> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::fast_back> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::first> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::last> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::find> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::zoom_in> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::zoom_out> (graphics&, const pen&, const core::point&, core::size::type);
@@ -174,8 +179,10 @@ namespace gui {
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::info> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::important> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::person> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::group> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::trash> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::settings> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::settings2> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::file> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::folder> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::folder_open> (graphics&, const pen&, const core::point&, core::size::type);

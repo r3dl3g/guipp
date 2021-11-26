@@ -98,7 +98,7 @@ namespace gui {
     void clock_numbers::operator() (graphics& g, const font& font, gui::os::color color) const {
       for (int i = 1; i < 13; ++i) {
         g.text(draw::text(util::string::convert::from(i),
-                          calc_clock_point(center, i * 360.0F / 12.0F, radius),
+                          calc_clock_point(center, radius, i * 360.0F / 12.0F),
                           text_origin_t::center),
                font, color);
       }
@@ -117,7 +117,7 @@ namespace gui {
       draw::font fnt = font.with_size(radius / 9.0F);
       for (int i = 1; i < 13; ++i) {
         g.text(draw::text(util::string::convert::from(i),
-                          calc_clock_point(center, i * 360.0F / 12.0F, rt),
+                          calc_clock_point(center, rt, i * 360.0F / 12.0F),
                           text_origin_t::center),
                fnt, col);
       }
@@ -189,7 +189,7 @@ namespace gui {
       draw::font fnt = font.with_size(radius / 9.0F);
       for (int i = 5; i < 61; i += 5) {
         g.text(draw::text(util::string::convert::from(i),
-                          draw::calc_clock_point(center, i * 360.0F / 60.0F, rt),
+                          draw::calc_clock_point(center, rt, i * 360.0F / 60.0F),
                           text_origin_t::center),
                fnt, col);
       }
@@ -213,7 +213,7 @@ namespace gui {
       draw::font fnt = font.with_size(radius / 5.0F);
       for (int i = 5; i < 31; i += 5) {
         g.text(draw::text(util::string::convert::from(i),
-                          draw::calc_clock_point(center, i * 360.0F / 30.0F, rt),
+                          draw::calc_clock_point(center, rt, i * 360.0F / 30.0F),
                           text_origin_t::center),
                fnt, col);
       }

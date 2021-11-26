@@ -92,6 +92,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
     core::grid<COLUMNS, ROWS> g(area);
     g.for_each<icon_type>([&] (icon_type i, const core::rectangle& r) {
+      frame::lines(graph, r), color::buttonColor();
       if (i < icon_type::background) {
         const auto center = r.center().dy(-radius/3);
         draw::pen icon_pen(color::black, radius/8, draw::pen::Style::solid, draw::pen::Cap::round, draw::pen::Join::round);

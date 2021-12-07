@@ -2,11 +2,11 @@
 	path = libs/logging
 	url = https://github.com/r3dl3g/logging.git
 	branch = main
-[submodule "testing"]
-	path = libs/testing
-	url = https://github.com/r3dl3g/testing.git
-	branch = main
 [submodule "util"]
 	path = libs/util
 	url = https://github.com/r3dl3g/util.git
+	branch = main
+[submodule "testing"]
+	path = libs/testing
+	url = https://github.com/r3dl3g/testing.git
 	branch = main

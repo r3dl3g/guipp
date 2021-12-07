@@ -276,7 +276,7 @@ namespace gui {
 
       if (rects) {
         (*rects)[0] = {x0, y1, rect.os_width(), in.os_height()};
-        (*rects)[1] = {x1, y0, in.os_width(), sz.os_height()};
+        (*rects)[1] = {x1, y0, in.os_width(), rect.os_height()};
         (*rects)[2] = {x3, y1, in.os_width(), sz.os_height()};
       }
     }

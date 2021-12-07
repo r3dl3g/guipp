@@ -4,6 +4,7 @@
 #include <gui/layout/layout_container.h>
 #include <gui/ctrl/tab_view.h>
 #include <gui/ctrl/label.h>
+#include <gui/ctrl/std_dialogs.h>
 #include <gui/draw/clock.h>
 #include <gui/draw/pen.h>
 #include <gui/draw/brush.h>
@@ -33,6 +34,16 @@ std::pair<point, size::type> get_center (const rectangle& r) {
   return {};
 }
 // --------------------------------------------------------------------------
+class info_button : public icon_push_button_t<draw::icon_type::info> {
+public:
+  info_button () {
+    set_background(color::black);
+    on_clicked([&] () {
+      message_dialog::show(get_overlapped_window(), "Info", "Clock\n\nVersion 1.0.0\nCopyright Ing. Büro Rothfuß", "ok");
+    });
+  }
+};
+// --------------------------------------------------------------------------
 struct clockview : public auto_refresh_window<1000> {
   clockview () {
     set_background(color::black);
@@ -45,7 +56,19 @@ struct clockview : public auto_refresh_window<1000> {
       }
     }));
   }
+};
+// --------------------------------------------------------------------------
+struct clock_page : public group_window<border::zero_layout<icon_push_button>> {
+  clock_page () {
+    get_layout().set_center(lay(clock));
+    on_create([&] () {
+      clock.create(*this);
+      info_btn.create(*this, { 10, 10, 50, 50});
+    });
+  }
 
+  clockview clock;
+  info_button info_btn;
 };
 // --------------------------------------------------------------------------
 struct chronometerview :  public auto_refresh_window<100> {
@@ -245,6 +268,7 @@ struct chronometer_page : group_window<stopwatch_layout, window&, window&, windo
       page.create(*this);
       reset_btn.create(*this);
       start_stop_btn.create(*this);
+      info_btn.create(*this, { 10, 10, 50, 50});
     });
     reset_btn.set_drawer([&] (draw::graphics& g,
                               const core::rectangle& r,
@@ -297,6 +321,7 @@ struct chronometer_page : group_window<stopwatch_layout, window&, window&, windo
   page_t page;
   button_t reset_btn;
   button_t start_stop_btn;
+  info_button info_btn;
 };
 // --------------------------------------------------------------------------
 struct icon_text_toggle_button : public custom_toggle_button<true> {
@@ -413,7 +438,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   typedef tab_view<alignment_t::bottom, tab_group_type, layout::split_layout<alignment_t::bottom, 80>> tabs_t;
 
   tabs_t tabs;
-  clockview page_0;
+  clock_page page_0;
   chronometer_page<stopwatchview> page_1;
   timerview_page page_2;
   layout_main_window<border::zero_layout<tabs_t>, tabs_t&> main(tabs);
@@ -441,7 +466,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   tabs.on_selection_changed([&] (event_source ) {
     const auto idx = tabs.get_selection_index();
-    page_0.activate(idx == 0);
+    page_0.clock.activate(idx == 0);
     page_1.activate(idx == 1);
     page_2.activate(idx == 2);
   });
@@ -450,7 +475,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.on_destroy(&quit_main_loop);
   main.set_title("clock");
   main.set_visible();
-  page_0.start_auto_refresh();
+  page_0.clock.start_auto_refresh();
 
   return run_main_loop();
 }

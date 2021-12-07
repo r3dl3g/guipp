@@ -1,9 +1,12 @@
-[submodule "testing"]
-	path = libs/testing
-	url = git@red-space.de:/srv/git/testing.git
-[submodule "util"]
-	path = libs/util
-	url = git@red-space.de:/srv/git/util.git
 [submodule "logging"]
 	path = libs/logging
-	url = git@red-space.de:/srv/git/logging.git
+	url = https://github.com/r3dl3g/logging.git
+	branch = main
+[submodule "testing"]
+	path = libs/testing
+	url = https://github.com/r3dl3g/testing.git
+	branch = main
+[submodule "util"]
+	path = libs/util
+	url = https://github.com/r3dl3g/util.git
+	branch = main

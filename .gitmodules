@@ -7,9 +7,3 @@
 [submodule "logging"]
 	path = libs/logging
 	url = git@red-space.de:/srv/git/logging.git
-[submodule "qt-android-cmake"]
-	path = libs/qt-android-cmake
-	url = https://github.com/LaurentGomila/qt-android-cmake.git
-[submodule "filesystem"]
-	path = libs/filesystem
-	url = https://github.com/gulrak/filesystem.git

@@ -388,8 +388,17 @@ my_main_window::my_main_window ()
 
 //#endif
 
-  on_move([] (const core::point& p) {
+  on_move([&] (const core::point& p) {
+#ifdef GUIPP_X11
+    XWindowAttributes a = {0};
+    if (XGetWindowAttributes(core::global::get_instance(), get_os_window(), &a)) {
+      logging::debug() << "Main move: " << p << ", screen: " << XScreenNumberOfScreen(a.screen)
+                       << " XxY: " << XWidthOfScreen(a.screen) << 'x' << XHeightOfScreen(a.screen)
+                       << " mmXmm: " << XWidthMMOfScreen(a.screen) << 'x' << XHeightMMOfScreen(a.screen);
+    }
+#else
     logging::debug() << "Main move: " << p;
+#endif
   });
   on_size([] (const core::size& s) {
     logging::debug() << "Main size: " << s;

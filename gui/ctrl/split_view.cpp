@@ -7,13 +7,11 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    standard lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     split window control
  *
- * @brief     C++ API: basic controls
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
 
 // --------------------------------------------------------------------------

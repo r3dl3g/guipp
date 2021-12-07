@@ -7,13 +7,11 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    standard lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     helper to debug windows messages
  *
- * @brief     C++ API: windows message debug helper
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
 
 

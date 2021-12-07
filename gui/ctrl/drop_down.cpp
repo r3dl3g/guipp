@@ -7,13 +7,11 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    standard lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     drop down list control
  *
- * @brief     C++ API: drop down list
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
 
 // --------------------------------------------------------------------------

@@ -7,14 +7,13 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    standard lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     app starting point
  *
- * @brief     C++ API: app defines
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
+
 #include <fstream>
 #include <cstring>
 #include <signal.h>

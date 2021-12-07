@@ -7,26 +7,12 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    standard lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     windows context and clipping for drawing
  *
- * @brief     C++ API: basic structures
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
-
-#pragma once
-
-// --------------------------------------------------------------------------
-//
-// Common includes
-//
-
-// --------------------------------------------------------------------------
-//
-// Library includes
-//
 
 namespace gui {
 

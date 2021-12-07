@@ -7,13 +7,11 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    standard lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     various button looks
  *
- * @brief     C++ API: button
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
 
 #pragma once

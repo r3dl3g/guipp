@@ -7,13 +7,11 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    standard lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     window event handler
  *
- * @brief     C++ API: window events
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
 
 #pragma once

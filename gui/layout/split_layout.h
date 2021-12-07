@@ -7,13 +7,11 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    standard lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     layout to place two windows with a defined split position
  *
- * @brief     C++ API: layout
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
 
 #pragma once

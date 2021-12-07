@@ -7,17 +7,12 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    standard lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     movable separator view control
  *
- * @brief     C++ API: splitter control
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
-
-#pragma once
-
 
 namespace gui {
 

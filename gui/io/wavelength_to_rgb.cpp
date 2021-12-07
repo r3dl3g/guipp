@@ -7,13 +7,11 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    gui io lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     calculate wavelength to rgb.
  *
- * @brief     C++ API: calculate wavelength to rgb.
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
 
 // --------------------------------------------------------------------------

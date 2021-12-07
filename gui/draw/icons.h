@@ -7,13 +7,11 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    gui lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     icon drawings
  *
- * @brief     C++ API: brush definition
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
 
 #pragma once

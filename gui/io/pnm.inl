@@ -7,13 +7,11 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    gui lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     save/load images to/from pnm file or stream.
  *
- * @brief     C++ API: save/load bitmap to/from pnm file or stream.
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
 
 #pragma once

@@ -7,13 +7,11 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    gui lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     direct access image_data
  *
- * @brief     C++ API: bitmap definition
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
 
 #pragma once

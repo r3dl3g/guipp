@@ -7,13 +7,11 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    gui lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     image_data converter
  *
- * @brief     C++ API: bitmap converter
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
 
 #pragma once

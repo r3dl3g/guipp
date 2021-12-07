@@ -7,13 +7,11 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    standard lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     container window to hold clients with a specific layout
  *
- * @brief     C++ API: basic window
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
 
 #pragma once
@@ -40,7 +38,7 @@ namespace gui {
         typedef B super;
         typedef L layout_type;
 
-        explicit layout_container_base (const Args& ... args);
+        explicit layout_container_base (Args ... args);
         layout_container_base (const layout_container_base& rhs);
         layout_container_base (layout_container_base&& rhs) noexcept ;
 
@@ -72,7 +70,7 @@ namespace gui {
       typedef layout_container<L, Args ...> super;
       typedef window_class<group_window, color::white> clazz;
 
-      explicit group_window (const Args& ... args);
+      explicit group_window (Args ... args);
 
       void create (container& parent,
                    const core::rectangle& r = core::rectangle::def);

@@ -7,13 +7,11 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    standard lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     win32 specific native core functions
  *
- * @brief     C++ API: basic window types
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
 
 #ifdef GUIPP_WIN

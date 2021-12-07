@@ -7,13 +7,11 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    standard lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     container window to hold clients with a specific layout
  *
- * @brief     C++ API: basic window
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
 
 #pragma once
@@ -26,7 +24,7 @@ namespace gui {
     namespace detail {
 
       template<typename B, typename L, typename ... A>
-      inline layout_container_base<B, L, A...>::layout_container_base (const A& ... args)
+      inline layout_container_base<B, L, A...>::layout_container_base (A ... args)
         : layouter(args ...) {
         init();
       }
@@ -93,7 +91,7 @@ namespace gui {
     } // namespace detail
 
     template<typename L, typename ... A>
-    inline group_window<L, A...>::group_window (const A& ... args)
+    inline group_window<L, A...>::group_window (A ... args)
       : super(args ...)
     {}
 

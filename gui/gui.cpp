@@ -7,13 +7,11 @@
 *
 * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
 *
-* Project    standard lib
+* Project    gui++ lib
 *
-* Customer   -
+* @brief     Version info and logger core.
 *
-* @brief     C++ API:logger
-*
-* @file
+* @license   MIT license. See accompanying file LICENSE.
 */
 
 // --------------------------------------------------------------------------

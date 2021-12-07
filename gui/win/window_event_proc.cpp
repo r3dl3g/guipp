@@ -7,13 +7,11 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    standard lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     system specific window event handler function
  *
- * @brief     C++ API: window event handler function
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
 
 

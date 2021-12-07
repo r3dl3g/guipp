@@ -7,13 +7,11 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    gui io lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     calculate wavelength to rgb.
  *
- * @brief     C++ API: save bitmap as pnm to cpp file or stream.
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
 
 #pragma once

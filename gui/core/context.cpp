@@ -7,20 +7,12 @@
  *
  * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
  *
- * Project    standard lib
+ * Project    gui++ lib
  *
- * Customer   -
+ * @brief     windows context and clipping for drawing
  *
- * @brief     C++ API: basic window types
- *
- * @file
+ * @license   MIT license. See accompanying file LICENSE.
  */
-
-// --------------------------------------------------------------------------
-//
-// Common includes
-//
-
 
 // --------------------------------------------------------------------------
 //
@@ -121,16 +113,6 @@ namespace gui {
       }
       g = 0;
     }
-
-//    core::native_point context::offset () const {
-//      POINT pt;
-//      GetViewportOrgEx(gc(), &pt);
-//      return {pt.x, pt.y};
-//    }
-
-//    void context::set_offset (const core::native_point& o) {
-//      SetViewportOrgEx(gc(), o.x(), o.y(), NULL);
-//    }
 
     // --------------------------------------------------------------------------
     clip::clip (context& ctx, const core::native_rect& r)

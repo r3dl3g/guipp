@@ -7,28 +7,23 @@
 
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
-  using namespace gui::win;
 
   using namespace gui;
+  using namespace gui::win;
   using namespace gui::layout;
   using namespace gui::ctrl;
-  using namespace gui::core;
 
-  using label_t = basic_label<text_origin_t::center,
-                              draw::frame::raised_deep_relief>;
+  using label_t = basic_label<text_origin_t::center, draw::frame::raised_deep_relief>;
+  using client_t = vertical_split_view<label_t, label_t>;
 
-  layout_main_window<border::layouter</*50, 50, 50, 50*/>> main;
-  typedef horizontal_split_view<label_t, label_t> labels;
-  vertical_split_view<label_t, labels> client;
+  client_t client;
+  layout_main_window<border::center_layout<client_t>, client_t&> main(client);
 
-  main.get_layout().set_center(lay(client));
   main.on_create([&] () {
-    client.create(main, main.client_geometry());
+    client.create(main);
     client.set_split_pos(0.5);
-    client.first.set_text([&] () { return ostreamfmt(client.first << " Left (" << client.first.geometry() << ")"); });
-    client.second.set_split_pos(0.5);
-    client.second.first.set_text([&] () { return ostreamfmt(client.second.first << " Top (" << client.second.first.geometry() << ")"); });
-    client.second.second.set_text([&] () { return ostreamfmt(client.second.second << " Bottom (" << client.second.second.geometry() << ")"); });
+    client.first.set_text([&] () { return ostreamfmt("Left (" << client.first.geometry() << ")"); });
+    client.second.set_text([&] () { return ostreamfmt("Right (" << client.second.geometry() << ")"); });
   });
 
   main.create({50, 50, 800, 600});

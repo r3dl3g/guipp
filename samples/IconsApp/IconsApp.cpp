@@ -80,7 +80,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   });
   auto adjust = [&] () {
     const auto area = icons_view.client_geometry();
-    const auto sz = round(std::min(area.width()/COLUMNS, area.height()/ROWS));
+    const auto sz = round(area.width()/COLUMNS);
     scrollbar.set_value(sz);
   };
 

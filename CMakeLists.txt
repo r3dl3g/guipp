@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-project("gui-lib" CXX)
+project("guipp" CXX)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 

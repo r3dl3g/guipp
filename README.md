@@ -42,6 +42,8 @@ the need of sub-classing it.
 
 ## Usage
 
+### First steps
+
 Let's start with an example. Of course: "Hello world"!
 
 ```C++
@@ -73,6 +75,8 @@ Nothing realy special here.
   5. A title is set (ups, doesn't look like model-view, but let's see later).
   6. The window is make visible (on screen) 
   7. And then a run_main_loop is called (that runs until the window is closed).
+
+### Second step
 
 Let's do a second one.
 
@@ -140,20 +144,56 @@ So here you can see some of the principles in this library.
 
 To be continued...
 
-### In cmake
+## Building your own app
 
-In your CMakeLists.txt include this project directory and add the library util to your target:
+I assume, you have created a blank project at your prefered git repository
+and cloned it to a local directory.
 
-```cmake
+1. Create a Application cpp file, f.e. call it MyApp.cpp and copy the content 
+   of the "Hello World" example or the second sample above in it.
 
-add_subdirectory(gui)
+2. Add guipp as a submodule and initialize it.
 
-add_definitions(${GUIPP_CXX_FLAGS})
+   ```bash
 
-include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS})
+   git submodule add --name guipp https://github.com/r3dl3g/guipp.git libs/guipp
+   git submodule update --init --recursive
 
-add_executable(MyApp MyApp.cpp)
-target_link_libraries(MyApp ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
-set_target_properties(MyApp PROPERTIES CXX_STANDARD ${GUI_CXX_STANDARD})
+   ```
 
-```
+3. Create a CMakeLists.txt and add following:
+
+   ```cmake
+
+   cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+
+   project("MyApp" CXX)
+
+   add_subdirectory(libs/guipp/gui gui)
+   add_definitions(${GUIPP_CXX_FLAGS})
+   include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS})
+
+   add_executable(${PROJECT_NAME} ${PROJECT_NAME}.cpp)
+   target_link_libraries(${PROJECT_NAME} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
+   set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD ${GUIPP_CXX_STANDARD})
+
+   ```
+
+4. build it
+
+   ```bash
+
+   mkdir build
+   cd build
+   cmake ..
+   make -j
+
+   ```
+
+5. Run it
+
+   ```bash
+
+   ./MyApp
+
+   ```

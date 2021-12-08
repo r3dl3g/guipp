@@ -81,7 +81,6 @@ endfunction(guipp_sample)
 
 add_subdirectory(AttachAllLayoutApp)
 add_subdirectory(BorderLayoutApp)
-add_subdirectory(ClockApp)
 add_subdirectory(ColumnListViewApp)
 add_subdirectory(DiagramsApp)
 add_subdirectory(DialogsApp)

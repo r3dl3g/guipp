@@ -181,6 +181,8 @@ and cloned it to a local directory.
 
 4. build it
 
+For linux users:
+
    ```bash
 
    mkdir build
@@ -190,10 +192,33 @@ and cloned it to a local directory.
 
    ```
 
+For Windows users (using Visual Studio 2022):
+
+   ```cmd
+
+   mkdir build
+   cd build
+   cmake .. -G"Visual Studio 17 2022" -DCMAKE_CONFIGURATION_TYPES=Debug;Release
+   cmake --build . --config Release
+
+   ```
+
+
 5. Run it
+
+For linux users:
 
    ```bash
 
    ./MyApp
+
+   ```
+
+For Windows users
+
+   ```cmd
+
+   cd bin\Release
+   MyApp
 
    ```

@@ -50,7 +50,7 @@ namespace gui {
     }
 
     template<typename F>
-    inline graphics& graphics::frame (F drawer, const pen& p) {
+    graphics& graphics::frame (F drawer, const pen& p) {
       if (!is_transparent(p)) {
         drawer(*this, p);
       }
@@ -58,7 +58,7 @@ namespace gui {
     }
 
     template<typename F>
-    inline graphics& graphics::fill (F drawer, const brush& b) {
+    graphics& graphics::fill (F drawer, const brush& b) {
       if (!is_transparent(b)) {
         drawer(*this, b);
       }
@@ -66,7 +66,7 @@ namespace gui {
     }
 
     template<typename F>
-    inline graphics& graphics::draw (F drawer, const brush& b, const pen& p) {
+    graphics& graphics::draw (F drawer, const brush& b, const pen& p) {
       if (is_transparent(b) && is_transparent(p)) {
         return *this;
       }
@@ -75,7 +75,7 @@ namespace gui {
     }
 
     template<typename F>
-    inline graphics& graphics::text (F drawer, const font& f, os::color c) {
+    graphics& graphics::text (F drawer, const font& f, os::color c) {
       if (!color::is_transparent(c)) {
         drawer(*this, f, c);
       }
@@ -83,7 +83,7 @@ namespace gui {
     }
 
     template<typename F>
-    inline graphics& graphics::copy (F drawer, const core::point& pt) {
+    graphics& graphics::copy (F drawer, const core::point& pt) {
       drawer(*this, pt);
       return *this;
     }

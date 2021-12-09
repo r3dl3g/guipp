@@ -190,6 +190,12 @@ namespace gui {
         return get_text_in_range(get_selection());
       }
 
+      std::string textbox_base::cut_selected_text () {
+        auto text = get_selected_text();
+        replace_selection({});
+        return text;
+      }
+
       core::rectangle textbox_base::get_virtual_geometry (const core::rectangle&) const {
         if (data.virtual_size.empty()) {
           const auto row_sz = data.font.line_height();

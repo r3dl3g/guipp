@@ -34,7 +34,7 @@ namespace gui {
     void basic_editbox<frame>::handle_paint (draw::graphics& graph) {
       const auto area = client_geometry();
       gui::look::text_box(graph, area, data.lines, data.font,
-                          foreground, super::get_background(), text_origin_t::vcenter_left,
+                          foreground, super::get_background(), text_origin_t::top_left,
                           data.selection, data.cursor_pos, data.offset, is_focused(), is_enabled());
       frame(graph, area);
     }

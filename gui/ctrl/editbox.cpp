@@ -40,6 +40,7 @@ namespace gui {
       }
 
       void editbox_base::init () {
+        set_font(draw::font::monospace());
         data.lines.emplace_back(std::string());
         on_create(util::bind_method(this, &editbox_base::handle_create));
         on_any_key_down(util::bind_method(this, &editbox_base::handle_key));

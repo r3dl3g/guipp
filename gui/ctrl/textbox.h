@@ -67,6 +67,7 @@ namespace gui {
         void replace_selection (const std::string&);
         std::string get_text_in_range (const range&) const;
         std::string get_selected_text () const;
+        std::string cut_selected_text ();
 
         core::rectangle get_virtual_geometry (const core::rectangle&) const;
         core::size get_scroll_steps () const;
@@ -75,6 +76,9 @@ namespace gui {
 
         position find_prev_word (const position& pos);
         position find_next_word (const position& pos);
+
+        void set_font (const draw::font& f);
+        const draw::font& get_font () const;
 
       protected:
         position get_position_at_point (const core::point& pt, const text_origin_t origin_t) const;

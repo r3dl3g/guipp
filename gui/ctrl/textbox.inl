@@ -51,6 +51,14 @@ namespace gui {
         return data.cursor_pos;
       }
 
+      inline void textbox_base::set_font (const draw::font& f) {
+        data.font = f;
+      }
+
+      inline const draw::font& textbox_base::get_font () const {
+        return data.font;
+      }
+
       inline textbox_base::data::data ()
         : font(draw::font::system())
         , last_mouse_point(core::native_point::undefined)

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-project("guipp" CXX)
+project("gui" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
@@ -291,10 +291,11 @@ if(NOT TARGET guipp)
     set (GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} /Y- /bigobj)
   endif()
 
-  IF(CMAKE_CXX_COMPILER_ID STREQUAL GNU)
-      set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0")
-      set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0")
-  ENDIF()
+  if ((CMAKE_CXX_COMPILER_ID STREQUAL GNU) AND (CMAKE_BUILD_TYPE MATCHES Debug) AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 10.0))
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -O0 -fno-inline -U_FORTIFY_SOURCE)
+  else ()
+    message(STATUS "GUIPP: Release build!")
+  endif ()
 
   if (GUIPP_USE_XCB)
     set (GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} X11-xcb xcb xcb-xrm)

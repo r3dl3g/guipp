@@ -631,10 +631,13 @@ namespace gui {
 
       template<typename X, typename Y, typename C, scaling SX, scaling SY>
       core::rectangle graph_base<X, Y, C, SX, SY>::get_graph_area () const {
-        return core::rectangle(core::point(static_cast<float>(sx.get_target().begin()),
-                                           static_cast<float>(sy.get_target().begin())),
-                               core::point(static_cast<float>(sx.get_target().end()),
-                                           static_cast<float>(sy.get_target().end()))).grow({1, 1});
+        const auto& sxt = sx.get_target();
+        const auto& syt = sy.get_target();
+        const auto x0 = static_cast<core::point::type>(std::min(sxt.begin(), sxt.end()));
+        const auto y0 = static_cast<core::point::type>(std::min(syt.begin(), syt.end()));
+        const auto x1 = static_cast<core::point::type>(std::max(sxt.begin(), sxt.end()));
+        const auto y1 = static_cast<core::point::type>(std::max(syt.begin(), syt.end()));
+        return core::rectangle(core::point(x0, y0), core::point(x1, y1)).grow({1, 1});
       }
 
       // --------------------------------------------------------------------------

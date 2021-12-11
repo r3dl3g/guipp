@@ -4,6 +4,10 @@ project("guipp" CXX)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+option(GUIPP_SAMPLES "On to build the samples. Default Off" OFF)
+option(GUIPP_TESTS "On to build the tests. Default Off" OFF)
+option(GUIPP_TOOLS "On to build the tools. Default Off" OFF)
+
 function(print_var VAR)
     message(STATUS "${VAR}: '" ${${VAR}} "'")
 endfunction(print_var)
@@ -55,9 +59,9 @@ else()
     set(INSTALL_BASE_DIR "/usr/local")
 endif ()
 
-set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/obj)
-set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+#set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/obj)
+#set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+#set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 if (NOT ANDROID AND NOT CMAKE_DEBUG_POSTFIX)
     set(CMAKE_DEBUG_POSTFIX d)
@@ -70,21 +74,22 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     endif ()
 endif ()
 
-get_directory_property(HAS_PARENT PARENT_DIRECTORY)
-if (NOT HAS_PARENT)
-  set (GUIPP_STANDALONE_BUILD ON)
-endif ()
-
 add_subdirectory(gui)
 
-if (GUIPP_STANDALONE_BUILD)
-  if (NOT ANDROID AND NOT EMSCRIPTEN)
+if (NOT ANDROID AND NOT EMSCRIPTEN)
+  if (GUIPP_TESTS)
     add_subdirectory(tests)
+  endif ()
+  if (GUIPP_TOOLS)
     add_subdirectory(tools)
   endif ()
+endif ()
+
+if (GUIPP_SAMPLES)
   add_subdirectory(samples)
 endif ()
 
+get_directory_property(HAS_PARENT PARENT_DIRECTORY)
 if(HAS_PARENT)
   set (GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} PARENT_SCOPE)
   set (GUIPP_CXX_STANDARD ${GUIPP_CXX_STANDARD} PARENT_SCOPE)

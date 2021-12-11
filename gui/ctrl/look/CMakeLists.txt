@@ -37,12 +37,11 @@ if(NOT TARGET ${PROJECT_NAME})
 
   define_guipp_subpackage(${PROJECT_NAME} GUIPP_LOOK "${SOURCE_FILES}" "${INCLUDE_FILES}" "${LINKED_LIBRARIES}" "${LINKED_SYS_LIBRARIES}")
 
-  if (GUIPP_STANDALONE_BUILD)
-    configure_guipp_subpackage_config(guipp ${PROJECT_NAME} ctrl/${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../../SubConfig.cmake.in "${INCLUDE_FILES}" "${LINKED_LIBRARIES}")
+  configure_guipp_subpackage_config(guipp ${PROJECT_NAME} ctrl/${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../../SubConfig.cmake.in "${INCLUDE_FILES}" "${LINKED_LIBRARIES}")
 
+  if (GUIPP_CONFIG_INSTALL)
     install(FILES ${RESOURCE_FILES}
-          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gui/ctrl/${PROJECT_NAME}/res)
-
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gui/ctrl/${PROJECT_NAME}/res)
   endif()
 
 endif()

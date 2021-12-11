@@ -14,3 +14,4 @@ out
 build/.em++_info.tmp.em1.x
 build/Makefile
 build/cmake_install.cmake
+result

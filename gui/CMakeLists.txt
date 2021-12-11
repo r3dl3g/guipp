@@ -14,9 +14,9 @@ endif()
 
 option(GUIPP_BUILD_STATIC_MODULE_LIBS "On to build a static library for each submodule, Off to build shared libraries. Default Off" OFF)
 option(GUIPP_BUILD_SHARED_MODULE_LIBS "On to build a shared library for each submodule, Off to build static libraries. default Off" OFF)
-option(GUIPP_USE_XCB "On to make use of the xcb library. Default Off" OFF)
-option(GUIPP_STANDALONE_BUILD "On to make an installable standalone build, Off to build as part of a project. Default Off" OFF)
+option(GUIPP_CONFIG_INSTALL "On to configure installation, Off to build as part of a project. Default Off" OFF)
 option(GUIPP_BUILD_FOR_MOBILE "On to optimize for smartphone, Off to optimize for dekstop. Default Off" OFF)
+option(GUIPP_USE_XCB "On to make use of the xcb library. Default Off" OFF)
 option(GUIPP_USE_QT5 "On to make use of the Qt5 library. Default Off" OFF)
 option(GUIPP_USE_QT6 "On to make use of the Qt6 library. Default Off" OFF)
 option(GUIPP_CXX_STANDARD "C++ standard to overwrite default cmake standard" ${CMAKE_CXX_STANDARD})
@@ -33,45 +33,59 @@ if(CMAKE_CXX_COMPILER MATCHES "/em\\+\\+(-[a-zA-Z0-9.])?$")
 endif()
 
 function(configure_guipp_subpackage_config PREFIX TARGET SUBDIR CONFIG_IN EXPORT_FILES LINKED_LIBRARIES)
-  set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui/${SUBDIR})
-  set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/${PREFIX})
+  if (GUIPP_CONFIG_INSTALL)
+    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui/${SUBDIR})
+    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/${PREFIX})
 
-  target_include_directories(${TARGET}
-                             PUBLIC
-                             "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-                             "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>")
+    target_include_directories(${TARGET}
+                               PUBLIC
+                               "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+                               "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>")
 
-  configure_package_config_file(${CONFIG_IN}
-                                "${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}${TARGET}Config.cmake"
-                                INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}
-                                PATH_VARS CMAKE_INSTALL_INCLUDEDIR)
+    configure_package_config_file(${CONFIG_IN}
+                                  "${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}${TARGET}Config.cmake"
+                                  INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}
+                                  PATH_VARS CMAKE_INSTALL_INCLUDEDIR)
 
-  if(GUIPP_BUILD_STATIC_MODULE_LIBS OR GUIPP_BUILD_SHARED_MODULE_LIBS)
-    install(TARGETS ${TARGET}
-            EXPORT ${PREFIX}${TARGET}Targets
-            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#            OBJECTS DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-            INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR})
+    if(GUIPP_BUILD_STATIC_MODULE_LIBS OR GUIPP_BUILD_SHARED_MODULE_LIBS)
+      install(TARGETS ${TARGET}
+                  EXPORT ${PREFIX}${TARGET}Targets
+              LIBRARY
+                  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                  COMPONENT Bin
+              ARCHIVE
+                  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                  COMPONENT Dev
+              RUNTIME
+                  DESTINATION ${CMAKE_INSTALL_BINDIR}
+              INCLUDES
+                  DESTINATION ${INCLUDE_INSTALL_DIR}
+                  COMPONENT Dev
+      )
 
-    install(EXPORT ${PREFIX}${TARGET}Targets
-            FILE ${PREFIX}${TARGET}Targets.cmake
-            NAMESPACE ${PREFIX}::
-            DESTINATION ${LIBRARY_INSTALL_DIR})
+      install(EXPORT ${PREFIX}${TARGET}Targets
+              FILE ${PREFIX}${TARGET}Targets.cmake
+              NAMESPACE ${PREFIX}::
+              DESTINATION ${LIBRARY_INSTALL_DIR}
+              COMPONENT Dev
+      )
 
-    install(FILES
-            "${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}${TARGET}Config.cmake"
-            DESTINATION ${LIBRARY_INSTALL_DIR})
+      install(FILES
+              "${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}${TARGET}Config.cmake"
+              DESTINATION ${LIBRARY_INSTALL_DIR}
+              COMPONENT Dev
+      )
 
-    export(TARGETS ${TARGET} FILE ${PREFIX}${TARGET}Targets.cmake)
+      export(TARGETS ${TARGET} FILE ${PREFIX}${TARGET}Targets.cmake)
 
+    endif()
+
+    install(FILES ${EXPORT_FILES}
+            ${PROJECT_BINARY_DIR}/gui++-${TARGET}-export.h
+            DESTINATION ${INCLUDE_INSTALL_DIR}
+            COMPONENT Dev
+    )
   endif()
-
-  install(FILES ${EXPORT_FILES}
-          ${PROJECT_BINARY_DIR}/gui++-${TARGET}-export.h
-          DESTINATION ${INCLUDE_INSTALL_DIR})
-
 endfunction(configure_guipp_subpackage_config)
 
 function(define_guipp_subpackage PROJECT_NAME BASE_NAME SOURCE_FILES INCLUDE_FILES LINKED_LIBRARIES LINKED_SYS_LIBRARIES)
@@ -131,7 +145,7 @@ if(NOT TARGET guipp)
     set (LOGGING_BUILD_STATIC_MODULE_LIB OFF CACHE BOOL "disable static build")
   endif ()
 
-  if (GUIPP_STANDALONE_BUILD AND (GUIPP_BUILD_SHARED_MODULE_LIBS OR GUIPP_BUILD_STATIC_MODULE_LIBS))
+  if (GUIPP_CONFIG_INSTALL AND (GUIPP_BUILD_SHARED_MODULE_LIBS OR GUIPP_BUILD_STATIC_MODULE_LIBS))
     set (UTIL_CONFIG_INSTALL ON CACHE BOOL "enable install")
     set (LOGGING_CONFIG_INSTALL ON CACHE BOOL "enable install")
     set (TESTING_CONFIG_INSTALL ON CACHE BOOL "enable install")
@@ -465,7 +479,7 @@ if(NOT TARGET guipp)
                          EXPORT_FILE_NAME gui++-export.h
                          STATIC_DEFINE GUIPP_BUILT_AS_STATIC)
 
-  if (GUIPP_STANDALONE_BUILD)
+  if (GUIPP_CONFIG_INSTALL)
     set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui)
     set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/guipp)
 
@@ -473,37 +487,55 @@ if(NOT TARGET guipp)
                                "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
                                "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>")
 
-    write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/guippConfigVersion.cmake"
+    write_basic_package_version_file(guippConfigVersion.cmake
                                      VERSION "${GUIPP_VERSION}"
                                      COMPATIBILITY SameMajorVersion)
 
     configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
-                                    "${CMAKE_CURRENT_BINARY_DIR}/guippConfig.cmake"
-                                    INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}
-                                    PATH_VARS CMAKE_INSTALL_INCLUDEDIR GUIPP_SYS_LIBRARIES)
+                                  "${CMAKE_CURRENT_BINARY_DIR}/guippConfig.cmake"
+                                  INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}
+                                  PATH_VARS CMAKE_INSTALL_INCLUDEDIR GUIPP_SYS_LIBRARIES)
 
-    install(TARGETS guipp EXPORT guippTargets
-            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    install(TARGETS guipp
+            EXPORT
+                guippTargets
+            LIBRARY
+                DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT Bin
+            ARCHIVE
+                DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT Dev
 #            OBJECTS DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-            INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR})
+            RUNTIME
+                DESTINATION ${CMAKE_INSTALL_BINDIR}
+                COMPONENT Bin
+            INCLUDES
+                DESTINATION ${INCLUDE_INSTALL_DIR}
+                COMPONENT Dev
+            )
 
     install(FILES ${INCLUDE_FILES}
             ${PROJECT_BINARY_DIR}/gui++-export.h
-            DESTINATION ${INCLUDE_INSTALL_DIR})
+            ${PROJECT_BINARY_DIR}/gui_version.h
+            DESTINATION ${INCLUDE_INSTALL_DIR}
+            COMPONENT Dev
+            )
 
     install(EXPORT guippTargets
             FILE guippTargets.cmake
             NAMESPACE guipp::
-            DESTINATION ${LIBRARY_INSTALL_DIR})
+            DESTINATION ${LIBRARY_INSTALL_DIR}
+            COMPONENT Dev
+            )
 
     export(TARGETS guipp FILE guippTargets.cmake)
 
     install(FILES
             "${CMAKE_CURRENT_BINARY_DIR}/guippConfig.cmake"
             "${CMAKE_CURRENT_BINARY_DIR}/guippConfigVersion.cmake"
-            DESTINATION ${LIBRARY_INSTALL_DIR})
+            DESTINATION ${LIBRARY_INSTALL_DIR}
+            COMPONENT Dev
+            )
 
   endif()
 

@@ -2,6 +2,7 @@
 boost
 build/*/*
 build/*.tmp
+result*
 CMakeLists.txt.user*
 dist
 clion

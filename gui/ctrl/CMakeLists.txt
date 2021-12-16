@@ -39,19 +39,14 @@ if(NOT TARGET ${PROJECT_NAME})
 
   define_guipp_subpackage(${PROJECT_NAME}
                           BASE GUIPP_CTRL
-                          PREFIX libguipp
-                          LINK ${GUIPP_LINK}
-                          VERSION ${GUIPP_VERSION}
-                          VERSION_MAJOR ${GUIPP_VERSION_MAJOR}
-                          CXX_STANDARD ${GUIPP_CXX_STANDARD}
                           SOURCES ${SOURCE_FILES} ${INCLUDE_FILES}
                           LIBS guipp::core guipp::win guipp::draw guipp::io guipp::layout guipp::look
                                ${LOGGING_LIBRARIES} ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
 
-  configure_guipp_subpackage_config(${PROJECT_NAME}
-                                    PREFIX guipp
-                                    SUBDIR ${PROJECT_NAME}
-                                    CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/../SubConfig.cmake.in
-                                    INCLUDES ${INCLUDE_FILES})
+  install_guipp_subpackage(${PROJECT_NAME}
+                           PREFIX guipp
+                           SUBDIR ${PROJECT_NAME}
+                           CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/../SubConfig.cmake.in
+                           FILES ${INCLUDE_FILES})
 
 endif()

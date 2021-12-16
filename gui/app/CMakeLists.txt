@@ -33,17 +33,11 @@ if(NOT TARGET ${PROJECT_NAME})
                         CXX_STANDARD ${GUIPP_CXX_STANDARD}
   )
 
-  GENERATE_EXPORT_HEADER(${PROJECT_NAME}
-    BASE_NAME APP
-    EXPORT_MACRO_NAME APP_EXPORT
-    EXPORT_FILE_NAME gui++-app-export.h
-    STATIC_DEFINE GUIPP_BUILT_AS_STATIC)
-
-  configure_guipp_subpackage_config(${PROJECT_NAME}
-                                    PREFIX guipp
-                                    SUBDIR ${PROJECT_NAME}
-                                    CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/../SubConfig.cmake.in
-                                    EXPORT_LIBS ${GUIPP_APP_USE_OBJECT}
-                                    INCLUDES ${INCLUDE_FILES})
+  install_guipp_subpackage(${PROJECT_NAME}
+                           PREFIX guipp
+                           SUBDIR ${PROJECT_NAME}
+                           CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/../SubConfig.cmake.in
+                           EXPORT_LIBS ${GUIPP_APP_USE_OBJECT}
+                           FILES ${INCLUDE_FILES})
 
 endif()

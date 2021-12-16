@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-project("gui" CXX)
+project("gui" LANGUAGES CXX VERSION 1.0.2)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
@@ -12,6 +12,11 @@ include (CMakeParseArguments)
 if(POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
 endif()
+
+set (GUIPP_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set (GUIPP_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set (GUIPP_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+set (GUIPP_VERSION "${PROJECT_VERSION}")
 
 option(GUIPP_BUILD_STATIC_MODULE_LIBS "On to build a static library for each submodule, Off to build shared libraries. Default Off" OFF)
 option(GUIPP_BUILD_SHARED_MODULE_LIBS "On to build a shared library for each submodule, Off to build static libraries. default Off" OFF)
@@ -40,14 +45,14 @@ if (NOT DEFINED CMAKE_CXX_VISIBILITY_PRESET AND
   set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 endif ()
 
-function(configure_guipp_subpackage_config TARGET)
+function(install_guipp_subpackage TARGET)
 
   if (GUIPP_CONFIG_INSTALL)
     cmake_parse_arguments(
         ARG           # prefix
         "EXPORT_LIBS" # boolean arguments
         "PREFIX;CONFIG;SUBDIR" # mono-valued arguments
-        "INCLUDES"    # multi-valued arguments
+        "FILES"       # multi-valued arguments
         ${ARGN}       # num of arguments of the function to parse
     )
     if((NOT TARGET) OR (NOT ARG_PREFIX) OR (NOT ARG_CONFIG) OR (NOT ARG_SUBDIR))
@@ -84,8 +89,7 @@ function(configure_guipp_subpackage_config TARGET)
           DESTINATION ${${ARG_PREFIX}_${TARGET}_INSTALL_CMAKEDIR}
       )
 
-      install(FILES
-          ${CMAKE_CURRENT_BINARY_DIR}/${ARG_PREFIX}${TARGET}Config.cmake
+      install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${ARG_PREFIX}${TARGET}Config.cmake
           DESTINATION ${${ARG_PREFIX}_${TARGET}_INSTALL_CMAKEDIR}
       )
 
@@ -93,15 +97,17 @@ function(configure_guipp_subpackage_config TARGET)
 
     endif()
 
-    install(FILES
-        ${ARG_INCLUDES}
-        ${PROJECT_BINARY_DIR}/gui++-${TARGET}-export.h
+    if(EXISTS "${PROJECT_BINARY_DIR}/gui++-${TARGET}-export.h")
+      list(APPEND ARG_FILES "${PROJECT_BINARY_DIR}/gui++-${TARGET}-export.h")
+    endif()
+
+    install(FILES ${ARG_FILES}
         DESTINATION ${${ARG_PREFIX}_${TARGET}_INSTALL_INCLUDEDIR}
     )
 
   endif()
 
-endfunction(configure_guipp_subpackage_config)
+endfunction(install_guipp_subpackage)
 
 function(define_guipp_subpackage TARGET)
 
@@ -183,11 +189,6 @@ else ()
 endif()
 
 if(NOT TARGET guipp)
-
-  set (GUIPP_VERSION_MAJOR 1)
-  set (GUIPP_VERSION_MINOR 0)
-  set (GUIPP_VERSION_PATCH 2)
-  set (GUIPP_VERSION "${GUIPP_VERSION_MAJOR}.${GUIPP_VERSION_MINOR}.${GUIPP_VERSION_PATCH}")
 
   if (GUIPP_CXX_STANDARD STREQUAL "OFF")
     set (GUIPP_CXX_STANDARD 17)
@@ -530,54 +531,20 @@ if(NOT TARGET guipp)
                          STATIC_DEFINE GUIPP_BUILT_AS_STATIC)
 
   if (GUIPP_CONFIG_INSTALL)
-    set (GUIPP_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/gui)
-    set (GUIPP_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/guipp)
-
-    target_include_directories(guipp PUBLIC
-                               "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-                               "$<INSTALL_INTERFACE:${GUIPP_INSTALL_INCLUDEDIR}>")
-
     write_basic_package_version_file(
-        guippConfigVersion.cmake
-        VERSION "${GUIPP_VERSION}"
-        COMPATIBILITY SameMajorVersion
-    )
-
-    configure_package_config_file(
-        ${PROJECT_SOURCE_DIR}/Config.cmake.in
-        ${PROJECT_BINARY_DIR}/guippConfig.cmake
-        INSTALL_DESTINATION ${GUIPP_INSTALL_CMAKEDIR}
-        PATH_VARS CMAKE_INSTALL_INCLUDEDIR GUIPP_SYS_LIBRARIES
-    )
-
-    install(
-        TARGETS guipp
-        EXPORT  guipp_Targets
-        INCLUDES DESTINATION ${GUIPP_INSTALL_INCLUDEDIR}
-    )
-
-    install(
-        FILES ${INCLUDE_FILES}
-        ${PROJECT_BINARY_DIR}/gui++-export.h
-        ${PROJECT_BINARY_DIR}/gui_version.h
-        DESTINATION ${GUIPP_INSTALL_INCLUDEDIR}
-    )
-
-    install(
-        EXPORT guipp_Targets
-        NAMESPACE guipp::
-        FILE guippTargets.cmake
-        DESTINATION ${GUIPP_INSTALL_CMAKEDIR}
-    )
-
-    export(TARGETS guipp FILE guippTargets.cmake)
-
-    install(FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/guippConfig.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/guippConfigVersion.cmake
-        DESTINATION ${GUIPP_INSTALL_CMAKEDIR}
-    )
-
+      guippConfigVersion.cmake
+      VERSION "${GUIPP_VERSION}"
+      COMPATIBILITY SameMajorVersion
+  )
   endif()
+
+  install_guipp_subpackage(guipp
+    PREFIX guipp
+    CONFIG ${PROJECT_SOURCE_DIR}/Config.cmake.in
+    SUBDIR "."
+    FILES ${INCLUDE_FILES}
+          ${PROJECT_BINARY_DIR}/gui++-export.h
+          ${PROJECT_BINARY_DIR}/gui_version.h
+  )
 
 endif()

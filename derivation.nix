@@ -2,7 +2,7 @@
 
 { stdenv, lib, pkgs } :
 
-stdenv.mkDerivation {
+stdenv.mkDerivation rec {
   pname = "guipp";
   version = "1.0.2";
 

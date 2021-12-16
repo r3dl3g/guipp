@@ -13,31 +13,15 @@ if(NOT TARGET ${PROJECT_NAME})
   set(SOURCE_FILES app.cpp)
   set(INCLUDE_FILES app.h)
 
-  add_definitions(${GUIPP_CXX_FLAGS})
-
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.5 AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    set(GUIPP_APP_USE_OBJECT TRUE)
-    add_library(${PROJECT_NAME} OBJECT ${SOURCE_FILES})
-  else()
-    set(GUIPP_APP_USE_OBJECT FALSE)
-    add_library(${PROJECT_NAME} ${GUIPP_LINK} ${SOURCE_FILES})
-  endif()
-
-  add_library(guipp::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-  set_target_properties(${PROJECT_NAME} PROPERTIES
-                        POSITION_INDEPENDENT_CODE ON
-                        FOLDER libraries
-                        PREFIX "libguipp"
-                        VERSION ${GUIPP_VERSION}
-                        SOVERSION ${GUIPP_VERSION_MAJOR}
-                        CXX_STANDARD ${GUIPP_CXX_STANDARD}
-  )
+  define_guipp_subpackage(${PROJECT_NAME}
+                          BASE GUIPP_APP
+                          STATIC
+                          SOURCES ${SOURCE_FILES} ${INCLUDE_FILES})
 
   install_guipp_subpackage(${PROJECT_NAME}
                            PREFIX guipp
                            SUBDIR ${PROJECT_NAME}
                            CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/../SubConfig.cmake.in
-                           EXPORT_LIBS ${GUIPP_APP_USE_OBJECT}
                            FILES ${INCLUDE_FILES})
 
 endif()

@@ -7,6 +7,7 @@ project("gui" CXX)
 include (GenerateExportHeader)
 include (CMakePackageConfigHelpers)
 include (GNUInstallDirs)
+include (CMakeParseArguments)
 
 if(POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
@@ -33,82 +34,133 @@ if(CMAKE_CXX_COMPILER MATCHES "/em\\+\\+(-[a-zA-Z0-9.])?$")
   set(EMSCRIPTEN 1)
 endif()
 
-function(configure_guipp_subpackage_config PREFIX TARGET SUBDIR CONFIG_IN EXPORT_FILES LINKED_LIBRARIES)
+if (NOT DEFINED CMAKE_CXX_VISIBILITY_PRESET AND
+    NOT DEFINED CMAKE_VISIBILITY_INLINES_HIDDEN)
+  set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+  set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
+endif ()
+
+function(configure_guipp_subpackage_config TARGET)
+
   if (GUIPP_CONFIG_INSTALL)
-    set (${PREFIX}_${TARGET}_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/gui/${SUBDIR})
-    set (${PREFIX}_${TARGET}_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/${PREFIX})
+    cmake_parse_arguments(
+        ARG           # prefix
+        "EXPORT_LIBS" # boolean arguments
+        "PREFIX;CONFIG;SUBDIR" # mono-valued arguments
+        "INCLUDES"    # multi-valued arguments
+        ${ARGN}       # num of arguments of the function to parse
+    )
+    if((NOT TARGET) OR (NOT ARG_PREFIX) OR (NOT ARG_CONFIG) OR (NOT ARG_SUBDIR))
+        message(FATAL_ERROR "You must provide target, prefix, subdir and config")
+    endif()
+
+    set (${ARG_PREFIX}_${TARGET}_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/gui/${ARG_SUBDIR})
+    set (${ARG_PREFIX}_${TARGET}_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/${ARG_PREFIX})
 
     target_include_directories(${TARGET}
                                PUBLIC
                                "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-                               "$<INSTALL_INTERFACE:${${PREFIX}_${TARGET}_INSTALL_INCLUDEDIR}>")
+                               "$<INSTALL_INTERFACE:${${ARG_PREFIX}_${TARGET}_INSTALL_INCLUDEDIR}>")
 
     configure_package_config_file(
-        ${CONFIG_IN}
-        ${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}${TARGET}Config.cmake
-        INSTALL_DESTINATION ${${PREFIX}_${TARGET}_INSTALL_CMAKEDIR}
+        ${ARG_CONFIG}
+        ${CMAKE_CURRENT_BINARY_DIR}/${ARG_PREFIX}${TARGET}Config.cmake
+        INSTALL_DESTINATION ${${ARG_PREFIX}_${TARGET}_INSTALL_CMAKEDIR}
         PATH_VARS CMAKE_INSTALL_INCLUDEDIR
     )
 
-    if(GUIPP_BUILD_STATIC_MODULE_LIBS OR GUIPP_BUILD_SHARED_MODULE_LIBS)
+    if(ARG_EXPORT_LIBS OR GUIPP_BUILD_STATIC_MODULE_LIBS OR GUIPP_BUILD_SHARED_MODULE_LIBS)
       install(
           TARGETS ${TARGET}
-          EXPORT ${PREFIX}${TARGET}_Targets
-          INCLUDES DESTINATION ${${PREFIX}_${TARGET}_INSTALL_INCLUDEDIR}
+          EXPORT ${ARG_PREFIX}${TARGET}_Targets
+          OBJECTS DESTINATION ${CMAKE_INSTALL_LIBDIR}
+          INCLUDES DESTINATION ${${ARG_PREFIX}_${TARGET}_INSTALL_INCLUDEDIR}
       )
 
       install(
-          EXPORT ${PREFIX}${TARGET}_Targets
-          NAMESPACE ${PREFIX}::
-          FILE ${PREFIX}${TARGET}Targets.cmake
-          DESTINATION ${${PREFIX}_${TARGET}_INSTALL_CMAKEDIR}
+          EXPORT ${ARG_PREFIX}${TARGET}_Targets
+          NAMESPACE ${ARG_PREFIX}::
+          FILE ${ARG_PREFIX}${TARGET}Targets.cmake
+          DESTINATION ${${ARG_PREFIX}_${TARGET}_INSTALL_CMAKEDIR}
       )
 
       install(FILES
-          ${CMAKE_CURRENT_BINARY_DIR}/${PREFIX}${TARGET}Config.cmake
-          DESTINATION ${${PREFIX}_${TARGET}_INSTALL_CMAKEDIR}
+          ${CMAKE_CURRENT_BINARY_DIR}/${ARG_PREFIX}${TARGET}Config.cmake
+          DESTINATION ${${ARG_PREFIX}_${TARGET}_INSTALL_CMAKEDIR}
       )
 
-      export(TARGETS ${TARGET} FILE ${PREFIX}${TARGET}Targets.cmake)
+      export(TARGETS ${TARGET} FILE ${ARG_PREFIX}${TARGET}Targets.cmake)
 
     endif()
 
     install(FILES
-        ${EXPORT_FILES}
+        ${ARG_INCLUDES}
         ${PROJECT_BINARY_DIR}/gui++-${TARGET}-export.h
-        DESTINATION ${${PREFIX}_${TARGET}_INSTALL_INCLUDEDIR}
+        DESTINATION ${${ARG_PREFIX}_${TARGET}_INSTALL_INCLUDEDIR}
     )
 
   endif()
+
 endfunction(configure_guipp_subpackage_config)
 
-function(define_guipp_subpackage PROJECT_NAME BASE_NAME SOURCE_FILES INCLUDE_FILES LINKED_LIBRARIES LINKED_SYS_LIBRARIES)
+function(define_guipp_subpackage TARGET)
 
-  add_definitions(${GUIPP_CXX_FLAGS})
+  cmake_parse_arguments(
+    ARG             # prefix
+    "STATIC;SHARED" # boolean arguments
+    "BASE;PREFIX;VERSION;VERSION_MAJOR;CXX_STANDARD;LINK" # mono-valued arguments
+    "FLAGS;SOURCES;LIBS"    # multi-valued arguments
+    ${ARGN}         # num of arguments to parse
+  )
+  if(NOT TARGET)
+    message(FATAL_ERROR "You must provide TARGET")
+  endif()
+  if(NOT ARG_BASE)
+    message(FATAL_ERROR "You must provide BASE")
+  endif()
+  if(NOT ARG_FLAGS)
+    set(ARG_FLAGS ${GUIPP_CXX_FLAGS})
+  endif()
+  if(NOT ARG_PREFIX)
+    set(ARG_PREFIX libguipp)
+  endif()
+  if(NOT ARG_LINK)
+    set(ARG_LINK ${GUIPP_LINK})
+  endif()
+  if(NOT ARG_VERSION)
+    set(ARG_VERSION ${GUIPP_VERSION})
+  endif()
+  if(NOT ARG_VERSION_MAJOR)
+    set(ARG_VERSION_MAJOR ${GUIPP_VERSION_MAJOR})
+  endif()
+  if(NOT ARG_CXX_STANDARD)
+    set(ARG_CXX_STANDARD ${GUIPP_CXX_STANDARD})
+  endif()
 
-  add_library(${PROJECT_NAME} ${GUIPP_LINK} ${SOURCE_FILES} ${INCLUDE_FILES})
-  add_library(guipp::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-  set_target_properties(${PROJECT_NAME} PROPERTIES
+  add_definitions(${ARG_FLAGS})
+  add_library(${TARGET} ${ARG_LINK} ${ARG_SOURCES})
+  add_library(guipp::${TARGET} ALIAS ${TARGET})
+  set_target_properties(${TARGET} PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
-                        PREFIX "libguipp"
-                        VERSION ${GUIPP_VERSION}
-                        SOVERSION ${GUIPP_VERSION_MAJOR}
-                        CXX_STANDARD ${GUIPP_CXX_STANDARD})
+                        PREFIX ${ARG_PREFIX}
+                        VERSION ${ARG_VERSION}
+                        SOVERSION ${ARG_VERSION_MAJOR}
+                        CXX_STANDARD ${ARG_CXX_STANDARD})
 
-  if(GUIPP_BUILD_STATIC_MODULE_LIBS)
+  if(STATIC OR GUIPP_BUILD_STATIC_MODULE_LIBS)
     add_definitions(-DGUIPP_BUILT_AS_STATIC)
   endif()
 
-  if(GUIPP_BUILD_SHARED_MODULE_LIBS)
-    add_definitions(-Dgui___${PROJECT_NAME}_EXPORTS)
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${LINKED_LIBRARIES} ${LINKED_SYS_LIBRARIES})
+  if(SHARED OR GUIPP_BUILD_SHARED_MODULE_LIBS)
+    add_definitions(-Dgui___${TARGET}_EXPORTS)
+    target_link_libraries(${TARGET} PRIVATE ${ARG_LIBS})
   endif()
 
-  GENERATE_EXPORT_HEADER(${PROJECT_NAME}
-    BASE_NAME ${BASE_NAME}
-    EXPORT_MACRO_NAME ${BASE_NAME}_EXPORT
-    EXPORT_FILE_NAME gui++-${PROJECT_NAME}-export.h
+  GENERATE_EXPORT_HEADER(${TARGET}
+    BASE_NAME ${ARG_BASE}
+    EXPORT_MACRO_NAME ${ARG_BASE}_EXPORT
+    EXPORT_FILE_NAME gui++-${TARGET}-export.h
     STATIC_DEFINE GUIPP_BUILT_AS_STATIC)
 
 endfunction(define_guipp_subpackage)
@@ -154,9 +206,6 @@ if(NOT TARGET guipp)
 
   set (LOGGING_CXX_STANDARD ${GUIPP_CXX_STANDARD})
   set (UTIL_CXX_STANDARD ${GUIPP_CXX_STANDARD})
-
-  #add_subdirectory(../libs/logging logging)
-  #add_subdirectory(../libs/util util)
 
   if (WIN32)
     set (GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN -D_USE_MATH_DEFINES)

@@ -4,7 +4,7 @@
 
 stdenv.mkDerivation {
   pname = "guipp";
-  version = "1.0.1";
+  version = "1.0.2";
 
   src = ./.;
 
@@ -24,7 +24,7 @@ stdenv.mkDerivation {
   enableParallelBuilding = true;
   separateDebugInfo = true;
 
-  outputs = [ "dev" "out" ];
+  outputs = [ "out" "dev" ];
 
   cmakeFlags = [
     "-DGUIPP_TESTS=OFF"
@@ -32,7 +32,10 @@ stdenv.mkDerivation {
     "-DLOGGING_CONFIG_INSTALL=ON"
     "-DUTIL_CONFIG_INSTALL=ON"
     "-DTESTING_CONFIG_INSTALL=ON"
-#    "-DGUIPP_BUILD_DEPENDENT_LIBS=ON"
+    "-DGUIPP_BUILD_DEPENDENT_LIBS=OFF"
+    "-DGUIPP_BUILD_SHARED_MODULE_LIBS=ON"
+    "-DLOGGING_BUILD_STATIC_MODULE_LIB=OFF"
+    "-DUTIL_BUILD_STATIC_MODULE_LIB=OFF"
   ];
 
   meta = with lib; {

@@ -18,14 +18,21 @@ if(NOT TARGET ${PROJECT_NAME})
       wavelength_to_rgb.cpp
   )
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
-  set(LINKED_LIBRARIES
-      guipp::draw
-      guipp::core)
 
-  set(LINKED_SYS_LIBRARIES
-      ${GUIPP_SYS_LIBRARIES})
+  define_guipp_subpackage(${PROJECT_NAME}
+                          BASE GUIPP_IO
+                          PREFIX libguipp
+                          LINK ${GUIPP_LINK}
+                          VERSION ${GUIPP_VERSION}
+                          VERSION_MAJOR ${GUIPP_VERSION_MAJOR}
+                          CXX_STANDARD ${GUIPP_CXX_STANDARD}
+                          SOURCES ${SOURCE_FILES} ${INCLUDE_FILES}
+                          LIBS guipp::draw guipp::core ${GUIPP_SYS_LIBRARIES})
 
-  define_guipp_subpackage(${PROJECT_NAME} GUIPP_IO "${SOURCE_FILES}" "${INCLUDE_FILES}" "${LINKED_LIBRARIES}" "${LINKED_SYS_LIBRARIES}")
-  configure_guipp_subpackage_config(guipp ${PROJECT_NAME} ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../SubConfig.cmake.in "${INCLUDE_FILES}" "${LINKED_LIBRARIES}")
+  configure_guipp_subpackage_config(${PROJECT_NAME}
+                                    PREFIX guipp
+                                    SUBDIR ${PROJECT_NAME}
+                                    CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/../SubConfig.cmake.in
+                                    INCLUDES ${INCLUDE_FILES})
 
 endif()

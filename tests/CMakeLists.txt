@@ -26,6 +26,8 @@ if (GUIPP_USE_BOOST)
   find_package(Boost 1.65 REQUIRED COMPONENTS filesystem)
 endif()
 
+find_package(testing)
+
 DebugPrint("app GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
 DebugPrint("app GUIPP_EXE_LINKER_FLAGS: ${GUIPP_EXE_LINKER_FLAGS}")
 #DebugPrint("app GUIPP_INCLUDE_DIRS: ${GUIPP_INCLUDE_DIRS}")
@@ -41,7 +43,7 @@ enable_testing()
 
 set (TESTING_CXX_STANDARD ${GUIPP_CXX_STANDARD})
 add_subdirectory(./../libs/testlib testlib)
-add_subdirectory(./../libs/testing testing)
+#add_subdirectory(./../libs/testing testing)
 
 set(tests
     datamap_test

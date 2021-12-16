@@ -11,17 +11,18 @@ if(NOT TARGET ${PROJECT_NAME})
   include_directories(${GUIPP_INCLUDE_DIRS})
 
   set(SOURCE_FILES app.cpp)
-  file(GLOB INCLUDE_FILES "*.h" "*.inl")
+  set(INCLUDE_FILES app.h)
 
   add_definitions(${GUIPP_CXX_FLAGS})
 
-  if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.5 AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    set (GUIPP_APP_USE_OBJECT TRUE)
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.5 AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    set(GUIPP_APP_USE_OBJECT TRUE)
     add_library(${PROJECT_NAME} OBJECT ${SOURCE_FILES})
   else()
-    set (GUIPP_APP_USE_OBJECT FALSE)
+    set(GUIPP_APP_USE_OBJECT FALSE)
     add_library(${PROJECT_NAME} ${GUIPP_LINK} ${SOURCE_FILES})
   endif()
+
   add_library(guipp::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
   set_target_properties(${PROJECT_NAME} PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
@@ -32,54 +33,17 @@ if(NOT TARGET ${PROJECT_NAME})
                         CXX_STANDARD ${GUIPP_CXX_STANDARD}
   )
 
-  if (GUIPP_CONFIG_INSTALL)
-    set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}/gui/app)
-    set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/guipp)
+  GENERATE_EXPORT_HEADER(${PROJECT_NAME}
+    BASE_NAME APP
+    EXPORT_MACRO_NAME APP_EXPORT
+    EXPORT_FILE_NAME gui++-app-export.h
+    STATIC_DEFINE GUIPP_BUILT_AS_STATIC)
 
-    target_include_directories(${PROJECT_NAME}
-                               PUBLIC
-                               "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-                               "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>"
-    )
-
-    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../Config.cmake.in
-      "${CMAKE_CURRENT_BINARY_DIR}/guippappConfig.cmake"
-      INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}
-      PATH_VARS CMAKE_INSTALL_INCLUDEDIR
-    )
-
-    if (NOT GUIPP_APP_USE_OBJECT)
-      install(TARGETS ${PROJECT_NAME}
-              EXPORT guippappTargets
-              LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-              ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-              RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-              INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
-      )
-
-    else()
-      install(TARGETS ${PROJECT_NAME}
-              EXPORT guippappTargets
-              OBJECTS DESTINATION ${LIBRARY_INSTALL_DIR}
-              INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
-      )
-    endif()
-
-    install(FILES ${INCLUDE_FILES}
-            DESTINATION ${INCLUDE_INSTALL_DIR}
-    )
-
-    install(EXPORT guippappTargets
-            FILE guippappTargets.cmake
-            NAMESPACE guipp::
-            DESTINATION ${LIBRARY_INSTALL_DIR}
-    )
-
-    install(FILES
-            "${CMAKE_CURRENT_BINARY_DIR}/guippappConfig.cmake"
-            DESTINATION ${LIBRARY_INSTALL_DIR}
-    )
-
-  endif()
+  configure_guipp_subpackage_config(${PROJECT_NAME}
+                                    PREFIX guipp
+                                    SUBDIR ${PROJECT_NAME}
+                                    CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/../SubConfig.cmake.in
+                                    EXPORT_LIBS ${GUIPP_APP_USE_OBJECT}
+                                    INCLUDES ${INCLUDE_FILES})
 
 endif()

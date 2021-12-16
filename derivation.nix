@@ -16,13 +16,13 @@ stdenv.mkDerivation rec {
     xorg.libXft.dev
     xorg.libxcb.dev
     xorg.libXdmcp.dev
-    (pkgs.callPackage ../util/derivation.nix {})
-    (pkgs.callPackage ../logging/derivation.nix {})
-    (pkgs.callPackage ../testing/derivation.nix {})
+#    (pkgs.callPackage ../util/derivation.nix {})
+#    (pkgs.callPackage ../logging/derivation.nix {})
+#    (pkgs.callPackage ../testing/derivation.nix {})
   ];
 
   enableParallelBuilding = true;
-  separateDebugInfo = true;
+#  separateDebugInfo = true;
 
   outputs = [ "out" "dev" ];
 
@@ -32,7 +32,8 @@ stdenv.mkDerivation rec {
     "-DLOGGING_CONFIG_INSTALL=ON"
     "-DUTIL_CONFIG_INSTALL=ON"
     "-DTESTING_CONFIG_INSTALL=ON"
-    "-DGUIPP_BUILD_DEPENDENT_LIBS=OFF"
+    "-DGUIPP_BUILD_DEPENDENT_LIBS=ON"
+    "-DGUIPP_BUILD_STATIC_MODULE_LIBS=OFF"
     "-DGUIPP_BUILD_SHARED_MODULE_LIBS=ON"
     "-DLOGGING_BUILD_STATIC_MODULE_LIB=OFF"
     "-DUTIL_BUILD_STATIC_MODULE_LIB=OFF"

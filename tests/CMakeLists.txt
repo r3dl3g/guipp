@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-project("Gui-Test" CXX)
+project("guipp-test" CXX)
 
 set(BUILD_FOR_ARM OFF CACHE BOOL "On to build for arm architecture, Off for host architecture. default Off")
 
@@ -11,8 +11,6 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/test)
 if(NOT ANDROID AND NOT CMAKE_DEBUG_POSTFIX)
   set(CMAKE_DEBUG_POSTFIX d)
 endif()
-
-add_subdirectory(./../gui gui)
 
 if (GUIPP_USE_QT6 AND NOT ANDROID)
   DebugPrint("GUIPP test: build with Qt6!")
@@ -26,7 +24,13 @@ if (GUIPP_USE_BOOST)
   find_package(Boost 1.65 REQUIRED COMPONENTS filesystem)
 endif()
 
-find_package(testing)
+set (TESTING_CXX_STANDARD ${GUIPP_CXX_STANDARD})
+
+if(GUIPP_BUILD_DEPENDENT_LIBS)
+  add_subdirectory(./../libs/testlib testlib)
+else()
+  find_package(testing)
+endif()
 
 DebugPrint("app GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
 DebugPrint("app GUIPP_EXE_LINKER_FLAGS: ${GUIPP_EXE_LINKER_FLAGS}")
@@ -40,10 +44,6 @@ DebugPrint("app GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
 include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS})
 
 enable_testing()
-
-set (TESTING_CXX_STANDARD ${GUIPP_CXX_STANDARD})
-add_subdirectory(./../libs/testlib testlib)
-#add_subdirectory(./../libs/testing testing)
 
 set(tests
     datamap_test

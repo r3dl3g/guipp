@@ -5,7 +5,10 @@ set (testlib_Include ${testlib_Include} PARENT_SCOPE)
 
 if(NOT TARGET testlib)
 
-  include_directories(${testlib_Include})
+  add_subdirectory(./../../gui gui)
+  add_subdirectory(./../testing testing)
+
+  include_directories(${testlib_Include} ${GUIPP_INCLUDE_DIRS})
 
   file(GLOB SOURCE_FILES "*.cpp")
   file(GLOB INCLUDE_FILES "*.h")

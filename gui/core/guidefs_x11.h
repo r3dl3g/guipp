@@ -119,9 +119,9 @@ namespace gui {
     namespace global {
 
       namespace x11 {
-        gui::os::x11::screen get_screen ();
-        void set_screen(gui::os::x11::screen);
-        gui::os::x11::visual get_visual ();
+        GUIPP_CORE_EXPORT gui::os::x11::screen get_screen ();
+        GUIPP_CORE_EXPORT void set_screen(gui::os::x11::screen);
+        GUIPP_CORE_EXPORT gui::os::x11::visual get_visual ();
       }
 
     } // global

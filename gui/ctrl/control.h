@@ -51,19 +51,19 @@ namespace gui {
       const os::event_id CONTENT_CHANGED_MESSAGE = WM_USER + 11;
 #endif //GUIPP_WIN
 #ifdef GUIPP_X11
-      extern Atom SCROLLBAR_MESSAGE;
-      extern Atom SELECTION_CHANGE_MESSAGE;
-      extern Atom SELECTION_COMMIT_MESSAGE;
-      extern Atom HILITE_CHANGE_MESSAGE;
-      extern Atom SLIDER_MESSAGE;
-      extern Atom BN_CLICKED_MESSAGE;
-      extern Atom BN_PUSHED_MESSAGE;
-      extern Atom BN_UNPUSHED_MESSAGE;
-      extern Atom BN_STATE_MESSAGE;
-      extern Atom SELECTION_CANCEL_MESSAGE;
-      extern Atom CONTENT_CHANGED_MESSAGE;
+      GUIPP_CTRL_EXPORT extern Atom SCROLLBAR_MESSAGE;
+      GUIPP_CTRL_EXPORT extern Atom SELECTION_CHANGE_MESSAGE;
+      GUIPP_CTRL_EXPORT extern Atom SELECTION_COMMIT_MESSAGE;
+      GUIPP_CTRL_EXPORT extern Atom HILITE_CHANGE_MESSAGE;
+      GUIPP_CTRL_EXPORT extern Atom SLIDER_MESSAGE;
+      GUIPP_CTRL_EXPORT extern Atom BN_CLICKED_MESSAGE;
+      GUIPP_CTRL_EXPORT extern Atom BN_PUSHED_MESSAGE;
+      GUIPP_CTRL_EXPORT extern Atom BN_UNPUSHED_MESSAGE;
+      GUIPP_CTRL_EXPORT extern Atom BN_STATE_MESSAGE;
+      GUIPP_CTRL_EXPORT extern Atom SELECTION_CANCEL_MESSAGE;
+      GUIPP_CTRL_EXPORT extern Atom CONTENT_CHANGED_MESSAGE;
 
-      int init_control_messages ();
+      GUIPP_CTRL_EXPORT int init_control_messages ();
 #endif // GUIPP_X11
 #ifdef GUIPP_QT
       const os::event_id SLIDER_MESSAGE = QEvent::User + 1;
@@ -257,7 +257,7 @@ namespace gui {
       typedef control super;
       typedef win::window_class<client_control, color::very_light_gray> clazz;
 
-      client_control (os::color bg = color::very_light_gray) {
+      inline client_control (os::color bg = color::very_light_gray) {
         set_background(bg);
       }
 

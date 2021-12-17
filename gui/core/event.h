@@ -48,16 +48,16 @@ namespace gui {
     // --------------------------------------------------------------------------
     using event = XEvent;
 
-    extern Atom WM_LAYOUT_WINDOW;
-    extern Atom WM_CREATE_WINDOW;
-    extern Atom WM_PAINT_WINDOW;
+    GUIPP_CORE_EXPORT extern Atom WM_LAYOUT_WINDOW;
+    GUIPP_CORE_EXPORT extern Atom WM_CREATE_WINDOW;
+    GUIPP_CORE_EXPORT extern Atom WM_PAINT_WINDOW;
 
     namespace x11 {
 
-      extern Atom WM_DELETE_WINDOW;
-      extern Atom WM_PROTOCOLS;
-      extern Atom WM_TAKE_FOCUS;
-      extern Atom GUI_LIB_WIN_PTR;
+      GUIPP_CORE_EXPORT extern Atom WM_DELETE_WINDOW;
+      GUIPP_CORE_EXPORT extern Atom WM_PROTOCOLS;
+      GUIPP_CORE_EXPORT extern Atom WM_TAKE_FOCUS;
+      GUIPP_CORE_EXPORT extern Atom GUI_LIB_WIN_PTR;
 
       GUIPP_CORE_EXPORT int init_messages ();
 

@@ -72,14 +72,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void Use<pen>::set (const pen&);
+    GUIPP_DRAW_EXPORT void Use<pen>::set (const pen&);
 
     template<>
-    void Use<brush>::set (const brush&);
+    GUIPP_DRAW_EXPORT void Use<brush>::set (const brush&);
 
 #ifndef GUIPP_USE_XFT
     template<>
-    void Use<font>::set(const font&);
+    GUIPP_DRAW_EXPORT void Use<font>::set(const font&);
 #endif // GUIPP_USE_XFT
 
 #endif // GUIPP_X11
@@ -100,13 +100,13 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void Use<pen>::set (const pen&);
+    GUIPP_DRAW_EXPORT void Use<pen>::set (const pen&);
 
     template<>
-    void Use<brush>::set (const brush&);
+    GUIPP_DRAW_EXPORT void Use<brush>::set (const brush&);
 
     template<>
-    void Use<font>::set(const font&);
+    GUIPP_DRAW_EXPORT void Use<font>::set(const font&);
 
 #endif // GUIPP_QT
 

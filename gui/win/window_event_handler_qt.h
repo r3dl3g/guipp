@@ -31,7 +31,7 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-    class QClientEvent : public QEvent {
+    class GUIPP_WIN_EXPORT QClientEvent : public QEvent {
     public:
       explicit QClientEvent (Type type, const core::rectangle& rect);
       explicit QClientEvent (Type type, long l1, long l2);

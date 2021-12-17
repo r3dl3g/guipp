@@ -825,6 +825,15 @@ namespace gui {
       return font(f);
     }
 
+    font& font::operator= (const font& rhs) {
+      if (this == &rhs) {
+        return *this;
+      }
+      id = rhs.id;
+      info = rhs.info;
+      return *this;
+    }
+
     bool font::operator== (const font& rhs) const {
       return ((info.family() == rhs.info.family()) &&
               (info.pointSize() == rhs.info.pointSize()) &&

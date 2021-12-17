@@ -199,7 +199,7 @@ namespace gui {
       if (c.full()) {
         g.os()->drawEllipse(r);
       } else {
-        g.os()->drawPie(r, c.start, c.end - c.start);
+        g.os()->drawPie(r, c.start.os(), (c.end - c.start).os());
       }
     }
 
@@ -211,7 +211,7 @@ namespace gui {
       if (c.full()) {
         g.os()->drawEllipse(r);
       } else {
-        g.os()->drawArc(r, c.start, c.end - c.start);
+        g.os()->drawArc(r, c.start.os(), (c.end - c.start).os());
       }
     }
 
@@ -223,7 +223,7 @@ namespace gui {
       if (c.full()) {
         g.os()->drawEllipse(r);
       } else {
-        g.os()->drawPie(r, c.start, c.end - c.start);
+        g.os()->drawPie(r, c.start.os(), (c.end - c.start).os());
       }
     }
 
@@ -235,7 +235,7 @@ namespace gui {
       if (c.full()) {
         g.os()->drawEllipse(r);
       } else {
-        g.os()->drawPie(r, c.start, c.end - c.start);
+        g.os()->drawPie(r, c.start.os(), (c.end - c.start).os());
       }
     }
 

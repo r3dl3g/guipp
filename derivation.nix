@@ -16,13 +16,9 @@ stdenv.mkDerivation rec {
     xorg.libXft.dev
     xorg.libxcb.dev
     xorg.libXdmcp.dev
-#    (pkgs.callPackage ../util/derivation.nix {})
-#    (pkgs.callPackage ../logging/derivation.nix {})
-#    (pkgs.callPackage ../testing/derivation.nix {})
   ];
 
   enableParallelBuilding = true;
-#  separateDebugInfo = true;
 
   outputs = [ "out" "dev" ];
 

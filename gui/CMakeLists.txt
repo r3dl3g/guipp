@@ -547,6 +547,7 @@ if(NOT TARGET guipp)
     PREFIX guipp
     CONFIG ${PROJECT_SOURCE_DIR}/Config.cmake.in
     SUBDIR "."
+    EXPORT_LIBS
     FILES ${INCLUDE_FILES}
           ${PROJECT_BINARY_DIR}/gui++-export.h
           ${PROJECT_BINARY_DIR}/gui_version.h

@@ -53,7 +53,6 @@ set(tests
     icon_test
     stretch_test
     frames_test
-    csv_test
 )
 
 DebugPrint("GUIPP_LIBRARIES: ${GUIPP_LIBRARIES}")

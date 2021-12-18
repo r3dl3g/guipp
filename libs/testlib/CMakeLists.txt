@@ -5,8 +5,8 @@ set (testlib_Include ${testlib_Include} PARENT_SCOPE)
 
 if(NOT TARGET testlib)
 
-  add_subdirectory(./../../gui gui)
-  add_subdirectory(./../testing testing)
+  add_subdirectory(${CMAKE_SOURCE_DIR}/gui gui)
+  add_subdirectory(${CMAKE_SOURCE_DIR}/libs/testing testing)
 
   include_directories(${testlib_Include} ${GUIPP_INCLUDE_DIRS})
 

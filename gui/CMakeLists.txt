@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-project("gui" LANGUAGES CXX VERSION 1.0.2)
+project("gui" LANGUAGES CXX VERSION 1.0.3)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
@@ -59,18 +59,18 @@ function(install_guipp_subpackage TARGET)
         message(FATAL_ERROR "You must provide target, prefix, subdir and config")
     endif()
 
-    set(${ARG_PREFIX}_${TARGET}_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/gui/${ARG_SUBDIR})
-    set(${ARG_PREFIX}_${TARGET}_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/${ARG_PREFIX})
+    set(${ARG_PREFIX}${TARGET}_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/gui/${ARG_SUBDIR})
+    set(${ARG_PREFIX}${TARGET}_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/${ARG_PREFIX})
 
     target_include_directories(${TARGET}
                                PUBLIC
                                "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-                               "$<INSTALL_INTERFACE:${${ARG_PREFIX}_${TARGET}_INSTALL_INCLUDEDIR}>")
+                               "$<INSTALL_INTERFACE:${${ARG_PREFIX}${TARGET}_INSTALL_INCLUDEDIR}>")
 
     configure_package_config_file(
         ${ARG_CONFIG}
         ${CMAKE_CURRENT_BINARY_DIR}/${ARG_PREFIX}${TARGET}Config.cmake
-        INSTALL_DESTINATION ${${ARG_PREFIX}_${TARGET}_INSTALL_CMAKEDIR}
+        INSTALL_DESTINATION ${${ARG_PREFIX}${TARGET}_INSTALL_CMAKEDIR}
         PATH_VARS CMAKE_INSTALL_INCLUDEDIR
     )
 
@@ -79,18 +79,18 @@ function(install_guipp_subpackage TARGET)
           TARGETS ${TARGET}
           EXPORT ${ARG_PREFIX}${TARGET}_Targets
           OBJECTS DESTINATION ${CMAKE_INSTALL_LIBDIR}
-          INCLUDES DESTINATION ${${ARG_PREFIX}_${TARGET}_INSTALL_INCLUDEDIR}
+          INCLUDES DESTINATION ${${ARG_PREFIX}${TARGET}_INSTALL_INCLUDEDIR}
       )
 
       install(
           EXPORT ${ARG_PREFIX}${TARGET}_Targets
           NAMESPACE ${ARG_PREFIX}::
           FILE ${ARG_PREFIX}${TARGET}Targets.cmake
-          DESTINATION ${${ARG_PREFIX}_${TARGET}_INSTALL_CMAKEDIR}
+          DESTINATION ${${ARG_PREFIX}${TARGET}_INSTALL_CMAKEDIR}
       )
 
       install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${ARG_PREFIX}${TARGET}Config.cmake
-          DESTINATION ${${ARG_PREFIX}_${TARGET}_INSTALL_CMAKEDIR}
+          DESTINATION ${${ARG_PREFIX}${TARGET}_INSTALL_CMAKEDIR}
       )
 
       export(TARGETS ${TARGET} FILE ${ARG_PREFIX}${TARGET}Targets.cmake)
@@ -102,7 +102,7 @@ function(install_guipp_subpackage TARGET)
     endif()
 
     install(FILES ${ARG_FILES}
-        DESTINATION ${${ARG_PREFIX}_${TARGET}_INSTALL_INCLUDEDIR}
+        DESTINATION ${${ARG_PREFIX}${TARGET}_INSTALL_INCLUDEDIR}
     )
 
   endif()
@@ -186,8 +186,8 @@ elseif(GUIPP_USE_QT5)
 endif()
 
 if(GUIPP_BUILD_DEPENDENT_LIBS)
-  add_subdirectory(../libs/logging logging)
-  add_subdirectory(../libs/util util)
+  add_subdirectory(${CMAKE_SOURCE_DIR}/libs/logging logging)
+  add_subdirectory(${CMAKE_SOURCE_DIR}/libs/util util)
 else ()
   find_package(logging REQUIRED)
   find_package(util REQUIRED)

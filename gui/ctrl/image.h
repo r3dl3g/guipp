@@ -41,6 +41,7 @@ namespace gui {
 
       void paint (draw::graphics& graph);
       void set_image (const draw::pixmap& source);
+      void set_image (draw::pixmap&& source);
 
     private:
       draw::pixmap img;

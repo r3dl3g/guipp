@@ -34,13 +34,19 @@ namespace gui {
     void image::paint (graphics& graph) {
       graph.clear(color::dark_gray);
       if (img.is_valid()) {
-        graph.copy_from(img);
+        graph.copy_from(img, core::point::zero);
       }
     }
 
     // --------------------------------------------------------------------------
     void image::set_image (const pixmap& source) {
       img = source;
+      invalidate();
+    }
+
+    // --------------------------------------------------------------------------
+    void image::set_image (pixmap&& source) {
+      img = std::move(source);
       invalidate();
     }
 

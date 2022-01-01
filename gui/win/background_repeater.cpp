@@ -74,6 +74,10 @@ namespace gui {
       active = false;
     }
 
+    bool background_repeater::is_active () const {
+      return active;
+    }
+
     void background_repeater::set_delay (std::chrono::milliseconds d) {
       delay = d;
     }

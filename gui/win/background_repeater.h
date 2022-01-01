@@ -58,6 +58,8 @@ namespace gui {
       void stop ();
       void wait_for_finish ();
 
+      bool is_active () const;
+
       void set_delay (std::chrono::milliseconds d);
 
       std::chrono::milliseconds get_delay () const;
@@ -65,8 +67,8 @@ namespace gui {
     private:
       window& win;
       std::thread task;
-      std::chrono::milliseconds delay;
       action_t action;
+      std::chrono::milliseconds delay;
       volatile bool active;
     };
 

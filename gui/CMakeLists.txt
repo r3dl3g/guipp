@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-project("gui" LANGUAGES CXX VERSION 1.0.3)
+project("gui" LANGUAGES CXX VERSION 1.0.4)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
@@ -175,6 +175,58 @@ function(define_guipp_subpackage TARGET)
     STATIC_DEFINE GUIPP_BUILT_AS_STATIC)
 
 endfunction(define_guipp_subpackage)
+
+function(guipp_app TARGET)
+
+  cmake_parse_arguments(
+    ARG                             # prefix
+    ""                              # boolean arguments
+    "PACKAGE_NAME;MAIN_SRC;BIN_DIR" # mono-valued arguments
+    "INCLUDES;SOURCES;LIBS"                  # multi-valued arguments
+    ${ARGN}                         # num of arguments to parse
+  )
+
+  if(NOT TARGET)
+    message(FATAL_ERROR "You must provide TARGET")
+  endif()
+  if(NOT ARG_MAIN_SRC)
+    set(ARG_MAIN_SRC ${TARGET}.cpp)
+  endif()
+  if(NOT ARG_PACKAGE_NAME)
+    set(ARG_PACKAGE_NAME "org.organization.${TARGET}")
+  endif()
+  if(NOT ARG_BIN_DIR)
+    set(ARG_BIN_DIR bin)
+  endif()
+
+  include_directories(${GUIPP_INCLUDE_DIRS} ${ARG_INCLUDES})
+  add_definitions(${GUIPP_CXX_FLAGS})
+
+  if (ANDROID)
+    add_library(${TARGET} SHARED ${ARG_MAIN_SRC} ${ARG_SOURCES})
+  elseif (EMSCRIPTEN)
+    add_executable(${TARGET} ${ARG_MAIN_SRC} ${ARG_SOURCES})
+  else ()
+    add_executable(${TARGET} WIN32 ${ARG_MAIN_SRC} ${ARG_SOURCES})
+  endif ()
+
+  target_link_libraries(${TARGET} ${ARG_LIBS} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
+  install(TARGETS ${TARGET} DESTINATION ${ARG_BIN_DIR})
+  set_target_properties(${TARGET} PROPERTIES
+                        FOLDER apps
+                        CXX_STANDARD ${GUIPP_CXX_STANDARD}
+                        )
+  if (EMSCRIPTEN)
+    set_target_properties(${TARGET} PROPERTIES
+                          LINK_FLAGS "-s USE_PTHREADS=1")
+  endif()
+  if (ANDROID)
+    add_qt_android_apk(${TARGET}_apk ${TARGET}
+                         PACKAGE_NAME ${ARG_PACKAGE_NAME}
+                         INSTALL)
+  endif()
+
+endfunction(guipp_app)
 
 if(GUIPP_USE_QT6)
     message(STATUS "GUIPP: build with Qt6!")

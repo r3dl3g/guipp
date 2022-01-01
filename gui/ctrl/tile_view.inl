@@ -179,14 +179,17 @@ namespace gui {
 
     template<orientation_t V>
     inline core::rectangle basic_tile_view<V>::get_virtual_geometry (const core::rectangle& r) const {
-//      const core::size scsz{ctrl::scroll_bar::get_scroll_bar_width(), ctrl::scroll_bar::get_scroll_bar_width()};
+      const auto per_line = super::traits.get_items_per_line(r.size());
+      const auto lc = core::div_ceil(super::get_count(), per_line);
 
-      const auto lc = super::traits.get_line_count(super::get_count(), r.size()/* - scsz*/);
-      const auto isp = super::traits.get_item_spacing();
       const auto lsz = super::traits.get_line_size();
+      const auto lsp = super::traits.get_line_spacing();
+      const auto lb = super::traits.get_line_border() * 2;
+      const auto need_1 = lsz * lc - lsp + lb;
+
+      const auto isp = super::traits.get_item_spacing();
       const auto ib = super::traits.get_item_border() * 2;
-      const auto need_1 = (lsz + isp) * lc - isp + ib;
-      const auto need_2 = super::traits.get_item_dimension() + ib;
+      const auto need_2 = (super::traits.get_item_dimension() + isp) * per_line - isp + ib;
 
       core::rectangle place;
       super::traits.set_1(place, 0, need_1);

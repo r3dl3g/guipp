@@ -51,7 +51,7 @@ namespace gui {
       const type border2 = (border_width * 2);
       const type offset_dim1 = layout::get_dimension1(r.top_left());
       const type offset_dim2 = layout::get_dimension2(r.top_left());
-      type space = layout::get_dimension1(r.x2y2()) - offset_dim1 - border2;
+      type space = layout::get_dimension1(r.x2y2()) - offset_dim1 - border2 - ((elements.size() - 1) * gap);
 
       if (space > 0) {
         float weights = 0.0F;

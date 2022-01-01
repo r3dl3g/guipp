@@ -286,7 +286,7 @@ namespace gui {
 
     template<orientation_t V, typename T>
     void uniform_list<V, T>::set_scroll_pos_1 (pos_t pos) {
-      auto value = std::max(pos_t(0), std::min(pos, static_cast<pos_t>(get_item_dimension() * get_count() - traits.get_1(client_size()))));
+      auto value = std::max(pos_t(0), std::min(pos, static_cast<pos_t>(traits.get_line_size() * get_count() - traits.get_1(client_size()))));
       auto pt = super::get_scroll_pos();
       traits.set_1(pt, value);
       super::set_scroll_pos(pt);

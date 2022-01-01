@@ -38,7 +38,7 @@ namespace gui {
 
     template<>
     inline core::size::type tile_list_traits<orientation_t::horizontal>::get_item_dimension () const {
-      return item_size.height();
+      return item_size.height() + spacing.height();
     }
 
     template<>
@@ -69,7 +69,7 @@ namespace gui {
 
     template<>
     inline core::size::type tile_list_traits<orientation_t::vertical>::get_item_dimension () const {
-      return item_size.width();
+      return item_size.width() + spacing.width();
     }
 
     template<>
@@ -105,7 +105,7 @@ namespace gui {
                                                  size_t count) const {
       const auto per_line = static_cast<int>(get_items_per_line(list_area.size()));
       const auto line = static_cast<int>((super::get_1(pt) + super::get_1(scroll_pos) - get_line_border()) / get_line_size());
-      const auto offs = static_cast<int>((super::get_2(pt) + super::get_2(scroll_pos) - get_item_border()) / (get_item_dimension() + get_item_spacing()));
+      const auto offs = static_cast<int>((super::get_2(pt) + super::get_2(scroll_pos) - get_item_border()) / get_item_dimension());
       const auto idx = (line * per_line) + offs;
       return (idx < count) && get_geometry_of_index(list_area, idx, scroll_pos).is_inside(pt) ? idx : -1;
     }
@@ -124,7 +124,7 @@ namespace gui {
 
       core::rectangle place;
       super::set_1(place, super::get_1(pos) + lsz * line + get_line_border() - super::get_1(scroll_pos), lsz - get_line_spacing());
-      super::set_2(place, super::get_2(pos) + (isz + get_item_spacing()) * offs + get_item_border() - super::get_2(scroll_pos), isz);
+      super::set_2(place, super::get_2(pos) + isz * offs + get_item_border() - super::get_2(scroll_pos), isz - get_item_spacing());
       return place;
     }
 
@@ -138,7 +138,7 @@ namespace gui {
     inline std::size_t tile_list_traits<V>::get_items_per_line (const core::size& list_size) const {
       const auto isp = get_item_spacing();
       const auto avail = (super::get_2(list_size) - get_item_border() * 2 + isp);
-      const auto need = (get_item_dimension() + isp);
+      const auto need = get_item_dimension();
       return static_cast<std::size_t>(std::max(avail / need, 1.0f));
     }
 
@@ -179,17 +179,18 @@ namespace gui {
 
     template<orientation_t V>
     inline core::rectangle basic_tile_view<V>::get_virtual_geometry (const core::rectangle& r) const {
-      const auto per_line = super::traits.get_items_per_line(r.size());
-      const auto lc = core::div_ceil(super::get_count(), per_line);
+      const auto ic = super::traits.get_items_per_line(r.size());
+      const auto lc = core::div_ceil(super::get_count(), ic);
 
       const auto lsz = super::traits.get_line_size();
       const auto lsp = super::traits.get_line_spacing();
       const auto lb = super::traits.get_line_border() * 2;
       const auto need_1 = lsz * lc - lsp + lb;
 
+      const auto isz = super::traits.get_item_dimension();
       const auto isp = super::traits.get_item_spacing();
       const auto ib = super::traits.get_item_border() * 2;
-      const auto need_2 = (super::traits.get_item_dimension() + isp) * per_line - isp + ib;
+      const auto need_2 = isz * ic - isp + ib;
 
       core::rectangle place;
       super::traits.set_1(place, 0, need_1);
@@ -213,7 +214,7 @@ namespace gui {
       const auto offs = idx - (line * per_line);
 
       const auto lsz = super::traits.get_line_size();
-      const auto isz = super::traits.get_item_dimension() + super::traits.get_item_spacing();
+      const auto isz = super::traits.get_item_dimension();
       const auto pos = list_area.position();
 
       core::rectangle place;

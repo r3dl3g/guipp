@@ -88,13 +88,7 @@ namespace gui {
 
     template<pixel_format_t T>
     inline pixmap::pixmap (const const_image_data<T>& rhs) {
-      const auto& bmi = rhs.get_info();
-      create(bmi.size());
-      if (pixel_format() == bmi.pixel_format) {
-        put(rhs.raw_data().data(0, bmi.mem_size()), bmi);
-      } else {
-        put(datamap<T>(rhs));
-      }
+      put(rhs);
     }
 
     inline pixmap::pixmap (uint32_t w, uint32_t h) {
@@ -116,39 +110,44 @@ namespace gui {
       operator=(data);
     }
 
-    template<pixel_format_t T, pixel_format_t S>
-    inline void put_helper (pixmap* pix, const datamap<T>& rhs) {
-      datamap<S> cnv = static_cast<const basic_datamap&>(rhs).convert<S>();
-      pix->put<S>(cnv);
-    }
-
     template<pixel_format_t T>
     void pixmap::put (const datamap<T>& rhs) {
       if (rhs) {
-        const auto& bmi = rhs.get_info();
-        create(bmi.size());
-        if (pixel_format() == T) {
-          put_raw(rhs.get_raw().data(), bmi);
-        } else {
-          switch (pixel_format()) {
-            case pixel_format_t::BW:   put_helper<T, pixel_format_t::BW  >(this, rhs); break;
-            case pixel_format_t::GRAY: put_helper<T, pixel_format_t::GRAY>(this, rhs); break;
-            case pixel_format_t::RGB:  put_helper<T, pixel_format_t::RGB >(this, rhs); break;
-            case pixel_format_t::RGBA: put_helper<T, pixel_format_t::RGBA>(this, rhs); break;
-            case pixel_format_t::BGR:  put_helper<T, pixel_format_t::BGR >(this, rhs); break;
-            case pixel_format_t::BGRA: put_helper<T, pixel_format_t::BGRA>(this, rhs); break;
-            case pixel_format_t::ARGB: put_helper<T, pixel_format_t::ARGB>(this, rhs); break;
-            case pixel_format_t::ABGR: put_helper<T, pixel_format_t::ABGR>(this, rhs); break;
-            default: break;
-          }
-        }
+        put(rhs.get_data());
       } else {
         clear();
       }
     }
 
     template<pixel_format_t T>
+    void pixmap::put (const const_image_data<T>& rhs) {
+      const auto& bmi = rhs.get_info();
+      create(bmi.size());
+      if (pixel_format() == T) {
+        put_raw(rhs.raw_data().data(0, bmi.mem_size()), bmi);
+      } else {
+        switch (pixel_format()) {
+          case pixel_format_t::BW:   put(datamap<pixel_format_t::BW>  (rhs)); break;
+          case pixel_format_t::GRAY: put(datamap<pixel_format_t::GRAY>(rhs)); break;
+          case pixel_format_t::RGB:  put(datamap<pixel_format_t::RGB >(rhs)); break;
+          case pixel_format_t::RGBA: put(datamap<pixel_format_t::RGBA>(rhs)); break;
+          case pixel_format_t::BGR:  put(datamap<pixel_format_t::BGR >(rhs)); break;
+          case pixel_format_t::BGRA: put(datamap<pixel_format_t::BGRA>(rhs)); break;
+          case pixel_format_t::ARGB: put(datamap<pixel_format_t::ARGB>(rhs)); break;
+          case pixel_format_t::ABGR: put(datamap<pixel_format_t::ABGR>(rhs)); break;
+          default: break;
+        }
+      }
+    }
+
+    template<pixel_format_t T>
     pixmap& pixmap::operator= (const datamap<T>& rhs) {
+      put<T>(rhs);
+      return *this;
+    }
+
+    template<pixel_format_t T>
+    pixmap& pixmap::operator= (const const_image_data<T>& rhs) {
       put<T>(rhs);
       return *this;
     }

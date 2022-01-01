@@ -572,6 +572,10 @@ namespace gui {
       return core::global::get_device_pixel_format();
     }
 
+    void pixmap::operator= (const pixmap& rhs) {
+      super::operator=(rhs);
+    }
+
     // --------------------------------------------------------------------------
     masked_bitmap::masked_bitmap (const pixmap& img, const bitmap& msk)
       : image(img)

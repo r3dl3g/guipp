@@ -106,6 +106,8 @@ namespace gui {
       typedef basic_map super;
 
       pixmap () = default;
+      pixmap (const pixmap&) = default;
+      pixmap (pixmap&&) = default;
 
       template<pixel_format_t T>
       pixmap (const datamap<T>& rhs);
@@ -131,6 +133,11 @@ namespace gui {
       pixmap& operator= (const datamap<T>& rhs);
 
       template<pixel_format_t T>
+      pixmap& operator= (const const_image_data<T>& rhs);
+
+      void operator= (const pixmap& rhs);
+
+      template<pixel_format_t T>
       datamap<T> get () const;
 
       template<pixel_format_t T>
@@ -143,6 +150,9 @@ namespace gui {
 
       template<pixel_format_t T>
       void put (const datamap<T>& rhs);
+
+      template<pixel_format_t T>
+      void put (const const_image_data<T>& rhs);
 
     private:
       template<pixel_format_t T>

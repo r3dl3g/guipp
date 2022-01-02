@@ -35,8 +35,10 @@ namespace gui {
 
   namespace win {
 
+    // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT std::string getLastErrorText ();
 
+    // --------------------------------------------------------------------------
     template<core::os::platform_t P = core::os::system_platform>
     struct window_class_defaults {};
 
@@ -67,6 +69,7 @@ namespace gui {
       static constexpr os::style class_style = static_cast<os::style>(0);
     };
 
+    // --------------------------------------------------------------------------
     class GUIPP_WIN_EXPORT class_info {
     public:
       class_info ();
@@ -97,6 +100,7 @@ namespace gui {
       os::style ex_style;
     };
 
+    // --------------------------------------------------------------------------
     template<typename T,
              os::color B = color::white,
              win::cursor_type C = window_class_defaults<>::cursor,
@@ -120,6 +124,22 @@ namespace gui {
 
     };
 
+    // --------------------------------------------------------------------------
+    template<typename T,
+      win::cursor_type C = win::window_class_defaults<>::cursor,
+      os::style S = win::window_class_defaults<>::style,
+      os::style ES = win::window_class_defaults<>::ex_style,
+      os::style CS = win::window_class_defaults<>::class_style>
+      using no_erase_window_class = win::window_class<T, color::transparent, C, S, ES, CS>;
+
+    template<typename T,
+      win::cursor_type C = win::window_class_defaults<>::cursor,
+      os::style S = win::window_class_defaults<>::style_no_focus,
+      os::style ES = win::window_class_defaults<>::ex_style,
+      os::style CS = win::window_class_defaults<>::class_style>
+      using no_focus_window_class = win::window_class<T, color::transparent, C, S, ES, CS>;
+
+    // --------------------------------------------------------------------------
   } // namespace win
 
 } // namespace gui

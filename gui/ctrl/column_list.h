@@ -202,7 +202,7 @@ namespace gui {
     public:
       typedef control super;
       typedef Layout layout_type;
-      typedef no_focus_window_class<column_list_header> clazz;
+      typedef win::no_focus_window_class<column_list_header> clazz;
       typedef void (cell_draw)(std::size_t,            // idx
                                draw::graphics&,  // gc
                                const core::rectangle&, // place
@@ -251,7 +251,7 @@ namespace gui {
         typedef win::layout_container<layout::detail::base_column_list_layout> super;
         typedef column_list_header<layout_type> header_type;
         typedef vertical_scrollable_list list_type;
-        typedef no_erase_window_class<base_column_list> clazz;
+        typedef win::no_erase_window_class<base_column_list> clazz;
 
         explicit base_column_list (core::size::type item_size = list_defaults<>::item_size,
                                    os::color background = color::white,

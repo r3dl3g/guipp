@@ -33,7 +33,7 @@ namespace gui {
       class GUIPP_CTRL_EXPORT separator_base : public control {
       public:
         typedef control super;
-        typedef no_erase_window_class<separator_base> clazz;
+        typedef win::no_erase_window_class<separator_base> clazz;
 
         separator_base () = default;
 

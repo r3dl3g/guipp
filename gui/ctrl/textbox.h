@@ -36,7 +36,7 @@ namespace gui {
       class GUIPP_CTRL_EXPORT textbox_base : public control {
       public:
         typedef control super;
-        typedef no_erase_window_class<textbox_base, win::cursor_type::ibeam> clazz;
+        typedef win::no_erase_window_class<textbox_base, win::cursor_type::ibeam> clazz;
         typedef std::vector<std::string> strings;
         typedef strings::size_type size_type;
 

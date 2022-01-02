@@ -191,7 +191,7 @@ namespace gui {
     class GUIPP_CTRL_EXPORT main_menu : public menu_data {
     public:
       typedef menu_data super;
-      typedef no_erase_window_class<main_menu> clazz;
+      typedef win::no_erase_window_class<main_menu> clazz;
 
       main_menu ();
 

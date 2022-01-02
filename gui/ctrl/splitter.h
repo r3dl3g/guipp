@@ -95,7 +95,7 @@ namespace gui {
       class basic_splitter : public splitter_base {
       public:
         typedef splitter_base super;
-        typedef no_erase_window_class<basic_splitter, splitter_cursor<O>::value> clazz;
+        typedef win::no_erase_window_class<basic_splitter, splitter_cursor<O>::value> clazz;
 
         basic_splitter ();
         basic_splitter (const basic_splitter& rhs);

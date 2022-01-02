@@ -156,7 +156,7 @@ namespace gui {
     class basic_scroll_bar : public scroll_bar {
     public:
       typedef scroll_bar super;
-      typedef no_erase_window_class<basic_scroll_bar,
+      typedef win::no_erase_window_class<basic_scroll_bar,
                                     win::window_class_defaults<>::cursor,
                                     scroll_bar_traits<H>::style> clazz;
 

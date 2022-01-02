@@ -34,7 +34,7 @@ namespace gui {
       class GUIPP_CTRL_EXPORT editbox_base : public textbox_base {
       public:
         typedef textbox_base super;
-        typedef no_erase_window_class<editbox_base, win::cursor_type::ibeam> clazz;
+        typedef win::no_erase_window_class<editbox_base, win::cursor_type::ibeam> clazz;
 
         editbox_base ();
         ~editbox_base ();

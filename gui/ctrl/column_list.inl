@@ -80,11 +80,11 @@ namespace gui {
       }
 
       inline core::rectangle base_column_list_layout::header_pos (const core::rectangle& r) const {
-        return core::rectangle(0, 0, r.width(), 20);
+        return core::rectangle(0, 0, r.width(), 25);
       }
 
       inline core::rectangle base_column_list_layout::list_pos (const core::rectangle& r) const {
-        return core::rectangle(0, 20, r.width(), r.height() - 20);
+        return core::rectangle(0, 25, r.width(), r.height() - 25);
       }
 
       inline base_column_list_layout::data::data ()
@@ -220,8 +220,8 @@ namespace gui {
       auto count = layouter.get_column_count();
       for (decltype(count) i = 0;i < count;++i) {
         layout::column_size_type w = layouter.get_column_width(i);
-        r.width(w);
         if (cell_drawer) {
+          r.width(w);
           cell_drawer(i, g, r, back_brush);
         }
         r.move_x(w);

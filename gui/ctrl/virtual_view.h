@@ -59,7 +59,7 @@ namespace gui {
     public:
       typedef layout::virtual_layout<T> layout_type;
       typedef win::layout_container<layout_type> super;
-      typedef no_erase_window_class<virtual_view> clazz;
+      typedef win::no_erase_window_class<virtual_view> clazz;
       typedef T view_type;
 
       virtual_view ();

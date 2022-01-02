@@ -32,7 +32,7 @@ namespace gui {
     class GUIPP_CTRL_EXPORT image : public control {
     public:
       typedef control super;
-      typedef no_focus_window_class<image> clazz;
+      typedef win::no_focus_window_class<image> clazz;
 
       image ();
 

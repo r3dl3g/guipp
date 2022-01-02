@@ -241,7 +241,7 @@ namespace gui {
       class cell_view : public win::container {
       public:
         typedef win::container super;
-        typedef no_erase_window_class<cell_view> clazz;
+        typedef win::no_erase_window_class<cell_view> clazz;
 
         template<typename U>
         using container_type = T<U>;

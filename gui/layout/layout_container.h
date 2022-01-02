@@ -68,7 +68,7 @@ namespace gui {
     class group_window : public layout_container<L, Args ...> {
     public:
       typedef layout_container<L, Args ...> super;
-      typedef window_class<group_window, color::white> clazz;
+      typedef no_erase_window_class<group_window> clazz;
 
       explicit group_window (Args ... args);
 

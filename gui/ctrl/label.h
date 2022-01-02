@@ -34,7 +34,7 @@ namespace gui {
       class GUIPP_CTRL_EXPORT label_base : public control {
       public:
         typedef control super;
-        typedef no_focus_window_class<label_base> clazz;
+        typedef win::no_focus_window_class<label_base> clazz;
 
         explicit label_base (const std::string& = std::string());
         explicit label_base (const text_source&);

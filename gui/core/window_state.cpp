@@ -66,8 +66,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     window_state::set::set (state_type& state)
-      : is(state)
-      , flags(state)
+      : flags(state)
     {}
 
     bool window_state::set::created (bool on) {

@@ -81,6 +81,10 @@ namespace gui {
         return (state & disabled) == disabled;
       }
 
+      inline core::button_state::temp button_state () const {
+        return core::button_state::temp(!is_disabled(), is_hilited(), is_selected(), is_selected());
+      }
+
     private:
       states state;
     };

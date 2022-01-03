@@ -51,6 +51,14 @@ namespace gui {
 
       };
 
+      struct GUIPP_CORE_EXPORT temp : public set, is  {
+
+        explicit temp ();
+        explicit temp (bool enabled, bool hilited, bool pushed, bool checked);
+
+      private:
+        state_type state;
+      };
     };
 
     std::ostream& operator<< (std::ostream& out, const button_state::is&);

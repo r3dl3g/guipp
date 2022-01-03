@@ -60,6 +60,21 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    button_state::temp::temp ()
+      : set(state)
+      , is(state)
+    {}
+
+    button_state::temp::temp (bool enabled_, bool hilited_, bool pushed_, bool checked_)
+      : set(state)
+      , is(state) {
+      set::enable(enabled_);
+      set::hilited(hilited_);
+      set::pushed(pushed_);
+      set::checked(checked_);
+    }
+
+    // --------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& out, const button_state::is& s) {
       out << static_cast<const window_state::is&>(s);
       if (s.pushed()) out << " pushed,";

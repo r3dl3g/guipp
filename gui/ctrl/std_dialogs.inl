@@ -78,6 +78,13 @@ namespace gui {
     }
 
     template<typename C, int T, int L, int R>
+    inline standard_dialog<C, T, L, R>::standard_dialog (content_view_type&& content_view)
+      : content_view(std::move(content_view))
+    {
+      super::set_background(color::very_light_gray);
+    }
+
+    template<typename C, int T, int L, int R>
     void standard_dialog<C, T, L, R>::create (win::overlapped_window& parent,
                                               const std::string& title,
                                               const core::rectangle& rect,
@@ -243,19 +250,23 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     template<typename T>
+    dir_file_view<T>::dir_file_view (create_subdirectory_fn fn)
+      : super(dir_tree_view(fn), file_column_list<T>())
+    {}
+
+    template<typename T>
     void dir_file_view<T>::init (std::function<file_selected> action,
                                  std::function<fs::filter_fn> filter) {
-      super::first->on_selection_changed([&,filter](event_source) {
-        int idx = super::first->get_selection();
-        if (idx > -1) {
-          super::second.set_path(super::first->get_item(idx).path, filter);
+      super::first.view->on_selection_changed([&,filter](event_source) {
+        if (super::first.view->has_selection()) {
+          super::second.set_path(super::first.view->get_item(super::first.view->get_selection()).path, filter);
         }
       });
       super::second.list->on_selection_commit([&, action, filter] () {
         auto path = super::second.get_selected_path();
         if (sys_fs::is_directory(path)) {
-          super::first->open_node(path.parent_path());
-          super::first->select_node(path);
+          super::first.view->open_node(path.parent_path());
+          super::first.view->select_node(path);
           super::second.set_path(path, filter);
         } else {
           action(super::get_overlapped_window(), path);
@@ -265,6 +276,11 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     template<typename T>
+    path_open_dialog_base<T>::path_open_dialog_base (create_subdirectory_fn fn)
+      : super(dir_file_view<T>(fn))
+    {}
+
+    template<typename T>
     void path_open_dialog_base<T>::create (win::overlapped_window& parent,
                                            const std::string& title,
                                            const std::string& ok_label,
@@ -272,7 +288,7 @@ namespace gui {
                                            const core::rectangle& rect,
                                            std::function<file_selected> action,
                                            std::function<fs::filter_fn> filter) {
-      auto& dir_tree = super::content_view.first.view;
+      auto& dir_tree = super::content_view.first.view.view;
       auto& file_list = super::content_view.second;
 
       super::content_view.init([&, action] (win::overlapped_window& dlg, const sys_fs::path& path) {
@@ -286,15 +302,15 @@ namespace gui {
           if (super::content_view.second.list->get_selection() > -1) {
             action(dlg, super::content_view.second.get_selected_path());
           } else {
-            int idx = super::content_view.first->get_selection();
+            int idx = super::content_view.first.view->get_selection();
             if (idx > -1) {
-              action(dlg, super::content_view.first->get_item(idx).path);
+              action(dlg, super::content_view.first.view->get_item(idx).path);
             }
           }
         }
       }, {cancel_label, ok_label});
 
-      super::content_view.set_split_pos(0.5);
+      super::content_view.set_split_pos(0.3);
 
       sys_fs::path current = sys_fs::current_path();
       dir_tree.set_roots(fs::get_all_root_file_infos());
@@ -313,8 +329,9 @@ namespace gui {
                                          const std::string& ok_label,
                                          const std::string& cancel_label,
                                          std::function<file_selected> action,
-                                         std::function<fs::filter_fn> filter) {
-      path_open_dialog_base dialog;
+                                         std::function<fs::filter_fn> filter,
+                                         create_subdirectory_fn fn) {
+      path_open_dialog_base dialog(fn);
       dialog.create(parent, title, ok_label, cancel_label,
                     detail::std_path_open_dialog_size<>(parent.geometry()),
                     action, filter);

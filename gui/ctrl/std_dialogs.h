@@ -51,6 +51,9 @@ namespace gui {
     //-----------------------------------------------------------------------------
     typedef void (file_selected) (win::overlapped_window&, const sys_fs::path&);
 
+    //-----------------------------------------------------------------------------
+    typedef bool (create_subdirectory) (win::overlapped_window&, const sys_fs::path&);
+
     namespace detail {
 
       // --------------------------------------------------------------------------
@@ -104,6 +107,7 @@ namespace gui {
       typedef C content_view_type;
 
       standard_dialog ();
+      standard_dialog (content_view_type&&);
 
       void create (win::overlapped_window& parent,
                    const std::string& title,
@@ -312,13 +316,53 @@ namespace gui {
     };
 
     //-----------------------------------------------------------------------------
-    template<typename T = path_tree::sorted_path_info>
-    class dir_file_view : public vertical_split_view<virtual_view<sorted_dir_tree>,
-                                                     file_column_list<T>> {
+    GUIPP_CTRL_EXPORT std::function<create_subdirectory>
+    make_create_subdirectory_fn (const std::string& title,
+                                 const std::string& message,
+                                 const std::string& initial,
+                                 const std::string& ok_label,
+                                 const std::string& cancel_label);
+
+    GUIPP_CTRL_EXPORT std::function<create_subdirectory>
+    make_default_create_subdirectory_fn ();
+
+    //-----------------------------------------------------------------------------
+    class GUIPP_CTRL_EXPORT dir_tree_view : public win::layout_container<layout::header_layout> {
     public:
+      typedef win::layout_container<layout::header_layout> super;
+      typedef win::no_erase_window_class<dir_tree_view> clazz;
+
       typedef sorted_dir_tree dir_tree_type;
+      typedef virtual_view<dir_tree_type> view_type;
+      typedef win::group_window<layout::horizontal_lineup<25, 4, 4, 4, origin_t::end>> heaader_type;
+      typedef std::function<create_subdirectory> create_subdirectory_fn;
+
+      dir_tree_view (create_subdirectory_fn fn = nullptr);
+      dir_tree_view (dir_tree_view&&);
+
+      void create (win::container& parent,
+                   const core::rectangle& place = core::rectangle::def);
+
+      heaader_type header;
+      view_type view;
+      icon_push_button_t<draw::icon_type::add, look::button_frame> add_button;
+
+    private:
+      void init ();
+
+      create_subdirectory_fn fn;
+    };
+
+    //-----------------------------------------------------------------------------
+    template<typename T = path_tree::sorted_path_info>
+    class dir_file_view : public vertical_split_view<dir_tree_view, file_column_list<T>> {
+    public:
       typedef file_column_list<T> file_list_type;
-      typedef vertical_split_view<virtual_view<dir_tree_type>, file_list_type> super;
+      typedef vertical_split_view<dir_tree_view, file_list_type> super;
+      typedef std::function<create_subdirectory> create_subdirectory_fn;
+
+      dir_file_view (create_subdirectory_fn fn = nullptr);
+      dir_file_view (dir_file_view&&) = default;
 
       void init (std::function<file_selected> action,
                  std::function<fs::filter_fn> filter = nullptr);
@@ -330,6 +374,9 @@ namespace gui {
     class path_open_dialog_base : public standard_dialog<dir_file_view<T>> {
     public:
       typedef standard_dialog<dir_file_view<T>> super;
+      typedef std::function<create_subdirectory> create_subdirectory_fn;
+
+      path_open_dialog_base (create_subdirectory_fn fn = nullptr);
 
       void create (win::overlapped_window& parent,
                    const std::string& title,
@@ -344,7 +391,8 @@ namespace gui {
                         const std::string& ok_label,
                         const std::string& cancel_label,
                         std::function<file_selected> action,
-                        std::function<fs::filter_fn> filter = nullptr);
+                        std::function<fs::filter_fn> filter = nullptr,
+                        create_subdirectory_fn fn = nullptr);
     };
 
     //-----------------------------------------------------------------------------
@@ -357,6 +405,9 @@ namespace gui {
     public:
       typedef standard_dialog<dir_file_view<>, 30> super;
       typedef win::group_window<layout::border::layouter<4, 4, 120, 4>> top_view_type;
+      typedef std::function<create_subdirectory> create_subdirectory_fn;
+
+      file_save_dialog (create_subdirectory_fn fn = nullptr);
 
       void create (win::overlapped_window& parent,
                    const std::string& title,
@@ -373,7 +424,8 @@ namespace gui {
                         const std::string& name_label,
                         const std::string& ok_label,
                         const std::string& cancel_label,
-                        std::function<file_selected> action);
+                        std::function<file_selected> action,
+                        create_subdirectory_fn fn = nullptr);
 
       top_view_type top_view;
       basic_edit<text_origin_t::vcenter_left,

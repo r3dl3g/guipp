@@ -71,10 +71,12 @@ namespace gui {
     {}
 
     container::container (container&& rhs) noexcept
-      : super(std::move(rhs)) {
-      for(auto& w : rhs.children) {
-        w->set_parent(*this);
-      }
+      : super(std::move(rhs))
+//      , children(std::move(rhs.children))
+    {
+//      for(auto& w : rhs.children) {
+//        w->set_parent(*this);
+//      }
     }
 
     container::~container () {

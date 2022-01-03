@@ -32,6 +32,9 @@ namespace gui {
 
   namespace core {
 
+    event_container::event_container ()
+    {}
+
     void event_container::register_event_handler (const event_handler_function& handler) {
       event_handlers.reserve(8);
       event_handlers.emplace_back(handler);

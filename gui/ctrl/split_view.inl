@@ -166,12 +166,12 @@ namespace gui {
     }
 
     template<orientation_t O, typename F, typename S>
-    inline split_view<O, F, S>::split_view (F&& first, S&& second)
-      : first(std::move(first))
-      , second(std::move(second))
+    inline split_view<O, F, S>::split_view (F&& f, S&& s)
+      : first(std::move(f))
+      , second(std::move(s))
     {
       init();
-      super::get_layout().set(&(this->first), &(this->second), &(this->splitter));
+      super::get_layout().set(&first, &second, &splitter);
     }
 
     template<orientation_t O, typename F, typename S>

@@ -69,6 +69,17 @@ namespace gui {
     }
 
     template<typename T, os::color B>
+    virtual_view<T, B>::virtual_view (virtual_view&& rhs)
+      : super(std::move(rhs))
+      , view(std::move(rhs.view))
+      , hscroll(std::move(rhs.hscroll))
+      , vscroll(std::move(rhs.vscroll))
+      , edge(std::move(rhs.edge))
+    {
+      init();
+    }
+
+    template<typename T, os::color B>
     auto virtual_view<T, B>::operator-> () -> view_type* {
       return &view;
     }

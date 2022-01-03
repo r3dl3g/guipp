@@ -53,6 +53,10 @@ namespace gui {
     public:
       typedef std::function<event_handler_callback> event_handler_function;
 
+      event_container ();
+      event_container (const event_container&) = delete;
+      event_container (event_container&&) = delete;
+
       void register_event_handler (const event_handler_function&);
       void register_event_handler (event_handler_function &&);
 

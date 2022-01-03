@@ -77,7 +77,7 @@ namespace gui {
         explicit basic_tree (core::size::type item_size = list_defaults<>::item_size,
                              os::color background = color::white,
                              bool grab_focus = true);
-        basic_tree (basic_tree&& rhs) noexcept ;
+        basic_tree (basic_tree&& rhs) noexcept;
 
         void init ();
 

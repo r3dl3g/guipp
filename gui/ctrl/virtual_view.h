@@ -63,6 +63,7 @@ namespace gui {
       typedef T view_type;
 
       virtual_view ();
+      virtual_view (virtual_view&&);
 
       template<typename ... Args>
       virtual_view (const Args& ... args);

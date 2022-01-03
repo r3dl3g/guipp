@@ -51,6 +51,7 @@ namespace gui {
       : area(rhs.area)
       , parent(nullptr)
       , flags(rhs.flags)
+      , cursor_(rhs.cursor_)
       , background(rhs.background)
       , class_name(nullptr)
     {
@@ -66,7 +67,7 @@ namespace gui {
       : area(std::move(rhs.area))
       , parent(std::move(rhs.parent))
       , flags(std::move(rhs.flags))
-      , cursor_(rhs.cursor_)
+      , cursor_(std::move(rhs.cursor_))
       , background(rhs.background)
       , class_name(rhs.class_name)
     {

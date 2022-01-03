@@ -103,7 +103,7 @@ namespace gui {
 //        logging::debug() << *vscroll << " Y:{ min:" << ymin << ", pos:" << ypos << ", max:" << ymax << ", step:" << ypage << " }";
 
         vscroll->set_min_max_page(ymin, ymax, ypage);
-      } else {
+      } else if (vscroll) {
         vscroll->set_min_max(0, 0);
       }
 
@@ -116,7 +116,7 @@ namespace gui {
 //        logging::debug() << *vscroll << " X:{ min:" << xmin << ", pos:" << xpos << ", max:" << xmax << ", step:" << xpage << " }";
 
         hscroll->set_min_max_page(xmin, xmax, xpage);
-      } else {
+      } else if (hscroll) {
         hscroll->set_min_max(0, 0);
       }
 

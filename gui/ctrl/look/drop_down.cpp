@@ -95,7 +95,7 @@ namespace gui {
                                                    const core::rectangle& area,
                                                    const core::button_state::is& state,
                                                    bool is_open) {
-      look::button_frame<look_and_feel_t::w95>(graph, area, state);
+      look::button_frame_t<look_and_feel_t::w95>(graph, area, state);
       graph.fill(draw::polygon(get_up_down_polygon(area, is_open)), state.enabled() ? color::black : color::light_gray);
     }
 
@@ -127,7 +127,7 @@ namespace gui {
     void drop_down_t<look_and_feel_t::metal> (draw::graphics& graph,
                                               const core::rectangle& r,
                                               const core::button_state::is& state) {
-      button_frame<look_and_feel_t::metal>(graph, r, state);
+      button_frame_t<look_and_feel_t::metal>(graph, r, state);
     }
 
     template<>
@@ -144,7 +144,7 @@ namespace gui {
     void drop_down_t<look_and_feel_t::w10> (draw::graphics& graph,
                                             const core::rectangle& area,
                                             const core::button_state::is& state) {
-      button_frame<look_and_feel_t::w10>(graph, area, state);
+      button_frame_t<look_and_feel_t::w10>(graph, area, state);
     }
 
     void drop_down_frame (draw::graphics& graph,

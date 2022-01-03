@@ -240,20 +240,20 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void button_frame<look_and_feel_t::w95> (draw::graphics& graph,
+    void button_frame_t<look_and_feel_t::w95> (draw::graphics& graph,
                                              const core::rectangle& r,
-                                             bool enabled, bool pushed, bool hilited, bool focused) {
+                                             const core::button_state::is& st) {
       core::rectangle area = r;
-      graph.fill(draw::rectangle(area), enabled && hilited ? color::buttonHighLightColor() : color::buttonColor());
-      if (enabled && focused) {
+      graph.fill(draw::rectangle(area), st.enabled() && st.hilited() ? color::buttonHighLightColor() : color::buttonColor());
+      if (st.enabled() && st.focused()) {
         graph.frame(draw::rectangle(area), color::black);
         area.shrink({1, 1});
       }
 
-      draw::frame::deep_relief(graph, area, pushed);
+      draw::frame::deep_relief(graph, area, st.pushed());
 
 #ifndef GUIPP_BUILD_FOR_MOBILE
-      if (enabled && focused && !pushed) {
+      if (st.enabled() && st.focused() && !st.pushed()) {
         area = r.shrinked({6, 6});
         graph.frame(draw::rectangle(area), draw::pen(color::light_gray, dot_line_width, dot_line_style));
       }
@@ -262,65 +262,86 @@ namespace gui {
 
     namespace win10 {
 
-      os::color get_button_color (bool enabled, bool pushed, bool hilited, bool focused) {
-        if (!enabled) {
+      os::color get_button_color (const core::button_state::is& st) {
+        if (!st.enabled()) {
           return color::rgb_gray<204>::value;
-        } else if (pushed) {
+        } else if (st.pushed()) {
           return color::rgb<204, 228, 247>::value;
-        } else if (focused || hilited) {
+        } else if (st.hilited() || st.focused()) {
           return color::rgb<229, 241, 251>::value;
         } else {
           return color::rgb_gray<225>::value;
         }
       }
 
-      os::color get_button_frame_color (bool enabled, bool pushed, bool hilited, bool focused) {
-        if (!enabled) {
+      os::color get_button_frame_color (const core::button_state::is& st) {
+        if (!st.enabled()) {
           return color::rgb_gray<191>::value;
-        } else if (pushed) {
+        } else if (st.pushed()) {
           return color::rgb<0, 84, 153>::value;
-        } else if (focused || hilited) {
+        } else if (st.hilited() || st.focused()) {
           return color::rgb<0, 120, 215>::value;
         } else {
           return color::rgb_gray<173>::value;
         }
       }
 
-      os::color get_button_color (const core::button_state::is& state) {
-        return get_button_color(state.enabled(), state.pushed(), state.hilited(), state.focused());
-      }
+    }
 
-      os::color get_button_frame_color (const core::button_state::is& state) {
-        return get_button_frame_color(state.enabled(), state.pushed(), state.hilited(), state.focused());
+    // --------------------------------------------------------------------------
+    os::color get_flat_button_background (const core::button_state::is& st, os::color bg) {
+      if (st.enabled()) {
+        if (st.pushed()) {
+          return color::darker(bg, 0.25);
+        } else if (st.hilited()) {
+          return color::lighter(bg, 0.25);
+        }
       }
+      return bg;
+    }
 
+    os::color get_flat_button_foreground (const core::button_state::is& st, os::color fg, os::color bg) {
+      if (st.enabled()) {
+        if (st.pushed()) {
+          const os::color b2 = color::invert(bg);
+          const os::color f2 = color::invert(fg);
+          const int i1 = color::compare_weight(bg, b2);
+          const int i2 = color::compare_weight(bg, f2);
+          if (std::abs(i1) > std::abs(i2)) {
+            return b2;
+          } else {
+            return f2;
+          }
+        }
+        return fg;
+      } else {
+        return color::darker(fg);
+      }
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void button_frame<look_and_feel_t::w10> (draw::graphics& graph,
+    void button_frame_t<look_and_feel_t::w10> (draw::graphics& graph,
                                              const core::rectangle& r,
-                                             bool enabled, bool pushed, bool hilited, bool focused) {
-      graph.draw(draw::rectangle(r),
-                 win10::get_button_color(enabled, pushed, hilited, focused),
-                 win10::get_button_frame_color(enabled, pushed, hilited, focused));
+                                             const core::button_state::is& st) {
+      graph.draw(draw::rectangle(r), win10::get_button_color(st), win10::get_button_frame_color(st));
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void button_frame<look_and_feel_t::metal> (draw::graphics& graph,
+    void button_frame_t<look_and_feel_t::metal> (draw::graphics& graph,
                                                const core::rectangle& r,
-                                               bool enabled, bool pushed, bool hilited, bool focused) {
-      if (enabled && hilited) {
+                                               const core::button_state::is& st) {
+      if (st.enabled() && st.hilited()) {
         graph.copy(draw::frame_image(r, detail::get_button_frame<false, false>().brightness(1.025F), 4), r.top_left());
       } else {
         graph.copy(draw::frame_image(r, detail::get_button_frame<false, false>(), 4), r.top_left());
       }
-      if (pushed) {
+      if (st.pushed()) {
         draw::frame::sunken_relief(graph, r.shrinked(core::size::two));
       }
 
-      if (enabled && focused && !pushed) {
+      if (st.enabled() && st.focused() && !st.pushed()) {
         core::rectangle area = r;
         area.shrink({2, 2});
         graph.frame(draw::rectangle(area), draw::pen(color::very_light_blue, 2, draw::pen::Style::solid));
@@ -329,18 +350,37 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void button_frame<look_and_feel_t::osx> (draw::graphics& graph,
+    void button_frame_t<look_and_feel_t::osx> (draw::graphics& graph,
                                              const core::rectangle& r,
-                                             bool enabled, bool pushed, bool hilite, bool focused) {
-      if (!enabled) {
+                                             const core::button_state::is& st) {
+      if (!st.enabled()) {
         graph.copy(draw::frame_image(r, osx::get_disabled_frame(), 4), r.top_left());
-      } else if (pushed && hilite) {
+      } else if (st.pushed() && st.hilited()) {
         graph.copy(draw::frame_image(r, osx::get_pressed_frame(), 4), r.top_left());
-      } else if (focused) {
+      } else if (st.focused()) {
         graph.copy(draw::frame_image(r, osx::get_focused_frame(), 4), r.top_left());
       } else {
         graph.copy(draw::frame_image(r, osx::get_frame(), 4), r.top_left());
       }
+    }
+
+    void button_frame (draw::graphics& graph,
+                       const core::rectangle& r,
+                       const core::button_state::is& st,
+                       os::color,
+                       os::color) {
+      button_frame_t<system_look_and_feel>(graph, r, st);
+    }
+
+    // --------------------------------------------------------------------------
+    void button_text (draw::graphics& g,
+                      const core::rectangle& r,
+                      const std::string& text,
+                      const core::button_state::is& st,
+                      os::color fg,
+                      os::color) {
+      os::color f = st.enabled() ? fg : color::disabledTextColor();
+      g.text(draw::text_box(text, r, text_origin_t::center), draw::font::system(), f);
     }
 
     // --------------------------------------------------------------------------
@@ -354,67 +394,60 @@ namespace gui {
                                    horizontal, vertical), r.top_left());
     }
 
-    // --------------------------------------------------------------------------
-    os::color get_button_background (const core::button_state::is& state, os::color background) {
-      if (state.enabled()) {
-        if (state.pushed()) {
-          return color::darker(background, 0.25);
-        } else if (state.hilited()) {
-          return color::lighter(background, 0.25);
-        }
-      }
-      return background;
+    void simple_frame (draw::graphics& g,
+                       const core::rectangle& r,
+                       const core::button_state::is& st,
+                       os::color,
+                       os::color) {
+      simple_frame(g, r, st.hilited());
     }
-    // --------------------------------------------------------------------------
-    os::color get_button_foreground (const core::button_state::is& state, os::color foreground, os::color background) {
-      if (state.enabled()) {
-        if (state.pushed()) {
-          const os::color b2 = color::invert(background);
-          const os::color f2 = color::invert(foreground);
-          const int i1 = color::compare_weight(background, b2);
-          const int i2 = color::compare_weight(background, f2);
-          if (std::abs(i1) > std::abs(i2)) {
-            return b2;
-          } else {
-            return f2;
-          }
-        }
-        return foreground;
-      } else {
-        return color::darker(foreground);
-      }
-    }
-    // --------------------------------------------------------------------------
-    void flat_button (draw::graphics& g,
-                      const core::rectangle& r,
-                      const std::string& text,
-                      const core::button_state::is& state,
-                      os::color foreground,
-                      os::color background) {
-      bool enabled = state.enabled();
-      os::color b = get_button_background(state, background);
-      g.fill(draw::rectangle(r), b);
 
-      os::color f = get_button_foreground(state, foreground, b);
-      g.text(draw::text_box(text, r, text_origin_t::center), draw::font::system(), f);
+    // --------------------------------------------------------------------------
+    void flat_button_frame (draw::graphics& g,
+                            const core::rectangle& r,
+                            const core::button_state::is& st,
+                            os::color fg,
+                            os::color bg) {
+      os::color b = get_flat_button_background(st, bg);
+      g.fill(draw::rectangle(r), b);
 #ifndef GUIPP_BUILD_FOR_MOBILE
-      if (enabled && state.focused()) {
-        g.frame(draw::rectangle(r), draw::pen(f, dot_line_width, dot_line_style));
+      if (st.enabled() && st.focused()) {
+        g.frame(draw::rectangle(r), draw::pen(get_flat_button_foreground(st, fg, b),
+                                              dot_line_width, dot_line_style));
       }
 #endif // GUIPP_BUILD_FOR_MOBILE
     }
 
+    void flat_button_text (draw::graphics& g,
+                           const core::rectangle& r,
+                           const std::string& text,
+                           const core::button_state::is& st,
+                           os::color fg,
+                           os::color bg) {
+      os::color f = get_flat_button_foreground(st, fg, get_flat_button_background(st, bg));
+      g.text(draw::text_box(text, r, text_origin_t::center), draw::font::system(), f);
+    }
+
     // --------------------------------------------------------------------------
-    void push_button (draw::graphics& graph,
+    void flat_button (draw::graphics& g,
                       const core::rectangle& r,
                       const std::string& text,
-                      const core::button_state::is& state,
-                      os::color foreground = color::windowTextColor(),
-                      os::color background = color::transparent) {
-      button_frame<>(graph, r, state);
-      using namespace draw;
-      graph.text(text_box(text, r, text_origin_t::center), font::system(),
-                 state.enabled() ? foreground : color::disabledTextColor());
+                      const core::button_state::is& st,
+                      os::color fg,
+                      os::color bg) {
+      flat_button_frame(g, r, st, fg, bg);
+      flat_button_text(g, r, text, st, fg, bg);
+    }
+
+    // --------------------------------------------------------------------------
+    void push_button (draw::graphics& g,
+                      const core::rectangle& r,
+                      const std::string& text,
+                      const core::button_state::is& st,
+                      os::color fg,
+                      os::color bg) {
+      button_frame(g, r, st, fg, bg);
+      button_text(g, r, text, st, fg, bg);
     }
 
     // --------------------------------------------------------------------------
@@ -422,10 +455,10 @@ namespace gui {
     void tab_button<look_and_feel_t::metal> (draw::graphics& g,
                                              const core::rectangle& r,
                                              const std::string& text,
-                                             const core::button_state::is& state,
-                                             os::color foreground,
+                                             const core::button_state::is& st,
+                                             os::color fg,
                                              alignment_t a) {
-      if (state.checked()) {
+      if (st.checked()) {
         switch (a) {
           case alignment_t::top:    g.copy(draw::frame_image(r, detail::get_tab_frame<alignment_t::top>(true), 3, 3, 3, 0), r.top_left());    break;
           case alignment_t::bottom: g.copy(draw::frame_image(r, detail::get_tab_frame<alignment_t::bottom>(true), 3, 0, 3, 3), r.top_left()); break;
@@ -433,8 +466,8 @@ namespace gui {
           case alignment_t::right:  g.copy(draw::frame_image(r, detail::get_tab_frame<alignment_t::right>(true), 0, 3, 3, 3), r.top_left());  break;
           default: break;
         }
-      } else if (state.enabled()) {
-        if (state.hilited()) {
+      } else if (st.enabled()) {
+        if (st.hilited()) {
           switch (a) {
             case alignment_t::top:    g.copy(draw::frame_image(r, detail::get_tab_frame<alignment_t::top>(false).brightness(1.025F), 3, 3, 3, 0), r.top_left());    break;
             case alignment_t::bottom: g.copy(draw::frame_image(r, detail::get_tab_frame<alignment_t::bottom>(false).brightness(1.025F), 3, 0, 3, 3), r.top_left()); break;
@@ -460,38 +493,54 @@ namespace gui {
           default: break;
         }
       }
-      g.text(draw::text_box(text, r.shrinked({4, 4}), text_origin_t::center), draw::font::system(), foreground);
     }
 
+    void tab_button_text (draw::graphics& g,
+                          const core::rectangle& r,
+                          const std::string& text,
+                          const core::button_state::is& st,
+                          os::color fg,
+                          os::color bg) {
+      g.text(draw::text_box(text, r.shrinked({4, 4}), text_origin_t::center), draw::font::system(), fg);
+    }
     // --------------------------------------------------------------------------
     void switch_button (draw::graphics& graph,
                         const core::rectangle& rect,
-                        const std::string& text,
-                        const core::button_state::is& state,
+                        const core::button_state::is& st,
                         os::color fg,
                         os::color bg) {
-      animated_switch_button(graph, rect, text, state, fg, bg);
+      animated_switch_button(graph, rect, st, fg, bg);
+    }
+
+    void switch_button_text (draw::graphics& graph,
+                             const core::rectangle& rect,
+                             const std::string& text,
+                             const core::button_state::is& st,
+                             os::color fg,
+                             os::color bg) {
+      os::color text_col = st.enabled() ? color::windowTextColor() : color::disabledTextColor();
+      graph.text(draw::text_box(text, rect + core::point(rect.height() * 2 + 10, 0),
+                                text_origin_t::vcenter_left), draw::font::system(), text_col);
     }
 
     // --------------------------------------------------------------------------
     void animated_switch_button (draw::graphics& graph,
                                  const core::rectangle& rect,
-                                 const std::string& text,
-                                 const core::button_state::is& state,
-                                 os::color foreground,
-                                 os::color background,
+                                 const core::button_state::is& st,
+                                 os::color fg,
+                                 os::color bg,
                                  float animation_step) {
-      bool enabled = state.enabled();
+      bool enabled = st.enabled();
       core::size::type height = rect.height();
       core::size::type width = height * 2;
       core::size::type edge = height / 2;
-      graph.fill(draw::rectangle(rect), background);
+      graph.fill(draw::rectangle(rect), bg);
 
-      float step = state.checked() ? animation_step : 1.0F - animation_step;
+      float step = st.checked() ? animation_step : 1.0F - animation_step;
 
       core::rectangle switch_rect{rect.top_left(), core::size(width, height)};
-      os::color thumb_col = enabled && state.hilited() ? color::lighter(background) : background;
-      os::color fill_col = color::merge(foreground, color::very_light_gray, 1.0F - step);
+      os::color thumb_col = enabled && st.hilited() ? color::lighter(bg) : bg;
+      os::color fill_col = color::merge(fg, color::very_light_gray, 1.0F - step);
       core::rectangle thumb = {core::point{rect.x() + height * step, rect.y()}, core::size(height)};
 
       graph.draw(draw::round_rectangle(switch_rect, core::size(edge)), fill_col, color::medium_gray);
@@ -500,155 +549,48 @@ namespace gui {
       graph.frame(draw::pie(center, edge - 1, 40, 250), color::white);
       graph.frame(draw::pie(center, edge - 1, 250, 40), color::medium_gray);
       graph.fill(draw::pie(center, edge - 2, 0, 360), thumb_col);
-
-      os::color text_col = enabled ? color::windowTextColor() : color::disabledTextColor();
-      graph.text(draw::text_box(text, rect + core::point(width + 10, 0), text_origin_t::vcenter_left), draw::font::system(), text_col);
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void radio_button_t<look_and_feel_t::w95> (draw::graphics& graph,
-                                               const core::rectangle& rec,
-                                               const std::string& text,
-                                               const core::button_state::is& state,
-                                               os::color foreground,
-                                               os::color background) {
-      using namespace draw;
-
-      core::rectangle area = rec;
-
-      os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
-      graph.fill(draw::rectangle(area), color::buttonColor());
-
-      core::point::type y = area.y() + area.size().height() / 2;
-      core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
-      graph.draw(ellipse(r), state.pushed() ? color::very_light_gray
-                                               : color::buttonColor(), col);
-      if (state.checked()) {
-        r.shrink(core::size(2, 2));
-        graph.fill(ellipse(r), state.pushed() ? color::dark_gray : col);
-      }
-      area.move_x(20);
-      graph.text(text_box(text, area, text_origin_t::vcenter_left), font::system(), col);
-#ifndef GUIPP_BUILD_FOR_MOBILE
-      if (state.focused()) {
-        graph.text(bounding_box(text, area, text_origin_t::vcenter_left), font::system(), color::black);
-        area.grow({3, 3});
-        graph.frame(draw::rectangle(area), pen(color::black, dot_line_width, dot_line_style));
-      }
-#endif // GUIPP_BUILD_FOR_MOBILE
+    os::color get_button_foreground<look_and_feel_t::metal> (const core::button_state::is& st, os::color fg, os::color bg) {
+      return st.enabled() ? fg : color::disabledTextColor();
     }
 
-    os::color get_w10_color (const core::button_state::is& state) {
-      if (!state.enabled()) {
+    template<>
+    os::color get_button_foreground<look_and_feel_t::w95> (const core::button_state::is& st, os::color fg, os::color bg) {
+      return st.enabled() ? fg : color::disabledTextColor();
+    }
+
+    template<>
+    os::color get_button_foreground<look_and_feel_t::w10> (const core::button_state::is& st, os::color fg, os::color bg) {
+      if (!st.enabled()) {
         return color::rgb_gray<204>::value;
-      } else if (state.focused() || state.pushed()) {
+      } else if (st.focused() || st.pushed()) {
         return color::rgb<0, 120, 215>::value;
       } else {
         return color::black;
       }
     }
 
-    // --------------------------------------------------------------------------
     template<>
-    void radio_button_t<look_and_feel_t::w10> (draw::graphics& graph,
-                                               const core::rectangle& rec,
-                                               const std::string& text,
-                                               const core::button_state::is& state,
-                                               os::color foreground,
-                                               os::color background) {
+    os::color get_button_foreground<look_and_feel_t::osx> (const core::button_state::is& st, os::color fg, os::color bg) {
+      return st.enabled() ? fg : color::disabledTextColor();
+    }
+
+    // --------------------------------------------------------------------------
+    void check_button_text (draw::graphics& graph,
+                            const core::rectangle& rec,
+                            const std::string& text,
+                            const core::button_state::is& st,
+                            os::color fg,
+                            os::color) {
       using namespace draw;
 
-      auto area = rec;
-      graph.fill(rectangle(area), color::buttonColor());
-
-      os::color col = get_w10_color(state);
-
-      core::point::type y = area.center_y();
-      core::rectangle r(core::point(area.x() + 1, y - 6), core::size(12, 12));
-      graph.frame(ellipse(r), col);
-      if (state.checked()) {
-        r.shrink(core::size(3, 3));
-        graph.fill(ellipse(r), col);
-      }
-
-      area.move_x(20);
-      graph.text(text_box(text, area, text_origin_t::vcenter_left), font::system(), col);
-    }
-
-    // --------------------------------------------------------------------------
-    template<>
-    void radio_button_t<look_and_feel_t::metal> (draw::graphics& graph,
-                                                 const core::rectangle& rec,
-                                                 const std::string& text,
-                                                 const core::button_state::is& state,
-                                                 os::color foreground,
-                                                 os::color background) {
-      core::rectangle area = rec;
-      const auto& img = detail::get_metal_radio(state.checked(), !state.enabled());
-      graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
-      area.move_x(20);
-      os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
-      graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
-    }
-
-    // --------------------------------------------------------------------------
-    template<>
-    void radio_button_t<look_and_feel_t::osx> (draw::graphics& graph,
-                                               const core::rectangle& rec,
-                                               const std::string& text,
-                                               const core::button_state::is& state,
-                                               os::color foreground,
-                                               os::color background) {
-      core::rectangle area = rec;
-      const auto& img = detail::get_osx_radio(state.checked(), !state.enabled());
-      graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), color::buttonColor());
-      area.move_x(20);
-      os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
-      graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
-    }
-
-    // --------------------------------------------------------------------------
-    void radio_button (draw::graphics& graph,
-                       const core::rectangle& rec,
-                       const std::string& text,
-                       const core::button_state::is& state,
-                       os::color foreground,
-                       os::color background) {
-      radio_button_t<>(graph, rec, text, state, foreground, background);
-    }
-
-    // --------------------------------------------------------------------------
-    template<>
-    void check_box_t<look_and_feel_t::w95> (draw::graphics& graph,
-                                            const core::rectangle& rec,
-                                            const std::string& text,
-                                            const core::button_state::is& state,
-                                            os::color foreground,
-                                            os::color background) {
-      using namespace draw;
-
-      core::rectangle area = rec;
-
-      graph.fill(draw::rectangle(area), color::buttonColor());
-
-      core::point::type y = area.y() + area.height() / 2;
-      os::color col = state.enabled() ? color::windowTextColor() : color::disabledTextColor();
-
-      core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
-      graph.draw(rectangle(r),
-                 state.pushed() ? color::very_light_gray
-                                : color::buttonColor(),
-                 col);
-
-      if (state.checked()) {
-        r.shrink(core::size(2, 2));
-        graph.fill(rectangle(r), state.pushed() ? color::dark_gray : col);
-      }
-      area.move_x(20);
+      core::rectangle area = rec.dx(20);
+      graph.text(text_box(text, area, text_origin_t::vcenter_left), font::system(), fg);
 #ifndef GUIPP_BUILD_FOR_MOBILE
-      graph.text(text_box(text, area, text_origin_t::vcenter_left), font::system(), col);
-      if (state.focused()) {
+      if (st.focused()) {
         graph.text(bounding_box(text, area, text_origin_t::vcenter_left), font::system(), color::black);
         area.grow({3, 3});
         graph.frame(draw::rectangle(area), pen(color::black, dot_line_width, dot_line_style));
@@ -658,70 +600,155 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void check_box_t<look_and_feel_t::w10> (draw::graphics& graph,
-                                            const core::rectangle& rec,
-                                            const std::string& text,
-                                            const core::button_state::is& state,
-                                            os::color foreground,
-                                            os::color background) {
+    void radio_button_frame<look_and_feel_t::w95> (draw::graphics& graph,
+                                               const core::rectangle& area,
+                                               const core::button_state::is& st,
+                                               os::color fg,
+                                               os::color bg) {
       using namespace draw;
 
-      auto area = rec;
-      graph.fill(rectangle(area), color::buttonColor());
+      graph.fill(draw::rectangle(area), bg);
 
-      os::color col = get_w10_color(state);
+      core::point::type y = area.y() + area.size().height() / 2;
+      core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
+      graph.draw(ellipse(r), st.pushed() ? color::very_light_gray : bg, fg);
+      if (st.checked()) {
+        r.shrink(core::size(2, 2));
+        graph.fill(ellipse(r), st.pushed() ? color::dark_gray : fg);
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    void radio_button_frame<look_and_feel_t::w10> (draw::graphics& graph,
+                                               const core::rectangle& area,
+                                               const core::button_state::is& st,
+                                               os::color fg,
+                                               os::color bg) {
+      using namespace draw;
+
+      graph.fill(rectangle(area), bg);
 
       core::point::type y = area.center_y();
       core::rectangle r(core::point(area.x() + 1, y - 6), core::size(12, 12));
-      graph.frame(rectangle(r), col);
-      if (state.checked()) {
-        graph.frame(polyline({{r.x() + 1, y}, {r.x() + 4, y + 3}, {r.x() + 10, y - 3}}), pen(col, 2));
+      graph.frame(ellipse(r), fg);
+      if (st.checked()) {
+        r.shrink(core::size(3, 3));
+        graph.fill(ellipse(r), fg);
       }
-
-      area.move_x(20);
-      graph.text(text_box(text, area, text_origin_t::vcenter_left), font::system(), col);
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void check_box_t<look_and_feel_t::metal> (draw::graphics& graph,
-                                              const core::rectangle& rec,
-                                              const std::string& text,
-                                              const core::button_state::is& state,
-                                              os::color foreground,
-                                              os::color background) {
-      core::rectangle area = rec;
-      const auto& img = detail::get_metal_checkbox(state.checked(), !state.enabled());
-      graph.copy(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), area.top_left());
-      area.move_x(20);
-      os::color col = state.enabled() ? foreground : color::disabledTextColor();
-      graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
+    void radio_button_frame<look_and_feel_t::metal> (draw::graphics& graph,
+                                                 const core::rectangle& area,
+                                                 const core::button_state::is& st,
+                                                 os::color fg,
+                                                 os::color bg) {
+      using namespace draw;
+
+      const auto& img = detail::get_metal_radio(st.checked(), !st.enabled());
+      graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), bg);
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void check_box_t<look_and_feel_t::osx> (draw::graphics& graph,
-                                            const core::rectangle& rec,
-                                            const std::string& text,
-                                            const core::button_state::is& state,
-                                            os::color foreground,
-                                            os::color background) {
-      core::rectangle area = rec;
-      const auto& img = detail::get_osx_checkbox(state.checked(), !state.enabled());
+    void radio_button_frame<look_and_feel_t::osx> (draw::graphics& graph,
+                                               const core::rectangle& area,
+                                               const core::button_state::is& st,
+                                               os::color fg,
+                                               os::color bg) {
+      using namespace draw;
+
+      const auto& img = detail::get_osx_radio(st.checked(), !st.enabled());
+      graph.fill(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), bg);
+    }
+
+    // --------------------------------------------------------------------------
+    void radio_button (draw::graphics& graph,
+                       const core::rectangle& rec,
+                       const std::string& text,
+                       const core::button_state::is& st,
+                       os::color fg,
+                       os::color bg) {
+      fg = get_button_foreground<>(st, fg, bg);
+      radio_button_frame<>(graph, rec, st, fg, bg);
+      check_button_text(graph, rec, text, st, fg, bg);
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    void check_box_frame<look_and_feel_t::w95> (draw::graphics& graph,
+                                            const core::rectangle& area,
+                                            const core::button_state::is& st,
+                                            os::color fg,
+                                            os::color bg) {
+      using namespace draw;
+
+      graph.fill(draw::rectangle(area), bg);
+
+      core::point::type y = area.y() + area.height() / 2;
+
+      core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
+      graph.draw(rectangle(r), st.pushed() ? color::very_light_gray : bg, fg);
+
+      if (st.checked()) {
+        r.shrink(core::size(2, 2));
+        graph.fill(rectangle(r), st.pushed() ? color::dark_gray : fg);
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    void check_box_frame<look_and_feel_t::w10> (draw::graphics& graph,
+                                            const core::rectangle& area,
+                                            const core::button_state::is& st,
+                                            os::color fg,
+                                            os::color bg) {
+      using namespace draw;
+
+      graph.fill(rectangle(area), bg);
+
+      core::point::type y = area.center_y();
+      core::rectangle r(core::point(area.x() + 1, y - 6), core::size(12, 12));
+      graph.frame(rectangle(r), fg);
+      if (st.checked()) {
+        graph.frame(polyline({{r.x() + 1, y}, {r.x() + 4, y + 3}, {r.x() + 10, y - 3}}), pen(fg, 2));
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    void check_box_frame<look_and_feel_t::metal> (draw::graphics& graph,
+                                              const core::rectangle& area,
+                                              const core::button_state::is& st,
+                                              os::color fg,
+                                              os::color bg) {
+      const auto& img = detail::get_metal_checkbox(st.checked(), !st.enabled());
       graph.copy(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), area.top_left());
-      area.move_x(20);
-      os::color col = state.enabled() ? foreground : color::disabledTextColor();
-      graph.text(draw::text_box(text, area, text_origin_t::vcenter_left), draw::font::system(), col);
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    void check_box_frame<look_and_feel_t::osx> (draw::graphics& graph,
+                                            const core::rectangle& area,
+                                            const core::button_state::is& st,
+                                            os::color fg,
+                                            os::color bg) {
+      const auto& img = detail::get_osx_checkbox(st.checked(), !st.enabled());
+      graph.copy(draw::image<decltype(img)>(img, area, text_origin_t::vcenter_left), area.top_left());
     }
 
     // --------------------------------------------------------------------------
     void check_box (draw::graphics& graph,
                     const core::rectangle& rec,
                     const std::string& text,
-                    const core::button_state::is& state,
-                    os::color foreground,
-                    os::color background) {
-      check_box_t<>(graph, rec, text, state, foreground, background);
+                    const core::button_state::is& st,
+                    os::color fg,
+                    os::color bg) {
+      fg = get_button_foreground<>(st, fg, bg);
+      check_box_frame<>(graph, rec, st, fg, bg);
+      check_button_text(graph, rec, text, st, fg, bg);
     }
 
   } // look

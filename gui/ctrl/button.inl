@@ -73,29 +73,29 @@ namespace gui {
     GUIPP_CTRL_EXPORT animated_button_traits<true>::animated_button_traits (button_base&);
 
     // --------------------------------------------------------------------------
-    template<class T>
-    inline basic_button<T>::basic_button (os::color f)
+    template<class T, button_drawer BG>
+    inline basic_button<T, BG>::basic_button (os::color f)
       : super(f)
       , traits(*this) {
       init();
     }
 
-    template<class T>
-    inline basic_button<T>::basic_button (const basic_button& rhs)
+    template<class T, button_drawer BG>
+    inline basic_button<T, BG>::basic_button (const basic_button& rhs)
       : super(rhs)
       , traits(*this) {
       init();
     }
 
-    template<class T>
-    inline basic_button<T>::basic_button (basic_button&& rhs) noexcept
+    template<class T, button_drawer BG>
+    inline basic_button<T, BG>::basic_button (basic_button&& rhs) noexcept
       : super(std::move(rhs))
       , traits(*this) {
       init();
     }
 
-    template<class T>
-    void basic_button<T>::init () {
+    template<class T, button_drawer BG>
+    void basic_button<T, BG>::init () {
 #ifdef GUIPP_X11
       static int initialized = detail::init_control_messages();
       (void)initialized;
@@ -112,184 +112,183 @@ namespace gui {
         take_focus();
         set_pushed(true);
       });
+      super::on_paint(draw::paint([&](draw::graphics& graph) {
+        BG(graph, super::client_geometry(), super::get_state(), super::get_foreground(), super::get_background());
+      }));
 
     }
 
     // --------------------------------------------------------------------------
-    template<class T, typename U, U D>
-    inline basic_text_button<T, U, D>::basic_text_button (const text_source& t)
+    template<class T, button_drawer BG, text_button_drawer D>
+    inline basic_text_button<T, BG, D>::basic_text_button (const text_source& t)
       : text(t)
     {
       init();
     }
 
-    template<class T, typename U, U D>
-    inline basic_text_button<T, U, D>::basic_text_button (const basic_text_button& rhs)
+    template<class T, button_drawer BG, text_button_drawer D>
+    inline basic_text_button<T, BG, D>::basic_text_button (const basic_text_button& rhs)
       : super(rhs)
       , text(rhs.text)
     {
       init();
     }
 
-    template<class T, typename U, U D>
-    inline basic_text_button<T, U, D>::basic_text_button (basic_text_button&& rhs) noexcept
+    template<class T, button_drawer BG, text_button_drawer D>
+    inline basic_text_button<T, BG, D>::basic_text_button (basic_text_button&& rhs) noexcept
       : super(std::move(rhs))
       , text(std::move(rhs.text))
     {
       init();
     }
 
-    template<class T, typename U, U D>
-    inline void basic_text_button<T, U, D>::create (win::container& parent,
+    template<class T, button_drawer BG, text_button_drawer D>
+    inline void basic_text_button<T, BG, D>::create (win::container& parent,
                                                     const core::rectangle& place) {
       super::create(parent, place);
     }
 
-    template<class T, typename U, U D>
-    inline void basic_text_button<T, U, D>::create (win::container& parent,
+    template<class T, button_drawer BG, text_button_drawer D>
+    inline void basic_text_button<T, BG, D>::create (win::container& parent,
                                                     const std::string& txt,
                                                     const core::rectangle& place) {
       create(parent, const_text(txt), place);
     }
 
-    template<class T, typename U, U D>
-    inline void basic_text_button<T, U, D>::create (win::container& parent,
+    template<class T, button_drawer BG, text_button_drawer D>
+    inline void basic_text_button<T, BG, D>::create (win::container& parent,
                                                     const text_source& txt,
                                                     const core::rectangle& place) {
       super::create(parent, place);
       set_text(txt);
     }
 
-    template<class T, typename U, U D>
-    inline void basic_text_button<T, U, D>::set_text (const std::string& t) {
+    template<class T, button_drawer BG, text_button_drawer D>
+    inline void basic_text_button<T, BG, D>::set_text (const std::string& t) {
       set_text(const_text(t));
     }
 
-    template<class T, typename U, U D>
-    inline void basic_text_button<T, U, D>::set_text (const text_source& t) {
+    template<class T, button_drawer BG, text_button_drawer D>
+    inline void basic_text_button<T, BG, D>::set_text (const text_source& t) {
       text = t;
       super::invalidate();
     }
 
-    template<class T, typename U, U D>
-    inline std::string basic_text_button<T, U, D>::get_text () const {
+    template<class T, button_drawer BG, text_button_drawer D>
+    inline std::string basic_text_button<T, BG, D>::get_text () const {
       return text();
     }
 
-    template<class T, typename U, U D>
-    void basic_text_button<T, U, D>::init () {
+    template<class T, button_drawer BG, text_button_drawer D>
+    void basic_text_button<T, BG, D>::init () {
       super::on_paint(draw::paint([&](draw::graphics& graph) {
-        auto r = super::client_geometry();
-        auto t = get_text();
-        auto s = super::get_state();
-        super::traits.template draw<D>(graph, r, t, s, super::get_foreground(), super::get_background());
+        D(graph, super::client_geometry(), get_text(), super::get_state(),
+          super::get_foreground(), super::get_background());
       }));
     }
 
     // --------------------------------------------------------------------------
-    template<class T, draw::icon_type I>
-    inline icon_button_t<T, I>::icon_button_t (os::color f)
+    template<class T, draw::icon_type I, button_drawer BG>
+    inline icon_button_t<T, I, BG>::icon_button_t (os::color f)
       : super(f) {
       init();
     }
 
-    template<class T, draw::icon_type I>
-    inline icon_button_t<T, I>::icon_button_t (const icon_button_t& rhs)
+    template<class T, draw::icon_type I, button_drawer BG>
+    inline icon_button_t<T, I, BG>::icon_button_t (const icon_button_t& rhs)
       : super(rhs)
     {
       init();
     }
 
-    template<class T, draw::icon_type I>
-    inline icon_button_t<T, I>::icon_button_t (icon_button_t&& rhs) noexcept
+    template<class T, draw::icon_type I, button_drawer BG>
+    inline icon_button_t<T, I, BG>::icon_button_t (icon_button_t&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();
     }
 
-    template<class T, draw::icon_type I>
-    void icon_button_t<T, I>::init () {
+    template<class T, draw::icon_type I, button_drawer BG>
+    void icon_button_t<T, I, BG>::init () {
       super::set_background(color::dark_gray);
       super::on_paint(draw::paint([&] (draw::graphics& g) {
         const auto r = super::client_geometry();
         const auto st = super::get_state();
-        g.erase(r, look::get_button_background(st, super::get_background()));
         g.frame(draw::icon_t<I>(r.center(), r.max_radius() * 2 / 3),
-                look::get_button_foreground(st, super::get_foreground(), super::get_background()));
+                look::get_flat_button_foreground(st, super::get_foreground(), super::get_background()));
       }));
     }
 
     // --------------------------------------------------------------------------
-    template<class T>
-    inline icon_button<T>::icon_button (draw::icon_type icon, os::color f)
+    template<class T, button_drawer BG>
+    inline icon_button<T, BG>::icon_button (draw::icon_type icon, os::color f)
       : super(f)
       , icon(icon) {
       super::set_background(color::dark_gray);
       init();
     }
 
-    template<class T>
-    inline icon_button<T>::icon_button (const icon_button& rhs)
+    template<class T, button_drawer BG>
+    inline icon_button<T, BG>::icon_button (const icon_button& rhs)
       : super(rhs)
       , icon(rhs.icon) {
       init();
     }
 
-    template<class T>
-    inline icon_button<T>::icon_button (icon_button&& rhs) noexcept
+    template<class T, button_drawer BG>
+    inline icon_button<T, BG>::icon_button (icon_button&& rhs) noexcept
       : super(std::move(rhs))
       , icon(rhs.icon) {
       init();
     }
 
-    template<class T>
-    void icon_button<T>::set_icon (draw::icon_type i) {
+    template<class T, button_drawer BG>
+    void icon_button<T, BG>::set_icon (draw::icon_type i) {
       icon = i;
     }
 
-    template<class T>
-    draw::icon_type icon_button<T>::get_icon () const {
+    template<class T, button_drawer BG>
+    draw::icon_type icon_button<T, BG>::get_icon () const {
       return icon;
     }
 
-    template<class T>
-    void icon_button<T>::init () {
+    template<class T, button_drawer BG>
+    void icon_button<T, BG>::init () {
       super::on_paint(draw::paint([&] (draw::graphics& g) {
         const auto r = super::client_geometry();
         const auto st = super::get_state();
-        g.erase(r, look::get_button_background(st, super::get_background()));
         g.frame(draw::icon(icon, r.center(), r.max_radius() * 2 / 3),
-                look::get_button_foreground(st, super::get_foreground(), super::get_background()));
+                look::get_flat_button_foreground(st, super::get_foreground(), super::get_background()));
       }));
     }
 
     // --------------------------------------------------------------------------
-    template<class T>
-    inline custom_button<T>::custom_button () {
+    template<class T, button_drawer BG>
+    inline custom_button<T, BG>::custom_button () {
       init();
     }
 
-    template<class T>
-    inline custom_button<T>::custom_button (const custom_button& rhs)
+    template<class T, button_drawer BG>
+    inline custom_button<T, BG>::custom_button (const custom_button& rhs)
       : super(rhs)
     {
       init();
     }
 
-    template<class T>
-    inline custom_button<T>::custom_button (custom_button&& rhs) noexcept
+    template<class T, button_drawer BG>
+    inline custom_button<T, BG>::custom_button (custom_button&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();
     }
 
-    template<class T>
-    inline void custom_button<T>::set_drawer (std::function<button_drawer> d) {
+    template<class T, button_drawer BG>
+    inline void custom_button<T, BG>::set_drawer (std::function<button_drawer> d) {
       drawer = d;
     }
 
-    template<class T>
-    void custom_button<T>::init () {
+    template<class T, button_drawer BG>
+    void custom_button<T, BG>::init () {
       super::on_paint(draw::paint([&] (draw::graphics&  graph) {
         if (drawer) {
           drawer(graph, super::client_geometry(), super::get_state(),

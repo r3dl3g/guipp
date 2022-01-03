@@ -91,27 +91,12 @@ namespace gui {
                                        const core::button_state::is&,
                                        os::color,  // foreground
                                        os::color); // background
-    // --------------------------------------------------------------------------
-    typedef void (animated_button_drawer) (draw::graphics&,
-                                           const core::rectangle&,
-                                           const core::button_state::is&,
-                                           os::color,  // foreground
-                                           os::color, // background
-                                           float); // animation_step
-    // --------------------------------------------------------------------------
-    typedef void (animated_text_button_drawer) (draw::graphics&,
-                                                const core::rectangle&,
-                                                const std::string&,
-                                                const core::button_state::is&,
-                                                os::color,  // foreground
-                                                os::color, // background
-                                                float); // animation_step
 
     // --------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT button_base : public control {
     public:
       typedef control super;
-      typedef no_erase_window_class<button_base> clazz;
+      typedef win::no_erase_window_class<button_base> clazz;
 
       button_base (os::color foreground = color::windowTextColor());
       button_base (const button_base&) = default;
@@ -147,51 +132,193 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct GUIPP_CTRL_EXPORT push_button_traits {
       push_button_traits (button_base&);
-
-      template<text_button_drawer& D>
-      void draw (draw::graphics& g,
-                 const core::rectangle& r,
-                 const std::string& t,
-                 const core::button_state::is& s,
-                 os::color foreground,
-                 os::color background) {
-        D(g, r, t, s, foreground, background);
-      }
-
-      template<button_drawer& D>
-      void draw (draw::graphics& g,
-                 const core::rectangle& r,
-                 const core::button_state::is& s,
-                 os::color foreground,
-                 os::color background) {
-        D(g, r, s, foreground, background);
-      }
     };
 
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
-    struct toggle_button_traits {
+    struct GUIPP_CTRL_EXPORT toggle_button_traits {
       toggle_button_traits (button_base&);
+    };
 
-      template<text_button_drawer& D>
-      void draw (draw::graphics& g,
-                 const core::rectangle& r,
-                 const std::string& t,
-                 const core::button_state::is& s,
-                 os::color foreground,
-                 os::color background) {
-        D(g, r, t, s, foreground, background);
-      }
+    // --------------------------------------------------------------------------
+    template<class T, button_drawer BG>
+    class basic_button : public button_base {
+    public:
+      typedef button_base super;
+      typedef T traits_type;
 
-      template<button_drawer& D>
-      void draw (draw::graphics& g,
-                 const core::rectangle& r,
-                 const core::button_state::is& s,
-                 os::color foreground,
-                 os::color background) {
-        D(g, r, s, foreground, background);
+      basic_button (os::color foreground = color::black);
+      basic_button (const basic_button& rhs);
+      basic_button (basic_button&& rhs) noexcept ;
+
+    protected:
+      traits_type traits;
+
+      void init ();
+
+    };
+    // --------------------------------------------------------------------------
+    template<class T, button_drawer BG, text_button_drawer D>
+    class basic_text_button : public basic_button<T, BG> {
+    public:
+      typedef basic_button<T, BG> super;
+
+      explicit basic_text_button (const text_source& t = const_text());
+      basic_text_button (const basic_text_button& rhs);
+      basic_text_button (basic_text_button&& rhs) noexcept ;
+
+      void create (win::container& parent,
+                   const core::rectangle& place = core::rectangle::def);
+      void create (win::container& parent,
+                   const std::string& txt,
+                   const core::rectangle& place = core::rectangle::def);
+      void create (win::container& parent,
+                   const text_source& txt,
+                   const core::rectangle& place = core::rectangle::def);
+
+      void set_text (const std::string& t);
+      void set_text (const text_source& t);
+
+      std::string get_text () const;
+
+    private:
+      void init ();
+
+      text_source text;
+    };
+    // --------------------------------------------------------------------------
+    using push_button = basic_button<push_button_traits, look::button_frame>;
+    // --------------------------------------------------------------------------
+    template<bool keep_state = false>
+    using toggle_button = basic_button<toggle_button_traits<keep_state>,
+                                                            look::button_frame>;
+    // --------------------------------------------------------------------------
+    using text_button = basic_text_button<push_button_traits,
+                                          look::button_frame,
+                                          look::button_text>;
+    // --------------------------------------------------------------------------
+    using flat_button = basic_text_button<push_button_traits,
+                                          look::flat_button_frame,
+                                          look::flat_button_text>;
+    // --------------------------------------------------------------------------
+    template<bool keep_state = false>
+    using radio_button = basic_text_button<toggle_button_traits<keep_state>,
+                                           look::radio_button_frame,
+                                           look::check_button_text>;
+    // --------------------------------------------------------------------------
+    template<bool keep_state = false>
+    using check_box = basic_text_button<toggle_button_traits<keep_state>,
+                                        look::check_box_frame,
+                                        look::check_button_text>;
+    // --------------------------------------------------------------------------
+    template<bool keep_state = false>
+    class switch_button : public basic_text_button<toggle_button_traits<keep_state>,
+                                                    look::switch_button,
+                                                    look::switch_button_text> {
+    public:
+      typedef basic_text_button<toggle_button_traits<keep_state>,
+                                                     look::switch_button,
+                                                     look::switch_button_text> super;
+
+      switch_button (const text_source& t = const_text())
+        : super(t) {
+        super::set_foreground(color::highLightColor());
+        super::set_background(color::buttonColor());
       }
     };
+    // --------------------------------------------------------------------------
+    template<bool keep_state = false>
+    using flat_toggle_button = basic_text_button<toggle_button_traits<keep_state>,
+                                                                      look::flat_button_frame,
+                                                                      look::flat_button_text>;
+    // --------------------------------------------------------------------------
+    template<alignment_t align = alignment_t::top, bool keep_state = false>
+    using tab_button = basic_text_button<toggle_button_traits<keep_state>,
+                                                              look::aligned_tab_button<align>,
+                                                              look::tab_button_text>;
+    // --------------------------------------------------------------------------
+    template<class T, draw::icon_type I, button_drawer BG = look::flat_button_frame>
+    struct icon_button_t : public basic_button<T, BG> {
+      typedef basic_button<T, BG> super;
+
+      icon_button_t (os::color foreground = color::light_gray);
+      icon_button_t (const icon_button_t& rhs);
+      icon_button_t (icon_button_t&& rhs) noexcept ;
+
+    private:
+      void init ();
+    };
+    // --------------------------------------------------------------------------
+    template<draw::icon_type I, button_drawer BG = look::flat_button_frame>
+    using icon_push_button_t = icon_button_t<push_button_traits, I, BG>;
+    // --------------------------------------------------------------------------
+    template<draw::icon_type I, bool keep_state = false, button_drawer BG = look::flat_button_frame>
+    using icon_toggle_button_t = icon_button_t<toggle_button_traits<keep_state>, I, BG>;
+
+    // --------------------------------------------------------------------------
+    template<class T, button_drawer BG = look::flat_button_frame>
+    struct icon_button : public basic_button<T, BG> {
+      typedef basic_button<T, BG> super;
+
+      icon_button (draw::icon_type icon = draw::icon_type::none, os::color foreground = color::light_gray);
+      icon_button (const icon_button& rhs);
+      icon_button (icon_button&& rhs) noexcept ;
+
+      void set_icon (draw::icon_type icon);
+      draw::icon_type get_icon () const;
+
+    private:
+      void init ();
+
+      draw::icon_type icon;
+    };
+    // --------------------------------------------------------------------------
+    template<button_drawer BG = look::flat_button_frame>
+    using icon_push_button = icon_button<push_button_traits, BG>;
+    // --------------------------------------------------------------------------
+    template<bool keep_state = false, button_drawer BG = look::flat_button_frame>
+    using icon_toggle_button = icon_button<toggle_button_traits<keep_state>, BG>;
+
+    // --------------------------------------------------------------------------
+    template<class T, button_drawer BG>
+    class custom_button : public basic_button<T, BG> {
+    public:
+      typedef basic_button<T, BG> super;
+
+      custom_button ();
+      custom_button (const custom_button& rhs);
+      custom_button (custom_button&& rhs) noexcept ;
+
+      void set_drawer (std::function<button_drawer> d);
+
+    private:
+      void init ();
+
+      std::function<button_drawer> drawer;
+    };
+    // --------------------------------------------------------------------------
+    template<button_drawer BG = look::flat_button_frame>
+    using custom_push_button = custom_button<push_button_traits, BG>;
+
+    // --------------------------------------------------------------------------
+    template<bool keep_state = false, button_drawer BG = look::flat_button_frame>
+    using custom_toggle_button = custom_button<toggle_button_traits<keep_state>, BG>;
+
+    // --------------------------------------------------------------------------
+    typedef void (animated_button_drawer) (draw::graphics&,
+                                           const core::rectangle&,
+                                           const core::button_state::is&,
+                                           os::color,  // foreground
+                                           os::color, // background
+                                           float); // animation_step
+    // --------------------------------------------------------------------------
+    typedef void (animated_text_button_drawer) (draw::graphics&,
+                                                const core::rectangle&,
+                                                const std::string&,
+                                                const core::button_state::is&,
+                                                os::color,  // foreground
+                                                os::color, // background
+                                                float); // animation_step
 
     // --------------------------------------------------------------------------
     struct GUIPP_CTRL_EXPORT basic_animated_button_traits {
@@ -232,180 +359,21 @@ namespace gui {
       animated_button_traits (button_base&);
     };
 
-    // --------------------------------------------------------------------------
-    template<class T>
-    class basic_button : public button_base {
-    public:
-      typedef button_base super;
-      typedef T traits_type;
+//    // --------------------------------------------------------------------------
+//    template<bool keep_state = false>
+//    class animated_switch_button : public basic_text_button<animated_button_traits<keep_state>,
+//                                                            animated_text_button_drawer&,
+//                                                            look::animated_switch_button> {
+//    public:
+//      typedef basic_text_button<animated_button_traits<keep_state>,
+//                                animated_text_button_drawer&, look::animated_switch_button> super;
 
-      basic_button (os::color foreground = color::black);
-      basic_button (const basic_button& rhs);
-      basic_button (basic_button&& rhs) noexcept ;
-
-    protected:
-      traits_type traits;
-
-      void init ();
-
-    };
-    // --------------------------------------------------------------------------
-    template<class T, typename U, U D>
-    class basic_text_button : public basic_button<T> {
-    public:
-      typedef basic_button<T> super;
-
-      explicit basic_text_button (const text_source& t = const_text());
-      basic_text_button (const basic_text_button& rhs);
-      basic_text_button (basic_text_button&& rhs) noexcept ;
-
-      void create (win::container& parent,
-                   const core::rectangle& place = core::rectangle::def);
-      void create (win::container& parent,
-                   const std::string& txt,
-                   const core::rectangle& place = core::rectangle::def);
-      void create (win::container& parent,
-                   const text_source& txt,
-                   const core::rectangle& place = core::rectangle::def);
-
-      void set_text (const std::string& t);
-      void set_text (const text_source& t);
-
-      std::string get_text () const;
-
-    private:
-      void init ();
-
-      text_source text;
-    };
-    // --------------------------------------------------------------------------
-    using push_button = basic_button<push_button_traits>;
-    // --------------------------------------------------------------------------
-    template<bool keep_state = false>
-    using toggle_button = basic_button<toggle_button_traits<keep_state> >;
-    // --------------------------------------------------------------------------
-    using text_button = basic_text_button<push_button_traits,
-                                          text_button_drawer&,
-                                          look::push_button>;
-    // --------------------------------------------------------------------------
-    using flat_button = basic_text_button<push_button_traits,
-                                          text_button_drawer&,
-                                          look::flat_button>;
-    // --------------------------------------------------------------------------
-    template<bool keep_state = false>
-    using radio_button = basic_text_button<toggle_button_traits<keep_state>,
-                                           text_button_drawer&,
-                                           look::radio_button>;
-    // --------------------------------------------------------------------------
-    template<bool keep_state = false>
-    using check_box = basic_text_button<toggle_button_traits<keep_state>,
-                                        text_button_drawer&,
-                                        look::check_box>;
-    // --------------------------------------------------------------------------
-    template<bool keep_state = false>
-    class switch_button : public basic_text_button<toggle_button_traits<keep_state>,
-                                                   text_button_drawer&,
-                                                   look::switch_button> {
-    public:
-      typedef basic_text_button<toggle_button_traits<keep_state>,
-                                text_button_drawer&, look::switch_button> super;
-
-      switch_button (const text_source& t = const_text())
-        : super(t) {
-        super::set_foreground(color::highLightColor());
-        super::set_background(color::buttonColor());
-      }
-    };
-    // --------------------------------------------------------------------------
-    template<bool keep_state = false>
-    class animated_switch_button : public basic_text_button<animated_button_traits<keep_state>,
-                                                            animated_text_button_drawer&,
-                                                            look::animated_switch_button> {
-    public:
-      typedef basic_text_button<animated_button_traits<keep_state>,
-                                animated_text_button_drawer&, look::animated_switch_button> super;
-
-      animated_switch_button (const text_source& t = const_text())
-        : super(t) {
-        super::set_foreground(color::highLightColor());
-        super::set_background(color::buttonColor());
-      }
-    };
-    // --------------------------------------------------------------------------
-    template<bool keep_state = false>
-    using flat_toggle_button = basic_text_button<toggle_button_traits<keep_state>,
-                                                 text_button_drawer&,
-                                                 look::flat_button>;
-    // --------------------------------------------------------------------------
-    template<alignment_t align = alignment_t::top, bool keep_state = false>
-    using tab_button = basic_text_button<toggle_button_traits<keep_state>,
-                                         text_button_drawer&,
-                                         look::aligned_tab_button<align> >;
-    // --------------------------------------------------------------------------
-    template<class T, draw::icon_type I>
-    struct icon_button_t : public basic_button<T> {
-      typedef basic_button<T> super;
-
-      icon_button_t (os::color foreground = color::light_gray);
-      icon_button_t (const icon_button_t& rhs);
-      icon_button_t (icon_button_t&& rhs) noexcept ;
-
-    private:
-      void init ();
-    };
-    // --------------------------------------------------------------------------
-    template<draw::icon_type I>
-    using icon_push_button_t = icon_button_t<push_button_traits, I>;
-    // --------------------------------------------------------------------------
-    template<draw::icon_type I, bool keep_state = false>
-    using icon_toggle_button_t = icon_button_t<toggle_button_traits<keep_state>, I>;
-
-    // --------------------------------------------------------------------------
-    template<class T>
-    struct icon_button : public basic_button<T> {
-      typedef basic_button<T> super;
-
-      icon_button (draw::icon_type icon = draw::icon_type::none, os::color foreground = color::light_gray);
-      icon_button (const icon_button& rhs);
-      icon_button (icon_button&& rhs) noexcept ;
-
-      void set_icon (draw::icon_type icon);
-      draw::icon_type get_icon () const;
-
-    private:
-      void init ();
-
-      draw::icon_type icon;
-    };
-    // --------------------------------------------------------------------------
-    using icon_push_button = icon_button<push_button_traits>;
-    // --------------------------------------------------------------------------
-    template<bool keep_state = false>
-    using icon_toggle_button = icon_button<toggle_button_traits<keep_state>>;
-
-    // --------------------------------------------------------------------------
-    template<class T>
-    class custom_button : public basic_button<T> {
-    public:
-      typedef basic_button<T> super;
-
-      custom_button ();
-      custom_button (const custom_button& rhs);
-      custom_button (custom_button&& rhs) noexcept ;
-
-      void set_drawer (std::function<button_drawer> d);
-
-    private:
-      void init ();
-
-      std::function<button_drawer> drawer;
-    };
-    // --------------------------------------------------------------------------
-    using custom_push_button = custom_button<push_button_traits>;
-
-    // --------------------------------------------------------------------------
-    template<bool keep_state = false>
-    using custom_toggle_button = custom_button<toggle_button_traits<keep_state> >;
+//      animated_switch_button (const text_source& t = const_text())
+//        : super(t) {
+//        super::set_foreground(color::highLightColor());
+//        super::set_background(color::buttonColor());
+//      }
+//    };
 
     // --------------------------------------------------------------------------
   } // ctrl

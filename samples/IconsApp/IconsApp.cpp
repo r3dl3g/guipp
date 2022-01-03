@@ -28,7 +28,7 @@ struct icon_drawer : public list_data {
   std::size_t size () const override { return static_cast<std::size_t>(icon_type::MAX); }
 
   void draw_at (std::size_t idx, graphics& graph, const core::rectangle& r, const brush& b, item_state state) const override {
-    look::button_frame<look::look_and_feel_t::w95>(graph, r, true, state.is_selected(), state.is_hilited(), false);
+    look::button_frame_t<look::look_and_feel_t::w95>(graph, r, state.button_state());
     if (idx < size()) {
       draw::clip clp(graph, r);
       const auto radius =  r.width() / 2 - 10;

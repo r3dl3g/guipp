@@ -128,22 +128,31 @@ namespace gui {
                                                          : color::very_light_gray);
       }
       os::color col = is_enabled ? color::black : color::gray;
+
+      core::state_type flags;
+      core::button_state::set set_state(flags);
+      core::button_state::is state(flags);
+      set_state.enable(true);
+
       if (!up.empty()) {
-        look::button_frame<look_and_feel_t::w95>(g, up, true, false, ctrl::scrollbar_item::up_button == hilite, false);
+        set_state.hilited(ctrl::scrollbar_item::up_button == hilite);
+        look::button_frame_t<look_and_feel_t::w95>(g, up, state);
         if (ctrl::scrollbar_item::up_button == select) {
           draw::frame::sunken_relief(g, up.shrinked(2, 3, 2, 3));
         }
         draw_up_left_arrow(g, horizontal, up, col);
       }
       if (!down.empty()) {
-        look::button_frame<look_and_feel_t::w95>(g, down, true, false, ctrl::scrollbar_item::down_button == hilite, false);
+        set_state.hilited(ctrl::scrollbar_item::down_button == hilite);
+        look::button_frame_t<look_and_feel_t::w95>(g, down, state);
         if (ctrl::scrollbar_item::down_button == select) {
           draw::frame::sunken_relief(g, down.shrinked(2, 3, 2, 3));
         }
         draw_down_right_arrow(g, horizontal, down, col);
       }
       if (!thumb.empty()) {
-        look::button_frame<look_and_feel_t::w95>(g, thumb, true, false, ctrl::scrollbar_item::thumb_button == hilite, false);
+        set_state.hilited(ctrl::scrollbar_item::thumb_button == hilite);
+        look::button_frame_t<look_and_feel_t::w95>(g, thumb, state);
         if (ctrl::scrollbar_item::thumb_button == select) {
           draw::frame::sunken_relief(g, thumb.shrinked(2, 3, 2, 3));
         }

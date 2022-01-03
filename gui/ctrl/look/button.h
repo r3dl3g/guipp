@@ -41,15 +41,15 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace look {
 
+    // --------------------------------------------------------------------------
     namespace win10 {
 
       GUIPP_LOOK_EXPORT os::color get_button_color (const core::button_state::is& state);
-      GUIPP_LOOK_EXPORT os::color get_button_color (bool enabled, bool pushed, bool hilited, bool focused);
       GUIPP_LOOK_EXPORT os::color get_button_frame_color (const core::button_state::is& state);
-      GUIPP_LOOK_EXPORT os::color get_button_frame_color (bool enabled, bool pushed, bool hilited, bool focused);
 
     } // namespace win10
 
+    // --------------------------------------------------------------------------
     namespace osx {
 
       GUIPP_LOOK_EXPORT const draw::rgbmap& get_frame ();
@@ -59,57 +59,97 @@ namespace gui {
 
     } // namespace osx
 
-    template<look_and_feel_t L = system_look_and_feel>
-    void button_frame (draw::graphics& graph,
-                       const core::rectangle& r,
-                       bool enabled, bool pushed,
-                       bool hilited, bool focused);
-
-    template<>
-    GUIPP_LOOK_EXPORT void button_frame<look_and_feel_t::metal> (draw::graphics& graph,
-                                                                 const core::rectangle& r,
-                                                                 bool enabled, bool pushed,
-                                                                 bool hilited, bool focused);
-
-    template<>
-    GUIPP_LOOK_EXPORT void button_frame<look_and_feel_t::w95> (draw::graphics& graph,
-                                                               const core::rectangle& r,
-                                                               bool enabled, bool pushed,
-                                                               bool hilited, bool focused);
-
-    template<>
-    GUIPP_LOOK_EXPORT void button_frame<look_and_feel_t::w10> (draw::graphics& graph,
-                                                               const core::rectangle& r,
-                                                               bool enabled, bool pushed,
-                                                               bool hilited, bool focused);
-
-    template<>
-    GUIPP_LOOK_EXPORT void button_frame<look_and_feel_t::osx> (draw::graphics& graph,
-                                                               const core::rectangle& r,
-                                                               bool enabled, bool pushed,
-                                                               bool hilited, bool focused);
-
-    template<look_and_feel_t L = system_look_and_feel>
-    inline void button_frame (draw::graphics& graph,
-                              const core::rectangle& r,
-                              const core::button_state::is& state) {
-      button_frame<L>(graph, r,
-                      state.enabled(), state.pushed(),
-                      state.hilited(), state.focused());
-    }
-
+    // --------------------------------------------------------------------------
     GUIPP_LOOK_EXPORT void simple_frame (draw::graphics& graph,
                                          const core::rectangle& r,
                                          bool hilite = false,
                                          uint32_t horizontal = 3,
                                          uint32_t vertical = 3);
 
-    GUIPP_LOOK_EXPORT os::color get_button_background (const core::button_state::is& state,
-                                                       os::color background);
-    GUIPP_LOOK_EXPORT os::color get_button_foreground (const core::button_state::is& state,
-                                                       os::color foreground,
-                                                       os::color background);
+    GUIPP_LOOK_EXPORT void simple_frame (draw::graphics& g,
+                                         const core::rectangle& r,
+                                         const core::button_state::is& state,
+                                         os::color foreground,
+                                         os::color background);
 
+    template<uint32_t horizontal = 3, uint32_t vertical = 3>
+    inline void simple_frame (draw::graphics& g,
+                       const core::rectangle& r,
+                       const core::button_state::is& state) {
+      simple_frame(g, r, state.hilited(), horizontal, vertical);
+    }
+
+    // --------------------------------------------------------------------------
+    template<look_and_feel_t L = system_look_and_feel>
+    void button_frame_t (draw::graphics& graph,
+                         const core::rectangle& r,
+                         const core::button_state::is& state);
+
+    // --------------------------------------------------------------------------
+    template<>
+    GUIPP_LOOK_EXPORT void button_frame_t<look_and_feel_t::metal> (draw::graphics& graph,
+                                                                   const core::rectangle& r,
+                                                                   const core::button_state::is& state);
+
+    template<>
+    GUIPP_LOOK_EXPORT void button_frame_t<look_and_feel_t::w95> (draw::graphics& graph,
+                                                                 const core::rectangle& r,
+                                                                 const core::button_state::is& state);
+
+    template<>
+    GUIPP_LOOK_EXPORT void button_frame_t<look_and_feel_t::w10> (draw::graphics& graph,
+                                                                 const core::rectangle& r,
+                                                                 const core::button_state::is& state);
+
+    template<>
+    GUIPP_LOOK_EXPORT void button_frame_t<look_and_feel_t::osx> (draw::graphics& graph,
+                                                                 const core::rectangle& r,
+                                                                 const core::button_state::is& state);
+
+    GUIPP_LOOK_EXPORT void button_frame (draw::graphics& graph,
+                                         const core::rectangle& r,
+                                         const core::button_state::is& state,
+                                         os::color foreground,
+                                         os::color background);
+
+    // --------------------------------------------------------------------------
+    GUIPP_LOOK_EXPORT void button_text (draw::graphics& g,
+                                        const core::rectangle& r,
+                                        const std::string& text,
+                                        const core::button_state::is& state,
+                                        os::color foreground = color::windowTextColor(),
+                                        os::color background = color::transparent);
+
+    // --------------------------------------------------------------------------
+    GUIPP_LOOK_EXPORT os::color get_flat_button_background (const core::button_state::is& state,
+                                                            os::color background);
+
+    GUIPP_LOOK_EXPORT os::color get_flat_button_foreground (const core::button_state::is& state,
+                                                            os::color foreground, os::color background);
+
+    // --------------------------------------------------------------------------
+    GUIPP_LOOK_EXPORT void flat_button_frame (draw::graphics& g,
+                                              const core::rectangle& r,
+                                              const core::button_state::is& state,
+                                              os::color foreground = color::white,
+                                              os::color background = color::dark_gray);
+
+    template<os::color foreground, os::color background>
+    inline void flat_button_frame (draw::graphics& g,
+                                   const core::rectangle& r,
+                                   const core::button_state::is& state) {
+      flat_button_frame(g, r, state, foreground, background);
+    }
+
+    // --------------------------------------------------------------------------
+    GUIPP_LOOK_EXPORT void flat_button_text (draw::graphics& g,
+                                             const core::rectangle& r,
+                                             const std::string& text,
+                                             const core::button_state::is& state,
+                                             os::color foreground = color::white,
+                                             os::color background = color::dark_gray);
+
+    // --------------------------------------------------------------------------
     GUIPP_LOOK_EXPORT void flat_button (draw::graphics& g,
                                         const core::rectangle& r,
                                         const std::string& text,
@@ -121,118 +161,144 @@ namespace gui {
                                         const core::rectangle& r,
                                         const std::string& text,
                                         const core::button_state::is& state,
-                                        os::color foreground,
-                                        os::color background);
+                                        os::color foreground = color::windowTextColor(),
+                                        os::color background = color::transparent);
 
+    // --------------------------------------------------------------------------
     template<look_and_feel_t L = system_look_and_feel>
-    void radio_button_t (draw::graphics& graph,
-                         const core::rectangle& area,
-                         const std::string& text,
-                         const core::button_state::is& state,
-                         os::color foreground,
-                         os::color background);
+    os::color get_button_foreground (const core::button_state::is& s, os::color fg, os::color bg);
 
     template<>
-    GUIPP_LOOK_EXPORT void radio_button_t<look_and_feel_t::metal> (draw::graphics& graph,
-                                                                   const core::rectangle& area,
-                                                                   const std::string& text,
-                                                                   const core::button_state::is& state,
-                                                                   os::color foreground,
-                                                                   os::color background);
+    GUIPP_LOOK_EXPORT os::color get_button_foreground<look_and_feel_t::metal> (const core::button_state::is& s, os::color fg, os::color bg);
 
     template<>
-    GUIPP_LOOK_EXPORT void radio_button_t<look_and_feel_t::w95> (draw::graphics& graph,
-                                                                 const core::rectangle& area,
-                                                                 const std::string& text,
-                                                                 const core::button_state::is& state,
-                                                                 os::color foreground,
-                                                                 os::color background);
+    GUIPP_LOOK_EXPORT os::color get_button_foreground<look_and_feel_t::w95> (const core::button_state::is& s, os::color fg, os::color bg);
 
     template<>
-    GUIPP_LOOK_EXPORT void radio_button_t<look_and_feel_t::w10> (draw::graphics& graph,
-                                                                 const core::rectangle& area,
-                                                                 const std::string& text,
-                                                                 const core::button_state::is& state,
-                                                                 os::color foreground,
-                                                                 os::color background);
+    GUIPP_LOOK_EXPORT os::color get_button_foreground<look_and_feel_t::w10> (const core::button_state::is& s, os::color fg, os::color bg);
 
     template<>
-    GUIPP_LOOK_EXPORT void radio_button_t<look_and_feel_t::osx> (draw::graphics& graph,
-                                                                 const core::rectangle& area,
-                                                                 const std::string& text,
-                                                                 const core::button_state::is& state,
-                                                                 os::color foreground,
-                                                                 os::color background);
+    GUIPP_LOOK_EXPORT os::color get_button_foreground<look_and_feel_t::osx> (const core::button_state::is& s, os::color fg, os::color bg);
 
+    // --------------------------------------------------------------------------
+    GUIPP_LOOK_EXPORT void check_button_text (draw::graphics& g,
+                                              const core::rectangle& r,
+                                              const std::string& text,
+                                              const core::button_state::is& state,
+                                              os::color foreground = color::white,
+                                              os::color background = color::dark_gray);
+
+    // --------------------------------------------------------------------------
+    template<look_and_feel_t L = system_look_and_feel>
+    void radio_button_frame (draw::graphics& graph,
+                             const core::rectangle& area,
+                             const core::button_state::is& state,
+                             os::color foreground,
+                             os::color background);
+
+    template<>
+    GUIPP_LOOK_EXPORT void radio_button_frame<look_and_feel_t::metal> (draw::graphics& graph,
+                                                                       const core::rectangle& area,
+                                                                       const core::button_state::is& state,
+                                                                       os::color foreground,
+                                                                       os::color background);
+
+    template<>
+    GUIPP_LOOK_EXPORT void radio_button_frame<look_and_feel_t::w95> (draw::graphics& graph,
+                                                                     const core::rectangle& area,
+                                                                     const core::button_state::is& state,
+                                                                     os::color foreground,
+                                                                     os::color background);
+
+    template<>
+    GUIPP_LOOK_EXPORT void radio_button_frame<look_and_feel_t::w10> (draw::graphics& graph,
+                                                                     const core::rectangle& area,
+                                                                     const core::button_state::is& state,
+                                                                     os::color foreground,
+                                                                     os::color background);
+
+    template<>
+    GUIPP_LOOK_EXPORT void radio_button_frame<look_and_feel_t::osx> (draw::graphics& graph,
+                                                                     const core::rectangle& area,
+                                                                     const core::button_state::is& state,
+                                                                     os::color foreground,
+                                                                     os::color background);
+
+    // --------------------------------------------------------------------------
     GUIPP_LOOK_EXPORT void radio_button (draw::graphics& graph,
                                          const core::rectangle& area,
                                          const std::string& text,
                                          const core::button_state::is& state,
-                                         os::color foreground,
-                                         os::color background);
+                                         os::color foreground = color::windowTextColor(),
+                                         os::color background = color::transparent);
 
+    // --------------------------------------------------------------------------
     template<look_and_feel_t L = system_look_and_feel>
-    void check_box_t (draw::graphics& graph,
-                      const core::rectangle& area,
-                      const std::string& text,
-                      const core::button_state::is& state,
-                      os::color foreground,
-                      os::color background);
+    void check_box_frame (draw::graphics& graph,
+                          const core::rectangle& area,
+                          const core::button_state::is& state,
+                          os::color foreground,
+                          os::color background);
 
     template<>
-    GUIPP_LOOK_EXPORT void check_box_t<look_and_feel_t::metal> (draw::graphics& graph,
-                                                                const core::rectangle& area,
-                                                                const std::string& text,
-                                                                const core::button_state::is& state,
-                                                                os::color foreground,
-                                                                os::color background);
+    GUIPP_LOOK_EXPORT void check_box_frame<look_and_feel_t::metal> (draw::graphics& graph,
+                                                                    const core::rectangle& area,
+                                                                    const core::button_state::is& state,
+                                                                    os::color foreground,
+                                                                    os::color background);
 
     template<>
-    GUIPP_LOOK_EXPORT void check_box_t<look_and_feel_t::w95> (draw::graphics& graph,
-                                                              const core::rectangle& area,
-                                                              const std::string& text,
-                                                              const core::button_state::is& state,
-                                                              os::color foreground,
-                                                              os::color background);
+    GUIPP_LOOK_EXPORT void check_box_frame<look_and_feel_t::w95> (draw::graphics& graph,
+                                                                  const core::rectangle& area,
+                                                                  const core::button_state::is& state,
+                                                                  os::color foreground,
+                                                                  os::color background);
 
     template<>
-    GUIPP_LOOK_EXPORT void check_box_t<look_and_feel_t::w10> (draw::graphics& graph,
-                                                              const core::rectangle& area,
-                                                              const std::string& text,
-                                                              const core::button_state::is& state,
-                                                              os::color foreground,
-                                                              os::color background);
+    GUIPP_LOOK_EXPORT void check_box_frame<look_and_feel_t::w10> (draw::graphics& graph,
+                                                                  const core::rectangle& area,
+                                                                  const core::button_state::is& state,
+                                                                  os::color foreground,
+                                                                  os::color background);
 
     template<>
-    GUIPP_LOOK_EXPORT void check_box_t<look_and_feel_t::osx> (draw::graphics& graph,
-                                                              const core::rectangle& area,
-                                                              const std::string& text,
-                                                              const core::button_state::is& state,
-                                                              os::color foreground,
-                                                              os::color background);
+    GUIPP_LOOK_EXPORT void check_box_frame<look_and_feel_t::osx> (draw::graphics& graph,
+                                                                  const core::rectangle& area,
+                                                                  const core::button_state::is& state,
+                                                                  os::color foreground,
+                                                                  os::color background);
 
+    // --------------------------------------------------------------------------
     GUIPP_LOOK_EXPORT void check_box (draw::graphics& graph,
                                       const core::rectangle& area,
                                       const std::string& text,
                                       const core::button_state::is& state,
-                                      os::color foreground,
-                                      os::color background);
+                                      os::color foreground = color::windowTextColor(),
+                                      os::color background = color::transparent);
 
+    // --------------------------------------------------------------------------
     GUIPP_LOOK_EXPORT void switch_button (draw::graphics& graph,
                                           const core::rectangle& rect,
-                                          const std::string& text,
                                           const core::button_state::is& state,
                                           os::color foreground = color::highLightColor(),
                                           os::color background = color::buttonColor());
 
+    GUIPP_LOOK_EXPORT void switch_button_text (draw::graphics& graph,
+                                               const core::rectangle& rect,
+                                               const std::string& text,
+                                               const core::button_state::is& state,
+                                               os::color foreground = color::highLightColor(),
+                                               os::color background = color::buttonColor());
+
+    // --------------------------------------------------------------------------
     GUIPP_LOOK_EXPORT void animated_switch_button (draw::graphics& graph,
                                                    const core::rectangle& rect,
-                                                   const std::string& text,
                                                    const core::button_state::is& state,
                                                    os::color foreground,
                                                    os::color background,
                                                    float animation_step = 1.0F);
 
+    // --------------------------------------------------------------------------
     template<look_and_feel_t L = system_look_and_feel>
     void tab_button (draw::graphics& g,
                      const core::rectangle& r,
@@ -251,6 +317,14 @@ namespace gui {
                                                                os::color foreground,
                                                                alignment_t a);
 
+    GUIPP_LOOK_EXPORT void tab_button_text (draw::graphics& graph,
+                                            const core::rectangle& rect,
+                                            const std::string& text,
+                                            const core::button_state::is& state,
+                                            os::color foreground = color::highLightColor(),
+                                            os::color background = color::buttonColor());
+
+    // --------------------------------------------------------------------------
     template<alignment_t align>
     void aligned_tab_button (draw::graphics& g,
                              const core::rectangle& r,
@@ -261,6 +335,7 @@ namespace gui {
       tab_button<>(g, r, text, state, fg, align);
     }
 
+    // --------------------------------------------------------------------------
   } // namespace look
 
   // --------------------------------------------------------------------------

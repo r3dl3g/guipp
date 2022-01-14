@@ -333,9 +333,14 @@ namespace gui {
     constexpr os::color very_very_light_gray = rgb_gray<0xF0>::value;
     constexpr os::color white = rgb_gray<0xff>::value;
 
-    constexpr os::color grey (int f) {
+    constexpr os::color percent_grey (int f) {
       return calc_rgb_gray(static_cast<type>(0xff * f / 100));
     }
+
+    constexpr os::color grey (float f) {
+      return calc_rgb_gray(static_cast<type>(255.0F * f));
+    }
+
 
     constexpr os::color red = rgb<0xff, 0, 0>::value;
     constexpr os::color green = rgb<0, 0xff, 0>::value;

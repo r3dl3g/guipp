@@ -287,8 +287,10 @@ namespace gui {
         handle_mouse(true, pt);
       });
 
-      view().on_any_key_down([&] (os::key_state, os::key_symbol key, const std::string &) {
-        handle_key(key);
+      view().on_any_key_down([&] (os::key_state state, os::key_symbol key, const std::string &) {
+        if (state == core::state::none) {
+          handle_key(key);
+        }
       });
 
       view().on_mouse_leave([&] () {
@@ -408,6 +410,9 @@ namespace gui {
     bool main_menu::handle_key (os::key_symbol key) {
       if (is_open() && data.current_child->handle_key(key)) {
         return true;
+      }
+      if (!window.is_focused()) {
+        return false;
       }
       switch (key) {
       case core::keys::left:

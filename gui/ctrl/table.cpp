@@ -533,8 +533,9 @@ namespace gui {
       return enable_selection_;
     }
 
-    void table_view::handle_layout (const core::rectangle&) {
+    void table_view::handle_layout (const core::rectangle& r) {
       set_scroll_maximum(scroll_maximum(data.client_size(), geometrie.get_offset(), core::point(hscroll.get_max(), vscroll.get_max())));
+      edge.position(r.top_left());
     }
 
     void table_view::handle_scroll (const core::point& pos) {
@@ -595,9 +596,6 @@ namespace gui {
       rows.on_left_btn_up(util::bind_method(this, &table_view::handle_row_left_btn_up));
 
       edge.set_background(columns.get_default_background());
-      on_layout([&] (const core::rectangle& r) {
-        edge.position(r.top_left());
-      });
     }
 
     core::point table_view::get_scroll_pos () const {
@@ -645,6 +643,10 @@ namespace gui {
 
     const table::position& table_view::get_selection () const {
       return geometrie.selection;
+    }
+
+    bool table_view::has_selection () const {
+      return table::is_valid(geometrie.selection);
     }
 
     table::position table_view::get_valid_selection (const table::offset& offs) const {
@@ -883,6 +885,9 @@ namespace gui {
     void table_view::handle_key (os::key_state state,
                                  os::key_symbol key,
                                  const std::string&) {
+      if ((state != core::state::none) && (state != core::state::alt)) {
+        return;
+      }
       switch (key) {
       case core::keys::up:
       case core::keys::numpad::up:

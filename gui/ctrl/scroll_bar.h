@@ -69,6 +69,7 @@ namespace gui {
       void set_min_max (type, type);
       void set_step (type);
       void set_page (type);
+      void set_step_page (type, type);
       void set_value(type, bool notify = true);
 
       void set_min_max_step (type, type, type);

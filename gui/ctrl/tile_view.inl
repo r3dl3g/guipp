@@ -322,9 +322,12 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation_t V>
-    void basic_tile_view<V>::handle_key (os::key_state,
+    void basic_tile_view<V>::handle_key (os::key_state state,
                                          os::key_symbol key,
                                          const std::string&) {
+      if (state != core::state::none) {
+        return;
+      }
       handle_direction_key(key);
       switch (key) {
       case core::keys::page_up:

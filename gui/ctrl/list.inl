@@ -251,9 +251,9 @@ namespace gui {
       if (super::data.selection != new_selection) {
         super::data.selection = new_selection;
         make_selection_visible();
+        super::invalidate();
         if (notify != event_source::logic) {
           notify_selection_changed(notify);
-          super::invalidate();
         }
       }
     }
@@ -411,9 +411,12 @@ namespace gui {
     }
 
     template<orientation_t V>
-    void linear_list<V>::handle_key (os::key_state,
+    void linear_list<V>::handle_key (os::key_state state,
                                     os::key_symbol key,
                                     const std::string&) {
+      if (state != core::state::none) {
+        return;
+      }
       handle_direction_key(key);
       switch (key) {
       case core::keys::page_up:

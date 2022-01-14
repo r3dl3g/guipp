@@ -107,7 +107,10 @@ namespace gui {
             }
           }
         });
-        super::on_any_key_down([&](os::key_state, os::key_symbol key, const std::string &){
+        super::on_any_key_down([&](os::key_state state, os::key_symbol key, const std::string &){
+          if (state != core::state::none) {
+            return;
+          }
           switch (key) {
             case core::keys::left:
             case core::keys::numpad::left: {

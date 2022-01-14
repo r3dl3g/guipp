@@ -163,6 +163,11 @@ namespace gui {
       set_min_max_step(mi, ma, s);
     }
 
+    void scroll_bar::set_step_page (type s, type p) {
+      set_step(s);
+      set_page(p);
+    }
+
     void scroll_bar::set_min_max_step_value (type mi, type ma, type s, type v) {
       set_min_max_step(mi, ma, s);
       set_value(v, false);
@@ -323,7 +328,10 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void basic_scroll_bar<orientation_t::horizontal>::handle_any_key_up (os::key_state, os::key_symbol key) {
+    void basic_scroll_bar<orientation_t::horizontal>::handle_any_key_up (os::key_state state, os::key_symbol key) {
+      if (state != core::state::none) {
+        return;
+      }
       if (is_enabled()) {
         switch (key) {
         case core::keys::left:
@@ -355,7 +363,10 @@ namespace gui {
     }
 
     template<>
-    void basic_scroll_bar<orientation_t::vertical>::handle_any_key_up (os::key_state, os::key_symbol key) {
+    void basic_scroll_bar<orientation_t::vertical>::handle_any_key_up (os::key_state state, os::key_symbol key) {
+      if (state != core::state::none) {
+        return;
+      }
       if (is_enabled()) {
         switch (key) {
         case core::keys::up:

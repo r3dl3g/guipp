@@ -102,8 +102,8 @@ namespace gui {
           }
         }
       });
-      btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
-        if (((k == core::keys::enter) || (k == core::keys::space)) && btn.is_pushed()) {
+      btn.on_any_key_up([&] (os::key_state s, os::key_symbol k) {
+        if ((s == core::state::none) && ((k == core::keys::enter) || (k == core::keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
           btn.notify_event(detail::BN_CLICKED_MESSAGE);
         }
@@ -122,8 +122,8 @@ namespace gui {
           }
         }
       });
-      btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
-        if (((k == core::keys::enter) || (k == core::keys::space)) && btn.is_pushed()) {
+      btn.on_any_key_up([&] (os::key_state s, os::key_symbol k) {
+        if ((s == core::state::none) && ((k == core::keys::enter) || (k == core::keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
           btn.set_checked(!btn.is_checked());
           btn.notify_event(detail::BN_CLICKED_MESSAGE);
@@ -143,8 +143,8 @@ namespace gui {
           }
         }
       });
-      btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
-        if (((k == core::keys::enter) || (k == core::keys::space)) && btn.is_pushed()) {
+      btn.on_any_key_up([&] (os::key_state s, os::key_symbol k) {
+        if ((s == core::state::none) && ((k == core::keys::enter) || (k == core::keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
           if (!btn.is_checked()) {
             btn.set_checked(true);
@@ -191,8 +191,8 @@ namespace gui {
           }
         }
       });
-      btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
-        if (((k == core::keys::enter) || (k == core::keys::space)) && btn.is_pushed()) {
+      btn.on_any_key_up([&] (os::key_state s, os::key_symbol k) {
+        if ((s == core::state::none) && ((k == core::keys::enter) || (k == core::keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
           start_animation();
           btn.set_checked(!btn.is_checked());
@@ -215,8 +215,8 @@ namespace gui {
           }
         }
       });
-      btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
-        if (((k == core::keys::enter) || (k == core::keys::space)) && btn.is_pushed()) {
+      btn.on_any_key_up([&] (os::key_state s, os::key_symbol k) {
+        if ((s == core::state::none) && ((k == core::keys::enter) || (k == core::keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
           if (!btn.is_checked()) {
             btn.set_checked(true);

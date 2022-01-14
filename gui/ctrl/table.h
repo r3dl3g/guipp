@@ -399,6 +399,7 @@ namespace gui {
       void clear_selection (event_source notify);
       void set_selection (table::position selection, event_source notify);
       const table::position& get_selection () const;
+      bool has_selection () const;
 
       void make_selection_visible ();
 

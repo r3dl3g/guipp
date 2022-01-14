@@ -137,14 +137,14 @@ namespace gui {
     }
 
     void drop_down_list::handle_key (os::key_state state,
-                                           os::key_symbol key,
-                                           const std::string& t) {
+                                     os::key_symbol key,
+                                     const std::string& t) {
       if (is_popup_visible()) {
         if (key == core::keys::tab) {
           hide_popup();
         }
         data.items->handle_key(state, key, t);
-      } else {
+      } else if (state == core::state::none) {
         switch (key) {
         case core::keys::down:
         case core::keys::numpad::down:

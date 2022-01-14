@@ -293,7 +293,7 @@ namespace gui {
         hscroll.geometry(layout::scroll_view::get_hscroll_area(area, vscroll_bar_enabled));
         hscroll.to_front();
         if (vscroll_bar_enabled) {
-          vscroll.geometry(layout::scroll_view::get_vscroll_area(area, enable));
+          hscroll.geometry(layout::scroll_view::get_hscroll_area(area, enable));
           edge.geometry(layout::scroll_view::get_edge_area(area));
           edge.set_visible();
           edge.to_front();

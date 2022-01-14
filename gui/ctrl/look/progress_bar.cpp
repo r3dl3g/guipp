@@ -32,14 +32,36 @@ namespace gui {
 
   namespace look {
 
-    void progress_bar (draw::graphics& graph,
-                       const core::rectangle& area,
-                       const std::string& txt,
-                       os::color foreground,
-                       os::color background,
-                       const text_origin_t& origin,
-                       os::color bar_color,
-                       core::size::type bar_pos) {
+    void vertical_progress_bar (draw::graphics& graph,
+                                const core::rectangle& area,
+                                const std::string& txt,
+                                os::color foreground,
+                                os::color background,
+                                const text_origin_t& origin,
+                                os::color bar_color,
+                                core::size::type bar_pos) {
+      using namespace gui::draw;
+      const core::rectangle top = area.with_height(bar_pos);
+      const core::rectangle bottom = area.with_vertical(top.y2(), area.y2() - top.y2());
+      graph.fill(draw::rectangle(top), bar_color);
+      graph.fill(draw::rectangle(bottom), background);
+      if (!txt.empty()) {
+        graph.text(draw::text_box(txt, area, origin), font::system().with_rotation(90), foreground);
+      }
+#ifdef SHOW_TEXT_AREA
+      graph.text(draw::bounding_box(text, area, origin), font::system()with_rotation(90), color::black);
+      graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));
+#endif // SHOW_TEXT_AREA
+    }
+
+    void horizontal_progress_bar (draw::graphics& graph,
+                                  const core::rectangle& area,
+                                  const std::string& txt,
+                                  os::color foreground,
+                                  os::color background,
+                                  const text_origin_t& origin,
+                                  os::color bar_color,
+                                  core::size::type bar_pos) {
       using namespace gui::draw;
       const core::rectangle left = area.with_width(bar_pos);
       const core::rectangle right = area.with_horizontal(left.x2(), area.x2() - left.x2());

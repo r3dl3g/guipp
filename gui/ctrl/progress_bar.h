@@ -36,9 +36,7 @@ namespace gui {
         typedef label_base super;
         typedef core::size::type type;
 
-        explicit progress_bar_base (const std::string& = std::string());
-        explicit progress_bar_base (const text_source&);
-
+        progress_bar_base (os::color bc, os::color fg, os::color bg);
         progress_bar_base (const progress_bar_base& rhs) = default;
         progress_bar_base (progress_bar_base&& rhs) = default;
 
@@ -52,24 +50,45 @@ namespace gui {
         type get_max () const;
         type get_value () const;
 
+        void set_prefix (const std::string&);
+        void set_prefix (const text_source&);
+
+        os::color get_bar_color () const;
+        void set_bar_color (os::color);
+
+        os::color get_foreground () const;
+        void set_foreground (os::color);
+
         void operator++ ();
         void operator++ (int);
 
       protected:
         struct data {
-          data ();
-
           type min;
           type max;
           type value;
+
+          os::color bar_color;
+          os::color foreground;
+
+          text_source prefix;
         } data;
 
       };
 
+      // --------------------------------------------------------------------------
+      template<orientation_t H>
+      void GUIPP_CTRL_EXPORT progress_bar_drawer (draw::graphics& graph,
+                                                  const progress_bar_base& pb,
+                                                  text_origin_t origin = text_origin_t::center,
+                                                  draw::frame::drawer frame = draw::frame::no_frame);
+
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<text_origin_t origin, draw::frame::drawer frame = draw::frame::no_frame>
+    template<orientation_t H,
+             text_origin_t origin = text_origin_t::center,
+             draw::frame::drawer frame = draw::frame::no_frame>
     class basic_progress_bar : public detail::progress_bar_base {
     public:
       typedef detail::progress_bar_base super;
@@ -85,15 +104,13 @@ namespace gui {
     private:
       void init ();
 
-      os::color bar_color;
-      os::color foreground;
-
     };
-
     // --------------------------------------------------------------------------
-    using progress_bar = basic_progress_bar<text_origin_t::center,
+    using progress_bar = basic_progress_bar<orientation_t::horizontal,
+                                            text_origin_t::center,
                                             draw::frame::sunken_relief>;
 
+    // --------------------------------------------------------------------------
   } // ctrl
 
 } // gui

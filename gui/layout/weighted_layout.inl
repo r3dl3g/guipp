@@ -42,6 +42,11 @@ namespace gui {
     }
 
     template<orientation_t H, unsigned B, unsigned G, origin_t R>
+    void weighted_layout<H, B, G, R>::remove_all () {
+      elements.clear();
+    }
+
+    template<orientation_t H, unsigned B, unsigned G, origin_t R>
     void weighted_layout<H, B, G, R>::layout (const core::rectangle& r) const {
       logging::trace() << "weighted_layout::layout(" << r << ")";
 

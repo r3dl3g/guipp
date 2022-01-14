@@ -75,6 +75,8 @@ namespace gui {
 
       void layout (const core::rectangle& r) const;
 
+      void remove_all ();
+
     private:
       std::vector<weight_element> elements;
     };

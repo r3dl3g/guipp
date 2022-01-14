@@ -58,6 +58,8 @@ namespace gui {
       "trash", "file", "folder", "folder_open",
       "list", "grid", "columns",
       "lock", "unlock",
+      "north", "east", "south", "west",
+      "north_east","north_west", "south_east", "south_west",
       "background",
       "MAX"
     };
@@ -718,6 +720,57 @@ namespace gui {
       const auto top = center.y() - radius / 4;
       g.frame(draw::arc({center.x(), top}, radius / 2, 60, 200), pn);
     }
+    // --------------------------------------------------------------------------
+    template<int I>
+    std::vector<core::point> arrow_points (const point& center, size::type radius) {
+      const auto p0 = calc_clock_point<I+180>(center, radius);
+      const auto p1 = calc_clock_point<I>(center, radius);
+      const auto p2 = calc_clock_point<I-45>(center, radius/2);
+      const auto p3 = calc_clock_point<I>(center, radius);
+      const auto p4 = calc_clock_point<I+45>(center, radius/2);
+      return {p0, p1, p2, p3, p4};
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::north> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline(arrow_points<0>(center, radius)), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::east> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline(arrow_points<90>(center, radius)), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::south> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline(arrow_points<180>(center, radius)), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::west> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline(arrow_points<-90>(center, radius)), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::north_east> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline(arrow_points<45>(center, radius)), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::north_west> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline(arrow_points<-45>(center, radius)), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::south_east> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline(arrow_points<135>(center, radius)), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::south_west> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline(arrow_points<225>(center, radius)), pn);
+    }
+
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_type::background> (graphics& g, const pen&, const core::point& center, core::size::type radius) {

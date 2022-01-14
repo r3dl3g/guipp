@@ -84,6 +84,8 @@ namespace gui {
       trash, file, folder, folder_open,
       list, grid, columns,
       lock, unlock,
+      north, east, south, west,
+      north_east,north_west, south_east, south_west,
       background,
       MAX
     };
@@ -189,6 +191,16 @@ namespace gui {
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::columns> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::lock> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::unlock> (graphics&, const pen&, const core::point&, core::size::type);
+
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::north> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::east> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::south> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::west> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::north_east> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::north_west> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::south_east> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::south_west> (graphics&, const pen&, const core::point&, core::size::type);
+
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::background> (graphics&, const pen&, const core::point&, core::size::type);
     // --------------------------------------------------------------------------
   } //namespace draw

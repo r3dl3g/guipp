@@ -239,16 +239,6 @@ namespace gui {
                         const draw::brush& background,
                         item_state state) const;
 
-        void on_selection_changed (std::function<void(event_source)>&& f);
-        void on_selection_commit (std::function<void()>&& f);
-        void on_hilite_changed (std::function<void(bool)>&& f);
-        void on_content_changed (std::function<void()>&& f);
-
-        void notify_selection_changed (event_source);
-        void notify_selection_commit ();
-        void notify_hilite_changed (bool);  // true if hilite is visible, false for no hilite
-        void notify_content_changed ();
-
       protected:
         struct data {
           explicit data ();

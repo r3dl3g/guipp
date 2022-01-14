@@ -252,6 +252,10 @@ namespace gui {
         return id && id->isTopLevel();
       }
 
+      bool is_fullscreen (os::window id) {
+        return id && (id->visibility() == Qt::WindowFullScreen);
+      }
+
       void minimize (os::window id) {
         if (id) {
           id->showMinimized();
@@ -273,6 +277,16 @@ namespace gui {
       void set_top_most (os::window id, bool on) {
         if (id) {
           id->setFlag(Qt::WindowStaysOnTopHint, on);
+        }
+      }
+
+      void set_fullscreen (os::window id, bool on) {
+        if (id) {
+          if (on) {
+            id->showFullScreen();
+          } else {
+            id->showNormal();
+          }
         }
       }
 

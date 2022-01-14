@@ -101,11 +101,14 @@ namespace gui {
       GUIPP_WIN_EXPORT bool is_maximized (os::window id);
       GUIPP_WIN_EXPORT bool is_minimized (os::window id);
       GUIPP_WIN_EXPORT bool is_top_most (os::window id);
+      GUIPP_WIN_EXPORT bool is_fullscreen (os::window id);
 
       GUIPP_WIN_EXPORT void minimize (os::window id);
       GUIPP_WIN_EXPORT void maximize (os::window id);
       GUIPP_WIN_EXPORT void restore (os::window id);
+
       GUIPP_WIN_EXPORT void set_top_most (os::window id, bool on);
+      GUIPP_WIN_EXPORT void set_fullscreen (os::window id, bool on);
 
       GUIPP_WIN_EXPORT void prepare_main_window (os::window id);
       GUIPP_WIN_EXPORT void prepare_popup_window (os::window id);

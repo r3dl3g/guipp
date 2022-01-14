@@ -73,15 +73,17 @@ namespace gui {
       void set_title (const std::string&);
       std::string get_title () const;
 
-      bool is_top_most () const;
       bool is_minimized () const;
       bool is_maximized () const;
+      bool is_top_most () const;
+      bool is_fullscreen () const;
 
       void minimize ();
       void maximize ();
       void restore ();
 
       void set_top_most (bool toplevel);
+      void set_fullscreen (bool fullscreen);
 
       void to_front ();
       void to_back ();

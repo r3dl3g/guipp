@@ -321,6 +321,10 @@ namespace gui {
         return (GetWindowLong(id, GWL_EXSTYLE) & WS_EX_TOPMOST) == WS_EX_TOPMOST;
       }
 
+      bool is_fullscreen (os::window id) {
+        return (GetWindowLong(id, GWL_STYLE) & WS_OVERLAPPEDWINDOW) != WS_OVERLAPPEDWINDOW;
+      }
+
       void minimize (os::window id) {
         ShowWindow(id, SW_MINIMIZE);
       }
@@ -336,6 +340,34 @@ namespace gui {
       void set_top_most (os::window id, bool on) {
         SetWindowPos(id, on ? HWND_TOPMOST : HWND_NOTOPMOST,
                      0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+      }
+
+      void set_fullscreen (os::window id, bool on) {
+        static LONG style = {};
+        static LONG ex_style = {};
+        static os::rectangle rect = {};
+
+        if (on) {
+          style = = GetWindowLong(id, GWL_STYLE);
+          ex_style = GetWindowLong(id, GWL_EXSTYLE);
+          GetWindowRect(id, &rect);
+
+          auto windowHDC = GetDC(id);
+          auto fullscreenWidth  = GetDeviceCaps(windowHDC, DESKTOPHORZRES);
+          auto fullscreenHeight = GetDeviceCaps(windowHDC, DESKTOPVERTRES);
+
+          SetWindowLongPtr(id, GWL_EXSTYLE, WS_EX_APPWINDOW | WS_EX_TOPMOST);
+          SetWindowLongPtr(id, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+          SetWindowPos(id, HWND_TOPMOST, 0, 0, fullscreenWidth, fullscreenHeight, SWP_SHOWWINDOW);
+          ShowWindow(id, SW_MAXIMIZE);
+        } else {
+          SetWindowLongPtr(id, GWL_EXSTYLE, ex_style);
+          SetWindowLongPtr(id, GWL_STYLE, style);
+          SetWindowPos(id, HWND_NOTOPMOST,
+                       os::get_x(rect), os::get_y(rect), os::get_width(rect), os::get_height(rect),
+                       SWP_SHOWWINDOW);
+          ShowWindow(id, SW_RESTORE);
+        }
       }
 
       void prepare_main_window (os::window) {}

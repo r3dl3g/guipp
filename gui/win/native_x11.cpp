@@ -94,6 +94,7 @@ namespace gui {
       Atom NET_WM_STATE_ABOVE = 0;
       Atom NET_WM_STATE_HIDDEN = 0;
       Atom WM_SIZE_HINTS = 0;
+      Atom NET_WM_STATE_FULLSCREEN = 0;
 
       int init_for_net_wm_state () {
         core::x11::init_atom(NET_WM_STATE, "_NET_WM_STATE");
@@ -103,6 +104,7 @@ namespace gui {
         core::x11::init_atom(NET_WM_STATE_HIDDEN, "_NET_WM_STATE_HIDDEN");
         core::x11::init_atom(ATOM_ATOM, "ATOM");
         core::x11::init_atom(WM_SIZE_HINTS, "WM_SIZE_HINTS");
+        core::x11::init_atom(NET_WM_STATE_FULLSCREEN, "_NET_WM_STATE_FULLSCREEN");
         return 1;
       }
 
@@ -570,6 +572,10 @@ namespace gui {
         return x11::query_net_wm_state(id, x11::NET_WM_STATE_ABOVE);
       }
 
+      bool is_fullscreen (os::window id) {
+        return x11::query_net_wm_state(id, x11::NET_WM_STATE_FULLSCREEN);
+      }
+
       void minimize (os::window id) {
         XIconifyWindow(core::global::get_instance(), id, core::global::x11::get_screen());
       }
@@ -583,13 +589,44 @@ namespace gui {
       void restore (os::window id) {
         x11::send_net_wm_state(id, _NET_WM_STATE_REMOVE,
                                x11::NET_WM_STATE_MAXIMIZED_HORZ,
-                               x11::NET_WM_STATE_MAXIMIZED_VERT);
+                               x11::NET_WM_STATE_MAXIMIZED_VERT,
+                               x11::NET_WM_STATE_FULLSCREEN);
       }
 
       void set_top_most (os::window id, bool on) {
         x11::send_net_wm_state(id,
                                on ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE,
                                x11::NET_WM_STATE_ABOVE);
+      }
+
+      void set_fullscreen (os::window id, bool on) {
+#ifdef USE_OVERRIDE_REDIRECT
+    XWindowAttributes wa = {};
+    XGetWindowAttributes(display, get_os_window(), &wa);
+    XSetWindowAttributes swa = {};
+    swa.override_redirect = !wa.override_redirect;
+    XChangeWindowAttributes(display, get_os_window(), CWOverrideRedirect, &swa);
+#elif defined USE_WM_STATE_FULLSCREEN
+    Atom wm_state       = XInternAtom(display, "_NET_WM_STATE", False);
+    Atom wm_fullscreen  = XInternAtom(display, "_NET_WM_STATE_FULLSCREEN", False);
+
+    XChangeProperty(display, get_os_window(), wm_state, XA_ATOM, 32,
+                    PropModeReplace, (unsigned char *)&wm_fullscreen, 1);
+#else
+        XEvent x11_event;
+        x11_event.xclient.type = ClientMessage;
+        x11_event.xclient.serial = 0;
+        x11_event.xclient.send_event = True;
+        x11_event.xclient.window = id;
+        x11_event.xclient.message_type = x11::NET_WM_STATE;
+        x11_event.xclient.format = 32;
+        x11_event.xclient.data.l[0] = on;
+        x11_event.xclient.data.l[1] = x11::NET_WM_STATE_FULLSCREEN;
+        x11_event.xclient.data.l[2] = 0;
+
+        auto dpy = core::global::get_instance();
+        XSendEvent(dpy, XDefaultRootWindow(dpy), False, SubstructureRedirectMask | SubstructureNotifyMask, &x11_event );
+#endif
       }
 
       void prepare_main_window (os::window id) {

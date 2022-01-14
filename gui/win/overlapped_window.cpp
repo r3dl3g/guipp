@@ -388,7 +388,7 @@ namespace gui {
       } else if (size_event::match(e)) {
         area.set_size(size_event::Caller::get_param<0>(e));
 #ifndef BUILD_FOR_ARM
-        notify_event(core::WM_LAYOUT_WINDOW, client_geometry());
+        notify_layout();
 #endif
         invalidate();
       } else if (move_event::match(e)) {
@@ -490,6 +490,10 @@ namespace gui {
       return native::is_top_most(get_os_window());
     }
     // --------------------------------------------------------------------------
+    bool overlapped_window::is_fullscreen () const {
+      return native::is_fullscreen(get_os_window());
+    }
+    // --------------------------------------------------------------------------
     void overlapped_window::minimize () {
       native::minimize(get_os_window());
     }
@@ -504,6 +508,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     void overlapped_window::set_top_most (bool toplevel) {
       native::set_top_most(get_os_window(), toplevel);
+    }
+    // --------------------------------------------------------------------------
+    void overlapped_window::set_fullscreen (bool fullscreen) {
+      native::set_fullscreen(get_os_window(), fullscreen);
     }
     // --------------------------------------------------------------------------
     void overlapped_window::invalidate () {

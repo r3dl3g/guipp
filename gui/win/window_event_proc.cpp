@@ -817,16 +817,15 @@ namespace gui {
 
       gui::os::instance display = core::global::get_instance();
 
-      XEvent event;
+      XClientMessageEvent event;
       memset(&event, 0, sizeof(event));
-      XClientMessageEvent& client = event.xclient;
 
-      client.type = ClientMessage;
-      client.send_event = True;
-      client.display = display;
-      client.window = w.get_overlapped_window().get_os_window();
-      client.format = 32;
-      XSendEvent(display, client.window, False, 0, &event);
+      event.type = ClientMessage;
+      event.send_event = True;
+      event.display = display;
+      event.window = w.get_overlapped_window().get_os_window();
+      event.format = 32;
+      XSendEvent(display, event.window, False, 0, (XEvent*)&event);
       XFlush(display);
 
 #endif // GUIPP_X11

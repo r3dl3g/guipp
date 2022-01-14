@@ -47,7 +47,7 @@ namespace gui {
 
       template<typename B, typename L, typename ... A>
       inline void layout_container_base<B, L, A...>::layout () {
-        layout(super::client_geometry());
+        super::notify_layout();
       }
 
       template<typename B, typename L, typename ... A>
@@ -58,13 +58,13 @@ namespace gui {
 
       template<typename B, typename L, typename ... A>
       inline void layout_container_base<B, L, A...>::resize (const core::size& sz, bool repaint) {
-        layouter.layout(core::rectangle(sz));
+        layout(core::rectangle(sz));
         super::resize(sz, repaint);
       }
 
       template<typename B, typename L, typename ... A>
       inline void layout_container_base<B, L, A...>::geometry (const core::rectangle& r, bool repaint) {
-        layouter.layout(core::rectangle(r.size()));
+        layout(core::rectangle(r.size()));
         super::geometry(r, repaint);
       }
 
@@ -84,7 +84,7 @@ namespace gui {
           layout();
         });
         super::on_layout([&] (const core::rectangle& r) {
-          layouter.layout(r);
+          layout(r);
         });
       }
 

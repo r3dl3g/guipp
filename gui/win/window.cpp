@@ -287,6 +287,10 @@ namespace gui {
       native::send_notify_visibility(this, visible);
     }
 
+    void window::notify_layout () {
+      notify_event(core::WM_LAYOUT_WINDOW, client_geometry());
+    }
+
     void window::set_parent (container& p) {
       remove_from_parent();
       parent = &p;
@@ -488,7 +492,7 @@ namespace gui {
           }
         }
         native::notify_resize(*this, sz, previous);
-        notify_event(core::WM_LAYOUT_WINDOW, client_geometry());
+        notify_layout();
       }
     }
 
@@ -516,7 +520,7 @@ namespace gui {
         }
         if (previous.size() != area.size()) {
           native::notify_resize(*this, area.size(), previous.size());
-          notify_event(core::WM_LAYOUT_WINDOW, client_geometry());
+          notify_layout();
         }
       }
     }

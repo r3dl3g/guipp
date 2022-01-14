@@ -136,6 +136,7 @@ namespace gui {
       void notify_event_float (os::message_type message, float d1);
       void notify_mouse_event (bool enter);
       void notify_visibility (bool visible);
+      void notify_layout ();
 
       static core::size screen_size ();
       static core::rectangle screen_area ();

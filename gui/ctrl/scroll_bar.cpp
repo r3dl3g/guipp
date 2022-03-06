@@ -140,12 +140,10 @@ namespace gui {
 
     void scroll_bar::set_step (type s) {
       data.step = s;
-      data.page = std::max(s, data.page);
     }
 
     void scroll_bar::set_page (type p) {
       data.page = p;
-      data.step = std::min(p, data.step);
     }
 
     void scroll_bar::set_min_max_step (type mi, type ma, type s) {

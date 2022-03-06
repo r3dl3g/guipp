@@ -740,15 +740,15 @@ namespace gui {
 
         XNextEvent(display, &e);
 
+//        if (!win::is_frequent_event(e)) {
+//          logging::debug() << e;
+//        }
+
         int count = 2;
         while (x11::queued_actions.try_dequeue(action) && count) {
           action();
           --count;
         }
-
-//        if (!win::is_frequent_event(e)) {
-//          logging::trace() << e;
-//        }
 
         if (filter && filter(e)) {
           continue;

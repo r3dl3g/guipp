@@ -268,18 +268,42 @@ namespace gui {
     }
 
     template<orientation_t V, typename T>
-    void uniform_list<V, T>::make_selection_visible () {
+    void uniform_list<V, T>::make_selection_visible (selection_adjustment adjust) {
       if (super::has_selection()) {
         const auto list_size = super::client_size();
         const auto list_sz = traits.get_1(list_size);
-        const auto scroll_pos = get_scroll_pos_1();
         const auto line_size = traits.get_line_size();
+        const auto scroll_pos = get_scroll_pos_1();
         const auto sel_pos = traits.get_offset_of_index(list_size, super::get_selection());
 
-        if (sel_pos < scroll_pos) {
-          set_scroll_pos_1(sel_pos);
+        if (selection_adjustment::center_always == adjust) {
+          set_scroll_pos_1(sel_pos - (list_sz / 2) + line_size);
+        } else if (sel_pos < scroll_pos) {
+          switch (adjust) {
+            case selection_adjustment::start:
+            case selection_adjustment::next:
+              set_scroll_pos_1(sel_pos);
+              break;
+            case selection_adjustment::center:
+              set_scroll_pos_1(sel_pos - (list_sz / 2) + line_size);
+              break;
+            case selection_adjustment::end:
+              set_scroll_pos_1(sel_pos - list_sz + line_size);
+              break;
+          }
         } else if (sel_pos + line_size - scroll_pos > list_sz) {
-          set_scroll_pos_1(sel_pos - list_sz + line_size);
+          switch (adjust) {
+            case selection_adjustment::start:
+              set_scroll_pos_1(sel_pos);
+              break;
+            case selection_adjustment::center:
+              set_scroll_pos_1(sel_pos - (list_sz / 2) + line_size);
+              break;
+            case selection_adjustment::end:
+            case selection_adjustment::next:
+              set_scroll_pos_1(sel_pos - list_sz + line_size);
+              break;
+          }
         }
       }
     }
@@ -290,7 +314,7 @@ namespace gui {
       auto pt = super::get_scroll_pos();
       traits.set_1(pt, value);
       super::set_scroll_pos(pt);
-      notify_scroll();
+      notify_scroll(value);
     }
 
     template<orientation_t V, typename T>
@@ -331,16 +355,6 @@ namespace gui {
       }
       super::set_cursor(win::cursor::arrow());
       super::data.last_mouse_point = core::native_point::undefined;
-    }
-
-    template<orientation_t V, typename T>
-    void uniform_list<V, T>::notify_scroll () {
-      notify_event_float(detail::SCROLLBAR_MESSAGE, get_scroll_pos_1());
-    }
-
-    template<orientation_t V, typename T>
-    void uniform_list<V, T>::on_scroll (std::function<void(core::point::type)>&& f) {
-      on<scroll_event>(std::move(f));
     }
 
     // --------------------------------------------------------------------------

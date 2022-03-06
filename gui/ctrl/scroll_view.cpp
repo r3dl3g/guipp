@@ -74,28 +74,29 @@ namespace gui {
     }
 
     core::rectangle scroll_view_base::layout (const core::rectangle& new_size, const core::rectangle& required) const {
+      typedef core::point::type type;
+
       core::rectangle space(new_size);
 
       //logging::debug() << "Space:" << space << ", Required:" << required;
 
-      bool show_h = hscroll && ((required.x() < 0) || (required.x2() > space.width()));
+      bool show_h = hscroll && (space.height() > ctrl::scroll_bar::get_scroll_bar_width()) && ((required.x() < 0) || (required.x2() > space.width()));
       if (show_h) {
         space.height(space.height() - ctrl::scroll_bar::get_scroll_bar_width());
       }
 
-      bool show_v = vscroll && ((required.y() < 0) || (required.y2() > space.height()));
+      bool show_v = vscroll && (space.width() > ctrl::scroll_bar::get_scroll_bar_width()) && ((required.y() < 0) || (required.y2() > space.height()));
       if (show_v) {
         space.width(space.width() - ctrl::scroll_bar::get_scroll_bar_width());
 
         if (!show_h) {
           // re-check h
-          show_h = hscroll && ((required.x() < 0) || (required.x2() > space.width()));
+          show_h = hscroll && (space.height() > ctrl::scroll_bar::get_scroll_bar_width()) && ((required.x() < 0) || (required.x2() > space.width()));
           if (show_h) {
             space.height(space.height() - ctrl::scroll_bar::get_scroll_bar_width());
           }
         }
 
-        typedef core::point::type type;
         type ymin = std::min(required.y(), type(0));
         type ymax = std::max(required.y2() - space.height(), type(0));
         type ypage = std::min(ymax - ymin, space.height());

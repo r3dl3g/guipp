@@ -14,15 +14,15 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::core;
 
   layout_main_window<gui::layout::border::layouter<25, 25, 25, 25>> main;
-  sorted_dir_tree client;
+  virtual_view<sorted_dir_tree> client;
 
   main.on_create([&] () {
     client.create(main, main.client_geometry());
 
     sys_fs::path current = sys_fs::current_path();
-    client.set_roots(fs::get_all_root_file_infos());
-    client.add_open_node(current.root_path());
-    client.update_node_list();
+    client->set_roots(fs::get_all_root_file_infos());
+    client->add_open_node(current.root_path());
+    client->update_node_list();
 
     main.get_layout().set_center(layout::lay(client));
   });

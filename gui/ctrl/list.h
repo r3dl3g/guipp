@@ -239,6 +239,9 @@ namespace gui {
                         const draw::brush& background,
                         item_state state) const;
 
+        void on_scroll (std::function<void(core::point::type)>&& f);
+        void notify_scroll (pos_t);
+
       protected:
         struct data {
           explicit data ();
@@ -270,6 +273,15 @@ namespace gui {
     template<>
     struct wheel_traits<orientation_t::vertical> {
       typedef win::wheel_y_event wheel_event_type;
+    };
+
+    // --------------------------------------------------------------------------
+    enum class selection_adjustment : byte {
+      start,
+      center,
+      end,
+      next,
+      center_always,
     };
 
     // --------------------------------------------------------------------------
@@ -318,17 +330,13 @@ namespace gui {
 
       bool try_to_select (int sel, event_source notify);
       void set_selection (int sel, event_source notify);
-      void make_selection_visible ();
+      void make_selection_visible (selection_adjustment adjust = selection_adjustment::center_always);
 
       void set_scroll_pos_1 (pos_t pos);
       pos_t get_scroll_pos_1 () const;
 
       void handle_mouse_move (os::key_state keys, const core::native_point& pt);
       void handle_left_btn_up (os::key_state keys, const core::native_point& pt);
-
-      void on_scroll (std::function<void(core::point::type)>&& f);
-
-      void notify_scroll ();
 
     protected:
       pos_t get_list_size () const;

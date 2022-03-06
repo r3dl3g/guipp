@@ -28,8 +28,10 @@ set (TESTING_CXX_STANDARD ${GUIPP_CXX_STANDARD})
 
 if(GUIPP_BUILD_DEPENDENT_LIBS)
   add_subdirectory(./../libs/testlib testlib)
+  add_subdirectory(./../libs/testing testing)
 else()
-  find_package(testing)
+  find_package(testlib REQUIRED)
+  find_package(testing REQUIRED)
 endif()
 
 DebugPrint("app GUIPP_CXX_FLAGS: ${GUIPP_CXX_FLAGS}")
@@ -41,7 +43,7 @@ DebugPrint("app GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
 
 # add the binary tree to the search path for include files
 # so that we will find Version.h
-include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS})
+include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS} ${testlib_Include} ${TESTING_INCLUDE_DIRS})
 
 enable_testing()
 

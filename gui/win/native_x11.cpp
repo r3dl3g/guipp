@@ -331,7 +331,7 @@ namespace gui {
         XSetWindowAttributes wa;
 
         unsigned long mask = CWEventMask;
-        wa.event_mask = data.get_event_mask();
+        wa.event_mask = data.get_event_mask() | ExposureMask;
 
         XVisualInfo vinfo;
         XMatchVisualInfo(display, screen, 24, TrueColor, &vinfo);

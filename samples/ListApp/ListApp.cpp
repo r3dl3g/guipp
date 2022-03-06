@@ -19,13 +19,13 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   main.on_create([&] () {
     client.create(main, main.client_geometry());
-    client.view.set_path("/"/*sys_fs::current_path().parent_path()*/);
+    client->set_path("/"/*sys_fs::current_path().parent_path()*/);
     main.get_layout().set_center(layout::lay(client));
 
-    client.view.on_selection_commit([&] () {
-      auto path = client.view.get_selected_path();
+    client->on_selection_commit([&] () {
+      auto path = client->get_selected_path();
       if (sys_fs::is_directory(path)) {
-        client.view.set_path(path);
+        client->set_path(path);
       }
     });
   });

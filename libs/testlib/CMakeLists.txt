@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-set (testlib_Include "${CMAKE_CURRENT_SOURCE_DIR}")
-set (testlib_Include ${testlib_Include} PARENT_SCOPE)
-
 if(NOT TARGET testlib)
 
   add_subdirectory(${CMAKE_SOURCE_DIR}/gui gui)
   add_subdirectory(${CMAKE_SOURCE_DIR}/libs/testing testing)
+
+  set (testlib_Include "${CMAKE_CURRENT_SOURCE_DIR}")
+  set (testlib_Include ${testlib_Include} PARENT_SCOPE)
 
   include_directories(${testlib_Include} ${GUIPP_INCLUDE_DIRS})
 

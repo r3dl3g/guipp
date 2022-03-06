@@ -115,6 +115,14 @@ namespace gui {
         }
       }
 
+      void list_base::notify_scroll (pos_t pos) {
+        notify_event_float(detail::SCROLLBAR_MESSAGE, pos);
+      }
+
+      void list_base::on_scroll (std::function<void(core::point::type)>&& f) {
+        on<scroll_event>(std::move(f));
+      }
+
     } // namespace detail
 
     // --------------------------------------------------------------------------

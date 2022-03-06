@@ -51,16 +51,22 @@ function(install_guipp_subpackage TARGET)
     cmake_parse_arguments(
         ARG           # prefix
         "EXPORT_LIBS" # boolean arguments
-        "PREFIX;CONFIG;SUBDIR" # mono-valued arguments
+        "PREFIX;CONFIG;SUBDIR;NAMESPACE" # mono-valued arguments
         "FILES"       # multi-valued arguments
         ${ARGN}       # num of arguments of the function to parse
     )
-    if((NOT TARGET) OR (NOT ARG_PREFIX) OR (NOT ARG_CONFIG) OR (NOT ARG_SUBDIR))
-        message(FATAL_ERROR "You must provide target, prefix, subdir and config")
+    if((NOT TARGET) OR (NOT ARG_CONFIG) OR (NOT ARG_SUBDIR))
+        message(FATAL_ERROR "You must provide target, subdir and config")
+    endif()
+    if((NOT ARG_PREFIX) AND (NOT ARG_NAMESPACE))
+        message(FATAL_ERROR "You must provide either prefix or namespace")
+    endif()
+    if(NOT ARG_NAMESPACE)
+      set(ARG_NAMESPACE ${ARG_PREFIX})
     endif()
 
     set(${ARG_PREFIX}${TARGET}_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/gui/${ARG_SUBDIR})
-    set(${ARG_PREFIX}${TARGET}_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/${ARG_PREFIX})
+    set(${ARG_PREFIX}${TARGET}_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/${ARG_NAMESPACE})
 
     target_include_directories(${TARGET}
                                PUBLIC
@@ -84,7 +90,7 @@ function(install_guipp_subpackage TARGET)
 
       install(
           EXPORT ${ARG_PREFIX}${TARGET}_Targets
-          NAMESPACE ${ARG_PREFIX}::
+          NAMESPACE ${ARG_NAMESPACE}::
           FILE ${ARG_PREFIX}${TARGET}Targets.cmake
           DESTINATION ${${ARG_PREFIX}${TARGET}_INSTALL_CMAKEDIR}
       )
@@ -596,7 +602,7 @@ if(NOT TARGET guipp)
   endif()
 
   install_guipp_subpackage(guipp
-    PREFIX guipp
+    NAMESPACE guipp
     CONFIG ${PROJECT_SOURCE_DIR}/Config.cmake.in
     SUBDIR "."
     EXPORT_LIBS

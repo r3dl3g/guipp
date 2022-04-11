@@ -123,10 +123,12 @@ namespace gui {
       void add (const layout_function& e, bool is_separator = false);
       void add (layout_function&& e, bool is_separator = false);
 
-      void add (std::initializer_list<layout_function> list);
-      void add (std::initializer_list<win::window*> list);
       void add (win::window&);
       void add (win::window*);
+
+      void add (std::vector<layout_function> list);
+      void add (std::vector<win::window*> list);
+      void add (std::vector<std::reference_wrapper<win::window>> list);
 
       void remove_all ();
 

@@ -31,9 +31,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace detail {
-      class GUIPP_CTRL_EXPORT label_base : public control {
+      class GUIPP_CTRL_EXPORT label_base : public colored_control {
       public:
-        typedef control super;
+        typedef colored_control super;
         typedef win::no_focus_window_class<label_base> clazz;
 
         explicit label_base (const std::string& = std::string());
@@ -68,12 +68,8 @@ namespace gui {
         template<typename T>
         void operator>> (T&& t) const;
 
-        void set_foreground (os::color);
-        os::color get_foreground () const;
-
       protected:
         text_source text;
-        os::color foreground;
 
       };
 

@@ -26,6 +26,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
       auto path = client->get_selected_path();
       if (sys_fs::is_directory(path)) {
         client->set_path(path);
+        client.layout();
       }
     });
   });

@@ -155,6 +155,10 @@ namespace gui {
         , last_mouse_point(core::native_point::undefined)
       {}
 
+      edit_base::edit_base () {
+        set_background(color::white);
+      }
+
       edit_base::~edit_base () {
         if (is_valid()) {
           win::global::unregister_utf8_window(*this);

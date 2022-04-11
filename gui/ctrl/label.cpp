@@ -50,17 +50,14 @@ namespace gui {
 
       label_base::label_base (const std::string& t)
         : text(const_text(t))
-        , foreground(color::black)
       {}
 
       label_base::label_base (const text_source& t)
         : text(t)
-        , foreground(color::black)
       {}
 
       label_base::label_base (text_source&& t) noexcept
         : text(std::move(t))
-        , foreground(color::black)
       {}
 
       void label_base::set_text (const std::string& t) {
@@ -74,14 +71,6 @@ namespace gui {
 
       std::string label_base::get_text () const {
         return text();
-      }
-
-      void label_base::set_foreground (os::color c) {
-        foreground = c;
-      }
-
-      os::color label_base::get_foreground () const {
-        return foreground;
       }
 
     } // detail

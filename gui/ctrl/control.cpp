@@ -136,6 +136,21 @@ namespace gui {
       notify_event(detail::CONTENT_CHANGED_MESSAGE);
     }
 
+    // --------------------------------------------------------------------------
+    colored_control::colored_control (os::color fg, os::color bg)
+      : foreground(fg)
+    {
+      set_background(bg);
+    }
+
+    void colored_control::set_foreground (os::color c) {
+      foreground = c;
+    }
+
+    os::color colored_control::get_foreground () const {
+      return foreground;
+    }
+
   } // ctrl
 
 } // gui

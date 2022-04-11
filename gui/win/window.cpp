@@ -86,20 +86,23 @@ namespace gui {
                          const core::rectangle& r) {
       if (p.is_valid()) {
         set_parent(p);
+        set_window_class(type);
         create_internal(type, r);
         p.add_event_mask(get_event_mask());
       }
     }
 
+    void window::create (container& p, const core::rectangle& r) {
+      create(get_window_class(), p, r);
+    }
+
     void window::create_internal (const class_info& type,
                                   const core::rectangle& r) {
-      class_name = type.get_class_name();
       area = r;
 //      cursor_ = type.get_cursor();
       if (color::transparent == background) {
         background = type.get_background();
       }
-      native::register_window_class(type);
       auto s = set_state();
       s.created(true);
       s.visible(true);
@@ -539,6 +542,11 @@ namespace gui {
 
     const class_info& window::get_window_class () const {
       return native::get_window_class(get_class_name());
+    }
+
+    void window::set_window_class (const class_info& type) {
+      class_name = type.get_class_name();
+      native::register_window_class(type);
     }
 
     core::size window::screen_size () {

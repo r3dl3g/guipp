@@ -67,23 +67,23 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<text_origin_t align, draw::frame::drawer frame, os::color fg, os::color bg>
-    inline basic_textbox<align, frame, fg, bg>::basic_textbox () {
+    template<text_origin_t align, draw::frame::drawer frame>
+    inline basic_textbox<align, frame>::basic_textbox () {
       on_paint(draw::paint(this, &basic_textbox::handle_paint));
       enable_select_by_mouse();
     }
 
-    template<text_origin_t align, draw::frame::drawer frame, os::color fg, os::color bg>
-    inline void basic_textbox<align, frame, fg, bg>::handle_paint (draw::graphics& graph) {
+    template<text_origin_t align, draw::frame::drawer frame>
+    inline void basic_textbox<align, frame>::handle_paint (draw::graphics& graph) {
       const auto area = client_geometry();
       gui::look::text_box(graph, area, data.lines, data.font,
-                          fg, bg, align,
+                          get_foreground(), get_background(), align,
                           data.selection, data.cursor_pos, data.offset, is_focused(), is_enabled());
       frame(graph, area);
     }
 
-    template<text_origin_t align, draw::frame::drawer frame, os::color fg, os::color bg>
-    inline void basic_textbox<align, frame, fg, bg>::enable_select_by_mouse () {
+    template<text_origin_t align, draw::frame::drawer frame>
+    inline void basic_textbox<align, frame>::enable_select_by_mouse () {
       super::enable_select_by_mouse(align);
     }
 

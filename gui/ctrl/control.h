@@ -237,6 +237,19 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    class GUIPP_CTRL_EXPORT colored_control : public control {
+    public:
+
+      colored_control (os::color fg = color::black, os::color bg = color::very_light_gray);
+
+      void set_foreground (os::color);
+      os::color get_foreground () const;
+
+    private:
+      os::color foreground;
+    };
+
+    // --------------------------------------------------------------------------
     class client_control : public control {
     public:
       typedef control super;

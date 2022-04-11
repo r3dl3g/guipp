@@ -312,6 +312,7 @@ namespace gui {
       collect_event_mask();
       set_state().created(true);
       id = native::create(type, r, parent_id, *this);
+      super::set_window_class(type);
       super::create_internal(type, r);
       native::prepare_overlapped(get_os_window(), parent_id);
 #ifdef GUIPP_BUILD_FOR_MOBILE

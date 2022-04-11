@@ -26,8 +26,8 @@ namespace gui {
     void standard_dialog_base<T, L, R>::create (win::overlapped_window& parent,
                                                 const std::string& title,
                                                 const core::rectangle& rect,
-                                                std::function<dialog_action> action,
-                                                const std::initializer_list<std::string>& labels) {
+                                                const std::initializer_list<std::string>& labels,
+                                                std::function<dialog_action> action) {
       super::get_layout().set_bottom(layout::lay(button_layout));
       super::create(parent, rect);
       super::set_title(title);
@@ -85,14 +85,71 @@ namespace gui {
     }
 
     template<typename C, int T, int L, int R>
+    inline standard_dialog<C, T, L, R>::standard_dialog (std::vector<std::reference_wrapper<win::window>> list) {
+      super::set_background(color::very_light_gray);
+      content_view.set_background(color::very_light_gray);
+      content_view.add(list);
+    }
+
+    template<typename C, int T, int L, int R>
     void standard_dialog<C, T, L, R>::create (win::overlapped_window& parent,
                                               const std::string& title,
                                               const core::rectangle& rect,
-                                              std::function<dialog_action> action,
-                                              const std::initializer_list<std::string>& labels) {
+                                              const std::initializer_list<std::string>& labels,
+                                              std::function<dialog_action> action) {
       super::get_layout().set_center(layout::lay(content_view));
-      super::create(parent, title, rect, action, labels);
+      super::create(parent, title, rect, labels, action);
       content_view.create(*this);
+    }
+
+    //-----------------------------------------------------------------------------
+    template<typename T>
+    yes_no_dialog_t<T>::yes_no_dialog_t ()
+    {}
+
+    template<typename T>
+    yes_no_dialog_t<T>::yes_no_dialog_t (content_view_type&& rhs)
+      :super(std::move(rhs))
+    {}
+
+    template<typename T>
+    yes_no_dialog_t<T>::yes_no_dialog_t (std::vector<std::reference_wrapper<win::window>> list)
+      :super(list)
+    {}
+
+    template<typename T>
+    void yes_no_dialog_t<T>::create (win::overlapped_window& parent,
+                                     const std::string& title,
+                                     const std::string& yes_label,
+                                     const std::string& no_label,
+                                     const core::rectangle& rect,
+                                     std::function<yes_no_action> act) {
+      action = act;
+      super::create(parent, title, rect, {no_label, yes_label},
+                    [&] (win::overlapped_window& dlg, int i) {
+        action(dlg, i == 1);
+      });
+    }
+
+    template<typename T>
+    void yes_no_dialog_t<T>::show (win::overlapped_window& parent) {
+      super::run_modal(parent, {
+        win::hot_key_action{
+          core::hot_key(core::keys::escape, core::state::none),
+          [&] () {
+            action(*this, false);
+            super::end_modal();
+          }
+        },
+        win::hot_key_action{
+          core::hot_key(core::keys::right, core::state::none),
+          [&] () { super::shift_focus(false); }
+        },
+        win::hot_key_action{
+          core::hot_key(core::keys::left, core::state::none),
+          [&] () { super::shift_focus(true); }
+        }
+      });
     }
 
     //-----------------------------------------------------------------------------
@@ -113,7 +170,8 @@ namespace gui {
                                                    const std::string& cancel_label,
                                                    const core::rectangle& rect,
                                                    std::function<action> action) {
-      super::create(parent, title, rect, [&, action] (win::overlapped_window&, int i) {
+      super::create(parent, title, rect, {cancel_label, ok_label},
+                    [&, action] (win::overlapped_window&, int i) {
         if (i == 1) {
           std::vector<std::string> strings;
           for (int n = 0; n < N; ++n) {
@@ -121,7 +179,7 @@ namespace gui {
           }
           action(util::tuple::convert::from_vector<Arguments...>(strings));
         }
-      }, {cancel_label, ok_label});
+      });
       for (int n = 0; n < N; ++n) {
         labels[n].create(content_view, message[n]);
         edits[n].create(content_view, util::tuple::convert::as_string(n, initial));
@@ -158,12 +216,13 @@ namespace gui {
                                    const std::string& cancel_label,
                                    const core::rectangle& rect,
                                    std::function<select_action> action) {
-      super::create(parent, title, rect, [&, action] (win::overlapped_window& dlg, int i) {
+      super::create(parent, title, rect, {cancel_label, ok_label},
+                    [&, action] (win::overlapped_window& dlg, int i) {
         if ((i == 1) && (vlist->has_selection())) {
           const int sel = vlist->get_selection();
           action(dlg, sel, data[sel]);
         }
-      }, {cancel_label, ok_label});
+      });
       vlist->set_data(data);
       auto it = std::find(data.begin(), data.end(), initial);
       if (it != data.end()) {
@@ -211,12 +270,13 @@ namespace gui {
                  const std::string& cancel_label,
                  const core::rectangle& rect,
                  std::function<select_action> action) {
-      super::create(parent, title, rect, [&, action] (win::overlapped_window& dlg, int i) {
+      super::create(parent, title, rect, {cancel_label, ok_label},
+                    [&, action] (win::overlapped_window& dlg, int i) {
         if ((i == 1) && (vlist.list->has_selection())) {
           const int sel = vlist.list->get_selection();
           action(dlg, sel, data.at(sel));
         }
-      }, {cancel_label, ok_label});
+      });
       vlist.get_column_layout().set_column_count(labels.size());
       vlist.set_data([&] () -> data_t& { return data; });
       vlist.header.set_labels(std::move(labels));
@@ -250,9 +310,9 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     template<typename T>
-    dir_file_view<T>::dir_file_view (create_subdirectory_fn fn)
-      : super(dir_tree_view(fn), file_column_list<T>())
-    {}
+    dir_file_view<T>::dir_file_view (create_subdirectory_fn fn) {
+      super::first.set_create_subdirectory_fn(fn);
+    }
 
     template<typename T>
     void dir_file_view<T>::init (std::function<file_selected> action,
@@ -297,7 +357,8 @@ namespace gui {
         action(dlg, path);
       }, filter);
 
-      super::create(parent, title, rect, [&, action] (win::overlapped_window& dlg, int btn) {
+      super::create(parent, title, rect, {cancel_label, ok_label},
+                    [&, action] (win::overlapped_window& dlg, int btn) {
         if (1 == btn) {
           if (super::content_view.second.list->get_selection() > -1) {
             action(dlg, super::content_view.second.get_selected_path());
@@ -308,7 +369,7 @@ namespace gui {
             }
           }
         }
-      }, {cancel_label, ok_label});
+      });
 
       super::content_view.set_split_pos(0.3);
 

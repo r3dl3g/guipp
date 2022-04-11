@@ -49,9 +49,9 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class GUIPP_CTRL_EXPORT edit_base : public control {
+      class GUIPP_CTRL_EXPORT edit_base : public colored_control {
       public:
-        typedef control super;
+        typedef colored_control super;
         typedef size_t pos_t;
 
         typedef win::window_class<edit_base, color::white, win::cursor_type::ibeam> clazz;
@@ -59,6 +59,7 @@ namespace gui {
         typedef std::function<filter::text_filter_f> text_filter;
         typedef core::range<pos_t> range;
 
+        edit_base ();
         ~edit_base ();
 
         void create (win::container& parent,
@@ -70,6 +71,12 @@ namespace gui {
 
         void set_text (const std::string&);
         const std::string& get_text () const;
+
+        template<typename T>
+        void set (const T& t);
+
+        template<typename T>
+        T get ();
 
         void set_text_limit (pos_t max_chars);
         pos_t get_text_limit () const;
@@ -115,9 +122,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<text_origin_t origin,
-             draw::frame::drawer frame = draw::frame::sunken_relief,
-             os::color foreground = color::black,
-             os::color background = color::white>
+             draw::frame::drawer frame = draw::frame::sunken_relief>
     class basic_edit : public detail::edit_base {
     public:
       typedef detail::edit_base super;
@@ -125,6 +130,9 @@ namespace gui {
       basic_edit ();
       basic_edit (const basic_edit& rhs);
       basic_edit (basic_edit&& rhs) noexcept ;
+
+      template<typename T>
+      basic_edit (const T&);
 
       void paint (draw::graphics& graph);
 
@@ -141,9 +149,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<text_origin_t origin,
              char C = '#',
-             draw::frame::drawer frame = draw::frame::sunken_relief,
-             os::color foreground = color::black,
-             os::color background = color::white>
+             draw::frame::drawer frame = draw::frame::sunken_relief>
     class basic_pass : public detail::edit_base {
     public:
       typedef detail::edit_base super;
@@ -165,6 +171,8 @@ namespace gui {
     typedef pass_left pass;
     using pass_right = basic_pass<text_origin_t::vcenter_right>;
     using pass_center = basic_pass<text_origin_t::center>;
+
+    // --------------------------------------------------------------------------
 
   } // ctrl
 

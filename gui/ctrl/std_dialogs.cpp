@@ -103,10 +103,8 @@ namespace gui {
                                 const std::string& no_label,
                                 const core::rectangle& rect,
                                 std::function<yes_no_action> action) {
-      super::create(parent, title, rect, [action] (win::overlapped_window& dlg, int i) {
-        action(dlg, i == 1);
-      }, {no_label, yes_label});
-      message_view.create(content_view, message);
+      super::create(parent, title, yes_label, no_label, rect, action);
+      message_view.create(super::content_view, message);
     }
 
     void yes_no_dialog::ask (win::overlapped_window& parent,
@@ -119,25 +117,7 @@ namespace gui {
       dialog.create(parent, title, message, yes_label, no_label,
                     detail::std_yes_no_dialog_size<>(parent.geometry()),
                     action);
-      dialog.show(parent, action);
-    }
-
-    void yes_no_dialog::show (win::overlapped_window& parent,
-                              std::function<yes_no_action> action) {
-      run_modal(parent, {
-        win::hot_key_action{
-          core::hot_key(core::keys::escape, core::state::none),
-          [&] () { action(*this, false); }
-        },
-        win::hot_key_action{
-          core::hot_key(core::keys::right, core::state::none),
-          [&] () { shift_focus(false); }
-        },
-        win::hot_key_action{
-          core::hot_key(core::keys::left, core::state::none),
-          [&] () { shift_focus(true); }
-        }
-      });
+      dialog.show(parent);
     }
 
     //-----------------------------------------------------------------------------
@@ -150,9 +130,10 @@ namespace gui {
                                 const std::string& message,
                                 const std::string& ok_label,
                                 const core::rectangle& rect) {
-      super::create(parent, title, rect, [&] (win::overlapped_window&, int) {
+      super::create(parent, title, rect, {ok_label},
+                    [&] (win::overlapped_window&, int) {
         end_modal();
-      }, {ok_label});
+      });
       message_view.create(content_view, message);
     }
 
@@ -180,11 +161,12 @@ namespace gui {
                                const std::string& cancel_label,
                                const core::rectangle& rect,
                                std::function<input_action> action) {
-      super::create(parent, title, rect, [&, action] (win::overlapped_window& dlg, int i) {
+      super::create(parent, title, rect, {cancel_label, ok_label},
+                    [&, action] (win::overlapped_window& dlg, int i) {
         if (i == 1) {
           action(dlg, edit.get_text());
         }
-      }, {cancel_label, ok_label});
+      });
       label.create(super::content_view, message);
       edit.create(super::content_view, initial);
     }
@@ -238,9 +220,7 @@ namespace gui {
       , view(std::move(rhs.view))
       , add_button(std::move(rhs.add_button))
       , fn(std::move(rhs.fn))
-    {
-      init();
-    }
+    {}
 
     void dir_tree_view::init () {
       get_layout().set_header_and_body(layout::lay(header), layout::lay(view));
@@ -264,7 +244,12 @@ namespace gui {
       }
     }
 
+    void dir_tree_view::set_create_subdirectory_fn (create_subdirectory_fn fn_) {
+      fn = fn_;
+    }
+
     void dir_tree_view::create (win::container& parent, const core::rectangle& r) {
+      init();
       super::create(clazz::get(), parent, r);
       header.create(*this);
       view.create(*this);
@@ -302,7 +287,8 @@ namespace gui {
       top_view.get_layout().set_left(layout::lay(input_label));
       get_layout().set_top(layout::lay(top_view));
 
-      super::create(parent, title, rect, [&, action] (win::overlapped_window& dlg, int btn) {
+      super::create(parent, title, rect, {cancel_label, ok_label},
+                    [&, action] (win::overlapped_window& dlg, int btn) {
         if (1 == btn) {
           int idx = dir_tree.get_selection();
           if (idx > -1) {
@@ -311,7 +297,7 @@ namespace gui {
             action(dlg, path);
           }
         }
-      }, {cancel_label, ok_label});
+      });
 
       top_view.create(*this, core::rectangle(0, 0, 100, 100));
       input_label.create(top_view, name_label, core::rectangle(0, 0, 100, 100));

@@ -52,6 +52,8 @@ namespace gui {
         layout_type& get_layout ();
         const layout_type& get_layout () const;
 
+        void add (std::vector<std::reference_wrapper<win::window>> list);
+
       private:
         void init ();
         layout_type layouter;

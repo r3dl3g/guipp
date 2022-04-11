@@ -90,8 +90,8 @@ namespace gui {
       void create (win::overlapped_window& parent,
                    const std::string& title,
                    const core::rectangle& rect,
-                   std::function<dialog_action> action,
-                   const std::initializer_list<std::string>& button_labels);
+                   const std::initializer_list<std::string>& button_labels,
+                   std::function<dialog_action> action);
 
       void show (win::overlapped_window& parent);
 
@@ -108,12 +108,13 @@ namespace gui {
 
       standard_dialog ();
       standard_dialog (content_view_type&&);
+      standard_dialog (std::vector<std::reference_wrapper<win::window>> list);
 
       void create (win::overlapped_window& parent,
                    const std::string& title,
                    const core::rectangle& rect,
-                   std::function<dialog_action> action,
-                   const std::initializer_list<std::string>& button_labels);
+                   const std::initializer_list<std::string>& button_labels,
+                   std::function<dialog_action> action);
 
       content_view_type content_view;
     };
@@ -123,9 +124,7 @@ namespace gui {
         public standard_dialog<win::group_window<layout::border::layouter<20, 15, 15, 15>>> {
     public:
       typedef basic_textbox<text_origin_t::center,
-                            draw::frame::sunken_relief,
-                            color::black,
-                            color::very_light_gray> message_view_type;
+                            draw::frame::sunken_relief> message_view_type;
       typedef win::group_window<layout::border::layouter<20, 15, 15, 15>> content_view_type;
       typedef standard_dialog<content_view_type> super;
 
@@ -147,15 +146,36 @@ namespace gui {
     };
 
     //-----------------------------------------------------------------------------
+    template<typename T>
+    class yes_no_dialog_t : public standard_dialog<T> {
+    public:
+      typedef T content_view_type;
+      typedef standard_dialog<content_view_type> super;
+
+      yes_no_dialog_t ();
+      yes_no_dialog_t (content_view_type&&);
+      yes_no_dialog_t (std::vector<std::reference_wrapper<win::window>> list);
+
+      void create (win::overlapped_window& parent,
+                   const std::string& title,
+                   const std::string& yes_label,
+                   const std::string& no_label,
+                   const core::rectangle& rect,
+                   std::function<yes_no_action> action);
+
+      void show (win::overlapped_window& parent);
+
+    protected:
+      std::function<yes_no_action> action;
+    };
+
+    //-----------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT yes_no_dialog :
-        public standard_dialog<win::group_window<layout::border::layouter<20, 15, 15, 15>>> {
+        public yes_no_dialog_t<win::group_window<layout::border::layouter<20, 15, 15, 15>>> {
     public:
       typedef basic_textbox<text_origin_t::center,
-                            draw::frame::sunken_relief,
-                            color::black,
-                            color::very_light_gray> message_view_type;
-      typedef win::group_window<layout::border::layouter<20, 15, 15, 15>> content_view_type;
-      typedef standard_dialog<content_view_type> super;
+                            draw::frame::sunken_relief> message_view_type;
+      typedef yes_no_dialog_t<win::group_window<layout::border::layouter<20, 15, 15, 15>>> super;
 
       yes_no_dialog ();
 
@@ -173,9 +193,6 @@ namespace gui {
                        const std::string& yes_label,
                        const std::string& no_label,
                        std::function<yes_no_action> action);
-
-      void show (win::overlapped_window& parent,
-                 std::function<yes_no_action> action);
 
       message_view_type message_view;
 
@@ -340,12 +357,14 @@ namespace gui {
       dir_tree_view (create_subdirectory_fn fn = nullptr);
       dir_tree_view (dir_tree_view&&);
 
+      void set_create_subdirectory_fn (create_subdirectory_fn fn);
+
       void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       heaader_type header;
       view_type view;
-      icon_push_button_t<draw::icon_type::add, look::button_frame> add_button;
+      icon_push_button_t<draw::icon_type::new_folder, look::button_frame> add_button;
 
     private:
       void init ();

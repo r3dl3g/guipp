@@ -60,24 +60,30 @@ namespace gui {
       elements.emplace_back(std::move(e), is_separator);
     }
 
-    void layout_base::add (std::initializer_list<layout_function> list) {
-      for (auto& l : list) {
-        add(l);
-      }
-    }
-
-    void layout_base::add (std::initializer_list<win::window*> list) {
-      for (win::window* w : list) {
-        add(lay(w));
-      }
-    }
-
     void layout_base::add (win::window& w) {
       add(lay(w));
     }
 
     void layout_base::add (win::window* w) {
       add(lay(w));
+    }
+
+    void layout_base::add (std::vector<layout_function> list) {
+      for (auto& l : list) {
+        add(l);
+      }
+    }
+
+    void layout_base::add (std::vector<win::window*> list) {
+      for (win::window* w : list) {
+        add(lay(w));
+      }
+    }
+
+    void layout_base::add (std::vector<std::reference_wrapper<win::window>> list) {
+      for (auto& w : list) {
+        add(lay(w.get()));
+      }
     }
 
     void layout_base::remove_all () {

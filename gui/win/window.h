@@ -117,6 +117,7 @@ namespace gui {
 
       const char* get_class_name () const;
       const class_info& get_window_class () const;
+      void set_window_class (const class_info&);
 
       virtual void set_cursor (const cursor&);
       void reset_cursor ();
@@ -150,6 +151,9 @@ namespace gui {
       void create (const class_info&,
                    container&,
                    const core::rectangle& = core::rectangle::def);
+
+      virtual void create (container& parent,
+                           const core::rectangle& r = core::rectangle::def);
 
     protected:
       window (const window&);

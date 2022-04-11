@@ -60,6 +60,7 @@ namespace gui {
       "lock", "unlock",
       "north", "east", "south", "west",
       "north_east","north_west", "south_east", "south_west",
+      "new_blink", "new_folder", "new_file",
       "background",
       "MAX"
     };
@@ -770,7 +771,35 @@ namespace gui {
     void draw_icon<icon_type::south_west> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       g.frame(draw::polyline(arrow_points<225>(center, radius)), pn);
     }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::new_blink> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      const auto top = center.dy(-radius);
+      const auto btm = center.dy(radius);
+      const auto tl = calc_clock_point<300>(center, radius);
+      const auto br = calc_clock_point<120>(center, radius);
+      const auto tr = calc_clock_point<60>(center, radius);
+      const auto bl = calc_clock_point<240>(center, radius);
 
+      g.frame(draw::line(tl, br), pn);
+      g.frame(draw::line(tr, bl), pn);
+      g.frame(draw::line(top, btm), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::new_folder> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      draw_icon<icon_type::folder>(g, pn, center, radius);
+      const auto tr = calc_clock_point<45>(center, radius);
+      draw_icon<icon_type::new_blink>(g, pn, tr, radius / 3.5);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::new_file> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      draw_icon<icon_type::file>(g, pn, center, radius);
+      const auto tr = calc_clock_point<45>(center, radius);
+      draw_icon<icon_type::new_blink>(g, pn, tr, radius / 3.5);
+    }
+    // --------------------------------------------------------------------------
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_type::background> (graphics& g, const pen&, const core::point& center, core::size::type radius) {

@@ -190,7 +190,7 @@ namespace gui {
           data.editor.create(*get_parent(), area);
         }
         data.editor.geometry(area);
-        data.editor.set_text(data.data_source(cell));
+        data.editor.init_text(data.data_source(cell));
         data.editor.set_cursor_pos(data.editor.get_text_length());
         data.editor.set_visible();
         data.editor.take_focus();

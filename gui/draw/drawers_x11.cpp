@@ -490,13 +490,14 @@ namespace gui {
                            &extents);
 
         const auto height = f.font_type()->ascent;
-        px += extents.x;
+        const auto width = extents.xOff + extents.x;
+        px -= extents.x;
         py += height;
 
         if (origin_is_h_center(origin)) {
-          px += (rect.os_width() - extents.width) / 2;
+          px += (rect.os_width() - width) / 2;
         } else if (origin_is_right(origin)) {
-          px += rect.os_width() - extents.width;
+          px += rect.os_width() - width;
         }
 
         if (origin_is_v_center(origin)) {
@@ -569,13 +570,14 @@ namespace gui {
                            int(str.size()),
                            &extents);
         const auto height = f.font_type()->ascent;
-        os::point_type px = rect.os_x(g.context()) + extents.x;
+        const auto width = extents.xOff + extents.x;
+        os::point_type px = rect.os_x(g.context()) - extents.x;
         os::point_type py = rect.os_y(g.context());
 
         if (origin_is_h_center(origin)) {
-          px += (rect.os_width() - extents.width) / 2;
+          px += (rect.os_width() - width) / 2;
         } else if (origin_is_right(origin)) {
-          px += rect.os_width() - extents.width;
+          px += rect.os_width() - width;
         }
 
         if (origin_is_v_center(origin)) {
@@ -585,7 +587,7 @@ namespace gui {
         }
 
         rect.top_left(core::point(os::point{px, py}, g.context()));
-        rect.set_size(core::size(os::size{extents.width, static_cast<os::size_type>(height)}));
+        rect.set_size(core::size(os::size{static_cast<os::size_type>(width), static_cast<os::size_type>(height)}));
 
       } else {
         logging::error() << "font_type is zero!";

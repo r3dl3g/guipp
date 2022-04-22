@@ -58,7 +58,7 @@ namespace gui {
 
       os::color foreground = is_enabled ? foreground_ : color::disabledTextColor();
 
-      if ((selection.begin() < selection.end())) {
+      if (is_focused && (selection.begin() < selection.end())) {
         gui::core::rectangle selection_area = area;
         auto begin = scroll_pos;
         if (selection.begin() > scroll_pos) {

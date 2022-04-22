@@ -153,6 +153,7 @@ namespace gui {
         , text_limit(std::numeric_limits<pos_t>::max())
         , scroll_pos(0)
         , last_mouse_point(core::native_point::undefined)
+        , insert_mode(false)
       {}
 
       edit_base::edit_base () {
@@ -178,8 +179,12 @@ namespace gui {
         prepare_input();
       }
 
-      void edit_base::set_text (const std::string& t) {
-        data.text = t;
+      void edit_base::init_text (const std::string& t) {
+        init();
+        set_text(t);
+      }
+
+      void edit_base::init () {
         data.cursor_pos = 0;
         data.scroll_pos = 0;
         data.selection.clear();
@@ -199,10 +204,6 @@ namespace gui {
         }
       }
 
-      const std::string& edit_base::get_text () const {
-        return data.text;
-      }
-
       void edit_base::prepare_input () {
         win::global::register_utf8_window(*this);
       }
@@ -216,12 +217,15 @@ namespace gui {
       }
 
       edit_base::range edit_base::get_selection () const {
+        if (data.selection.empty() && is_insert_mode()) {
+          return range(get_cursor_pos(), get_cursor_pos() + 1);
+        }
         return data.selection;
       }
 
       void edit_base::set_cursor_pos (pos_t pos, bool shift) {
         pos_t new_pos = std::min(pos, get_text_length());
-        auto new_sel = get_selection();
+        auto new_sel = data.selection;
         if (shift) {
           if (data.cursor_pos == new_sel.end()) {
             new_sel = {new_sel.begin(), new_pos};
@@ -247,12 +251,13 @@ namespace gui {
           data.scroll_pos = 0;
         }
 
-        core::size sz = draw::font::system().get_text_size(data.text.substr(data.scroll_pos, data.cursor_pos - data.scroll_pos));
+        const auto text = get_text();
+        core::size sz = draw::font::system().get_text_size(text.substr(data.scroll_pos, data.cursor_pos - data.scroll_pos));
         core::size max_sz = client_size();
         max_sz -= {6, 4};
         while ((sz.width() > max_sz.width()) && (data.scroll_pos < data.cursor_pos)) {
           ++(data.scroll_pos);
-          sz = draw::font::system().get_text_size(data.text.substr(data.scroll_pos, data.cursor_pos - data.scroll_pos));
+          sz = draw::font::system().get_text_size(text.substr(data.scroll_pos, data.cursor_pos - data.scroll_pos));
         }
 
         if (update || (old_pos != data.scroll_pos)) {
@@ -264,6 +269,10 @@ namespace gui {
         return data.cursor_pos;
       }
 
+      edit_base::pos_t edit_base::get_scroll_pos () const {
+        return data.scroll_pos;
+      }
+
       void edit_base::set_text_limit (pos_t max_chars) {
         data.text_limit = max_chars;
       }
@@ -273,13 +282,22 @@ namespace gui {
       }
 
       edit_base::pos_t edit_base::get_text_length () const {
-        return (pos_t)data.text.size();
+        return (pos_t)get_text().size();
       }
 
-      void edit_base::replace_selection (const std::string& text) {
+      bool edit_base::is_insert_mode () const {
+        return data.insert_mode;
+      }
+
+      void edit_base::set_insert_mode (bool b) {
+        data.insert_mode = b;
+      }
+
+      void edit_base::replace_selection (const std::string& new_text) {
         range sel = get_selection();
-        std::string new_text = filter_text(text);
-        data.text.replace(sel.begin(), sel.end() - sel.begin(), new_text);
+        std::string text = get_text();
+        text.replace(sel.begin(), sel.end() - sel.begin(), new_text);
+        set_text(filter_text(text));
         set_cursor_pos(sel.begin() + new_text.size(), false);
         notify_content_changed();
         invalidate();
@@ -289,7 +307,7 @@ namespace gui {
         if (r.empty()) {
           return std::string();
         }
-        return data.text.substr(r.begin(), r.end() - r.begin());
+        return get_text().substr(r.begin(), r.end() - r.begin());
       }
 
       std::string edit_base::get_selected_text () const {
@@ -297,9 +315,10 @@ namespace gui {
       }
 
       edit_base::pos_t edit_base::get_position_at_point (const core::point& pt) const {
-        pos_t max_chars = data.text.size();
+        const auto text = get_text();
+        pos_t max_chars = text.size();
         for (pos_t i = data.scroll_pos + 1; i < max_chars; ++i) {
-          core::size sz = draw::font::system().get_text_size(data.text.substr(data.scroll_pos, i - data.scroll_pos));
+          core::size sz = draw::font::system().get_text_size(text.substr(data.scroll_pos, i - data.scroll_pos));
           if (sz.width() >= pt.x()) {
             return i - 1;
           }
@@ -319,23 +338,23 @@ namespace gui {
           if (ctrl) {
             // next word begin
             if (data.cursor_pos > 1) {
-              std::string::size_type pos = util::string::find_left_space(data.text, data.cursor_pos);
+              std::string::size_type pos = util::string::find_left_space(get_text(), data.cursor_pos);
               if (pos != std::string::npos) {
                 set_cursor_pos(pos, shift);
                 return;
               }
             }
           } else if (data.cursor_pos > 0) {
-            set_cursor_pos(util::utf8::get_left_char(data.text, data.cursor_pos), shift);
+            set_cursor_pos(util::utf8::get_left_char(get_text(), data.cursor_pos), shift);
             return;
           }
           break;
         case core::keys::right:
         case core::keys::numpad::right:
           if (ctrl) {
-            set_cursor_pos(util::string::find_right_space(data.text, data.cursor_pos), shift);
+            set_cursor_pos(util::string::find_right_space(get_text(), data.cursor_pos), shift);
           } else if (data.cursor_pos < get_text_length()) {
-            set_cursor_pos(util::utf8::get_right_char(data.text, data.cursor_pos), shift);
+            set_cursor_pos(util::utf8::get_right_char(get_text(), data.cursor_pos), shift);
           }
           break;
         case core::keys::home:
@@ -350,10 +369,12 @@ namespace gui {
         case core::keys::numpad::del:
           if (data.selection.empty()) {
             std::size_t cp = data.cursor_pos + 1;
-            while ((cp < get_text_length()) && util::utf8::is_continuation_char(data.text.at(cp))) {
+            auto text = get_text();
+            while ((cp < get_text_length()) && util::utf8::is_continuation_char(text.at(cp))) {
               ++cp;
             }
-            data.text.replace(data.cursor_pos, cp - data.cursor_pos, std::string());
+            text.replace(data.cursor_pos, cp - data.cursor_pos, std::string());
+            set_text(filter_text(text));
             invalidate();
             notify_content_changed();
           } else {
@@ -365,10 +386,12 @@ namespace gui {
           if (data.selection.empty()) {
             if (data.cursor_pos > 0) {
               std::size_t cp = data.cursor_pos - 1;
-              while ((cp > 0) && util::utf8::is_continuation_char(data.text.at(cp))) {
+              auto text = get_text();
+              while ((cp > 0) && util::utf8::is_continuation_char(text.at(cp))) {
                 --cp;
               }
-              data.text.replace(cp, data.cursor_pos - cp, std::string());
+              text.replace(cp, data.cursor_pos - cp, std::string());
+              set_text(filter_text(text));
               set_cursor_pos(cp, false);
               notify_content_changed();
             }
@@ -382,7 +405,7 @@ namespace gui {
           notify_selection_cancel();
           break;
         case core::keys::clear:
-          set_selection(range(0, data.text.size()), event_source::keyboard);
+          set_selection(range(0, get_text().size()), event_source::keyboard);
           replace_selection(std::string());
           set_cursor_pos(0, false);
           break;
@@ -391,12 +414,16 @@ namespace gui {
         case core::keys::enter:
           notify_selection_commit();
           break;
+        case core::keys::insert:
+          set_insert_mode(!is_insert_mode());
+          invalidate();
+          break;
         default: {
           if (ctrl) {
             switch (keycode) {
             case core::keys::a:
               // select all
-              set_selection(range(0, data.text.size()), event_source::keyboard);
+              set_selection(range(0, get_text().size()), event_source::keyboard);
               break;
             case core::keys::v: {
               win::clipboard::get().get_text(*this, [&](const std::string & t) {
@@ -438,8 +465,9 @@ namespace gui {
           data.last_mouse_point = pt;
           pos_t p = get_position_at_point(surface_to_client(pt));
           set_cursor_pos(p);
-          pos_t l = util::string::find_left_space(data.text, p);
-          pos_t r = util::string::find_right_space(data.text, p);
+          const auto text = get_text();
+          pos_t l = util::string::find_left_space(text, p);
+          pos_t r = util::string::find_right_space(text, p);
           set_selection(range(l, r), event_source::mouse);
         });
         on_mouse_move([&](os::key_state keys, const core::native_point& pt) {

@@ -131,27 +131,6 @@ namespace gui {
       });
     }
 
-    template<typename T>
-    void yes_no_dialog_t<T>::show (win::overlapped_window& parent) {
-      super::run_modal(parent, {
-        win::hot_key_action{
-          core::hot_key(core::keys::escape, core::state::none),
-          [&] () {
-            action(*this, false);
-            super::end_modal();
-          }
-        },
-        win::hot_key_action{
-          core::hot_key(core::keys::right, core::state::none),
-          [&] () { super::shift_focus(false); }
-        },
-        win::hot_key_action{
-          core::hot_key(core::keys::left, core::state::none),
-          [&] () { super::shift_focus(true); }
-        }
-      });
-    }
-
     //-----------------------------------------------------------------------------
     template<typename ... Arguments>
     multi_input_dialog<Arguments...>::multi_input_dialog () {

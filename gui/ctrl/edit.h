@@ -69,14 +69,10 @@ namespace gui {
         void create (win::container& parent,
                      const core::rectangle& place = core::rectangle::def);
 
-        void set_text (const std::string&);
-        const std::string& get_text () const;
+        void init ();
 
-        template<typename T>
-        void set (const T& t);
-
-        template<typename T>
-        T get ();
+        void init_text (const std::string&);
+        virtual std::string get_text () const = 0;
 
         void set_text_limit (pos_t max_chars);
         pos_t get_text_limit () const;
@@ -90,6 +86,7 @@ namespace gui {
 
         pos_t get_cursor_pos () const;
         void set_cursor_pos (pos_t pos, bool shift = false);
+        pos_t get_scroll_pos () const;
 
         void replace_selection (const std::string& new_text);
         std::string get_text_in_range (const range&) const;
@@ -98,8 +95,14 @@ namespace gui {
         void set_text_filter (text_filter);
         std::string filter_text (const std::string&) const;
 
+        bool is_insert_mode () const;
+        void set_insert_mode (bool);
+
       protected:
         void register_handler ();
+
+      private:
+        virtual void set_text (const std::string&) = 0;
 
         void prepare_input ();
         pos_t get_position_at_point (const core::point& pt) const;
@@ -107,32 +110,69 @@ namespace gui {
         struct GUIPP_CTRL_EXPORT data {
           data ();
 
-          std::string text;
-
           range selection;
           pos_t cursor_pos;
           pos_t text_limit;
           pos_t scroll_pos;
           core::native_point last_mouse_point;
           text_filter filter;
+          bool insert_mode;
         } data;
 
       };
     } // detail
 
     // --------------------------------------------------------------------------
-    template<text_origin_t origin,
-             draw::frame::drawer frame = draw::frame::sunken_relief>
-    class basic_edit : public detail::edit_base {
+    template<typename T>
+    struct default_converter {
+      static T parse (const std::string& t) {
+        return util::string::convert::to<T>(t);
+      }
+
+      static std::string format (const T& t) {
+        return util::string::convert::from<T>(t);
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    template<typename T>
+    bool default_insert_mode () {
+      return false;
+    }
+
+    // --------------------------------------------------------------------------
+    template<typename T, typename F = default_converter<T>>
+    class edit_t : public detail::edit_base {
     public:
       typedef detail::edit_base super;
 
+      edit_t ();
+      edit_t (const T&);
+
+      std::string get_text () const override;
+      void set_text (const std::string&) override;
+
+      void set (const T& t);
+      T get ();
+
+    private:
+      T value;
+    };
+
+    // --------------------------------------------------------------------------
+    template<typename T = std::string,
+             typename F = default_converter<T>,
+             text_origin_t origin = text_origin_t::vcenter_left,
+             draw::frame::drawer frame = draw::frame::sunken_relief>
+    class basic_edit : public edit_t<T, F> {
+    public:
+      typedef edit_t<T, F> super;
+
       basic_edit ();
       basic_edit (const basic_edit& rhs);
-      basic_edit (basic_edit&& rhs) noexcept ;
+      basic_edit (basic_edit&& rhs) noexcept;
 
-      template<typename T>
-      basic_edit (const T&);
+      basic_edit (const T& t);
 
       void paint (draw::graphics& graph);
 
@@ -141,18 +181,22 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    using edit_left = basic_edit<text_origin_t::vcenter_left>;
+    using edit_left = basic_edit<>;
     typedef edit_left edit;
-    using edit_right = basic_edit<text_origin_t::vcenter_right>;
-    using edit_center = basic_edit<text_origin_t::center>;
+    using edit_right = basic_edit<std::string,
+                                  default_converter<std::string>,
+                                  text_origin_t::vcenter_right>;
+    using edit_center = basic_edit<std::string,
+                                   default_converter<std::string>,
+                                   text_origin_t::center>;
 
     // --------------------------------------------------------------------------
     template<text_origin_t origin,
              char C = '#',
              draw::frame::drawer frame = draw::frame::sunken_relief>
-    class basic_pass : public detail::edit_base {
+    class basic_pass : public edit_t<std::string> {
     public:
-      typedef detail::edit_base super;
+      typedef edit_t<std::string> super;
 
       basic_pass ();
       basic_pass (const basic_pass& rhs);

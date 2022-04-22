@@ -163,8 +163,6 @@ namespace gui {
                    const core::rectangle& rect,
                    std::function<yes_no_action> action);
 
-      void show (win::overlapped_window& parent);
-
     protected:
       std::function<yes_no_action> action;
     };
@@ -186,6 +184,8 @@ namespace gui {
                    const std::string& no_label,
                    const core::rectangle& rect,
                    std::function<yes_no_action> action);
+
+      void show (win::overlapped_window& parent);
 
       static void ask (win::overlapped_window& parent,
                        const std::string& title,
@@ -447,7 +447,9 @@ namespace gui {
                         create_subdirectory_fn fn = nullptr);
 
       top_view_type top_view;
-      basic_edit<text_origin_t::vcenter_left,
+      basic_edit<std::string,
+                 default_converter<std::string>,
+                 text_origin_t::vcenter_left,
                  draw::frame::sunken_deep_relief> input_line;
       basic_label<text_origin_t::vcenter_right,
                   draw::frame::no_frame> input_label;

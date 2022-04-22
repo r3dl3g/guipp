@@ -1041,7 +1041,7 @@ namespace gui {
           editor.create(data, core::rectangle(0, 0, 10, 10));
         }
         editor.geometry(core::rectangle(pt, sz));
-        editor.set_text(data_source(cell));
+        editor.init_text(data_source(cell));
         editor.set_cursor_pos(editor.get_text_length());
         editor.set_visible();
         editor.take_focus();

@@ -107,6 +107,26 @@ namespace gui {
       message_view.create(super::content_view, message);
     }
 
+    void yes_no_dialog::show (win::overlapped_window& parent) {
+      super::run_modal(parent, {
+        win::hot_key_action{
+          core::hot_key(core::keys::escape, core::state::none),
+          [&] () {
+            action(*this, false);
+            super::end_modal();
+          }
+        },
+        win::hot_key_action{
+          core::hot_key(core::keys::right, core::state::none),
+          [&] () { super::shift_focus(false); }
+        },
+        win::hot_key_action{
+          core::hot_key(core::keys::left, core::state::none),
+          [&] () { super::shift_focus(true); }
+        }
+      });
+    }
+
     void yes_no_dialog::ask (win::overlapped_window& parent,
                              const std::string& title,
                              const std::string& message,
@@ -280,7 +300,7 @@ namespace gui {
       });
 
       files.list->on_selection_changed([&] (event_source) {
-        input_line.set_text(files.get_selected_path().filename().string());
+        input_line.init_text(files.get_selected_path().filename().string());
       });
 
       top_view.get_layout().set_center(layout::lay(input_line));

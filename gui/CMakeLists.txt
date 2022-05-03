@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-project("gui" LANGUAGES CXX VERSION 1.0.5)
+project("gui" LANGUAGES CXX VERSION 1.1.0)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
@@ -597,8 +597,7 @@ if(NOT TARGET guipp)
     write_basic_package_version_file(
       guippConfigVersion.cmake
       VERSION "${GUIPP_VERSION}"
-      COMPATIBILITY SameMajorVersion
-  )
+      COMPATIBILITY SameMajorVersion)
   endif()
 
   install_guipp_subpackage(guipp

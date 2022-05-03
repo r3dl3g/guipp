@@ -151,6 +151,17 @@ namespace gui {
       return foreground;
     }
 
+    // --------------------------------------------------------------------------
+    client_control::client_control (os::color bg) {
+      set_background(bg);
+    }
+
+    void client_control::create (win::container& parent,
+                                 const core::rectangle& r) {
+      super::create(clazz::get(), parent, r);
+    }
+
+    // --------------------------------------------------------------------------
   } // ctrl
 
 } // gui

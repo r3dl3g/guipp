@@ -297,6 +297,23 @@ namespace gui {
       }));
     }
 
+    // --------------------------------------------------------------------------
+    template<orientation_t H, typename T>
+    inline button_pair<H, T>::button_pair () {
+      traits::add(super::get_layout(), plus, minus);
+      super::on_create([&] () {
+        plus.create(*this);
+        minus.create(*this);
+      });
+    }
+
+    template<orientation_t H, typename T>
+    inline void button_pair<H, T>::on_change (sign_fn f) {
+      plus.on_clicked([=] () { f(1); });
+      minus.on_clicked([=] () { f(-1); });
+    }
+
+    // --------------------------------------------------------------------------
   } // namespace ctrl
 
 } // namespace gui

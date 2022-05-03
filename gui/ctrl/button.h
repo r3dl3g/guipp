@@ -31,6 +31,8 @@
 #include <gui/ctrl/look/control.h>
 #include <gui/ctrl/look/button.h>
 #include <gui/ctrl/control.h>
+#include <gui/layout/adaption_layout.h>
+#include <gui/layout/layout_container.h>
 #include <gui/draw/pen.h>
 #include <gui/draw/icons.h>
 
@@ -374,6 +376,61 @@ namespace gui {
 //        super::set_background(color::buttonColor());
 //      }
 //    };
+
+    // --------------------------------------------------------------------------
+    namespace detail {
+
+      template<orientation_t H>
+      struct button_pair_traits {};
+
+      template<>
+      struct button_pair_traits<orientation_t::vertical> {
+        typedef layout::vertical_adaption<> layout;
+        static constexpr draw::icon_type plus_icon = draw::icon_type::up;
+        static constexpr draw::icon_type minus_icon = draw::icon_type::down;
+        static inline void add (layout& l, std::reference_wrapper<win::window> plus,
+                                std::reference_wrapper<win::window> minus) {
+          l.add({plus, minus});
+        }
+      };
+
+      template<>
+      struct button_pair_traits<orientation_t::horizontal> {
+        typedef layout::horizontal_adaption<> layout;
+        static constexpr draw::icon_type plus_icon = draw::icon_type::right;
+        static constexpr draw::icon_type minus_icon = draw::icon_type::left;
+        static inline void add (layout& l, std::reference_wrapper<win::window> plus,
+                                std::reference_wrapper<win::window> minus) {
+          l.add({minus, plus});
+        }
+      };
+
+      struct plus_minus_traits {
+        typedef layout::vertical_adaption<> layout;
+        static constexpr draw::icon_type plus_icon = draw::icon_type::add;
+        static constexpr draw::icon_type minus_icon = draw::icon_type::remove;
+        static inline void add (layout& l, std::reference_wrapper<win::window> plus,
+                                std::reference_wrapper<win::window> minus) {
+          l.add({plus, minus});
+        }
+      };
+    }
+
+    // --------------------------------------------------------------------------
+    template<orientation_t H, typename T = detail::button_pair_traits<H>>
+    class button_pair : public win::group_window<typename T::layout> {
+    public:
+      typedef T traits;
+      typedef win::group_window<typename traits::layout> super;
+      typedef std::function<void(int)> sign_fn;
+
+      button_pair ();
+
+      void on_change (sign_fn f);
+
+      icon_push_button_t<traits::plus_icon, look::button_frame> plus;
+      icon_push_button_t<traits::minus_icon, look::button_frame> minus;
+    };
 
     // --------------------------------------------------------------------------
   } // ctrl

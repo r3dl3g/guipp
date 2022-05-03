@@ -28,8 +28,8 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      GUIPP_CTRL_EXPORT core::rectangle std_multi_input_dialog_size<core::os::ui_t::desktop> (const core::rectangle&, std::size_t n) {
-        return core::rectangle(300, 200, 400, static_cast<core::size::type>(85 + n * 40));
+      GUIPP_CTRL_EXPORT core::rectangle std_multi_input_dialog_size<core::os::ui_t::desktop> (const core::rectangle&, std::size_t n, unsigned dimension) {
+        return core::rectangle(300, 200, 400, static_cast<core::size::type>(80 + n * dimension));
       }
 
       template<>
@@ -59,8 +59,8 @@ namespace gui {
 
       //-----------------------------------------------------------------------------
       template<>
-      GUIPP_CTRL_EXPORT core::rectangle std_multi_input_dialog_size<core::os::ui_t::mobile> (const core::rectangle& /*area*/, std::size_t n) {
-        return win::window::screen_area().shrinked({ 20, 20 }).with_height(static_cast<core::size::type>(85 + n * 40));
+      GUIPP_CTRL_EXPORT core::rectangle std_multi_input_dialog_size<core::os::ui_t::mobile> (const core::rectangle& /*area*/, std::size_t n, unsigned dimension) {
+        return win::window::screen_area().shrinked({ 20, 20 }).with_height(static_cast<core::size::type>(80 + n * dimension));
       }
 
       template<>

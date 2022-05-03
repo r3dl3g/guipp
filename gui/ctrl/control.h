@@ -26,6 +26,7 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
 #include <gui/draw/frames.h>
+#include <gui/layout/layout_container.h>
 #include <gui/ctrl/item_state.h>
 #include <gui/ctrl/gui++-ctrl-export.h>
 
@@ -250,21 +251,38 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class client_control : public control {
+    class GUIPP_CTRL_EXPORT client_control : public control {
     public:
       typedef control super;
       typedef win::window_class<client_control, color::very_light_gray> clazz;
 
-      inline client_control (os::color bg = color::very_light_gray) {
-        set_background(bg);
-      }
+      client_control (os::color bg = color::very_light_gray);
 
-      inline void create (win::container& parent,
-                          const core::rectangle& r = core::rectangle::def) {
-        super::create(clazz::get(), parent, r);
-      }
+      void create (win::container& parent,
+                   const core::rectangle& r = core::rectangle::def);
     };
 
+    // --------------------------------------------------------------------------
+    template<typename L = layout::standard_layout, typename... Args>
+    class group_control : public win::group_window<L, Args...> {
+    public:
+      typedef win::group_window<L, Args...> super;
+
+      explicit group_control (Args... args)
+        : super(args...)
+      {}
+
+      inline void on_content_changed (std::function<void()>&& f) {
+        win::receiver::on<content_changed_event>(std::move(f));
+      }
+
+      inline void notify_content_changed () {
+        super::notify_event(detail::CONTENT_CHANGED_MESSAGE);
+      }
+
+    };
+
+    // --------------------------------------------------------------------------
   } // ctrl
 
 } // gui

@@ -58,7 +58,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<core::os::ui_t T = core::os::system_ui>
-      core::rectangle std_multi_input_dialog_size (const core::rectangle&, std::size_t n);
+      core::rectangle std_multi_input_dialog_size (const core::rectangle&, std::size_t n, unsigned dimension = 20);
 
       template<core::os::ui_t T = core::os::system_ui>
       core::rectangle std_path_open_dialog_size (const core::rectangle& area);

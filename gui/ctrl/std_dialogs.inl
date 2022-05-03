@@ -175,7 +175,7 @@ namespace gui {
                                                 std::function<action> action) {
       multi_input_dialog dialog;
       dialog.create(parent, title, message, initial, ok_label, cancel_label,
-                    detail::std_multi_input_dialog_size<>(parent.geometry(), N),
+                    detail::std_multi_input_dialog_size<>(parent.geometry(), N * 2),
                     action);
       dialog.show(parent);
     }
@@ -228,7 +228,7 @@ namespace gui {
                                 std::function<select_action> action) {
       select_dialog dialog;
       dialog.create(parent, title, list, initial, ok_label, cancel_label,
-                    gui::ctrl::detail::std_multi_input_dialog_size<>(parent.geometry(), 5),
+                    gui::ctrl::detail::std_multi_input_dialog_size<>(parent.geometry(), 10),
                     action);
       dialog.show(parent);
     }
@@ -282,7 +282,7 @@ namespace gui {
       select_from_columnlist_dialog<Arguments...> dialog;
       dialog.create(parent, title, data, initial, std::move(labels),
                     ok_label, cancel_label,
-                    gui::ctrl::detail::std_multi_input_dialog_size<>(parent.geometry(), 5),
+                    gui::ctrl::detail::std_multi_input_dialog_size<>(parent.geometry(), 10),
                     std::move(action));
       dialog.show(parent);
     }

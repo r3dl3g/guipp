@@ -22,6 +22,7 @@ if(NOT TARGET ${PROJECT_NAME})
       label.cpp
       list.cpp
       menu.cpp
+      number_edit.cpp
       progress_bar.cpp
       scroll_bar.cpp
       scroll_view.cpp

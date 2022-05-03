@@ -192,7 +192,7 @@ namespace gui {
         invalidate();
       }
 
-      void edit_base::set_text_filter (text_filter f) {
+      void edit_base::set_text_filter (input_filter f) {
         data.filter = f;
       }
 

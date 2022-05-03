@@ -23,6 +23,7 @@
 #include <gui/draw/font.h>
 #include <gui/ctrl/control.h>
 #include <gui/ctrl/look/edit.h>
+#include <util/string_util.h>
 
 
 namespace gui {
@@ -56,7 +57,7 @@ namespace gui {
 
         typedef win::window_class<edit_base, color::white, win::cursor_type::ibeam> clazz;
 
-        typedef std::function<filter::text_filter_f> text_filter;
+        typedef std::function<filter::text_filter_f> input_filter;
         typedef core::range<pos_t> range;
 
         edit_base ();
@@ -92,7 +93,7 @@ namespace gui {
         std::string get_text_in_range (const range&) const;
         virtual std::string get_selected_text () const;
 
-        void set_text_filter (text_filter);
+        void set_text_filter (input_filter);
         std::string filter_text (const std::string&) const;
 
         bool is_insert_mode () const;
@@ -115,12 +116,59 @@ namespace gui {
           pos_t text_limit;
           pos_t scroll_pos;
           core::native_point last_mouse_point;
-          text_filter filter;
+          input_filter filter;
           bool insert_mode;
         } data;
 
       };
+
     } // detail
+
+    namespace edit_data {
+
+      // --------------------------------------------------------------------------
+      template<typename T>
+      struct local {
+        inline local (const T& v)
+          : value(v)
+        {}
+
+        inline T& operator() () {
+          return value;
+        }
+
+      private:
+        T value;
+      };
+
+      // --------------------------------------------------------------------------
+      template<typename T>
+      constexpr local<T> copy (const T& r) {
+        return local<T>(r);
+      }
+
+      // --------------------------------------------------------------------------
+      template<typename T>
+      struct reference {
+        inline reference (T& v)
+          : value(v)
+        {}
+
+        inline T& operator() () {
+          return value;
+        }
+
+      private:
+        T& value;
+      };
+
+      // --------------------------------------------------------------------------
+      template<typename T>
+      constexpr reference<T> ref (T& r) {
+        return reference<T>(r);
+      }
+
+    }
 
     // --------------------------------------------------------------------------
     template<typename T>
@@ -145,18 +193,20 @@ namespace gui {
     class edit_t : public detail::edit_base {
     public:
       typedef detail::edit_base super;
+      typedef std::function<T&()> data;
 
-      edit_t ();
-      edit_t (const T&);
+      edit_t (const T& = T());
+      edit_t (std::reference_wrapper<T>);
+      edit_t (data);
 
       std::string get_text () const override;
       void set_text (const std::string&) override;
 
       void set (const T& t);
-      T get ();
+      T get () const;
 
     private:
-      T value;
+      data value;
     };
 
     // --------------------------------------------------------------------------
@@ -167,12 +217,15 @@ namespace gui {
     class basic_edit : public edit_t<T, F> {
     public:
       typedef edit_t<T, F> super;
+      typedef typename super::data data;
 
       basic_edit ();
       basic_edit (const basic_edit& rhs);
       basic_edit (basic_edit&& rhs) noexcept;
 
       basic_edit (const T& t);
+      basic_edit (std::reference_wrapper<T> t);
+      basic_edit (data);
 
       void paint (draw::graphics& graph);
 
@@ -197,10 +250,15 @@ namespace gui {
     class basic_pass : public edit_t<std::string> {
     public:
       typedef edit_t<std::string> super;
+      typedef typename super::data data;
 
       basic_pass ();
       basic_pass (const basic_pass& rhs);
       basic_pass (basic_pass&& rhs) noexcept ;
+
+      basic_pass (const std::string& t);
+      basic_pass (std::reference_wrapper<std::string> t);
+      basic_pass (data);
 
       void paint (draw::graphics& graph);
 

@@ -489,10 +489,10 @@ namespace gui {
                            int(str.size()),
                            &extents);
 
-        const auto height = f.font_type()->ascent;
+        const auto ft = f.font_type();
+        const auto height = ft->ascent + ft->descent;
         const auto width = extents.xOff + extents.x;
         px -= extents.x;
-        py += height;
 
         if (origin_is_h_center(origin)) {
           px += (rect.os_width() - width) / 2;
@@ -501,9 +501,11 @@ namespace gui {
         }
 
         if (origin_is_v_center(origin)) {
-          py += (rect.os_height() - height) / 2;
+          py += (rect.os_height() + ft->ascent - ft->descent) / 2;
         } else if (origin_is_bottom(origin)) {
-          py += rect.os_height() - height;
+          py += rect.os_height() - ft->descent;
+        } else {
+          py += ft->ascent;
         }
 
       } else {
@@ -569,7 +571,9 @@ namespace gui {
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
-        const auto height = f.font_type()->ascent;
+
+        const auto ft = f.font_type();
+        const auto height = ft->ascent + ft->descent;
         const auto width = extents.xOff + extents.x;
         os::point_type px = rect.os_x(g.context()) - extents.x;
         os::point_type py = rect.os_y(g.context());
@@ -581,12 +585,14 @@ namespace gui {
         }
 
         if (origin_is_v_center(origin)) {
-          py += (rect.os_height() - height) / 2;
+          py += (rect.os_height() + ft->ascent - ft->descent) / 2;
         } else if (origin_is_bottom(origin)) {
-          py += rect.os_height() - height;
+          py += rect.os_height() - ft->descent;
+        } else {
+          py += height;
         }
 
-        rect.top_left(core::point(os::point{px, py}, g.context()));
+        rect.top_left(core::point(os::point{px, static_cast<os::point_type>(py - height)}, g.context()));
         rect.set_size(core::size(os::size{static_cast<os::size_type>(width), static_cast<os::size_type>(height)}));
 
       } else {
@@ -647,7 +653,8 @@ namespace gui {
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
-        const auto height = f.font_type()->ascent;
+        auto ft = f.font_type();
+        const auto height = ft->ascent;
         px += extents.x;
         py += height;
 

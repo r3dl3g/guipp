@@ -24,33 +24,40 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T, typename F>
     inline void edit_t<T, F>::set (const T& v) {
-      value = v;
+      if (value() != v) {
+        value() = v;
+        super::invalidate();
+        super::notify_content_changed();
+      }
     }
 
     template<typename T, typename F>
-    inline T edit_t<T, F>::get () {
-      return value;
+    inline T edit_t<T, F>::get () const {
+      return value();
     }
 
     template<typename T, typename F>
     inline void edit_t<T, F>::set_text (const std::string& t) {
-      value = F::parse(t);
+      set(F::parse(t));
     }
 
     template<typename T, typename F>
     inline std::string edit_t<T, F>::get_text () const {
-      return F::format(value);
-    }
-
-    template<typename T, typename F>
-    inline edit_t<T, F>::edit_t ()
-      : value()
-    {
-      set_insert_mode(default_insert_mode<T>());
+      return F::format(get());
     }
 
     template<typename T, typename F>
     inline edit_t<T, F>::edit_t (const T& v)
+      : edit_t(edit_data::copy(v))
+    {}
+
+    template<typename T, typename F>
+    inline edit_t<T, F>::edit_t (std::reference_wrapper<T> v)
+      : edit_t(edit_data::ref(v.get()))
+    {}
+
+    template<typename T, typename F>
+    inline edit_t<T, F>::edit_t (data v)
       : value(v)
     {
       set_insert_mode(default_insert_mode<T>());
@@ -79,6 +86,18 @@ namespace gui {
     template<typename T, typename F, text_origin_t A, draw::frame::drawer D>
     inline basic_edit<T, F, A, D>::basic_edit (const T& t)
       : super(t) {
+      init();
+    }
+
+    template<typename T, typename F, text_origin_t A, draw::frame::drawer D>
+    inline basic_edit<T, F, A, D>::basic_edit (std::reference_wrapper<T> t)
+      : super(t) {
+      init();
+    }
+
+    template<typename T, typename F, text_origin_t A, draw::frame::drawer D>
+    inline basic_edit<T, F, A, D>::basic_edit (data v)
+      : super(v) {
       init();
     }
 
@@ -115,6 +134,24 @@ namespace gui {
     inline basic_pass<A, C, D>::basic_pass (basic_pass&& rhs) noexcept
       : super(std::move(rhs))
     {
+      init();
+    }
+
+    template<text_origin_t A, char C, draw::frame::drawer D>
+    inline basic_pass<A, C, D>::basic_pass (const std::string& t)
+      : super(t) {
+      init();
+    }
+
+    template<text_origin_t A, char C, draw::frame::drawer D>
+    inline basic_pass<A, C, D>::basic_pass (std::reference_wrapper<std::string> t)
+      : super(t) {
+      init();
+    }
+
+    template<text_origin_t A, char C, draw::frame::drawer D>
+    inline basic_pass<A, C, D>::basic_pass (data v)
+      : super(v) {
       init();
     }
 

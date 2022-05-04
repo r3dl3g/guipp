@@ -513,7 +513,7 @@ namespace gui {
       }
 
       xft_color xftcolor(c, g);
-//      clip clp(g, rect);
+      clip clp(g, rect);
 
       XftDrawStringUtf8(g, &xftcolor, f.font_type(), px, py,
                         (XftChar8*)str.c_str(), int(str.size()));

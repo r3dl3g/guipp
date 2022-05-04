@@ -52,7 +52,6 @@ namespace gui {
                     const bool is_enabled) {
 
       using namespace gui::draw;
-//      clip clp(graph, area);
 
       graph.fill(rectangle(area), background);
 

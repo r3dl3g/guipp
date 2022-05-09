@@ -124,55 +124,11 @@ namespace gui {
 
     } // detail
 
-    namespace edit_data {
-
-      // --------------------------------------------------------------------------
-      template<typename T>
-      struct local {
-        inline local (const T& v)
-          : value(v)
-        {}
-
-        inline T& operator() () {
-          return value;
-        }
-
-      private:
-        T value;
-      };
-
-      // --------------------------------------------------------------------------
-      template<typename T>
-      constexpr local<T> copy (const T& r) {
-        return local<T>(r);
-      }
-
-      // --------------------------------------------------------------------------
-      template<typename T>
-      struct reference {
-        inline reference (T& v)
-          : value(v)
-        {}
-
-        inline T& operator() () {
-          return value;
-        }
-
-      private:
-        T& value;
-      };
-
-      // --------------------------------------------------------------------------
-      template<typename T>
-      constexpr reference<T> ref (T& r) {
-        return reference<T>(r);
-      }
-
-    }
-
     // --------------------------------------------------------------------------
-    template<typename T>
+    template<typename U>
     struct default_converter {
+      using T = typename std::remove_reference<U>::type;
+
       static T parse (const std::string& t) {
         return util::string::convert::to<T>(t);
       }
@@ -193,20 +149,18 @@ namespace gui {
     class edit_t : public detail::edit_base {
     public:
       typedef detail::edit_base super;
-      typedef std::function<T&()> data;
+      using type = typename std::remove_reference<T>::type;
 
-      edit_t (const T& = T());
-      edit_t (std::reference_wrapper<T>);
-      edit_t (data);
+      edit_t (T);
 
       std::string get_text () const override;
       void set_text (const std::string&) override;
 
-      void set (const T& t);
-      T get () const;
+      void set (const type& t);
+      type get () const;
 
     private:
-      data value;
+      T value;
     };
 
     // --------------------------------------------------------------------------
@@ -217,15 +171,12 @@ namespace gui {
     class basic_edit : public edit_t<T, F> {
     public:
       typedef edit_t<T, F> super;
-      typedef typename super::data data;
 
       basic_edit ();
       basic_edit (const basic_edit& rhs);
       basic_edit (basic_edit&& rhs) noexcept;
 
-      basic_edit (const T& t);
-      basic_edit (std::reference_wrapper<T> t);
-      basic_edit (data);
+      basic_edit (T);
 
       void paint (draw::graphics& graph);
 
@@ -250,15 +201,12 @@ namespace gui {
     class basic_pass : public edit_t<std::string> {
     public:
       typedef edit_t<std::string> super;
-      typedef typename super::data data;
 
       basic_pass ();
       basic_pass (const basic_pass& rhs);
       basic_pass (basic_pass&& rhs) noexcept ;
 
       basic_pass (const std::string& t);
-      basic_pass (std::reference_wrapper<std::string> t);
-      basic_pass (data);
 
       void paint (draw::graphics& graph);
 

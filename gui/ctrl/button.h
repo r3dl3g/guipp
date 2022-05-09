@@ -166,6 +166,7 @@ namespace gui {
       typedef basic_button<T, BG> super;
 
       explicit basic_text_button (const text_source& t = const_text());
+      explicit basic_text_button (const std::string& t);
       basic_text_button (const basic_text_button& rhs);
       basic_text_button (basic_text_button&& rhs) noexcept ;
 

@@ -76,51 +76,39 @@ namespace gui {
       typedef group_control<L> super;
       typedef L layout_t;
       typedef basic_edit<T, F> edit_t;
-      typedef typename edit_t::data data;
+      typedef typename edit_t::type type;
       typedef B buttons_t;
 
-      number_edit (const T& v = T(), T i = T(1));
-      number_edit (std::reference_wrapper<T> d, T i = T(1));
-      number_edit (data, T i = T(1));
+      number_edit (T&& v = type(), type i = type(1));
 
       void init ();
 
-      void set (T v);
-      T get () const;
+      void set (const type& v);
+      type get () const;
 
-      void step (T i);
+      void step (const type& i);
 
       void inc ();
       void dec ();
 
-      T increment;
+      type increment;
       edit_t edit;
       buttons_t buttons;
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT date_time_edit : public group_control<layout::horizontal_adaption<>> {
+    class GUIPP_CTRL_EXPORT date_time_edit_base : public group_control<layout::horizontal_adaption<>> {
     public:
       typedef group_control<layout::horizontal_adaption<>> super;
-      typedef number_edit<int, detail::offset_converter<1900>> year_edit_t;
-      typedef number_edit<int, detail::offset_converter<1>> month_edit_t;
-      typedef number_edit<int> int_edit_t;
+      typedef number_edit<int&, detail::offset_converter<1900>> year_edit_t;
+      typedef number_edit<int&, detail::offset_converter<1>> month_edit_t;
+      typedef number_edit<int&> int_edit_t;
       typedef util::time::time_point time_point;
-      typedef std::function<time_point&()> data;
 
-      date_time_edit (const time_point& d = std::chrono::system_clock::now());
-      date_time_edit (std::reference_wrapper<time_point> d);
-      date_time_edit (data);
+      date_time_edit_base (const time_point& v);
 
-      void init ();
-      void update ();
-
-      void set (time_point v);
-      time_point get () const;
-
-    private:
-      data value;
-      std::tm date;
+    protected:
+      std::tm parts;
 
       year_edit_t year;
       month_edit_t month;
@@ -131,24 +119,32 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT duration_edit : public group_control<layout::horizontal_adaption<>> {
+    template<typename T = util::time::time_point>
+    class date_time_edit : public date_time_edit_base {
     public:
-      typedef group_control<layout::horizontal_adaption<>> super;
-      typedef number_edit<int> int_edit_t;
-      typedef util::time::duration duration;
-      typedef std::function<duration&()> data;
+      typedef date_time_edit_base super;
 
-      duration_edit (const duration& d = std::chrono::seconds(0));
-      duration_edit (std::reference_wrapper<duration> d);
-      duration_edit (data);
+      date_time_edit (T t);
 
       void update ();
 
-      void set (duration v);
-      duration get () const;
+      void set (const time_point& v);
+      time_point get () const;
 
     protected:
-      data value;
+      T value;
+    };
+
+    // --------------------------------------------------------------------------
+    class GUIPP_CTRL_EXPORT duration_edit_base : public group_control<layout::horizontal_adaption<>> {
+    public:
+      typedef group_control<layout::horizontal_adaption<>> super;
+      typedef number_edit<int&> int_edit_t;
+      typedef util::time::duration duration;
+
+      duration_edit_base (const duration&);
+
+    protected:
       util::time::duration_parts parts;
 
       int_edit_t hour;
@@ -157,16 +153,32 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT duration_edit_ms : public duration_edit {
+    template<typename T = util::time::duration>
+    class duration_edit : public duration_edit_base {
     public:
-      typedef duration_edit super;
+      typedef duration_edit_base super;
 
-      duration_edit_ms (const duration& d = std::chrono::seconds(0));
-      duration_edit_ms (std::reference_wrapper<duration> d);
-      duration_edit_ms (data);
+      duration_edit (T t);
+
+      void update ();
+
+      void set (const duration& v);
+      duration get () const;
 
     protected:
-      int_edit_t micros;
+      T value;
+    };
+
+    // --------------------------------------------------------------------------
+    template<typename T = util::time::duration>
+    class duration_edit_ms : public duration_edit<T> {
+    public:
+      typedef duration_edit<T> super;
+
+      duration_edit_ms (T t);
+
+    protected:
+      typename super::int_edit_t micros;
     };
 
     // --------------------------------------------------------------------------

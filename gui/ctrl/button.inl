@@ -127,6 +127,13 @@ namespace gui {
     }
 
     template<class T, button_drawer BG, text_button_drawer D>
+    inline basic_text_button<T, BG, D>::basic_text_button (const std::string& t)
+      : text(const_text(t))
+    {
+      init();
+    }
+
+    template<class T, button_drawer BG, text_button_drawer D>
     inline basic_text_button<T, BG, D>::basic_text_button (const basic_text_button& rhs)
       : super(rhs)
       , text(rhs.text)

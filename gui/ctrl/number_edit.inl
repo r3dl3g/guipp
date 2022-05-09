@@ -23,25 +23,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T, typename F, typename B, typename L>
-    inline number_edit<T, F, B, L>::number_edit (const T& v, T i)
+    inline number_edit<T, F, B, L>::number_edit (T&& v, type i)
       : increment(i)
-      , edit(v)
-    {
-      init();
-    }
-
-    template<typename T, typename F, typename B, typename L>
-    inline number_edit<T, F, B, L>::number_edit (std::reference_wrapper<T> d, T i)
-      : increment(i)
-      , edit(d)
-    {
-      init();
-    }
-
-    template<typename T, typename F, typename B, typename L>
-    inline number_edit<T, F, B, L>::number_edit (data d, T i)
-      : increment(i)
-      , edit(d)
+      , edit(std::forward<T>(v))
     {
       init();
     }
@@ -64,18 +48,18 @@ namespace gui {
     }
 
     template<typename T, typename F, typename B, typename L>
-    inline void number_edit<T, F, B, L>::set (T v) {
+    inline void number_edit<T, F, B, L>::set (const type& v) {
       edit.set(v);
       super::notify_content_changed();
     }
 
     template<typename T, typename F, typename B, typename L>
-    inline T number_edit<T, F, B, L>::get () const {
+    inline auto number_edit<T, F, B, L>::get () const -> type {
       return edit.get();
     }
 
     template<typename T, typename F, typename B, typename L>
-    inline void number_edit<T, F, B, L>::step (T i) {
+    inline void number_edit<T, F, B, L>::step (const type& i) {
       set(get() + i);
     }
 
@@ -88,8 +72,87 @@ namespace gui {
     inline void number_edit<T, F, B, L>::dec () {
       step(-increment);
     }
-    // --------------------------------------------------------------------------
 
+    // --------------------------------------------------------------------------
+    template<typename T>
+    date_time_edit<T>::date_time_edit (T t)
+      : super(t)
+      , value(std::forward<T>(t))
+    {
+      year.edit.on_content_changed([&] () { update(); });
+      month.edit.on_content_changed([&] () { update(); });
+      day.edit.on_content_changed([&] () { update(); });
+      hour.edit.on_content_changed([&] () { update(); });
+      min.edit.on_content_changed([&] () { update(); });
+      sec.edit.on_content_changed([&] () { update(); });
+    }
+
+    template<typename T>
+    void date_time_edit<T>::update () {
+      std::mktime(&parts);
+      set(util::time::time_t2time_point(util::time::tm2time_t(parts)));
+    }
+
+    template<typename T>
+    void date_time_edit<T>::set (const time_point& v) {
+      if (value != v) {
+        value = v;
+        parts = util::time::local_time(get());
+        invalidate();
+        notify_content_changed();
+      }
+    }
+
+    template<typename T>
+    auto date_time_edit<T>::get () const -> time_point {
+      return value;
+    }
+
+    // --------------------------------------------------------------------------
+    template<typename T>
+    duration_edit<T>::duration_edit (T t)
+      : super(t)
+      , value(std::forward<T>(t))
+    {
+      hour.edit.on_content_changed([&] () { update(); });
+      min.edit.on_content_changed([&] () { update(); });
+      sec.edit.on_content_changed([&] () { update(); });
+    }
+
+    template<typename T>
+    void duration_edit<T>::update () {
+      set(util::time::parts2duration(parts));
+    }
+
+    template<typename T>
+    void duration_edit<T>::set (const duration& v) {
+      if (value != v) {
+        value = v;
+        parts = util::time::duration2parts(get());
+        invalidate();
+        notify_content_changed();
+      }
+    }
+
+    template<typename T>
+    auto duration_edit<T>::get () const -> duration {
+      return value;
+    }
+
+    // --------------------------------------------------------------------------
+    template<typename T>
+    duration_edit_ms<T>::duration_edit_ms (T t)
+      : super(t)
+      , micros(super::parts.micros)
+    {
+      super::get_layout().add(micros);
+      on_create([&] () {
+        micros.create(*this);
+      });
+      micros.edit.on_content_changed([&] () { super::update(); });
+    }
+
+    // --------------------------------------------------------------------------
   } // ctrl
 
 } // gui

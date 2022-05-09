@@ -458,7 +458,7 @@ namespace gui {
       struct data {
         data ();
 
-        edit editor;
+        edit_left editor;
         std::function<source> data_source;
         std::function<target> data_target;
         bool enable_edit;

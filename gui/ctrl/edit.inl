@@ -23,17 +23,24 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T, typename F>
-    inline void edit_t<T, F>::set (const T& v) {
-      if (value() != v) {
-        value() = v;
+    inline edit_t<T, F>::edit_t (T v)
+      : value{std::forward<T>(v)}
+    {
+      set_insert_mode(default_insert_mode<T>());
+    }
+
+    template<typename T, typename F>
+    inline void edit_t<T, F>::set (const type& v) {
+      if (value != v) {
+        value = v;
         super::invalidate();
         super::notify_content_changed();
       }
     }
 
     template<typename T, typename F>
-    inline T edit_t<T, F>::get () const {
-      return value();
+    inline auto edit_t<T, F>::get () const -> type {
+      return value;
     }
 
     template<typename T, typename F>
@@ -46,26 +53,11 @@ namespace gui {
       return F::format(get());
     }
 
-    template<typename T, typename F>
-    inline edit_t<T, F>::edit_t (const T& v)
-      : edit_t(edit_data::copy(v))
-    {}
-
-    template<typename T, typename F>
-    inline edit_t<T, F>::edit_t (std::reference_wrapper<T> v)
-      : edit_t(edit_data::ref(v.get()))
-    {}
-
-    template<typename T, typename F>
-    inline edit_t<T, F>::edit_t (data v)
-      : value(v)
-    {
-      set_insert_mode(default_insert_mode<T>());
-    }
-
     // --------------------------------------------------------------------------
     template<typename T, typename F, text_origin_t A, draw::frame::drawer D>
-    inline basic_edit<T, F, A, D>::basic_edit () {
+    inline basic_edit<T, F, A, D>::basic_edit ()
+      : super(T())
+    {
       init();
     }
 
@@ -84,20 +76,8 @@ namespace gui {
     }
 
     template<typename T, typename F, text_origin_t A, draw::frame::drawer D>
-    inline basic_edit<T, F, A, D>::basic_edit (const T& t)
-      : super(t) {
-      init();
-    }
-
-    template<typename T, typename F, text_origin_t A, draw::frame::drawer D>
-    inline basic_edit<T, F, A, D>::basic_edit (std::reference_wrapper<T> t)
-      : super(t) {
-      init();
-    }
-
-    template<typename T, typename F, text_origin_t A, draw::frame::drawer D>
-    inline basic_edit<T, F, A, D>::basic_edit (data v)
-      : super(v) {
+    inline basic_edit<T, F, A, D>::basic_edit (T t)
+      : super(std::forward<T>(t)) {
       init();
     }
 
@@ -119,7 +99,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<text_origin_t A, char C, draw::frame::drawer D>
-    inline basic_pass<A, C, D>::basic_pass () {
+    inline basic_pass<A, C, D>::basic_pass ()
+      : super(std::string())
+    {
       init();
     }
 
@@ -139,19 +121,8 @@ namespace gui {
 
     template<text_origin_t A, char C, draw::frame::drawer D>
     inline basic_pass<A, C, D>::basic_pass (const std::string& t)
-      : super(t) {
-      init();
-    }
-
-    template<text_origin_t A, char C, draw::frame::drawer D>
-    inline basic_pass<A, C, D>::basic_pass (std::reference_wrapper<std::string> t)
-      : super(t) {
-      init();
-    }
-
-    template<text_origin_t A, char C, draw::frame::drawer D>
-    inline basic_pass<A, C, D>::basic_pass (data v)
-      : super(v) {
+      : super(t)
+    {
       init();
     }
 

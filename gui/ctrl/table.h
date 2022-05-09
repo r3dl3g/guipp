@@ -488,7 +488,7 @@ namespace gui {
     protected:
       void move_editor (core::point::type);
 
-      edit editor;
+      edit_left editor;
       std::function<table::data_source> data_source;
       std::function<table::data_target> data_target;
       bool enable_edit;

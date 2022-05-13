@@ -332,11 +332,11 @@ namespace gui {
       switch (key) {
       case core::keys::page_up:
       case core::keys::numpad::page_up:
-        super::try_to_select(super::get_selection() - static_cast<int>((super::get_list_size() + super::traits.get_line_spacing()) / super::traits.get_line_size()), event_source::keyboard);
+        super::try_to_select(super::get_selection().get_first_index() - static_cast<int>((super::get_list_size() + super::traits.get_line_spacing()) / super::traits.get_line_size()), event_source::keyboard);
         break;
       case core::keys::page_down:
       case core::keys::numpad::page_down:
-        super::try_to_select(super::get_selection() + static_cast<int>((super::get_list_size() + super::traits.get_line_spacing()) / super::traits.get_line_size()), event_source::keyboard);
+        super::try_to_select(super::get_selection().get_first_index() + static_cast<int>((super::get_list_size() + super::traits.get_line_spacing()) / super::traits.get_line_size()), event_source::keyboard);
         break;
       case core::keys::home:
       case core::keys::numpad::home:

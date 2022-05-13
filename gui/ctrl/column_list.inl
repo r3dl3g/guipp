@@ -63,7 +63,7 @@ namespace gui {
         return (i < widths.size()) ? widths[i] : 0;
       }
 
-      inline void column_list_layout::set_list (list_type* l) {
+      inline void column_list_layout::set_list (win::window* l) {
         list = l;
       }
 
@@ -74,7 +74,7 @@ namespace gui {
         data.list->geometry(list_pos(r), false);
       }
 
-      inline void base_column_list_layout::set_header_and_list (win::window* header, list_type* list) {
+      inline void base_column_list_layout::set_header_and_list (win::window* header, win::window* list) {
         data.list = list;
         data.header = header;
       }
@@ -312,8 +312,8 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      template<typename Layout>
-      base_column_list<Layout>::base_column_list (core::size::type item_size,
+      template<typename Layout, typename S>
+      base_column_list<Layout, S>::base_column_list (core::size::type item_size,
                                                   os::color background,
                                                   bool grab_focus)
         : list(item_size, background, grab_focus)
@@ -321,8 +321,8 @@ namespace gui {
         init();
       }
 
-      template<typename Layout>
-      base_column_list<Layout>::base_column_list (base_column_list&& rhs) noexcept
+      template<typename Layout, typename S>
+      base_column_list<Layout, S>::base_column_list (base_column_list&& rhs) noexcept
         : super(std::move(rhs))
         , header(std::move(rhs.header))
         , list(std::move(rhs.list))
@@ -330,32 +330,23 @@ namespace gui {
         init();
       }
 
-      template<typename Layout>
-      auto base_column_list<Layout>::get_column_layout() -> layout_type & {
+      template<typename Layout, typename S>
+      auto base_column_list<Layout, S>::get_column_layout() -> layout_type & {
         return header.get_column_layout();
       }
 
-      template<typename Layout>
-      auto base_column_list<Layout>::get_column_layout() const->const layout_type &{
+      template<typename Layout, typename S>
+      auto base_column_list<Layout, S>::get_column_layout() const -> const layout_type &{
         return header.get_column_layout();
       }
 
-      template<typename Layout>
-      void base_column_list<Layout>::create (win::container& parent,
-                                             const core::rectangle& place) {
-        super::create(clazz::get(), parent, place);
-        header.create(*this, super::get_layout().header_pos(place));
-        header.set_visible();
-        list.create(*this, super::get_layout().list_pos(place));
-        list.set_visible();
-      }
-
-      template<typename Layout>
-      void base_column_list<Layout>::init () {
+      template<typename Layout, typename S>
+      void base_column_list<Layout, S>::init () {
         super::get_layout().set_header_and_list(&header, &list);
         get_column_layout().set_list(&list);
-        super::on_layout([&] (const core::rectangle& r) {
-          header.layout(r);
+        super::on_create([&] () {
+          header.create(*this);
+          list.create(*this);
         });
       }
 
@@ -427,20 +418,20 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename L, typename ... A>
-    column_list_t<L, A ...>::column_list_t (core::size::type item_size,
+    template<typename L, typename S, typename ... A>
+    column_list_t<L, S, A ...>::column_list_t (core::size::type item_size,
                                             os::color background,
                                             bool grab_focus)
       : super(item_size, background, grab_focus)
     {}
 
-    template<typename L, typename ... A>
-    column_list_t<L, A ...>::column_list_t (column_list_t&& rhs) noexcept
+    template<typename L, typename S, typename ... A>
+    column_list_t<L, S, A ...>::column_list_t (column_list_t&& rhs) noexcept
       : super(std::move(rhs))
     {}
 
-    template<typename L, typename ... A>
-    void column_list_t<L, A ...>::set_data (std::function<column_list_data_provider> data) {
+    template<typename L, typename S, typename ... A>
+    void column_list_t<L, S, A ...>::set_data (std::function<column_list_data_provider> data) {
       data().set_layout(&super::get_column_layout());
       super::list->set_data(data);
     }

@@ -198,7 +198,7 @@ namespace gui {
       super::create(parent, title, rect, {cancel_label, ok_label},
                     [&, action] (win::overlapped_window& dlg, int i) {
         if ((i == 1) && (vlist->has_selection())) {
-          const int sel = vlist->get_selection();
+          const int sel = vlist->get_selection().get_first_index();
           action(dlg, sel, data[sel]);
         }
       });
@@ -211,7 +211,7 @@ namespace gui {
       vlist->on_selection_commit([&, action] () {
         super::end_modal();
         if (action) {
-          const int sel = vlist->get_selection();
+          const int sel = vlist->get_selection().get_first_index();
           action(*this, sel, data[sel]);
         }
       });
@@ -252,7 +252,7 @@ namespace gui {
       super::create(parent, title, rect, {cancel_label, ok_label},
                     [&, action] (win::overlapped_window& dlg, int i) {
         if ((i == 1) && (vlist.list->has_selection())) {
-          const int sel = vlist.list->get_selection();
+          const int sel = vlist.list->get_selection().get_first_index();
           action(dlg, sel, data.at(sel));
         }
       });
@@ -263,7 +263,7 @@ namespace gui {
       vlist.list->on_selection_commit([&, action] () {
         super::end_modal();
         if (action) {
-          const int sel = vlist.list->get_selection();
+          const int sel = vlist.list->get_selection().get_first_index();
           action(*this, sel, data.at(sel));
         }
       });
@@ -298,7 +298,7 @@ namespace gui {
                                  std::function<fs::filter_fn> filter) {
       super::first.view->on_selection_changed([&,filter](event_source) {
         if (super::first.view->has_selection()) {
-          super::second.set_path(super::first.view->get_item(super::first.view->get_selection()).path, filter);
+          super::second.set_path(super::first.view->get_item(super::first.view->get_selection().get_first_index()).path, filter);
         }
       });
       super::second.list->on_selection_commit([&, action, filter] () {
@@ -339,11 +339,11 @@ namespace gui {
       super::create(parent, title, rect, {cancel_label, ok_label},
                     [&, action] (win::overlapped_window& dlg, int btn) {
         if (1 == btn) {
-          if (super::content_view.second.list->get_selection() > -1) {
+          if (super::content_view.second.list->has_selection()) {
             action(dlg, super::content_view.second.get_selected_path());
           } else {
-            int idx = super::content_view.first.view->get_selection();
-            if (idx > -1) {
+            if (super::content_view.first.view->has_selection()) {
+              int idx = super::content_view.first.view->get_selection().get_first_index();
               action(dlg, super::content_view.first.view->get_item(idx).path);
             }
           }

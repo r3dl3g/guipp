@@ -21,7 +21,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   typedef ctrl::vertical_split_view<list1_t, list2_t> left_split_view_t;
 
   typedef ctrl::horizontal_scrollable_list list3_t;
-  typedef ctrl::column_list_t<layout::simple_column_list_layout, std::string, int, double> list4_t;
+  typedef ctrl::column_list_t<layout::simple_column_list_layout, core::selector::single,
+                              std::string, int, double> list4_t;
   typedef ctrl::vertical_split_view<list3_t, list4_t> right_split_view_t;
 
   typedef ctrl::horizontal_split_view<left_split_view_t, right_split_view_t> main_split_view_t;

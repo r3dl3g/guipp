@@ -54,6 +54,11 @@ namespace gui {
     }
 
     template<typename T>
+    bool range<T>::is_overlapping (const type& i) const {
+      return (i >= first) && (i <= last);
+    }
+
+    template<typename T>
     void range<T>::sort () {
       if (first > last) {
         std::swap(first, last);

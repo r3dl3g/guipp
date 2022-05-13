@@ -30,22 +30,22 @@ namespace gui {
       switch (key) {
         case core::keys::left:
         case core::keys::numpad::left: {
-          try_to_select(super::get_selection() - static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
+          try_to_select(super::get_selection().get_first_index() - static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
           break;
         }
         case core::keys::right:
         case core::keys::numpad::right: {
-          try_to_select(super::get_selection() + static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
+          try_to_select(super::get_selection().get_first_index() + static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
           break;
         }
         case core::keys::up:
         case core::keys::numpad::up: {
-          try_to_select(super::get_selection() - 1, event_source::keyboard);
+          try_to_select(super::get_selection().get_first_index() - 1, event_source::keyboard);
           break;
         }
         case core::keys::down:
         case core::keys::numpad::down: {
-          try_to_select(super::get_selection() + 1, event_source::keyboard);
+          try_to_select(super::get_selection().get_first_index() + 1, event_source::keyboard);
           break;
         }
       }
@@ -56,22 +56,22 @@ namespace gui {
       switch (key) {
         case core::keys::left:
         case core::keys::numpad::left: {
-          try_to_select(super::get_selection() - 1, event_source::keyboard);
+          try_to_select(super::get_selection().get_first_index() - 1, event_source::keyboard);
           break;
         }
         case core::keys::right:
         case core::keys::numpad::right: {
-          try_to_select(super::get_selection() + 1, event_source::keyboard);
+          try_to_select(super::get_selection().get_first_index() + 1, event_source::keyboard);
           break;
         }
         case core::keys::up:
         case core::keys::numpad::up: {
-          try_to_select(super::get_selection() - static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
+          try_to_select(super::get_selection().get_first_index() - static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
           break;
         }
         case core::keys::down:
         case core::keys::numpad::down: {
-          try_to_select(super::get_selection() + static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
+          try_to_select(super::get_selection().get_first_index() + static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
           break;
         }
       }

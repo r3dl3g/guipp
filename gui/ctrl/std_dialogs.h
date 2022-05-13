@@ -303,7 +303,7 @@ namespace gui {
       typedef win::group_window<layout::border::center_layout<vertical_list, 15, 15, 15, 15>> content_view_type;
       typedef standard_dialog<content_view_type> super;
       typedef layout::weight_column_list_layout layout_t;
-      typedef ctrl::column_list_t<layout_t, Arguments ...> list_t;
+      typedef ctrl::column_list_t<layout_t, core::selector::single, Arguments ...> list_t;
       typedef column_list_data_t<Arguments...> data_t;
       typedef typename data_t::row_type row_type;
       typedef void (select_action) (win::overlapped_window&, int, row_type);

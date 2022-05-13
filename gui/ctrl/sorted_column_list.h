@@ -31,10 +31,10 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-    template<typename Layout, typename ... Arguments>
-    class sorted_column_list_t : public gui::ctrl::column_list_t<Layout, Arguments ...> {
+    template<typename Layout, typename S = core::selector::single, typename ... Arguments>
+    class sorted_column_list_t : public gui::ctrl::column_list_t<Layout, S, Arguments ...> {
     public:
-      typedef gui::ctrl::column_list_t<Layout, Arguments ...> super;
+      typedef gui::ctrl::column_list_t<Layout, S, Arguments ...> super;
       typedef std::tuple<Arguments ...> data_t;
       typedef bool (sort_callback) (util::sort::order o, int column);
 

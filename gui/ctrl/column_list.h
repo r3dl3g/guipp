@@ -16,13 +16,20 @@
 
 #pragma once
 
+
+// --------------------------------------------------------------------------
+//
+// Common includes
+//
+#include <functional>
+
+
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
 #include <gui/ctrl/list.h>
 #include <gui/layout/layout_container.h>
-#include <functional>
 
 
 namespace gui {
@@ -46,8 +53,6 @@ namespace gui {
 
       class GUIPP_CTRL_EXPORT column_list_layout {
       public:
-        typedef ctrl::vertical_scrollable_list list_type;
-
         explicit column_list_layout (win::window* main);
         column_list_layout (win::window* main, const column_list_layout& rhs);
         column_list_layout (win::window* main, column_list_layout&& rhs);
@@ -76,13 +81,13 @@ namespace gui {
         void set_default_width (column_size_type);
         void set_default_align (text_origin_t);
 
-        void set_list (list_type* l);
+        void set_list (win::window* l);
 
       protected:
         void redraw_views ();
 
         win::window* main;
-        list_type* list;
+        win::window* list;
 
         std::vector<column_size_type> widths;
         std::vector<text_origin_t> aligns;
@@ -167,10 +172,8 @@ namespace gui {
       // --------------------------------------------------------------------------
       class GUIPP_CTRL_EXPORT base_column_list_layout {
       public:
-        typedef ctrl::vertical_scrollable_list list_type;
-
         void layout (const core::rectangle& r) const;
-        void set_header_and_list (win::window* header, list_type* list);
+        void set_header_and_list (win::window* header, win::window* list);
 
         core::rectangle header_pos (const core::rectangle& r) const;
         core::rectangle list_pos (const core::rectangle& r) const;
@@ -180,7 +183,7 @@ namespace gui {
           data ();
 
           win::window* header;
-          list_type* list;
+          win::window* list;
         } data;
 
       };
@@ -244,14 +247,13 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      template<typename Layout>
-      class base_column_list : public win::layout_container<layout::detail::base_column_list_layout> {
+      template<typename Layout, typename S = core::selector::single>
+      class base_column_list : public group_control<layout::detail::base_column_list_layout> {
       public:
         typedef Layout layout_type;
-        typedef win::layout_container<layout::detail::base_column_list_layout> super;
+        typedef group_control<layout::detail::base_column_list_layout> super;
         typedef column_list_header<layout_type> header_type;
-        typedef vertical_scrollable_list list_type;
-        typedef win::no_erase_window_class<base_column_list> clazz;
+        typedef vertical_scrollable_list_t<S> list_type;
 
         explicit base_column_list (core::size::type item_size = list_defaults<>::item_size,
                                    os::color background = color::white,
@@ -260,9 +262,6 @@ namespace gui {
 
         layout_type& get_column_layout ();
         const layout_type& get_column_layout () const;
-
-        void create (container& parent,
-                     const core::rectangle& place = core::rectangle::def);
 
         header_type header;
         list_type list;
@@ -515,10 +514,10 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename Layout, typename ... Arguments>
-    class column_list_t : public detail::base_column_list<Layout> {
+    template<typename Layout, typename S = core::selector::single, typename ... Arguments>
+    class column_list_t : public detail::base_column_list<Layout, S> {
     public:
-      typedef detail::base_column_list<Layout> super;
+      typedef detail::base_column_list<Layout, S> super;
       typedef Layout layout_type;
 
       typedef std::tuple<Arguments ...> row_type;
@@ -540,8 +539,8 @@ namespace gui {
       static const std::size_t count = sizeof ... (Arguments);
 
       explicit column_list_t (core::size::type item_size = list_defaults<>::item_size,
-                     os::color background = color::white,
-                     bool grab_focus = true);
+                              os::color background = color::white,
+                              bool grab_focus = true);
       column_list_t (column_list_t&& rhs) noexcept ;
 
       void set_data (std::function<column_list_data_provider> data);

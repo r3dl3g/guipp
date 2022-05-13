@@ -29,8 +29,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       list_base::data::data ()
-        : selection(-1)
-        , hilite(-1)
+        : hilite(-1)
         , last_mouse_point(core::native_point::undefined)
       {}
 
@@ -81,16 +80,6 @@ namespace gui {
         }
       }
 
-      void list_base::clear_selection (event_source notify) {
-        if (data.selection != -1) {
-          data.selection = -1;
-          if (notify != event_source::logic) {
-            notify_selection_changed(notify);
-            invalidate();
-          }
-        }
-      }
-
       void list_base::set_hilite (int sel, bool notify) {
         int new_hilite = std::max(-1, sel);
         if (new_hilite >= static_cast<int>(get_count())) {
@@ -126,35 +115,6 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<>
-    void linear_list<orientation_t::horizontal>::handle_direction_key (os::key_symbol key) {
-      switch (key) {
-      case core::keys::left:
-      case core::keys::numpad::left:
-        set_selection(super::get_selection() - 1, event_source::keyboard);
-        break;
-      case core::keys::right:
-      case core::keys::numpad::right:
-        set_selection(super::get_selection() + 1, event_source::keyboard);
-        break;
-      }
-    }
-
-    template<>
-    void linear_list<orientation_t::vertical>::handle_direction_key (os::key_symbol key) {
-      switch (key) {
-      case core::keys::up:
-      case core::keys::numpad::up:
-        set_selection(super::get_selection() - 1, event_source::keyboard);
-        break;
-      case core::keys::down:
-      case core::keys::numpad::down:
-        set_selection(super::get_selection() + 1, event_source::keyboard);
-        break;
-      }
-    }
-
-    // --------------------------------------------------------------------------
     void edit_list::init () {
       super::on_selection_commit(util::bind_method(this, &edit_list::enter_edit));
 
@@ -183,7 +143,7 @@ namespace gui {
 
     void edit_list::enter_edit () {
       if (data.enable_edit && data.data_source) {
-        auto cell = get_selection();
+        auto cell = get_selection().get_first_index();
         auto area = get_geometry_of_index(cell);
         area.set_position(get_parent()->surface_to_client(client_to_surface(area.position())));
         if (!data.editor.is_valid()) {

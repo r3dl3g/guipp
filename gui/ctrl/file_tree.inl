@@ -142,7 +142,7 @@ namespace gui {
 
     template<typename T, file_item_drawer D>
     inline sys_fs::path file_list<T, D>::get_selected_path () const {
-      int selection = super::get_selection();
+      int selection = super::get_selection().get_first_index();
       if (selection > -1) {
         return current_dir[selection].path;
       }
@@ -150,8 +150,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    inline file_column_list<T>::file_column_list (core::size::type item_size,
+    template<typename T, typename S>
+    inline file_column_list<T, S>::file_column_list (core::size::type item_size,
                                                   os::color background,
                                                   bool grab_focus)
       : super(item_size, background, grab_focus)
@@ -160,8 +160,8 @@ namespace gui {
       init();
     }
 
-    template<typename T>
-    inline file_column_list<T>::file_column_list (const file_column_list& rhs)
+    template<typename T, typename S>
+    inline file_column_list<T, S>::file_column_list (const file_column_list& rhs)
       : super(rhs)
       , mouse_down_point(rhs.mouse_down_point)
       , order(rhs.order)
@@ -169,8 +169,8 @@ namespace gui {
       init();
     }
 
-    template<typename T>
-    inline file_column_list<T>::file_column_list (file_column_list&& rhs) noexcept
+    template<typename T, typename S>
+    inline file_column_list<T, S>::file_column_list (file_column_list&& rhs) noexcept
       : super(std::move(rhs))
       , mouse_down_point(std::move(rhs.mouse_down_point))
       , order(std::move(rhs.order))
@@ -178,8 +178,8 @@ namespace gui {
       init();
     }
 
-    template<typename T>
-    void file_column_list<T>::init () {
+    template<typename T, typename S>
+    void file_column_list<T, S>::init () {
       detail::init_file_list_layout(super::get_column_layout(), super::list.view.get_item_size());
       init_file_list_header(super::header);
       super::set_data(detail::file_list_row_data(current_dir, super::list));
@@ -187,13 +187,13 @@ namespace gui {
       super::header.on_left_btn_up(util::bind_method(this, &file_column_list::handle_header_mouse_up));
     }
 
-    template<typename T>
-    inline void file_column_list<T>::handle_header_mouse_down (os::key_state, const core::native_point& npt) {
+    template<typename T, typename S>
+    inline void file_column_list<T, S>::handle_header_mouse_down (os::key_state, const core::native_point& npt) {
       mouse_down_point = super::surface_to_client(npt);
     }
 
-    template<typename T>
-    inline void file_column_list<T>::handle_header_mouse_up (os::key_state, const core::native_point& npt) {
+    template<typename T, typename S>
+    inline void file_column_list<T, S>::handle_header_mouse_up (os::key_state, const core::native_point& npt) {
       auto pt = super::surface_to_client(npt);
       if (mouse_down_point == pt) {
         int i = super::get_column_layout().index_at(pt.x());
@@ -207,8 +207,8 @@ namespace gui {
       mouse_down_point = core::point::undefined;
     }
 
-    template<typename T>
-    inline void file_column_list<T>::set_path (const sys_fs::path& dir, std::function<fs::filter_fn> filter) {
+    template<typename T, typename S>
+    inline void file_column_list<T, S>::set_path (const sys_fs::path& dir, std::function<fs::filter_fn> filter) {
       current_dir = T::sub_nodes(dir, filter);
       super::list->clear_selection(event_source::logic);
       super::list->set_scroll_pos(core::point::zero);
@@ -222,17 +222,16 @@ namespace gui {
       super::header.invalidate();
     }
 
-    template<typename T>
-    inline sys_fs::path file_column_list<T>::get_selected_path () const {
-      int selection = super::list->get_selection();
-      if (selection > -1) {
-        return current_dir[selection].path;
+    template<typename T, typename S>
+    inline sys_fs::path file_column_list<T, S>::get_selected_path () const {
+      if (super::list->has_selection()) {
+        return current_dir[super::list->get_selection().get_first_index()].path;
       }
       return sys_fs::path();
     }
 
-    template<typename T>
-    void file_column_list<T>::sort_by (sort_order new_order) {
+    template<typename T, typename S>
+    void file_column_list<T, S>::sort_by (sort_order new_order) {
       if (order != new_order) {
         order = new_order;
         sort_list_by(current_dir, order);
@@ -241,13 +240,13 @@ namespace gui {
       }
     }
 
-    template<typename T>
-    sort_order file_column_list<T>::get_sort_order () const {
+    template<typename T, typename S>
+    sort_order file_column_list<T, S>::get_sort_order () const {
       return order;
     }
 
-    template<typename T>
-    void file_column_list<T>::init_file_list_header (column_list_header<layout::weight_column_list_layout>& header) {
+    template<typename T, typename S>
+    void file_column_list<T, S>::init_file_list_header (column_list_header<layout::weight_column_list_layout>& header) {
       header.set_cell_drawer([&] (std::size_t i, draw::graphics& g, const core::rectangle& r, const draw::brush& background) {
         static std::string title[] = {"", "Name", "Size", "Changed"};
         g.fill(draw::rectangle(r), background);

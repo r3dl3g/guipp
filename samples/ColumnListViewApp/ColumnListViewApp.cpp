@@ -16,7 +16,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   layout_main_window<border::layouter</*50, 50, 50, 50*/>> main;
 
-  typedef ctrl::column_list_t<layout::simple_column_list_layout, std::string, int, double> list_t;
+  typedef ctrl::column_list_t<layout::simple_column_list_layout, core::selector::single,
+                              std::string, int, double> list_t;
   typedef ctrl::const_column_list_data<std::string, int, double>::row_type row_type;
 
   list_t list;

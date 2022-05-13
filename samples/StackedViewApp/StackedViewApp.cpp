@@ -54,7 +54,7 @@ public:
   }
 
   std::string get_selected_path () const {
-    int selection = super::get_selection();
+    int selection = super::get_selection().get_first_index();
     if (selection > -1) {
       return current_path + current_dir[selection] + "/";
     }

@@ -255,7 +255,7 @@ namespace gui {
         header.get_layout().add(layout::lay(add_button));
         add_button.on_clicked([&] () {
           if (view->has_selection()) {
-            auto parent_dir = view->get_item(view->get_selection()).path;
+            auto parent_dir = view->get_item(view->get_selection().get_first_index()).path;
             if (fn(super::get_overlapped_window(), parent_dir)) {
               view->update_node_list();
             }
@@ -310,8 +310,8 @@ namespace gui {
       super::create(parent, title, rect, {cancel_label, ok_label},
                     [&, action] (win::overlapped_window& dlg, int btn) {
         if (1 == btn) {
-          int idx = dir_tree.get_selection();
-          if (idx > -1) {
+          if (dir_tree.has_selection()) {
+            int idx = dir_tree.get_selection().get_first_index();
             sys_fs::path path = dir_tree.get_item(idx).path;
             path /= input_line.get_text();
             action(dlg, path);

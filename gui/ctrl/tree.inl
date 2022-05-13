@@ -94,7 +94,7 @@ namespace gui {
         set_root(type());
         super::set_data(data);
         super::on_selection_commit([&]() {
-          toggle_node(super::get_selection());
+          toggle_node(super::get_selection().get_first_index());
         });
         super::on_left_btn_down([&](os::key_state, const core::native_point& pt_) {
           core::point pt = super::surface_to_client(pt_);
@@ -114,7 +114,7 @@ namespace gui {
           switch (key) {
             case core::keys::left:
             case core::keys::numpad::left: {
-              int idx = super::get_selection();
+              int idx = super::get_selection().get_first_index();
               if (is_valid_idx(idx)) {
                 const reference ref = get_item(idx);
                 auto i = data.open_nodes.find(ref);
@@ -131,7 +131,7 @@ namespace gui {
             }
             case core::keys::right:
             case core::keys::numpad::right:
-              open_node(super::get_selection());
+              open_node(super::get_selection().get_first_index());
               break;
           }
         });

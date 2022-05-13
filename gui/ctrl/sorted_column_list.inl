@@ -20,8 +20,8 @@ namespace gui {
 
   namespace ctrl {
 
-    template<typename L, typename ... A>
-    sorted_column_list_t<L, A...>::sorted_column_list_t (gui::core::size::type item_size,
+    template<typename L, typename S, typename ... A>
+    sorted_column_list_t<L, S, A...>::sorted_column_list_t (gui::core::size::type item_size,
                                                          gui::os::color background,
                                                          bool grab_focus)
       : super(item_size, background, grab_focus)
@@ -29,27 +29,27 @@ namespace gui {
       init();
     }
 
-    template<typename L, typename ... A>
-    sorted_column_list_t<L, A...>::sorted_column_list_t (const sorted_column_list_t& rhs)
+    template<typename L, typename S, typename ... A>
+    sorted_column_list_t<L, S, A...>::sorted_column_list_t (const sorted_column_list_t& rhs)
       : super(rhs)
     {
       init();
     }
 
-    template<typename L, typename ... A>
-    sorted_column_list_t<L, A...>::sorted_column_list_t (sorted_column_list_t&& rhs) noexcept
+    template<typename L, typename S, typename ... A>
+    sorted_column_list_t<L, S, A...>::sorted_column_list_t (sorted_column_list_t&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();
     }
 
-    template<typename L, typename ... A>
-    void sorted_column_list_t<L, A...>::on_sort (const std::function<sort_callback>& s) {
+    template<typename L, typename S, typename ... A>
+    void sorted_column_list_t<L, S, A...>::on_sort (const std::function<sort_callback>& s) {
       sorter = s;
     }
 
-    template<typename L, typename ... A>
-    void sorted_column_list_t<L, A...>::sort () {
+    template<typename L, typename S, typename ... A>
+    void sorted_column_list_t<L, S, A...>::sort () {
       if (sorter) {
         if (!sorter(sort_dir, sort_column)) {
           sort_column = -1;
@@ -59,8 +59,8 @@ namespace gui {
       super::header.invalidate();
     }
 
-    template<typename L, typename ... A>
-    void sorted_column_list_t<L, A...>::init () {
+    template<typename L, typename S, typename ... A>
+    void sorted_column_list_t<L, S, A...>::init () {
       using namespace gui;
       using namespace gui::draw;
 

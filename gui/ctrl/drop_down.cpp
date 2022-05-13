@@ -155,9 +155,8 @@ namespace gui {
     }
 
     void drop_down_list::handle_selection_changed (event_source src) {
-      int idx = data.items->get_selection();
-      if (idx > -1) {
-        data.selection = idx;
+      if (data.items->has_selection()) {
+        data.selection = data.items->get_selection().get_first_index();
         super::invalidate();
         if (src == event_source::mouse) {
           hide_popup();

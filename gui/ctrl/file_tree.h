@@ -251,11 +251,11 @@ namespace gui {
     GUIPP_CTRL_EXPORT void sort_list_by (std::vector<fs::file_info>& list, sort_order);
 
     // --------------------------------------------------------------------------
-    template<typename T = path_tree::sorted_file_info>
-    class file_column_list : public column_list_t<layout::weight_column_list_layout,
+    template<typename T = path_tree::sorted_file_info, typename S = core::selector::single>
+    class file_column_list : public column_list_t<layout::weight_column_list_layout, S,
                                                   gui::tree::icon_drawer*, const fs::file_info&, const fs::file_info&, const sys_fs::file_time_type&> {
     public:
-      typedef column_list_t<layout::weight_column_list_layout,
+      typedef column_list_t<layout::weight_column_list_layout, S,
                             gui::tree::icon_drawer*, const fs::file_info&, const fs::file_info&, const sys_fs::file_time_type&> super;
 
       explicit file_column_list (core::size::type item_size = list_defaults<>::item_size,

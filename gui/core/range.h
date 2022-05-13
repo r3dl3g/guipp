@@ -47,6 +47,8 @@ namespace gui {
       bool operator!= (const range&) const;
 
       bool is_inside (const type& i) const;
+      bool is_overlapping (const type& i) const;
+
       void sort ();
       bool empty () const;
       void clear ();

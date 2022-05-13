@@ -18,11 +18,19 @@
 
 // --------------------------------------------------------------------------
 //
+// Common includes
+//
+#include <set>
+
+
+// --------------------------------------------------------------------------
+//
 // Library includes
 //
 #include <util/string_util.h>
 #include <gui/core/orientation_traits.h>
 #include <gui/core/list_state.h>
+#include <gui/core/selector.h>
 #include <gui/draw/brush.h>
 #include <gui/ctrl/virtual_view.h>
 #include <gui/ctrl/edit.h>
@@ -207,22 +215,17 @@ namespace gui {
         typedef core::size::type pos_t;
 
         explicit list_base (os::color background = color::white,
-                   bool grab_focus = true);
+                            bool grab_focus = true);
         list_base (list_base&&) noexcept ;
 
         core::list_state::is get_state() const;
         core::list_state::set set_state();
 
         std::size_t get_count () const;
-        int get_selection () const;
-        bool has_selection () const;
-        void clear_selection (event_source notify);
 
         int get_hilite () const;
         void set_hilite (int sel, bool notify = true);
         void clear_hilite (bool notify = true);
-
-        item_state get_item_state (int idx) const;
 
         core::native_point get_last_mouse_point () const;
 
@@ -247,7 +250,6 @@ namespace gui {
           explicit data ();
 
           std::function<list_data_provider> items;
-          int selection;
           int hilite;
           core::point offset;
           core::native_point last_mouse_point;
@@ -256,6 +258,30 @@ namespace gui {
       private:
         void init ();
 
+      };
+
+      // --------------------------------------------------------------------------
+      template<typename T = core::selector::single>
+      class selectable_list : public list_base {
+      public:
+        typedef list_base super;
+        typedef T selector_type;
+
+        explicit selectable_list (os::color background = color::white,
+                                  bool grab_focus = true);
+
+        const selector_type& get_selection () const;
+
+        bool has_selection () const;
+
+        void clear_selection (event_source notify);
+
+        item_state get_item_state (int idx) const;
+
+        bool can_select_multi () const;
+
+      protected:
+        selector_type selection;
       };
 
     } // namespace detail
@@ -285,10 +311,10 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<orientation_t V, typename T>
-    class uniform_list : public detail::list_base {
+    template<orientation_t V, typename T, typename S = core::selector::single>
+    class uniform_list : public detail::selectable_list<S> {
     public:
-      typedef detail::list_base super;
+      typedef detail::selectable_list<S> super;
       typedef T traits_type;
       typedef typename traits_type::size_type size_type;
       typedef typename super::pos_t pos_t;
@@ -329,7 +355,10 @@ namespace gui {
       core::rectangle get_geometry_of_index (int idx);
 
       bool try_to_select (int sel, event_source notify);
-      void set_selection (int sel, event_source notify);
+      void set_selection (int sel, event_source notify, bool add = false);
+      void select (int sel, event_source notify);
+      void select_all (event_source notify);
+      void unselect (int sel, event_source notify);
       void make_selection_visible (selection_adjustment adjust = selection_adjustment::center_always);
 
       void set_scroll_pos_1 (pos_t pos);
@@ -370,6 +399,9 @@ namespace gui {
       size_type get_line_size () const;
       size_type get_item_dimension () const;
 
+      template<typename T>
+      void handle_direction_key (T& list, bool shift_pressed, os::key_symbol key);
+
       size_type item_size;
     };
 
@@ -387,10 +419,10 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<orientation_t V>
-    class linear_list : public uniform_list<V, linear_list_traits<V>> {
+    template<orientation_t V, typename S = core::selector::single>
+    class linear_list : public uniform_list<V, linear_list_traits<V>, S> {
     public:
-      typedef uniform_list<V, linear_list_traits<V>> super;
+      typedef uniform_list<V, linear_list_traits<V>, S> super;
 
       explicit linear_list (core::size::type item_size = list_defaults<>::item_size,
                    os::color background = color::white,
@@ -408,24 +440,42 @@ namespace gui {
                        const std::string&);
 
     private:
-      void handle_direction_key (os::key_symbol key);
-
       void init ();
     };
 
     // --------------------------------------------------------------------------
-    template<>
-    GUIPP_CTRL_EXPORT void linear_list<orientation_t::horizontal>::handle_direction_key (os::key_symbol key);
+    template<typename S>
+    using horizontal_list_t = linear_list<orientation_t::horizontal, S>;
 
-    template<>
-    GUIPP_CTRL_EXPORT void linear_list<orientation_t::vertical>::handle_direction_key (os::key_symbol key);
+    template<typename S>
+    using vertical_list_t = linear_list<orientation_t::vertical, S>;
+
+    template<typename S>
+    using horizontal_scrollable_list_t = virtual_view<horizontal_list_t<S>>;
+
+    template<typename S>
+    using vertical_scrollable_list_t = virtual_view<vertical_list_t<S>>;
+
+    template<typename S>
+    using list_t = vertical_scrollable_list_t<S>;
 
     // --------------------------------------------------------------------------
-    typedef linear_list<orientation_t::horizontal> horizontal_list;
-    typedef linear_list<orientation_t::vertical> vertical_list;
-    typedef virtual_view<horizontal_list> horizontal_scrollable_list;
-    typedef virtual_view<vertical_list> vertical_scrollable_list;
-    typedef vertical_scrollable_list list;
+    using horizontal_list = horizontal_list_t<core::selector::single>;
+    using vertical_list = vertical_list_t<core::selector::single>;
+
+    using horizontal_scrollable_list = virtual_view<horizontal_list>;
+    using vertical_scrollable_list = virtual_view<vertical_list>;
+
+    using list = vertical_scrollable_list;
+
+    // --------------------------------------------------------------------------
+    using horizontal_multi_list = horizontal_list_t<core::selector::multi>;
+    using vertical_multi_list = vertical_list_t<core::selector::multi>;
+
+    using horizontal_scrollable_multi_list = virtual_view<horizontal_multi_list>;
+    using vertical_scrollable_multi_list = virtual_view<vertical_multi_list>;
+
+    using multi_list = vertical_scrollable_multi_list;
 
     // --------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT edit_list : public vertical_list {

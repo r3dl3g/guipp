@@ -311,7 +311,7 @@ namespace gui {
         super::clear_selection(notify);
         super::selection.set_selected(new_selection);
       }
-      make_selection_visible();
+      make_entry_visible(new_selection);
       super::invalidate();
       if (notify != event_source::logic) {
         super::notify_selection_changed(notify);
@@ -323,7 +323,7 @@ namespace gui {
       const int new_selection = std::min(std::max(0, sel), static_cast<int>(super::get_count() - 1));
       if (!super::selection.is_selected(new_selection)) {
         super::selection.set_selected(new_selection);
-        make_selection_visible();
+        make_entry_visible(new_selection);
         super::invalidate();
         if (notify != event_source::logic) {
           super::notify_selection_changed(notify);
@@ -363,40 +363,45 @@ namespace gui {
     template<orientation_t V, typename T, typename S>
     void uniform_list<V, T, S>::make_selection_visible (selection_adjustment adjust) {
       if (super::has_selection()) {
-        const auto list_size = super::client_size();
-        const auto list_sz = traits.get_1(list_size);
-        const auto line_size = traits.get_line_size();
-        const auto scroll_pos = get_scroll_pos_1();
-        const auto sel_pos = traits.get_offset_of_index(list_size, super::get_selection().get_first_index());
+        make_entry_visible(super::get_selection().get_first_index(), adjust);
+      }
+    }
 
-        if (selection_adjustment::center_always == adjust) {
-          set_scroll_pos_1(sel_pos - (list_sz / 2) + line_size);
-        } else if (sel_pos < scroll_pos) {
-          switch (adjust) {
-            case selection_adjustment::start:
-            case selection_adjustment::next:
-              set_scroll_pos_1(sel_pos);
-              break;
-            case selection_adjustment::center:
-              set_scroll_pos_1(sel_pos - (list_sz / 2) + line_size);
-              break;
-            case selection_adjustment::end:
-              set_scroll_pos_1(sel_pos - list_sz + line_size);
-              break;
-          }
-        } else if (sel_pos + line_size - scroll_pos > list_sz) {
-          switch (adjust) {
-            case selection_adjustment::start:
-              set_scroll_pos_1(sel_pos);
-              break;
-            case selection_adjustment::center:
-              set_scroll_pos_1(sel_pos - (list_sz / 2) + line_size);
-              break;
-            case selection_adjustment::end:
-            case selection_adjustment::next:
-              set_scroll_pos_1(sel_pos - list_sz + line_size);
-              break;
-          }
+    template<orientation_t V, typename T, typename S>
+    void uniform_list<V, T, S>::make_entry_visible (int sel_idx, selection_adjustment adjust) {
+      const auto list_size = super::client_size();
+      const auto list_sz = traits.get_1(list_size);
+      const auto line_size = traits.get_line_size();
+      const auto scroll_pos = get_scroll_pos_1();
+      const auto sel_pos = traits.get_offset_of_index(list_size, sel_idx);
+
+      if (selection_adjustment::center_always == adjust) {
+        set_scroll_pos_1(sel_pos - (list_sz / 2) + line_size);
+      } else if (sel_pos < scroll_pos) {
+        switch (adjust) {
+          case selection_adjustment::start:
+          case selection_adjustment::next:
+            set_scroll_pos_1(sel_pos);
+            break;
+          case selection_adjustment::center:
+            set_scroll_pos_1(sel_pos - (list_sz / 2) + line_size);
+            break;
+          case selection_adjustment::end:
+            set_scroll_pos_1(sel_pos - list_sz + line_size);
+            break;
+        }
+      } else if (sel_pos + line_size - scroll_pos > list_sz) {
+        switch (adjust) {
+          case selection_adjustment::start:
+            set_scroll_pos_1(sel_pos);
+            break;
+          case selection_adjustment::center:
+            set_scroll_pos_1(sel_pos - (list_sz / 2) + line_size);
+            break;
+          case selection_adjustment::end:
+          case selection_adjustment::next:
+            set_scroll_pos_1(sel_pos - list_sz + line_size);
+            break;
         }
       }
     }

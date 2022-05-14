@@ -360,6 +360,7 @@ namespace gui {
       void select_all (event_source notify);
       void unselect (int sel, event_source notify);
       void make_selection_visible (selection_adjustment adjust = selection_adjustment::next);
+      void make_entry_visible (int sel, selection_adjustment adjust = selection_adjustment::next);
 
       void set_scroll_pos_1 (pos_t pos);
       pos_t get_scroll_pos_1 () const;

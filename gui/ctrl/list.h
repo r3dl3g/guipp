@@ -359,7 +359,7 @@ namespace gui {
       void select (int sel, event_source notify);
       void select_all (event_source notify);
       void unselect (int sel, event_source notify);
-      void make_selection_visible (selection_adjustment adjust = selection_adjustment::center_always);
+      void make_selection_visible (selection_adjustment adjust = selection_adjustment::next);
 
       void set_scroll_pos_1 (pos_t pos);
       pos_t get_scroll_pos_1 () const;

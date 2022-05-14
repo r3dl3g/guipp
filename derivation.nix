@@ -4,7 +4,7 @@
 
 stdenv.mkDerivation rec {
   pname = "guipp";
-  version = "1.1.0";
+  version = "1.2.0";
 
   src = ./.;
 
@@ -16,6 +16,8 @@ stdenv.mkDerivation rec {
     xorg.libXft.dev
     xorg.libxcb.dev
     xorg.libXdmcp.dev
+    (callPackage ../logging/derivation.nix { })
+    (callPackage ../util/derivation.nix { })
   ];
 
   enableParallelBuilding = true;
@@ -28,7 +30,7 @@ stdenv.mkDerivation rec {
     "-DLOGGING_CONFIG_INSTALL=ON"
     "-DUTIL_CONFIG_INSTALL=ON"
     "-DTESTING_CONFIG_INSTALL=ON"
-    "-DGUIPP_BUILD_DEPENDENT_LIBS=ON"
+    "-DGUIPP_BUILD_DEPENDENT_LIBS=OFF"
     "-DGUIPP_BUILD_STATIC_MODULE_LIBS=OFF"
     "-DGUIPP_BUILD_SHARED_MODULE_LIBS=ON"
     "-DLOGGING_BUILD_STATIC_MODULE_LIB=OFF"

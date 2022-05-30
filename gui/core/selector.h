@@ -117,6 +117,10 @@ namespace gui {
           return selection;
         }
 
+        inline int get_last_selected_index () const {
+          return selection;
+        }
+
         inline iterator begin () const {
           return iterator(selection);
         }
@@ -142,6 +146,7 @@ namespace gui {
         typedef std::set<int>::const_iterator iterator;
 
         inline multi ()
+          : last_selected_index(-1)
         {}
 
         inline bool is_selected (int i) const {
@@ -150,14 +155,19 @@ namespace gui {
 
         inline void set_selected (int i) {
           selection.insert(i);
+          last_selected_index = i;
         }
 
         inline void set_unselected (int i) {
           selection.erase(i);
+          if (last_selected_index == i) {
+            last_selected_index = -1;
+          }
         }
 
         inline void clear_selection () {
           selection.clear();
+          last_selected_index = -1;
         }
 
         inline void select_range (int from, int to) {
@@ -166,11 +176,13 @@ namespace gui {
           }
         }
 
-        inline void expand_to (int to) {
-          if (to < get_first_index()) {
-            select_range(to, get_first_index());
-          } else if (to > get_last_index()) {
-            select_range(get_last_index(), to);
+        inline void expand_to (int i) {
+          if (i < last_selected_index) {
+            select_range(i, last_selected_index);
+          } else if (i > last_selected_index) {
+            select_range(last_selected_index, i);
+          } else {
+            set_selected(i);
           }
         }
 
@@ -184,6 +196,10 @@ namespace gui {
 
         inline int get_last_index () const {
           return selection.empty() ? 0 : *selection.rbegin();
+        }
+
+        inline int get_last_selected_index () const {
+          return last_selected_index;
         }
 
         inline iterator begin () const {
@@ -204,6 +220,99 @@ namespace gui {
 
       private:
         std::set<int> selection;
+        int last_selected_index;
+      };
+
+      // --------------------------------------------------------------------------
+      struct none {
+
+        struct iterator {
+
+          using iterator_category = std::input_iterator_tag;
+          using value_type = int;
+          using difference_type = std::ptrdiff_t;
+          using pointer = int*;
+          using reference = int&;
+
+          inline iterator ()
+          {}
+
+          inline iterator& operator++ () {
+            return *this;
+          }
+
+          inline iterator operator++ (int) {
+            return *this;
+          }
+
+          inline bool operator== (iterator other) const {
+            return false;
+          }
+
+          inline bool operator!= (iterator other) const {
+            return true;
+          }
+
+          inline int operator* () const {
+            return 0;
+          }
+
+        };
+
+        inline none ()
+        {}
+
+        inline bool is_selected (int) const {
+          return false;
+        }
+
+        inline void set_selected (int) {
+        }
+
+        inline void set_unselected (int) {
+        }
+
+        inline void clear_selection () {
+        }
+
+        inline void select_range (int, int) {
+        }
+
+        inline void expand_to (int) {
+        }
+
+        inline bool has_selection () const {
+          return false;
+        }
+
+        inline int get_first_index () const {
+          return -1;
+        }
+
+        inline int get_last_index () const {
+          return -1;
+        }
+
+        inline int get_last_selected_index () const {
+          return -1;
+        }
+
+        inline iterator begin () const {
+          return iterator();
+        }
+
+        inline iterator end () const {
+          return iterator();
+        }
+
+        inline std::size_t size () const {
+          return 0;
+        }
+
+        inline bool is_multi_select () const {
+          return false;
+        }
+
       };
 
       // --------------------------------------------------------------------------

@@ -67,16 +67,25 @@ namespace gui {
       std::size_t get_items_per_line (const core::size& list_size) const;
       std::size_t get_line_count (size_t count, const core::size& list_size) const;
 
+      int get_direction_step (os::key_symbol key, const core::size& list_size) const;
+
       core::size item_size;
       core::size border;
       core::size spacing;
     };
 
     // --------------------------------------------------------------------------
-    template<orientation_t V>
-    class basic_tile_view : public uniform_list<V, tile_list_traits<V>> {
+    template<>
+    GUIPP_CTRL_EXPORT int tile_list_traits<orientation_t::horizontal>::get_direction_step (os::key_symbol, const core::size&) const;
+
+    template<>
+    GUIPP_CTRL_EXPORT int tile_list_traits<orientation_t::vertical>::get_direction_step (os::key_symbol, const core::size&) const;
+
+    // --------------------------------------------------------------------------
+    template<orientation_t V, typename S = core::selector::single>
+    class basic_tile_view : public uniform_list<V, tile_list_traits<V>, S> {
     public:
-      typedef uniform_list<V, tile_list_traits<V>> super;
+      typedef uniform_list<V, tile_list_traits<V>, S> super;
 
       explicit basic_tile_view (const core::size& item_size = { 20, 20 },
                                 os::color background = color::white,
@@ -113,19 +122,40 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<>
-    GUIPP_CTRL_EXPORT void basic_tile_view<orientation_t::horizontal>::handle_direction_key (os::key_symbol key);
+    template<typename S>
+    using horizontal_tile_view_t = basic_tile_view<orientation_t::horizontal, S>;
 
-    template<>
-    GUIPP_CTRL_EXPORT void basic_tile_view<orientation_t::vertical>::handle_direction_key (os::key_symbol key);
+    template<typename S>
+    using vertical_tile_view_t = basic_tile_view<orientation_t::vertical, S>;
+
+    template<typename S>
+    using horizontal_scrollable_tile_view_t = virtual_view<horizontal_tile_view_t<S>>;
+
+    template<typename S>
+    using vertical_scrollable_tile_view_t = virtual_view<vertical_tile_view_t<S>>;
+
+    template<typename S>
+    using tile_view_s = vertical_scrollable_tile_view_t<S>;
 
     // --------------------------------------------------------------------------
-    typedef basic_tile_view<orientation_t::horizontal> horizontal_tile_view;
-    typedef basic_tile_view<orientation_t::vertical> vertical_tile_view;
-    typedef virtual_view<horizontal_tile_view> horizontal_scrollable_tile_view;
-    typedef virtual_view<vertical_tile_view> vertical_scrollable_tile_view;
-    typedef vertical_scrollable_tile_view tile_view;
+    using horizontal_tile_view = horizontal_tile_view_t<core::selector::single>;
+    using vertical_tile_view = vertical_tile_view_t<core::selector::single>;
 
+    using horizontal_scrollable_tile_view = horizontal_scrollable_tile_view_t<core::selector::single>;
+    using vertical_scrollable_tile_view = vertical_scrollable_tile_view_t<core::selector::single>;
+
+    using tile_view = vertical_scrollable_tile_view;
+
+    // --------------------------------------------------------------------------
+    using horizontal_multi_tile_view = horizontal_tile_view_t<core::selector::multi>;
+    using vertical_multi_tile_view = vertical_tile_view_t<core::selector::multi>;
+
+    using horizontal_scrollable_multi_tile_view = horizontal_scrollable_tile_view_t<core::selector::multi>;
+    using vertical_scrollable_multi_tile_view = vertical_scrollable_tile_view_t<core::selector::multi>;
+
+    using multi_tile_view = vertical_scrollable_multi_tile_view;
+
+    // --------------------------------------------------------------------------
   } // ctrl
 
 } // gui

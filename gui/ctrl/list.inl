@@ -436,20 +436,27 @@ namespace gui {
     void uniform_list<V, T, S>::handle_left_btn_up (os::key_state state, const core::native_point& pt) {
       if (!super::is_moved() && (super::get_last_mouse_point() != core::native_point::undefined)) {
         const int new_selection = get_index_at_point(super::surface_to_client(pt));
-        if (core::control_key_bit_mask::is_set(state)) {
-          if (super::get_selection().is_selected(new_selection)) {
-            unselect(new_selection, event_source::mouse);
-          } else {
-            select(new_selection, event_source::mouse);
-          }
-        } else {
-          const bool shift_pressed = core::shift_key_bit_mask::is_set(state);
-          set_selection(new_selection, event_source::mouse, shift_pressed);
 #ifdef GUIPP_BUILD_FOR_MOBILE
-        } else {
+        if (super::get_selection().is_selected(new_selection)) {
           // second selection -> commit
           super::notify_selection_commit();
+#else // !GUIPP_BUILD_FOR_MOBILE
+        const bool shift_pressed = core::shift_key_bit_mask::is_set(state);
+        const bool ctrl_pressed = core::control_key_bit_mask::is_set(state);
+
+        if (ctrl_pressed) {
+          if (shift_pressed) {
+            set_selection(new_selection, event_source::mouse, shift_pressed);
+          } else {
+            if (super::get_selection().is_selected(new_selection)) {
+              unselect(new_selection, event_source::mouse);
+            } else {
+              select(new_selection, event_source::mouse);
+            }
+          }
 #endif // GUIPP_BUILD_FOR_MOBILE
+        } else {
+          set_selection(new_selection, event_source::mouse, shift_pressed);
         }
       }
       super::set_cursor(win::cursor::arrow());

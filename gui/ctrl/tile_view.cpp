@@ -26,55 +26,41 @@ namespace gui {
   namespace ctrl {
 
     template<>
-    void basic_tile_view<orientation_t::horizontal>::handle_direction_key (os::key_symbol key) {
+    int tile_list_traits<orientation_t::horizontal>::get_direction_step (os::key_symbol key, const core::size& list_size) const {
       switch (key) {
         case core::keys::left:
-        case core::keys::numpad::left: {
-          try_to_select(super::get_selection().get_first_index() - static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
-          break;
-        }
+        case core::keys::numpad::left:
+          return -static_cast<int>(get_items_per_line(list_size));
         case core::keys::right:
-        case core::keys::numpad::right: {
-          try_to_select(super::get_selection().get_first_index() + static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
-          break;
-        }
+        case core::keys::numpad::right:
+          return static_cast<int>(get_items_per_line(list_size));
         case core::keys::up:
-        case core::keys::numpad::up: {
-          try_to_select(super::get_selection().get_first_index() - 1, event_source::keyboard);
-          break;
-        }
+        case core::keys::numpad::up:
+          return -1;
         case core::keys::down:
-        case core::keys::numpad::down: {
-          try_to_select(super::get_selection().get_first_index() + 1, event_source::keyboard);
-          break;
-        }
+        case core::keys::numpad::down:
+          return 1;
       }
+      return 0;
     }
 
     template<>
-    void basic_tile_view<orientation_t::vertical>::handle_direction_key (os::key_symbol key) {
+    int tile_list_traits<orientation_t::vertical>::get_direction_step (os::key_symbol key, const core::size& list_size) const {
       switch (key) {
         case core::keys::left:
-        case core::keys::numpad::left: {
-          try_to_select(super::get_selection().get_first_index() - 1, event_source::keyboard);
-          break;
-        }
+        case core::keys::numpad::left:
+          return -1;
         case core::keys::right:
-        case core::keys::numpad::right: {
-          try_to_select(super::get_selection().get_first_index() + 1, event_source::keyboard);
-          break;
-        }
+        case core::keys::numpad::right:
+          return 1;
         case core::keys::up:
-        case core::keys::numpad::up: {
-          try_to_select(super::get_selection().get_first_index() - static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
-          break;
-        }
+        case core::keys::numpad::up:
+          return -static_cast<int>(get_items_per_line(list_size));
         case core::keys::down:
-        case core::keys::numpad::down: {
-          try_to_select(super::get_selection().get_first_index() + static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
-          break;
-        }
+        case core::keys::numpad::down:
+          return static_cast<int>(get_items_per_line(list_size));
       }
+      return 0;
     }
 
 

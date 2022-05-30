@@ -149,8 +149,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<orientation_t V>
-    inline basic_tile_view<V>::basic_tile_view (const core::size& item_size,
+    template<orientation_t V, typename S>
+    inline basic_tile_view<V, S>::basic_tile_view (const core::size& item_size,
                                                 os::color background,
                                                 bool grab_focus)
       : super(item_size, background, grab_focus)
@@ -158,27 +158,27 @@ namespace gui {
       init();
     }
 
-    template<orientation_t V>
-    inline basic_tile_view<V>::basic_tile_view (const basic_tile_view& rhs)
+    template<orientation_t V, typename S>
+    inline basic_tile_view<V, S>::basic_tile_view (const basic_tile_view& rhs)
       : super(rhs)
     {
       init();
     }
 
-    template<orientation_t V>
-    inline basic_tile_view<V>::basic_tile_view (basic_tile_view&& rhs) noexcept
+    template<orientation_t V, typename S>
+    inline basic_tile_view<V, S>::basic_tile_view (basic_tile_view&& rhs) noexcept
       : super(std::move(rhs))
     {
       init();
     }
 
-    template<orientation_t V>
-    inline std::size_t basic_tile_view<V>::get_line_count () const {
+    template<orientation_t V, typename S>
+    inline std::size_t basic_tile_view<V, S>::get_line_count () const {
       return super::traits.get_line_count(super::get_count(), super::client_size());
     }
 
-    template<orientation_t V>
-    inline core::rectangle basic_tile_view<V>::get_virtual_geometry (const core::rectangle& r) const {
+    template<orientation_t V, typename S>
+    inline core::rectangle basic_tile_view<V, S>::get_virtual_geometry (const core::rectangle& r) const {
       const auto ic = super::traits.get_items_per_line(r.size());
       const auto lc = core::div_ceil(super::get_count(), ic);
 
@@ -199,14 +199,14 @@ namespace gui {
       return place;
     }
 
-    template<orientation_t V>
-    core::size basic_tile_view<V>::get_scroll_steps () const {
+    template<orientation_t V, typename S>
+    core::size basic_tile_view<V, S>::get_scroll_steps () const {
       const core::size isp{super::traits.get_item_spacing()};
       return super::get_item_size() + isp;
     }
 
-    template<orientation_t V>
-    core::rectangle basic_tile_view<V>::get_full_place_of_index (int idx) {
+    template<orientation_t V, typename S>
+    core::rectangle basic_tile_view<V, S>::get_full_place_of_index (int idx) {
       const core::rectangle list_area = super::client_geometry();
 
       const auto per_line = super::traits.get_items_per_line(list_area.size());
@@ -223,8 +223,8 @@ namespace gui {
       return place;
     }
 
-    template<orientation_t V>
-    void basic_tile_view<V>::paint (draw::graphics& graph) {
+    template<orientation_t V, typename S>
+    void basic_tile_view<V, S>::paint (draw::graphics& graph) {
       const core::rectangle area = super::client_geometry();
 
       draw::brush back_brush(super::get_background());
@@ -321,14 +321,18 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<orientation_t V>
-    void basic_tile_view<V>::handle_key (os::key_state state,
+    template<orientation_t V, typename S>
+    void basic_tile_view<V, S>::handle_key (os::key_state state,
                                          os::key_symbol key,
                                          const std::string&) {
       if (state != core::state::none) {
         return;
       }
-      handle_direction_key(key);
+      const int step = super::traits.get_direction_step(key, super::client_size());
+      if (step) {
+        super::try_to_select(super::get_selection().get_first_index() + step, event_source::keyboard);
+        return;
+      }
       switch (key) {
       case core::keys::page_up:
       case core::keys::numpad::page_up:
@@ -353,31 +357,31 @@ namespace gui {
       }
     }
 
-    template<orientation_t V>
-    void basic_tile_view<V>::init () {
+    template<orientation_t V, typename S>
+    void basic_tile_view<V, S>::init () {
       super::on_paint(draw::paint(this, &basic_tile_view::paint));
       super::on_any_key_down(util::bind_method(this, &basic_tile_view::handle_key));
     }
 
-    template<orientation_t V>
-    void basic_tile_view<V>::set_border (const core::size& sz) {
+    template<orientation_t V, typename S>
+    void basic_tile_view<V, S>::set_border (const core::size& sz) {
       super::traits.border = sz;
       super::invalidate();
     }
     
-    template<orientation_t V>
-    void basic_tile_view<V>::set_spacing (const core::size& sz) {
+    template<orientation_t V, typename S>
+    void basic_tile_view<V, S>::set_spacing (const core::size& sz) {
       super::traits.spacing = sz;
       super::invalidate();
     }
 
-    template<orientation_t V>
-    const core::size& basic_tile_view<V>::get_border () const {
+    template<orientation_t V, typename S>
+    const core::size& basic_tile_view<V, S>::get_border () const {
       return super::traits.border;
     }
 
-    template<orientation_t V>
-    const core::size& basic_tile_view<V>::get_spacing () const {
+    template<orientation_t V, typename S>
+    const core::size& basic_tile_view<V, S>::get_spacing () const {
       return super::traits.spacing;
     }
 

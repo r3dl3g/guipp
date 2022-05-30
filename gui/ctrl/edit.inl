@@ -31,7 +31,7 @@ namespace gui {
 
     template<typename T, typename F>
     inline void edit_t<T, F>::set (const type& v) {
-      if (value != v) {
+      if (!(value == v)) {
         value = v;
         super::invalidate();
         super::notify_content_changed();
@@ -55,9 +55,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T, typename F, text_origin_t A, draw::frame::drawer D>
-    inline basic_edit<T, F, A, D>::basic_edit ()
-      : super(T())
-    {
+    inline basic_edit<T, F, A, D>::basic_edit (T t)
+      : super(std::forward<T>(t)) {
       init();
     }
 
@@ -72,12 +71,6 @@ namespace gui {
     inline basic_edit<T, F, A, D>::basic_edit (basic_edit&& rhs) noexcept
       : super(std::move(rhs))
     {
-      init();
-    }
-
-    template<typename T, typename F, text_origin_t A, draw::frame::drawer D>
-    inline basic_edit<T, F, A, D>::basic_edit (T t)
-      : super(std::forward<T>(t)) {
       init();
     }
 
@@ -99,8 +92,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<text_origin_t A, char C, draw::frame::drawer D>
-    inline basic_pass<A, C, D>::basic_pass ()
-      : super(std::string())
+    inline basic_pass<A, C, D>::basic_pass (const std::string& t)
+      : super(t)
     {
       init();
     }
@@ -115,13 +108,6 @@ namespace gui {
     template<text_origin_t A, char C, draw::frame::drawer D>
     inline basic_pass<A, C, D>::basic_pass (basic_pass&& rhs) noexcept
       : super(std::move(rhs))
-    {
-      init();
-    }
-
-    template<text_origin_t A, char C, draw::frame::drawer D>
-    inline basic_pass<A, C, D>::basic_pass (const std::string& t)
-      : super(t)
     {
       init();
     }

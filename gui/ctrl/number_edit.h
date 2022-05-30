@@ -105,7 +105,7 @@ namespace gui {
       typedef number_edit<int&> int_edit_t;
       typedef util::time::time_point time_point;
 
-      date_time_edit_base (const time_point& v);
+      date_time_edit_base (const time_point& v = std::chrono::system_clock::now());
 
     protected:
       std::tm parts;
@@ -124,7 +124,7 @@ namespace gui {
     public:
       typedef date_time_edit_base super;
 
-      date_time_edit (T t);
+      date_time_edit (T t = {});
 
       void update ();
 
@@ -158,7 +158,7 @@ namespace gui {
     public:
       typedef duration_edit_base super;
 
-      duration_edit (T t);
+      duration_edit (T t = {});
 
       void update ();
 
@@ -175,7 +175,7 @@ namespace gui {
     public:
       typedef duration_edit<T> super;
 
-      duration_edit_ms (T t);
+      duration_edit_ms (T t = {});
 
     protected:
       typename super::int_edit_t micros;

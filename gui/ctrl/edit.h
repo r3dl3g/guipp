@@ -151,7 +151,7 @@ namespace gui {
       typedef detail::edit_base super;
       using type = typename std::remove_reference<T>::type;
 
-      edit_t (T);
+      edit_t (T = {});
 
       std::string get_text () const override;
       void set_text (const std::string&) override;
@@ -172,11 +172,10 @@ namespace gui {
     public:
       typedef edit_t<T, F> super;
 
-      basic_edit ();
+      basic_edit (T = {});
       basic_edit (const basic_edit& rhs);
       basic_edit (basic_edit&& rhs) noexcept;
 
-      basic_edit (T);
 
       void paint (draw::graphics& graph);
 
@@ -202,11 +201,10 @@ namespace gui {
     public:
       typedef edit_t<std::string> super;
 
-      basic_pass ();
+      basic_pass (const std::string& t = {});
       basic_pass (const basic_pass& rhs);
       basic_pass (basic_pass&& rhs) noexcept ;
 
-      basic_pass (const std::string& t);
 
       void paint (draw::graphics& graph);
 

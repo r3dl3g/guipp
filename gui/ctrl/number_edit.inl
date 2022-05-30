@@ -43,7 +43,7 @@ namespace gui {
       edit.template on_key_down<core::keys::up>([&] () { inc(); });
       edit.template on_key_down<core::keys::down>([&] () { dec(); });
       edit.on_wheel_y([&] (core::native_point::type delta, core::native_point) {
-        step(-static_cast<int>(delta) * increment);
+        step(-(increment * delta));
       });
     }
 

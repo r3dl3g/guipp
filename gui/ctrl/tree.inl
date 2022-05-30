@@ -349,7 +349,7 @@ namespace gui {
         : label(std::move(label))
       {}
 
-      inline node::node (const std::string& label, std::initializer_list<node> nodes)
+      inline node::node (const std::string& label, const node_list& nodes)
         : label(label)
       {
         add_nodes(nodes);
@@ -363,7 +363,7 @@ namespace gui {
         sub_nodes.emplace_back(std::move(node));
       }
 
-      inline void node::add_nodes (std::initializer_list<node> nodes) {
+      inline void node::add_nodes (const node_list& nodes) {
         for (auto& i : nodes) {
           add_node(i);
         }

@@ -244,7 +244,7 @@ namespace gui {
     }
 
     template<typename L>
-    void column_list_header<L>::set_labels (std::initializer_list<std::string> args) {
+    void column_list_header<L>::set_labels (const std::vector<std::string>& args) {
       std::vector<std::string> labels(args);
       set_cell_drawer([labels] (std::size_t i,
                                 draw::graphics& g,

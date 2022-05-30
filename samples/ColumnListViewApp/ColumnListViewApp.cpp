@@ -18,7 +18,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   typedef ctrl::column_list_t<layout::simple_column_list_layout, core::selector::single,
                               std::string, int, double> list_t;
-  typedef ctrl::const_column_list_data<std::string, int, double>::row_type row_type;
+  typedef ctrl::const_column_list_data<std::string, int, double> column_data_type;
+  typedef column_data_type::row_type row_type;
 
   list_t list;
 
@@ -29,7 +30,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   };
   list.get_column_layout().set_columns(columns);
 
-  list.set_data(ctrl::const_column_list_data<std::string, int, double> {
+  list.set_data(column_data_type({
                    row_type{ "Eins", 1, 1.1 },
                    row_type{ "ZWei", 2, 2.2 },
                    row_type{ "Drei", 3, 3.3 },
@@ -42,7 +43,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
                    row_type{ "Zehn", 10, 10.10 },
                    row_type{ "Elf", 11, 11.11 },
                    row_type{ "Zwölf", 12, 12.12 },
-                 });
+                 }));
   list.header.set_labels({"Text", "Int", "Double"});
 
   main.get_layout().set_center(lay(list));

@@ -53,7 +53,7 @@ namespace gui {
       static constexpr unsigned gap = G;
 
       grid_lineup () = default;
-      grid_lineup (std::initializer_list<layout_function> list);
+      grid_lineup (const std::vector<layout_function>& list);
 
       void layout (const core::rectangle&) const;
     };
@@ -90,7 +90,7 @@ namespace gui {
       static constexpr unsigned gap = G;
 
       fixed_grid_lineup () = default;
-      fixed_grid_lineup (std::initializer_list<layout_function> list);
+      fixed_grid_lineup (const std::vector<layout_function>& list);
 
       void layout (const core::rectangle&) const;
     };
@@ -125,7 +125,7 @@ namespace gui {
       static constexpr unsigned gap = G;
 
       grid_adaption () = default;
-      grid_adaption (std::initializer_list<layout_function> list);
+      grid_adaption (const std::vector<layout_function>& list);
 
       void layout (const core::rectangle&) const;
     };

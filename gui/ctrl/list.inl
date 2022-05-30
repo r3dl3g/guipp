@@ -254,7 +254,7 @@ namespace gui {
     template<orientation_t V, typename T, typename S>
     template<typename U, list_item_drawer<U> D>
     inline void uniform_list<V, T, S>::set_data (std::initializer_list<U> args) {
-      super::data.items = const_list_data<U, D>(args);
+      super::data.items = const_list_data<U, D>(std::move(args));
       super::invalidate();
     }
 

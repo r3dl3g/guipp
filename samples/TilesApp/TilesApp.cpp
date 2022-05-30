@@ -1,7 +1,7 @@
 
 
 #include <gui/layout/layout_container.h>
-#include <gui/layout/adaption_layout.h>
+#include <gui/layout/grid_layout.h>
 #include <gui/ctrl/split_view.h>
 #include <gui/ctrl/tile_view.h>
 #include <gui/ctrl/look/table.h>
@@ -26,10 +26,12 @@ struct tile_drawer : public list_data {
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
 
-  layout_main_window<vertical_adaption<4, 4>> main;
+  layout_main_window<grid_adaption<2, 2>> main;
 
   horizontal_scrollable_tile_view htileview;
+  horizontal_scrollable_multi_tile_view htileview_m;
   vertical_scrollable_tile_view vtileview;
+  vertical_scrollable_multi_tile_view vtileview_m;
 
   htileview->set_item_size({ 110, 33 });
   htileview->set_background(color::very_very_light_gray);
@@ -37,18 +39,25 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   htileview->set_spacing({ 5, 5 });
   htileview->set_data(tile_drawer<97>());
 
+  htileview_m->set_item_size({ 110, 33 });
+  htileview_m->set_background(color::very_very_light_gray);
+  htileview_m->set_border({ 10, 20 });
+  htileview_m->set_spacing({ 5, 5 });
+  htileview_m->set_data(tile_drawer<97>());
+
   vtileview->set_item_size({ 330, 33 });
   vtileview->set_background(color::very_very_light_gray);
   vtileview->set_border({ 10, 20 });
   vtileview->set_spacing({ 5, 5 });
   vtileview->set_data(tile_drawer<97>());
 
-  main.get_layout().add({lay(htileview), lay(vtileview)});
+  vtileview_m->set_item_size({ 330, 33 });
+  vtileview_m->set_background(color::very_very_light_gray);
+  vtileview_m->set_border({ 10, 20 });
+  vtileview_m->set_spacing({ 5, 5 });
+  vtileview_m->set_data(tile_drawer<97>());
 
-  main.on_create([&] () {
-    vtileview.create(main);
-    htileview.create(main);
-  });
+  main.add({htileview, htileview_m, vtileview, vtileview_m});
 
   main.create({50, 50, 800, 600});
   main.on_destroy(&quit_main_loop);

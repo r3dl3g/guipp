@@ -57,8 +57,9 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   };
   list4.get_column_layout().set_columns(columns);
 
+  typedef ctrl::const_column_list_data<std::string, int, double> column_data_type;
   typedef ctrl::const_column_list_data<std::string, int, double>::row_type row_type;
-  list4.set_data(ctrl::const_column_list_data<std::string, int, double> {
+  list4.set_data(column_data_type({
                    row_type{ "Eins", 1, 1.1 },
                    row_type{ "ZWei", 2, 2.2 },
                    row_type{ "Drei", 3, 3.3 },
@@ -71,7 +72,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
                    row_type{ "Zehn", 10, 10.10 },
                    row_type{ "Elf", 11, 11.11 },
                    row_type{ "Zwölf", 12, 12.12 },
-                 });
+                 }));
   list4.header.set_labels({"Text", "Int", "Double"});
 
   main.get_layout().set_center(lay(main_split_view));

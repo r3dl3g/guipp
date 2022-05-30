@@ -135,8 +135,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct GUIPP_DRAW_EXPORT polyline {
-      explicit polyline (const std::vector<core::point>& pts);
-      polyline (std::initializer_list<core::point> pts);
+      polyline (const std::vector<core::point>& pts);
 
       void operator() (graphics&, const brush&, const pen&) const;
       void operator() (graphics&, const pen&) const;
@@ -150,8 +149,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct GUIPP_DRAW_EXPORT polygon {
-      explicit polygon (const std::vector<core::point>& pts);
-      polygon (std::initializer_list<core::point> pts);
+      polygon (const std::vector<core::point>& pts);
 
       void operator() (graphics&, const brush&, const pen&) const;
       void operator() (graphics&, const pen&) const;

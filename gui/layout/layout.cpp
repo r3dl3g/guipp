@@ -44,7 +44,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    layout_base::layout_base (std::initializer_list<layout_function> list) {
+    layout_base::layout_base (const std::vector<layout_function>& list) {
       add(list);
     }
 

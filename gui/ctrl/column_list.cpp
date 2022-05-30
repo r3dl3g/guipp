@@ -78,7 +78,7 @@ namespace gui {
         aligns.resize(i);
       }
 
-      void column_list_layout::set_columns (std::initializer_list<column_info> infos, bool update) {
+      void column_list_layout::set_columns (const std::vector<column_info>& infos, bool update) {
         set_column_count(infos.size());
 
         int idx = 0;
@@ -138,7 +138,7 @@ namespace gui {
       super::set_column_count(i);
     }
 
-    void simple_column_list_layout::set_columns (std::initializer_list<simple_column_info> infos, bool update) {
+    void simple_column_list_layout::set_columns (const std::vector<simple_column_info>& infos, bool update) {
       set_column_count(infos.size());
 
       int idx = 0;
@@ -159,7 +159,7 @@ namespace gui {
       super::set_column_count(i);
     }
 
-    void weight_column_list_layout::set_columns (std::initializer_list<weight_column_info> infos, bool update) {
+    void weight_column_list_layout::set_columns (const std::vector<weight_column_info>& infos, bool update) {
       set_column_count(infos.size());
 
       int idx = 0;

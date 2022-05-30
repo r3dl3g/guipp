@@ -18,6 +18,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   table_edit table_view;
   table::data::matrix<std::string> table_data("Test");
 
+  main.get_layout().set_center(lay(table_view));
+
   table_view.set_scroll_maximum({2000, 2000});
   table_view.set_data_source_and_target(
     [&](const ctrl::table::position& cell) -> std::string {
@@ -41,8 +43,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   main.on_create([&] () {
     table_view.create(main);
-
-    main.get_layout().set_center(lay(table_view));
   });
 
   main.create({50, 50, 800, 600});

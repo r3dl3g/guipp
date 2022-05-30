@@ -26,7 +26,7 @@ namespace gui {
     void standard_dialog_base<T, L, R>::create (win::overlapped_window& parent,
                                                 const std::string& title,
                                                 const core::rectangle& rect,
-                                                const std::initializer_list<std::string>& labels,
+                                                const std::vector<std::string>& labels,
                                                 std::function<dialog_action> action) {
       super::get_layout().set_bottom(layout::lay(button_layout));
       super::create(parent, rect);
@@ -95,7 +95,7 @@ namespace gui {
     void standard_dialog<C, T, L, R>::create (win::overlapped_window& parent,
                                               const std::string& title,
                                               const core::rectangle& rect,
-                                              const std::initializer_list<std::string>& labels,
+                                              const std::vector<std::string>& labels,
                                               std::function<dialog_action> action) {
       super::get_layout().set_center(layout::lay(content_view));
       super::create(parent, title, rect, labels, action);
@@ -191,15 +191,16 @@ namespace gui {
     }
 
     template<typename ... Arguments>
-    void select_from_columnlist_dialog<Arguments...>::create (win::overlapped_window& parent,
-                 const std::string& title,
-                 data_t& data,
-                 const int initial,
-                 std::initializer_list<std::string> labels,
-                 const std::string& ok_label,
-                 const std::string& cancel_label,
-                 const core::rectangle& rect,
-                 std::function<select_action> action) {
+    void select_from_columnlist_dialog<Arguments...>::
+      create (win::overlapped_window& parent,
+              const std::string& title,
+              data_t& data,
+              const int initial,
+              const std::vector<std::string>& labels,
+              const std::string& ok_label,
+              const std::string& cancel_label,
+              const core::rectangle& rect,
+              std::function<select_action> action) {
       super::create(parent, title, rect, {cancel_label, ok_label},
                     [&, action] (win::overlapped_window& dlg, int i) {
         if ((i == 1) && (vlist.list->has_selection())) {
@@ -209,7 +210,7 @@ namespace gui {
       });
       vlist.get_column_layout().set_column_count(labels.size());
       vlist.set_data([&] () -> data_t& { return data; });
-      vlist.header.set_labels(std::move(labels));
+      vlist.header.set_labels(labels);
       vlist.list->set_selection(initial, event_source::logic);
       vlist.list->on_selection_commit([&, action] () {
         super::end_modal();
@@ -222,16 +223,17 @@ namespace gui {
     }
 
     template<typename ... Arguments>
-    void select_from_columnlist_dialog<Arguments...>::ask (win::overlapped_window& parent,
-                     const std::string& title,
-                     data_t& data,
-                     const int initial,
-                     std::initializer_list<std::string> labels,
-                     const std::string& ok_label,
-                     const std::string& cancel_label,
-                     std::function<select_action> action) {
+    void select_from_columnlist_dialog<Arguments...>::
+      ask (win::overlapped_window& parent,
+           const std::string& title,
+           data_t& data,
+           const int initial,
+           const std::vector<std::string>& labels,
+           const std::string& ok_label,
+           const std::string& cancel_label,
+           std::function<select_action> action) {
       select_from_columnlist_dialog<Arguments...> dialog;
-      dialog.create(parent, title, data, initial, std::move(labels),
+      dialog.create(parent, title, data, initial, labels,
                     ok_label, cancel_label,
                     gui::ctrl::detail::std_multi_input_dialog_size<>(parent.geometry(), 10),
                     std::move(action));

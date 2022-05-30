@@ -109,10 +109,6 @@ namespace gui {
       : points(pts)
     {}
 
-    polyline::polyline (std::initializer_list<core::point> pts)
-      : points(pts) {
-    }
-
     // --------------------------------------------------------------------------
     std::vector<os::point> polygon::convert (graphics& g) const {
       std::vector<os::point> pts;
@@ -128,10 +124,6 @@ namespace gui {
     }
 
     polygon::polygon (const std::vector<core::point>& pts)
-      : points(pts)
-    {}
-
-    polygon::polygon (std::initializer_list<core::point> pts)
       : points(pts)
     {}
 

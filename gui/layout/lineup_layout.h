@@ -55,7 +55,7 @@ namespace gui {
       static constexpr unsigned separatior_width = S;
 
       lineup_layout () = default;
-      lineup_layout (std::initializer_list<layout_function> list);
+      lineup_layout (const std::vector<layout_function>& list);
 
       void layout (const core::rectangle& r) const;
     };

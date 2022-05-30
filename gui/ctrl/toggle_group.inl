@@ -59,14 +59,14 @@ namespace gui {
     }
 
     template<orientation_t O, typename B, typename L>
-    void toggle_group<O, B, L>::add_buttons (std::initializer_list<button_type> buttons) {
+    void toggle_group<O, B, L>::add_buttons (const std::vector<button_type>& buttons) {
       for (button_type button : buttons) {
         add_button(std::move(button));
       }
     }
 
     template<orientation_t O, typename B, typename L>
-    void toggle_group<O, B, L>::add_buttons (std::initializer_list<const_text> labels) {
+    void toggle_group<O, B, L>::add_buttons (const std::vector<const_text>& labels) {
       for (const const_text& label : labels) {
         add_button(label);
       }

@@ -153,11 +153,11 @@ namespace gui {
         explicit node (const std::string& label = std::string());
         explicit node (const char* label);
         explicit node (std::string&& label);
-        node (const std::string& label, std::initializer_list<node> nodes);
+        node (const std::string& label, const node_list& nodes);
 
         void add_node (const node& node);
         void add_node (node&& node);
-        void add_nodes (std::initializer_list<node> nodes);
+        void add_nodes (const node_list& nodes);
 
         const node_list& nodes () const;
 

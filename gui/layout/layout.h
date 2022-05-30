@@ -116,7 +116,7 @@ namespace gui {
       typedef std::vector<layout_element> element_list;
 
       layout_base () = default;
-      layout_base (std::initializer_list<layout_function> list);
+      layout_base (const std::vector<layout_function>& list);
 
       const element_list& get_elements () const;
 
@@ -195,7 +195,7 @@ namespace gui {
         static constexpr orientation_t orientation = O;
 
         orientation_layout () = default;
-        orientation_layout (std::initializer_list<layout_function> list);
+        orientation_layout (const std::vector<layout_function>& list);
 
         static type get_dimension1 (const core::point&);
         static type get_dimension2 (const core::point&);
@@ -217,7 +217,7 @@ namespace gui {
         static constexpr origin_t origin = R;
 
         origin_layout () = default;
-        origin_layout (std::initializer_list<layout_function> list);
+        origin_layout (const std::vector<layout_function>& list);
 
         static core::rectangle init_area (type border, type dim1, type dim2,
                                           const core::size&, const core::size&,

@@ -28,7 +28,7 @@ namespace gui {
   namespace layout {
 
     template<orientation_t H, unsigned B, unsigned G, unsigned S, unsigned I, unsigned A, origin_t O>
-    inline adaption_layout<H, B, G, S, I, A, O>::adaption_layout (std::initializer_list<layout_function> list)
+    inline adaption_layout<H, B, G, S, I, A, O>::adaption_layout (const std::vector<layout_function>& list)
       : super(list) {
     }
 

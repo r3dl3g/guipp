@@ -66,12 +66,12 @@ namespace gui {
       static constexpr unsigned gap = G;
 
       weighted_layout () = default;
-      weighted_layout (std::initializer_list<weight_element> list);
+      weighted_layout (const std::vector<weight_element>& list);
 
       void add (const weight_element& e);
       void add (weight_element&& e);
 
-      void add (std::initializer_list<weight_element> list);
+      void add (const std::vector<weight_element>& list);
 
       void layout (const core::rectangle& r) const;
 

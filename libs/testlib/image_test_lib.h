@@ -54,11 +54,11 @@ namespace testing {
   graysmap datamap2graysmap (const gui::draw::graymap&);
   gui::draw::graymap graysmap2datamap (const graysmap&);
 
-  inline colormap CM(std::initializer_list<colorline> i) {
+  inline colormap CM(const std::vector<colorline>& i) {
     return colormap(i);
   }
 
-  inline graysmap GM(std::initializer_list<grayline> i) {
+  inline graysmap GM(const std::vector<grayline>& i) {
     return graysmap(i);
   }
 
@@ -66,7 +66,7 @@ namespace testing {
 
   pixmap_str pixmap2string (const gui::draw::pixmap&);
 
-  pixmap_str mk_str(std::initializer_list<std::string>);
+  pixmap_str mk_str(const std::vector<std::string>&);
 
   // --------------------------------------------------------------------------
   constexpr gui::os::color _ = gui::color::black;

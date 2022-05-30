@@ -89,7 +89,7 @@ namespace gui {
       void create (win::overlapped_window& parent,
                    const std::string& title,
                    const core::rectangle& rect,
-                   const std::initializer_list<std::string>& button_labels,
+                   const std::vector<std::string>& button_labels,
                    std::function<dialog_action> action);
 
       void show (win::overlapped_window& parent);
@@ -112,7 +112,7 @@ namespace gui {
       void create (win::overlapped_window& parent,
                    const std::string& title,
                    const core::rectangle& rect,
-                   const std::initializer_list<std::string>& button_labels,
+                   const std::vector<std::string>& button_labels,
                    std::function<dialog_action> action);
 
       content_view_type content_view;
@@ -277,7 +277,7 @@ namespace gui {
                    const std::string& title,
                    data_t& data,
                    const int initial,
-                   std::initializer_list<std::string> labels,
+                   const std::vector<std::string>& labels,
                    const std::string& ok_label,
                    const std::string& cancel_label,
                    const core::rectangle& rect,
@@ -287,7 +287,7 @@ namespace gui {
                        const std::string& title,
                        data_t& data,
                        const int initial,
-                       std::initializer_list<std::string> labels,
+                       const std::vector<std::string>& labels,
                        const std::string& ok_label,
                        const std::string& cancel_label,
                        std::function<select_action> action);

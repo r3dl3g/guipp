@@ -115,7 +115,7 @@ namespace gui {
 
       ~menu_data ();
 
-      void add_entries (std::initializer_list<menu_entry> menu_entries);
+      void add_entries (const std::vector<menu_entry>& menu_entries);
       void add_entry (const menu_entry& entry);
       void add_entry (menu_entry&& entry);
 
@@ -223,7 +223,7 @@ namespace gui {
       static const int item_height = 20;
 
       popup_menu ();
-      popup_menu (std::initializer_list<menu_entry> entries);
+      popup_menu (const std::vector<menu_entry>& entries);
       ~popup_menu ();
 
       void close () override;

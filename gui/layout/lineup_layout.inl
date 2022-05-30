@@ -22,7 +22,7 @@ namespace gui {
   namespace layout {
 
     template<orientation_t H, unsigned D, unsigned B, unsigned G, unsigned S, origin_t R>
-    inline lineup_layout<H, D, B, G, S, R>::lineup_layout (std::initializer_list<layout_function> list)
+    inline lineup_layout<H, D, B, G, S, R>::lineup_layout (const std::vector<layout_function>& list)
       : super(list)
     {}
 

@@ -160,7 +160,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline popup_menu::popup_menu (std::initializer_list<menu_entry> entries)
+    inline popup_menu::popup_menu (const std::vector<menu_entry>& entries)
       : popup_menu() {
       add_entries(entries);
     }

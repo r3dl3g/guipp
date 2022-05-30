@@ -22,7 +22,7 @@ namespace gui {
   namespace layout {
 
     template<orientation_t H, unsigned B, unsigned G, origin_t R>
-    inline weighted_layout<H, B, G, R>::weighted_layout (std::initializer_list<weight_element> list)
+    inline weighted_layout<H, B, G, R>::weighted_layout (const std::vector<weight_element>& list)
       : elements(list)
     {}
 
@@ -37,7 +37,7 @@ namespace gui {
     }
 
     template<orientation_t H, unsigned B, unsigned G, origin_t R>
-    void weighted_layout<H, B, G, R>::add (std::initializer_list<weight_element> list) {
+    void weighted_layout<H, B, G, R>::add (const std::vector<weight_element>& list) {
       elements.insert(elements.end(), list);
     }
 

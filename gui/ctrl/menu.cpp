@@ -137,7 +137,7 @@ namespace gui {
       unregister_menu_keys();
     }
 
-    void menu_data::add_entries (std::initializer_list<menu_entry> new_entries) {
+    void menu_data::add_entries (const std::vector<menu_entry>& new_entries) {
       const draw::font& f = draw::font::menu();
 
       for (auto& i : new_entries) {

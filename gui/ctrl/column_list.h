@@ -76,7 +76,7 @@ namespace gui {
         void set_column_align (std::size_t i, text_origin_t a);
         void set_column_width (std::size_t i, column_size_type w, bool update = false);
         void set_column_info (std::size_t i, const column_info& info, bool update = false);
-        void set_columns (std::initializer_list<column_info> infos, bool update = false);
+        void set_columns (const std::vector<column_info>& infos, bool update = false);
 
         void set_default_width (column_size_type);
         void set_default_align (text_origin_t);
@@ -120,7 +120,7 @@ namespace gui {
       void set_column_width (std::size_t i, column_size_type w, bool update = true);
       void set_column_count (std::size_t i);
 
-      void set_columns (std::initializer_list<simple_column_info> infos, bool update = true);
+      void set_columns (const std::vector<simple_column_info>& infos, bool update = true);
       void set_column_min_width (std::size_t i, column_size_type w);
       column_size_type get_column_min_width (std::size_t i) const;
 
@@ -157,7 +157,7 @@ namespace gui {
 
       void set_column_width (std::size_t i, column_size_type w, bool update = true);
       void set_column_count (std::size_t i);
-      void set_columns (std::initializer_list<weight_column_info> infos, bool update = true);
+      void set_columns (const std::vector<weight_column_info>& infos, bool update = true);
 
       void set_column_weight (std::size_t i, float w);
       float get_column_weight (std::size_t i) const;
@@ -221,7 +221,7 @@ namespace gui {
                    const core::rectangle& place = core::rectangle::def);
 
       void set_cell_drawer (std::function<cell_draw> cd);
-      void set_labels (std::initializer_list<std::string> args);
+      void set_labels (const std::vector<std::string>& args);
 
       void handle_left_btn_down (os::key_state, const core::native_point& pt);
       void handle_left_btn_up (os::key_state keys, const core::native_point& pt);
@@ -443,12 +443,12 @@ namespace gui {
         : super(std::move(drwr))
       {}
 
-      const_column_list_data (drawer_type&& drwr, std::initializer_list<row_type> args)
+      explicit const_column_list_data (drawer_type&& drwr, const container_type& args)
         : super(std::move(drwr))
         , data(args)
       {}
 
-      const_column_list_data (std::initializer_list<row_type> args)
+      explicit const_column_list_data (const container_type& args)
         : super(std::make_tuple(ctrl::cell_drawer<Arguments>...))
         , data(args)
       {}
@@ -461,10 +461,10 @@ namespace gui {
         return data[idx];
       }
 
-      const_column_list_data& set_data (std::initializer_list<row_type> args) {
-        data = container_type(args);
-        return *this;
-      }
+//      const_column_list_data& set_data (const std::vector<row_type>& args) {
+//        data = container_type(args);
+//        return *this;
+//      }
 
       const_column_list_data& set_data (const container_type& dt) {
         data = dt;

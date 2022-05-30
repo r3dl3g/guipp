@@ -36,10 +36,10 @@ namespace gui {
 
   namespace tree {
 
-    typedef void (icon_drawer) (draw::graphics&, const draw::pen&, const core::point&, core::size::type);
+    typedef void (*icon_drawer) (draw::graphics&, const draw::pen&, const core::point&, core::size::type);
 
     // --------------------------------------------------------------------------
-    GUIPP_LOOK_EXPORT icon_drawer* standard_icon_drawer (bool has_children, bool is_open, bool selected);
+    GUIPP_LOOK_EXPORT icon_drawer standard_icon_drawer (bool has_children, bool is_open, bool selected);
 
   } // namespace tree
 
@@ -56,7 +56,7 @@ namespace gui {
                                       const draw::brush& background,
                                       std::size_t depth,
                                       const std::string& label,
-                                      tree::icon_drawer* icon,
+                                      tree::icon_drawer icon,
                                       bool has_children,
                                       bool is_open,
                                       ctrl::item_state state);

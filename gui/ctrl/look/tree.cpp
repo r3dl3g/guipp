@@ -33,7 +33,7 @@ namespace gui {
 
   namespace tree {
 
-    icon_drawer* standard_icon_drawer (bool has_children, bool is_open, bool selected) {
+    icon_drawer standard_icon_drawer (bool has_children, bool is_open, bool selected) {
       if (has_children) {
         if (is_open) { }
           return &draw::draw_icon<draw::icon_type::folder_open>;
@@ -64,7 +64,7 @@ namespace gui {
                     const draw::brush& background,
                     std::size_t depth,
                     const std::string& label,
-                    tree::icon_drawer* icon,
+                    tree::icon_drawer icon,
                     bool has_children,
                     bool is_open,
                     ctrl::item_state state) {

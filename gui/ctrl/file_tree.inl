@@ -95,15 +95,15 @@ namespace gui {
         return n.filename();
       }
 
-      inline gui::tree::icon_drawer* path_info::icon (type const&, bool has_children, bool is_open, bool selected) {
+      inline gui::tree::icon_drawer path_info::icon (type const&, bool has_children, bool is_open, bool selected) {
         return gui::tree::standard_icon_drawer(has_children, is_open, selected);
       }
 
     } // path_tree
 
     // --------------------------------------------------------------------------
-    template<typename T, file_item_drawer D>
-    inline file_list<T, D>::file_list (core::size::type item_size,
+    template<typename T, file_item_drawer D, typename S>
+    inline file_list<T, D, S>::file_list (core::size::type item_size,
                                        os::color background,
                                        bool grab_focus)
       : super(item_size, background, grab_focus)
@@ -111,42 +111,50 @@ namespace gui {
       init();
     }
 
-    template<typename T, file_item_drawer D>
-    inline file_list<T, D>::file_list (const file_list& rhs)
+    template<typename T, file_item_drawer D, typename S>
+    inline file_list<T, D, S>::file_list (const file_list& rhs)
       : super(rhs)
       , current_dir(rhs.current_dir)
+      , current_path(rhs.current_path)
     {
       init();
     }
 
-    template<typename T, file_item_drawer D>
-    inline file_list<T, D>::file_list (file_list&& rhs) noexcept
+    template<typename T, file_item_drawer D, typename S>
+    inline file_list<T, D, S>::file_list (file_list&& rhs) noexcept
       : super(std::move(rhs))
       , current_dir(std::move(rhs.current_dir))
+      , current_path(std::move(rhs.current_path))
     {
       init();
     }
 
-    template<typename T, file_item_drawer D>
-    inline void file_list<T, D>::init () {
+    template<typename T, file_item_drawer D, typename S>
+    inline void file_list<T, D, S>::init () {
       super::set_data(indirect_list_data<fs::file_info, D>(current_dir));
     }
 
-    template<typename T, file_item_drawer D>
-    inline void file_list<T, D>::set_path (const sys_fs::path& dir, std::function<fs::filter_fn> filter) {
-      current_dir = T::sub_nodes(dir, filter);
+    template<typename T, file_item_drawer D, typename S>
+    inline void file_list<T, D, S>::set_path (const sys_fs::path& dir, std::function<fs::filter_fn> filter) {
+      current_path = dir;
+      current_dir = T::sub_nodes(current_path, filter);
       super::clear_selection(event_source::logic);
       super::set_scroll_pos(core::point::zero);
       super::invalidate();
     }
 
-    template<typename T, file_item_drawer D>
-    inline sys_fs::path file_list<T, D>::get_selected_path () const {
+    template<typename T, file_item_drawer D, typename S>
+    inline sys_fs::path file_list<T, D, S>::get_selected_path () const {
       int selection = super::get_selection().get_first_index();
       if (selection > -1) {
         return current_dir[selection].path;
       }
-      return sys_fs::path();
+      return current_path;
+    }
+
+    template<typename T, file_item_drawer D, typename S>
+    const sys_fs::path& file_list<T, D, S>::get_current_path () const {
+      return current_path;
     }
 
     // --------------------------------------------------------------------------

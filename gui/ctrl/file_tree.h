@@ -113,7 +113,7 @@ namespace gui {
         static reference make_reference (type const& n);
         static type const& dereference (reference const& r);
         static std::string label (type const& n);
-        static gui::tree::icon_drawer* icon (type const&, bool has_children, bool is_open, bool selected);
+        static gui::tree::icon_drawer icon (type const&, bool has_children, bool is_open, bool selected);
 
       };
 
@@ -166,12 +166,12 @@ namespace gui {
     namespace detail {
 
       struct GUIPP_CTRL_EXPORT file_list_row_data :
-          public column_list_data_t<gui::tree::icon_drawer*,
+          public column_list_data_t<gui::tree::icon_drawer,
                                     const fs::file_info&,
                                     const fs::file_info&,
                                     const sys_fs::file_time_type&> {
 
-        typedef column_list_data_t<gui::tree::icon_drawer*,
+        typedef column_list_data_t<gui::tree::icon_drawer,
                                    const fs::file_info&,
                                    const fs::file_info&,
                                    const sys_fs::file_time_type&> super;
@@ -217,10 +217,11 @@ namespace gui {
                                                  item_state);
     // --------------------------------------------------------------------------
     template<typename T = path_tree::sorted_file_info,
-             file_item_drawer D = default_file_item_drawer>
-    class file_list : public vertical_list {
+             file_item_drawer D = default_file_item_drawer,
+             typename S = core::selector::single>
+    class file_list : public vertical_list_t<S> {
     public:
-      typedef vertical_list super;
+      typedef vertical_list_t<S> super;
 
       explicit file_list (core::size::type item_size = list_defaults<>::item_size,
                  os::color background = color::white,
@@ -231,9 +232,11 @@ namespace gui {
 
       void set_path (const sys_fs::path& dir, std::function<fs::filter_fn> f = nullptr);
       sys_fs::path get_selected_path () const;
+      const sys_fs::path& get_current_path () const;
 
     private:
       std::vector<fs::file_info> current_dir;
+      sys_fs::path current_path;
 
       void init ();
     };
@@ -253,10 +256,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T = path_tree::sorted_file_info, typename S = core::selector::single>
     class file_column_list : public column_list_t<layout::weight_column_list_layout, S,
-                                                  gui::tree::icon_drawer*, const fs::file_info&, const fs::file_info&, const sys_fs::file_time_type&> {
+                                                  gui::tree::icon_drawer, const fs::file_info&, const fs::file_info&, const sys_fs::file_time_type&> {
     public:
       typedef column_list_t<layout::weight_column_list_layout, S,
-                            gui::tree::icon_drawer*, const fs::file_info&, const fs::file_info&, const sys_fs::file_time_type&> super;
+                            gui::tree::icon_drawer, const fs::file_info&, const fs::file_info&, const sys_fs::file_time_type&> super;
 
       explicit file_column_list (core::size::type item_size = list_defaults<>::item_size,
                         os::color background = color::white,

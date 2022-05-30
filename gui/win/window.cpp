@@ -72,8 +72,8 @@ namespace gui {
       , class_name(rhs.class_name)
     {
       if (parent) {
-        parent->remove_child(&rhs);
-        parent->add_child(this);
+        parent->remove(&rhs);
+        parent->add(this);
       }
     }
 
@@ -297,19 +297,19 @@ namespace gui {
     void window::set_parent (container& p) {
       remove_from_parent();
       parent = &p;
-      p.add_child(this);
+      p.add(this);
     }
 
     void window::remove_from_parent () {
       if (parent) {
-        parent->remove_child(this);
+        parent->remove(this);
         parent = nullptr;
       }
       set_state().created(false);
     }
 
     void window::remove_parent () {
-      // just set to null, no remove_child. This method will only be called,
+      // just set to null, no remove. This method will only be called,
       // if the parent is destroyed before the child!
       parent = nullptr;
     }

@@ -32,7 +32,6 @@
 #include <gui/ctrl/textbox.h>
 #include <gui/ctrl/list.h>
 
-#include <util/tuple_util.h>
 
 
 namespace gui {
@@ -226,42 +225,6 @@ namespace gui {
 
       label_left label;
       edit_left edit;
-    };
-
-    //-----------------------------------------------------------------------------
-    template<typename ... Arguments>
-    class multi_input_dialog :
-        public standard_dialog<win::group_window<layout::vertical_lineup<20, 15, 2>>> {
-    public:
-      typedef win::group_window<layout::vertical_lineup<20, 15, 2>> content_view_type;
-      typedef standard_dialog<content_view_type> super;
-      static constexpr std::size_t N = sizeof...(Arguments);
-      using label_t = basic_label<text_origin_t::bottom_left,
-                                  draw::frame::no_frame>;
-
-      typedef void (action) (const std::tuple<Arguments...>&);
-
-      multi_input_dialog ();
-
-      void create (win::overlapped_window& parent,
-                   const std::string& title,
-                   const std::vector<std::string>& message,
-                   const std::tuple<Arguments...>& initial,
-                   const std::string& ok_label,
-                   const std::string& cancel_label,
-                   const core::rectangle& rect,
-                   std::function<action> action);
-
-      static void ask (win::overlapped_window& parent,
-                       const std::string& title,
-                       const std::vector<std::string>& message,
-                       const std::tuple<Arguments...>& initial,
-                       const std::string& ok_label,
-                       const std::string& cancel_label,
-                       std::function<action> action);
-
-      label_t labels[N];
-      edit_left edits[N];
     };
 
     //-----------------------------------------------------------------------------

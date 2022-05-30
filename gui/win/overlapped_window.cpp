@@ -331,7 +331,7 @@ namespace gui {
 #endif
     }
     // --------------------------------------------------------------------------
-    void overlapped_window::remove_child (window* w) {
+    void overlapped_window::remove (window* w) {
       if (w == capture_window) {
         uncapture_pointer(w);
       }
@@ -341,7 +341,7 @@ namespace gui {
       if (w == mouse_window) {
         mouse_window = nullptr;
       }
-      super::remove_child(w);
+      super::remove(w);
     }
     // --------------------------------------------------------------------------
     overlapped_context& overlapped_window::get_context () const {

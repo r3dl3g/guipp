@@ -48,8 +48,9 @@ namespace gui {
       typedef bool (window_filter)(const window*);
       void collect_children (window_list_t&, const std::function<window_filter>& filter) const;
 
-      void add_child (window*);
-      virtual void remove_child (window*);
+      void add (window*);
+      void add (std::vector<std::reference_wrapper<win::window>> list);
+      virtual void remove (window*);
 
       window* window_at_point (const core::native_point&);
 

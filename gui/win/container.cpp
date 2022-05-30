@@ -121,7 +121,7 @@ namespace gui {
       }
     }
 
-    void container::add_child (window* w) {
+    void container::add (window* w) {
       if (w) {
         auto i = std::find(children.begin(), children.end(), w);
         if (i == children.end()) {
@@ -131,11 +131,14 @@ namespace gui {
       }
     }
 
-    void container::remove_child (window* w) {
-      auto i = std::find(children.begin(), children.end(), w);
-      if (i != children.end()) {
-        children.erase(i);
+    void container::add (std::vector<std::reference_wrapper<win::window>> list) {
+      for (auto& w : list) {
+        add(&(w.get()));
       }
+    }
+
+    void container::remove (window* w) {
+      children.erase(std::remove(children.begin(), children.end(), w), children.end());
     }
 
     window* container::window_at_point (const core::native_point& pt) {
@@ -153,13 +156,13 @@ namespace gui {
     }
 
     void container::to_front (window* w) {
-      remove_child(w);
+      remove(w);
       children.push_back(w);
       invalidate();
     }
 
     void container::to_back (window* w) {
-      remove_child(w);
+      remove(w);
       children.insert(children.begin(), w);
       invalidate();
     }

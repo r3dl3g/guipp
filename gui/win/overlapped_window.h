@@ -112,7 +112,7 @@ namespace gui {
       bool handle_event (const core::event&, gui::os::event_result&) override;
       void add_event_mask (os::event_id mask) override;
 
-      void remove_child (window*) override;
+      void remove (window*) override;
 
       os::window get_os_window () const;
 

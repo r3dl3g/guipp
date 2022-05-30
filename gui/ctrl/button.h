@@ -210,9 +210,32 @@ namespace gui {
                                            look::check_button_text>;
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
-    using check_box = basic_text_button<toggle_button_traits<keep_state>,
-                                        look::check_box_frame,
-                                        look::check_button_text>;
+    class check_box : public basic_text_button<toggle_button_traits<keep_state>,
+                                               look::check_box_frame,
+                                               look::check_button_text> {
+    public:
+      typedef basic_text_button<toggle_button_traits<keep_state>,
+                                                     look::check_box_frame,
+                                                     look::check_button_text> super;
+
+      explicit check_box (const text_source& t = const_text())
+        : super(t)
+      {}
+
+      explicit check_box (const std::string& t)
+        : super(t)
+      {}
+
+      inline void set (bool b) {
+        super::set_checked(b);
+      }
+
+      inline bool get () const {
+        return super::is_checked();
+      }
+
+    };
+
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
     class switch_button : public basic_text_button<toggle_button_traits<keep_state>,

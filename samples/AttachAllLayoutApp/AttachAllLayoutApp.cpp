@@ -69,8 +69,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using right_layout = vertical_adaption<0, 2>;
   using middle_layout = horizontal_adaption<0, 2>;
 
-  attachable_layout<right_layout> right(right_layout{lay(second), lay(third)});
-  attachable_layout<middle_layout> middle(middle_layout{any(fourth), any(fifth)});
+  attachable_layout<right_layout> right(right_layout({ lay(second), lay(third) }));
+  attachable_layout<middle_layout> middle(middle_layout({ any(fourth), any(fifth) }));
 
   attach& layout = main.get_layout();
 

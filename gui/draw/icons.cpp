@@ -790,14 +790,14 @@ namespace gui {
     void draw_icon<icon_type::new_folder> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       draw_icon<icon_type::folder>(g, pn, center, radius);
       const auto tr = calc_clock_point<45>(center, radius);
-      draw_icon<icon_type::new_blink>(g, pn, tr, radius / 3.5);
+      draw_icon<icon_type::new_blink>(g, pn, tr, radius / 3.5F);
     }
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_type::new_file> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       draw_icon<icon_type::file>(g, pn, center, radius);
       const auto tr = calc_clock_point<45>(center, radius);
-      draw_icon<icon_type::new_blink>(g, pn, tr, radius / 3.5);
+      draw_icon<icon_type::new_blink>(g, pn, tr, radius / 3.5F);
     }
     // --------------------------------------------------------------------------
     // --------------------------------------------------------------------------

@@ -572,24 +572,24 @@ namespace gui {
 #endif // GUIPP_BUILD_FOR_MOBILE
 
       data.on_wheel<orientation_t::horizontal>([&](const core::native_point::type delta, const core::native_point& pt){
-        hscroll.handle_wheel(delta, pt);
+        hscroll.handle_wheel(static_cast<core::point::type>(delta), pt);
       });
       data.on_wheel<orientation_t::vertical>([&](const core::native_point::type delta, const core::native_point& pt){
-        vscroll.handle_wheel(delta, pt);
+        vscroll.handle_wheel(static_cast<core::point::type>(delta), pt);
       });
       data.on_mouse_move(util::bind_method(this, &table_view::handle_mouse_move));
       data.on_left_btn_down(util::bind_method(this, &table_view::handle_left_btn_down));
       data.on_left_btn_up(util::bind_method(this, &table_view::handle_left_btn_up));
 
       columns.on_wheel<orientation_t::horizontal>([&](const core::native_point::type delta, const core::native_point & pt){
-        hscroll.handle_wheel(delta, pt);
+        hscroll.handle_wheel(static_cast<core::point::type>(delta), pt);
       });
       columns.on_mouse_move(util::bind_method(this, &table_view::handle_column_mouse_move));
       columns.on_left_btn_down(util::bind_method(this, &table_view::handle_column_left_btn_down));
       columns.on_left_btn_up(util::bind_method(this, &table_view::handle_column_left_btn_up));
 
       rows.on_wheel<orientation_t::vertical>([&](const core::native_point::type delta, const core::native_point& pt){
-        vscroll.handle_wheel(delta, pt);
+        vscroll.handle_wheel(static_cast<core::point::type>(delta), pt);
       });
       rows.on_mouse_move(util::bind_method(this, &table_view::handle_row_mouse_move));
       rows.on_left_btn_down(util::bind_method(this, &table_view::handle_row_left_btn_down));

@@ -34,7 +34,7 @@ namespace gui {
         win::group_window<layout::dynamic_border_layout<layout::border_layout_type::left_right_maximize, 5>, float, float, float, float> {
       typedef win::group_window<layout::dynamic_border_layout<layout::border_layout_type::left_right_maximize, 5>, float, float, float, float> super;
 
-      title_view (int back_size = 40);
+      title_view (float back_size = 40);
 
       void set_title (const std::string& title);
 

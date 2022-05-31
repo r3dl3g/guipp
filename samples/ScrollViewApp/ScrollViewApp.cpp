@@ -75,14 +75,14 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   window1.on_wheel<orientation_t::horizontal>([&] (core::native_point::type delta,
                                                    const core::native_point& p) {
     if (window1.surface_geometry().is_inside(p)) {
-      end_angle += angle(delta);
+      end_angle += angle(static_cast<float>(delta));
       window1.invalidate();
     }
   });
   window1.on_wheel<orientation_t::vertical>([&] (core::native_point::type delta,
                                                  const core::native_point& p) {
     if (window1.surface_geometry().is_inside(p)) {
-      start_angle += angle(delta);
+      start_angle += angle(static_cast<float>(delta));
       window1.invalidate();
     }
   });
@@ -124,8 +124,8 @@ std::vector<core::point> calc_star (const core::point& pt, const core::angle& a)
 
   core::point::type rca1 = r * ca;
   core::point::type rsa1 = r * sa;
-  core::point::type rca2 = ca2 * r / 3;
-  core::point::type rsa2 = sa2 * r / 3;
+  core::point::type rca2 = static_cast<float>(ca2 * r / 3);
+  core::point::type rsa2 = static_cast<float>(sa2 * r / 3);
   return {
         core::point(x - rsa1, y - rca1),
         core::point(x + rca2, y - rsa2),
@@ -213,8 +213,8 @@ ctrl::paint_function create_paint1 (const win::window& win, const bool& draw_inv
     for (int y = 0; y < 3; ++y) {
       for (int x = 0; x < 3; ++x) {
         int i = y * 3 + x;
-        draw_text_box(graph, texte[i], { pos + core::point(10 + x * 55, 155 + y * 25), core::size(50, 22) }, origins[i]);
-        draw_text(graph, texte[i], pos + core::point(10 + x * 80, 235 + y * 20), origins[i]);
+        draw_text_box(graph, texte[i], { pos + core::point(10.0F + x * 55.0F, 155.0F + y * 25.0F), core::size(50, 22) }, origins[i]);
+        draw_text(graph, texte[i], pos + core::point(10.0F + x * 80.0F, 235.0F + y * 20.0F), origins[i]);
       }
     }
 

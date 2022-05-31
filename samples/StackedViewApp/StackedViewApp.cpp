@@ -89,11 +89,11 @@ void init_sub_view (file_list_t& view, stacked_view_t& client) {
         logging::warn() << "Double push same view on stacked_view with title: '" << path << "'!";
         return;
       }
-      std::shared_ptr<sub_view_t> sub_view = std::make_shared<sub_view_t>(50);
+      std::shared_ptr<sub_view_t> sub_view = std::make_shared<sub_view_t>(50.0F);
       sub_view_t::view_type& sub = sub_view->view;
       sub.set_path(path);
       init_sub_view(sub, client);
-      client.push(sub_view, path, sub.get_buttons(), sub.get_buttons().count() * 50);
+      client.push(sub_view, path, sub.get_buttons(), sub.get_buttons().count() * 50.0F);
     }
   });
 }
@@ -121,7 +121,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   layout_main_window<layout::border::zero_layout<stacked_view_t>, stacked_view_t&> main(client);
   client.title_view.set_fore_and_background(color::light_gray, color::dark_gray);
 
-  std::shared_ptr<sub_view_t> base_view = std::make_shared<sub_view_t>(50);
+  std::shared_ptr<sub_view_t> base_view = std::make_shared<sub_view_t>(50.0F);
 
   main.on_create([&] () {
     client.create(main);

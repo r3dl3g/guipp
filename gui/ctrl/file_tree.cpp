@@ -387,7 +387,7 @@ namespace gui {
       }
 
       auto file_list_row_data::at (std::size_t idx) const -> row_type {
-        const bool selected = list->get_selection().is_selected(idx);
+        const bool selected = list->get_selection().is_selected(static_cast<int>(idx));
         const fs::file_info& f = data[idx];
 
         gui::tree::icon_drawer icon = gui::tree::standard_icon_drawer(f.is_directory(), false, selected);

@@ -139,10 +139,7 @@ namespace gui {
                          win::overlapped_window& data) {
         auto display = core::global::get_instance();
 
-        os::brush back = ((type.get_background() > 0) && (type.get_background() < 20))
-                         ? reinterpret_cast<os::brush>(static_cast<LPARAM>(type.get_background()))
-                         : (color::extract<color::part::alpha>(type.get_background()) == 0xff)
-                           ? NULL : CreateSolidBrush(type.get_background());
+        os::brush back = color::is_transparent(type.get_background()) ? NULL : CreateSolidBrush(type.get_background());
 
         std::string name(type.get_class_name(), 0, 255);
         WNDCLASS wc = {
@@ -348,7 +345,7 @@ namespace gui {
         static os::rectangle rect = {};
 
         if (on) {
-          style = = GetWindowLong(id, GWL_STYLE);
+          style = GetWindowLong(id, GWL_STYLE);
           ex_style = GetWindowLong(id, GWL_EXSTYLE);
           GetWindowRect(id, &rect);
 

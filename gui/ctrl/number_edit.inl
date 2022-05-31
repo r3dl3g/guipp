@@ -33,9 +33,10 @@ namespace gui {
     template<typename T, typename F, typename B, typename L>
     void number_edit<T, F, B, L>::init () {
       super::get_layout().set_header_and_body(layout::lay(buttons), layout::lay(edit));
-      super::on_create([&] () {
-        edit.create(*this);
-        buttons.create(*this);
+      super::on_create([this] () {
+        // visual studio throws an error without this-> (compiler bug?)
+        this->edit.create(*this);
+        this->buttons.create(*this);
       });
       buttons.on_change([&] (int sign) {
         step(increment * sign);

@@ -38,7 +38,7 @@ namespace gui {
 
     template<orientation_t H, unsigned B, unsigned G, origin_t R>
     void weighted_layout<H, B, G, R>::add (const std::vector<weight_element>& list) {
-      elements.insert(elements.end(), list);
+      elements.insert(elements.end(), list.begin(), list.end());
     }
 
     template<orientation_t H, unsigned B, unsigned G, origin_t R>

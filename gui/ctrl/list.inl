@@ -333,7 +333,7 @@ namespace gui {
 
     template<orientation_t V, typename T, typename S>
     void uniform_list<V, T, S>::select_all (event_source notify) {
-      super::selection.select_range(0, super::get_count() - 1);
+      super::selection.select_range(0, static_cast<int>(super::get_count()) - 1);
       super::invalidate();
       if (notify != event_source::logic) {
         super::notify_selection_changed(notify);

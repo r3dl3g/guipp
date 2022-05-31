@@ -26,7 +26,7 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-    title_view::title_view (int back_size)
+    title_view::title_view (float back_size)
       : super(0, 0, back_size, 0)
     {
       get_layout().set_center(layout::lay(title_label));

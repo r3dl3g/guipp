@@ -344,9 +344,10 @@ namespace gui {
       void base_column_list<Layout, S>::init () {
         super::get_layout().set_header_and_list(&header, &list);
         get_column_layout().set_list(&list);
-        super::on_create([&] () {
-          header.create(*this);
-          list.create(*this);
+        super::on_create([this] () {
+          // visual studio throws an error without this-> (compiler bug?)
+          this->header.create(*this);
+          this->list.create(*this);
         });
       }
 

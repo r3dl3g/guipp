@@ -112,7 +112,7 @@ namespace gui {
       g.frame(clock_minutes(center, radius), draw::pen(color::darker(col, 0.5), 3));
       g.frame(clock_hours(center, radius), draw::pen(col, 5));
 
-      draw::font fnt = font.with_size(radius / 9.0F);
+      draw::font fnt = font.with_size(static_cast<font::size_type>(radius / 9.0F));
       for (int i = 1; i < 13; ++i) {
         g.text(draw::text(util::string::convert::from(i),
                           calc_clock_point(center, rt, i * 360.0F / 12.0F),
@@ -141,7 +141,7 @@ namespace gui {
       const auto hangle = ((hour % 12) + min / 60.0F) * 360 / 12;
       g.frame(calc_centerline(center, hangle, radius * 0.1F, radius * 0.6F), pn);
       g.frame(calc_centerline(center, hangle, radius * 0.1F), pn.with_size(w / 3.0F));
-      const auto mangle = min * 360 / 60;
+      const auto mangle = min * 360.0F / 60;
       g.frame(calc_centerline(center, mangle, radius * 0.1F, radius * 0.9F), pn);
       g.frame(calc_centerline(center, mangle, radius * 0.1F), pn.with_size(w / 3.0F));
       draw::pen pn2(second_color, w / 2.0F, draw::pen::Style::solid, draw::pen::Cap::round);
@@ -184,7 +184,7 @@ namespace gui {
       g.frame(draw::centerlines(center, r0, radius, 360.0F / 60.0F / 5.0F), draw::pen(color::darker(col, 0.5F), 2));
       g.frame(draw::centerlines(center, r1, radius, 360.0F / 60.0F), draw::pen(color::darker(col, 0.5F), 2));
       g.frame(draw::centerlines(center, r1, radius, 360.0F / 12.0F), draw::pen(col, 3));
-      draw::font fnt = font.with_size(radius / 9.0F);
+      draw::font fnt = font.with_size(static_cast<font::size_type>(radius / 9.0F));
       for (int i = 5; i < 61; i += 5) {
         g.text(draw::text(util::string::convert::from(i),
                           draw::calc_clock_point(center, rt, i * 360.0F / 60.0F),
@@ -208,7 +208,7 @@ namespace gui {
       g.frame(draw::centerlines(center, r1, radius, 360.0F / 30.0F), draw::pen(color::darker(col, 0.5F), 1));
       g.frame(draw::centerlines(center, r1, radius, 360.0F / 6.0F), draw::pen(col, 3));
 
-      draw::font fnt = font.with_size(radius / 5.0F);
+      draw::font fnt = font.with_size(static_cast<font::size_type>(radius / 5.0F));
       for (int i = 5; i < 31; i += 5) {
         g.text(draw::text(util::string::convert::from(i),
                           draw::calc_clock_point(center, rt, i * 360.0F / 30.0F),
@@ -234,7 +234,7 @@ namespace gui {
       out << std::setfill('0') << std::setw(2) << (secs.count() % 60) << ",";
       out << std::setfill('0') << std::setw(2) << (duration.count() % 1000) / 10;
 
-      draw::font fnt = font.with_size(radius / 10.0F);
+      draw::font fnt = font.with_size(static_cast<font::size_type>(radius / 10.0F));
       g.text(draw::text(out.str(), center, text_origin_t::center), fnt, col);
     }
     // --------------------------------------------------------------------------

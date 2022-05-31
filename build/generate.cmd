@@ -11,6 +11,6 @@ setlocal enableextensions
 if NOT EXIST %TARGET% md %TARGET%
 pushd %TARGET%
 echo Generate project files in %CD%
-cmake "%PRJ_DIR%" -G"%GENERATOR%" -DCMAKE_CONFIGURATION_TYPES=Debug;Release %2 %3 %4 %5 %6 %7 %8 %9
+cmake "%PRJ_DIR%" -G"%GENERATOR%" -DCMAKE_CONFIGURATION_TYPES=Debug;Release -DGUIPP_BUILD_DEPENDENT_LIBS=ON -DGUIPP_SAMPLES=ON -DGUIPP_TESTS=ON -DGUIPP_TOOLS=ON %2 %3 %4 %5 %6 %7 %8 %9
 popd
 endlocal

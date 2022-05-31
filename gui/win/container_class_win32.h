@@ -30,7 +30,7 @@ namespace gui {
     namespace cls {
 
       // --------------------------------------------------------------------------
-      template<typename T, os::color C = (os::color)(COLOR_APPWORKSPACE + 1)>
+      template<typename T, os::color C = color::light_gray>
       using main_window_class = window_class<T,
                                              C,
                                              cursor_type::arrow,

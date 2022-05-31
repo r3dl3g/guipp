@@ -38,7 +38,8 @@ struct icon_drawer : public list_data {
       draw::pen icon_pen(col, radius/8, draw::pen::Style::solid, draw::pen::Cap::round, draw::pen::Join::round);
       graph.frame(icon_t<icon_type::background>(center, radius), icon_pen);
       graph.frame(icon(i, center, radius), icon_pen);
-      graph.text(text_box(icon_name(i), r.dy(-radius/3), text_origin_t::bottom_hcenter), font::system().with_size(radius/2), color::black);
+      graph.text(text_box(icon_name(i), r.dy(-radius/3), text_origin_t::bottom_hcenter),
+                 font::system().with_size(static_cast<font::size_type>(radius/2)), color::black);
     }
   }
 };

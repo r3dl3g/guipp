@@ -244,10 +244,10 @@ namespace gui {
         LPWINDOWPOS p = reinterpret_cast<LPWINDOWPOS>(e.lParam);
         core::rectangle r = core::global::scale_from_native(get_rect<WINDOWPOS>(e));
         callback(r);
-        p->x = r.x();
-        p->y = r.y();
-        p->cx = r.width();
-        p->cy = r.height();
+        p->x = static_cast<int>(r.x());
+        p->y = static_cast<int>(r.y());
+        p->cx = static_cast<int>(r.width());
+        p->cy = static_cast<int>(r.height());
       }
     }
 

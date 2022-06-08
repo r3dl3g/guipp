@@ -302,7 +302,6 @@ namespace gui {
     template<look_and_feel_t L = system_look_and_feel>
     void tab_button (draw::graphics& g,
                      const core::rectangle& r,
-                     const std::string& text,
                      const core::button_state::is& state,
                      os::color foreground,
                      alignment_t a) {
@@ -312,7 +311,6 @@ namespace gui {
     template<>
     GUIPP_LOOK_EXPORT void tab_button<look_and_feel_t::metal> (draw::graphics& g,
                                                                const core::rectangle& r,
-                                                               const std::string& text,
                                                                const core::button_state::is& state,
                                                                os::color foreground,
                                                                alignment_t a);
@@ -328,11 +326,10 @@ namespace gui {
     template<alignment_t align>
     void aligned_tab_button (draw::graphics& g,
                              const core::rectangle& r,
-                             const std::string& text,
                              const core::button_state::is& state,
                              os::color fg,
                              os::color bg) {
-      tab_button<>(g, r, text, state, fg, align);
+      tab_button<>(g, r, state, fg, align);
     }
 
     // --------------------------------------------------------------------------

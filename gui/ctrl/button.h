@@ -87,7 +87,7 @@ namespace gui {
                                   os::color,  // foreground
                                   os::color); // background
     // --------------------------------------------------------------------------
-    typedef void (text_button_drawer) (draw::graphics&,
+    typedef void (*text_button_drawer) (draw::graphics&,
                                        const core::rectangle&,
                                        const std::string&,
                                        const core::button_state::is&,

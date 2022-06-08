@@ -69,6 +69,8 @@ namespace gui {
       bool is_in_scroll_event () const;
 
       void set_main (win::container* main);
+      
+      void add (const std::vector<std::reference_wrapper<win::window>>&);
 
     private:
       const win::move_event::function me;

@@ -49,6 +49,15 @@ namespace gui {
         this->body = body;
       }
 
+      void add (const std::vector<std::reference_wrapper<win::window>>& list) {
+        if (list.size() > 0) {
+          header = lay(list[0].get());
+          if (list.size() > 1) {
+            body = lay(list[1].get());
+          }
+        }
+      }
+
     protected:
       layout_function header;
       layout_function body;

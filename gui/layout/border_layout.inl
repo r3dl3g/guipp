@@ -223,59 +223,80 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<int TO, int BO, int LE, int RI, type_t T>
-      layouter<TO, BO, LE, RI, T>::layouter (win::container*)
-      {}
-
-      template<int TO, int BO, int LE, int RI, type_t T>
-      inline const layout_function& layouter<TO, BO, LE, RI, T>::get_center () const {
+      inline const layout_function& layout_base::get_center() const {
         return data.center;
       }
 
-      template<int TO, int BO, int LE, int RI, type_t T>
-      inline const layout_function& layouter<TO, BO, LE, RI, T>::get_top () const {
+      inline const layout_function& layout_base::get_top() const {
         return data.top;
       }
 
-      template<int TO, int BO, int LE, int RI, type_t T>
-      inline const layout_function& layouter<TO, BO, LE, RI, T>::get_bottom () const {
+      inline const layout_function& layout_base::get_bottom() const {
         return data.bottom;
       }
 
-      template<int TO, int BO, int LE, int RI, type_t T>
-      inline const layout_function& layouter<TO, BO, LE, RI, T>::get_left () const {
+      inline const layout_function& layout_base::get_left() const {
         return data.left;
       }
 
-      template<int TO, int BO, int LE, int RI, type_t T>
-      inline const layout_function& layouter<TO, BO, LE, RI, T>::get_right () const {
+      inline const layout_function& layout_base::get_right() const {
         return data.right;
       }
 
-      template<int TO, int BO, int LE, int RI, type_t T>
-      inline void layouter<TO, BO, LE, RI, T>::set_center (const layout_function& center) {
+      inline void layout_base::set_center(const layout_function& center) {
         data.center = center;
       }
 
-      template<int TO, int BO, int LE, int RI, type_t T>
-      inline void layouter<TO, BO, LE, RI, T>::set_top (const layout_function& top) {
+      inline void layout_base::set_top(const layout_function& top) {
         data.top = top;
       }
 
-      template<int TO, int BO, int LE, int RI, type_t T>
-      inline void layouter<TO, BO, LE, RI, T>::set_bottom (const layout_function& bottom) {
+      inline void layout_base::set_bottom(const layout_function& bottom) {
         data.bottom = bottom;
       }
 
-      template<int TO, int BO, int LE, int RI, type_t T>
-      inline void layouter<TO, BO, LE, RI, T>::set_left (const layout_function& left) {
+      inline void layout_base::set_left(const layout_function& left) {
         data.left = left;
       }
 
-      template<int TO, int BO, int LE, int RI, type_t T>
-      inline void layouter<TO, BO, LE, RI, T>::set_right (const layout_function& right) {
+      inline void layout_base::set_right(const layout_function& right) {
         data.right = right;
       }
+
+      inline void layout_base::set_center_top_bottom_left_right(const layout_function& center,
+        const layout_function& top,
+        const layout_function& bottom,
+        const layout_function& left,
+        const layout_function& right) {
+        data.center = center;
+        data.top = top;
+        data.bottom = bottom;
+        data.left = left;
+        data.right = right;
+      }
+
+      inline void layout_base::add(const std::vector<std::reference_wrapper<win::window>>& list) {
+        if (list.size() > 0) {
+          data.center = lay(list[0].get());
+          if (list.size() > 1) {
+            data.top = lay(list[1].get());
+            if (list.size() > 2) {
+              data.bottom = lay(list[2].get());;
+              if (list.size() > 3) {
+                data.left = lay(list[3].get());;
+                if (list.size() > 4) {
+                  data.right = lay(list[4].get());;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // --------------------------------------------------------------------------
+      template<int TO, int BO, int LE, int RI, type_t T>
+      layouter<TO, BO, LE, RI, T>::layouter (win::container*)
+      {}
 
       template<int TO, int BO, int LE, int RI, type_t T>
       inline int layouter<TO, BO, LE, RI, T>::get_top_height () const {
@@ -324,19 +345,6 @@ namespace gui {
       inline core::rectangle layouter<TO, BO, LE, RI, T>::get_right_geometry (const core::rectangle& r) const {
         const top_height pt = geometrie::get_right(r);
         return core::rectangle(r.x2() - RI, pt.top, RI, pt.height);
-      }
-
-      template<int TO, int BO, int LE, int RI, type_t T>
-      inline void layouter<TO, BO, LE, RI, T>::set_center_top_bottom_left_right (const layout_function& center,
-                                                                                 const layout_function& top,
-                                                                                 const layout_function& bottom,
-                                                                                 const layout_function& left,
-                                                                                 const layout_function& right) {
-        data.center = center;
-        data.top = top;
-        data.bottom = bottom;
-        data.left = left;
-        data.right = right;
       }
 
       template<int TO, int BO, int LE, int RI, type_t T>

@@ -183,6 +183,15 @@ namespace gui {
       this->main = main;
     }
 
+    void scroll_view::add (const std::vector<std::reference_wrapper<win::window>>& list) {
+      if (list.size() > 0) {
+        win::container* parent = dynamic_cast<win::container*>(&(list[0].get()));
+        if (parent) {
+          main = parent;
+        }
+      }
+    }
+
     void scroll_view::layout (const core::rectangle& new_size) const {
       if (main) {
         std::vector<win::window*> children = main->get_children();

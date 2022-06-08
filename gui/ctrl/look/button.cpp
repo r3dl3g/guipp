@@ -454,7 +454,6 @@ namespace gui {
     template<>
     void tab_button<look_and_feel_t::metal> (draw::graphics& g,
                                              const core::rectangle& r,
-                                             const std::string& text,
                                              const core::button_state::is& st,
                                              os::color fg,
                                              alignment_t a) {

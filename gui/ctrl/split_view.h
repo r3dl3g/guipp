@@ -64,6 +64,8 @@ namespace gui {
 
       void layout (const core::rectangle& r) const;
 
+      void add (const std::vector<std::reference_wrapper<win::window>>&);
+
     private:
       First* first;
       Second* second;

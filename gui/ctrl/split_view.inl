@@ -128,6 +128,28 @@ namespace gui {
     }
 
     template<orientation_t O, typename F, typename S>
+    void split_view<O, F, S>::add (const std::vector<std::reference_wrapper<win::window>>& list) {
+      if (list.size() > 0) {
+        F* f = dynamic_cast<F*>(&(list[0].get()));
+        if (f) {
+          first = f;
+        }
+        if (list.size() > 1) {
+          S* s = dynamic_cast<S*>(&(list[1].get()));
+          if (s) {
+            second = s;
+          }
+          if (list.size() > 2) {
+            ctrl::detail::splitter_base* sp = dynamic_cast<ctrl::detail::splitter_base*>(&(list[2].get()));
+            if (sp) {
+              splitter = sp;
+            }
+          }
+        }
+      }
+    }
+
+    template<orientation_t O, typename F, typename S>
     void split_view<O, F, S>::layout (const core::rectangle& r) const {
       logging::trace() << "split_view::layout(" << r << ") split_pos: " << split_pos;
       if (first) {

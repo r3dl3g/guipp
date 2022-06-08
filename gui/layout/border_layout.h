@@ -73,19 +73,8 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<int TO = 0, int BO = 0, int LE = 0, int RI = 0, type_t T = type_t::top_bottom_maximize>
-      class layouter {
+      class layout_base {
       public:
-        typedef border_geometrie<TO, BO, LE, RI, T> geometrie;
-
-        static constexpr int top = TO;
-        static constexpr int bottom = BO;
-        static constexpr int left = LE;
-        static constexpr int right = RI;
-        static constexpr type_t type = T;
-
-        explicit layouter (win::container* = nullptr);
-
         const layout_function& get_center () const;
         const layout_function& get_top () const;
         const layout_function& get_bottom () const;
@@ -104,6 +93,34 @@ namespace gui {
                                                const layout_function& left,
                                                const layout_function& right);
 
+        void add (const std::vector<std::reference_wrapper<win::window>>&);
+
+      protected:
+        struct layout_base_data {
+          layout_function center;
+          layout_function top;
+          layout_function bottom;
+          layout_function left;
+          layout_function right;
+        } data;
+
+      };
+
+      // --------------------------------------------------------------------------
+      template<int TO = 0, int BO = 0, int LE = 0, int RI = 0, type_t T = type_t::top_bottom_maximize>
+      class layouter : public layout_base {
+      public:
+        typedef layout_base super;
+        typedef border_geometrie<TO, BO, LE, RI, T> geometrie;
+
+        static constexpr int top = TO;
+        static constexpr int bottom = BO;
+        static constexpr int left = LE;
+        static constexpr int right = RI;
+        static constexpr type_t type = T;
+
+        explicit layouter (win::container* = nullptr);
+
         int get_top_height () const;
         int get_bottom_height () const;
         int get_left_width () const;
@@ -116,15 +133,6 @@ namespace gui {
         core::rectangle get_right_geometry (const core::rectangle& r) const;
 
         void layout (const core::rectangle& r);
-
-      protected:
-        struct {
-          layout_function center;
-          layout_function top;
-          layout_function bottom;
-          layout_function left;
-          layout_function right;
-        } data;
 
       };
 

@@ -31,58 +31,6 @@ namespace gui {
         : data(top_height, bottom_height, left_width, right_width)
       {}
 
-      inline const layout_function& dynamic_border_layout_base::get_center () const {
-        return data.center;
-      }
-
-      inline const layout_function& dynamic_border_layout_base::get_top () const {
-        return data.top;
-      }
-
-      inline const layout_function& dynamic_border_layout_base::get_bottom () const {
-        return data.bottom;
-      }
-
-      inline const layout_function& dynamic_border_layout_base::get_left () const {
-        return data.left;
-      }
-
-      inline const layout_function& dynamic_border_layout_base::get_right () const {
-        return data.right;
-      }
-
-      inline void dynamic_border_layout_base::set_center (const layout_function& center) {
-        data.center = center;
-      }
-
-      inline void dynamic_border_layout_base::set_top (const layout_function& top) {
-        data.top = top;
-      }
-
-      inline void dynamic_border_layout_base::set_bottom (const layout_function& bottom) {
-        data.bottom = bottom;
-      }
-
-      inline void dynamic_border_layout_base::set_left (const layout_function& left) {
-        data.left = left;
-      }
-
-      inline void dynamic_border_layout_base::set_right (const layout_function& right) {
-        data.right = right;
-      }
-
-      inline void dynamic_border_layout_base::set_center_top_bottom_left_right (const layout_function& center,
-                                                                                const layout_function& top,
-                                                                                const layout_function& bottom,
-                                                                                const layout_function& left,
-                                                                                const layout_function& right) {
-        data.center = center;
-        data.top = top;
-        data.bottom = bottom;
-        data.left = left;
-        data.right = right;
-      }
-
       inline float dynamic_border_layout_base::get_top_height () const {
         return data.top_height;
       }
@@ -116,9 +64,9 @@ namespace gui {
       }
 
       inline dynamic_border_layout_base::dynamic_border_layout_data::dynamic_border_layout_data (float top_height,
-                                                                         float bottom_height,
-                                                                         float left_width,
-                                                                         float right_width)
+                                                                                                 float bottom_height,
+                                                                                                 float left_width,
+                                                                                                 float right_width)
         : top_height(top_height)
         , bottom_height(bottom_height)
         , left_width(left_width)

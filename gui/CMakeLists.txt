@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-project("gui" LANGUAGES CXX VERSION 1.2.0)
+project("gui" LANGUAGES CXX VERSION 1.2.1)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 

@@ -91,7 +91,9 @@ namespace gui {
         }
 
         inline void set_unselected (int i) {
-          selection = i;
+          if (selection == i) {
+            selection = -1;
+          }
         }
 
         inline void clear_selection () {

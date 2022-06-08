@@ -305,7 +305,7 @@ namespace gui {
                      const core::button_state::is& state,
                      os::color foreground,
                      alignment_t a) {
-      push_button(g, r, text, state, foreground, color::transparent);
+      button_frame(g, r, state, foreground, color::transparent);
     }
 
     template<>

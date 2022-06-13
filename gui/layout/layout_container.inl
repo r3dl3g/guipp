@@ -91,12 +91,7 @@ namespace gui {
       template<typename B, typename L, typename ... A>
       inline void layout_container_base<B, L, A...>::add (const std::vector<std::reference_wrapper<win::window>>& list) {
         get_layout().add(list);
-        super::on_create([&, list] () {
-          for (auto& w : list) {
-            w.get().create(*this);
-          }
-        });
-
+        super::add(list);
       }
 
     } // namespace detail

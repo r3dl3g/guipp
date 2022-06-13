@@ -135,6 +135,11 @@ namespace gui {
       for (auto& w : list) {
         add(&(w.get()));
       }
+      super::on_create([&, list] () {
+        for (auto& w : list) {
+          w.get().create(*this);
+        }
+      });
     }
 
     void container::remove (window* w) {

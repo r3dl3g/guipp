@@ -379,6 +379,11 @@ namespace gui {
       return V(selection_begin(v, s), selection_end(v, s));
     }
 
+    template<typename V, typename S>
+    inline V get_selected_elements_or_all (const V& v, const S& s) {
+      return s.begin() == s.end() ? v : V(selection_begin(v, s), selection_end(v, s));
+    }
+
     // --------------------------------------------------------------------------
   } // namespace core
 

@@ -134,13 +134,10 @@ namespace gui {
     }
 
     bool window::has_overlapped_window () const {
-      if (dynamic_cast<const overlapped_window*>(this)) {
-        return true;
-      }
       if (parent) {
         return parent->has_overlapped_window();
       } else {
-        return false;
+        return dynamic_cast<const overlapped_window*>(this);
       }
     }
 

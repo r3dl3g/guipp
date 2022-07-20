@@ -2,7 +2,7 @@
 
 . ./.get_compiler_ver.sh
 
-out_base=~/Projekte/build/ibr/guipp
+out_base=./out
 
 outdir () {
   odir=$1

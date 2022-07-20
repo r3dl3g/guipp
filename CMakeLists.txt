@@ -2,15 +2,13 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 project("guipp" CXX)
 
+include (Functions.cmake)
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 option(GUIPP_SAMPLES "On to build the samples. Default Off" OFF)
 option(GUIPP_TESTS "On to build the tests. Default Off" OFF)
 option(GUIPP_TOOLS "On to build the tools. Default Off" OFF)
-
-function(print_var VAR)
-  message(STATUS "${VAR}: '" ${${VAR}} "'")
-endfunction(print_var)
 
 if(CMAKE_CXX_COMPILER MATCHES "/em\\+\\+(-[a-zA-Z0-9.])?$")
   set(EMSCRIPTEN 1)
@@ -21,6 +19,13 @@ print_var(CMAKE_CXX_COMPILER_ID)
 print_var(CMAKE_SYSTEM_PROCESSOR)
 print_var(CMAKE_HOST_SYSTEM_PROCESSOR)
 print_var(CMAKE_LIBRARY_ARCHITECTURE)
+
+debug_print_var(CMAKE_SOURCE_DIR)
+debug_print_var(CMAKE_CURRENT_SOURCE_DIR)
+debug_print_var(CMAKE_ROOT_SOURCE_DIR)
+debug_print_var(CMAKE_BINARY_DIR)
+debug_print_var(CMAKE_CURRENT_BINARY_DIR)
+debug_print_var(CMAKE_ROOT_BINARY_DIR)
 
 set(CMAKE_USE_RELATIVE_PATHS FALSE)
 

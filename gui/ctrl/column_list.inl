@@ -281,7 +281,7 @@ namespace gui {
         if (last_mouse_point != core::point::undefined) {
           auto delta = pt.x() - last_mouse_point.x();
           if (down_idx > -1) {
-            layouter.set_column_width(down_idx, layouter.get_column_width(down_idx) + delta, true);
+            layouter.set_column_width(down_idx, layouter.get_column_width(down_idx) + delta, false);
             invalidate();
           }
         }

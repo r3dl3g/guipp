@@ -122,9 +122,11 @@ namespace gui {
     }
 
     overlapped_window& window::get_overlapped_window () const {
-      const overlapped_window* o = dynamic_cast<const overlapped_window*>(this);
-      if (o) {
-        return *const_cast<overlapped_window*>(o);
+      if (get_state().overlapped()) {
+        const overlapped_window* o = dynamic_cast<const overlapped_window*>(this);
+        if (o) {
+          return *const_cast<overlapped_window*>(o);
+        }
       }
       if (parent) {
         return parent->get_overlapped_window();

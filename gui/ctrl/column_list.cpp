@@ -111,8 +111,12 @@ namespace gui {
       }
 
       void column_list_layout::redraw_views () {
-        main->invalidate();
-        list->invalidate();
+        if (main) {
+          main->invalidate();
+        }
+        if (list) {
+          list->invalidate();
+        }
       }
 
       void column_list_layout::set_default_width (column_size_type w) {

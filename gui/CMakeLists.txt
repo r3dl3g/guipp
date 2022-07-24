@@ -11,6 +11,7 @@ project("gui" LANGUAGES CXX VERSION ${project_version})
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
 include (Functions.cmake)
+include (../Functions.cmake)
 
 if(POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)

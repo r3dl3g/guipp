@@ -87,6 +87,7 @@ namespace gui {
       north, east, south, west,
       north_east,north_west, south_east, south_west,
       new_blink, new_folder, new_file,
+      fullscreen, restore,
       background,
       MAX
     };
@@ -205,6 +206,9 @@ namespace gui {
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::new_blink> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::new_folder> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::new_file> (graphics&, const pen&, const core::point&, core::size::type);
+
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::fullscreen> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::restore> (graphics&, const pen&, const core::point&, core::size::type);
 
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::background> (graphics&, const pen&, const core::point&, core::size::type);
     // --------------------------------------------------------------------------

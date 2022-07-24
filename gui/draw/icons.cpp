@@ -61,6 +61,7 @@ namespace gui {
       "north", "east", "south", "west",
       "north_east","north_west", "south_east", "south_west",
       "new_blink", "new_folder", "new_file",
+      "fullscreen", "restore",
       "background",
       "MAX"
     };
@@ -400,24 +401,24 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_type::pause> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
-      const auto tll = calc_clock_point<315>(center, radius);
-      const auto trr = calc_clock_point<45>(center, radius);
-      const auto tl = calc_point_between(tll, trr, 0.333);
-      const auto tr = calc_point_between(tll, trr, 0.667);
+      const auto p00 = calc_clock_point<315>(center, radius);
+      const auto p30 = calc_clock_point<45>(center, radius);
+      const auto p10 = calc_point_between(p00, p30, 0.333);
+      const auto p20 = calc_point_between(p00, p30, 0.667);
 
-      const auto bll = calc_clock_point<225>(center, radius);
-      const auto brr = calc_clock_point<135>(center, radius);
-      const auto bl = calc_point_between(bll, brr, 0.333);
-      const auto br = calc_point_between(bll, brr, 0.667);
-      g.frame(draw::polygon({tll, tl, bl, bll}), pn);
-      g.frame(draw::polygon({tr, trr, brr, br}), pn);
+      const auto p03 = calc_clock_point<225>(center, radius);
+      const auto p33 = calc_clock_point<135>(center, radius);
+      const auto p13 = calc_point_between(p03, p33, 0.333);
+      const auto p23 = calc_point_between(p03, p33, 0.667);
+      g.frame(draw::polygon({p00, p10, p13, p03}), pn);
+      g.frame(draw::polygon({p20, p30, p33, p23}), pn);
     }
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_type::stop> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
-      const auto tll = calc_clock_point<315>(center, radius);
-      const auto brr = calc_clock_point<135>(center, radius);
-      g.frame(draw::rectangle(core::rectangle{tll, brr}), pn);
+      const auto p00 = calc_clock_point<315>(center, radius);
+      const auto p33 = calc_clock_point<135>(center, radius);
+      g.frame(draw::rectangle(core::rectangle{p00, p33}), pn);
     }
     // --------------------------------------------------------------------------
     template<>
@@ -800,6 +801,55 @@ namespace gui {
       draw_icon<icon_type::new_blink>(g, pn, tr, radius / 3.5F);
     }
     // --------------------------------------------------------------------------
+    template<> void draw_icon<icon_type::fullscreen> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      const auto p00 = calc_clock_point<315>(center, radius);
+      const auto p30 = calc_clock_point<45>(center, radius);
+      const auto p03 = calc_clock_point<225>(center, radius);
+      const auto p33 = calc_clock_point<135>(center, radius);
+
+      const auto p10 = calc_point_between(p00, p30, 0.333);
+      const auto p20 = calc_point_between(p00, p30, 0.667);
+      const auto p13 = calc_point_between(p03, p33, 0.333);
+      const auto p23 = calc_point_between(p03, p33, 0.667);
+
+      const auto p01 = calc_point_between(p00, p03, 0.333);
+      const auto p02 = calc_point_between(p00, p03, 0.667);
+      const auto p31 = calc_point_between(p30, p33, 0.333);
+      const auto p32 = calc_point_between(p30, p33, 0.667);
+
+      g.frame(draw::polyline({p01, p00, p10}), pn);
+      g.frame(draw::polyline({p20, p30, p31}), pn);
+      g.frame(draw::polyline({p32, p33, p23}), pn);
+      g.frame(draw::polyline({p13, p03, p02}), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<> void draw_icon<icon_type::restore> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      const auto p00 = calc_clock_point<315>(center, radius);
+      const auto p30 = calc_clock_point<45>(center, radius);
+      const auto p03 = calc_clock_point<225>(center, radius);
+      const auto p33 = calc_clock_point<135>(center, radius);
+
+      const auto p10 = calc_point_between(p00, p30, 0.333);
+      const auto p20 = calc_point_between(p00, p30, 0.667);
+      const auto p13 = calc_point_between(p03, p33, 0.333);
+      const auto p23 = calc_point_between(p03, p33, 0.667);
+
+      const auto p01 = calc_point_between(p00, p03, 0.333);
+      const auto p02 = calc_point_between(p00, p03, 0.667);
+      const auto p31 = calc_point_between(p30, p33, 0.333);
+      const auto p32 = calc_point_between(p30, p33, 0.667);
+
+      const auto p11 = calc_point_between(p10, p13, 0.333);
+      const auto p12 = calc_point_between(p10, p13, 0.667);
+      const auto p21 = calc_point_between(p20, p23, 0.333);
+      const auto p22 = calc_point_between(p20, p23, 0.667);
+
+      g.frame(draw::polyline({p01, p11, p10}), pn);
+      g.frame(draw::polyline({p20, p21, p31}), pn);
+      g.frame(draw::polyline({p32, p22, p23}), pn);
+      g.frame(draw::polyline({p13, p12, p02}), pn);
+    }
+    // --------------------------------------------------------------------------
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_type::background> (graphics& g, const pen&, const core::point& center, core::size::type radius) {
@@ -840,6 +890,7 @@ namespace gui {
     void draw_icon (graphics& g, icon_type type, const pen& pn, const core::point& center, core::size::type radius) {
       draw_icon_switch<icon_type::none>(g, type, pn, center, radius);
     }
+
     // --------------------------------------------------------------------------
 
   }

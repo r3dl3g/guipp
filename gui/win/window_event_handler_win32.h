@@ -46,8 +46,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T>
     core::native_rect get_rect (const core::event& e) {
-      T& p = *reinterpret_cast<T*>(e.lParam);
-      return core::native_rect(p.x, p.y, p.cx, p.cy);
+      const T* p = reinterpret_cast<const T*>(e.lParam);
+      return core::native_rect(p->x, p->y, p->cx, p->cy);
     }
 
     // --------------------------------------------------------------------------
@@ -292,6 +292,11 @@ namespace gui {
     using paint_event = core::event_handler<core::WM_PAINT_WINDOW, 0,
                                             core::params<core::context*, core::native_rect*>::
                                             getter<get_context, get_param<1, core::native_rect*>>>;
+    namespace win32 {
+
+      using window_pos_changed_event = core::event_handler<WM_WINDOWPOSCHANGED, 0,
+        core::params<core::native_rect>::getter<get_rect<WINDOWPOS>>>;
+    }
 
     // --------------------------------------------------------------------------
 

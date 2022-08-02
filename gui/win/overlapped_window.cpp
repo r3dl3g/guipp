@@ -388,8 +388,13 @@ namespace gui {
         shift_focus(any_key_down_event::Caller::get_param<0>(e) == core::state::shift);
       } else if (is_key_event(e) && focus_window && (focus_window != this)) {
         focus_window->handle_event(e, r);
+#ifdef GUIPP_WIN
+      } else if (win32::window_pos_changed_event::match(e)) {
+        area.set_size(core::global::scale_from_native(get_rect<WINDOWPOS>(e).size()));
+#else
       } else if (size_event::match(e)) {
         area.set_size(size_event::Caller::get_param<0>(e));
+#endif
 #ifndef BUILD_FOR_ARM
         notify_layout();
 #endif

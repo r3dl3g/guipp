@@ -189,7 +189,7 @@ namespace gui {
       , cell_drawer(std::move(rhs.cell_drawer))
       , last_mouse_point(std::move(rhs.last_mouse_point))
       , down_idx(std::move(rhs.down_idx))
-      , layouter(std::move(rhs.layouter))
+      , layouter(this, std::move(rhs.layouter))
     {
       init();
     }
@@ -281,8 +281,7 @@ namespace gui {
         if (last_mouse_point != core::point::undefined) {
           auto delta = pt.x() - last_mouse_point.x();
           if (down_idx > -1) {
-            layouter.set_column_width(down_idx, layouter.get_column_width(down_idx) + delta, false);
-            invalidate();
+            layouter.set_column_width(down_idx, layouter.get_column_width(down_idx) + delta, true);
           }
         }
         last_mouse_point = pt;

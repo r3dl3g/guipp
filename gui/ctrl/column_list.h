@@ -57,6 +57,9 @@ namespace gui {
         column_list_layout (win::window* main, const column_list_layout& rhs);
         column_list_layout (win::window* main, column_list_layout&& rhs);
 
+        column_list_layout (column_list_layout&& rhs) = delete;
+        column_list_layout (const column_list_layout& rhs) = delete;
+
         void init_auto_layout ();
         void layout (const core::rectangle& new_size);
 

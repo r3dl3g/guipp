@@ -287,17 +287,19 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     void overlapped_window::create (const class_info& cls,
-                                    const core::rectangle& r) {
-      create_internal(cls, native::get_desktop_window(), native::adjust_overlapped_area(r, cls));
+                                    const core::rectangle& r,
+                                    bool adjust_size) {
+      create_internal(cls, native::get_desktop_window(), adjust_size ? native::adjust_overlapped_area(r, cls) : r);
     }
     // --------------------------------------------------------------------------
     void overlapped_window::create (const class_info& cls,
                                     overlapped_window& parent,
-                                    const core::rectangle& r) {
+                                    const core::rectangle& r,
+                                    bool adjust_size) {
       set_parent(parent);
       create_internal(cls,
                       native::get_overlapped_parent(parent.get_os_window()),
-                      native::adjust_overlapped_area(r, cls));
+                      adjust_size ? native::adjust_overlapped_area(r, cls) : r);
     }
     // --------------------------------------------------------------------------
     void overlapped_window::create_internal (const class_info& type,
@@ -807,20 +809,20 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void main_window::create (const class_info& cls, const core::rectangle& r) {
-      super::create(cls, r);
+    void main_window::create (const class_info& cls, const core::rectangle& r, bool adjust_size) {
+      super::create(cls, r, adjust_size);
       native::prepare_main_window(get_os_window());
     }
 
     // --------------------------------------------------------------------------
-    void popup_window::create (const class_info& cls, overlapped_window& parent, const core::rectangle& r) {
-      super::create(cls, parent, r);
+    void popup_window::create (const class_info& cls, overlapped_window& parent, const core::rectangle& r, bool adjust_size) {
+      super::create(cls, parent, r, adjust_size);
       native::prepare_popup_window(get_os_window());
     }
 
     // --------------------------------------------------------------------------
-    void dialog_window::create (const class_info& cls, overlapped_window& parent, const core::rectangle& r) {
-      super::create(cls, parent, r);
+    void dialog_window::create (const class_info& cls, overlapped_window& parent, const core::rectangle& r, bool adjust_size) {
+      super::create(cls, parent, r, adjust_size);
       native::prepare_dialog_window(get_os_window(), parent.get_os_window());
     }
 

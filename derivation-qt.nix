@@ -8,10 +8,12 @@ stdenv.mkDerivation rec {
 
   src = ./.;
 
-  nativeBuildInputs = with pkgs; [ cmake ];
+  nativeBuildInputs = with pkgs; [ cmake libsForQt5.qt5.wrapQtAppsHook ];
 
   buildInputs = with pkgs; [
     libsForQt5.full
+    (callPackage ../logging/derivation.nix { })
+    (callPackage ../util/derivation.nix { })
   ];
 
   enableParallelBuilding = true;

@@ -70,8 +70,8 @@ namespace gui {
       // --------------------------------------------------------------------------
       inline void base_column_list_layout::layout (const core::rectangle& r) const {
         logging::trace() << "base_column_list_layout::layout(" << r << ")";
-        data.header->geometry(header_pos(r), false);
-        data.list->geometry(list_pos(r), false);
+        data.header->geometry(header_pos(r), true, true);
+        data.list->geometry(list_pos(r), true, true);
       }
 
       inline void base_column_list_layout::set_header_and_list (win::window* header, win::window* list) {

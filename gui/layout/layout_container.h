@@ -45,10 +45,6 @@ namespace gui {
         void layout ();
         void layout (const core::rectangle&);
 
-        void resize (const core::size&, bool repaint = true);
-        using B::geometry;
-        void geometry (const core::rectangle&, bool repaint = true);
-
         layout_type& get_layout ();
         const layout_type& get_layout () const;
 

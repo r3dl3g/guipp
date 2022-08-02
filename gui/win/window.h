@@ -106,8 +106,8 @@ namespace gui {
       core::rectangle client_geometry () const;
 
       void position (const core::point&, bool repaint = false);
-      void resize (const core::size&, bool repaint = true);
-      void geometry (const core::rectangle&, bool repaint = true);
+      void resize (const core::size&, bool repaint, bool force_layout);
+      void geometry (const core::rectangle&, bool repaint, bool force_layout);
 
       core::point client_to_screen (const core::point&) const;
       core::point screen_to_client (const core::point&) const;

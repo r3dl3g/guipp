@@ -149,7 +149,7 @@ namespace gui {
         if (!data.editor.is_valid()) {
           data.editor.create(*get_parent(), area);
         }
-        data.editor.geometry(area);
+        data.editor.geometry(area, true, false);
         data.editor.init_text(data.data_source(cell));
         data.editor.set_cursor_pos(data.editor.get_text_length());
         data.editor.set_visible();

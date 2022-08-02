@@ -97,7 +97,7 @@ namespace gui {
 
       data.items->on_selection_changed(util::bind_method(this, &drop_down_list::handle_selection_changed));
       data.popup.on_size([&] (const core::size & sz) {
-        data.items.geometry(core::rectangle(sz));
+        data.items.geometry(core::rectangle(sz), true, false);
       });
       data.popup.on_create([&] () {
         data.items.create(data.popup, data.popup.client_geometry());
@@ -190,7 +190,7 @@ namespace gui {
       if (!data.popup.is_valid()) {
         create_popup(get_popup_geometry());
       } else {
-        data.popup.geometry(get_popup_geometry());
+        data.popup.geometry(get_popup_geometry(), true, false);
       }
       data.items->set_selection(data.selection, event_source::logic);
       data.items->make_selection_visible();
@@ -212,7 +212,7 @@ namespace gui {
     void drop_down_list::set_visible_items (int n) {
       data.visible_items = n;
       if (is_popup_visible()) {
-        data.popup.geometry(get_popup_geometry());
+        data.popup.geometry(get_popup_geometry(), true, false);
       }
     }
 
@@ -260,7 +260,7 @@ namespace gui {
 
     void drop_down_list::handle_move (const core::point&) {
       if (is_popup_visible()) {
-        data.popup.geometry(get_popup_geometry());
+        data.popup.geometry(get_popup_geometry(), true, false);
       }
     }
 

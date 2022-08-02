@@ -178,7 +178,7 @@ namespace gui {
       }
 
       inline void geometry (win::window* w, const core::rectangle& r) {
-        w->geometry(r);
+        w->geometry(r, true, false);
       }
 
       inline const void* key (const win::window* w) {

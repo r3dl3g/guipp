@@ -33,13 +33,13 @@ namespace gui {
 
     layout_function lay (win::window& w) {
       return [&] (const core::rectangle& r) {
-        w.geometry(r);
+        w.geometry(r, true, false);
       };
     }
 
     layout_function lay (win::window* w) {
       return [=] (const core::rectangle& r) {
-        w->geometry(r);
+        w->geometry(r, true, false);
       };
     }
 

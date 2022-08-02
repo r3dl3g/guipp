@@ -40,7 +40,7 @@ namespace gui {
       logging::trace() << "virtual_layout::layout()";
       if (client) {
         auto available = super::layout(r, client->get_virtual_geometry(r));
-        client->geometry(available);
+        client->geometry(available, true, true);
       } else {
         super::layout(r, core::rectangle());
       }

@@ -153,13 +153,13 @@ namespace gui {
     void split_view<O, F, S>::layout (const core::rectangle& r) const {
       logging::trace() << "split_view::layout(" << r << ") split_pos: " << split_pos;
       if (first) {
-        first->geometry(traits::get_first_geometry(r, split_pos), true);
+        first->geometry(traits::get_first_geometry(r, split_pos), true, true);
       }
       if (second) {
-        second->geometry(traits::get_second_geometry(r, split_pos), true);
+        second->geometry(traits::get_second_geometry(r, split_pos), true, true);
       }
       if (splitter) {
-        splitter->geometry(traits::get_splitter_geometry(r, split_pos), true);
+        splitter->geometry(traits::get_splitter_geometry(r, split_pos), true, true);
       }
     }
 

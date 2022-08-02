@@ -134,20 +134,20 @@ namespace gui {
       core::rectangle available(new_size);
 
       if (edge && show_h && show_v) {
-        edge->geometry(get_edge_area(new_size));
+        edge->geometry(get_edge_area(new_size), true, true);
         edge->to_front();
       }
 
       if (show_v) {
         auto area = get_vscroll_area(new_size, show_h);
-        vscroll->geometry(area);
+        vscroll->geometry(area, true, false);
         vscroll->to_front();
         available.x2(area.x());
       }
 
       if (show_h) {
         auto area = get_hscroll_area(new_size, show_v);
-        hscroll->geometry(area);
+        hscroll->geometry(area, true, false);
         hscroll->to_front();
         available.y2(area.y());
       }
@@ -284,11 +284,11 @@ namespace gui {
       if (enable) {
         bool hscroll_bar_enabled = is_hscroll_bar_enabled();
         const auto area = client_geometry();
-        vscroll.geometry(layout::scroll_view::get_vscroll_area(area, hscroll_bar_enabled));
+        vscroll.geometry(layout::scroll_view::get_vscroll_area(area, hscroll_bar_enabled), true, false);
         vscroll.to_front();
         if (hscroll_bar_enabled) {
-          hscroll.geometry(layout::scroll_view::get_hscroll_area(area, enable));
-          edge.geometry(layout::scroll_view::get_edge_area(area));
+          hscroll.geometry(layout::scroll_view::get_hscroll_area(area, enable), true, false);
+          edge.geometry(layout::scroll_view::get_edge_area(area), true, true);
           edge.set_visible();
           edge.to_front();
         }
@@ -300,11 +300,11 @@ namespace gui {
       if (enable) {
         bool vscroll_bar_enabled = is_vscroll_bar_enabled();
         const auto area = client_geometry();
-        hscroll.geometry(layout::scroll_view::get_hscroll_area(area, vscroll_bar_enabled));
+        hscroll.geometry(layout::scroll_view::get_hscroll_area(area, vscroll_bar_enabled), true, false);
         hscroll.to_front();
         if (vscroll_bar_enabled) {
-          hscroll.geometry(layout::scroll_view::get_hscroll_area(area, enable));
-          edge.geometry(layout::scroll_view::get_edge_area(area));
+          hscroll.geometry(layout::scroll_view::get_hscroll_area(area, enable), true, false);
+          edge.geometry(layout::scroll_view::get_edge_area(area), true, true);
           edge.set_visible();
           edge.to_front();
         }

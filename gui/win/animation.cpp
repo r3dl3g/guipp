@@ -112,7 +112,7 @@ namespace gui {
 
       void size::operator () (float f) {
         if (win->is_valid()) {
-          win->resize(from + diff * f);
+          win->resize(from + diff * f, true, false);
           win->set_visible();
           win->get_parent()->invalidate();
         }

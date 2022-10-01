@@ -254,11 +254,6 @@ namespace gui {
                                                  getter<get_param<0, os::key_state>,
                                                         get_param<1, core::native_point>>>;
 
-    using mouse_move_abs_event = core::event_handler<WM_MOUSEMOVE, 0,
-                                                     core::params<os::key_state, core::native_point>::
-                                                     getter<get_param<0, os::key_state>,
-                                                            get_root_mouse_pos>>;
-
     using mouse_enter_event = core::event_handler<WM_MOUSEMOVE, 0,
                                                   core::params<>::getter<>,
                                                   0,

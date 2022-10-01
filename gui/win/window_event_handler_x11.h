@@ -314,11 +314,6 @@ namespace gui {
                                                  getter<get_event_state<XMotionEvent>,
                                                         get<core::native_point, XMotionEvent>::param>>;
 
-    using mouse_move_abs_event = core::event_handler<MotionNotify, PointerMotionMask,
-                                                     core::params<os::key_state, core::native_point>::
-                                                     getter<get_event_state<XMotionEvent>,
-                                                            get_root_mouse_pos>>;
-
     using left_btn_down_event = core::event_handler<ButtonPress, ButtonPressMask,
                                                     core::params<os::key_state, core::native_point>::
                                                     getter<get_event_state<XButtonEvent>,

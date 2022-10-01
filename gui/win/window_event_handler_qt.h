@@ -143,11 +143,6 @@ namespace gui {
                                                  core::params<os::key_state, core::native_point>::
                                                  getter<get_mouse_button, get_mouse_point>>;
 
-    using mouse_move_abs_event = core::event_handler<QEvent::MouseMove, 0,
-                                                     core::params<os::key_state, core::native_point>::
-                                                     getter<get_mouse_button,
-                                                            get_root_mouse_pos>>;
-
     using left_btn_down_event = core::event_handler<QEvent::MouseButtonPress, 0,
                                                     core::params<os::key_state, core::native_point>::
                                                     getter<get_mouse_button, get_mouse_point>,

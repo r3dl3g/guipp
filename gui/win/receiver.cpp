@@ -72,10 +72,6 @@ namespace gui {
       on<mouse_move_event>(std::move(f));
     }
 
-    void receiver::on_mouse_move_abs (mouse_move_abs_event::function&& f) {
-      on<mouse_move_abs_event>(std::move(f));
-    }
-
     void receiver::on_left_btn_down (left_btn_down_event::function&& f) {
       on<left_btn_down_event>(std::move(f));
     }

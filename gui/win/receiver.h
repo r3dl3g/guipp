@@ -73,8 +73,6 @@ namespace gui {
 
       void on_mouse_move (std::function<mouse_fn>&& f);
 
-      void on_mouse_move_abs (std::function<mouse_fn>&& f);
-
       void on_left_btn_down (std::function<mouse_fn>&& f);
 
       void on_left_btn_up (std::function<mouse_fn>&& f);

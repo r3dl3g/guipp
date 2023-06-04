@@ -234,7 +234,7 @@ namespace gui {
 
     template<typename T, typename S, coordinate_system C>
     inline auto basic_rectangle<T, S, C>::bottom_right (const point_t& pt) -> self& {
-      return bottom(pt.x()).right(pt.y());
+      return bottom(pt.y()).right(pt.x());
     }
 
     template<typename T, typename S, coordinate_system C>

@@ -101,6 +101,19 @@ namespace gui {
         return sz;
       }
 
+      void metric::set_default_size (const core::size& data) {
+        widths.set_default_size(data.width());
+        heights.set_default_size(data.height());
+      }
+
+      void metric::set_default_width (core::size::type data) {
+        widths.set_default_size(data);
+      }
+
+      void metric::set_default_height (core::size::type data) {
+        heights.set_default_size(data);
+      }
+
       // --------------------------------------------------------------------------
       void layout::set_size (std::size_t idx, core::size::type size) {
         if (sizes[idx] != size) {
@@ -478,6 +491,18 @@ namespace gui {
       , last_mouse_point(core::native_point::undefined)
     {
       init();
+    }
+
+    void table_view::set_default_cell_size (const core::size& sz) {
+      geometrie.set_default_size(sz);
+    }
+
+    void table_view::set_default_row_width (core::size::type w) {
+      get_layout().set_left_width(w);
+    }
+
+    void table_view::set_default_column_height (core::size::type h) {
+      get_layout().set_top_height(h);
     }
 
     table_view::table_view (const table_view& rhs)

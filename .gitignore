@@ -17,3 +17,4 @@ build/Makefile
 build/cmake_install.cmake
 result
 *.ignore
+wasm

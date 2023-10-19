@@ -67,6 +67,11 @@ namespace gui {
           return default_data;
         }
 
+        template<typename T>
+        inline void vector<T>::set_default_data (const T& data) {
+          default_data = data;
+        }
+
         // --------------------------------------------------------------------------
         template<typename T>
         inline matrix<T>::matrix (const T& default_data)
@@ -142,6 +147,11 @@ namespace gui {
         }
 
         template<typename T>
+        inline void matrix<T>::set_default_data (const T& data) {
+          column_data.set_default_data(data);
+        }
+
+        template<typename T>
         inline auto matrix<T>::get_column_row_cell (const position &cell) const->const T &{
           if (cell.x() < column_data.size()) {
             return column_data[cell.x()];
@@ -180,6 +190,10 @@ namespace gui {
         return sizes.get_default_data();
       }
 
+      inline void layout::set_default_size (const core::size::type data) {
+        sizes.set_default_data(data);
+      }
+
       inline core::size::type layout::get_size (int idx) const {
         return idx > -1 ? sizes[idx] : 0;
       }
@@ -213,6 +227,14 @@ namespace gui {
 
       inline core::size metric::get_default_size () const {
         return core::size(widths.get_default_size(), heights.get_default_size());
+      }
+
+      inline core::size::type metric::get_default_width () const {
+        return widths.get_default_size();
+      }
+
+      inline core::size::type metric::get_default_height () const {
+        return heights.get_default_size();
       }
 
       inline position metric::get_first_idx () const {
@@ -349,6 +371,21 @@ namespace gui {
       template<template<typename U> class T>
       inline const std::function<filter::selection_and_hilite>& cell_view<T>::get_hilite_filter () const {
         return hilite_filter;
+      }
+
+      template<template<typename U> class T>
+      inline void cell_view<T>::set_default_align (text_origin_t o) {
+        aligns.set_default_data(o);
+      }
+
+      template<template<typename U> class T>
+      inline void cell_view<T>::set_default_foreground (os::color c) {
+        foregrounds.set_default_data(c);
+      }
+
+      template<template<typename U> class T>
+      inline void cell_view<T>::set_default_background (os::color c) {
+        backgrounds.set_default_data(c);
       }
 
       template<template<typename U> class T>

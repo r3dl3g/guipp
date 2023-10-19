@@ -64,9 +64,10 @@ namespace gui {
           T& operator[] (std::size_t idx);
 
           const T& get_default_data () const;
+          void set_default_data (const T&);
 
         private:
-          const T default_data;
+          T default_data;
         };
 
         // --------------------------------------------------------------------------
@@ -84,6 +85,7 @@ namespace gui {
           void clear ();
 
           const T& get_default_data () const;
+          void set_default_data (const T&);
 
         protected:
           const T& get_column_row_cell (const position& cell) const;
@@ -140,6 +142,7 @@ namespace gui {
         std::size_t get_first_idx () const;
         core::point::type get_first_offset () const;
 
+        void set_default_size (core::size::type);
         void set_size (std::size_t idx, core::size::type size);
         void set_offset (core::point::type offset);
 
@@ -169,8 +172,13 @@ namespace gui {
 
         core::size get_size (const position& cell) const;
         core::size get_default_size () const;
+        core::size::type get_default_width () const;
+        core::size::type get_default_height () const;
         core::point get_offset () const;
 
+        void set_default_size (const core::size&);
+        void set_default_width (core::size::type);
+        void set_default_height (core::size::type);
         void set_offset (const core::point&);
 
         position get_first_idx () const;
@@ -274,6 +282,10 @@ namespace gui {
 
         const std::function<filter::selection_and_hilite>& get_selection_filter () const;
         const std::function<filter::selection_and_hilite>& get_hilite_filter () const;
+
+        void set_default_align (text_origin_t);
+        void set_default_foreground (os::color);
+        void set_default_background (os::color);
 
         void set_selection_filter (const std::function<filter::selection_and_hilite>& f);
         void set_hilite_filter (const std::function<filter::selection_and_hilite>& f);
@@ -395,6 +407,10 @@ namespace gui {
 
       core::point get_scroll_pos () const;
       void set_scroll_pos (const core::point& pos);
+
+      void set_default_cell_size (const core::size&);
+      void set_default_row_width (core::size::type);
+      void set_default_column_height (core::size::type);
 
       void clear_selection (event_source notify);
       void set_selection (table::position selection, event_source notify);

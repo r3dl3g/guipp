@@ -402,7 +402,7 @@ namespace gui {
           o.add_event_mask(KeyPressMask);
           root = o.get_os_window();
         }
-        XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root, False, GrabModeAsync, GrabModeAsync);
+        //XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root, False, GrabModeAsync, GrabModeAsync);
 #elif GUIPP_QT
         os::window root = (os::window)QGuiApplication::topLevelWindows().first();
         if (win && win->is_valid()) {

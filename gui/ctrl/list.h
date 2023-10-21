@@ -31,6 +31,7 @@
 #include <gui/core/orientation_traits.h>
 #include <gui/core/list_state.h>
 #include <gui/core/selector.h>
+#include <gui/core/selection_adjustment.h>
 #include <gui/draw/brush.h>
 #include <gui/ctrl/virtual_view.h>
 #include <gui/ctrl/edit.h>
@@ -302,15 +303,6 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    enum class selection_adjustment : byte {
-      start,
-      center,
-      end,
-      next,
-      center_always,
-    };
-
-    // --------------------------------------------------------------------------
     template<orientation_t V, typename T, typename S = core::selector::single>
     class uniform_list : public detail::selectable_list<S> {
     public:
@@ -365,8 +357,8 @@ namespace gui {
       void set_scroll_pos_1 (pos_t pos);
       pos_t get_scroll_pos_1 () const;
 
-      void set_selection_adjustment (selection_adjustment);
-      selection_adjustment get_selection_adjustment () const;
+      void set_selection_adjustment (core::selection_adjustment);
+      core::selection_adjustment get_selection_adjustment () const;
 
       void handle_mouse_move (os::key_state keys, const core::native_point& pt);
       void handle_left_btn_up (os::key_state keys, const core::native_point& pt);
@@ -375,7 +367,7 @@ namespace gui {
       pos_t get_list_size () const;
 
       traits_type traits;
-      selection_adjustment adjustment;
+      core::selection_adjustment adjustment;
 
     private:
       void init ();

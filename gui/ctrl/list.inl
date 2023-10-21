@@ -187,7 +187,7 @@ namespace gui {
                                                 bool grab_focus)
       : super(background, grab_focus)
       , traits(item_size)
-      , adjustment(selection_adjustment::next)
+      , adjustment(core::selection_adjustment::next)
     {
       init();
     }
@@ -196,7 +196,7 @@ namespace gui {
     inline uniform_list<V, T, S>::uniform_list (uniform_list&& rhs) noexcept
       : super(std::move(rhs))
       , traits(std::move(rhs.traits))
-      , adjustment(selection_adjustment::next)
+      , adjustment(core::selection_adjustment::next)
     {
       init();
     }
@@ -372,40 +372,15 @@ namespace gui {
     template<orientation_t V, typename T, typename S>
     void uniform_list<V, T, S>::make_entry_visible (int sel_idx) {
       const auto list_size = super::client_size();
-      const auto list_sz = traits.get_1(list_size);
-      const auto line_size = traits.get_line_size();
       const auto scroll_pos = get_scroll_pos_1();
-      const auto sel_pos = traits.get_offset_of_index(list_size, sel_idx);
-      const selection_adjustment adjust = get_selection_adjustment();
 
-      if (selection_adjustment::center_always == adjust) {
-        set_scroll_pos_1(sel_pos - (list_sz / 2) + line_size);
-      } else if (sel_pos < scroll_pos) {
-        switch (adjust) {
-          case selection_adjustment::start:
-          case selection_adjustment::next:
-            set_scroll_pos_1(sel_pos);
-            break;
-          case selection_adjustment::center:
-            set_scroll_pos_1(sel_pos - (list_sz / 2) + line_size);
-            break;
-          case selection_adjustment::end:
-            set_scroll_pos_1(sel_pos - list_sz + line_size);
-            break;
-        }
-      } else if (sel_pos + line_size - scroll_pos > list_sz) {
-        switch (adjust) {
-          case selection_adjustment::start:
-            set_scroll_pos_1(sel_pos);
-            break;
-          case selection_adjustment::center:
-            set_scroll_pos_1(sel_pos - (list_sz / 2) + line_size);
-            break;
-          case selection_adjustment::end:
-          case selection_adjustment::next:
-            set_scroll_pos_1(sel_pos - list_sz + line_size);
-            break;
-        }
+      const auto new_pos = core::get_adjusted_scroll_position(traits.get_1(list_size),
+                                                              traits.get_line_size(),
+                                                              scroll_pos,
+                                                              traits.get_offset_of_index(list_size, sel_idx),
+                                                              get_selection_adjustment());
+      if (new_pos != scroll_pos) {
+        set_scroll_pos_1(new_pos);
       }
     }
 
@@ -419,12 +394,12 @@ namespace gui {
     }
 
     template<orientation_t V, typename T, typename S>
-    void uniform_list<V, T, S>::set_selection_adjustment (selection_adjustment adjust) {
+    void uniform_list<V, T, S>::set_selection_adjustment (core::selection_adjustment adjust) {
       adjustment = adjust;
     }
 
     template<orientation_t V, typename T, typename S>
-    selection_adjustment uniform_list<V, T, S>::get_selection_adjustment () const {
+    core::selection_adjustment uniform_list<V, T, S>::get_selection_adjustment () const {
       return adjustment;
     }
 

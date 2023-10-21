@@ -489,6 +489,7 @@ namespace gui {
       , enable_selection_(false)
       , moved(false)
       , last_mouse_point(core::native_point::undefined)
+      , adjustment(core::selection_adjustment::next)
     {
       init();
     }
@@ -681,26 +682,49 @@ namespace gui {
     }
 
     void table_view::make_selection_visible () {
-      const core::point pt = geometrie.position_of(geometrie.selection);
-      const core::size sz = geometrie.get_size(geometrie.selection);
       const core::size space = data.client_size();
+      const core::size sz = geometrie.get_size(geometrie.selection);
+      const core::point scroll_pos = get_scroll_pos();
+      const core::point pt = geometrie.position_of(geometrie.selection) + scroll_pos;
 
-      core::point delta;
-      if (pt.x() < 0) {
-        delta.x(pt.x());
-      } else if ((pt.x() + sz.width()) > space.width()) {
-        delta.x((pt.x() + sz.width()) - space.width());
-      }
-      if (pt.y() < 0) {
-        delta.y(pt.y());
-      } else if ((pt.y() + sz.height()) > space.height()) {
-        delta.y((pt.y() + sz.height()) - space.height());
-      }
-
-      if (delta != core::point::zero) {
-        set_scroll_pos(get_scroll_pos() + delta);
+      const auto new_x_pos = core::get_adjusted_scroll_position(space.width(),
+                                                                sz.width(),
+                                                                scroll_pos.x(),
+                                                                pt.x(),
+                                                                get_selection_adjustment());
+      const auto new_y_pos = core::get_adjusted_scroll_position(space.height(),
+                                                                sz.height(),
+                                                                scroll_pos.y(),
+                                                                pt.y(),
+                                                                get_selection_adjustment());
+      if ((new_x_pos != scroll_pos.x()) || (new_y_pos != scroll_pos.y())) {
+        set_scroll_pos({new_x_pos, new_y_pos});
       }
 
+      // core::point delta;
+      // if (pt.x() < 0) {
+      //   delta.x(pt.x());
+      // } else if ((pt.x() + sz.width()) > space.width()) {
+      //   delta.x((pt.x() + sz.width()) - space.width());
+      // }
+      // if (pt.y() < 0) {
+      //   delta.y(pt.y());
+      // } else if ((pt.y() + sz.height()) > space.height()) {
+      //   delta.y((pt.y() + sz.height()) - space.height());
+      // }
+
+      // if (delta != core::point::zero) {
+      //   set_scroll_pos(get_scroll_pos() + delta);
+      // }
+
+    }
+
+    void table_view::set_selection_adjustment (core::selection_adjustment adjust) {
+      adjustment = adjust;
+    }
+
+    core::selection_adjustment table_view::get_selection_adjustment () const {
+      return adjustment;
     }
 
     void table_view::redraw_all () {

@@ -20,6 +20,7 @@
 //
 // Library includes
 //
+#include <gui/core/selection_adjustment.h>
 #include <gui/layout/layout_container.h>
 #include <gui/layout/dynamic_border_layout.h>
 #include <gui/ctrl/scroll_bar.h>
@@ -419,6 +420,9 @@ namespace gui {
 
       void make_selection_visible ();
 
+      void set_selection_adjustment (core::selection_adjustment);
+      core::selection_adjustment get_selection_adjustment () const;
+
       void handle_created ();
       void handle_layout (const core::rectangle& r);
 
@@ -472,6 +476,7 @@ namespace gui {
       bool moved;
       core::native_point last_mouse_point;
       table::position down_idx;
+      core::selection_adjustment adjustment;
 
       std::function<scroll_maximum_calcer> scroll_maximum;
 

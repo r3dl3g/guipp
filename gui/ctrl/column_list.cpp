@@ -131,7 +131,8 @@ namespace gui {
         }
       }
 
-      void column_list_layout::layout (const core::rectangle&) {
+      void column_list_layout::layout (const core::rectangle& r) {
+        logging::trace() << "column_list_layout::layout(" << r << ")";
       }
 
     } // detail
@@ -180,6 +181,7 @@ namespace gui {
     }
 
     void weight_column_list_layout::set_column_width (std::size_t i, column_size_type w, bool update) {
+      logging::trace() << "weight_column_list_layout::set_column_width(" << i << ", " << w  << ", " << update << ")";
       auto count = get_column_count();
 
       // adjust only the columns on the right
@@ -243,7 +245,6 @@ namespace gui {
 
       core::size::type available_width = r.width();
       column_size_type space = available_width - full_width;
-
 
       for (decltype(count) i = 0; i < count; ++i) {
         column_size_type w = get_column_width(i) + static_cast<column_size_type>(space * get_column_weight(i) / full_weight);

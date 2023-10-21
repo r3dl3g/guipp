@@ -187,6 +187,7 @@ namespace gui {
                                                 bool grab_focus)
       : super(background, grab_focus)
       , traits(item_size)
+      , adjustment(selection_adjustment::next)
     {
       init();
     }
@@ -195,6 +196,7 @@ namespace gui {
     inline uniform_list<V, T, S>::uniform_list (uniform_list&& rhs) noexcept
       : super(std::move(rhs))
       , traits(std::move(rhs.traits))
+      , adjustment(selection_adjustment::next)
     {
       init();
     }
@@ -361,19 +363,20 @@ namespace gui {
     }
 
     template<orientation_t V, typename T, typename S>
-    void uniform_list<V, T, S>::make_selection_visible (selection_adjustment adjust) {
+    void uniform_list<V, T, S>::make_selection_visible () {
       if (super::has_selection()) {
-        make_entry_visible(super::get_selection().get_first_index(), adjust);
+        make_entry_visible(super::get_selection().get_first_index());
       }
     }
 
     template<orientation_t V, typename T, typename S>
-    void uniform_list<V, T, S>::make_entry_visible (int sel_idx, selection_adjustment adjust) {
+    void uniform_list<V, T, S>::make_entry_visible (int sel_idx) {
       const auto list_size = super::client_size();
       const auto list_sz = traits.get_1(list_size);
       const auto line_size = traits.get_line_size();
       const auto scroll_pos = get_scroll_pos_1();
       const auto sel_pos = traits.get_offset_of_index(list_size, sel_idx);
+      const selection_adjustment adjust = get_selection_adjustment();
 
       if (selection_adjustment::center_always == adjust) {
         set_scroll_pos_1(sel_pos - (list_sz / 2) + line_size);
@@ -413,6 +416,16 @@ namespace gui {
       traits.set_1(pt, value);
       super::set_scroll_pos(pt);
       super::notify_scroll(value);
+    }
+
+    template<orientation_t V, typename T, typename S>
+    void uniform_list<V, T, S>::set_selection_adjustment (selection_adjustment adjust) {
+      adjustment = adjust;
+    }
+
+    template<orientation_t V, typename T, typename S>
+    selection_adjustment uniform_list<V, T, S>::get_selection_adjustment () const {
+      return adjustment;
     }
 
     template<orientation_t V, typename T, typename S>

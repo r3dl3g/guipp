@@ -359,11 +359,14 @@ namespace gui {
       void select (int sel, event_source notify);
       void select_all (event_source notify);
       void unselect (int sel, event_source notify);
-      void make_selection_visible (selection_adjustment adjust = selection_adjustment::next);
-      void make_entry_visible (int sel, selection_adjustment adjust = selection_adjustment::next);
+      void make_selection_visible ();
+      void make_entry_visible (int sel);
 
       void set_scroll_pos_1 (pos_t pos);
       pos_t get_scroll_pos_1 () const;
+
+      void set_selection_adjustment (selection_adjustment);
+      selection_adjustment get_selection_adjustment () const;
 
       void handle_mouse_move (os::key_state keys, const core::native_point& pt);
       void handle_left_btn_up (os::key_state keys, const core::native_point& pt);
@@ -372,6 +375,7 @@ namespace gui {
       pos_t get_list_size () const;
 
       traits_type traits;
+      selection_adjustment adjustment;
 
     private:
       void init ();

@@ -14,13 +14,6 @@
  * @license   MIT license. See accompanying file LICENSE.
  */
 
-// --------------------------------------------------------------------------
-//
-// Library includes
-//
-#include <gui/layout/layout_container.h>
-#include <gui/ctrl/splitter.h>
-
 
 namespace gui {
 
@@ -237,8 +230,8 @@ namespace gui {
 
     template<typename H, typename B, int S, alignment_t A>
     fix_split_view<H, B, S, A>::fix_split_view () {
-      super::get_layout().set_header(lay(header));
-      super::get_layout().set_body(lay(body));
+      super::get_layout().set_header(layout::lay(header));
+      super::get_layout().set_body(layout::lay(body));
     }
 
     template<typename H, typename B, int S, alignment_t A>
@@ -247,8 +240,8 @@ namespace gui {
       , header(std::move(rhs.header))
       , body(std::move(rhs.body))
     {
-      super::get_layout().set_header(lay(header));
-      super::get_layout().set_body(lay(body));
+      super::get_layout().set_header(layout::lay(header));
+      super::get_layout().set_body(layout::lay(body));
     }
 
     template<typename H, typename B, int S, alignment_t A>
@@ -256,8 +249,8 @@ namespace gui {
       : header(std::move(header))
       , body(std::move(body))
     {
-      super::get_layout().set_header(lay(header));
-      super::get_layout().set_body(lay(body));
+      super::get_layout().set_header(layout::lay(header));
+      super::get_layout().set_body(layout::lay(body));
     }
 
     template<typename H, typename B, int S, alignment_t A>

@@ -36,8 +36,8 @@ option(GUIPP_BUILD_DEPENDENT_LIBS "On to build dependent libs logging, util and 
 option(GUIPP_USE_XCB "On to make use of the xcb library. Default Off" OFF)
 option(GUIPP_USE_QT5 "On to make use of the Qt5 library. Default Off" OFF)
 option(GUIPP_USE_QT6 "On to make use of the Qt6 library. Default Off" OFF)
-option(GUIPP_CXX_STANDARD "C++ standard to overwrite default cmake standard" ${CMAKE_CXX_STANDARD})
 option(VERBOSE "Print messages during cmake run" OFF)
+set(GUIPP_CXX_STANDARD "${CMAKE_CXX_STANDARD}" CACHE STRING "C++ standard to overwrite default cmake standard")
 
 debug_print_var(CMAKE_SOURCE_DIR)
 debug_print_var(CMAKE_CURRENT_SOURCE_DIR)

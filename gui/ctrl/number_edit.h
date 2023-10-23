@@ -64,6 +64,16 @@ namespace gui {
         }
       };
 
+      template<typename T>
+      struct type_increment {
+        static constexpr typename std::remove_reference<T>::type inc = 1;
+      };
+
+      template<>
+      struct type_increment<float> {
+        static constexpr float inc = 0.01;
+      };
+
     } // namespace detail
 
     // --------------------------------------------------------------------------
@@ -79,7 +89,7 @@ namespace gui {
       typedef typename edit_t::type type;
       typedef B buttons_t;
 
-      number_edit (T&& v = type(), type i = type(1));
+      number_edit (T&& v = type(), type i = detail::type_increment<T>::inc);
 
       void init ();
 

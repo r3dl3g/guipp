@@ -42,11 +42,11 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    GUIPP_CORE_EXPORT int get_adjusted_scroll_position (float space,
-                                                        float item_size,
-                                                        float scroll_pos,
-                                                        float sel_pos,
-                                                        selection_adjustment adjust);
+    GUIPP_CORE_EXPORT float get_adjusted_scroll_position (float space,
+                                                          float item_size,
+                                                          float scroll_pos,
+                                                          float sel_pos,
+                                                          selection_adjustment adjust);
 
     // --------------------------------------------------------------------------
   } // namespace core

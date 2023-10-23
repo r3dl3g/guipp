@@ -230,9 +230,9 @@ namespace gui {
     //-----------------------------------------------------------------------------
     template<typename T>
     class select_dialog :
-        public standard_dialog<win::group_window<layout::border::center_layout<vertical_list, 15, 15, 15, 15>>> {
+        public standard_dialog<win::group_window<layout::border::center_layout<15, 15, 15, 15>>> {
     public:
-      typedef win::group_window<layout::border::center_layout<vertical_list, 15, 15, 15, 15>> content_view_type;
+      typedef win::group_window<layout::border::center_layout<15, 15, 15, 15>> content_view_type;
       typedef standard_dialog<content_view_type> super;
       typedef void (select_action) (win::overlapped_window&, int, T);
 
@@ -261,9 +261,9 @@ namespace gui {
     //-----------------------------------------------------------------------------
     template<typename ... Arguments>
     class select_from_columnlist_dialog :
-        public standard_dialog<win::group_window<layout::border::center_layout<vertical_list, 15, 15, 15, 15>>> {
+        public standard_dialog<win::group_window<layout::border::center_layout<15, 15, 15, 15>>> {
     public:
-      typedef win::group_window<layout::border::center_layout<vertical_list, 15, 15, 15, 15>> content_view_type;
+      typedef win::group_window<layout::border::center_layout<15, 15, 15, 15>> content_view_type;
       typedef standard_dialog<content_view_type> super;
       typedef layout::weight_column_list_layout layout_t;
       typedef ctrl::column_list_t<layout_t, core::selector::single, Arguments ...> list_t;

@@ -25,11 +25,11 @@ namespace gui {
 
   namespace core {
 
-    int get_adjusted_scroll_position (float space,
-                                      float item_size,
-                                      float scroll_pos,
-                                      float sel_pos,
-                                      selection_adjustment adjust) {
+    float get_adjusted_scroll_position (float space,
+                                        float item_size,
+                                        float scroll_pos,
+                                        float sel_pos,
+                                        selection_adjustment adjust) {
       if (selection_adjustment::center_always == adjust) {
         return (sel_pos - (space / 2) + item_size);
       } else if (sel_pos < scroll_pos) {

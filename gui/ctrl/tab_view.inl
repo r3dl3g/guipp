@@ -55,6 +55,7 @@ namespace gui {
       if (pages.empty()) {
         super::get_layout().set_body(layout::lay(page));
         buttons.get_button(0).get()->set_checked(true);
+        buttons.set_selection_index(0);
       } else {
         page.set_visible(false);
       }

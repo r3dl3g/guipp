@@ -165,14 +165,22 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename T, int TO = 0, int BO = 0, int LE = 0, int RI = 0>
+      template<int TO = 0, int BO = 0, int LE = 0, int RI = 0>
       class center_layout {
       public:
         center_layout ()
         {}
 
-        center_layout (T& p)
-          : center(lay(p))
+        center_layout (win::window& w)
+          : center(lay(w))
+        {}
+
+        center_layout (const layout_function& c)
+          : center(c)
+        {}
+
+        center_layout (layout_function&& c)
+          : center(std::move(c))
         {}
 
         void layout (const gui::core::rectangle& r) {
@@ -190,14 +198,21 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename T>
       class zero_layout {
       public:
         zero_layout ()
         {}
 
-        zero_layout (T& p)
-          : center(lay(p))
+        zero_layout (win::window& w)
+          : center(lay(w))
+        {}
+
+        zero_layout (const layout_function& c)
+          : center(c)
+        {}
+
+        zero_layout (layout_function&& c)
+          : center(std::move(c))
         {}
 
         void layout (const gui::core::rectangle& r) {
@@ -216,15 +231,15 @@ namespace gui {
 
     } // namespace border
 
-    template<typename T, int TO, int BO, int LE, int RI>
-    struct is_layout<border::center_layout<T, TO, BO, LE, RI>> {
+    template<int TO, int BO, int LE, int RI>
+    struct is_layout<border::center_layout<TO, BO, LE, RI>> {
       enum {
         value = true
       };
     };
 
-    template<typename T>
-    struct is_layout<border::zero_layout<T>> {
+    template<>
+    struct is_layout<border::zero_layout> {
       enum {
         value = true
       };

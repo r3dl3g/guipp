@@ -113,6 +113,11 @@ namespace gui {
         : data(args)
       {}
 
+      template<size_t N>
+      const_list_data (const std::array<T, N>& args)
+        : data(args.begin(), args.end())
+      {}
+
       std::size_t size () const override {
         return data.size();
       }
@@ -126,11 +131,12 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename T, list_item_drawer<T> D = default_list_item_drawer<T>>
+    template<typename T, list_item_drawer<T> D = default_list_item_drawer<T>, typename V = std::vector<T>>
     struct indirect_list_data : public list_data_t<T, D> {
       using super = list_data_t<T, D>;
+      typedef V container;
 
-      explicit indirect_list_data (const std::vector<T>& args)
+      explicit indirect_list_data (const container& args)
         : data(args)
       {}
 
@@ -143,7 +149,7 @@ namespace gui {
       }
 
     protected:
-      const std::vector<T>& data;
+      const container& data;
     };
 
     // --------------------------------------------------------------------------
@@ -329,8 +335,8 @@ namespace gui {
                    const core::rectangle& place,
                    std::function<list_data_provider> data);
 
-      template<typename U, list_item_drawer<U> D = default_list_item_drawer<U>>
-      void set_data (const std::vector<U>& data);
+      template<typename U, list_item_drawer<U> D = default_list_item_drawer<U>, typename C = std::vector<U>>
+      void set_data (const C& data);
 
       template<typename U, list_item_drawer<U> D = default_list_item_drawer<U>>
       void set_data (std::initializer_list<U> args);

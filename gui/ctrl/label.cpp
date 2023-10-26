@@ -73,6 +73,14 @@ namespace gui {
         return text();
       }
 
+      void label_base::set (const std::string& t) {
+        set_text(const_text(t));
+      }
+
+      std::string label_base::get () const {
+        return text();
+      }
+
     } // detail
 
   } // ctrl

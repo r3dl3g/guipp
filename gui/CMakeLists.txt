@@ -69,7 +69,7 @@ endif()
 
 if(NOT TARGET guipp)
 
-  if(GUIPP_CXX_STANDARD STREQUAL "OFF")
+  if(GUIPP_CXX_STANDARD STREQUAL "")
     set(GUIPP_CXX_STANDARD 17)
   endif()
 

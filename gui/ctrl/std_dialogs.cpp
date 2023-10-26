@@ -26,6 +26,10 @@ namespace gui {
 
     namespace detail {
 
+      inline int number_of_lines (const std::string& str) {
+        return std::count(str.begin(), str.end(), '\n') + 1;
+      }
+
       // --------------------------------------------------------------------------
       template<>
       GUIPP_CTRL_EXPORT core::rectangle std_multi_input_dialog_size<core::os::ui_t::desktop> (const core::rectangle&, std::size_t n, unsigned dimension) {
@@ -38,13 +42,13 @@ namespace gui {
       }
 
       template<>
-      GUIPP_CTRL_EXPORT core::rectangle std_message_dialog_size<core::os::ui_t::desktop> (const core::rectangle&) {
-        return core::rectangle(300, 200, 400, 170);
+      GUIPP_CTRL_EXPORT core::rectangle std_message_dialog_size<core::os::ui_t::desktop> (const core::rectangle&, const std::string& message, unsigned dimension) {
+        return core::rectangle(300, 200, 400, static_cast<core::size::type>(80 + std::max(number_of_lines(message), 5) * dimension));
       }
 
       template<>
-      GUIPP_CTRL_EXPORT core::rectangle std_yes_no_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area) {
-        return std_message_dialog_size<core::os::ui_t::desktop>(area);
+      GUIPP_CTRL_EXPORT core::rectangle std_yes_no_dialog_size<core::os::ui_t::desktop> (const core::rectangle& area, const std::string& message, unsigned dimension) {
+        return std_message_dialog_size<core::os::ui_t::desktop>(area, message, dimension);
       }
 
       template<>
@@ -69,13 +73,13 @@ namespace gui {
       }
 
       template<>
-      GUIPP_CTRL_EXPORT core::rectangle std_message_dialog_size<core::os::ui_t::mobile> (const core::rectangle&) {
-        return win::window::screen_area().shrinked({ 30, 100 });
+      GUIPP_CTRL_EXPORT core::rectangle std_message_dialog_size<core::os::ui_t::mobile> (const core::rectangle&, const std::string& message, unsigned dimension) {
+        return win::window::screen_area().shrinked({ 20, 20 }).with_height(static_cast<core::size::type>(80 + std::max(number_of_lines(message), 5) * dimension));
       }
 
       template<>
-      GUIPP_CTRL_EXPORT core::rectangle std_yes_no_dialog_size<core::os::ui_t::mobile> (const core::rectangle& area) {
-        return std_message_dialog_size<core::os::ui_t::mobile>(area);
+      GUIPP_CTRL_EXPORT core::rectangle std_yes_no_dialog_size<core::os::ui_t::mobile> (const core::rectangle& area, const std::string& message, unsigned dimension) {
+        return std_message_dialog_size<core::os::ui_t::desktop>(area, message, dimension);
       }
 
       template<>
@@ -135,7 +139,7 @@ namespace gui {
                              std::function<yes_no_action> action) {
       yes_no_dialog dialog;
       dialog.create(parent, title, message, yes_label, no_label,
-                    detail::std_yes_no_dialog_size<>(parent.geometry()),
+                    detail::std_yes_no_dialog_size<>(parent.geometry(), message),
                     action);
       dialog.show(parent);
     }
@@ -163,7 +167,7 @@ namespace gui {
                                const std::string& ok_label) {
       message_dialog dialog;
       dialog.create(parent, title, message, ok_label,
-                    detail::std_message_dialog_size<>(parent.geometry()));
+                    detail::std_message_dialog_size<>(parent.geometry(), message));
       dialog.super::show(parent);
     }
 

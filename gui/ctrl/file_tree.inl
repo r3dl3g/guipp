@@ -131,7 +131,7 @@ namespace gui {
 
     template<typename T, file_item_drawer D, typename S>
     inline void file_list<T, D, S>::init () {
-      super::set_data(indirect_list_data<fs::file_info, D>(current_dir));
+      super::set_data(indirect_list_data<fs::file_info, D, std::vector<fs::file_info>>(current_dir));
     }
 
     template<typename T, file_item_drawer D, typename S>

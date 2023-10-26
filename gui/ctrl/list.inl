@@ -247,9 +247,9 @@ namespace gui {
     }
 
     template<orientation_t V, typename T, typename S>
-    template<typename U, list_item_drawer<U> D>
-    inline void uniform_list<V, T, S>::set_data (const std::vector<U>& data) {
-      super::data.items = indirect_list_data<U, D>(data);
+    template<typename U, list_item_drawer<U> D, typename C>
+    inline void uniform_list<V, T, S>::set_data (const C& data) {
+      super::data.items = indirect_list_data<U, D, C>(data);
       super::invalidate();
     }
 

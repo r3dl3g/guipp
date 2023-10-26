@@ -59,6 +59,9 @@ namespace gui {
 
         std::string get_text () const;
 
+        void set (const std::string&);
+        std::string get () const;
+
         template<typename T>
         void operator<< (const T& t);
 

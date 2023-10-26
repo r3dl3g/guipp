@@ -116,9 +116,9 @@ namespace gui {
       template<int I, typename E, typename T, typename ... Arguments>
       struct mutli_input_value_traits {
 
-        static std::tuple<T, Arguments...> get (const E& edits) {
+        static std::tuple<T, Arguments ...> get (const E& edits) {
           return std::tuple_cat(std::make_tuple(std::get<I>(edits).editor.get()),
-                                mutli_input_value_traits<I + 1, E, Arguments...>::get(edits));
+                                mutli_input_value_traits<I + 1, E, Arguments ...>::get(edits));
         }
 
       };
@@ -127,8 +127,7 @@ namespace gui {
       struct mutli_input_value_traits<I, E, T> {
 
         static std::tuple<T> get (const E& edits) {
-          auto& e = std::get<I>(edits);
-          return std::make_tuple(e.editor.get());
+          return std::make_tuple(std::get<I>(edits).editor.get());
         }
 
       };
@@ -159,7 +158,7 @@ namespace gui {
       super::create(parent, title, rect, {cancel_label, ok_label},
                     [&, action] (win::overlapped_window&, int i) {
         if (i == 1) {
-          action(detail::get_values<controls_types, Arguments...>(edits));
+          action(detail::get_values<controls_types, typename input::value_type<Arguments>::type ...>(edits));
         }
       });
       detail::create(content_view, edits, initial, message);

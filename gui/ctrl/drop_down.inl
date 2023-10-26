@@ -22,14 +22,14 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace ctrl {
 
-    template<typename F>
-    inline void drop_down_list::set_data (const std::vector<F>& dt) {
-      data.items->set_data(indirect_dropdown_data<F>(dt));
+    template<typename F, list_item_drawer<F> D, typename V>
+    inline void drop_down_list::set_data (const V& dt) {
+      data.items->set_data(indirect_dropdown_data<F, D, V>(dt));
     }
 
-    template<typename F>
+    template<typename F, list_item_drawer<F> D>
     inline void drop_down_list::set_data (std::initializer_list<F> args) {
-      data.items->set_data(const_dropdown_data<F>(args));
+      data.items->set_data(const_dropdown_data<F, D>(args));
     }
 
     inline void drop_down_list::set_data (std::function<list_data_provider> dta) {

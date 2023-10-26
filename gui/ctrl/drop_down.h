@@ -63,8 +63,8 @@ namespace gui {
     template<typename T, list_item_drawer<T> D = default_drop_down_drawer<T>>
     using const_dropdown_data = const_list_data<T, D>;
 
-    template<typename T, list_item_drawer<T> D = default_drop_down_drawer<T>>
-    using indirect_dropdown_data = indirect_list_data<T, D>;
+    template<typename T, list_item_drawer<T> D = default_drop_down_drawer<T>, typename V = std::vector<T>>
+    using indirect_dropdown_data = indirect_list_data<T, D, V>;
 
     // --------------------------------------------------------------------------
     template<core::os::ui_t T = core::os::system_ui>
@@ -100,10 +100,10 @@ namespace gui {
 
       void handle_selection_changed (event_source src);
 
-      template<typename F>
-      void set_data (const std::vector<F>& data);
+      template<typename F, list_item_drawer<F> D = default_drop_down_drawer<F>, typename V = std::vector<F>>
+      void set_data (const V& data);
 
-      template<typename F>
+      template<typename F, list_item_drawer<F> D = default_drop_down_drawer<F>>
       void set_data (std::initializer_list<F> args);
 
       void set_data (std::function<list_data_provider> dta);

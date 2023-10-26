@@ -17,7 +17,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using client_t = vertical_split_view<label_t, label_t>;
 
   client_t client;
-  layout_main_window<border::center_layout<client_t>, client_t&> main(client);
+  layout_main_window<border::center_layout<>, client_t&> main(client);
 
   main.on_create([&] () {
     client.create(main);

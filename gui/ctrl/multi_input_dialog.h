@@ -30,23 +30,22 @@ namespace gui {
 
   namespace ctrl {
 
-    template<typename T, std::size_t N>
+    //-----------------------------------------------------------------------------
+    template<typename T, typename C>
     struct selectable_option {
       T value;
-      std::array<T, N> options;
+      C options;
     };
 
-    template<typename T, std::size_t N>
-    selectable_option<T, N> mk_selectable_option (const T& current, const std::array<T, N>& options) {
+    template<typename T, typename C>
+    selectable_option<T, C> mk_selectable_option (const T& current, const C& options) {
       return {current, options};
-
     }
-
 
     //-----------------------------------------------------------------------------
     namespace input {
 
-      template<typename T, std::size_t N>
+      template<typename T, typename C>
       class option_list : public drop_down_list {
       public:
         option_list ()
@@ -56,7 +55,7 @@ namespace gui {
           return options[get_selection()];
         }
 
-        void set (const selectable_option<T, N>& o) {
+        void set (const selectable_option<T, C>& o) {
           options = o.options;
           set_data<T>(options);
           auto i = std::find(options.begin(), options.end(), o.value);
@@ -65,7 +64,7 @@ namespace gui {
           }
         }
 
-        std::array<T, N> options;
+        C options;
       };
 
       using label_t = basic_label<text_origin_t::bottom_left,
@@ -83,10 +82,10 @@ namespace gui {
         ctrl::number_edit<T> editor;
       };
 
-      template<typename T, std::size_t N>
-      struct controls<selectable_option<T, N>> {
+      template<typename T, typename C>
+      struct controls<selectable_option<T, C>> {
         label_t label;
-        option_list<T, N> editor;
+        option_list<T, C> editor;
       };
 
       template<>
@@ -117,13 +116,13 @@ namespace gui {
         ctrl::duration_edit<util::time::duration> editor;
       };
 
-      template<typename T, class Enable = void>
+      template<typename T>
       struct value_type {
         typedef T type;
       };
 
-      template<typename T, std::size_t N>
-      struct value_type<selectable_option<T, N>> {
+      template<typename T, typename C>
+      struct value_type<selectable_option<T, C>> {
         typedef T type;
       };
 

@@ -686,6 +686,16 @@ namespace gui {
       return (e.type == Expose);// || (e.type == GraphicsExpose);// || (e.type == NoExpose);
     }
 
+    void wait_for_event (int fd, timeval timeout = {0, 10}) {
+      // Create a file description set containing fd
+      fd_set read_fds;
+      FD_ZERO(&read_fds);
+      FD_SET(fd, &read_fds);
+
+      // Wait for an event on the file descriptor or for timer expiration
+      select(1, &read_fds, nullptr, nullptr, &timeout);
+    }
+
 #elif GUIPP_QT
 
     bool is_button_event_outside (const window& w, const core::event& e) {
@@ -732,50 +742,55 @@ namespace gui {
       return (int)msg.wParam;
 #elif GUIPP_X11
       gui::os::instance display = core::global::get_instance();
+      const int fd = ConnectionNumber(display);
       gui::os::event_result resultValue = 0;
       std::function<simple_action> action;
-      core::event e;
 
       while (running) {
 
-        XNextEvent(display, &e);
+        // Only call wait_for_event() when we have no events.
+        if (0 == XPending(display)) {
+          wait_for_event(fd);
+        }
+
+        if (x11::queued_actions.try_dequeue(action)) {
+          action();
+        }
+
+        while (XPending(display) > 0) {
+
+          core::event e;
+          XNextEvent(display, &e);
 
 //        if (!win::is_frequent_event(e)) {
 //          logging::debug() << e;
 //        }
 
-        int count = 2;
-        while (x11::queued_actions.try_dequeue(action) && count) {
-          action();
-          --count;
-        }
-
-        if (filter && filter(e)) {
-          continue;
-        }
-
-        if (is_expose_event(e)) {
-          x11::invalidate_window(e.xany.window, x11::get_expose_rect(e));
-        } else {
-          process_event(e, resultValue);
-        }
-        if (protocol_message_matcher<core::x11::WM_DELETE_WINDOW>(e) && !resultValue) {
-          running = false;
-        }
-
-        if ((e.type == ConfigureNotify) && running) {
-          update_last_geometry(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));
-        }
-
-        if (!XPending(display)) {
-          for (auto& w : x11::s_invalidated_windows) {
-            win::overlapped_window* win = detail::get_window(w.first);
-            if (win && win->is_visible()) {
-              win->redraw(w.second);
-            }
+          if (filter && filter(e)) {
+            continue;
           }
-          x11::s_invalidated_windows.clear();
+
+          if (is_expose_event(e)) {
+            x11::invalidate_window(e.xany.window, x11::get_expose_rect(e));
+          } else {
+            process_event(e, resultValue);
+          }
+          if (protocol_message_matcher<core::x11::WM_DELETE_WINDOW>(e) && !resultValue) {
+            running = false;
+          }
+
+          if ((e.type == ConfigureNotify) && running) {
+            update_last_geometry(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));
+          }
         }
+
+        for (auto& w : x11::s_invalidated_windows) {
+          win::overlapped_window* win = detail::get_window(w.first);
+          if (win && win->is_visible()) {
+            win->redraw(w.second);
+          }
+        }
+        x11::s_invalidated_windows.clear();
 
       }
 

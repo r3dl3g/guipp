@@ -38,6 +38,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       struct single {
+        typedef int selection_type;
 
         struct iterator {
 
@@ -96,6 +97,10 @@ namespace gui {
           }
         }
 
+        inline void set_selecteion (selection_type i) {
+          selection = i;
+        }
+
         inline void clear_selection () {
           selection = -1;
         }
@@ -140,12 +145,13 @@ namespace gui {
         }
 
       private:
-        int selection;
+        selection_type selection;
       };
 
       // --------------------------------------------------------------------------
       struct multi {
-        typedef std::set<int>::const_iterator iterator;
+        typedef std::set<int> selection_type;
+        typedef selection_type::const_iterator iterator;
 
         inline multi ()
           : last_selected_index(-1)
@@ -165,6 +171,11 @@ namespace gui {
           if (last_selected_index == i) {
             last_selected_index = -1;
           }
+        }
+
+        inline void set_selecteion (const selection_type& i) {
+          selection = i;
+          last_selected_index = has_selection() ? get_last_index () : -1;
         }
 
         inline void clear_selection () {
@@ -221,12 +232,13 @@ namespace gui {
         }
 
       private:
-        std::set<int> selection;
+        selection_type selection;
         int last_selected_index;
       };
 
       // --------------------------------------------------------------------------
       struct none {
+        typedef int selection_type;
 
         struct iterator {
 
@@ -272,6 +284,9 @@ namespace gui {
         }
 
         inline void set_unselected (int) {
+        }
+
+        inline void set_selecteion (selection_type i) {
         }
 
         inline void clear_selection () {

@@ -71,13 +71,17 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T>
-      inline selectable_list<T>::selectable_list (os::color background, bool grab_focus)
+      template<typename T, typename S>
+      inline selectable_list<T, S>::selectable_list (size_type item_size,
+                                                     os::color background,
+                                                     bool grab_focus)
         : super(background, grab_focus)
+        , adjustment(core::selection_adjustment::next)
+        , traits(item_size)
       {}
 
-      template<typename T>
-      void selectable_list<T>::clear_selection (event_source notify) {
+      template<typename T, typename S>
+      void selectable_list<T, S>::clear_selection (event_source notify) {
         if (selection.has_selection()) {
           selection.clear_selection();
           if (notify != event_source::logic) {
@@ -87,28 +91,139 @@ namespace gui {
         }
       }
 
-      template<typename T>
-      inline auto selectable_list<T>::get_selection () const -> const selector_type& {
+      template<typename T, typename S>
+      inline auto selectable_list<T, S>::get_selection () const -> const selector_type& {
         return selection;
       }
 
-      template<typename T>
-      inline bool selectable_list<T>::has_selection () const {
+      template<typename T, typename S>
+      inline auto selectable_list<T, S>::get_selection () -> selector_type& {
+        return selection;
+      }
+
+      template<typename T, typename S>
+      inline bool selectable_list<T, S>::has_selection () const {
         return selection.has_selection();
       }
 
-      template<typename T>
-      inline item_state selectable_list<T>::get_item_state (int idx) const {
+      template<typename T, typename S>
+      inline item_state selectable_list<T, S>::get_item_state (int idx) const {
         return item_state(get_hilite() == idx, selection.is_selected(idx), !is_enabled());
       }
 
-      template<typename T>
-      inline bool selectable_list<T>::can_select_multi () const {
+      template<typename T, typename S>
+      inline bool selectable_list<T, S>::can_select_multi () const {
         return selection.is_multi_select();
+      }
+
+      template<typename T, typename S>
+      void selectable_list<T, S>::set_selection_adjustment (core::selection_adjustment adjust) {
+        adjustment = adjust;
+      }
+
+      template<typename T, typename S>
+      core::selection_adjustment selectable_list<T, S>::get_selection_adjustment () const {
+        return adjustment;
+      }
+
+      template<typename T, typename S>
+      void selectable_list<T, S>::make_entry_visible () {
+        const int sel_idx = get_selection().get_first_index();
+        const auto list_size = super::client_size();
+        const auto scroll_pos = traits.get_scroll_pos(*this);
+
+        const auto new_pos = core::get_adjusted_scroll_position(traits.get_1(list_size),
+                                                                traits.get_line_size(),
+                                                                scroll_pos,
+                                                                traits.get_offset_of_index(list_size, sel_idx),
+                                                                get_selection_adjustment());
+        if (new_pos != scroll_pos) {
+          traits.set_scroll_pos(*this, traits.get_line_size(), new_pos);
+        }
+      }
+
+      template<typename T, typename S>
+      void selectable_list<T, S>::set_selection (int sel, event_source notify, bool add) {
+        const int new_selection = std::min(std::max(0, sel), static_cast<int>(super::get_count() - 1));
+        if (add) {
+          selection.expand_to(new_selection);
+        } else {
+          clear_selection(notify);
+          selection.set_selected(new_selection);
+        }
+        make_entry_visible();
+        super::invalidate();
+        if (notify != event_source::logic) {
+          super::notify_selection_changed(notify);
+        }
+      }
+
+      template<typename T, typename S>
+      void selectable_list<T, S>::select (int sel, event_source notify) {
+        const int new_selection = std::min(std::max(0, sel), static_cast<int>(super::get_count() - 1));
+        if (!selection.is_selected(new_selection)) {
+          selection.set_selected(new_selection);
+          make_entry_visible();
+          super::invalidate();
+          if (notify != event_source::logic) {
+            super::notify_selection_changed(notify);
+          }
+        }
+      }
+
+      template<typename T, typename S>
+      void selectable_list<T, S>::select_all (event_source notify) {
+        selection.select_range(0, static_cast<int>(super::get_count()) - 1);
+        super::invalidate();
+        if (notify != event_source::logic) {
+          super::notify_selection_changed(notify);
+        }
+      }
+
+      template<typename T, typename S>
+      void selectable_list<T, S>::unselect (int sel, event_source notify) {
+        if (selection.is_selected(sel)) {
+          selection.set_unselected(sel);
+          super::invalidate();
+          if (notify != event_source::logic) {
+            super::notify_selection_changed(notify);
+          }
+        }
+      }
+
+      template<typename T, typename S>
+      bool selectable_list<T, S>::try_to_select (int sel, event_source notify) {
+        if ((sel >= 0) && (sel < super::get_count())) {
+          set_selection(sel, notify);
+          return true;
+        }
+        return false;
+      }
+
+      template<typename T, typename S>
+      void selectable_list<T, S>::make_selection_visible () {
+        if (has_selection()) {
+          make_entry_visible();
+        }
       }
 
       // --------------------------------------------------------------------------
     } // namespace detail
+
+    // --------------------------------------------------------------------------
+    template<orientation_t V>
+    inline auto uniform_list_traits<V>::get_scroll_pos (const detail::list_base& list) const -> dim_type {
+      return super::get_1(list.get_scroll_pos());
+    }
+
+    template<orientation_t V>
+    inline void uniform_list_traits<V>::set_scroll_pos (detail::list_base& list, dim_type line_size, dim_type pos) {
+      auto value = std::max(dim_type(0), std::min(pos, static_cast<dim_type>(line_size * list.get_count() - super::get_1(list.client_size()))));
+      auto pt = list.get_scroll_pos();
+      super::set_1(pt, value);
+      list.set_scroll_pos(pt);
+      list.notify_scroll(value);
+    }
 
     // --------------------------------------------------------------------------
     template<orientation_t V>
@@ -185,9 +300,7 @@ namespace gui {
     inline uniform_list<V, T, S>::uniform_list (size_type item_size,
                                                 os::color background,
                                                 bool grab_focus)
-      : super(background, grab_focus)
-      , traits(item_size)
-      , adjustment(core::selection_adjustment::next)
+      : super(item_size, background, grab_focus)
     {
       init();
     }
@@ -195,8 +308,6 @@ namespace gui {
     template<orientation_t V, typename T, typename S>
     inline uniform_list<V, T, S>::uniform_list (uniform_list&& rhs) noexcept
       : super(std::move(rhs))
-      , traits(std::move(rhs.traits))
-      , adjustment(core::selection_adjustment::next)
     {
       init();
     }
@@ -205,11 +316,6 @@ namespace gui {
     inline void uniform_list<V, T, S>::create (win::container& parent,
                                                const core::rectangle& r) {
       super::create(clazz::get(), parent, r);
-    }
-
-    template<orientation_t V, typename T, typename S>
-    inline auto uniform_list<V, T, S>::get_scroll_pos_1 () const -> pos_t {
-      return traits.get_1(super::get_scroll_pos());
     }
 
     template<orientation_t V, typename T, typename S>
@@ -222,10 +328,10 @@ namespace gui {
       });
 #endif // GUIPP_BUILD_FOR_MOBILE
       super::on_mouse_leave([&] () {
-       super::clear_hilite();
+        super::clear_hilite();
       });
       super::on_size ([&] (const core::size&) {
-        make_selection_visible();
+        super::make_selection_visible();
       });
 
       super::on_left_btn_up(util::bind_method(this, &uniform_list::handle_left_btn_up));
@@ -234,7 +340,7 @@ namespace gui {
 
     template<orientation_t V, typename T, typename S>
     inline auto uniform_list<V, T, S>::get_list_size () const -> pos_t {
-      return traits.get_1(super::client_size());
+      return super::traits.get_1(super::client_size());
     }
 
     template<orientation_t V, typename T, typename S>
@@ -268,22 +374,22 @@ namespace gui {
 
     template<orientation_t V, typename T, typename S>
     inline core::size::type uniform_list<V, T, S>::get_item_dimension () const {
-      return traits.get_item_dimension();
+      return super::traits.get_item_dimension();
     }
 
     template<orientation_t V, typename T, typename S>
     inline auto uniform_list<V, T, S>::get_item_size () const -> size_type{
-      return traits.item_size;
+      return super::traits.item_size;
     }
 
     template<orientation_t V, typename T, typename S>
     inline void uniform_list<V, T, S>::set_item_size (size_type item_size) {
-      traits.item_size = item_size;
+      super::traits.item_size = item_size;
     }
 
     template<orientation_t V, typename T, typename S>
     inline void uniform_list<V, T, S>::set_item_size_and_background (size_type item_size, os::color background) {
-      traits.item_size = item_size;
+      super::traits.item_size = item_size;
       super::set_background(background);
     }
 
@@ -291,7 +397,7 @@ namespace gui {
     inline int uniform_list<V, T, S>::get_index_at_point (const core::point& pt) {
       auto rect = super::client_geometry();
       if (rect.is_inside(pt)) {
-        return traits.get_index_at_point(rect, pt - rect.position(), super::get_scroll_pos(), super::get_count());
+        return super::traits.get_index_at_point(rect, pt - rect.position(), super::get_scroll_pos(), super::get_count());
       }
       return -1;
     }
@@ -299,108 +405,9 @@ namespace gui {
     template<orientation_t V, typename T, typename S>
     core::rectangle uniform_list<V, T, S>::get_geometry_of_index (int idx) {
       if (super::is_valid_idx(idx)) {
-        return traits.get_geometry_of_index(super::client_geometry(), idx, super::get_scroll_pos());
+        return super::traits.get_geometry_of_index(super::client_geometry(), idx, super::get_scroll_pos());
       }
       return core::rectangle::zero;
-    }
-
-    template<orientation_t V, typename T, typename S>
-    void uniform_list<V, T, S>::set_selection (int sel, event_source notify, bool add) {
-      const int new_selection = std::min(std::max(0, sel), static_cast<int>(super::get_count() - 1));
-      if (add) {
-        super::selection.expand_to(new_selection);
-      } else {
-        super::clear_selection(notify);
-        super::selection.set_selected(new_selection);
-      }
-      make_entry_visible(new_selection);
-      super::invalidate();
-      if (notify != event_source::logic) {
-        super::notify_selection_changed(notify);
-      }
-    }
-
-    template<orientation_t V, typename T, typename S>
-    void uniform_list<V, T, S>::select (int sel, event_source notify) {
-      const int new_selection = std::min(std::max(0, sel), static_cast<int>(super::get_count() - 1));
-      if (!super::selection.is_selected(new_selection)) {
-        super::selection.set_selected(new_selection);
-        make_entry_visible(new_selection);
-        super::invalidate();
-        if (notify != event_source::logic) {
-          super::notify_selection_changed(notify);
-        }
-      }
-    }
-
-    template<orientation_t V, typename T, typename S>
-    void uniform_list<V, T, S>::select_all (event_source notify) {
-      super::selection.select_range(0, static_cast<int>(super::get_count()) - 1);
-      super::invalidate();
-      if (notify != event_source::logic) {
-        super::notify_selection_changed(notify);
-      }
-    }
-
-    template<orientation_t V, typename T, typename S>
-    void uniform_list<V, T, S>::unselect (int sel, event_source notify) {
-      if (super::selection.is_selected(sel)) {
-        super::selection.set_unselected(sel);
-        super::invalidate();
-        if (notify != event_source::logic) {
-          super::notify_selection_changed(notify);
-        }
-      }
-    }
-
-    template<orientation_t V, typename T, typename S>
-    bool uniform_list<V, T, S>::try_to_select (int sel, event_source notify) {
-      if ((sel >= 0) && (sel < super::get_count())) {
-        set_selection(sel, notify);
-        return true;
-      }
-      return false;
-    }
-
-    template<orientation_t V, typename T, typename S>
-    void uniform_list<V, T, S>::make_selection_visible () {
-      if (super::has_selection()) {
-        make_entry_visible(super::get_selection().get_first_index());
-      }
-    }
-
-    template<orientation_t V, typename T, typename S>
-    void uniform_list<V, T, S>::make_entry_visible (int sel_idx) {
-      const auto list_size = super::client_size();
-      const auto scroll_pos = get_scroll_pos_1();
-
-      const auto new_pos = core::get_adjusted_scroll_position(traits.get_1(list_size),
-                                                              traits.get_line_size(),
-                                                              scroll_pos,
-                                                              traits.get_offset_of_index(list_size, sel_idx),
-                                                              get_selection_adjustment());
-      if (new_pos != scroll_pos) {
-        set_scroll_pos_1(new_pos);
-      }
-    }
-
-    template<orientation_t V, typename T, typename S>
-    void uniform_list<V, T, S>::set_scroll_pos_1 (pos_t pos) {
-      auto value = std::max(pos_t(0), std::min(pos, static_cast<pos_t>(traits.get_line_size() * super::get_count() - traits.get_1(super::client_size()))));
-      auto pt = super::get_scroll_pos();
-      traits.set_1(pt, value);
-      super::set_scroll_pos(pt);
-      super::notify_scroll(value);
-    }
-
-    template<orientation_t V, typename T, typename S>
-    void uniform_list<V, T, S>::set_selection_adjustment (core::selection_adjustment adjust) {
-      adjustment = adjust;
-    }
-
-    template<orientation_t V, typename T, typename S>
-    core::selection_adjustment uniform_list<V, T, S>::get_selection_adjustment () const {
-      return adjustment;
     }
 
     template<orientation_t V, typename T, typename S>
@@ -410,8 +417,10 @@ namespace gui {
         if ((super::get_last_mouse_point() != core::native_point::undefined) &&
             (super::get_last_mouse_point() != pt)) {
           super::set_cursor(win::cursor::move());
-          auto delta = traits.get_1(super::get_last_mouse_point()) - traits.get_1(pt);
-          set_scroll_pos_1(get_scroll_pos_1() + core::global::scale_from_native<pos_t>(delta));
+          auto delta = super::traits.get_1(super::get_last_mouse_point()) - super::traits.get_1(pt);
+          super::traits.set_scroll_pos(*this,
+                                       super::traits.get_line_size(),
+                                       super::traits.get_scroll_pos(*this) + core::global::scale_from_native<pos_t>(delta));
           super::set_state().moved(true);
         }
         super::data.last_mouse_point = pt;
@@ -434,17 +443,17 @@ namespace gui {
 
         if (ctrl_pressed) {
           if (shift_pressed) {
-            set_selection(new_selection, event_source::mouse, shift_pressed);
+            super::set_selection(new_selection, event_source::mouse, shift_pressed);
           } else {
             if (super::get_selection().is_selected(new_selection)) {
-              unselect(new_selection, event_source::mouse);
+              super::unselect(new_selection, event_source::mouse);
             } else {
-              select(new_selection, event_source::mouse);
+              super::select(new_selection, event_source::mouse);
             }
           }
 #endif // GUIPP_BUILD_FOR_MOBILE
         } else {
-          set_selection(new_selection, event_source::mouse, shift_pressed);
+          super::set_selection(new_selection, event_source::mouse, shift_pressed);
         }
       }
       super::set_cursor(win::cursor::arrow());
@@ -471,16 +480,16 @@ namespace gui {
     template<orientation_t V, typename S>
     inline core::rectangle linear_list<V, S>::get_virtual_geometry (const core::rectangle&) const {
       core::rectangle place;
-      super::traits.set_1(place, 0, super::traits.get_item_dimension() * super::get_count());
-      super::traits.set_2(place, 0, 0);
+      super::super::traits.set_1(place, 0, super::super::traits.get_item_dimension() * super::get_count());
+      super::super::traits.set_2(place, 0, 0);
       return place;
     }
 
     template<orientation_t V, typename S>
     core::size linear_list<V, S>::get_scroll_steps () const {
       core::size sz;
-      super::traits.set_1(sz, super::traits.get_item_dimension());
-      super::traits.set_2(sz, 1);
+      super::super::traits.set_1(sz, super::super::traits.get_item_dimension());
+      super::super::traits.set_2(sz, 1);
       return sz;
     }
 

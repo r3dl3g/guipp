@@ -218,7 +218,7 @@ namespace gui {
       const auto pos = list_area.position();
 
       core::rectangle place;
-      super::traits.set_1(place, super::traits.get_1(pos) + lsz * line - super::get_scroll_pos_1() + super::traits.get_line_border(), lsz + 1);
+      super::traits.set_1(place, super::traits.get_1(pos) + lsz * line - super::traits.get_scroll_pos(*this) + super::traits.get_line_border(), lsz + 1);
       super::traits.set_2(place, super::traits.get_2(pos) + isz * offs + super::traits.get_item_border(), isz + 1);
       return place;
     }

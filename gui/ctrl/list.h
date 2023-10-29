@@ -268,16 +268,22 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename T = core::selector::single>
+      template<typename T, typename S = core::selector::single>
       class selectable_list : public list_base {
       public:
         typedef list_base super;
-        typedef T selector_type;
+        typedef T traits_type;
+        typedef S selector_type;
+        typedef typename traits_type::size_type size_type;
+        typedef typename selector_type::selection_type selection_type;
 
-        explicit selectable_list (os::color background = color::white,
+        explicit selectable_list (size_type item_size,
+                                  os::color background = color::white,
                                   bool grab_focus = true);
 
         const selector_type& get_selection () const;
+
+        selector_type& get_selection ();
 
         bool has_selection () const;
 
@@ -287,8 +293,24 @@ namespace gui {
 
         bool can_select_multi () const;
 
+        void set_selection_adjustment (core::selection_adjustment);
+        core::selection_adjustment get_selection_adjustment () const;
+
+        void make_entry_visible ();
+
+        bool try_to_select (int sel, event_source notify);
+        void set_selection (int sel, event_source notify, bool add = false);
+        void select (int sel, event_source notify);
+        void select_all (event_source notify);
+        void unselect (int sel, event_source notify);
+        void make_selection_visible ();
+        void make_entry_visible (int sel);
+
       protected:
         selector_type selection;
+        core::selection_adjustment adjustment;
+        traits_type traits;
+
       };
 
     } // namespace detail
@@ -310,9 +332,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation_t V, typename T, typename S = core::selector::single>
-    class uniform_list : public detail::selectable_list<S> {
+    class uniform_list : public detail::selectable_list<T, S> {
     public:
-      typedef detail::selectable_list<S> super;
+      typedef detail::selectable_list<T, S> super;
       typedef T traits_type;
       typedef typename traits_type::size_type size_type;
       typedef typename super::pos_t pos_t;
@@ -324,7 +346,7 @@ namespace gui {
       explicit uniform_list (size_type item_size,
                   os::color background = color::white,
                   bool grab_focus = true);
-      uniform_list (uniform_list&& rhs) noexcept ;
+      uniform_list (uniform_list&& rhs) noexcept;
 
       void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
@@ -352,28 +374,11 @@ namespace gui {
       int get_index_at_point (const core::point& pt);
       core::rectangle get_geometry_of_index (int idx);
 
-      bool try_to_select (int sel, event_source notify);
-      void set_selection (int sel, event_source notify, bool add = false);
-      void select (int sel, event_source notify);
-      void select_all (event_source notify);
-      void unselect (int sel, event_source notify);
-      void make_selection_visible ();
-      void make_entry_visible (int sel);
-
-      void set_scroll_pos_1 (pos_t pos);
-      pos_t get_scroll_pos_1 () const;
-
-      void set_selection_adjustment (core::selection_adjustment);
-      core::selection_adjustment get_selection_adjustment () const;
-
       void handle_mouse_move (os::key_state keys, const core::native_point& pt);
       void handle_left_btn_up (os::key_state keys, const core::native_point& pt);
 
     protected:
       pos_t get_list_size () const;
-
-      traits_type traits;
-      core::selection_adjustment adjustment;
 
     private:
       void init ();
@@ -382,8 +387,18 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation_t V>
-    struct linear_list_traits : public core::orientation_traits<V> {
+    struct uniform_list_traits : public core::orientation_traits<V> {
       typedef core::orientation_traits<V> super;
+      typedef core::size::type dim_type;
+
+      dim_type get_scroll_pos (const detail::list_base& list) const;
+      void set_scroll_pos (detail::list_base& list, dim_type line_size, dim_type pos);
+    };
+
+    // --------------------------------------------------------------------------
+    template<orientation_t V>
+    struct linear_list_traits : public uniform_list_traits<V> {
+      typedef uniform_list_traits<V> super;
       typedef core::size::type size_type;
 
       explicit linear_list_traits (size_type item_size);

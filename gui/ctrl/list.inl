@@ -24,6 +24,23 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
+      template<typename U, list_item_drawer<U> D, typename C>
+      inline void list_base::set_data (const C& data) {
+        data.items = indirect_list_data<U, D, C>(data);
+        super::invalidate();
+      }
+
+      template<typename U, list_item_drawer<U> D>
+      inline void list_base::set_data (std::initializer_list<U> args) {
+        data.items = const_list_data<U, D>(std::move(args));
+        super::invalidate();
+      }
+
+      inline void list_base::set_data (const std::function<list_data_provider>& dta) {
+        data.items = dta;
+        super::invalidate();
+      }
+
       inline core::list_state::is list_base::get_state () const {
         return core::list_state::is(flags);
       }
@@ -419,27 +436,7 @@ namespace gui {
                                                const core::rectangle& place,
                                                std::function<list_data_provider> data) {
       super::create(clazz::get(), parent, place);
-      set_data(data);
-    }
-
-    template<orientation_t V, typename T, typename S>
-    template<typename U, list_item_drawer<U> D, typename C>
-    inline void uniform_list<V, T, S>::set_data (const C& data) {
-      super::data.items = indirect_list_data<U, D, C>(data);
-      super::invalidate();
-    }
-
-    template<orientation_t V, typename T, typename S>
-    template<typename U, list_item_drawer<U> D>
-    inline void uniform_list<V, T, S>::set_data (std::initializer_list<U> args) {
-      super::data.items = const_list_data<U, D>(std::move(args));
-      super::invalidate();
-    }
-
-    template<orientation_t V, typename T, typename S>
-    inline void uniform_list<V, T, S>::set_data (const std::function<list_data_provider>& dta) {
-      super::data.items = dta;
-      super::invalidate();
+      super::set_data(data);
     }
 
     template<orientation_t V, typename T, typename S>

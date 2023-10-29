@@ -225,6 +225,14 @@ namespace gui {
                             bool grab_focus = true);
         list_base (list_base&&) noexcept;
 
+        template<typename U, list_item_drawer<U> D = default_list_item_drawer<U>, typename C = std::vector<U>>
+        void set_data (const C& data);
+
+        template<typename U, list_item_drawer<U> D = default_list_item_drawer<U>>
+        void set_data (std::initializer_list<U> args);
+
+        void set_data (const std::function<list_data_provider>& dta);
+
         core::list_state::is get_state() const;
         core::list_state::set set_state();
 
@@ -370,14 +378,6 @@ namespace gui {
       void create (win::container& parent,
                    const core::rectangle& place,
                    std::function<list_data_provider> data);
-
-      template<typename U, list_item_drawer<U> D = default_list_item_drawer<U>, typename C = std::vector<U>>
-      void set_data (const C& data);
-
-      template<typename U, list_item_drawer<U> D = default_list_item_drawer<U>>
-      void set_data (std::initializer_list<U> args);
-
-      void set_data (const std::function<list_data_provider>& dta);
 
       core::size::type get_item_dimension () const;
 

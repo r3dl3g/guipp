@@ -78,7 +78,19 @@ namespace gui {
         : super(background, grab_focus)
         , adjustment(core::selection_adjustment::next)
         , traits(item_size)
-      {}
+      {
+        init();
+      }
+
+      template<typename T, typename S>
+      inline selectable_list<T, S>::selectable_list (selectable_list&& rhs) noexcept
+        : super(std::move(rhs))
+        , selection(std::move(rhs.selection))
+        , adjustment(rhs.adjustment)
+        , traits(std::move(rhs.traits))
+      {
+        init();
+      }
 
       template<typename T, typename S>
       void selectable_list<T, S>::clear_selection (event_source notify) {
@@ -207,6 +219,98 @@ namespace gui {
         }
       }
 
+      template<typename T, typename S>
+      auto selectable_list<T, S>::get_list_size () const -> dim_type {
+        return traits.get_1(super::client_size());
+      }
+
+      template<typename T, typename S>
+      int selectable_list<T, S>::get_index_at_point (const core::point& pt) {
+        auto rect = super::client_geometry();
+        if (rect.is_inside(pt)) {
+          return traits.get_index_at_point(rect, pt - rect.position(), super::get_scroll_pos(), super::get_count());
+        }
+        return -1;
+      }
+
+      template<typename T, typename S>
+      core::rectangle selectable_list<T, S>::get_geometry_of_index (int idx) {
+        if (super::is_valid_idx(idx)) {
+          return traits.get_geometry_of_index(super::client_geometry(), idx, super::get_scroll_pos());
+        }
+        return core::rectangle::zero;
+      }
+
+      template<typename T, typename S>
+      void selectable_list<T, S>::handle_mouse_move (os::key_state keys, const core::native_point& pt) {
+        const auto r = super::surface_geometry();
+        if (core::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
+          if ((super::get_last_mouse_point() != core::native_point::undefined) &&
+              (super::get_last_mouse_point() != pt)) {
+            super::set_cursor(win::cursor::move());
+            auto delta = traits.get_1(super::get_last_mouse_point()) - traits.get_1(pt);
+            traits.set_scroll_pos(*this,
+                                        traits.get_line_size(),
+                                        traits.get_scroll_pos(*this) + core::global::scale_from_native<pos_t>(delta));
+            super::set_state().moved(true);
+          }
+          super::data.last_mouse_point = pt;
+        } else {
+          super::set_hilite(get_index_at_point(super::surface_to_client(pt)));
+        }
+      }
+
+      template<typename T, typename S>
+      void selectable_list<T, S>::handle_left_btn_up (os::key_state state, const core::native_point& pt) {
+        if (!super::is_moved() && (super::get_last_mouse_point() != core::native_point::undefined)) {
+          const int new_selection = get_index_at_point(super::surface_to_client(pt));
+  #ifdef GUIPP_BUILD_FOR_MOBILE
+          if (super::get_selection().is_selected(new_selection)) {
+            // second selection -> commit
+            super::notify_selection_commit();
+  #else // !GUIPP_BUILD_FOR_MOBILE
+          const bool shift_pressed = core::shift_key_bit_mask::is_set(state);
+          const bool ctrl_pressed = core::control_key_bit_mask::is_set(state);
+
+          if (ctrl_pressed) {
+            if (shift_pressed) {
+              set_selection(new_selection, event_source::mouse, shift_pressed);
+            } else {
+              if (get_selection().is_selected(new_selection)) {
+                unselect(new_selection, event_source::mouse);
+              } else {
+                select(new_selection, event_source::mouse);
+              }
+            }
+  #endif // GUIPP_BUILD_FOR_MOBILE
+          } else {
+            set_selection(new_selection, event_source::mouse, shift_pressed);
+          }
+        }
+        super::set_cursor(win::cursor::arrow());
+        super::data.last_mouse_point = core::native_point::undefined;
+      }
+
+      template<typename T, typename S>
+      void selectable_list<T, S>::init () {
+  #ifndef GUIPP_BUILD_FOR_MOBILE
+        super::on_left_btn_dblclk([&] (os::key_state, const core::native_point&) {
+          if (has_selection()) {
+            super::notify_selection_commit();
+          }
+        });
+  #endif // GUIPP_BUILD_FOR_MOBILE
+        super::on_mouse_leave([&] () {
+          super::clear_hilite();
+        });
+        super::on_size ([&] (const core::size&) {
+          make_selection_visible();
+        });
+
+        super::on_left_btn_up(util::bind_method(this, &selectable_list::handle_left_btn_up));
+        super::on_mouse_move(util::bind_method(this, &selectable_list::handle_mouse_move));
+      }
+
       // --------------------------------------------------------------------------
     } // namespace detail
 
@@ -301,46 +405,12 @@ namespace gui {
                                                 os::color background,
                                                 bool grab_focus)
       : super(item_size, background, grab_focus)
-    {
-      init();
-    }
-
-    template<orientation_t V, typename T, typename S>
-    inline uniform_list<V, T, S>::uniform_list (uniform_list&& rhs) noexcept
-      : super(std::move(rhs))
-    {
-      init();
-    }
+    {}
 
     template<orientation_t V, typename T, typename S>
     inline void uniform_list<V, T, S>::create (win::container& parent,
                                                const core::rectangle& r) {
       super::create(clazz::get(), parent, r);
-    }
-
-    template<orientation_t V, typename T, typename S>
-    void uniform_list<V, T, S>::init () {
-#ifndef GUIPP_BUILD_FOR_MOBILE
-      super::on_left_btn_dblclk([&] (os::key_state, const core::native_point&) {
-        if (super::has_selection()) {
-          super::notify_selection_commit();
-        }
-      });
-#endif // GUIPP_BUILD_FOR_MOBILE
-      super::on_mouse_leave([&] () {
-        super::clear_hilite();
-      });
-      super::on_size ([&] (const core::size&) {
-        super::make_selection_visible();
-      });
-
-      super::on_left_btn_up(util::bind_method(this, &uniform_list::handle_left_btn_up));
-      super::on_mouse_move(util::bind_method(this, &uniform_list::handle_mouse_move));
-    }
-
-    template<orientation_t V, typename T, typename S>
-    inline auto uniform_list<V, T, S>::get_list_size () const -> pos_t {
-      return super::traits.get_1(super::client_size());
     }
 
     template<orientation_t V, typename T, typename S>
@@ -391,73 +461,6 @@ namespace gui {
     inline void uniform_list<V, T, S>::set_item_size_and_background (size_type item_size, os::color background) {
       super::traits.item_size = item_size;
       super::set_background(background);
-    }
-
-    template<orientation_t V, typename T, typename S>
-    inline int uniform_list<V, T, S>::get_index_at_point (const core::point& pt) {
-      auto rect = super::client_geometry();
-      if (rect.is_inside(pt)) {
-        return super::traits.get_index_at_point(rect, pt - rect.position(), super::get_scroll_pos(), super::get_count());
-      }
-      return -1;
-    }
-
-    template<orientation_t V, typename T, typename S>
-    core::rectangle uniform_list<V, T, S>::get_geometry_of_index (int idx) {
-      if (super::is_valid_idx(idx)) {
-        return super::traits.get_geometry_of_index(super::client_geometry(), idx, super::get_scroll_pos());
-      }
-      return core::rectangle::zero;
-    }
-
-    template<orientation_t V, typename T, typename S>
-    void uniform_list<V, T, S>::handle_mouse_move (os::key_state keys, const core::native_point& pt) {
-      const auto r = super::surface_geometry();
-      if (core::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
-        if ((super::get_last_mouse_point() != core::native_point::undefined) &&
-            (super::get_last_mouse_point() != pt)) {
-          super::set_cursor(win::cursor::move());
-          auto delta = super::traits.get_1(super::get_last_mouse_point()) - super::traits.get_1(pt);
-          super::traits.set_scroll_pos(*this,
-                                       super::traits.get_line_size(),
-                                       super::traits.get_scroll_pos(*this) + core::global::scale_from_native<pos_t>(delta));
-          super::set_state().moved(true);
-        }
-        super::data.last_mouse_point = pt;
-      } else {
-        super::set_hilite(get_index_at_point(super::surface_to_client(pt)));
-      }
-    }
-
-    template<orientation_t V, typename T, typename S>
-    void uniform_list<V, T, S>::handle_left_btn_up (os::key_state state, const core::native_point& pt) {
-      if (!super::is_moved() && (super::get_last_mouse_point() != core::native_point::undefined)) {
-        const int new_selection = get_index_at_point(super::surface_to_client(pt));
-#ifdef GUIPP_BUILD_FOR_MOBILE
-        if (super::get_selection().is_selected(new_selection)) {
-          // second selection -> commit
-          super::notify_selection_commit();
-#else // !GUIPP_BUILD_FOR_MOBILE
-        const bool shift_pressed = core::shift_key_bit_mask::is_set(state);
-        const bool ctrl_pressed = core::control_key_bit_mask::is_set(state);
-
-        if (ctrl_pressed) {
-          if (shift_pressed) {
-            super::set_selection(new_selection, event_source::mouse, shift_pressed);
-          } else {
-            if (super::get_selection().is_selected(new_selection)) {
-              super::unselect(new_selection, event_source::mouse);
-            } else {
-              super::select(new_selection, event_source::mouse);
-            }
-          }
-#endif // GUIPP_BUILD_FOR_MOBILE
-        } else {
-          super::set_selection(new_selection, event_source::mouse, shift_pressed);
-        }
-      }
-      super::set_cursor(win::cursor::arrow());
-      super::data.last_mouse_point = core::native_point::undefined;
     }
 
     // --------------------------------------------------------------------------

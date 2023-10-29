@@ -223,7 +223,7 @@ namespace gui {
 
         explicit list_base (os::color background = color::white,
                             bool grab_focus = true);
-        list_base (list_base&&) noexcept ;
+        list_base (list_base&&) noexcept;
 
         core::list_state::is get_state() const;
         core::list_state::set set_state();
@@ -275,11 +275,14 @@ namespace gui {
         typedef T traits_type;
         typedef S selector_type;
         typedef typename traits_type::size_type size_type;
+        typedef typename traits_type::dim_type dim_type;
         typedef typename selector_type::selection_type selection_type;
 
         explicit selectable_list (size_type item_size,
                                   os::color background = color::white,
                                   bool grab_focus = true);
+
+        selectable_list (selectable_list&& rhs) noexcept;
 
         const selector_type& get_selection () const;
 
@@ -306,10 +309,22 @@ namespace gui {
         void make_selection_visible ();
         void make_entry_visible (int sel);
 
+        int get_index_at_point (const core::point& pt);
+        core::rectangle get_geometry_of_index (int idx);
+
+        void handle_mouse_move (os::key_state keys, const core::native_point& pt);
+        void handle_left_btn_up (os::key_state keys, const core::native_point& pt);
+
+      protected:
+        dim_type get_list_size () const;
+
       protected:
         selector_type selection;
         core::selection_adjustment adjustment;
         traits_type traits;
+
+      private:
+        void init ();
 
       };
 
@@ -346,7 +361,6 @@ namespace gui {
       explicit uniform_list (size_type item_size,
                   os::color background = color::white,
                   bool grab_focus = true);
-      uniform_list (uniform_list&& rhs) noexcept;
 
       void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
@@ -370,18 +384,6 @@ namespace gui {
       size_type get_item_size () const;
       void set_item_size (size_type item_size);
       void set_item_size_and_background (size_type item_size, os::color background);
-
-      int get_index_at_point (const core::point& pt);
-      core::rectangle get_geometry_of_index (int idx);
-
-      void handle_mouse_move (os::key_state keys, const core::native_point& pt);
-      void handle_left_btn_up (os::key_state keys, const core::native_point& pt);
-
-    protected:
-      pos_t get_list_size () const;
-
-    private:
-      void init ();
 
     };
 

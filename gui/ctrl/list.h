@@ -220,10 +220,20 @@ namespace gui {
       public:
         typedef control super;
         typedef core::size::type pos_t;
+        typedef win::no_erase_window_class<list_base> clazz;
 
         explicit list_base (os::color background = color::white,
                             bool grab_focus = true);
         list_base (list_base&&) noexcept;
+
+        void create (win::container& parent,
+                    const core::rectangle& place = core::rectangle::def);
+
+        // template<typename U,
+        //         list_item_drawer<U> F = default_list_item_drawer<U> >
+        void create (win::container& parent,
+                    const core::rectangle& place,
+                    std::function<list_data_provider> data);
 
         template<typename U, list_item_drawer<U> D = default_list_item_drawer<U>, typename C = std::vector<U>>
         void set_data (const C& data);
@@ -362,22 +372,10 @@ namespace gui {
       typedef typename traits_type::size_type size_type;
       typedef typename super::pos_t pos_t;
       typedef basic_scroll_bar<V> scroll_bar_type;
-      typedef win::no_erase_window_class<uniform_list> clazz;
-
-      const pos_t zero = pos_t(0);
 
       explicit uniform_list (size_type item_size,
                   os::color background = color::white,
                   bool grab_focus = true);
-
-      void create (win::container& parent,
-                   const core::rectangle& place = core::rectangle::def);
-
-      template<typename U,
-               list_item_drawer<U> F = default_list_item_drawer<U> >
-      void create (win::container& parent,
-                   const core::rectangle& place,
-                   std::function<list_data_provider> data);
 
       core::size::type get_item_dimension () const;
 

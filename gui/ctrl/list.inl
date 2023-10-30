@@ -24,6 +24,18 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
+      inline void list_base::create (win::container& parent,
+                                     const core::rectangle& r) {
+        super::create(clazz::get(), parent, r);
+      }
+
+      inline void list_base::create (win::container& parent,
+                                     const core::rectangle& place,
+                                     std::function<list_data_provider> data) {
+        super::create(clazz::get(), parent, place);
+        set_data(data);
+      }
+
       template<typename U, list_item_drawer<U> D, typename C>
       inline void list_base::set_data (const C& data) {
         data.items = indirect_list_data<U, D, C>(data);
@@ -423,21 +435,6 @@ namespace gui {
                                                 bool grab_focus)
       : super(item_size, background, grab_focus)
     {}
-
-    template<orientation_t V, typename T, typename S>
-    inline void uniform_list<V, T, S>::create (win::container& parent,
-                                               const core::rectangle& r) {
-      super::create(clazz::get(), parent, r);
-    }
-
-    template<orientation_t V, typename T, typename S>
-    template<typename U, list_item_drawer<U> F>
-    inline void uniform_list<V, T, S>::create (win::container& parent,
-                                               const core::rectangle& place,
-                                               std::function<list_data_provider> data) {
-      super::create(clazz::get(), parent, place);
-      super::set_data(data);
-    }
 
     template<orientation_t V, typename T, typename S>
     inline core::size::type uniform_list<V, T, S>::get_item_dimension () const {

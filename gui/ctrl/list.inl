@@ -120,7 +120,7 @@ namespace gui {
 
       template<typename T, orientation_t O>
       auto oriented_list<T, O>::get_list_size () const -> dim_type {
-        return traits.get_1(super::client_size());
+        return otraits::get_1(super::client_size());
       }
 
       template<typename T, orientation_t O>
@@ -148,7 +148,7 @@ namespace gui {
         const auto list_size = super::client_size();
         const auto scroll_pos = get_scroll_offset();
 
-        const auto new_pos = core::get_adjusted_scroll_position(traits.get_1(list_size),
+        const auto new_pos = core::get_adjusted_scroll_position(otraits::get_1(list_size),
                                                                 traits.get_line_size(),
                                                                 scroll_pos,
                                                                 traits.get_offset_of_index(list_size, sel_idx),
@@ -166,7 +166,7 @@ namespace gui {
           if ((super::get_last_mouse_point() != core::native_point::undefined) &&
               (super::get_last_mouse_point() != pt)) {
             super::set_cursor(win::cursor::move());
-            auto delta = traits.get_1(super::get_last_mouse_point()) - traits.get_1(pt);
+            auto delta = otraits::get_1(super::get_last_mouse_point()) - otraits::get_1(pt);
             set_scroll_offset(traits.get_line_size(), get_scroll_offset() + 
                               core::global::scale_from_native<pos_t>(delta));
             super::set_state().moved(true);
@@ -389,8 +389,8 @@ namespace gui {
 
       template<typename T, orientation_t O, typename S>
       void selectable_list<T, O, S>::handle_key (os::key_state state,
-                                              os::key_symbol key,
-                                              const std::string&) {
+                                                 os::key_symbol key,
+                                                 const std::string&) {
         if (core::control_key_bit_mask::is_set(state)) {
           switch (key) {
             case core::keys::a:
@@ -403,14 +403,12 @@ namespace gui {
             switch (key) {
               case core::keys::page_up:
               case core::keys::numpad::page_up:
-                set_selection(get_selection().get_first_index() -
-                                    static_cast<int>(super::get_list_size() / super::traits.get_item_dimension()),
+                set_selection(get_selection().get_first_index() - super::traits.get_items_per_page(super::client_size()),
                                     event_source::keyboard, shift_pressed);
                 break;
               case core::keys::page_down:
               case core::keys::numpad::page_down:
-                set_selection(get_selection().get_first_index() +
-                                    static_cast<int>(super::get_list_size() / super::traits.get_item_dimension()),
+                set_selection(get_selection().get_first_index() + super::traits.get_items_per_page(super::client_size()),
                                     event_source::keyboard, shift_pressed);
                 break;
               case core::keys::home:
@@ -475,7 +473,7 @@ namespace gui {
                                                           const core::point& pt,
                                                           const core::point& scroll_pos,
                                                           size_t count) const {
-      const auto idx = static_cast<int>((super::get_1(pt) + super::get_1(scroll_pos)) / item_size);
+      const auto idx = static_cast<int>((otraits::get_1(pt) + otraits::get_1(scroll_pos)) / item_size);
       return idx < count ? idx : -1;
     }
 
@@ -484,8 +482,8 @@ namespace gui {
                                                                          int idx,
                                                                          const core::point& scroll_pos) const {
       core::rectangle place;
-      super::set_1(place, super::get_1(list_size.position()) + item_size * idx - super::get_1(scroll_pos), item_size);
-      super::set_2(place, super::get_2(list_size.position()) - super::get_2(scroll_pos), super::get_2(list_size.size()));
+      otraits::set_1(place, otraits::get_1(list_size.position()) + item_size * idx - otraits::get_1(scroll_pos), item_size);
+      otraits::set_2(place, otraits::get_2(list_size.position()) - otraits::get_2(scroll_pos), otraits::get_2(list_size.size()));
       return place;
     }
 
@@ -502,6 +500,11 @@ namespace gui {
     template<orientation_t O>
     inline auto linear_list_traits<O>::get_item_dimension () const -> size_type {
       return item_size;
+    }
+
+    template<orientation_t O>
+    std::size_t linear_list_traits<O>::get_items_per_page (const core::size& page_size) {
+      return static_cast<int>(otraits::get_1(page_size) / get_item_dimension());
     }
 
     // --------------------------------------------------------------------------
@@ -555,16 +558,16 @@ namespace gui {
     template<orientation_t O, typename S>
     inline core::rectangle linear_list<O, S>::get_virtual_geometry (const core::rectangle&) const {
       core::rectangle place;
-      super::super::traits.set_1(place, 0, super::super::traits.get_item_dimension() * super::get_count());
-      super::super::traits.set_2(place, 0, 0);
+      super::otraits::set_1(place, 0, super::get_item_dimension() * super::get_count());
+      super::otraits::set_2(place, 0, 0);
       return place;
     }
 
     template<orientation_t O, typename S>
     core::size linear_list<O, S>::get_scroll_steps () const {
       core::size sz;
-      super::super::traits.set_1(sz, super::super::traits.get_item_dimension());
-      super::super::traits.set_2(sz, 1);
+      super::otraits::set_1(sz, super::get_item_dimension());
+      super::otraits::set_2(sz, 1);
       return sz;
     }
 
@@ -575,24 +578,24 @@ namespace gui {
 
       draw::brush back_brush(super::get_background());
 
-      const auto list_sz = super::traits.get_1(area.x2y2());
+      const auto list_sz = super::otraits::get_1(area.x2y2());
       const auto last = super::get_count();
       const auto isz = super::get_item_dimension();
-      const auto sp1 = super::traits.get_1(super::get_scroll_pos());
-      const auto sp2 = super::traits.get_2(super::get_scroll_pos());
+      const auto sp1 = super::otraits::get_1(super::get_scroll_pos());
+      const auto sp2 = super::otraits::get_2(super::get_scroll_pos());
       const auto first = static_cast<decltype(last)>(sp1 / isz);
 
-      super::traits.set_1(place, -sp1 + isz * first, isz);
-      super::traits.set_2(place, -sp2, super::traits.get_2(area.size()) + sp2);
+      super::otraits::set_1(place, -sp1 + isz * first, isz);
+      super::otraits::set_2(place, -sp2, super::otraits::get_2(area.size()) + sp2);
 
-      for (auto idx = first; (idx < last) && (super::traits.get_1(place.top_left()) < list_sz); ++idx) {
+      for (auto idx = first; (idx < last) && (super::otraits::get_1(place.top_left()) < list_sz); ++idx) {
         super::draw_item(idx, graph, place, back_brush, super::get_item_state(static_cast<int>(idx)));
-        super::traits.set_1(place, super::traits.get_1(place.top_left()) + isz, isz);
+        super::otraits::set_1(place, super::otraits::get_1(place.top_left()) + isz, isz);
       }
 
-      const auto pos = super::traits.get_1(place.top_left());
+      const auto pos = super::otraits::get_1(place.top_left());
       if (pos < list_sz) {
-        super::traits.set_1(place, pos, list_sz - pos);
+        super::otraits::set_1(place, pos, list_sz - pos);
         graph.fill(draw::rectangle(place), back_brush);
       }
 

@@ -64,6 +64,9 @@ namespace gui {
       dim_type get_item_border () const;
       dim_type get_item_spacing () const;
 
+      std::size_t get_items_per_page (const core::size& page_size) const;
+      std::size_t get_lines_per_page (const core::size& page_size) const;
+
       std::size_t get_items_per_line (const core::size& list_size) const;
       std::size_t get_line_count (size_t count, const core::size& list_size) const;
 

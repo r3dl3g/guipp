@@ -319,6 +319,8 @@ namespace gui {
         int get_index_at_point (const core::point& pt);
         core::rectangle get_geometry_of_index (int idx);
 
+        int get_items_per_page ();
+
         void make_entry_visible (int, core::selection_adjustment);
 
         dim_type get_scroll_offset () const;
@@ -417,8 +419,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation_t O>
-    struct linear_list_traits : public core::orientation_traits<O> {
-      typedef core::orientation_traits<O> super;
+    struct linear_list_traits {
+      typedef core::orientation_traits<O> otraits;
       typedef core::size::type size_type;
       typedef core::size::type dim_type;
 
@@ -434,6 +436,8 @@ namespace gui {
       core::rectangle get_geometry_of_index (const core::rectangle& list_size,
                                              int idx,
                                              const core::point& scroll_pos) const;
+
+      std::size_t get_items_per_page (const core::size& page_size);
 
       size_type get_line_size () const;
       size_type get_item_dimension () const;

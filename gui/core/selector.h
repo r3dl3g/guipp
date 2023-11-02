@@ -175,7 +175,7 @@ namespace gui {
 
         inline void set_selecteion (const selection_type& i) {
           selection = i;
-          last_selected_index = has_selection() ? get_last_index () : -1;
+          last_selected_index = has_selection() ? get_last_index() : -1;
         }
 
         inline void clear_selection () {
@@ -187,6 +187,7 @@ namespace gui {
           for (int i = from; i <= to; ++i) {
             selection.insert(selection.end(), i);
           }
+          last_selected_index = to;
         }
 
         inline void expand_to (int i) {

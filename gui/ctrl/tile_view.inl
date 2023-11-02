@@ -143,9 +143,22 @@ namespace gui {
     }
 
     template<orientation_t O>
+    inline std::size_t tile_list_traits<O>::get_lines_per_page (const core::size& list_size) const {
+      const auto isp = get_line_spacing();
+      const auto avail = (super::get_1(list_size) - get_line_border() * 2 + isp);
+      const auto need = get_line_size();
+      return static_cast<std::size_t>(std::max(avail / need, 1.0f));
+    }
+
+    template<orientation_t O>
     inline std::size_t tile_list_traits<O>::get_line_count (size_t count,
                                                             const core::size& list_size) const {
       return core::div_ceil(count, get_items_per_line(list_size));
+    }
+
+    template<orientation_t O>
+    inline std::size_t tile_list_traits<O>::get_items_per_page (const core::size& page_size) const {
+      return get_items_per_line(page_size) * get_lines_per_page(page_size);
     }
 
     // --------------------------------------------------------------------------
@@ -325,35 +338,11 @@ namespace gui {
     void basic_tile_view<O, S>::handle_key (os::key_state state,
                                             os::key_symbol key,
                                             const std::string&) {
-      if (state != core::state::none) {
-        return;
-      }
       const int step = super::traits.get_direction_step(key, super::client_size());
       if (step) {
-        super::try_to_select(super::get_selection().get_first_index() + step, event_source::keyboard);
-        return;
-      }
-      switch (key) {
-      case core::keys::page_up:
-      case core::keys::numpad::page_up:
-        super::try_to_select(super::get_selection().get_first_index() - static_cast<int>((super::get_list_size() + super::traits.get_line_spacing()) / super::traits.get_line_size()), event_source::keyboard);
-        break;
-      case core::keys::page_down:
-      case core::keys::numpad::page_down:
-        super::try_to_select(super::get_selection().get_first_index() + static_cast<int>((super::get_list_size() + super::traits.get_line_spacing()) / super::traits.get_line_size()), event_source::keyboard);
-        break;
-      case core::keys::home:
-      case core::keys::numpad::home:
-        super::try_to_select(0, event_source::keyboard);
-        break;
-      case core::keys::end:
-      case core::keys::numpad::end:
-        super::try_to_select(static_cast<int>(super::get_count()) - 1,
-          event_source::keyboard);
-        break;
-      case core::keys::enter:
-        super::notify_selection_commit();
-        break;
+        super::set_selection(super::get_selection().get_last_selected_index() + step,
+                              event_source::keyboard,
+                              core::shift_key_bit_mask::is_set(state));
       }
     }
 

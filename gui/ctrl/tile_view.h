@@ -37,9 +37,9 @@ namespace gui {
 
 
     // --------------------------------------------------------------------------
-    template<orientation_t V>
-    struct tile_list_traits : public uniform_list_traits<V> {
-      typedef uniform_list_traits<V> super;
+    template<orientation_t O>
+    struct tile_list_traits : public core::orientation_traits<O> {
+      typedef core::orientation_traits<O> super;
       typedef core::size size_type;
       typedef core::size::type dim_type;
 
@@ -82,10 +82,10 @@ namespace gui {
     GUIPP_CTRL_EXPORT int tile_list_traits<orientation_t::vertical>::get_direction_step (os::key_symbol, const core::size&) const;
 
     // --------------------------------------------------------------------------
-    template<orientation_t V, typename S = core::selector::single>
-    class basic_tile_view : public uniform_list<V, tile_list_traits<V>, S> {
+    template<orientation_t O, typename S = core::selector::single>
+    class basic_tile_view : public uniform_list<tile_list_traits<O>, O, S> {
     public:
-      typedef uniform_list<V, tile_list_traits<V>, S> super;
+      typedef uniform_list<tile_list_traits<O>, O, S> super;
 
       explicit basic_tile_view (const core::size& item_size = { 20, 20 },
                                 os::color background = color::white,
@@ -113,8 +113,6 @@ namespace gui {
                        const std::string&);
 
     private:
-      void handle_direction_key (os::key_symbol key);
-
       core::rectangle get_full_place_of_index (int idx);
 
       void init ();

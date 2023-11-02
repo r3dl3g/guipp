@@ -216,6 +216,21 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
+      template<orientation_t V>
+      struct wheel_traits {};
+
+      template<>
+      struct wheel_traits<orientation_t::horizontal> {
+        typedef win::wheel_x_event wheel_event_type;
+
+      };
+
+      template<>
+      struct wheel_traits<orientation_t::vertical> {
+        typedef win::wheel_y_event wheel_event_type;
+      };
+
+      // --------------------------------------------------------------------------
       class GUIPP_CTRL_EXPORT list_base : public control {
       public:
         typedef control super;
@@ -286,14 +301,49 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename T, typename S = core::selector::single>
-      class selectable_list : public list_base {
+      template<typename T, orientation_t O>
+      class oriented_list : public list_base {
       public:
         typedef list_base super;
         typedef T traits_type;
-        typedef S selector_type;
+        typedef core::orientation_traits<O> otraits;
         typedef typename traits_type::size_type size_type;
         typedef typename traits_type::dim_type dim_type;
+
+        explicit oriented_list (size_type item_size,
+                               os::color background = color::white,
+                               bool grab_focus = true);
+
+        oriented_list (oriented_list&& rhs) noexcept;
+
+        int get_index_at_point (const core::point& pt);
+        core::rectangle get_geometry_of_index (int idx);
+
+        void make_entry_visible (int, core::selection_adjustment);
+
+        dim_type get_scroll_offset () const;
+        void set_scroll_offset (dim_type line_size, dim_type pos);
+
+      protected:
+        void handle_mouse_move (os::key_state keys, const core::native_point& pt);
+        dim_type get_list_size () const;
+
+      private:
+        void init ();
+
+      protected:
+        traits_type traits;
+
+      };
+
+      // --------------------------------------------------------------------------
+      template<typename T, orientation_t O, typename S = core::selector::single>
+      class selectable_list : public oriented_list<T, O> {
+      public:
+        typedef oriented_list<T, O> super;
+        typedef typename super::traits_type traits_type;
+        typedef typename super::size_type size_type;
+        typedef S selector_type;
         typedef typename selector_type::selection_type selection_type;
 
         explicit selectable_list (size_type item_size,
@@ -317,29 +367,22 @@ namespace gui {
         void set_selection_adjustment (core::selection_adjustment);
         core::selection_adjustment get_selection_adjustment () const;
 
-        void make_entry_visible ();
-
         bool try_to_select (int sel, event_source notify);
         void set_selection (int sel, event_source notify, bool add = false);
         void select (int sel, event_source notify);
         void select_all (event_source notify);
         void unselect (int sel, event_source notify);
         void make_selection_visible ();
-        void make_entry_visible (int sel);
 
-        int get_index_at_point (const core::point& pt);
-        core::rectangle get_geometry_of_index (int idx);
-
-        void handle_mouse_move (os::key_state keys, const core::native_point& pt);
+      public:
         void handle_left_btn_up (os::key_state keys, const core::native_point& pt);
-
-      protected:
-        dim_type get_list_size () const;
+        void handle_key (os::key_state,
+                        os::key_symbol key,
+                        const std::string&);
 
       protected:
         selector_type selection;
         core::selection_adjustment adjustment;
-        traits_type traits;
 
       private:
         void init ();
@@ -349,57 +392,35 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<orientation_t V>
-    struct wheel_traits {};
-
-    template<>
-    struct wheel_traits<orientation_t::horizontal> {
-      typedef win::wheel_x_event wheel_event_type;
-
-    };
-
-    template<>
-    struct wheel_traits<orientation_t::vertical> {
-      typedef win::wheel_y_event wheel_event_type;
-    };
-
-    // --------------------------------------------------------------------------
-    template<orientation_t V, typename T, typename S = core::selector::single>
-    class uniform_list : public detail::selectable_list<T, S> {
+    template<typename T, orientation_t O, typename S = core::selector::single>
+    class uniform_list : public detail::selectable_list<T, O, S> {
     public:
-      typedef detail::selectable_list<T, S> super;
+      typedef detail::selectable_list<T, O, S> super;
       typedef T traits_type;
       typedef typename traits_type::size_type size_type;
+      typedef typename traits_type::dim_type dim_type;
       typedef typename super::pos_t pos_t;
-      typedef basic_scroll_bar<V> scroll_bar_type;
+      typedef basic_scroll_bar<O> scroll_bar_type;
 
       explicit uniform_list (size_type item_size,
                   os::color background = color::white,
                   bool grab_focus = true);
 
-      core::size::type get_item_dimension () const;
+      dim_type get_item_dimension () const;
 
       size_type get_item_size () const;
       void set_item_size (size_type item_size);
+
       void set_item_size_and_background (size_type item_size, os::color background);
 
     };
 
     // --------------------------------------------------------------------------
-    template<orientation_t V>
-    struct uniform_list_traits : public core::orientation_traits<V> {
-      typedef core::orientation_traits<V> super;
-      typedef core::size::type dim_type;
-
-      dim_type get_scroll_pos (const detail::list_base& list) const;
-      void set_scroll_pos (detail::list_base& list, dim_type line_size, dim_type pos);
-    };
-
-    // --------------------------------------------------------------------------
-    template<orientation_t V>
-    struct linear_list_traits : public uniform_list_traits<V> {
-      typedef uniform_list_traits<V> super;
+    template<orientation_t O>
+    struct linear_list_traits : public core::orientation_traits<O> {
+      typedef core::orientation_traits<O> super;
       typedef core::size::type size_type;
+      typedef core::size::type dim_type;
 
       explicit linear_list_traits (size_type item_size);
 
@@ -437,10 +458,10 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<orientation_t V, typename S = core::selector::single>
-    class linear_list : public uniform_list<V, linear_list_traits<V>, S> {
+    template<orientation_t O, typename S = core::selector::single>
+    class linear_list : public uniform_list<linear_list_traits<O>, O, S> {
     public:
-      typedef uniform_list<V, linear_list_traits<V>, S> super;
+      typedef uniform_list<linear_list_traits<O>, O, S> super;
 
       explicit linear_list (core::size::type item_size = list_defaults<>::item_size,
                    os::color background = color::white,
@@ -453,10 +474,10 @@ namespace gui {
 
       void paint (draw::graphics& graph);
 
+    public:
       void handle_key (os::key_state,
-                       os::key_symbol key,
-                       const std::string&);
-
+                      os::key_symbol key,
+                      const std::string&);
     private:
       void init ();
     };

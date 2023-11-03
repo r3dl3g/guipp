@@ -43,8 +43,6 @@ namespace gui {
       typedef core::size size_type;
       typedef core::size::type dim_type;
 
-      explicit tile_list_traits (const size_type& item_size);
-
       dim_type get_offset_of_index(const core::size& list_size, int idx) const;
 
       int get_index_at_point (const core::rectangle& list_size,
@@ -64,7 +62,9 @@ namespace gui {
       dim_type get_item_border () const;
       dim_type get_item_spacing () const;
 
-      std::size_t get_items_per_page (const core::size& page_size) const;
+      dim_type get_list_dimension (const detail::list_base& list) const;
+
+      std::size_t get_items_per_page (const core::size& page_size, int) const;
       std::size_t get_lines_per_page (const core::size& page_size) const;
 
       std::size_t get_items_per_line (const core::size& list_size) const;
@@ -110,10 +110,6 @@ namespace gui {
       core::size get_scroll_steps () const;
 
       void paint (draw::graphics& graph);
-
-      void handle_key (os::key_state,
-                       os::key_symbol key,
-                       const std::string&);
 
     private:
       core::rectangle get_full_place_of_index (int idx);

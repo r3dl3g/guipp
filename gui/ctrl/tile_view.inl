@@ -94,11 +94,6 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation_t O>
-    inline tile_list_traits<O>::tile_list_traits (const size_type& item_size)
-      : item_size(item_size)
-    {}
-
-    template<orientation_t O>
     int tile_list_traits<O>::get_index_at_point (const core::rectangle& list_area,
                                                  const core::point& pt,
                                                  const core::point& scroll_pos,
@@ -157,8 +152,13 @@ namespace gui {
     }
 
     template<orientation_t O>
-    inline std::size_t tile_list_traits<O>::get_items_per_page (const core::size& page_size) const {
+    inline std::size_t tile_list_traits<O>::get_items_per_page (const core::size& page_size, int) const {
       return get_items_per_line(page_size) * get_lines_per_page(page_size);
+    }
+
+    template<orientation_t O>
+    auto tile_list_traits<O>::get_list_dimension (const detail::list_base& list) const -> dim_type {
+      return get_line_count(list.get_count(), list.client_size()) * get_line_size();
     }
 
     // --------------------------------------------------------------------------
@@ -166,8 +166,9 @@ namespace gui {
     inline basic_tile_view<O, S>::basic_tile_view (const core::size& item_size,
                                                    os::color background,
                                                    bool grab_focus)
-      : super(item_size, background, grab_focus)
+      : super(background, grab_focus)
     {
+      super::set_item_size(item_size);
       init();
     }
 
@@ -333,23 +334,9 @@ namespace gui {
 
     }
 
-    // --------------------------------------------------------------------------
-    template<orientation_t O, typename S>
-    void basic_tile_view<O, S>::handle_key (os::key_state state,
-                                            os::key_symbol key,
-                                            const std::string&) {
-      const int step = super::traits.get_direction_step(key, super::client_size());
-      if (step) {
-        super::set_selection(super::get_selection().get_last_selected_index() + step,
-                              event_source::keyboard,
-                              core::shift_key_bit_mask::is_set(state));
-      }
-    }
-
     template<orientation_t O, typename S>
     void basic_tile_view<O, S>::init () {
       super::on_paint(draw::paint(this, &basic_tile_view::paint));
-      super::on_any_key_down(util::bind_method(this, &basic_tile_view::handle_key));
     }
 
     template<orientation_t O, typename S>
@@ -374,6 +361,7 @@ namespace gui {
       return super::traits.spacing;
     }
 
+    // --------------------------------------------------------------------------
   } // ctrl
 
 } // gui

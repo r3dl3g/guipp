@@ -101,11 +101,9 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T, orientation_t O>
-      inline oriented_list<T, O>::oriented_list (size_type item_size,
-                                            os::color background,
-                                            bool grab_focus)
+      inline oriented_list<T, O>::oriented_list (os::color background,
+                                                 bool grab_focus)
         : super(background, grab_focus)
-        , traits(item_size)
       {
         init();
       }
@@ -154,7 +152,7 @@ namespace gui {
                                                                 traits.get_offset_of_index(list_size, sel_idx),
                                                                 adjust);
         if (new_pos != scroll_pos) {
-          set_scroll_offset(traits.get_line_size(), new_pos);
+          set_scroll_offset(traits.get_list_dimension(*this), new_pos);
         }
       }
 
@@ -167,8 +165,8 @@ namespace gui {
               (super::get_last_mouse_point() != pt)) {
             super::set_cursor(win::cursor::move());
             auto delta = otraits::get_1(super::get_last_mouse_point()) - otraits::get_1(pt);
-            set_scroll_offset(traits.get_line_size(), get_scroll_offset() + 
-                              core::global::scale_from_native<pos_t>(delta));
+            set_scroll_offset(traits.get_list_dimension(*this),
+                              get_scroll_offset() + core::global::scale_from_native<pos_t>(delta));
             super::set_state().moved(true);
           }
           super::data.last_mouse_point = pt;
@@ -188,9 +186,9 @@ namespace gui {
       }
 
       template<typename T, orientation_t O>
-      inline void oriented_list<T, O>::set_scroll_offset (dim_type line_size,
+      inline void oriented_list<T, O>::set_scroll_offset (dim_type pos_max,
                                                           dim_type pos) {
-        auto value = std::max(dim_type(0), std::min(pos, static_cast<dim_type>(line_size * super::get_count() - otraits::get_1(super::client_size()))));
+        auto value = std::max(dim_type(0), std::min(pos, static_cast<dim_type>(pos_max - otraits::get_1(super::client_size()))));
         auto pt = super::get_scroll_pos();
         otraits::set_1(pt, value);
         super::set_scroll_pos(pt);
@@ -199,10 +197,9 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T, orientation_t O, typename S>
-      inline selectable_list<T, O, S>::selectable_list (size_type item_size,
-                                                     os::color background,
-                                                     bool grab_focus)
-        : super(item_size, background, grab_focus)
+      inline selectable_list<T, O, S>::selectable_list (os::color background,
+                                                        bool grab_focus)
+        : super(background, grab_focus)
         , adjustment(core::selection_adjustment::next)
       {
         init();
@@ -280,7 +277,7 @@ namespace gui {
         if (add) {
           selection.expand_to(new_selection);
         } else {
-          clear_selection(notify);
+          clear_selection(event_source::logic);
           selection.set_selected(new_selection);
         }
         make_selection_visible();
@@ -398,34 +395,41 @@ namespace gui {
               break;
           }
         } else {
+          const int step = super::traits.get_direction_step(key, super::client_size());
           const bool shift_pressed = core::shift_key_bit_mask::is_set(state);
-          if ((0 == state) || (core::state::shift == state)) {
-            switch (key) {
-              case core::keys::page_up:
-              case core::keys::numpad::page_up:
-                set_selection(get_selection().get_first_index() - super::traits.get_items_per_page(super::client_size()),
-                                    event_source::keyboard, shift_pressed);
-                break;
-              case core::keys::page_down:
-              case core::keys::numpad::page_down:
-                set_selection(get_selection().get_first_index() + super::traits.get_items_per_page(super::client_size()),
-                                    event_source::keyboard, shift_pressed);
-                break;
-              case core::keys::home:
-              case core::keys::numpad::home:
-                set_selection(0, event_source::keyboard, shift_pressed);
-                break;
-              case core::keys::end:
-              case core::keys::numpad::end:
-                set_selection(static_cast<int>(super::get_count()) - 1,
-                                    event_source::keyboard, shift_pressed);
-                break;
-              case core::keys::enter:
-                if (!shift_pressed && has_selection()) {
-                  super::notify_selection_commit();
-                }
-                break;
-            }
+          if (step) {
+            set_selection(get_selection().get_last_selected_index() + step,
+                          event_source::keyboard, shift_pressed);
+          }
+          switch (key) {
+            case core::keys::page_up:
+            case core::keys::numpad::page_up:
+              set_selection(get_selection().get_first_index() - 
+                            super::traits.get_items_per_page(super::client_size(),
+                                                             get_selection().get_last_selected_index()),
+                            event_source::keyboard, shift_pressed);
+              break;
+            case core::keys::page_down:
+            case core::keys::numpad::page_down:
+              set_selection(get_selection().get_first_index() +
+                            super::traits.get_items_per_page(super::client_size(),
+                                                             get_selection().get_last_selected_index()),
+                            event_source::keyboard, shift_pressed);
+              break;
+            case core::keys::home:
+            case core::keys::numpad::home:
+              set_selection(0, event_source::keyboard, shift_pressed);
+              break;
+            case core::keys::end:
+            case core::keys::numpad::end:
+              set_selection(static_cast<int>(super::get_count()) - 1,
+                                  event_source::keyboard, shift_pressed);
+              break;
+            case core::keys::enter:
+              if (!shift_pressed && has_selection()) {
+                super::notify_selection_commit();
+              }
+              break;
           }
         }
       }
@@ -435,10 +439,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T, orientation_t O, typename S>
-    inline uniform_list<T, O, S>::uniform_list (size_type item_size,
-                                                os::color background,
+    inline uniform_list<T, O, S>::uniform_list (os::color background,
                                                 bool grab_focus)
-      : super(item_size, background, grab_focus)
+      : super(background, grab_focus)
     {}
 
     template<typename T, orientation_t O, typename S>
@@ -464,7 +467,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation_t O>
-    inline linear_list_traits<O>::linear_list_traits (size_type item_size)
+    inline linear_list_traits<O>::linear_list_traits (dim_type item_size)
       : item_size(item_size)
     {}
 
@@ -488,54 +491,33 @@ namespace gui {
     }
 
     template<orientation_t O>
-    inline auto linear_list_traits<O>::get_offset_of_index (const core::size&, int idx) const -> size_type {
+    inline auto linear_list_traits<O>::get_offset_of_index (const core::size&, int idx) const -> dim_type {
       return item_size * idx;
     }
 
     template<orientation_t O>
-    inline auto linear_list_traits<O>::get_line_size () const -> size_type {
+    inline auto linear_list_traits<O>::get_list_dimension (const detail::list_base& list) const -> dim_type {
+      return get_item_dimension() * list.get_count();
+    }
+
+    template<orientation_t O>
+    inline auto linear_list_traits<O>::get_line_size () const -> dim_type {
       return item_size;
     }
 
     template<orientation_t O>
-    inline auto linear_list_traits<O>::get_item_dimension () const -> size_type {
+    inline auto linear_list_traits<O>::get_item_dimension () const -> dim_type {
       return item_size;
     }
 
     template<orientation_t O>
-    std::size_t linear_list_traits<O>::get_items_per_page (const core::size& page_size) {
+    std::size_t linear_list_traits<O>::get_items_per_page (const core::size& page_size, int) const {
       return static_cast<int>(otraits::get_1(page_size) / get_item_dimension());
     }
 
-    // --------------------------------------------------------------------------
-    template<>
-    template<typename T>
-    void linear_list_traits<orientation_t::horizontal>::handle_direction_key (T& list, bool shift_pressed, os::key_symbol key) {
-      switch (key) {
-      case core::keys::left:
-      case core::keys::numpad::left:
-        list.set_selection(list.get_selection().get_first_index() - 1, event_source::keyboard, shift_pressed);
-        break;
-      case core::keys::right:
-      case core::keys::numpad::right:
-        list.set_selection(list.get_selection().get_last_index() + 1, event_source::keyboard, shift_pressed);
-        break;
-      }
-    }
-
-    template<>
-    template<typename T>
-    void linear_list_traits<orientation_t::vertical>::handle_direction_key (T& list, bool shift_pressed, os::key_symbol key) {
-      switch (key) {
-      case core::keys::up:
-      case core::keys::numpad::up:
-        list.set_selection(list.get_selection().get_first_index() - 1, event_source::keyboard, shift_pressed);
-        break;
-      case core::keys::down:
-      case core::keys::numpad::down:
-        list.set_selection(list.get_selection().get_last_index() + 1, event_source::keyboard, shift_pressed);
-        break;
-      }
+    template<orientation_t O>
+    int linear_list_traits<O>::get_direction_step (os::key_symbol key, const core::size&) const {
+      return get_step(key);
     }
 
     // --------------------------------------------------------------------------
@@ -543,8 +525,9 @@ namespace gui {
     inline linear_list<O, S>::linear_list (core::size::type item_size,
                                            os::color background,
                                            bool grab_focus)
-      : super(item_size, background, grab_focus)
+      : super(background, grab_focus)
     {
+      super::set_item_size(item_size);
       init();
     }
 
@@ -556,10 +539,10 @@ namespace gui {
     }
 
     template<orientation_t O, typename S>
-    inline core::rectangle linear_list<O, S>::get_virtual_geometry (const core::rectangle&) const {
+    inline core::rectangle linear_list<O, S>::get_virtual_geometry (const core::rectangle& area) const {
       core::rectangle place;
-      super::otraits::set_1(place, 0, super::get_item_dimension() * super::get_count());
-      super::otraits::set_2(place, 0, 0);
+      super::otraits::set_1(place, 0, super::traits.get_list_dimension(*this));
+      super::otraits::set_2(place, 0, super::otraits::get_2(area.size()));
       return place;
     }
 
@@ -603,22 +586,12 @@ namespace gui {
         draw::frame::dots(graph, area);
       }
 
-      }
-
-    template<orientation_t O, typename S>
-    void linear_list<O, S>::handle_key (os::key_state state,
-                                     os::key_symbol key,
-                                     const std::string&) {
-      const bool shift_pressed = (core::state::shift == state);
-      if ((0 == state) || shift_pressed) {
-        super::traits.handle_direction_key(*this, shift_pressed, key);
-      }
     }
+
 
     template<orientation_t O, typename S>
     void linear_list<O, S>::init () {
       super::on_paint(draw::paint(this, &linear_list::paint));
-      super::on_any_key_down(util::bind_method(this, &linear_list::handle_key));
       super::on_show([&] () {
         super::invalidate();
       });

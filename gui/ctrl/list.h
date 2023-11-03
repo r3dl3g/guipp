@@ -307,24 +307,22 @@ namespace gui {
         typedef list_base super;
         typedef T traits_type;
         typedef core::orientation_traits<O> otraits;
-        typedef typename traits_type::size_type size_type;
         typedef typename traits_type::dim_type dim_type;
 
-        explicit oriented_list (size_type item_size,
-                               os::color background = color::white,
-                               bool grab_focus = true);
+        explicit oriented_list (os::color background = color::white,
+                                bool grab_focus = true);
 
         oriented_list (oriented_list&& rhs) noexcept;
 
         int get_index_at_point (const core::point& pt);
         core::rectangle get_geometry_of_index (int idx);
 
-        int get_items_per_page ();
+        int get_items_per_page (int idx) const;
 
         void make_entry_visible (int, core::selection_adjustment);
 
         dim_type get_scroll_offset () const;
-        void set_scroll_offset (dim_type line_size, dim_type pos);
+        void set_scroll_offset (dim_type pos_max, dim_type pos);
 
       protected:
         void handle_mouse_move (os::key_state keys, const core::native_point& pt);
@@ -344,12 +342,10 @@ namespace gui {
       public:
         typedef oriented_list<T, O> super;
         typedef typename super::traits_type traits_type;
-        typedef typename super::size_type size_type;
         typedef S selector_type;
         typedef typename selector_type::selection_type selection_type;
 
-        explicit selectable_list (size_type item_size,
-                                  os::color background = color::white,
+        explicit selectable_list (os::color background = color::white,
                                   bool grab_focus = true);
 
         selectable_list (selectable_list&& rhs) noexcept;
@@ -378,9 +374,8 @@ namespace gui {
 
       public:
         void handle_left_btn_up (os::key_state keys, const core::native_point& pt);
-        void handle_key (os::key_state,
-                        os::key_symbol key,
-                        const std::string&);
+        void handle_key (os::key_state, os::key_symbol key, const std::string&);
+        void handle_direction_key (bool shift_pressed, os::key_symbol key);
 
       protected:
         selector_type selection;
@@ -404,9 +399,8 @@ namespace gui {
       typedef typename super::pos_t pos_t;
       typedef basic_scroll_bar<O> scroll_bar_type;
 
-      explicit uniform_list (size_type item_size,
-                  os::color background = color::white,
-                  bool grab_focus = true);
+      explicit uniform_list (os::color background = color::white,
+                             bool grab_focus = true);
 
       dim_type get_item_dimension () const;
 
@@ -415,37 +409,6 @@ namespace gui {
 
       void set_item_size_and_background (size_type item_size, os::color background);
 
-    };
-
-    // --------------------------------------------------------------------------
-    template<orientation_t O>
-    struct linear_list_traits {
-      typedef core::orientation_traits<O> otraits;
-      typedef core::size::type size_type;
-      typedef core::size::type dim_type;
-
-      explicit linear_list_traits (size_type item_size);
-
-      size_type get_offset_of_index (const core::size& list_size, int idx) const;
-
-      int get_index_at_point (const core::rectangle& list_size,
-                              const core::point& pt,
-                              const core::point& scroll_pos,
-                              size_t /*count*/) const;
-
-      core::rectangle get_geometry_of_index (const core::rectangle& list_size,
-                                             int idx,
-                                             const core::point& scroll_pos) const;
-
-      std::size_t get_items_per_page (const core::size& page_size);
-
-      size_type get_line_size () const;
-      size_type get_item_dimension () const;
-
-      template<typename T>
-      void handle_direction_key (T& list, bool shift_pressed, os::key_symbol key);
-
-      size_type item_size;
     };
 
     // --------------------------------------------------------------------------
@@ -460,6 +423,47 @@ namespace gui {
     struct list_defaults<core::os::ui_t::desktop> {
       static constexpr core::size::type item_size = 20;
     };
+
+    // --------------------------------------------------------------------------
+    template<orientation_t O>
+    struct linear_list_traits {
+      typedef core::orientation_traits<O> otraits;
+      typedef core::size::type size_type;
+      typedef core::size::type dim_type;
+
+      explicit linear_list_traits (dim_type item_size = list_defaults<>::item_size);
+
+      dim_type get_offset_of_index (const core::size& list_size, int idx) const;
+
+      int get_index_at_point (const core::rectangle& list_size,
+                              const core::point& pt,
+                              const core::point& scroll_pos,
+                              size_t /*count*/) const;
+
+      core::rectangle get_geometry_of_index (const core::rectangle& list_size,
+                                             int idx,
+                                             const core::point& scroll_pos) const;
+
+      std::size_t get_items_per_page (const core::size& page_size, int idx) const;
+
+      dim_type get_list_dimension (const detail::list_base& list) const;
+
+      dim_type get_line_size () const;
+      dim_type get_item_dimension () const;
+
+      int get_direction_step (os::key_symbol key, const core::size& list_size) const;
+      
+      static int get_step (os::key_symbol key);
+
+      dim_type item_size;
+    };
+
+    // --------------------------------------------------------------------------
+    template<>
+    GUIPP_CTRL_EXPORT int linear_list_traits<orientation_t::horizontal>::get_step (os::key_symbol);
+
+    template<>
+    GUIPP_CTRL_EXPORT int linear_list_traits<orientation_t::vertical>::get_step (os::key_symbol);
 
     // --------------------------------------------------------------------------
     template<orientation_t O, typename S = core::selector::single>
@@ -478,10 +482,6 @@ namespace gui {
 
       void paint (draw::graphics& graph);
 
-    public:
-      void handle_key (os::key_state,
-                      os::key_symbol key,
-                      const std::string&);
     private:
       void init ();
     };

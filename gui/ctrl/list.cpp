@@ -115,6 +115,37 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
+    template<>
+    int linear_list_traits<orientation_t::horizontal>::get_step (os::key_symbol key) {
+      switch (key) {
+      case core::keys::left:
+      case core::keys::numpad::left:
+        return -1;
+        break;
+      case core::keys::right:
+      case core::keys::numpad::right:
+        return 1;
+        break;
+      }
+      return 0;
+    }
+
+    template<>
+    int linear_list_traits<orientation_t::vertical>::get_step (os::key_symbol key) {
+      switch (key) {
+      case core::keys::up:
+      case core::keys::numpad::up:
+        return -1;
+        break;
+      case core::keys::down:
+      case core::keys::numpad::down:
+        return 1;
+        break;
+      }
+      return 0;
+    }
+
+    // --------------------------------------------------------------------------
     void edit_list::init () {
       super::on_selection_commit(util::bind_method(this, &edit_list::enter_edit));
 

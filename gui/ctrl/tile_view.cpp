@@ -26,7 +26,8 @@ namespace gui {
   namespace ctrl {
 
     template<>
-    int tile_list_traits<orientation_t::horizontal>::get_direction_step (os::key_symbol key, const core::size& list_size) const {
+    int tile_list_traits<orientation_t::horizontal>::get_direction_step (os::key_symbol key,
+                                                                         const core::size& list_size) const {
       switch (key) {
         case core::keys::left:
         case core::keys::numpad::left:
@@ -45,7 +46,8 @@ namespace gui {
     }
 
     template<>
-    int tile_list_traits<orientation_t::vertical>::get_direction_step (os::key_symbol key, const core::size& list_size) const {
+    int tile_list_traits<orientation_t::vertical>::get_direction_step (os::key_symbol key,
+                                                                       const core::size& list_size) const {
       switch (key) {
         case core::keys::left:
         case core::keys::numpad::left:

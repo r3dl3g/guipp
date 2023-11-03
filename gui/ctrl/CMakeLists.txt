@@ -34,6 +34,7 @@ if(NOT TARGET ${PROJECT_NAME})
       textbox.cpp
       tile_view.cpp
       title_view.cpp
+      uneven_list.cpp
   )
 
   file(GLOB INCLUDE_FILES "*.h" "*.inl")

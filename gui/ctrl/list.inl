@@ -37,8 +37,8 @@ namespace gui {
       }
 
       template<typename U, list_item_drawer<U> D, typename C>
-      inline void list_base::set_data (const C& data) {
-        data.items = indirect_list_data<U, D, C>(data);
+      inline void list_base::set_data (const C& dta) {
+        data.items = indirect_list_data<U, D, C>(dta);
         super::invalidate();
       }
 

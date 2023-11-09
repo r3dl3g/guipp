@@ -254,6 +254,16 @@ namespace gui {
     }
 
     template<typename T, coordinate_system C>
+    inline auto basic_point<T, C>::with_x (type x) const -> self {
+      return {x, y()};
+    }
+
+    template<typename T, coordinate_system C>
+    inline auto  basic_point<T, C>::with_y (type y) const -> self {
+      return {x(), y};
+    }
+
+    template<typename T, coordinate_system C>
     inline auto basic_point<T, C>::operator= (const self& rhs) -> self& {
       x_ = rhs.x_;
       y_ = rhs.y_;

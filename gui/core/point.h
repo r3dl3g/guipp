@@ -100,6 +100,9 @@ namespace gui {
       self dy (type y) const;
       self dxy (type x, type y) const;
 
+      self with_x (type x) const;
+      self with_y (type y) const;
+
     private:
       type x_;
       type y_;

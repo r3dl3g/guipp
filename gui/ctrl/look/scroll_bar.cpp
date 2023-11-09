@@ -69,12 +69,12 @@ namespace gui {
       if (!page_up.empty()) {
         g.fill(draw::rectangle(page_up),
                select == ctrl::scrollbar_item::page_up ? color::very_light_gray
-                                                       : color::very_very_light_gray);
+                                                       : color::light_gray);
       }
       if (!page_down.empty()) {
         g.fill(draw::rectangle(page_down + core::size::one),
                select == ctrl::scrollbar_item::page_down ? color::very_light_gray
-                                                         : color::very_very_light_gray);
+                                                         : color::light_gray);
       }
       os::color col = is_enabled ? color::black : color::gray;
       if (!up.empty()) {

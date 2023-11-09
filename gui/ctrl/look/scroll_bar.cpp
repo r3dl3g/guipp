@@ -68,13 +68,13 @@ namespace gui {
                                             const core::rectangle& page_down) {
       if (!page_up.empty()) {
         g.fill(draw::rectangle(page_up),
-               select == ctrl::scrollbar_item::page_up ? color::light_gray
-                                                       : color::very_light_gray);
+               select == ctrl::scrollbar_item::page_up ? color::very_light_gray
+                                                       : color::very_very_light_gray);
       }
       if (!page_down.empty()) {
         g.fill(draw::rectangle(page_down + core::size::one),
-               select == ctrl::scrollbar_item::page_down ? color::light_gray
-                                                         : color::very_light_gray);
+               select == ctrl::scrollbar_item::page_down ? color::very_light_gray
+                                                         : color::very_very_light_gray);
       }
       os::color col = is_enabled ? color::black : color::gray;
       if (!up.empty()) {
@@ -223,7 +223,7 @@ namespace gui {
         if (ctrl::scrollbar_item::thumb_button == select) {
           g.fill(draw::round_rectangle(r, 4), gray128);
         } else {
-         g.fill(draw::round_rectangle(r, 4), gray195);
+          g.fill(draw::round_rectangle(r, 4), gray195);
         }
       }
       core::rectangle full = thumb | page_up | page_down;

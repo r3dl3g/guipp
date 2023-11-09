@@ -36,11 +36,19 @@ namespace gui {
     };
 
     const look_and_feel_t system_look_and_feel =
-#ifdef __APPLE__
+#if defined(GUIPP_LOOK_AND_FEEL_APPLE)
       look_and_feel_t::osx;
-#elif WIN32
+#elif defined(GUIPP_LOOK_AND_FEEL_WIN32)
       look_and_feel_t::w10;
-#elif unix
+#elif defined(GUIPP_LOOK_AND_FEEL_UNIX)
+      look_and_feel_t::metal;
+#elif defined(GUIPP_LOOK_AND_FEEL_W95)
+      look_and_feel_t::w95;
+#elif defined(__APPLE__)
+      look_and_feel_t::osx;
+#elif defined(WIN32)
+      look_and_feel_t::w10;
+#elif defined(unix)
       look_and_feel_t::metal;
 #else
       look_and_feel_t::w95;

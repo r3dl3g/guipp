@@ -36,6 +36,10 @@ option(GUIPP_BUILD_DEPENDENT_LIBS "On to build dependent libs logging, util and 
 option(GUIPP_USE_XCB "On to make use of the xcb library. Default Off" OFF)
 option(GUIPP_USE_QT5 "On to make use of the Qt5 library. Default Off" OFF)
 option(GUIPP_USE_QT6 "On to make use of the Qt6 library. Default Off" OFF)
+option(GUIPP_LOOK_AND_FEEL_APPLE "Use Apple L&F. Default automatic" OFF)
+option(GUIPP_LOOK_AND_FEEL_WIN32 "Use Windows 10 L&F. Default automatic" OFF)
+option(GUIPP_LOOK_AND_FEEL_UNIX "Use Gnome L&F. Default automatic" OFF)
+option(GUIPP_LOOK_AND_FEEL_W95 "Use Windows 95 L&F. Default automatic" OFF)
 option(VERBOSE "Print messages during cmake run" OFF)
 set(GUIPP_CXX_STANDARD "${CMAKE_CXX_STANDARD}" CACHE STRING "C++ standard to overwrite default cmake standard")
 
@@ -114,6 +118,20 @@ if(NOT TARGET guipp)
   if(GUIPP_BUILD_FOR_MOBILE)
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_BUILD_FOR_MOBILE)
   endif()
+
+  if(GUIPP_LOOK_AND_FEEL_APPLE)
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_LOOK_AND_FEEL_APPLE)
+  endif()
+  if(GUIPP_LOOK_AND_FEEL_WIN32)
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_LOOK_AND_FEEL_WIN32)
+  endif()
+  if(GUIPP_LOOK_AND_FEEL_UNIX)
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_LOOK_AND_FEEL_UNIX)
+  endif()
+  if(GUIPP_LOOK_AND_FEEL_W95)
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_LOOK_AND_FEEL_W95)
+  endif()
+
 
   set(GUIPP_INCLUDE_DIRS
     ${LOGGING_INCLUDE_DIRS}

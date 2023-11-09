@@ -61,7 +61,7 @@ namespace gui {
       "north", "east", "south", "west",
       "north_east","north_west", "south_east", "south_west",
       "new_blink", "new_folder", "new_file",
-      "fullscreen", "restore",
+      "fullscreen", "restore", "calc", "database", "coin", "coins",
       "background",
       "MAX"
     };
@@ -850,16 +850,73 @@ namespace gui {
       g.frame(draw::polyline({p13, p12, p02}), pn);
     }
     // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::calc> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      core::rectangle r{center - core::size{radius, radius}, core::size{radius+radius+1, radius+radius+1}};
+      g.frame(draw::round_rectangle(r, radius/2), pn);
+
+      const auto tl = r.top_left();
+      const auto br = r.bottom_right();
+      const auto dx = r.width() / 4;
+      const auto dy = r.height() / 5;
+      const auto x0 = tl.x() + dx;
+      const auto y0 = tl.y() + dy;
+      const auto w = dx / 3;
+      const auto h = dy / 3;
+
+      g.frame(draw::round_rectangle(core::rectangle{core::point{x0 - w, y0 - h},
+                                                    core::point{x0 + 2 * dx + w - 2, y0 + h - 2}},
+                                    w), pn);
+      for (int x = 0; x < 3; ++x) {
+        for (int y = 1; y < 4; ++y) {
+          g.frame(draw::arc(core::rectangle{x0 + x * dx - w, y0 + y * dy - h, w * 2, h * 2}, 0, 360), pn);
+        }
+      }
+
+    }
+    // --------------------------------------------------------------------------
+    void draw_coin (graphics& g, const pen& pn, const core::point& tl, const core::point& br, float fy) {
+      const auto dx = (br.x() - tl.x());
+      const auto dy = (br.y() - tl.y());
+      const auto dy4 = dy * fy;
+
+      g.frame(draw::arc(core::rectangle(tl.dy(-dy4 / 2), core::size{dx, dy4}), 0, 360), pn);
+      g.frame(draw::arc(core::rectangle(tl.dy(dy4 * (1.0F / fy - 0.5F)), core::size{dx, dy4}), 180, 360), pn);
+      g.frame(draw::line(tl, {tl.x(), br.y()}), pn);
+      g.frame(draw::line({br.x(), tl.y()}, br), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::database> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      const auto tl = calc_clock_point<315>(center, radius);
+      const auto br = calc_clock_point<135>(center, radius);
+      draw_coin(g, pn, tl, br, 0.5F);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::coin> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      auto tl = calc_clock_point<280>(center, radius);
+      auto br = calc_clock_point<100>(center, radius);
+      draw_coin(g, pn, tl, br, 1.0F);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::coins> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      auto tl = calc_clock_point<280>(center, radius);
+      auto br = calc_clock_point<100>(center, radius);
+      const auto dy = (br.y() - tl.y()) * 2.0F;
+      draw_coin(g, pn, tl.dy(-dy), br.dy(-dy), 1.0F);
+      draw_coin(g, pn, tl, br, 1.0F);
+      draw_coin(g, pn, tl.dy(dy), br.dy(dy), 1.0F);
+    }
+    // --------------------------------------------------------------------------
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_type::background> (graphics& g, const pen&, const core::point& center, core::size::type radius) {
       pen pn{color::gray, 0.333F};
       core::size sz{radius, radius};
-//      core::size sz2{radius/2, radius/2};
       g.frame(draw::arc(center, radius, 0, 360), pn);
       g.frame(draw::arc(center, radius/2, 0, 360), pn);
-//      g.frame(draw::ellipse(center - sz, center + sz), pn);
-//      g.frame(draw::ellipse(center - sz2, center + sz2), pn);
 
       const auto tl = center.dxy(-radius, -radius);
       const auto tr = center.dxy(radius, -radius);
@@ -867,10 +924,6 @@ namespace gui {
       const auto br = center.dxy(radius, radius);
       g.frame(draw::line(tl, br), pn);
       g.frame(draw::line(bl, tr), pn);
-//      g.frame(draw::line(tl, tr), pn);
-//      g.frame(draw::line(tr, br), pn);
-//      g.frame(draw::line(bl, br), pn);
-//      g.frame(draw::line(tl, bl), pn);
       g.frame(draw::rectangle(center - sz, center + sz), pn);
     }
     // --------------------------------------------------------------------------

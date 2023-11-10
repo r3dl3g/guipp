@@ -88,6 +88,7 @@ namespace gui {
       north_east,north_west, south_east, south_west,
       new_blink, new_folder, new_file,
       fullscreen, restore, calc, database, coin, coins,
+      filter, mask, flash, flash15, flash30, flash45,
       background,
       MAX
     };
@@ -214,6 +215,13 @@ namespace gui {
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::database> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::coin> (graphics&, const pen&, const core::point&, core::size::type);
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::coins> (graphics&, const pen&, const core::point&, core::size::type);
+
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::filter> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::mask> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::flash> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::flash15> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::flash30> (graphics&, const pen&, const core::point&, core::size::type);
+    template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::flash45> (graphics&, const pen&, const core::point&, core::size::type);
 
     template<> GUIPP_DRAW_EXPORT void draw_icon<icon_type::background> (graphics&, const pen&, const core::point&, core::size::type);
     // --------------------------------------------------------------------------

@@ -62,6 +62,7 @@ namespace gui {
       "north_east","north_west", "south_east", "south_west",
       "new_blink", "new_folder", "new_file",
       "fullscreen", "restore", "calc", "database", "coin", "coins",
+      "filter", "mask", "flash", "flash15", "flash30", "flash45",
       "background",
       "MAX"
     };
@@ -728,9 +729,8 @@ namespace gui {
       const auto p0 = calc_clock_point<I+180>(center, radius);
       const auto p1 = calc_clock_point<I>(center, radius);
       const auto p2 = calc_clock_point<I-45>(center, radius/2);
-      const auto p3 = calc_clock_point<I>(center, radius);
-      const auto p4 = calc_clock_point<I+45>(center, radius/2);
-      return {p0, p1, p2, p3, p4};
+      const auto p3 = calc_clock_point<I+45>(center, radius/2);
+      return {p0, p1, p2, p1, p3};
     }
     // --------------------------------------------------------------------------
     template<>
@@ -895,19 +895,79 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_type::coin> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
-      auto tl = calc_clock_point<280>(center, radius);
-      auto br = calc_clock_point<100>(center, radius);
+      const auto tl = calc_clock_point<280>(center, radius);
+      const auto br = calc_clock_point<100>(center, radius);
       draw_coin(g, pn, tl, br, 1.0F);
     }
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_type::coins> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
-      auto tl = calc_clock_point<280>(center, radius);
-      auto br = calc_clock_point<100>(center, radius);
+      const auto tl = calc_clock_point<280>(center, radius);
+      const auto br = calc_clock_point<100>(center, radius);
       const auto dy = (br.y() - tl.y()) * 2.0F;
       draw_coin(g, pn, tl.dy(-dy), br.dy(-dy), 1.0F);
       draw_coin(g, pn, tl, br, 1.0F);
       draw_coin(g, pn, tl.dy(dy), br.dy(dy), 1.0F);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::filter> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      const auto tl = calc_clock_point<315>(center, radius);
+      const auto tr = calc_clock_point<45>(center, radius);
+      const auto ml = calc_clock_point<270>(center, radius / 8);
+      const auto mr = calc_clock_point<90>(center, radius / 8);
+      const auto p = calc_clock_point<135>(center, radius);
+      g.frame(draw::polyline({ml.with_y(p.y()), ml, tl, tr, mr, mr.with_y(p.y())}), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::mask> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      auto tm = calc_clock_point<0>(center, radius / 4);
+      auto tl = calc_clock_point<290>(center, radius);
+      auto tr = calc_clock_point<70>(center, radius);
+      auto ml = calc_clock_point<250>(center, radius * 0.8F);
+      auto mr = calc_clock_point<110>(center, radius * 0.8F);
+      auto bl = calc_clock_point<225>(center, radius / 3);
+      auto br = calc_clock_point<135>(center, radius / 3);
+      auto l = calc_clock_point<270>(center, radius * 2 / 5);
+      auto r = calc_clock_point<90>(center, radius * 2 / 5);
+      g.frame(draw::polygon({center, bl, ml, tl, tm, tr, mr, br}), pn);
+      g.frame(draw::ellipse(core::rectangle(l.x() - radius/4, l.y() - radius/8, radius/2, radius/4)), pn);
+      g.frame(draw::ellipse(core::rectangle(r.x() - radius/4, r.y() - radius/8, radius/2, radius/4)), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<int I>
+    std::vector<core::point> flash_points (const point& center, size::type radius) {
+      const auto tr = calc_clock_point<I+0>(center, radius);
+      const auto ml = calc_clock_point<I+225>(center, radius / 2);
+      const auto mr = calc_clock_point<I+45>(center, radius / 2);
+      const auto bl = calc_clock_point<I+180>(center, radius);
+      const auto p1 = calc_clock_point<I+195>(center, radius);
+      const auto p2 = calc_clock_point<I+195-10>(center, radius*4/5);
+      const auto p4 = calc_clock_point<I+195+10>(center, radius*4/5);
+      const auto dx = bl.x() - p1.x();
+      const auto dy = bl.y() - p1.y();
+      return {tr, ml, mr, bl, p2.dxy(dx, dy), bl, p4.dxy(dx, dy)};
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::flash> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline({flash_points<0>(center, radius)}), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::flash15> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline({flash_points<15>(center, radius)}), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::flash30> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline({flash_points<30>(center, radius)}), pn);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    void draw_icon<icon_type::flash45> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
+      g.frame(draw::polyline({flash_points<45>(center, radius)}), pn);
     }
     // --------------------------------------------------------------------------
     // --------------------------------------------------------------------------

@@ -188,6 +188,7 @@ namespace gui {
 
     template<class T, button_drawer BG, text_button_drawer D>
     void basic_text_button<T, BG, D>::init () {
+      super::set_foreground(color::buttonTextColor());
       super::on_paint(draw::paint([&](draw::graphics& graph) {
         D(graph, super::client_geometry(), get_text(), super::get_state(),
           super::get_foreground(), super::get_background());

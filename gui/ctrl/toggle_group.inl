@@ -24,6 +24,7 @@ namespace gui {
     template<orientation_t O, typename B, typename L>
     toggle_group<O, B, L>::toggle_group ()
       : selection(-1)
+      , foreground(color::buttonTextColor())
     {
       super::on_create([&] () {
         for (auto& b : buttons) {
@@ -135,6 +136,9 @@ namespace gui {
     template<orientation_t O, typename B, typename L>
     void toggle_group<O, B, L>::set_foreground (os::color c) {
       foreground = c;
+      for (auto& b : buttons) {
+        b->set_foreground(foreground);
+      }
     }
 
     template<orientation_t O, typename B, typename L>

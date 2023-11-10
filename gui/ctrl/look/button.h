@@ -280,14 +280,14 @@ namespace gui {
     GUIPP_LOOK_EXPORT void switch_button (draw::graphics& graph,
                                           const core::rectangle& rect,
                                           const core::button_state::is& state,
-                                          os::color foreground = color::highLightColor(),
+                                          os::color foreground = color::buttonTextColor(),
                                           os::color background = color::buttonColor());
 
     GUIPP_LOOK_EXPORT void switch_button_text (draw::graphics& graph,
                                                const core::rectangle& rect,
                                                const std::string& text,
                                                const core::button_state::is& state,
-                                               os::color foreground = color::highLightColor(),
+                                               os::color foreground = color::buttonTextColor(),
                                                os::color background = color::buttonColor());
 
     // --------------------------------------------------------------------------
@@ -319,7 +319,7 @@ namespace gui {
                                             const core::rectangle& rect,
                                             const std::string& text,
                                             const core::button_state::is& state,
-                                            os::color foreground = color::highLightColor(),
+                                            os::color foreground = color::buttonTextColor(),
                                             os::color background = color::buttonColor());
 
     // --------------------------------------------------------------------------

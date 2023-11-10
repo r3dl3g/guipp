@@ -39,12 +39,11 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     button_base::button_base (os::color f)
-      : foreground(f)
+      : super(f)
     {}
 
     button_base::button_base (button_base&& rhs) noexcept
       : super(std::move(rhs))
-      , foreground(rhs.foreground)
     {}
 
     void button_base::set_hilited (bool on) {
@@ -82,14 +81,6 @@ namespace gui {
 
     void button_base::on_state_changed (button_state_event::function&& f) {
       on<button_state_event>(std::move(f));
-    }
-
-    void button_base::set_foreground (os::color c) {
-      foreground = c;
-    }
-
-    os::color button_base::get_foreground () const {
-      return foreground;
     }
 
     // --------------------------------------------------------------------------

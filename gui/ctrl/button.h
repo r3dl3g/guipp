@@ -95,9 +95,9 @@ namespace gui {
                                        os::color); // background
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT button_base : public control {
+    class GUIPP_CTRL_EXPORT button_base : public colored_control {
     public:
-      typedef control super;
+      typedef colored_control super;
       typedef win::no_erase_window_class<button_base> clazz;
 
       button_base (os::color foreground = color::windowTextColor());
@@ -122,12 +122,6 @@ namespace gui {
       void on_pushed (std::function<void()>&& f);
       void on_released (std::function<void()>&& f);
       void on_state_changed (std::function<void(bool)>&& f);
-
-      void set_foreground (os::color c);
-      os::color get_foreground () const;
-
-    protected:
-      os::color foreground;
 
     };
 

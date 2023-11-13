@@ -139,19 +139,34 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    template<typename U>
+    struct default_limiter {
+      using T = typename std::remove_reference<U>::type;
+
+      inline T operator() (const T& t) {
+        return t;
+      }
+    };
+
+    // --------------------------------------------------------------------------
     template<typename T>
     bool default_insert_mode () {
       return false;
     }
 
     // --------------------------------------------------------------------------
-    template<typename T, typename F = default_converter<T>>
+    template<typename T,
+             typename F = default_converter<T>,
+             typename L = default_limiter<T>>
     class edit_t : public detail::edit_base {
     public:
       typedef detail::edit_base super;
+      typedef F converter_type;
+      typedef L limiter_type;
+
       using type = typename std::remove_reference<T>::type;
 
-      edit_t (T = {});
+      edit_t (T = {}, limiter_type l = {});
 
       std::string get_text () const override;
       void set_text (const std::string&) override;
@@ -159,20 +174,28 @@ namespace gui {
       void set (const type& t);
       type get () const;
 
+      void set_limiter (limiter_type l);
+      limiter_type get_limiter () const;
+
     private:
       T value;
+      limiter_type limiter;
     };
 
     // --------------------------------------------------------------------------
     template<typename T = std::string,
              typename F = default_converter<T>,
+             typename L = default_limiter<T>,
              text_origin_t origin = text_origin_t::vcenter_left,
              draw::frame::drawer frame = draw::frame::sunken_relief>
-    class basic_edit : public edit_t<T, F> {
+    class basic_edit : public edit_t<T, F, L> {
     public:
-      typedef edit_t<T, F> super;
+      typedef edit_t<T, F, L> super;
+      typedef typename super::type type;
+      typedef typename super::converter_type converter_type;
+      typedef typename super::limiter_type limiter_type;
 
-      basic_edit (T = {});
+      basic_edit (T = {}, limiter_type l = {});
       basic_edit (const basic_edit& rhs);
       basic_edit (basic_edit&& rhs) noexcept;
 
@@ -188,9 +211,11 @@ namespace gui {
     typedef edit_left edit;
     using edit_right = basic_edit<std::string,
                                   default_converter<std::string>,
+                                  default_limiter<std::string>,
                                   text_origin_t::vcenter_right>;
     using edit_center = basic_edit<std::string,
                                    default_converter<std::string>,
+                                   default_limiter<std::string>,
                                    text_origin_t::center>;
 
     // --------------------------------------------------------------------------

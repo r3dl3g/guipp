@@ -44,6 +44,7 @@ namespace gui {
         }
       };
 
+    // --------------------------------------------------------------------------
       struct duration_converter {
         static inline util::time::duration parse (const std::string& t) {
           return util::time::parse_duration(t);
@@ -64,6 +65,7 @@ namespace gui {
         }
       };
 
+    // --------------------------------------------------------------------------
       template<typename T>
       struct type_increment {
         static constexpr typename std::remove_reference<T>::type inc = 1;
@@ -74,22 +76,70 @@ namespace gui {
         static constexpr float inc = 0.01;
       };
 
+    // --------------------------------------------------------------------------
+      template<typename T>
+      struct min_limiter {
+        min_limiter (T mi = std::numeric_limits<T>::min())
+          : minimum(mi)
+        {}
+
+        inline T operator() (T t) {
+          return std::max(t, minimum);
+        }
+
+        T minimum;
+      };
+
+      template<typename T>
+      struct max_limiter {
+        max_limiter (T ma = std::numeric_limits<T>::max())
+          : maximum(ma)
+        {}
+
+        inline T operator() (T t) {
+          return std::min(t, maximum);
+        }
+
+        T maximum;
+      };
+
+      template<typename T>
+      struct min_max_limiter {
+        min_max_limiter (T mi = std::numeric_limits<T>::min(),
+                         T ma = std::numeric_limits<T>::max())
+          : minimum(mi)
+          , maximum(ma)
+        {}
+
+        inline T operator() (T t) {
+          return std::clamp(t, minimum, maximum);
+        }
+
+        T minimum;
+        T maximum;
+      };
+
     } // namespace detail
 
     // --------------------------------------------------------------------------
     template<typename T,
              typename F = default_converter<T>,
+             typename M = default_limiter<T>,
              typename B = button_pair<orientation_t::vertical>,
              typename L = layout::split_layout<alignment_t::right, 20>>
     class number_edit : public group_control<L> {
     public:
       typedef group_control<L> super;
       typedef L layout_t;
-      typedef basic_edit<T, F> edit_t;
+      typedef basic_edit<T, F, M> edit_t;
       typedef typename edit_t::type type;
+      typedef typename edit_t::converter_type converter_type;
+      typedef typename edit_t::limiter_type limiter_type;
       typedef B buttons_t;
 
-      number_edit (T&& v = type(), type i = detail::type_increment<T>::inc);
+      number_edit (T v = {},
+                   type i = detail::type_increment<T>::inc,
+                   limiter_type l = {});
 
       void init ();
 
@@ -112,7 +162,7 @@ namespace gui {
       typedef group_control<layout::horizontal_adaption<>> super;
       typedef number_edit<int&, detail::offset_converter<1900>> year_edit_t;
       typedef number_edit<int&, detail::offset_converter<1>> month_edit_t;
-      typedef number_edit<int&> int_edit_t;
+      typedef number_edit<int&, default_converter<int>> int_edit_t;
       typedef util::time::time_point time_point;
 
       date_time_edit_base (const time_point& v = std::chrono::system_clock::now());

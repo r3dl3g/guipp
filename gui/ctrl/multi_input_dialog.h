@@ -30,41 +30,55 @@ namespace gui {
 
   namespace ctrl {
 
+    namespace detail {
+      //-----------------------------------------------------------------------------
+      template<typename T, typename C>
+      struct selectable_option {
+        T value;
+        C options;
+      };
+
+      template<typename T, typename L>
+      struct limited_number {
+        T value;
+        L limiter;
+      };
+    
+    } // namespace detail
+    
     //-----------------------------------------------------------------------------
     template<typename T, typename C>
-    struct selectable_option {
-      T value;
-      C options;
-    };
-
-    template<typename T, typename C>
-    selectable_option<T, C> mk_selectable_option (const T& current, const C& options) {
+    detail::selectable_option<T, C> mk_selectable_option (const T& current, const C& options) {
       return {current, options};
+    }
+
+    template<typename T, typename L>
+    detail::limited_number<T, L> mk_limited_number (const T& current, const L& limiter) {
+      return {current, limiter};
     }
 
     //-----------------------------------------------------------------------------
     namespace input {
 
+      template<typename T, typename L>
+      class limited_number_edit : public number_edit<T, default_converter<T>, L> {
+      public:
+        typedef number_edit<T, default_converter<T>, L> super;
+
+        T get () const;
+        void set (const detail::limited_number<T, L>& l);
+
+      };
+
       template<typename T, typename C>
       class option_list : public drop_down_list {
       public:
-        option_list ()
-        {}
+        T get () const;
+        void set (const detail::selectable_option<T, C>& o);
 
-        T get () const {
-          return options[get_selection()];
-        }
-
-        void set (const selectable_option<T, C>& o) {
-          options = o.options;
-          set_data<T>(options);
-          auto i = std::find(options.begin(), options.end(), o.value);
-          if (i != options.end()) {
-            set_selection(std::distance(options.begin(), i), event_source::logic);
-          }
-        }
-
+      private:
         C options;
+
       };
 
       using label_t = basic_label<text_origin_t::bottom_left,
@@ -83,9 +97,15 @@ namespace gui {
       };
 
       template<typename T, typename C>
-      struct controls<selectable_option<T, C>> {
+      struct controls<detail::selectable_option<T, C>> {
         label_t label;
         option_list<T, C> editor;
+      };
+
+      template<typename T, typename L>
+      struct controls<detail::limited_number<T, L>> {
+        label_t label;
+        limited_number_edit<T, L> editor;
       };
 
       template<>
@@ -105,9 +125,8 @@ namespace gui {
         ctrl::date_time_header_line<util::time::time_point> label;
         ctrl::date_time_edit<util::time::time_point> editor;
 
-        inline controls ()
-          :label(editor)
-        {}
+        controls ();
+
       };
 
       template<>
@@ -122,11 +141,16 @@ namespace gui {
       };
 
       template<typename T, typename C>
-      struct value_type<selectable_option<T, C>> {
+      struct value_type<detail::selectable_option<T, C>> {
         typedef T type;
       };
 
-    }
+      template<typename T, typename C>
+      struct value_type<detail::limited_number<T, C>> {
+        typedef T type;
+      };
+
+    } // namespace input
 
     //-----------------------------------------------------------------------------
     template<typename ... Arguments>
@@ -147,7 +171,7 @@ namespace gui {
 
       void create (win::overlapped_window& parent,
                    const std::string& title,
-                   const std::vector<std::string>& message,
+                   const std::array<std::string, N>& message,
                    const init_types& initial,
                    const std::string& ok_label,
                    const std::string& cancel_label,
@@ -156,11 +180,13 @@ namespace gui {
 
       static void ask (win::overlapped_window& parent,
                        const std::string& title,
-                       const std::vector<std::string>& message,
+                       const std::array<std::string, N>& message,
                        const init_types& initial,
                        const std::string& ok_label,
                        const std::string& cancel_label,
                        std::function<action> action);
+
+      static core::rectangle get_standard_size (win::overlapped_window& parent);
 
       controls_types edits;
     };

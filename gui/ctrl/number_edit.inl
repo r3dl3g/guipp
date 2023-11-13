@@ -22,16 +22,16 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-    template<typename T, typename F, typename B, typename L>
-    inline number_edit<T, F, B, L>::number_edit (T&& v, type i)
+    template<typename T, typename F, typename M, typename B, typename L>
+    inline number_edit<T, F, M, B, L>::number_edit (T v, type i, limiter_type l)
       : increment(i)
-      , edit(std::forward<T>(v))
+      , edit(std::forward<T>(v), std::forward<M>(l))
     {
       init();
     }
 
-    template<typename T, typename F, typename B, typename L>
-    void number_edit<T, F, B, L>::init () {
+    template<typename T, typename F, typename M, typename B, typename L>
+    void number_edit<T, F, M, B, L>::init () {
       super::get_layout().set_header_and_body(layout::lay(buttons), layout::lay(edit));
       super::on_create([this] () {
         // visual studio throws an error without this-> (compiler bug?)
@@ -48,29 +48,28 @@ namespace gui {
       });
     }
 
-    template<typename T, typename F, typename B, typename L>
-    inline void number_edit<T, F, B, L>::set (const type& v) {
-      edit.set(v);
-      super::notify_content_changed();
-    }
-
-    template<typename T, typename F, typename B, typename L>
-    inline auto number_edit<T, F, B, L>::get () const -> type {
-      return edit.get();
-    }
-
-    template<typename T, typename F, typename B, typename L>
-    inline void number_edit<T, F, B, L>::step (const type& i) {
+    template<typename T, typename F, typename M, typename B, typename L>
+    inline void number_edit<T, F, M, B, L>::step (const type& i) {
       set(get() + i);
     }
 
-    template<typename T, typename F, typename B, typename L>
-    inline void number_edit<T, F, B, L>::inc () {
+    template<typename T, typename F, typename M, typename B, typename L>
+    inline void number_edit<T, F, M, B, L>::set (const type& i) {
+      edit.set(i);
+    }
+
+    template<typename T, typename F, typename M, typename B, typename L>
+    inline auto number_edit<T, F, M, B, L>::get () const -> type {
+      return edit.get();
+    }
+
+    template<typename T, typename F, typename M, typename B, typename L>
+    inline void number_edit<T, F, M, B, L>::inc () {
       step(increment);
     }
 
-    template<typename T, typename F, typename B, typename L>
-    inline void number_edit<T, F, B, L>::dec () {
+    template<typename T, typename F, typename M, typename B, typename L>
+    inline void number_edit<T, F, M, B, L>::dec () {
       step(-increment);
     }
 

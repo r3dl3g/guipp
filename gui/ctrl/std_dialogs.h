@@ -412,6 +412,7 @@ namespace gui {
       top_view_type top_view;
       basic_edit<std::string,
                  default_converter<std::string>,
+                 default_limiter<std::string>,
                  text_origin_t::vcenter_left,
                  draw::frame::sunken_deep_relief> input_line;
       basic_label<text_origin_t::vcenter_right,

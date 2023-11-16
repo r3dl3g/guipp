@@ -55,10 +55,20 @@ namespace gui {
       template<typename T, coordinate_system C>
       static void set_2 (basic_point<T, C>&, typename basic_point<T, C>::type other);
 
+      template<typename T, coordinate_system C>
+      static void move_1 (basic_point<T, C>&, typename basic_point<T, C>::type dim);
+      template<typename T, coordinate_system C>
+      static void move_2 (basic_point<T, C>&, typename basic_point<T, C>::type dim);
+
       template<typename S, coordinate_system C>
       static void set_1 (basic_size<S, C>&, typename basic_size<S, C>::type dim);
       template<typename S, coordinate_system C>
       static void set_2 (basic_size<S, C>&, typename basic_size<S, C>::type other);
+
+      template<typename S, coordinate_system C>
+      static void inc_1 (basic_size<S, C>&, typename basic_size<S, C>::type dim);
+      template<typename S, coordinate_system C>
+      static void inc_2 (basic_size<S, C>&, typename basic_size<S, C>::type dim);
 
       template<typename T, typename S, coordinate_system C>
       static void set_1 (basic_rectangle<T, S, C>&, typename basic_point<T, C>::type, typename basic_size<S, C>::type);

@@ -76,6 +76,22 @@ namespace gui {
     }
 
     template<>
+    template<typename T, coordinate_system C>
+    inline void
+    orientation_traits<orientation_t::horizontal>::move_1 (basic_point<T, C>& pt,
+                                                           typename basic_point<T, C>::type d1) {
+      pt.move_x(d1);
+    }
+
+    template<>
+    template<typename T, coordinate_system C>
+    inline void
+    orientation_traits<orientation_t::horizontal>::move_2 (basic_point<T, C>& pt,
+                                                           typename basic_point<T, C>::type d2) {
+      pt.move_y(d2);
+    }
+
+    template<>
     template<typename S, coordinate_system C>
     inline void
     orientation_traits<orientation_t::horizontal>::set (basic_size<S, C>& sz,
@@ -99,6 +115,22 @@ namespace gui {
     orientation_traits<orientation_t::horizontal>::set_2 (basic_size<S, C>& sz,
                                                           typename basic_size<S, C>::type d2) {
       sz.height(d2);
+    }
+
+    template<>
+    template<typename S, coordinate_system C>
+    inline void
+    orientation_traits<orientation_t::horizontal>::inc_1 (basic_size<S, C>& sz,
+                                                          typename basic_size<S, C>::type d1) {
+      sz.inc_x(d1);
+    }
+
+    template<>
+    template<typename S, coordinate_system C>
+    inline void
+    orientation_traits<orientation_t::horizontal>::inc_2 (basic_size<S, C>& sz,
+                                                          typename basic_size<S, C>::type d2) {
+      sz.inc_y(d2);
     }
 
     template<>
@@ -177,6 +209,22 @@ namespace gui {
     }
 
     template<>
+    template<typename T, coordinate_system C>
+    inline void
+    orientation_traits<orientation_t::vertical>::move_1 (basic_point<T, C>& pt,
+                                                        typename basic_point<T, C>::type d1) {
+      pt.move_y(d1);
+    }
+
+    template<>
+    template<typename T, coordinate_system C>
+    inline void
+    orientation_traits<orientation_t::vertical>::move_2 (basic_point<T, C>& pt,
+                                                        typename basic_point<T, C>::type d2) {
+      pt.move_x(d2);
+    }
+
+    template<>
     template<typename S, coordinate_system C>
     inline void
     orientation_traits<orientation_t::vertical>::set (basic_size<S, C>& sz,
@@ -200,6 +248,22 @@ namespace gui {
     orientation_traits<orientation_t::vertical>::set_2 (basic_size<S, C>& sz,
                                                         typename basic_size<S, C>::type d2) {
       sz.width(d2);
+   }
+
+    template<>
+    template<typename S, coordinate_system C>
+    inline void
+    orientation_traits<orientation_t::vertical>::inc_1 (basic_size<S, C>& sz,
+                                                        typename basic_size<S, C>::type d1) {
+      sz.inc_y(d1);
+    }
+
+    template<>
+    template<typename S, coordinate_system C>
+    inline void
+    orientation_traits<orientation_t::vertical>::inc_2 (basic_size<S, C>& sz,
+                                                        typename basic_size<S, C>::type d2) {
+      sz.inc_x(d2);
    }
 
     template<>

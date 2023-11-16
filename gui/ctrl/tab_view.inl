@@ -21,6 +21,18 @@ namespace gui {
 
     template<alignment_t A, typename G, typename L>
     tab_view<A, G, L>::tab_view () {
+      init();
+    }
+
+    template<alignment_t A, typename G, typename L>
+    tab_view<A, G, L>::tab_view (tab_view&& rhs)
+      : super(std::move(rhs))
+    {
+      init();
+    }
+
+    template<alignment_t A, typename G, typename L>
+    void tab_view<A, G, L>::init () {
       super::set_background(color::very_very_light_gray);
       super::get_layout().set_header(layout::lay(buttons));
 

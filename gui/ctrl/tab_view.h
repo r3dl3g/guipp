@@ -90,6 +90,7 @@ namespace gui {
       typedef typename button_group_t::button_t button_t;
 
       tab_view ();
+      tab_view (tab_view&&);
 
       void show_page (int idx);
 
@@ -103,6 +104,8 @@ namespace gui {
       }
 
     private:
+      void init ();
+      
       std::vector<std::reference_wrapper<win::window>> pages;
       button_group_t buttons;
 

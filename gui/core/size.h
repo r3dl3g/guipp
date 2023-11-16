@@ -91,6 +91,10 @@ namespace gui {
 
       self operator- () const;
 
+      self& inc (const self& pt);
+      self& inc_x (type dx);
+      self& inc_y (type dy);
+
       self min (const self& rhs) const;
       self max (const self& rhs) const;
 

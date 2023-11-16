@@ -257,6 +257,25 @@ namespace gui {
     }
 
     template<typename T, coordinate_system C>
+    inline auto basic_size<T, C>::inc (const self& s) -> self& {
+      w += s.w;
+      h += s.h;
+      return *this;
+    }
+
+    template<typename T, coordinate_system C>
+    inline auto basic_size<T, C>::inc_x (type dx) -> self& {
+      w += dx;
+      return *this;
+    }
+
+    template<typename T, coordinate_system C>
+    inline auto basic_size<T, C>::inc_y (type dy) -> self& {
+      h += dy;
+      return *this;
+    }
+
+    template<typename T, coordinate_system C>
     inline auto basic_size<T, C>::min (const self& rhs) const -> self {
       return { std::min(width(), rhs.width()), std::min(height(), rhs.height()) };
     }

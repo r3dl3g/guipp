@@ -485,6 +485,8 @@ namespace gui {
         x11::check_return(XUngrabPointer(core::global::get_instance(), CurrentTime));
       }
 
+#define NO_CAPTUREx
+
       void capture_pointer (os::window id) {
 #ifndef NO_CAPTURE
         if (!capture_stack.empty()) {

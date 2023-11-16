@@ -26,6 +26,7 @@
 // Library includes
 //
 #include "point.h"
+#include <util/math_util.h>
 
 
 namespace gui {
@@ -95,6 +96,7 @@ namespace gui {
       bool empty () const;
       bool isnan () const;
       bool is_inside (const point_t& p) const;
+      point_t limit_inside (const point_t& p) const;
 
       self& top_left (const point_t& pt);
       self& bottom_right (const point_t& pt);

@@ -298,6 +298,11 @@ namespace gui {
     }
 
     template<typename T, typename S, coordinate_system C>
+    inline auto basic_rectangle<T, S, C>::limit_inside (const point_t& p) const -> point_t {
+      return { util::math::limit(x(), p.x(), x2()), util::math::limit(y(), p.y(), y2()) };
+    }
+
+    template<typename T, typename S, coordinate_system C>
     inline auto basic_rectangle<T, S, C>::center_x () const -> point_type {
       return x() + width() / point_type(2);
     }

@@ -25,10 +25,10 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.on_create([&] () {
     client.create(main, main.client_geometry());
     client.set_split_pos(0.5);
-    client.first.set_text([&] () { return ostreamfmt(client.first << " Left (" << client.first.geometry() << ")"); });
-    client.second.set_split_pos(0.5);
-    client.second.first.set_text([&] () { return ostreamfmt(client.second.first << " Top (" << client.second.first.geometry() << ")"); });
-    client.second.second.set_text([&] () { return ostreamfmt(client.second.second << " Bottom (" << client.second.second.geometry() << ")"); });
+    client.get<0>().set_text([&] () { return ostreamfmt(client.get<0>() << " Left (" << client.get<0>().geometry() << ")"); });
+    client.get<1>().set_split_pos(0.5);
+    client.get<1>().get<0>().set_text([&] () { return ostreamfmt(client.get<1>().get<0>() << " Top (" << client.get<1>().get<0>().geometry() << ")"); });
+    client.get<1>().get<1>().set_text([&] () { return ostreamfmt(client.get<1>().get<1>() << " Bottom (" << client.get<1>().get<1>().geometry() << ")"); });
   });
 
   main.create({50, 50, 800, 600});

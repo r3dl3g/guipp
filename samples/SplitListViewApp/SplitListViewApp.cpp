@@ -31,10 +31,10 @@ int gui_main(const std::vector<std::string>& /*args*/) {
                                     "Sieben", "Acht", "Neun", "Zehn", "Elf", "Zwölf" };
 
   main_split_view_t main_split_view;
-  list1_t& list1 = main_split_view.first.first;
-  list2_t& list2 = main_split_view.first.second;
-  list3_t& list3 = main_split_view.second.first;
-  list4_t& list4 = main_split_view.second.second;
+  list1_t& list1 = main_split_view.get<0>().get<0>();
+  list2_t& list2 = main_split_view.get<0>().get<1>();
+  list3_t& list3 = main_split_view.get<1>().get<0>();
+  list4_t& list4 = main_split_view.get<1>().get<1>();
 
   list1.set_data(ctrl::indirect_list_data<std::string>(data));
   list1.on_selection_changed([&](ctrl::event_source) {

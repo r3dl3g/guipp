@@ -53,7 +53,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     main.get_layout().set_header_and_body(lay(menu.view()), lay(client));
 
     sys_fs::path current = sys_fs::current_path();
-    auto& first = client.first.view;
+    auto& first = client.get<0>().view;
     first->set_roots(gui::fs::get_all_root_file_infos());
     for (auto next = current; next.has_root_path() && (next != next.root_path()); next = next.parent_path()) {
       first->add_open_node(next);
@@ -61,7 +61,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     first->add_open_node(current.root_path());
     first->update_node_list();
     first->select_node(current);
-    client.second.set_path(current);
+    client.get<1>().set_path(current);
     client.init([] (container&, const sys_fs::path& path) {
       if (sys_fs::is_regular_file(path)) {
         const auto ret = util::fs::execute_or_open(path);

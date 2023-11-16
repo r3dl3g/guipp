@@ -294,8 +294,8 @@ namespace gui {
                                    const core::rectangle& rect,
                                    std::function<file_selected> action) {
 
-      auto& dir_tree = content_view.first.view.view;
-      auto& files = content_view.second;
+      auto& dir_tree = content_view.get<0>().view.view;
+      auto& files = content_view.get<1>();
 
       content_view.init([&, action] (win::overlapped_window& dlg, const sys_fs::path& path) {
         set_visible(false);

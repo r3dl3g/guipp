@@ -23,6 +23,7 @@
 #include <gui/layout/layout_container.h>
 #include <gui/layout/split_layout.h>
 #include <gui/ctrl/splitter.h>
+#include <gui/core/orientation_traits.h>
 
 
 namespace gui {
@@ -32,34 +33,49 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<orientation_t O>
     struct split_view_traits {
+      typedef core::orientation_traits<O> traits;
+
+      static core::rectangle get_window_geometry (const core::rectangle&, double pos1, double pos2);
       static core::rectangle get_first_geometry (const core::rectangle&, double pos);
-      static core::rectangle get_second_geometry (const core::rectangle&, double pos);
+      static core::rectangle get_last_geometry (const core::rectangle&, double pos);
+
       static core::rectangle get_splitter_geometry (const core::rectangle&, double pos);
+
       static core::size::type get_splitter_width ();
+
+      static core::point::type get_position (const core::point& p, const core::size& s, double pos, core::size::type offset);
+
       static double get_split_pos (const core::point&, const core::size&);
     };
 
     // --------------------------------------------------------------------------
-    template<orientation_t O, typename First, typename Second>
+    template<orientation_t O, std::size_t T>
     class split_view {
     public:
       typedef split_view_traits<O> traits;
+      typedef win::window splitter_t;
 
       split_view ();
 
-      First* get_first () const;
-      Second* get_second () const;
-      ctrl::detail::splitter_base* get_splitter () const;
+      template<std::size_t N>
+      win::window* get () const;
 
-      void set_first (First* first);
-      void set_second (Second* second);
-      void set_splitter (ctrl::detail::splitter_base* splitter);
+      template<std::size_t N>
+      void set (win::window* first);
 
-      void set (First* first,
-                Second* second,
-                ctrl::detail::splitter_base* splitter);
+      template<std::size_t N>
+      splitter_t* get_splitter () const;
+
+      template<std::size_t N>
+      void set_splitter (splitter_t* splitter);
+
+      void set_all (win::window* first,
+                    win::window* second,
+                    splitter_t* splitter);
 
       double get_split_pos (const core::point&, const core::size&) const;
+
+      template<std::size_t N>
       void set_split_pos (double);
 
       void layout (const core::rectangle& r) const;
@@ -67,14 +83,13 @@ namespace gui {
       void add (const std::vector<std::reference_wrapper<win::window>>&);
 
     private:
-      First* first;
-      Second* second;
-      ctrl::detail::splitter_base* splitter;
-      double split_pos;
+      std::array<win::window*, T> views;
+      std::array<splitter_t*, T-1> splitter;
+      std::array<double, T-1> split_pos;
     };
 
-    template<orientation_t O, typename First, typename Second>
-    struct is_layout<split_view<O, First, Second>> {
+    template<orientation_t O, std::size_t T>
+    struct is_layout<split_view<O, T>> {
       enum {
         value = true
       };
@@ -87,10 +102,12 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-    template<orientation_t O, typename First, typename Second>
-    class split_view : public win::layout_container<layout::split_view<O, First, Second> > {
+    template<orientation_t O, typename... Ts>
+    class split_view : public win::layout_container<layout::split_view<O, sizeof...(Ts)> > {
     public:
-      typedef win::layout_container<layout::split_view<O, First, Second>> super;
+      static constexpr std::size_t N = sizeof...(Ts);
+      typedef win::layout_container<layout::split_view<O, N>> super;
+      typedef std::tuple<Ts...> tuple_t;
       typedef typename super::layout_type layout_type;
       typedef win::window_class<split_view, IF_WIN32_ELSE((os::color)(COLOR_WINDOW + 1), color::white)> clazz;
 
@@ -98,7 +115,7 @@ namespace gui {
 
       split_view ();
       split_view (split_view&& rhs) noexcept;
-      split_view (First&& first, Second&& second);
+      split_view (Ts&&... views);
 
       void create (win::container& parent,
                    const core::rectangle& place = core::rectangle::def,
@@ -107,9 +124,15 @@ namespace gui {
       double get_split_pos () const;
       void set_split_pos (double pos);
 
-      splitter_type splitter;
-      First first;
-      Second second;
+      template<size_t I, typename T = std::tuple_element_t<I, tuple_t>>
+      constexpr T& get() {
+        return std::get<I>(views); 
+      }
+
+      tuple_t views;
+
+    protected:
+      std::array<splitter_type, N-1> splitter;
 
     private:
       void init ();

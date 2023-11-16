@@ -25,68 +25,6 @@ namespace gui {
 
   namespace layout {
 
-    template<>
-    core::size::type split_view_traits<orientation_t::vertical>::get_splitter_width () {
-      return 8;
-    }
-
-    template<>
-    core::size::type split_view_traits<orientation_t::horizontal>::get_splitter_width () {
-      return 8;
-    }
-
-    template<>
-    double split_view_traits<orientation_t::vertical>::get_split_pos (const core::point& pt, const core::size& sz) {
-      return double(pt.x() + get_splitter_width() / 2) / (double)sz.width();
-    }
-
-    template<>
-    double split_view_traits<orientation_t::horizontal>::get_split_pos (const core::point& pt, const core::size& sz) {
-      return double(pt.y() + get_splitter_width() / 2) / (double)sz.height();
-    }
-
-    template<>
-    core::rectangle split_view_traits<orientation_t::vertical>::get_first_geometry (const core::rectangle& r,
-                                                                                 double pos) {
-      const auto w = core::point::type(r.width() * pos - get_splitter_width() / 2);
-      return r.with_width(w);
-    }
-
-    template<>
-    core::rectangle split_view_traits<orientation_t::vertical>::get_second_geometry (const core::rectangle& r,
-                                                                                  double pos) {
-      const core::point::type x = r.x() + core::point::type(r.width() * pos + get_splitter_width() / 2);
-      return r.with_horizontal(x, r.right() - x);
-    }
-
-    template<>
-    core::rectangle split_view_traits<orientation_t::vertical>::get_splitter_geometry (const core::rectangle& r,
-                                                                                  double pos) {
-      const core::point::type x = r.x() + core::point::type(r.width() * pos - get_splitter_width() / 2);
-      return r.with_horizontal(x, get_splitter_width());
-    }
-
-    template<>
-    core::rectangle split_view_traits<orientation_t::horizontal>::get_first_geometry (const core::rectangle& r,
-                                                                                   double pos) {
-      const auto h = core::point::type(r.height() * pos - get_splitter_width() / 2);
-      return r.with_height(h);
-    }
-
-    template<>
-    core::rectangle split_view_traits<orientation_t::horizontal>::get_second_geometry (const core::rectangle& r,
-                                                                                    double pos) {
-      const core::point::type y = r.y() + core::point::type(r.height() * pos + get_splitter_width() / 2);
-      return r.with_vertical(y, r.y2() - y);
-    }
-
-    template<>
-    core::rectangle split_view_traits<orientation_t::horizontal>::get_splitter_geometry (const core::rectangle& r,
-                                                                                    double pos) {
-      const core::point::type y = r.y() + core::point::type(r.height() * pos - get_splitter_width() / 2);
-      return r.with_vertical(y, get_splitter_width());
-    }
-
   }
 
 } // gui

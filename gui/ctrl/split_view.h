@@ -49,47 +49,35 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<orientation_t O, std::size_t T>
+    template<orientation_t O, std::size_t N>
     class split_view {
     public:
       typedef split_view_traits<O> traits;
-      typedef win::window splitter_t;
 
       split_view ();
 
-      template<std::size_t N>
-      win::window* get () const;
+      win::window* get (std::size_t i) const;
 
-      template<std::size_t N>
-      void set (win::window* first);
+      void set (std::size_t i, win::window*);
 
-      template<std::size_t N>
-      splitter_t* get_splitter () const;
+      win::window* get_splitter (std::size_t i) const;
 
-      template<std::size_t N>
-      void set_splitter (splitter_t* splitter);
+      void set_splitter (std::size_t i, win::window* splitter);
 
-      void set_all (win::window* first,
-                    win::window* second,
-                    splitter_t* splitter);
+      void set_split_pos (std::size_t i, double);
 
-      double get_split_pos (const core::point&, const core::size&) const;
+      void layout (const core::rectangle& r);
 
-      template<std::size_t N>
-      void set_split_pos (double);
-
-      void layout (const core::rectangle& r) const;
-
-      void add (const std::vector<std::reference_wrapper<win::window>>&);
+      core::rectangle get_splitter_limits (std::size_t i, const core::rectangle& r);
 
     private:
-      std::array<win::window*, T> views;
-      std::array<splitter_t*, T-1> splitter;
-      std::array<double, T-1> split_pos;
+      std::array<win::window*, N> views;
+      std::array<win::window*, N-1> splitter;
+      std::array<double, N-1> split_pos;
     };
 
-    template<orientation_t O, std::size_t T>
-    struct is_layout<split_view<O, T>> {
+    template<orientation_t O, std::size_t N>
+    struct is_layout<split_view<O, N>> {
       enum {
         value = true
       };
@@ -118,11 +106,11 @@ namespace gui {
       split_view (Ts&&... views);
 
       void create (win::container& parent,
-                   const core::rectangle& place = core::rectangle::def,
-                   double split_pos = 0.5);
+                   const core::rectangle& place = core::rectangle::def);
 
-      double get_split_pos () const;
-      void set_split_pos (double pos);
+      double get_split_pos (std::size_t i = 0) const;
+
+      void set_split_pos (double pos, std::size_t i = 0);
 
       template<size_t I, typename T = std::tuple_element_t<I, tuple_t>>
       constexpr T& get() {
@@ -140,11 +128,11 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename First, typename Second>
-    using vertical_split_view = split_view<orientation_t::vertical, First, Second>;
+    template<typename... Ts>
+    using vertical_split_view = split_view<orientation_t::vertical, Ts...>;
 
-    template<typename First, typename Second>
-    using horizontal_split_view = split_view<orientation_t::horizontal, First, Second>;
+    template<typename... Ts>
+    using horizontal_split_view = split_view<orientation_t::horizontal, Ts...>;
 
     // --------------------------------------------------------------------------
     template<typename Header, typename Body, int S = 25, alignment_t A = alignment_t::top>

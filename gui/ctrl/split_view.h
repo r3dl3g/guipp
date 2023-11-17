@@ -132,6 +132,21 @@ namespace gui {
     using horizontal_split_view = split_view<orientation_t::horizontal, Ts...>;
 
     // --------------------------------------------------------------------------
+    class GUIPP_CTRL_EXPORT placeholder {
+    public:
+      placeholder ();
+
+      void layout (const core::rectangle& r);
+
+      void create (win::container& parent);
+
+      void set (win::window* w);
+
+    private:
+      win::window* win;
+    };
+
+    // --------------------------------------------------------------------------
     template<typename Header, typename Body, int S = 25, alignment_t A = alignment_t::top>
     class fix_split_view : public win::layout_container<layout::split_layout<A, S> > {
     public:
@@ -153,6 +168,12 @@ namespace gui {
     // --------------------------------------------------------------------------
 
   } // ctrl
+
+  namespace layout {
+
+    template<> struct is_layout<ctrl::placeholder> { enum { value = true }; };
+
+  }
 
 } // gui
 

@@ -23,8 +23,28 @@
 
 namespace gui {
 
-  namespace layout {
+  namespace ctrl {
 
-  }
+    placeholder::placeholder ()
+      : win(nullptr)
+    {}
+
+    void placeholder::layout (const core::rectangle& r) {
+      if (win) {
+        win->geometry(r, true, false);
+      }
+    }
+
+    void placeholder::create (win::container& parent) {
+      if (win) {
+        win->create(parent);
+      }
+    }
+
+    void placeholder::set (win::window* w) {
+      win = w;
+    }
+
+  } // namespace ctrl
 
 } // gui

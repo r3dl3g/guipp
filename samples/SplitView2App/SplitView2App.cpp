@@ -15,10 +15,14 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::ctrl;
   using namespace gui::core;
 
+  using button_t = basic_text_button<push_button_traits,
+                                     look::button_frame_t<look::look_and_feel_t::w95>,
+                                     look::button_text>;
+
   using label_t = basic_label<text_origin_t::center, draw::frame::raised_deep_relief>;
   using client_top = vertical_split_view<label_t, label_t>;
   using client_mid = vertical_split_view<label_t, placeholder, label_t>;
-  using client_bot = vertical_split_view<label_t, text_button, text_button, label_t>;
+  using client_bot = vertical_split_view<label_t, button_t, button_t, label_t>;
   using client_single = vertical_split_view<label_t>;
   using client_t = horizontal_split_view<client_top, client_mid, client_bot, client_single>;
 

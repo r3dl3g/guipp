@@ -206,6 +206,38 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
+    namespace detail {
+      template<std::size_t I, typename V, typename T>
+      struct setter {
+        static void set (V& v, T& views) {
+          v.set(I-1, layout::lay(std::get<I-1>(views)));
+          setter<I-1, V, T>::set(v, views);
+        }
+      };
+
+      template<typename V, typename T>
+      struct setter<0, V, T> {
+        static void set (V& v, T& views) {
+        }
+      };
+
+      template<std::size_t I, typename V, typename T>
+      struct creater {
+        static void create (V& v, T& views) {
+          std::get<I-1>(views).create(v);
+          creater<I-1, V, T>::create(v, views);
+        }
+      };
+
+      template<typename V, typename T>
+      struct creater<0, V, T> {
+        static void create (V& v, T& views) {
+        }
+      };
+
+    } // namespace detail
+
+    // --------------------------------------------------------------------------
     template<orientation_t O, typename... Ts>
     inline split_view<O, Ts...>::split_view () {
       init();
@@ -231,8 +263,8 @@ namespace gui {
     void split_view<O, Ts...>::create (win::container& parent,
                                       const core::rectangle& place) {
       super::create(clazz::get(), parent, place);
-      layout::detail::creater<N, split_view<O, Ts...>, tuple_t>::create(*this, views);
-      for (std::size_t i = 0; i < N-1; ++i) {
+      detail::creater<N, split_view<O, Ts...>, tuple_t>::create(*this, views);
+      for (std::size_t i = 0; i < S; ++i) {
         splitter[i].create(*this);
       }
       super::layout();
@@ -251,9 +283,9 @@ namespace gui {
 
     template<orientation_t O, typename... Ts>
     void split_view<O, Ts...>::init () {
-      layout::detail::setter<N, layout_type, tuple_t>::set(super::get_layout(), views);
-      for (std::size_t i = 0; i < N-1; ++i) {
-        super::get_layout().set_splitter(i, &(splitter[i]));
+      detail::setter<N, layout_type, tuple_t>::set(super::get_layout(), views);
+      for (std::size_t i = 0; i < S; ++i) {
+        super::get_layout().set_splitter(i, layout::lay(splitter[i]));
         splitter[i].on_slide([&, i] (int) {
           const core::rectangle limits = super::get_layout().get_splitter_limits(i, super::client_geometry());
           const auto pos = limits.limit_inside(splitter[i].position());
@@ -267,7 +299,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-
     template<typename H, typename B, int S, alignment_t A>
     fix_split_view<H, B, S, A>::fix_split_view () {
       super::get_layout().set_header(layout::lay(header));

@@ -90,6 +90,7 @@ namespace gui {
     class split_view : public win::layout_container<layout::split_view<O, sizeof...(Ts)> > {
     public:
       static constexpr std::size_t N = sizeof...(Ts);
+      static constexpr std::size_t S = N - 1;
       typedef win::layout_container<layout::split_view<O, N>> super;
       typedef std::tuple<Ts...> tuple_t;
       typedef typename super::layout_type layout_type;
@@ -116,7 +117,7 @@ namespace gui {
       tuple_t views;
 
     protected:
-      std::array<splitter_type, N-1> splitter;
+      std::array<splitter_type, S> splitter;
 
     private:
       void init ();

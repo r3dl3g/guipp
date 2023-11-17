@@ -56,13 +56,9 @@ namespace gui {
 
       split_view ();
 
-      win::window* get (std::size_t i) const;
+      void set (std::size_t i, layout_function);
 
-      void set (std::size_t i, win::window*);
-
-      win::window* get_splitter (std::size_t i) const;
-
-      void set_splitter (std::size_t i, win::window* splitter);
+      void set_splitter (std::size_t i, layout::layout_function);
 
       void set_split_pos (std::size_t i, double);
 
@@ -71,8 +67,8 @@ namespace gui {
       core::rectangle get_splitter_limits (std::size_t i, const core::rectangle& r);
 
     private:
-      std::array<win::window*, N> views;
-      std::array<win::window*, N-1> splitter;
+      std::array<layout::layout_function, N> views;
+      std::array<layout::layout_function, N-1> splitter;
       std::array<double, N-1> split_pos;
     };
 

@@ -86,24 +86,13 @@ namespace gui {
       }
     }
 
-    // --------------------------------------------------------------------------
     template<orientation_t O, std::size_t N>
-    inline win::window* split_view<O, N>::get (std::size_t i) const {
-      return views[i];
-    }
-
-    template<orientation_t O, std::size_t N>
-    inline void split_view<O, N>::set (std::size_t i, win::window* s) {
+    inline void split_view<O, N>::set (std::size_t i, layout::layout_function s) {
       views[i] = s;
     }
 
     template<orientation_t O, std::size_t N>
-    inline win::window* split_view<O, N>::get_splitter (std::size_t i) const {
-      return splitter[i];
-    }
-
-    template<orientation_t O, std::size_t N>
-    inline void split_view<O, N>::set_splitter (std::size_t i, win::window* s) {
+    inline void split_view<O, N>::set_splitter (std::size_t i, layout::layout_function s) {
       splitter[i] = s;
     }
 
@@ -113,7 +102,7 @@ namespace gui {
         pos = std::min(pos, split_pos[i + 1]);
       }
       if (i > 0) {
-        pos = std::max(pos, split_pos[0]);
+        pos = std::max(pos, split_pos[i - 1]);
       }
       split_pos[i] = pos;
     }
@@ -124,15 +113,15 @@ namespace gui {
       template<std::size_t I, orientation_t O, std::size_t N>
       struct layout_n {
         static void layout (const core::rectangle& r,
-                            std::array<win::window*, N>& views,
-                            std::array<win::window*, N-1>& splitter,
+                            std::array<layout::layout_function, N>& views,
+                            std::array<layout::layout_function, N-1>& splitter,
                             std::array<double, N-1>& split_pos) {
           typedef split_view_traits<O> traits;
           if (views[I]) {
-            views[I]->geometry(traits::get_window_geometry(r, split_pos[I-1], split_pos[I]), true, true);
+            views[I](traits::get_window_geometry(r, split_pos[I-1], split_pos[I]));
           }
           if (splitter[I-1]) {
-            splitter[I-1]->geometry(traits::get_splitter_geometry(r, split_pos[I-1]), true, true);
+            splitter[I-1](traits::get_splitter_geometry(r, split_pos[I-1]));
           }
           layout_n<I-1, O, N>::layout(r, views, splitter, split_pos);
         }
@@ -141,12 +130,12 @@ namespace gui {
       template<orientation_t O>
       struct layout_n<0, O, 1> {
         static void layout (const core::rectangle& r,
-                            std::array<win::window*, 1>& views,
-                            std::array<win::window*, 0>& splitter,
+                            std::array<layout::layout_function, 1>& views,
+                            std::array<layout::layout_function, 0>& splitter,
                             std::array<double, 0>& split_pos) {
           typedef split_view_traits<O> traits;
           if (views[0]) {
-            views[0]->geometry(r, true, true);
+            views[0](r);
           }
         }
       };
@@ -154,12 +143,12 @@ namespace gui {
       template<orientation_t O, std::size_t N>
       struct layout_n<0, O, N> {
         static void layout (const core::rectangle& r,
-                            std::array<win::window*, N>& views,
-                            std::array<win::window*, N-1>& splitter,
+                            std::array<layout::layout_function, N>& views,
+                            std::array<layout::layout_function, N-1>& splitter,
                             std::array<double, N-1>& split_pos) {
           typedef split_view_traits<O> traits;
           if (views[0]) {
-            views[0]->geometry(traits::get_first_geometry(r, split_pos[0]), true, true);
+            views[0](traits::get_first_geometry(r, split_pos[0]));
           }
         }
       };
@@ -167,49 +156,19 @@ namespace gui {
       template<orientation_t O, std::size_t N>
       struct layout_n<N-1, O, N> {
         static void layout (const core::rectangle& r,
-                            std::array<win::window*, N>& views,
-                            std::array<win::window*, N-1>& splitter,
+                            std::array<layout::layout_function, N>& views,
+                            std::array<layout::layout_function, N-1>& splitter,
                             std::array<double, N-1>& split_pos) {
           typedef split_view_traits<O> traits;
           if (views[N-1]) {
-            views[N-1]->geometry(traits::get_last_geometry(r, split_pos[N-2]), true, true);
+            views[N-1](traits::get_last_geometry(r, split_pos[N-2]));
           }
           if (splitter[N-2]) {
-            splitter[N-2]->geometry(traits::get_splitter_geometry(r, split_pos[N-2]), true, true);
+            splitter[N-2](traits::get_splitter_geometry(r, split_pos[N-2]));
           }
           layout_n<N-2, O, N>::layout(r, views, splitter, split_pos);
         }
       };
-
-      template<std::size_t I, typename V, typename T>
-      struct setter {
-        static void set (V& v, T& views) {
-          v.set(I-1, &(std::get<I-1>(views)));
-          setter<I-1, V, T>::set(v, views);
-        }
-      };
-
-      template<typename V, typename T>
-      struct setter<0, V, T> {
-        static void set (V& v, T& views) {
-        }
-      };
-
-      template<std::size_t I, typename V, typename T>
-      struct creater {
-        static void create (V& v, T& views) {
-          std::get<I-1>(views).create(v);
-          creater<I-1, V, T>::create(v, views);
-        }
-      };
-
-      template<typename V, typename T>
-      struct creater<0, V, T> {
-        static void create (V& v, T& views) {
-        }
-      };
-
-
     } // namespace detail
 
     // --------------------------------------------------------------------------

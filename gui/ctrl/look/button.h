@@ -83,28 +83,38 @@ namespace gui {
     template<look_and_feel_t L = system_look_and_feel>
     void button_frame_t (draw::graphics& graph,
                          const core::rectangle& r,
-                         const core::button_state::is& state);
+                         const core::button_state::is& state,
+                         os::color fg = color::black,
+                         os::color bg = color::gray);
 
     // --------------------------------------------------------------------------
     template<>
     GUIPP_LOOK_EXPORT void button_frame_t<look_and_feel_t::metal> (draw::graphics& graph,
                                                                    const core::rectangle& r,
-                                                                   const core::button_state::is& state);
+                                                                   const core::button_state::is& state,
+                                                                   os::color fg,
+                                                                   os::color bg);
 
     template<>
     GUIPP_LOOK_EXPORT void button_frame_t<look_and_feel_t::w95> (draw::graphics& graph,
                                                                  const core::rectangle& r,
-                                                                 const core::button_state::is& state);
+                                                                 const core::button_state::is& state,
+                                                                 os::color fg,
+                                                                 os::color bg);
 
     template<>
     GUIPP_LOOK_EXPORT void button_frame_t<look_and_feel_t::w10> (draw::graphics& graph,
                                                                  const core::rectangle& r,
-                                                                 const core::button_state::is& state);
+                                                                 const core::button_state::is& state,
+                                                                 os::color fg,
+                                                                 os::color bg);
 
     template<>
     GUIPP_LOOK_EXPORT void button_frame_t<look_and_feel_t::osx> (draw::graphics& graph,
                                                                  const core::rectangle& r,
-                                                                 const core::button_state::is& state);
+                                                                 const core::button_state::is& state,
+                                                                 os::color fg,
+                                                                 os::color bg);
 
     GUIPP_LOOK_EXPORT void button_frame (draw::graphics& graph,
                                          const core::rectangle& r,

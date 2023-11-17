@@ -242,7 +242,8 @@ namespace gui {
     template<>
     void button_frame_t<look_and_feel_t::w95> (draw::graphics& graph,
                                              const core::rectangle& r,
-                                             const core::button_state::is& st) {
+                                             const core::button_state::is& st,
+                                             os::color, os::color) {
       core::rectangle area = r;
       graph.fill(draw::rectangle(area), st.enabled() && st.hilited() ? color::buttonHighLightColor() : color::buttonColor());
       if (st.enabled() && st.focused()) {
@@ -323,7 +324,8 @@ namespace gui {
     template<>
     void button_frame_t<look_and_feel_t::w10> (draw::graphics& graph,
                                              const core::rectangle& r,
-                                             const core::button_state::is& st) {
+                                             const core::button_state::is& st,
+                                             os::color, os::color) {
       graph.draw(draw::rectangle(r), win10::get_button_color(st), win10::get_button_frame_color(st));
     }
 
@@ -331,7 +333,8 @@ namespace gui {
     template<>
     void button_frame_t<look_and_feel_t::metal> (draw::graphics& graph,
                                                const core::rectangle& r,
-                                               const core::button_state::is& st) {
+                                               const core::button_state::is& st,
+                                               os::color, os::color) {
       if (st.enabled() && st.hilited()) {
         graph.copy(draw::frame_image(r, detail::get_button_frame<false, false>().brightness(1.025F), 4), r.top_left());
       } else {
@@ -352,7 +355,8 @@ namespace gui {
     template<>
     void button_frame_t<look_and_feel_t::osx> (draw::graphics& graph,
                                              const core::rectangle& r,
-                                             const core::button_state::is& st) {
+                                             const core::button_state::is& st,
+                                             os::color, os::color) {
       if (!st.enabled()) {
         graph.copy(draw::frame_image(r, osx::get_disabled_frame(), 4), r.top_left());
       } else if (st.pushed() && st.hilited()) {
@@ -367,9 +371,9 @@ namespace gui {
     void button_frame (draw::graphics& graph,
                        const core::rectangle& r,
                        const core::button_state::is& st,
-                       os::color,
-                       os::color) {
-      button_frame_t<system_look_and_feel>(graph, r, st);
+                       os::color fg,
+                       os::color bg) {
+      button_frame_t<system_look_and_feel>(graph, r, st, fg, bg);
     }
 
     // --------------------------------------------------------------------------

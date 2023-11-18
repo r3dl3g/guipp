@@ -16,7 +16,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   layout_main_window<border::layouter</*50, 50, 50, 50*/>> main;
 
-  typedef ctrl::column_list_t<layout::simple_column_list_layout, core::selector::single,
+  typedef ctrl::column_list_t<layout::weight_column_list_layout, core::selector::single,
                               std::string, int, double> list_t;
   typedef ctrl::const_column_list_data<std::string, int, double> column_data_type;
   typedef column_data_type::row_type row_type;
@@ -24,9 +24,9 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   list_t list;
 
   auto columns = {
-    layout::simple_column_info{ 100, text_origin_t::vcenter_left, 20 },
-    layout::simple_column_info{ 100, text_origin_t::center, 20 },
-    layout::simple_column_info{ 100, text_origin_t::vcenter_right, 20 }
+    layout::weight_column_info{ 100, text_origin_t::vcenter_left, 20, 1.0F },
+    layout::weight_column_info{ 100, text_origin_t::center, 20, 0.0F },
+    layout::weight_column_info{ 100, text_origin_t::vcenter_right, 20, 0.0F }
   };
   list.get_column_layout().set_columns(columns);
 
@@ -49,6 +49,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.get_layout().set_center(lay(list));
   main.on_create([&] () {
     list.create(main, main.client_geometry());
+    list.set_visible();
  });
 
   main.create({50, 50, 800, 600});

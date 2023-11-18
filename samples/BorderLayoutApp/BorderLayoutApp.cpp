@@ -30,9 +30,21 @@ struct layout_group {
     center.create(main);
     top.set_text([&] () { return ostreamfmt("T (" << top.geometry() << ")"); });
     bottom.set_text([&] () { return ostreamfmt("B (" << bottom.geometry() << ")"); });
-    left.set_text([&] () { return ostreamfmt("L (" << left.geometry() << ")"); });
-    right.set_text([&] () { return ostreamfmt("R (" << right.geometry() << ")"); });
-    center.set_text([&] () { return ostreamfmt("C (" << center.geometry() << ")"); });
+    left.set_text([&] () { 
+      auto t = ostreamfmt("L (" << left.geometry() << ")");
+      std::replace(t.begin(), t.end(), ' ', '\n');
+      return t;
+    });
+    right.set_text([&] () {
+      auto t = ostreamfmt("R (" << right.geometry() << ")");
+      std::replace(t.begin(), t.end(), ' ', '\n');
+      return t;
+    });
+    center.set_text([&] () {
+      auto t = ostreamfmt("C (" << center.geometry() << ")");
+      std::replace(t.begin(), t.end(), ' ', '\n');
+      return t;
+    });
     layouter.set_center_top_bottom_left_right(lay(center), lay(top), lay(bottom), lay(left), lay(right));
   }
 };

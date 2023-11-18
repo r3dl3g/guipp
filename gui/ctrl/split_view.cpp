@@ -42,7 +42,13 @@ namespace gui {
     }
 
     void placeholder::set (win::window* w) {
+      if (win) {
+        win->set_visible(false);
+      }
       win = w;
+      if (win) {
+        win->set_visible();
+      }
     }
 
   } // namespace ctrl

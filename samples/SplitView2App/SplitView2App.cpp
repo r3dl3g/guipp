@@ -48,16 +48,12 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   bot.get<0>().set_text([&] () { return ostreamfmt("Left (" << bot.get<0>().geometry() << ")"); });
   bot.get<1>().set_text("Raise");
   bot.get<1>().on_clicked([&] () {
-    deep_center_label.set_visible(false);
     mid.get<1>().set(&raised_center_label);
-    raised_center_label.set_visible();
     mid.layout();
   });
   bot.get<2>().set_text("Deep");
   bot.get<2>().on_clicked([&] () {
-    raised_center_label.set_visible(false);
     mid.get<1>().set(&deep_center_label);
-    deep_center_label.set_visible();
     mid.layout();
   });
   bot.get<3>().set_text([&] () { return ostreamfmt("Right (" << bot.get<3>().geometry() << ")"); });

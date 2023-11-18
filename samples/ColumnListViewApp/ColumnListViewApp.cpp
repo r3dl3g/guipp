@@ -23,16 +23,16 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   list_t list;
 
-  auto columns = {
+  list.header.set_labels({"Text", "Int", "Double"});
+  list.get_column_layout().set_columns({
     layout::weight_column_info{ 100, text_origin_t::vcenter_left, 20, 1.0F },
     layout::weight_column_info{ 100, text_origin_t::center, 20, 0.0F },
     layout::weight_column_info{ 100, text_origin_t::vcenter_right, 20, 0.0F }
-  };
-  list.get_column_layout().set_columns(columns);
+  });
 
   list.set_data(column_data_type({
                    row_type{ "Eins", 1, 1.1 },
-                   row_type{ "ZWei", 2, 2.2 },
+                   row_type{ "Zwei", 2, 2.2 },
                    row_type{ "Drei", 3, 3.3 },
                    row_type{ "Vier", 4, 4.4 },
                    row_type{ "Fünf", 5, 5.5 },
@@ -44,7 +44,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
                    row_type{ "Elf", 11, 11.11 },
                    row_type{ "Zwölf", 12, 12.12 },
                  }));
-  list.header.set_labels({"Text", "Int", "Double"});
 
   main.get_layout().set_center(lay(list));
   main.on_create([&] () {

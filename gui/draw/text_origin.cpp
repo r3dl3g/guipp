@@ -50,10 +50,11 @@ namespace std {
   }
 
   ostream& operator<< (ostream& out, line_handling_t v) {
-    const auto value = static_cast<line_handling_t>(v & (line_handling_t::singleline | line_handling_t::wordbreak));
+    const auto value = static_cast<line_handling_t>(v & line_handling_t::mask);
     switch (value) {
-      case line_handling_t::singleline:      out << "top";     break;
-      case line_handling_t::wordbreak:  out << "vcenter"; break;
+      case line_handling_t::multiline: out << "multiline"; break;
+      case line_handling_t::singleline: out << "singleline"; break;
+      case line_handling_t::wordbreak:  out << "wordbreak";  break;
     }
     return out;
   }

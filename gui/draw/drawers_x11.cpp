@@ -478,45 +478,63 @@ namespace gui {
                                os::color c) const {
       gui::os::instance display = get_instance();
 
-      int px = rect.os_x(g.context());
+      const int px0 = rect.os_x(g.context());
       int py = rect.os_y(g.context());
+
+      const bool only_single = line_handling_is_singleline(origin);
 #ifdef GUIPP_USE_XFT
-      if (f.font_type()) {
-        XGlyphInfo extents = {};
-        XftTextExtentsUtf8(display,
-                           f.font_type(),
-                           (XftChar8*)str.c_str(),
-                           int(str.size()),
-                           &extents);
+      xft_color xftcolor(c, g);
+      clip clp(g, rect);
 
-        const auto ft = f.font_type();
+      const auto ft = f.font_type();
+      if (ft) {
         const auto height = ft->ascent + ft->descent;
-        const auto width = extents.xOff + extents.x;
-        px -= extents.x;
-
-        if (origin_is_h_center(origin)) {
-          px += (rect.os_width() - width) / 2;
-        } else if (origin_is_right(origin)) {
-          px += rect.os_width() - width;
-        }
+        const int lines = only_single ? 0 : std::count(str.begin(), str.end(), '\n');
 
         if (origin_is_v_center(origin)) {
-          py += (rect.os_height() + ft->ascent - ft->descent) / 2;
+          py += (rect.os_height() - lines * height + ft->ascent - ft->descent) / 2;
         } else if (origin_is_bottom(origin)) {
-          py += rect.os_height() - ft->descent;
+          py += rect.os_height() - ft->descent - lines * height;
         } else {
           py += ft->ascent;
         }
 
+        const char* text = str.c_str();
+        while (text) {
+          const char* end = only_single ? nullptr : std::strchr(text, '\n');
+          int text_len = end ? end - text : std::strlen(text);
+
+          XGlyphInfo extents = {};
+          XftTextExtentsUtf8(display,
+                            ft,
+                            (XftChar8*)text,
+                            text_len,
+                            &extents);
+
+          int px = px0 - extents.x;
+
+          if (origin_is_h_center(origin)) {
+            px += (rect.os_width() - (extents.xOff + extents.x)) / 2;
+          } else if (origin_is_right(origin)) {
+            px += rect.os_width() - (extents.xOff + extents.x);
+          }
+
+          XftDrawStringUtf8(g, &xftcolor, ft, px, py,
+                            (XftChar8*)text, text_len);
+
+          if (end) {
+            text = end + 1;
+            py += height;
+          } else {
+            text = nullptr;
+          }
+        }
+
       } else {
         logging::error() << "font_type is zero!";
+        XftDrawStringUtf8(g, &xftcolor, ft, px0, py,
+                          (XftChar8*)str.c_str(), int(str.size()));
       }
-
-      xft_color xftcolor(c, g);
-      clip clp(g, rect);
-
-      XftDrawStringUtf8(g, &xftcolor, f.font_type(), px, py,
-                        (XftChar8*)str.c_str(), int(str.size()));
 #else
       Use<font> fn(g, f);
       Use<pen> pn(g, c);
@@ -563,37 +581,66 @@ namespace gui {
                                    os::color c) const {
       gui::os::instance display = get_instance();
 
+      const bool only_single = line_handling_is_singleline(origin);
 #ifdef GUIPP_USE_XFT
-      if (f.font_type()) {
-        XGlyphInfo extents = {};
-        XftTextExtentsUtf8(display,
-                           f.font_type(),
-                           (XftChar8*)str.c_str(),
-                           int(str.size()),
-                           &extents);
+      const auto ft = f.font_type();
+      if (ft) {
+        const os::size_type height = ft->ascent + ft->descent;
+        const int lines = only_single ? 0 : std::count(str.begin(), str.end(), '\n');
 
-        const auto ft = f.font_type();
-        const auto height = ft->ascent + ft->descent;
-        const auto width = extents.xOff + extents.x;
-        os::point_type px = rect.os_x(g.context()) - extents.x;
         os::point_type py = rect.os_y(g.context());
 
-        if (origin_is_h_center(origin)) {
-          px += (rect.os_width() - width) / 2;
-        } else if (origin_is_right(origin)) {
-          px += rect.os_width() - width;
-        }
-
         if (origin_is_v_center(origin)) {
-          py += (rect.os_height() + ft->ascent - ft->descent) / 2;
+          py += (rect.os_height() - lines * height + ft->ascent) / 2 + ft->descent - height;
         } else if (origin_is_bottom(origin)) {
-          py += rect.os_height() - ft->descent;
-        } else {
-          py += height;
+          if (rect.empty()) { // not a text_box
+            py += rect.os_height() - (1 + lines) * height + ft->descent;
+          } else {
+            py += rect.os_height() - (1 + lines) * height;
+          }
         }
 
-        rect.top_left(core::point(os::point{px, static_cast<os::point_type>(py - height)}, g.context()));
-        rect.set_size(core::size(os::size{static_cast<os::size_type>(width), static_cast<os::size_type>(height)}));
+
+        const char* text = str.c_str();
+        bool first = true;
+        while (text) {
+          const char* end = only_single ? nullptr : std::strchr(text, '\n');
+          int text_len = end ? end - text : std::strlen(text);
+
+          XGlyphInfo extents = {};
+          XftTextExtentsUtf8(display,
+                            ft,
+                            (XftChar8*)text,
+                            text_len,
+                            &extents);
+
+          const os::size_type width = extents.xOff + extents.x;
+          os::point_type px = rect.os_x(g.context()) - extents.x;
+
+          if (origin_is_h_center(origin)) {
+            px += (rect.os_width() - width) / 2;
+          } else if (origin_is_right(origin)) {
+            px += rect.os_width() - width;
+          }
+
+          core::rectangle r{
+            core::point(os::point{px, py}, g.context()),
+            core::size(os::size{width, height})
+          };
+          if (first) {
+            rect = r;
+            first = false;
+          } else {
+            rect |= r;
+          }
+
+          if (end) {
+            text = end + 1;
+            py += height;
+          } else {
+            text = nullptr;
+          }
+        }
 
       } else {
         logging::error() << "font_type is zero!";
@@ -643,40 +690,61 @@ namespace gui {
                            os::color c) const {
       gui::os::instance display = get_instance();
 
-      int px = pos.os_x(g.context());
+      const int px0 = pos.os_x(g.context());
       int py = pos.os_y(g.context());
-#ifdef GUIPP_USE_XFT
-      if (f.font_type()) {
-        XGlyphInfo extents = {};
-        XftTextExtentsUtf8(display,
-                           f.font_type(),
-                           (XftChar8*)str.c_str(),
-                           int(str.size()),
-                           &extents);
-        auto ft = f.font_type();
-        const auto height = ft->ascent;
-        px += extents.x;
-        py += height;
 
-        if (origin_is_h_center(origin)) {
-          px -= extents.width / 2;
-        } else if (origin_is_right(origin)) {
-          px -= extents.width;
-        }
+      const bool only_single = line_handling_is_singleline(origin);
+#ifdef GUIPP_USE_XFT
+      xft_color xftcolor(c, g);
+
+      const auto ft = f.font_type();
+      if (ft) {
+        const auto height = ft->ascent + ft->descent;
+        const int lines = only_single ? 0 : std::count(str.begin(), str.end(), '\n');
 
         if (origin_is_v_center(origin)) {
-          py -= height / 2;
-        } else if (origin_is_bottom(origin)) {
-          py -= height;
+          py -= (lines * height - ft->ascent + ft->descent) / 2;
+        } else if (origin_is_top(origin)) {
+          py += ft->ascent;
+        } else {
+          py -= lines * height;
+        }
+
+        const char* text = str.c_str();
+        while (text) {
+          const char* end = only_single ? nullptr : std::strchr(text, '\n');
+          int text_len = end ? end - text : std::strlen(text);
+
+          XGlyphInfo extents = {};
+          XftTextExtentsUtf8(display,
+                            ft,
+                            (XftChar8*)text,
+                            text_len,
+                            &extents);
+          int px = px0 + extents.x;
+
+          if (origin_is_h_center(origin)) {
+            px -= extents.width / 2;
+          } else if (origin_is_right(origin)) {
+            px -= extents.width;
+          }
+
+          XftDrawStringUtf8(g, &xftcolor, ft, px, py,
+                            (XftChar8*)text, text_len);
+
+          if (end) {
+            text = end + 1;
+            py += height;
+          } else {
+            text = nullptr;
+          }
         }
 
       } else {
         logging::error() << "font_type is zero!";
+        XftDrawStringUtf8(g, &xftcolor, ft, px0, py,
+                          (XftChar8*)str.c_str(), int(str.size()));
       }
-
-      xft_color xftcolor(c, g);
-      XftDrawStringUtf8(g, &xftcolor, f.font_type(), px, py,
-                        (XftChar8*)str.c_str(), int(str.size()));
 #else
       Use<font> fn(g, f);
       Use<pen> pn(g, c);

@@ -72,7 +72,10 @@ namespace gui {
   // --------------------------------------------------------------------------
   enum class line_handling_t : unsigned short {
     wordbreak       = IF_WIN32_X11_QT_ELSE(DT_WORDBREAK,  0x0010, 0x0,                0x0100),
-    singleline      = IF_WIN32_X11_QT_ELSE(DT_SINGLELINE, 0x0020, Qt::TextSingleLine, 0x0020)
+    singleline      = IF_WIN32_X11_QT_ELSE(DT_SINGLELINE, 0x0020, Qt::TextSingleLine, 0x0020),
+    multiline       = IF_WIN32_X11_QT_ELSE(0x0,           0x0,    0x0,                0x0),
+
+    mask            = singleline | multiline | wordbreak
   };
 
   inline constexpr unsigned short operator| (line_handling_t lhs, line_handling_t rhs) {
@@ -101,20 +104,22 @@ namespace gui {
 
   // --------------------------------------------------------------------------
   enum class text_origin_t : unsigned short {
-    top_left        = placement_t::top     | placement_t::left    | line_handling_t::singleline,
-    top_hcenter     = placement_t::top     | placement_t::hcenter | line_handling_t::singleline,
-    top_right       = placement_t::top     | placement_t::right   | line_handling_t::singleline,
+    top_hcenter     = placement_t::top     | placement_t::hcenter ,
+    top_right       = placement_t::top     | placement_t::right   ,
+    top_left        = placement_t::top     | placement_t::left    ,
 
-    bottom_left     = placement_t::bottom  | placement_t::left    | line_handling_t::singleline,
-    bottom_hcenter  = placement_t::bottom  | placement_t::hcenter | line_handling_t::singleline,
-    bottom_right    = placement_t::bottom  | placement_t::right   | line_handling_t::singleline,
+    bottom_left     = placement_t::bottom  | placement_t::left    ,
+    bottom_hcenter  = placement_t::bottom  | placement_t::hcenter ,
+    bottom_right    = placement_t::bottom  | placement_t::right   ,
 
-    vcenter_left    = placement_t::vcenter | placement_t::left    | line_handling_t::singleline,
-    vcenter_right   = placement_t::vcenter | placement_t::right   | line_handling_t::singleline,
-    center          = placement_t::vcenter | placement_t::hcenter | line_handling_t::singleline,
+    vcenter_left    = placement_t::vcenter | placement_t::left    ,
+    vcenter_right   = placement_t::vcenter | placement_t::right   ,
+    center          = placement_t::vcenter | placement_t::hcenter ,
 
     h_align_mask    = placement_t::left    | placement_t::hcenter | placement_t::right,
     v_align_mask    = placement_t::top     | placement_t::vcenter | placement_t::bottom,
+
+    line_handling_mask = static_cast<unsigned short>(line_handling_t::mask),
 
     undefined       = 0xFFFF,
   };
@@ -126,6 +131,18 @@ namespace gui {
 
   inline constexpr text_origin_t operator| (text_origin_t lhs, text_origin_t rhs) {
     return text_origin_t(static_cast<unsigned int>(lhs) | static_cast<unsigned int>(rhs));
+  }
+
+  inline constexpr text_origin_t operator| (text_origin_t lhs, line_handling_t rhs) {
+    return text_origin_t(static_cast<unsigned int>(lhs) | static_cast<unsigned int>(rhs));
+  }
+
+  inline constexpr text_origin_t operator| (text_origin_t lhs, placement_t rhs) {
+    return text_origin_t(static_cast<unsigned int>(lhs) | static_cast<unsigned int>(rhs));
+  }
+
+  inline constexpr bool operator== (text_origin_t lhs, line_handling_t rhs) {
+    return (static_cast<unsigned short>(lhs) == static_cast<unsigned short>(rhs));
   }
 
   // --------------------------------------------------------------------------
@@ -151,6 +168,10 @@ namespace gui {
 
   inline constexpr bool origin_is_bottom (text_origin_t origin) {
     return (origin & text_origin_t::v_align_mask) == placement_t::bottom;
+  }
+
+  inline constexpr bool line_handling_is_singleline (text_origin_t origin) {
+    return (origin & text_origin_t::line_handling_mask) == line_handling_t::singleline;
   }
 
 } // gui

@@ -3647,6 +3647,19 @@ void test_clear_white () {
   test_clear_color(W);
 }
 
+// --------------------------------------------------------------------------
+#ifdef GUIPP_X11
+void listX11Fonts () {
+  int n = 0;
+  char** names = XListFonts(core::global::get_instance(), "*", 256, &n);
+  for (int i = 0; i < n; ++i) {
+    logging::info() << i << ": " << names[i];
+  }
+
+  XFreeFontNames(names);
+}
+#endif
+// --------------------------------------------------------------------------
 #define TEST_CLEAR
 #define TEST_RAW
 #define TEST_LINE
@@ -3660,6 +3673,10 @@ void test_clear_white () {
 void test_main (const testing::start_params& params) {
   testing::init_gui(params);
   testing::log_info("Runningn drawer_test");
+
+#ifdef GUIPP_X11_SHOW_FONTS
+  listX11Fonts();
+#endif
 
 #ifdef TEST_CLEAR
   run_test(test_clear_black);

@@ -112,10 +112,10 @@ namespace gui {
         super::layout();
       });
       view.on_wheel_x([&] (const core::native_point::type delta, const core::native_point& pt) {
-        hscroll.handle_wheel(static_cast<core::point::type>(delta), pt);
+        hscroll.handle_wheel(delta, pt);
       });
       view.on_wheel_y([&] (const core::native_point::type delta, const core::native_point& pt) {
-        vscroll.handle_wheel(static_cast<core::point::type>(delta), pt);
+        vscroll.handle_wheel(delta, pt);
       });
     }
 

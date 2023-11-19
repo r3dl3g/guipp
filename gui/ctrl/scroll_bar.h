@@ -78,7 +78,7 @@ namespace gui {
       void set_min_max_step_value (type, type, type, type);
       void set_min_max_page_value (type, type, type, type);
 
-      void handle_wheel (core::point::type delta, const core::native_point&);
+      void handle_wheel (core::native_point::type delta, const core::native_point&);
 
       static constexpr int get_scroll_bar_width () {
         return scroll_bar_width;

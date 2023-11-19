@@ -539,39 +539,52 @@ namespace gui {
       Use<font> fn(g, f);
       Use<pen> pn(g, c);
 
-      int direction = 0, ascent = 0, descent = 0;
-      XCharStruct overall;
-      memset(&overall, 0, sizeof(XCharStruct));
+      const auto ft = f.font_type();
+      if (ft) {
+        int direction = 0, ascent = 0, descent = 0;
+        XCharStruct overall;
+        memset(&overall, 0, sizeof(XCharStruct));
 
-      if (f.font_type()) {
-        XTextExtents(f.font_type(), str.c_str(), int(str.size()),
-                     &direction, &ascent, &descent, &overall);
+        XTextExtents(ft, "Mg", 2, &direction, &ascent, &descent, &overall);
+
+        const int height = (ascent + descent);
+        const int lines = only_single ? 0 : std::count(str.begin(), str.end(), '\n');
+
+        if (origin_is_v_center(origin)) {
+          py += (rect.os_height() - lines * height + ascent - descent) / 2;
+        } else if (origin_is_bottom(origin)) {
+          py += rect.os_height() - descent - lines * height;
+        } else {
+          py += ascent;
+        }
+
+        const char* text = str.c_str();
+        while (text) {
+          const char* end = only_single ? nullptr : std::strchr(text, '\n');
+          const int text_len = end ? end - text : std::strlen(text);
+          const int width = XTextWidth(ft, text, text_len);
+
+          int px = px0;
+
+          if (origin_is_h_center(origin)) {
+            px += (rect.os_width() - width) / 2;
+          } else if (origin_is_right(origin)) {
+            px += rect.os_width() - width;
+          }
+
+          XDrawString(core::global::get_instance(), g, g, px, py, text, text_len);
+
+          if (end) {
+            text = end + 1;
+            py += height;
+          } else {
+            text = nullptr;
+          }
+        }
       } else {
         logging::error() << "font_type is zero!";
+        XDrawString(core::global::get_instance(), g, g, px0, py, str.c_str(), int(str.size()));
       }
-
-      int width = overall.width;
-      int height = (ascent - descent);
-
-//        LogDebug << "r.x():" << px << " r.y():" << py
-//                 << " r.size:" << rect.size()
-//                 << " o.w:" << width << " o.h:" << height
-//                 << " asc:" << ascent << " des:" << descent;
-
-      if (origin_is_h_center(origin)) {
-        px += (rect.os_width() - width) / 2;
-      } else if (origin_is_right(origin)) {
-        px += rect.os_width() - width;
-      }
-      if (origin_is_v_center(origin)) {
-        py += (rect.os_height() + height) / 2;
-      } else if (origin_is_bottom(origin)) {
-        py += rect.os_height();
-      } else {
-        py += height;
-      }
-
-      XDrawString(core::global::get_instance(), g, g, px, py, str.c_str(), int(str.size()));
 #endif // GUIPP_USE_XFT
     }
 
@@ -650,37 +663,64 @@ namespace gui {
       Use<font> fn(g, f);
       Use<pen> pn(g, c);
 
-      int direction = 0, ascent = 0, descent = 0;
-      XCharStruct overall;
-      memset(&overall, 0, sizeof(XCharStruct));
+      const auto ft = f.font_type();
+      if (ft) {
+        int direction = 0, ascent = 0, descent = 0;
+        XCharStruct overall;
+        memset(&overall, 0, sizeof(XCharStruct));
 
-      if (f.font_type()) {
-        XTextExtents(f.font_type(), str.c_str(), int(str.size()),
-                     &direction, &ascent, &descent, &overall);
+        XTextExtents(ft, "Mg", 2, &direction, &ascent, &descent, &overall);
+        const os::size_type height = (ascent + descent);
+        const int lines = only_single ? 0 : std::count(str.begin(), str.end(), '\n');
+
+        os::point_type py = rect.os_y(g.context());
+
+        if (origin_is_v_center(origin)) {
+          py += (rect.os_height() - lines * height + ascent) / 2 + descent - height;
+        } else if (origin_is_bottom(origin)) {
+          if (rect.empty()) { // not a text_box
+            py += rect.os_height() - (1 + lines) * height + descent;
+          } else {
+            py += rect.os_height() - (1 + lines) * height;
+          }
+        }
+
+        const char* text = str.c_str();
+        bool first = true;
+        while (text) {
+          const char* end = only_single ? nullptr : std::strchr(text, '\n');
+          const int text_len = end ? end - text : std::strlen(text);
+          const os::size_type width = XTextWidth(ft, text, text_len);
+
+          os::point_type px = rect.os_x(g.context());
+
+          if (origin_is_h_center(origin)) {
+            px += (rect.os_width() - width) / 2;
+          } else if (origin_is_right(origin)) {
+            px += rect.os_width() - width;
+          }
+
+          core::rectangle r{
+            core::point(os::point{px, py}, g.context()),
+            core::size(os::size{width, height})
+          };
+          if (first) {
+            rect = r;
+            first = false;
+          } else {
+            rect |= r;
+          }
+
+          if (end) {
+            text = end + 1;
+            py += height;
+          } else {
+            text = nullptr;
+          }
+        }
       } else {
         logging::error() << "font_type is zero!";
       }
-
-      int width = overall.width;
-      int height = (ascent - descent);
-      os::point_type px = rect.os_x(g.context());
-      os::point_type py = rect.os_y(g.context());
-
-      if (origin_is_h_center(origin)) {
-        px += (rect.os_width() - width) / 2;
-      } else if (origin_is_right(origin)) {
-        px += rect.os_width() - width;
-      }
-      if (origin_is_v_center(origin)) {
-        py += (rect.os_height() + height) / 2;
-      } else if (origin_is_bottom(origin)) {
-        py += rect.os_height();
-      } else {
-        py += height;
-      }
-
-      rect.top_left({core::point::type(px), core::point::type(py - overall.ascent)});
-      rect.set_size({core::size::type(width), core::size::type(overall.ascent + overall.descent)});
 #endif // GUIPP_USE_XFT
     }
 
@@ -749,31 +789,52 @@ namespace gui {
       Use<font> fn(g, f);
       Use<pen> pn(g, c);
 
-      int direction = 0, ascent = 0, descent = 0;
-      XCharStruct overall;
-      memset(&overall, 0, sizeof(XCharStruct));
+      const auto ft = f.font_type();
+      if (ft) {
+        int direction = 0, ascent = 0, descent = 0;
+        XCharStruct overall;
+        memset(&overall, 0, sizeof(XCharStruct));
+        XTextExtents(ft, "Mg", 2, &direction, &ascent, &descent, &overall);
 
-      if (f.font_type()) {
-        XTextExtents(f.font_type(), str.c_str(), int(str.size()),
-                     &direction, &ascent, &descent, &overall);
+        const auto height = ascent + descent;
+        const int lines = only_single ? 0 : std::count(str.begin(), str.end(), '\n');
+
+        if (origin_is_v_center(origin)) {
+          py -= (lines * height - ascent + descent) / 2;
+        } else if (origin_is_top(origin)) {
+          py += ascent;
+        } else {
+          py -= lines * height;
+        }
+
+        const char* text = str.c_str();
+        while (text) {
+          const char* end = only_single ? nullptr : std::strchr(text, '\n');
+          const int text_len = end ? end - text : std::strlen(text);
+          const os::size_type width = XTextWidth(ft, text, text_len);
+
+          int px = px0;
+
+          if (origin_is_h_center(origin)) {
+            px -= width / 2;
+          } else if (origin_is_right(origin)) {
+            px -= width;
+          }
+
+          XDrawString(display, g, g, px, py, text, text_len);
+
+          if (end) {
+            text = end + 1;
+            py += height;
+          } else {
+            text = nullptr;
+          }
+        }
+
       } else {
         logging::error() << "font_type is zero!";
+        XDrawString(display, g, g, px0, py, str.c_str(), int(str.size()));
       }
-
-      if (origin_is_h_center(origin)) {
-        px -= overall.width / 2;
-      } else if (origin_is_right(origin)) {
-        px -= overall.width;
-      }
-      int height = (overall.ascent - overall.descent);
-      if (origin_is_v_center(origin)) {
-        py += height / 2;
-      } else if (origin_is_bottom(origin)) {
-      } else {
-        py += height;
-      }
-
-      XDrawString(display, g, g, px, py, str.c_str(), int(str.size()));
 #endif // GUIPP_USE_XFT
     }
   }

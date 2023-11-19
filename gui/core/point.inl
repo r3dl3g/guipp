@@ -311,11 +311,6 @@ namespace gui {
     }
 
     template<typename T, coordinate_system C>
-    inline bool basic_point<T, C>::isnan () const {
-      return std::isnan(x_) || std::isnan(y_);
-    }
-
-    template<typename T, coordinate_system C>
     inline void basic_point<T, C>::clear () {
       operator=(undefined);
     }

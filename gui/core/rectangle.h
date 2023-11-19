@@ -94,7 +94,7 @@ namespace gui {
       self& bottom (point_type y);
 
       bool empty () const;
-      bool isnan () const;
+      bool is_valid () const;
       bool is_inside (const point_t& p) const;
       point_t limit_inside (const point_t& p) const;
 

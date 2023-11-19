@@ -42,9 +42,11 @@ namespace gui {
       typedef T type;
       typedef basic_size self;
 
-      static const basic_size zero;
-      static const basic_size one;
-      static const basic_size two;
+      static const self zero;
+      static const self one;
+      static const self two;
+      static const self end;
+      static const self undefined;
 
       basic_size ();
       basic_size (type width, type height);
@@ -67,7 +69,7 @@ namespace gui {
       void height (type h);
 
       bool empty () const;
-      bool isnan () const;
+      bool is_valid() const;
       void clear (type v = 0);
 
       bool operator== (const self& rhs) const;

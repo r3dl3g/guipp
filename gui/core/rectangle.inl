@@ -288,8 +288,8 @@ namespace gui {
     }
 
     template<typename T, typename S, coordinate_system C>
-    inline bool basic_rectangle<T, S, C>::isnan () const {
-      return size().isnan() || position().isnan();
+    inline bool basic_rectangle<T, S, C>::is_valid() const {
+      return size().is_valid() && position().is_valid();
     }
 
     template<typename T, typename S, coordinate_system C>
@@ -625,10 +625,10 @@ namespace gui {
 
     template<typename T, typename S, coordinate_system C>
     auto basic_rectangle<T, S, C>::operator| (const self& rhs) const -> self {
-      if (isnan()) {
+      if (!is_valid()) {
         return rhs;
       }
-      if (rhs.isnan()) {
+      if (!rhs.is_valid()) {
         return *this;
       }
       point_type x0 = std::min(x(), rhs.x());
@@ -650,10 +650,10 @@ namespace gui {
 
     template<typename T, typename S, coordinate_system C>
     auto basic_rectangle<T, S, C>::operator& (const self& rhs) const -> self {
-      if (isnan()) {
+      if (!is_valid()) {
         return rhs;
       }
-      if (rhs.isnan()) {
+      if (!rhs.is_valid()) {
         return *this;
       }
       point_type x0 = std::max(x(), rhs.x());

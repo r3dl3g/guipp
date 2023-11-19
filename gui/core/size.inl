@@ -74,6 +74,12 @@ namespace gui {
     template<typename T, coordinate_system C>
     const basic_size<T, C> basic_size<T, C>::two(T(2));
 
+    template<typename T, coordinate_system C>
+    const basic_size<T, C> basic_size<T, C>::end(std::numeric_limits<T>::max());
+
+    template<typename T, coordinate_system C>
+    const basic_size<T, C> basic_size<T, C>::undefined(std::numeric_limits<T>::max());
+
     // --------------------------------------------------------------------------
     template<typename T, coordinate_system C>
     inline basic_size<T, C>::basic_size ()
@@ -162,8 +168,8 @@ namespace gui {
     }
 
     template<typename T, coordinate_system C>
-    inline bool basic_size<T, C>::isnan () const {
-      return std::isnan(w) || std::isnan(w);
+    inline bool basic_size<T, C>::is_valid() const {
+      return operator!=(undefined);
     }
 
     template<typename T, coordinate_system C>

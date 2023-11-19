@@ -63,7 +63,6 @@ namespace gui {
       void y (type v);
 
       bool is_valid () const;
-      bool isnan () const;
       void clear ();
 
       bool operator== (const self& rhs) const;

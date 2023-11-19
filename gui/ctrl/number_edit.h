@@ -73,7 +73,7 @@ namespace gui {
 
       template<>
       struct type_increment<float> {
-        static constexpr float inc = 0.01;
+        static constexpr float inc = 0.01F;
       };
 
     // --------------------------------------------------------------------------

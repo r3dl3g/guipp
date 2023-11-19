@@ -45,7 +45,7 @@ namespace gui {
         set_data<T>(options);
         auto i = std::find(options.begin(), options.end(), o.value);
         if (i != options.end()) {
-          set_selection(std::distance(options.begin(), i), event_source::logic);
+          set_selection(static_cast<int>(std::distance(options.begin(), i)), event_source::logic);
         }
       }
 

@@ -405,15 +405,15 @@ namespace gui {
             case core::keys::page_up:
             case core::keys::numpad::page_up:
               set_selection(get_selection().get_first_index() - 
-                            super::traits.get_items_per_page(super::client_size(),
-                                                             get_selection().get_last_selected_index()),
+                              static_cast<int>(super::traits.get_items_per_page(super::client_size(),
+                                get_selection().get_last_selected_index())),
                             event_source::keyboard, shift_pressed);
               break;
             case core::keys::page_down:
             case core::keys::numpad::page_down:
               set_selection(get_selection().get_first_index() +
-                            super::traits.get_items_per_page(super::client_size(),
-                                                             get_selection().get_last_selected_index()),
+                              static_cast<int>(super::traits.get_items_per_page(super::client_size(),
+                                get_selection().get_last_selected_index())),
                             event_source::keyboard, shift_pressed);
               break;
             case core::keys::home:

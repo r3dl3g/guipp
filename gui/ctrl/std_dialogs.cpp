@@ -27,7 +27,7 @@ namespace gui {
     namespace detail {
 
       inline int number_of_lines (const std::string& str) {
-        return std::count(str.begin(), str.end(), '\n') + 1;
+        return static_cast<int>(std::count(str.begin(), str.end(), '\n') + 1);
       }
 
       // --------------------------------------------------------------------------

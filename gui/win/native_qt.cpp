@@ -253,7 +253,7 @@ namespace gui {
       }
 
       bool is_fullscreen (os::window id) {
-        return id && (id->visibility() == Qt::WindowFullScreen);
+        return id && ((int)id->visibility() == (int)Qt::WindowFullScreen);
       }
 
       void minimize (os::window id) {

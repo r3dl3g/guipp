@@ -71,7 +71,7 @@ namespace gui {
 
   // --------------------------------------------------------------------------
   enum class line_handling_t : unsigned short {
-    wordbreak       = IF_WIN32_X11_QT_ELSE(DT_WORDBREAK,  0x0010, 0x0,                0x0100),
+    wordbreak       = IF_WIN32_X11_QT_ELSE(DT_WORDBREAK,  0x0010, Qt::TextWordWrap,   0x0100),
     singleline      = IF_WIN32_X11_QT_ELSE(DT_SINGLELINE, 0x0020, Qt::TextSingleLine, 0x0020),
     multiline       = IF_WIN32_X11_QT_ELSE(0x0,           0x0,    0x0,                0x0),
 

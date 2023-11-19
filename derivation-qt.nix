@@ -4,16 +4,23 @@
 
 stdenv.mkDerivation rec {
   pname = "guipp-qt";
-  version = "1.3.1";
+  version = "1.4.0";
 
   src = ./.;
 
-  nativeBuildInputs = with pkgs; [ cmake libsForQt5.qt5.wrapQtAppsHook ];
+  nativeBuildInputs = with pkgs; [
+    cmake
+    coreutils
+    gnumake
+    gcc
+    gdb
+    git
+  ];
 
   buildInputs = with pkgs; [
-    libsForQt5.full
-    (callPackage ../logging/derivation.nix { })
-    (callPackage ../util/derivation.nix { })
+    libsForQt515.qt5.wrapQtAppsHook
+    libsForQt515.qt5.qtwayland
+    libsForQt515.qt5.qtbase
   ];
 
   enableParallelBuilding = true;
@@ -24,15 +31,15 @@ stdenv.mkDerivation rec {
     "-DGUIPP_TESTS=OFF"
     "-DGUIPP_SAMPLES=ON"
     "-DGUIPP_USE_QT5=ON"
-    "-DGUIPP_CONFIG_INSTALL=ON"
-    "-DLOGGING_CONFIG_INSTALL=ON"
-    "-DUTIL_CONFIG_INSTALL=ON"
-    "-DTESTING_CONFIG_INSTALL=ON"
+    "-DGUIPP_CONFIG_INSTALL=OFF"
+    "-DLOGGING_CONFIG_INSTALL=OFF"
+    "-DUTIL_CONFIG_INSTALL=OFF"
+    "-DTESTING_CONFIG_INSTALL=OFF"
     "-DGUIPP_BUILD_DEPENDENT_LIBS=ON"
     "-DGUIPP_BUILD_STATIC_MODULE_LIBS=OFF"
-    "-DGUIPP_BUILD_SHARED_MODULE_LIBS=OFF"
-    "-DLOGGING_BUILD_STATIC_MODULE_LIB=ON"
-    "-DUTIL_BUILD_STATIC_MODULE_LIB=ON"
+    "-DGUIPP_BUILD_SHARED_MODULE_LIBS=ON"
+    "-DLOGGING_BUILD_STATIC_MODULE_LIB=OFF"
+    "-DUTIL_BUILD_STATIC_MODULE_LIB=OFF"
   ];
 
   meta = with lib; {

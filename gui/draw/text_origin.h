@@ -119,6 +119,7 @@ namespace gui {
     h_align_mask    = placement_t::left    | placement_t::hcenter | placement_t::right,
     v_align_mask    = placement_t::top     | placement_t::vcenter | placement_t::bottom,
 
+    placement_mask  = h_align_mask | v_align_mask,
     line_handling_mask = static_cast<unsigned short>(line_handling_t::mask),
 
     undefined       = 0xFFFF,
@@ -143,6 +144,15 @@ namespace gui {
 
   inline constexpr bool operator== (text_origin_t lhs, line_handling_t rhs) {
     return (static_cast<unsigned short>(lhs) == static_cast<unsigned short>(rhs));
+  }
+
+  // --------------------------------------------------------------------------
+  inline constexpr text_origin_t origin_get_placement (text_origin_t origin) {
+    return (origin & text_origin_t::placement_mask);
+  }
+
+  inline constexpr line_handling_t origin_get_line_handling (text_origin_t origin) {
+    return static_cast<line_handling_t>(origin & text_origin_t::line_handling_mask);
   }
 
   // --------------------------------------------------------------------------

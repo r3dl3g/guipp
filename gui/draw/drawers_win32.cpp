@@ -381,12 +381,24 @@ namespace gui {
       std::wstring wstr = util::string::utf8_to_utf16(str);
 
       unsigned int o = static_cast<unsigned int>(origin);
-      if (core::bit_mask<unsigned int, DT_WORDBREAK | DT_VCENTER>::is_set(o)) {
+      if (!line_handling_is_singleline(origin)) {
         int h = DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, o | DT_CALCRECT);
-        Rect.left = rect.os_x(g.context());
-        Rect.right = rect.os_x2(g.context());
-        Rect.top = ((rect.size().os_height() - h) / 2);
-        Rect.bottom = Rect.top + h;
+        if (origin_is_right(origin)) {
+          int w = Rect.right - Rect.left;
+          Rect.right = rect.os_x2(g.context());
+          Rect.left = Rect.right - w;
+        } else if (origin_is_h_center(origin)) {
+          int w = Rect.right - Rect.left;
+          Rect.left = (rect.os_x(g.context()) + rect.os_width() / 2) - w / 2;
+          Rect.right = Rect.left + w;
+        }
+        if (origin_is_bottom(origin)) {
+          Rect.bottom = rect.os_y2(g.context());
+          Rect.top = Rect.bottom - h;
+        } else if (origin_is_v_center(origin)) {
+          Rect.top = (rect.os_y(g.context()) + rect.os_height() / 2) - h / 2;
+          Rect.bottom = Rect.top + h;
+        }
       }
       DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, o | DT_NOPREFIX);
       SetBkMode(g, old_mode);
@@ -400,7 +412,7 @@ namespace gui {
       Use<font> fn(g, f);
       RECT r = rect.os(g.context());
       std::wstring wstr = util::string::utf8_to_utf16(str);
-      DrawTextW(g, wstr.c_str(), (int)wstr.size(), &r, static_cast<unsigned int>(text_origin_t::top_left) | DT_CALCRECT);
+      DrawTextW(g, wstr.c_str(), (int)wstr.size(), &r, static_cast<unsigned int>(origin_get_line_handling(origin)) | DT_CALCRECT);
       core::rectangle rr(r, g.context());
       if (origin_is_right(origin)) {
         rect.set_horizontal(rect.x2() - rr.width(), rr.width());
@@ -429,51 +441,68 @@ namespace gui {
       int py = pos.os_y(g.context());
       unsigned int old_align = static_cast<unsigned int>(text_origin_t::top_left);
       std::wstring wstr = util::string::utf8_to_utf16(str);
+      const bool only_single = line_handling_is_singleline(origin);
 
-      switch (origin) {
+      const auto height = f.native_line_height();
+      const int lines = static_cast<int>(only_single ? 0 :
+          std::count(wstr.begin(), wstr.end(), L'\n'));
+
+      if (origin_is_v_center(origin)) {
+        py -= ((lines + 1) * height) / 2;
+      } else if (origin_is_bottom(origin)) {
+        py -= lines * height;
+      }
+
+      switch (origin_get_placement(origin)) {
       case text_origin_t::top_left:
-        old_align = SetTextAlign(g, TA_LEFT | TA_TOP | TA_NOUPDATECP);
+        old_align = SetTextAlign(g, TA_TOP | TA_LEFT | TA_NOUPDATECP);
         break;
       case text_origin_t::top_right:
-        old_align = SetTextAlign(g, TA_RIGHT | TA_TOP | TA_NOUPDATECP);
+        old_align = SetTextAlign(g, TA_TOP | TA_RIGHT | TA_NOUPDATECP);
         break;
       case text_origin_t::top_hcenter:
-        old_align = SetTextAlign(g, TA_CENTER | TA_TOP | TA_NOUPDATECP);
+        old_align = SetTextAlign(g, TA_TOP | TA_CENTER | TA_NOUPDATECP);
         break;
       case text_origin_t::bottom_left:
-        old_align = SetTextAlign(g, TA_LEFT | TA_BOTTOM | TA_NOUPDATECP);
+        old_align = SetTextAlign(g, TA_BOTTOM | TA_LEFT | TA_NOUPDATECP);
         break;
       case text_origin_t::bottom_right:
-        old_align = SetTextAlign(g, TA_RIGHT | TA_BOTTOM | TA_NOUPDATECP);
+        old_align = SetTextAlign(g, TA_BOTTOM | TA_RIGHT | TA_NOUPDATECP);
         break;
       case text_origin_t::bottom_hcenter:
-        old_align = SetTextAlign(g, TA_CENTER | TA_BOTTOM | TA_NOUPDATECP);
+        old_align = SetTextAlign(g, TA_BOTTOM | TA_CENTER | TA_NOUPDATECP);
         break;
       case text_origin_t::vcenter_right: {
-        SIZE sz;
-        GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
-        py -= sz.cy / 2;
         old_align = SetTextAlign(g, TA_RIGHT | TA_NOUPDATECP);
         break;
       }
       case text_origin_t::vcenter_left: {
-        SIZE sz;
-        GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
-        py -= sz.cy / 2;
         old_align = SetTextAlign(g, TA_LEFT | TA_NOUPDATECP);
         break;
       }
       case text_origin_t::center: {
-        SIZE sz;
-        GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
-        py -= sz.cy / 2;
         old_align = SetTextAlign(g, TA_CENTER | TA_NOUPDATECP);
         break;
       }
       case text_origin_t::undefined:
         break;
       }
-      TextOutW(g, px, py, wstr.c_str(), (int)wstr.size());
+
+      const wchar_t* text = wstr.c_str();
+      while (text) {
+        const wchar_t* end = only_single ? nullptr : std::wcschr(text, '\n');
+        const int text_len = static_cast<int>(end ? end - text : std::wcslen(text));
+
+        TextOutW(g, px, py, text, text_len);
+
+        if (end) {
+          text = end + 1;
+          py += height;
+        }
+        else {
+          text = nullptr;
+        }
+      }
       SetTextAlign(g, old_align);
       SetBkMode(g, old_mode);
       SetTextColor(g, old_color);

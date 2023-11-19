@@ -47,44 +47,44 @@ void draw_text_box (text_origin_t t, graphics& graph, const core::rectangle& are
 }
 // --------------------------------------------------------------------------
 void draw_standard_text (text_origin_t t, graphics& graph, const core::rectangle& area) {
-  const std::string text = ostreamfmt("Text:" << t);
+  const std::string text = ostreamfmt("Single Text:" << t);
   draw_text(t, graph, area, text);
 }
 // --------------------------------------------------------------------------
 void draw_singleline_text (text_origin_t t_, graphics& graph, const core::rectangle& area) {
   text_origin_t t = t_ | line_handling_t::singleline;
-  const std::string text = ostreamfmt("Text:\n" << t);
+  const std::string text = ostreamfmt("Double Text:\n" << t);
   draw_text(t, graph, area, text);
 }
 // --------------------------------------------------------------------------
 void draw_double_text (text_origin_t t, graphics& graph, const core::rectangle& area) {
-  const std::string text = ostreamfmt("Text:\n" << t);
+  const std::string text = ostreamfmt("Double Text:\n" << t);
   draw_text(t, graph, area, text);
 }
 // --------------------------------------------------------------------------
 void draw_multiline_text (text_origin_t t, graphics& graph, const core::rectangle& area) {
-  const std::string text = ostreamfmt("Multiline\nText:\n" << t);
+  const std::string text = ostreamfmt("Tripple\nText:\n" << t);
   draw_text(t, graph, area, text);
 }
 // --------------------------------------------------------------------------
 void draw_standard_text_box (text_origin_t t, graphics& graph, const core::rectangle& area) {
-  const std::string text = ostreamfmt("Box:" << t);
+  const std::string text = ostreamfmt("Single Box:" << t);
   draw_text_box(t, graph, area, text);
 }
 // --------------------------------------------------------------------------
 void draw_singleline_text_box (text_origin_t t_, graphics& graph, const core::rectangle& area) {
   text_origin_t t = t_ | line_handling_t::singleline;
-  const std::string text = ostreamfmt("Box:\n" << t);
+  const std::string text = ostreamfmt("Double Box:\n" << t);
   draw_text_box(t, graph, area, text);
 }
 // --------------------------------------------------------------------------
 void draw_double_text_box (text_origin_t t, graphics& graph, const core::rectangle& area) {
-  const std::string text = ostreamfmt("Box:\n" << t);
+  const std::string text = ostreamfmt("Double Box:\n" << t);
   draw_text_box(t, graph, area, text);
 }
 // --------------------------------------------------------------------------
 void draw_multiline_text_box (text_origin_t t, graphics& graph, const core::rectangle& area) {
-  const std::string text = ostreamfmt("Multiline\nBox:\n" << t);
+  const std::string text = ostreamfmt("Tripple\nBox:\n" << t);
   draw_text_box(t, graph, area, text);
 }
 // --------------------------------------------------------------------------

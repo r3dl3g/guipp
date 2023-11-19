@@ -29,8 +29,10 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using center_deep = basic_label<text_origin_t::center, draw::frame::sunken_deep_relief>;
   using center_raised = basic_label<text_origin_t::center, draw::frame::raised_deep_relief>;
 
-  center_deep deep_center_label([&] () { return ostreamfmt("Deep (" << deep_center_label.geometry() << ")"); });
-  center_raised raised_center_label([&] () { return ostreamfmt("Raised (" << raised_center_label.geometry() << ")"); });
+  center_deep deep_center_label; 
+  deep_center_label.set_text([&]() { return ostreamfmt("Deep (" << deep_center_label.geometry() << ")"); });
+  center_raised raised_center_label;
+  raised_center_label.set_text([&]() { return ostreamfmt("Raised (" << raised_center_label.geometry() << ")"); });
 
   client_t client;
   layout_main_window<border::center_layout<>, client_t&> main(client);

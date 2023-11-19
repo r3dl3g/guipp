@@ -16,10 +16,10 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using label_t = basic_label<text_origin_t::center, draw::frame::raised_deep_relief>;
   using client_t = vertical_split_view<label_t, label_t>;
 
-  client_t client(
-    label_t([&] () { return ostreamfmt("Left (" << client.get<0>().geometry() << ")"); }),
-    label_t([&] () { return ostreamfmt("Right (" << client.get<1>().geometry() << ")"); })
-  );
+  client_t client;
+  client.get<0>().set_text([&]() { return ostreamfmt("Left (" << client.get<0>().geometry() << ")"); });
+  client.get<1>().set_text([&]() { return ostreamfmt("Right (" << client.get<1>().geometry() << ")"); });
+  
   layout_main_window<border::center_layout<>, client_t&> main(client);
 
   main.on_create([&] () {

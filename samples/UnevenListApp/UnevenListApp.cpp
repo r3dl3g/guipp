@@ -39,12 +39,12 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   list4_t& list4 = main_split_view.get<1>().get<1>();
 
   list1->set_data(ctrl::const_list_data<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12});
-  list1->set_size_function([](int i, const core::size&){
-    return i * 5 + 20;
+  list1->set_size_function([](int i, const core::size&) {
+    return static_cast<core::size::type>(i * 5 + 20);
   });
   list2->set_data(ctrl::indirect_list_data<std::string>(data));
-  list2->set_size_function([&](int i, const core::size&){
-    return data[i].size() * 8;
+  list2->set_size_function([&](int i, const core::size&) {
+    return static_cast<core::size::type>(data[i].size() * 8);
   });
   list3->set_data(ctrl::calc_list_data<std::string>(
     [](std::size_t idx) {
@@ -53,12 +53,12 @@ int gui_main(const std::vector<std::string>& /*args*/) {
       return 100;
     }
   ));
-  list3->set_size_function([&](int i, const core::size&){
-    return i * 5 + 20;
+  list3->set_size_function([&](int i, const core::size&) {
+    return static_cast<core::size::type>(i * 5 + 20);
   });
   list4->set_data(ctrl::indirect_list_data<std::string>(data));
-  list4->set_size_function([&](int i, const core::size&){
-    return data[i].size() * 8;
+  list4->set_size_function([&](int i, const core::size&) {
+    return static_cast<core::size::type>(data[i].size() * 8);
   });
 
   main.get_layout().set_center(lay(main_split_view));

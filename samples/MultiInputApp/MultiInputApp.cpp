@@ -37,7 +37,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   typedef multi_input_dialog<std::string, bool, int, float, time_point, duration, currency,
                      decltype(option2), decltype(unsigned_int), decltype(limited_float)> dialog_t;
   dialog_t::ask(main, "Input", {"Text:", "Boolean", "Number:", "Float:", "Time point:", "Duration:", "Currency:", "Option", "Unsigned Number", "Limited Float"},
-            std::make_tuple(std::string("Text"), false, 17, 47.11, now, oneh2m3s, 12.34_EUR, option2, unsigned_int, limited_float),
+            std::make_tuple(std::string("Text"), false, 17, 47.11F, now, oneh2m3s, 12.34_EUR, option2, unsigned_int, limited_float),
             "Yes", "No",
             [&] (const dialog_t::result_types& t) {
     message_dialog::show(main, "Your input",

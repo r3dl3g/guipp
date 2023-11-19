@@ -219,7 +219,7 @@ namespace gui {
                            const core::rectangle rect,
                            const datamap<T>& img,
                            const core::native_rect& frame) {
-      if ((rect.size() <= core::size::two) || rect.isnan()){
+      if ((rect.size() <= core::size::two) || !rect.is_valid()){
         return;
       }
 

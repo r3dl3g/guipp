@@ -189,15 +189,15 @@ namespace gui {
 
       void init (gui::os::instance instance) {
         gui_static.init(instance);
-        logging::info() << "os::bitmap_bit_order_t: " << core::os::bitmap_bit_order;
-        logging::info() << "os::bitmap_byte_order_t: " << core::os::bitmap_byte_order;
-        logging::info() << "os::platform_t: " << core::os::system_platform;
-        logging::info() << "os::ui_t: " << core::os::system_ui;
-        logging::info() << "global::scale_factor: " << scale_factor;
-        logging::info() << "color::part: RGBA=" << static_cast<unsigned int>(color::part::red)
-                     << ":" << static_cast<unsigned int>(color::part::green)
-                     << ":" << static_cast<unsigned int>(color::part::blue)
-                     << ":" << static_cast<unsigned int>(color::part::alpha);
+        logging::debug() << "os::bitmap_bit_order_t: " << core::os::bitmap_bit_order;
+        logging::debug() << "os::bitmap_byte_order_t: " << core::os::bitmap_byte_order;
+        logging::debug() << "os::platform_t: " << core::os::system_platform;
+        logging::debug() << "os::ui_t: " << core::os::system_ui;
+        logging::debug() << "global::scale_factor: " << scale_factor;
+        logging::debug() << "color::part: RGBA=" << static_cast<unsigned int>(color::part::red)
+                                          << ":" << static_cast<unsigned int>(color::part::green)
+                                          << ":" << static_cast<unsigned int>(color::part::blue)
+                                          << ":" << static_cast<unsigned int>(color::part::alpha);
       }
 
       void fini () {
@@ -342,7 +342,7 @@ namespace gui {
         if (xrm_db != NULL) {
           int i = xcb_xrm_resource_get_long(xrm_db, "Xft.dpi", NULL, &dpi);
           xcb_xrm_database_free(xrm_db);
-          logging::info() << "Xcb xrm_resource Xft.dpi: " << dpi;
+          logging::debug() << "Xcb xrm_resource Xft.dpi: " << dpi;
         } else {
           logging::warn() << "Could not open Xresources database falling back to highest dpi found";
 
@@ -351,7 +351,7 @@ namespace gui {
               const long xdpi = static_cast<int>((i.data->width_in_pixels * 254) / (i.data->width_in_millimeters * 10));
               const long ydpi = static_cast<int>((i.data->height_in_pixels * 254) / (i.data->height_in_millimeters * 10));
 
-              logging::info() << "Xcb Screen " << i.index << ": "
+              logging::debug() << "Xcb Screen " << i.index << ": "
                            << " pix WxH: " << i.data->width_in_pixels << " x " << i.data->height_in_pixels
                            << " mm WxH: " << i.data->width_in_millimeters << " x " << i.data->height_in_millimeters
                            << " X-DPI: " << xdpi << " Y-DPI: " << ydpi;
@@ -361,7 +361,7 @@ namespace gui {
           }
         }
 
-       logging::info() << "XCB.dpi = " << dpi;
+       logging::debug() << "XCB.dpi = " << dpi;
 
         return static_cast<int>(dpi);
       }
@@ -380,7 +380,7 @@ namespace gui {
           XRROutputInfo* rroi = XRRGetOutputInfo(dpy, res, res->outputs[i]);
 
           if (rroi && !rroi->connection) {
-            logging::info() << "Xrandr Screen " << i << " (" << rroi->name
+            logging::debug() << "Xrandr Screen " << i << " (" << rroi->name
                          << "): connection: " << rroi->connection
                          << ", WxH: " << rroi->mm_width << " x " << rroi->mm_height;
 
@@ -389,7 +389,7 @@ namespace gui {
               if (rrci && rrci->noutput) {
                 const int xdpi = ((int)rrci->width * 254) / ((int)rroi->mm_width * 10);
                 const int ydpi = ((int)rrci->height * 254) / ((int)rroi->mm_height * 10);
-                logging::info() << "Xrandr Crtc " << j << " XxY-WxH:" << rrci->x << " y " << rrci->y
+                logging::debug() << "Xrandr Crtc " << j << " XxY-WxH:" << rrci->x << " y " << rrci->y
                              << " - " << rrci->width << " x " << rrci->height
                              << " X-DPI: " << xdpi << " Y-DPI: " << ydpi;
                 dpi = std::max(dpi, std::max(xdpi, ydpi));
@@ -400,7 +400,7 @@ namespace gui {
           XRRFreeOutputInfo(rroi);
         }
         XRRFreeScreenResources(res);
-        logging::info() << "Xrandr.dpi = " << dpi;
+        logging::debug() << "Xrandr.dpi = " << dpi;
         return dpi;
       }
 #pragma clang diagnostic pop
@@ -414,14 +414,14 @@ namespace gui {
           const int xdpi = (screen->width * 254) / (screen->mwidth * 10);
           const int ydpi = (screen->height * 254) / (screen->mheight * 10);
 
-          logging::info() << "Xlib Screen " << i << ": "
+          logging::debug() << "Xlib Screen " << i << ": "
                        << " pix WxH: " << screen->width << " x " << screen->height
                        << " mm WxH: " << screen->mwidth << " x " << screen->mheight
                        << " X-DPI: " << xdpi << " Y-DPI: " << ydpi;
 
           dpi = std::max(dpi, std::max(xdpi, ydpi));
         }
-        logging::info() << "Xlib.dpi = " << dpi;
+        logging::debug() << "Xlib.dpi = " << dpi;
         return dpi;
       }
 
@@ -465,7 +465,7 @@ namespace gui {
         } else {
           QScreen* d = QGuiApplication::primaryScreen();
           auto r =  std::max(ceil((double)d->logicalDotsPerInchX() * 2.0 / 96.0) / 2.0, 0.5);
-          logging::info()  << "Display "
+          logging::debug()  << "Display "
                            "W:" << d->size().width() << ", H:" << d->size().height()
                         << ", MM-W:" << d->physicalSize().width() << ", MM-H:" << d->physicalSize().height()
                         << ", LogDPI-X:" << d->logicalDotsPerInchX() << ", LogDPI-Y:" << d->logicalDotsPerInchY()

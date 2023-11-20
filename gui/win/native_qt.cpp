@@ -407,7 +407,7 @@ namespace gui {
         gui::core::event ev = {this, e};
 #ifdef LOG_ALL_EVENTS
         if (e->type() != QEvent::MouseMove) {
-          logging::info() << "window received event: " << ev;
+          logging::debug() << "window received event: " << ev;
         }
 #endif // LOG_ALL_EVENTS
         if (win && win->handle_event(ev, result)) {

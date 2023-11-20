@@ -110,6 +110,10 @@ int main (int argc, char* argv[]) {
   std::vector<std::string> args(argv, argv + argc);
 #endif // GUIPP_X11 || GUIPP_QT
 
+#ifndef NDEBUG
+  logging::core::instance().set_log_level(logging::level::trace);
+#endif
+
 #ifdef ENABLE_STACKTRACE
   ::signal(SIGSEGV, &fatal_error_handler);
   ::signal(SIGABRT, &fatal_error_handler);
@@ -128,7 +132,7 @@ int main (int argc, char* argv[]) {
     return args[0].substr(begin, end - begin);
   }();
   android_log_stream android_logger(appname, logging::level::debug, logging::core::get_no_time_formatter());
-  logging::info() << "Found app name: '" << appname << "'";
+  logging::debug() << "Found app name: '" << appname << "'";
 #endif // ANDROID
 
 #ifdef GUIPP_X11
@@ -152,19 +156,19 @@ int main (int argc, char* argv[]) {
   QGuiApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
 # ifdef GUIPP_QT_HIDPI
   if (QGuiApplication::testAttribute(Qt::AA_EnableHighDpiScaling)) {
-    logging::info() << "Qt HighDpiScaling is enabled";
+    logging::debug() << "Qt HighDpiScaling is enabled";
   } else {
-    logging::info() << "Qt enable HighDpiScaling";
+    logging::debug() << "Qt enable HighDpiScaling";
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
   }
 # endif // GUIPP_QT_HIDPI
   QGuiApplication qapplication(argc, argv);
   gui::core::global::init(&qapplication);
-  logging::info() << "Qt app name: '" << qapplication.applicationName().toStdString() << "'";
-  logging::info() << "Qt app display name: '" << qapplication.applicationDisplayName().toStdString() << "'";
-  logging::info() << "Qt app desktop file name: '" << qapplication.desktopFileName().toStdString() << "'";
-  logging::info() << "Qt app platform name: '" << qapplication.platformName().toStdString() << "'";
-  logging::info() << "Qt version: '" QT_VERSION_STR << "', runtime: '" << qVersion() << "'";
+  logging::debug() << "Qt app name: '" << qapplication.applicationName().toStdString() << "'";
+  logging::debug() << "Qt app display name: '" << qapplication.applicationDisplayName().toStdString() << "'";
+  logging::debug() << "Qt app desktop file name: '" << qapplication.desktopFileName().toStdString() << "'";
+  logging::debug() << "Qt app platform name: '" << qapplication.platformName().toStdString() << "'";
+  logging::debug() << "Qt version: '" QT_VERSION_STR << "', runtime: '" << qVersion() << "'";
 #endif // GUIPP_QT
 
   int ret = 0;

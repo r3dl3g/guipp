@@ -47,10 +47,10 @@ namespace gui {
     void line::operator() (graphics& g, const pen& p) const {
       const auto pw = p.os_size();
       const auto off = p.os_size() / 2;
-      const auto x = from.os_x(g.context()) + off;
-      const auto y = from.os_y(g.context()) + off;
-      const auto x2 = to.os_x(g.context()) + off;
-      const auto y2 = to.os_y(g.context()) + off;
+      const auto x = from.os_x(g.context());
+      const auto y = from.os_y(g.context());
+      const auto x2 = to.os_x(g.context());
+      const auto y2 = to.os_y(g.context());
       if ((x == x2) && (y == y2)) {
         if (pw < 2) {
           SetPixel(g, x, y, p.color());

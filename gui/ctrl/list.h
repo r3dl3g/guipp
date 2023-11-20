@@ -317,8 +317,6 @@ namespace gui {
         int get_index_at_point (const core::point& pt);
         core::rectangle get_geometry_of_index (int idx);
 
-        int get_items_per_page (int idx) const;
-
         void make_entry_visible (int, core::selection_adjustment);
 
         dim_type get_scroll_offset () const;
@@ -375,7 +373,6 @@ namespace gui {
       public:
         void handle_left_btn_up (os::key_state keys, const core::native_point& pt);
         void handle_key (os::key_state, os::key_symbol key, const std::string&);
-        void handle_direction_key (bool shift_pressed, os::key_symbol key);
 
       protected:
         selector_type selection;

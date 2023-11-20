@@ -45,7 +45,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace detail {
-      void set_os_window (overlapped_window* w, os::window id);
+      void GUIPP_WIN_EXPORT set_os_window (overlapped_window* w, os::window id);
     }
 
     class overlapped_context;

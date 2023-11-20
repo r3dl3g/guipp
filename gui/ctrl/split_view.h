@@ -66,6 +66,8 @@ namespace gui {
 
       core::rectangle get_splitter_limits (std::size_t i, const core::rectangle& r);
 
+      void add(std::vector<std::reference_wrapper<win::window>> list);
+
     private:
       std::array<layout::layout_function, N> views;
       std::array<layout::layout_function, N-1> splitter;

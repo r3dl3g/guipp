@@ -107,6 +107,15 @@ namespace gui {
       split_pos[i] = pos;
     }
 
+    template<orientation_t O, std::size_t N>
+    inline void split_view<O, N>::add(std::vector<std::reference_wrapper<win::window>> list) {
+      int i = 0;
+      for (auto& w : list) {
+        set(i++, lay(w.get()));
+      }
+    }
+
+
     // --------------------------------------------------------------------------
     namespace detail {
 

@@ -6,7 +6,7 @@ include (Functions.cmake)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-option(GUIPP_SAMPLES "On to build the samples. Default Off" OFF)
+option(GUIPP_SAMPLES "On to build the samples. Default ON" ON)
 option(GUIPP_TESTS "On to build the tests. Default Off" OFF)
 option(GUIPP_TOOLS "On to build the tools. Default Off" OFF)
 

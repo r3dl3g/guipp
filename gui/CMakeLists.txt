@@ -246,6 +246,11 @@ if(NOT TARGET guipp)
         set(GUIPP_USE_XCB ON)
       endif()
 
+	  if(GUIPP_USE_XCB)
+		set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} X11-xcb xcb xcb-xrm)
+		set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_USE_XCB)
+	  endif()
+
     else()
       message(SEND_ERROR "X11 libraries are required!")
     endif(X11_FOUND)
@@ -270,11 +275,6 @@ if(NOT TARGET guipp)
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -O0 -fno-inline -U_FORTIFY_SOURCE)
   else ()
     message(STATUS "GUIPP: Release build!")
-  endif()
-
-  if(GUIPP_USE_XCB)
-    set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} X11-xcb xcb xcb-xrm)
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_USE_XCB)
   endif()
 
   if(GUIPP_BUILD_STATIC_MODULE_LIBS)

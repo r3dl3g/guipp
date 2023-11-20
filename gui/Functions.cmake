@@ -104,7 +104,7 @@ function(define_guipp_subpackage TARGET)
     set(ARG_FLAGS ${GUIPP_CXX_FLAGS})
   endif()
   if(NOT ARG_PREFIX)
-    set(ARG_PREFIX libguipp)
+    set(ARG_PREFIX guipp)
   endif()
   if(NOT ARG_LINK)
     set(ARG_LINK ${GUIPP_LINK})
@@ -142,7 +142,11 @@ function(define_guipp_subpackage TARGET)
                         PREFIX ${ARG_PREFIX}
                         VERSION ${ARG_VERSION}
                         SOVERSION ${ARG_VERSION_MAJOR}
-                        CXX_STANDARD ${ARG_CXX_STANDARD})
+                        CXX_STANDARD ${ARG_CXX_STANDARD}
+						ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/obj"
+						LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+						RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+	)
 
   GENERATE_EXPORT_HEADER(${TARGET}
     BASE_NAME ${ARG_BASE}

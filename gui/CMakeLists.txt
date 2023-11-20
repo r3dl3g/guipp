@@ -8,6 +8,10 @@ message("Building gui version: ${project_version}")
 
 project("gui" LANGUAGES CXX VERSION ${project_version})
 
+set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/obj)
+set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
 include (Functions.cmake)
@@ -43,6 +47,9 @@ option(GUIPP_LOOK_AND_FEEL_UNIX "Use Gnome L&F. Default automatic" OFF)
 option(GUIPP_LOOK_AND_FEEL_W95 "Use Windows 95 L&F. Default automatic" OFF)
 option(VERBOSE "Print messages during cmake run" OFF)
 set(GUIPP_CXX_STANDARD "${CMAKE_CXX_STANDARD}" CACHE STRING "C++ standard to overwrite default cmake standard")
+set(LOGGING_CXX_STANDARD ${GUIPP_CXX_STANDARD} CACHE STRING "C++ standard")
+set(UTIL_CXX_STANDARD ${GUIPP_CXX_STANDARD} CACHE STRING "C++ standard")
+set(TESTING_CXX_STANDARD ${GUIPP_CXX_STANDARD} CACHE STRING "C++ standard")
 
 debug_print_var(CMAKE_SOURCE_DIR)
 debug_print_var(CMAKE_CURRENT_SOURCE_DIR)
@@ -64,6 +71,18 @@ elseif(GUIPP_USE_QT5)
     find_package(Qt5Gui REQUIRED)
 endif()
 
+if(GUIPP_BUILD_SHARED_MODULE_LIBS)
+set(UTIL_BUILD_STATIC_MODULE_LIB OFF CACHE BOOL "disable static build")
+set(LOGGING_BUILD_STATIC_MODULE_LIB OFF CACHE BOOL "disable static build")
+endif()
+
+if(GUIPP_CONFIG_INSTALL AND (GUIPP_BUILD_SHARED_MODULE_LIBS OR GUIPP_BUILD_STATIC_MODULE_LIBS))
+set(UTIL_CONFIG_INSTALL ON CACHE BOOL "enable install")
+set(LOGGING_CONFIG_INSTALL ON CACHE BOOL "enable install")
+set(TESTING_CONFIG_INSTALL ON CACHE BOOL "enable install")
+endif()
+
+
 if(GUIPP_BUILD_DEPENDENT_LIBS)
   add_subdirectory(${CMAKE_SOURCE_DIR}/libs/logging logging)
   add_subdirectory(${CMAKE_SOURCE_DIR}/libs/util util)
@@ -74,23 +93,7 @@ endif()
 
 if(NOT TARGET guipp)
 
-  if(GUIPP_CXX_STANDARD STREQUAL "")
-    set(GUIPP_CXX_STANDARD 17)
-  endif()
 
-  if(GUIPP_BUILD_SHARED_MODULE_LIBS)
-    set(UTIL_BUILD_STATIC_MODULE_LIB OFF CACHE BOOL "disable static build")
-    set(LOGGING_BUILD_STATIC_MODULE_LIB OFF CACHE BOOL "disable static build")
-  endif()
-
-  if(GUIPP_CONFIG_INSTALL AND (GUIPP_BUILD_SHARED_MODULE_LIBS OR GUIPP_BUILD_STATIC_MODULE_LIBS))
-    set(UTIL_CONFIG_INSTALL ON CACHE BOOL "enable install")
-    set(LOGGING_CONFIG_INSTALL ON CACHE BOOL "enable install")
-    set(TESTING_CONFIG_INSTALL ON CACHE BOOL "enable install")
-  endif()
-
-  set(LOGGING_CXX_STANDARD ${GUIPP_CXX_STANDARD})
-  set(UTIL_CXX_STANDARD ${GUIPP_CXX_STANDARD})
 
   if(WIN32)
     set(GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN -D_USE_MATH_DEFINES)

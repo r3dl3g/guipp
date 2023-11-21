@@ -9,7 +9,7 @@
         "-g",
         "${file}",
         "-o",
-        "${fileDirname}/${fileBasenameNoExtension}"
+        "${workspaceRoot}/build-Debug/bin/${fileBasenameNoExtension}"
       ],
       "options": {
         "cwd": "${fileDirname}"

@@ -59,13 +59,16 @@ namespace gui {
       const type begin () const;
       const type end () const;
 
-      const type size () const;
-
     private:
       type first;
       type last;
 
     };
+
+    template<typename T>
+    range<T> mk_range (const T& f, const T& l) {
+      return range<T>(f, l);
+    }
 
     template<typename T>
     range<T> min_max (const range<T>& lhs, const range<T>& rhs);

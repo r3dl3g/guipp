@@ -96,11 +96,6 @@ namespace gui {
     }
 
     template<typename T>
-    auto range<T>::size () const -> const type {
-      return last - first;
-    }
-
-    template<typename T>
     range<T> min_max (const range<T>& lhs, const range<T>& rhs) {
       return range<T>(std::min(lhs.begin(), rhs.begin()),
                       std::max(lhs.end(), rhs.end()));

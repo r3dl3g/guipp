@@ -70,7 +70,7 @@ struct sinus_data_t<util::time::duration, Y, S> {
 
   point2d<util::time::duration, Y> operator[] (std::size_t i) const {
     const util::time::duration x = util::time::mkduration(0, 0, i);
-    const Y y{std::sin(i / 10.0 * M_PI)};
+    const Y y{std::sin(i * M_PI / 30.0)};
     return {x, y};
   }
 };
@@ -88,7 +88,7 @@ struct sinus_data_t<util::time::time_point, Y, S> {
 
   point2d<util::time::time_point, Y> operator[] (std::size_t i) const {
     const util::time::time_point x = delta + util::time::mkduration(0, 0, i);
-    const Y y{std::sin(i / 10.0 * M_PI)};
+    const Y y{std::sin(i * M_PI / 30.0)};
     return {x, y};
   }
 

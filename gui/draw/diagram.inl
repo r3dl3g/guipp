@@ -40,8 +40,8 @@ namespace gui {
           static I sub (S, I t, S)                   { return t; }
           static S min (const core::range<S>&r)      { return r.begin(); }
 
-          static T calc (S s, S)                     { return convert<T>(s); }
-          static T precalc (const core::range<S>& r) { return convert<T>(r.begin()); }
+          static T calc (S s, S mi)                  { return convert<T>(s - mi); }
+          static T precalc (const core::range<S>& r) { return T{}; }
           static T range (const core::range<S>& r)   { return convert<T>(r.end() - r.begin()); }
         };
         // --------------------------------------------------------------------------
@@ -78,7 +78,9 @@ namespace gui {
           static T calc (S t, S) {
             return convert<T>(std::log(static_cast<double>(t)));
           }
-          static T precalc (const core::range<S>& r) { return calc(r.begin(), {}); }
+          static T precalc (const core::range<S>& r) {
+            return calc(r.begin(), {});
+          }
           static T range (const core::range<S>& r) {
             return convert<T>(std::log(static_cast<double>(r.end())) -
                               std::log(static_cast<double>(r.begin())));
@@ -95,9 +97,11 @@ namespace gui {
           static T calc (S t, S) {
             return convert<T>(std::log2(static_cast<double>(t)));
           }
-          static T precalc (const core::range<S>& r) { return calc(r.begin(), {}); }
+          static T precalc (const core::range<S>& r) {
+            return calc(r.begin(), {});
+          }
           static T range (const core::range<S>& r)   { 
-            return std::log2(r.end()) - std::log2(r.begin());
+            return convert<T>(std::log2(r.end()) - std::log2(r.begin()));
           }
         };
         // --------------------------------------------------------------------------
@@ -124,12 +128,10 @@ namespace gui {
                                                 std::log10(std::abs(min)) + 1, t));
           }
           static T precalc (const core::range<S>& r) {
-            return convert<T>(-((std::log10(r.end()) -
-                                   (std::log10(r.begin()))) + 1));
+            return convert<T>(-((std::log10(r.end()) - (std::log10(r.begin()))) + 1));
           }
           static T range (const core::range<S>& r)   {
-            return convert<T>((std::log10(r.end()) -
-                              (std::log10(r.begin()))) * 2 + 2);
+            return convert<T>((std::log10(r.end()) - (std::log10(r.begin()))) * 2 + 2);
           }
         };
 

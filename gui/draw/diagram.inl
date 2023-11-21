@@ -33,88 +33,103 @@ namespace gui {
       namespace detail {
 
         // --------------------------------------------------------------------------
-        template<typename T>
-        struct scale_fn<T, scaling::linear> {
-          static T inc (T i, T step, T) { return i + step; }
-          static T step (T t)           { return t; }
-          static T sub (T, T t, T)      { return t; }
-          static T min (const core::range<T>&r)      { return r.begin(); }
+        template<typename S, typename T, typename I>
+        struct scale_fn<S, T, scaling::linear, I> {
+          static S inc (S i, I step, S)              { return i + step; }
+          static I step (I t)                        { return t; }
+          static I sub (S, I t, S)                   { return t; }
+          static S min (const core::range<S>&r)      { return r.begin(); }
 
-          static T calc (T t, T)        { return t; }
-          static T precalc (const core::range<T>& r) { return r.begin(); }
-          static T range (const core::range<T>& r)   { return r.size(); }
+          static T calc (S s, S)                     { return convert<T>(s); }
+          static T precalc (const core::range<S>& r) { return convert<T>(r.begin()); }
+          static T range (const core::range<S>& r)   { return convert<T>(r.end() - r.begin()); }
         };
         // --------------------------------------------------------------------------
-        template<typename T>
-        struct scale_fn<T, scaling::log> {
-          static T inc (T i, T step, T) { return i * step; }
-          static T step (T t)           { return std::pow(10, t); }
-          static T sub (T i, T t, T)    { return i * t; }
-          static T min (const core::range<T>&r) { return r.begin(); }
-
-          static T calc (T t, T)        { return std::log10(t); }
-          static T precalc (const core::range<T>& r) { return calc(r.begin(), 0); }
-          static T range (const core::range<T>& r)   { return std::log10(r.end()) - std::log10(r.begin()); }
-        };
-        // --------------------------------------------------------------------------
-        template<typename T>
-        struct scale_fn<T, scaling::logn> {
-          static T inc (T i, T step, T) { return i * step; }
-          static T step (T t)           { return std::pow(M_E, t); }
-          static T sub (T i, T t, T)    { return i * t; }
-          static T min (const core::range<T>&r) { return r.begin(); }
-
-          static T calc (T t, T)        { return std::log(t); }
-          static T precalc (const core::range<T>& r) { return calc(r.begin(), 0); }
-          static T range (const core::range<T>& r)   { return std::log(r.end()) - std::log(r.begin()); }
-        };
-        // --------------------------------------------------------------------------
-        template<typename T>
-        struct scale_fn<T, scaling::log2> {
-          static T inc (T i, T step, T) { return i * step; }
-          static T step (T t)           { return std::pow(2, t); }
-          static T sub (T i, T t, T)    { return i * t; }
-          static T min (const core::range<T>&r) { return r.begin(); }
-
-          static T calc (T t, T)        { return std::log2(t); }
-          static T precalc (const core::range<T>& r) { return calc(r.begin(), 0); }
-          static T range (const core::range<T>& r)   { return std::log2(r.end()) - std::log2(r.begin()); }
-        };
-        // --------------------------------------------------------------------------
-        template<typename T>
-        struct scale_fn<T, scaling::symlog> {
-          static T inc (T i, T step, T min) {
-            const T abs_min = std::abs(min);
-            return (i < -abs_min ? i / step : i >= abs_min ? i * step : i + min);
-            // armhf build return always 0 for abs(min). std::abs() solves the problem
-//            logging::debug() << "scale_fn<scaling::symlog>::inc(i:" << i << ", step:" << step << ", min:" << min << "), abs(min):" << abs_min;
-//            if (i < -abs_min) {
-//              return i / step;
-//            } else if (i >= abs_min) {
-//              return i * step;
-//            } else {
-//              return i + min;
-//            }
+        template<typename S, typename T, typename I>
+        struct scale_fn<S, T, scaling::log, I> {
+          static S inc (S i, I step, S)         { return i * step; }
+          static I step (I t) {
+            return std::pow(10, static_cast<double>(t));
           }
-          static T step (T t)           { return std::pow(10.0, std::abs(t)); }
-          static T sub (T i, T t, T min) {
+          static I sub (S i, I t, S)            { return i * t; }
+          static S min (const core::range<S>&r) { return r.begin(); }
+
+          static T calc (S t, S) { 
+            return static_cast<T>(std::log10(static_cast<double>(t)));
+          }
+          static T precalc (const core::range<S>& r) {
+            return calc(r.begin(), {});
+          }
+          static T range (const core::range<S>& r) {
+            return convert<T>(std::log10(static_cast<double>(r.end())) -
+                              std::log10(static_cast<double>(r.begin())));
+          }
+        };
+        // --------------------------------------------------------------------------
+        template<typename S, typename T, typename I>
+        struct scale_fn<S, T, scaling::logn, I> {
+          static S inc (S i, I step, S) { return i * step; }
+          static I step (I t) {
+            return std::pow(M_E, static_cast<double>(t));
+          }
+          static I sub (S i, I t, S)    { return i * t; }
+          static S min (const core::range<S>&r) { return r.begin(); }
+
+          static T calc (S t, S) {
+            return convert<T>(std::log(static_cast<double>(t)));
+          }
+          static T precalc (const core::range<S>& r) { return calc(r.begin(), {}); }
+          static T range (const core::range<S>& r) {
+            return convert<T>(std::log(static_cast<double>(r.end())) -
+                              std::log(static_cast<double>(r.begin())));
+          }
+        };
+        // --------------------------------------------------------------------------
+        template<typename S, typename T, typename I>
+        struct scale_fn<S, T, scaling::log2, I> {
+          static S inc (S i, I step, S) { return i * step; }
+          static I step (I t)           { return std::pow(2, static_cast<double>(t)); }
+          static I sub (S i, I t, S)    { return i * t; }
+          static S min (const core::range<S>&r) { return r.begin(); }
+
+          static T calc (S t, S) {
+            return convert<T>(std::log2(static_cast<double>(t)));
+          }
+          static T precalc (const core::range<S>& r) { return calc(r.begin(), {}); }
+          static T range (const core::range<S>& r)   { 
+            return std::log2(r.end()) - std::log2(r.begin());
+          }
+        };
+        // --------------------------------------------------------------------------
+        template<typename S, typename T, typename I>
+        struct scale_fn<S, T, scaling::symlog, I> {
+          static S inc (S i, I step, S min) {
+            const S abs_min = std::abs(min);
+            return (i < -abs_min ? i / step : i >= abs_min ? i * step : i + min);
+          }
+
+          static I step (I t)           { return std::pow(10.0, std::abs(t)); }
+          static I sub (S i, I t, S min) {
             return i < 0 ? std::abs(i / (10 * t)) : (i > 0 ? std::abs(i * t) : min / 10);
           }
-          static T min (const core::range<T>&r) {
+          static S min (const core::range<S>&r) {
             return -r.end();
           }
 
-          static T calc (T t, T min) {
+          static T calc (S t, S min) {
             if (std::abs(t) < std::abs(min)) {
-              return t / std::abs(min);
+              return convert<T>(t / std::abs(min));
             }
-            return std::copysign(std::log10(std::abs(t)) - std::log10(std::abs(min)) + 1, t);
+            return convert<T>(std::copysign(std::log10(std::abs(t)) -
+                                                std::log10(std::abs(min)) + 1, t));
           }
-          static T precalc (const core::range<T>& r) {
-            return -((std::log10(r.end()) - (std::log10(r.begin()))) + 1);
+          static T precalc (const core::range<S>& r) {
+            return convert<T>(-((std::log10(r.end()) -
+                                   (std::log10(r.begin()))) + 1));
           }
-          static T range (const core::range<T>& r)   {
-            return (std::log10(r.end()) - (std::log10(r.begin()))) * 2 + 2;
+          static T range (const core::range<S>& r)   {
+            return convert<T>((std::log10(r.end()) -
+                              (std::log10(r.begin()))) * 2 + 2);
           }
         };
 
@@ -153,21 +168,21 @@ namespace gui {
         auto ymin = i;
         auto ymax = i;
         while (++i < last) {
-          if (lower(get_x<X, Y>(*i), get_x<X, Y>(*xmin))) {
+          if (lower(get_x<X>(*i), get_x<X>(*xmin))) {
             xmin = i;
           }
-          if (lower(get_x<X, Y>(*xmax), get_x<X, Y>(*i))) {
+          if (lower(get_x<X>(*xmax), get_x<X>(*i))) {
             xmax = i;
           }
-          if (lower(get_y<X, Y>(*i), get_y<X, Y>(*ymin))) {
+          if (lower(get_y<Y>(*i), get_y<Y>(*ymin))) {
             ymin = i;
           }
-          if (lower(get_y<X, Y>(*ymax), get_y<X, Y>(*i))) {
+          if (lower(get_y<Y>(*ymax), get_y<Y>(*i))) {
             ymax = i;
           }
         }
 
-        return make_range_pair(get_x<X, Y>(*xmin), get_x<X, Y>(*xmax), get_y<X, Y>(*ymin), get_y<X, Y>(*ymax));
+        return make_range_pair(get_x<X>(*xmin), get_x<X>(*xmax), get_y<Y>(*ymin), get_y<Y>(*ymax));
       }
 
       // --------------------------------------------------------------------------
@@ -179,15 +194,15 @@ namespace gui {
         auto xmin = last;
         auto ymin = last;
         while (++i < last) {
-          const auto x = get_x<X, Y>(*i);
+          const auto x = get_x<X>(*i);
           if (x != X(0)) {
-            if ((xmin == last) || lower(x, get_x<X, Y>(*xmin))) {
+            if ((xmin == last) || lower(x, get_x<X>(*xmin))) {
               xmin = i;
             }
           }
-          const auto y = get_y<X, Y>(*i);
+          const auto y = get_y<Y>(*i);
           if (y != Y(0)) {
-            if ((ymin == last) || lower(y, get_y<X, Y>(*ymin))) {
+            if ((ymin == last) || lower(y, get_y<Y>(*ymin))) {
               ymin = i;
             }
           }
@@ -196,10 +211,10 @@ namespace gui {
         auto xmax = i;
         auto ymax = i;
         while (++i < last) {
-          if (lower(get_x<X, Y>(*xmax), get_x<X, Y>(*i))) {
+          if (lower(get_x<X>(*xmax), get_x<X>(*i))) {
             xmax = i;
           }
-          if (lower(get_y<X, Y>(*ymax), get_y<X, Y>(*i))) {
+          if (lower(get_y<Y>(*ymax), get_y<Y>(*i))) {
             ymax = i;
           }
         }
@@ -210,7 +225,7 @@ namespace gui {
           ymin = ymax;
         }
 
-        return make_range_pair(get_x<X, Y>(*xmin), get_x<X, Y>(*xmax), get_y<X, Y>(*ymin), get_y<X, Y>(*ymax));
+        return make_range_pair(get_x<X>(*xmin), get_x<X>(*xmax), get_y<Y>(*ymin), get_y<Y>(*ymax));
       }
 
       // --------------------------------------------------------------------------
@@ -286,22 +301,22 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<typename T>
       T next_smaller_pow10 (T t) {
-        return (t == 0) ? 0 : static_cast<T>(std::copysign(std::pow(10.0, std::floor(std::log10(std::abs(t)))), t));
+        return (t == 0) ? 0 : convert<T>(std::copysign(std::pow(10.0, std::floor(std::log10(std::abs(t)))), t));
       }
       // --------------------------------------------------------------------------
       template<typename T>
       T next_bigger_pow10 (T t) {
-        return (t == 0) ? 0 : static_cast<T>(std::copysign(std::pow(10.0, std::ceil(std::log10(std::abs(t)))), t));
+        return (t == 0) ? 0 : convert<T>(std::copysign(std::pow(10.0, std::ceil(std::log10(std::abs(t)))), t));
       }
       // --------------------------------------------------------------------------
       template<typename T>
       T next_smaller_pow2 (T t) {
-        return (t == 0) ? 0 : static_cast<T>(std::copysign(std::pow(2.0, std::floor(std::log2(std::abs(t)))), t));
+        return (t == 0) ? 0 : convert<T>(std::copysign(std::pow(2.0, std::floor(std::log2(std::abs(t)))), t));
       }
       // --------------------------------------------------------------------------
       template<typename T>
       T next_bigger_pow2 (T t) {
-        return (t == 0) ? 0 : static_cast<T>(std::copysign(std::pow(2.0, std::ceil(std::log2(std::abs(t)))), t));
+        return (t == 0) ? 0 : convert<T>(std::copysign(std::pow(2.0, std::ceil(std::log2(std::abs(t)))), t));
       }
       // --------------------------------------------------------------------------
       template<typename T>
@@ -335,8 +350,8 @@ namespace gui {
             const auto m = std::max(mi, ma);
             const auto l = std::copysign(std::pow(10.0, ma < m - 1 ? m - 1 : ma), max);
             const auto lmi = std::copysign(std::pow(10.0, mi < m - 1 ? m - 1 : mi), min);
-            lmax = static_cast<T>(l * std::ceil(max / l));
-            lmin = static_cast<T>(lmi * (min < 0 ? std::ceil(min / lmi) : std::floor(min / lmi)));
+            lmax = convert<T>(l * std::ceil(max / l));
+            lmin = convert<T>(lmi * (min < 0 ? std::ceil(min / lmi) : std::floor(min / lmi)));
           }
           return { lmin, lmax };
         }
@@ -378,95 +393,110 @@ namespace gui {
         }
       };
       // --------------------------------------------------------------------------
-      template<typename T, scaling S>
-      scaler<T, S>::scaler (core::range<T> src, core::range<T> target)
+      template<typename S, scaling F, typename I, typename T>
+      scaler<S, F, I, T>::scaler (core::range<S> src, core::range<T> target)
         : src(src)
         , target(target)
         , precalced(1)
-        , precalced_min(static_cast<double>(src.begin()))
+        , precalced_min(target.begin())
       {
-        if ((S != scaling::linear) && (src.begin() == 0)) {
+        if ((F != scaling::linear) && (src.begin() == S{})) {
           throw std::runtime_error("Base 0 is not allowed for logarithmic scaler");
         }
         precalc();
       }
 
-      template<typename T, scaling S>
-      T scaler<T, S>::operator() (T v) const {
-        if (S != scaling::symlog) {
+      template<typename S, scaling F, typename I, typename T>
+      T scaler<S, F, I, T>::operator() (S v) const {
+        if (F != scaling::symlog) {
           if (v < src.begin()) {
             return target.begin();
           } else if (v > src.end()) {
             return target.end();
           }
         }
-        const auto scaled = detail::scale_fn<T, S>::calc(v, src.begin());
-        return static_cast<T>((scaled - precalced_min) * precalced) + target.begin();
+        const auto scaled = detail::scale_fn<S, T, F, I>::calc(v, src.begin());
+        return convert<T>(((scaled - precalced_min) * precalced) + target.begin());
       }
 
-      template<typename T, scaling S>
-      const core::range<T>& scaler<T, S>::get_source () const {
+      template<typename S, scaling F, typename I, typename T>
+      const core::range<S>& scaler<S, F, I, T>::get_source () const {
         return src;
       }
 
-      template<typename T, scaling S>
-      const core::range<T>& scaler<T, S>::get_target () const {
+      template<typename S, scaling F, typename I, typename T>
+      const core::range<T>& scaler<S, F, I, T>::get_target () const {
         return target;
       }
 
-      template<typename T, scaling S>
-      void scaler<T, S>::set_source_range (core::range<T> s) {
+      template<typename S, scaling F, typename I, typename T>
+      void scaler<S, F, I, T>::set_source_range (core::range<S> s) {
         src = s;
         precalc();
       }
 
-      template<typename T, scaling S>
-      void scaler<T, S>::set_target_range (core::range<T> t) {
+      template<typename S, scaling F, typename I, typename T>
+      void scaler<S, F, I, T>::set_target_range (core::range<T> t) {
         target = t;
         precalc();
       }
 
-      template<typename T, scaling S>
-      void scaler<T, S>::precalc () {
-        precalced_min = static_cast<double>(detail::scale_fn<T, S>::precalc(src));
-        precalced = static_cast<double>(target.size()) /
-                    static_cast<double>(detail::scale_fn<T, S>::range(src));
+      template<typename S, scaling F, typename I, typename T>
+      const I scaler<S, F, I, T>::get_source_size () const {
+        return src.end() - src.begin();
       }
 
+      template<typename S, scaling F, typename I, typename T>
+      const T scaler<S, F, I, T>::get_target_size () const {
+        return target.end() - target.begin();
+      }
+
+      template<typename S, scaling F, typename I, typename T>
+      void scaler<S, F, I, T>::precalc () {
+        precalced_min = detail::scale_fn<S, T, F, I>::precalc(src);
+        precalced = static_cast<double>(get_target_size()) /
+                    static_cast<double>(detail::scale_fn<S, T, F, I>::range(src));
+      }
+
+      template<typename S, scaling F, typename I, typename T>
+      scaler<S, F, I, T> mk_scaler (core::range<S> src,
+                                    core::range<T> target) {
+        return scaler<S, F, I, T>(src, target);
+      }
       // --------------------------------------------------------------------------
       namespace paint {
 
-        template<typename T, orientation_t V, scaling S>
+        template<orientation_t V, scaling F, typename S, typename I, typename T>
         void draw_axis (graphics& g,
                         const core::point& pos,
                         const pen& p,
-                        const scaler<T, S>& sc) {
+                        const scaler<S, F, I, T>& sc) {
           typedef core::orientation_traits<V> traits;
 
           const auto d2 = traits::get_2(pos);
           core::point p0, p1;
-          traits::set(p0, static_cast<float>(sc.get_target().begin()), d2);
-          traits::set(p1, static_cast<float>(sc.get_target().end()), d2);
+          traits::set(p0, sc.get_target().begin(), d2);
+          traits::set(p1, sc.get_target().end(), d2);
           g.frame(line(p0, p1), p);
         }
 
-        template<typename T, orientation_t V, scaling S>
+        template<orientation_t V, scaling F, typename S, typename I, typename T>
         void draw_sub_ticks (graphics& g,
                              os::color color,
-                             const scaler<T, S>& sc,
-                             T min, T step, T max,
+                             const scaler<S, F, I, T>& sc,
+                             S min, I step, S max,
                              T sub_1, T sub_2) {
           typedef core::orientation_traits<V> traits;
 
-          if ((step > 0) && (sub_2 != sub_1) && (min + step < max)) {
+          if ((step > I{}) && (sub_2 != sub_1) && (min + step < max)) {
             core::point p0, p1;
-            traits::set_2(p0, static_cast<float>(sub_1));
-            traits::set_2(p1, static_cast<float>(sub_2));
-            for (T j = min + step; j < max; j += step) {
+            traits::set_2(p0, sub_1);
+            traits::set_2(p1, sub_2);
+            for (S j = min + step; j < max; j += step) {
               const auto ds = sc(j);
 
-              traits::set_1(p0, static_cast<float>(ds));
-              traits::set_1(p1, static_cast<float>(ds));
+              traits::set_1(p0, ds);
+              traits::set_1(p1, ds);
               g.frame(line(p0, p1), color);
             }
           }
@@ -475,16 +505,16 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, orientation_t V, scaling S, origin_t O>
-      scale<T, V, S, O>::scale (const core::point& pos,
-                                const scaler_type& sc,
-                                T main,
-                                T sub,
-                                T main_ticks_length,
-                                T sub_ticks_length,
-                                os::color main_color,
-                                os::color sub_color,
-                                formatter fmt)
+      template<typename S, orientation_t V, scaling F, origin_t O, typename I, typename T>
+      scale<S, V, F, O, I, T>::scale (const core::point& pos,
+                                      const scaler_type& sc,
+                                      I main,
+                                      I sub,
+                                      T main_ticks_length,
+                                      T sub_ticks_length,
+                                      os::color main_color,
+                                      os::color sub_color,
+                                      scale_formatter<S> fmt)
         : pos(pos)
         , sc(sc)
         , main(main)
@@ -496,85 +526,111 @@ namespace gui {
         , fmt(fmt)
       {}
 
-      template<typename T, orientation_t V, scaling S, origin_t O>
-      void scale<T, V, S, O>::operator() (graphics& g, const font& font, os::color color) const {
+      template<typename S, orientation_t V, scaling F, origin_t O, typename I, typename T>
+      void scale<S, V, F, O, I, T>::operator() (graphics& g, const font& font, os::color color) const {
 
         core::point p0, p1, p2;
-        const T d2 = static_cast<T>(traits::get_2(pos));
+        const T d2 = convert<T>(traits::get_2(pos));
 
-        traits::set_2(p0, static_cast<float>(d2 + tick_dimension::main_tick_length));
-        traits::set_2(p1, static_cast<float>(d2 + main_ticks_length));
-        traits::set_2(p2, static_cast<float>(d2 + tick_dimension::main_tick_length * 2));
+        traits::set_2(p0, (d2 + tick_dimension::main_tick_length));
+        traits::set_2(p1, (d2 + main_ticks_length));
+        traits::set_2(p2, (d2 + tick_dimension::main_tick_length * 2));
 
-        const auto main_step = detail::scale_fn<T, S>::step(main);
+        const auto main_step = detail::scale_fn<S, T, F, I>::step(main);
 
         const auto min = sc.get_source().begin();
         const auto max = sc.get_source().end();
-        T i = detail::scale_fn<T, S>::min(sc.get_source());
+        auto i = detail::scale_fn<S, T, F, I>::min(sc.get_source());
         while (i <= max) {
           const auto d1 = sc(i);
-          const auto next = detail::scale_fn<T, S>::inc(i, main_step, min);
+          const auto next = detail::scale_fn<S, T, F, I>::inc(i, main_step, min);
 
-          traits::set_1(p0, static_cast<float>(d1));
-          traits::set_1(p1, static_cast<float>(d1));
+          traits::set_1(p0, d1);
+          traits::set_1(p1, d1);
           g.frame(line(p0, p1), main_color);
 
-          traits::set_1(p2, static_cast<float>(d1));
+          traits::set_1(p2, d1);
           const auto text_origin = scale_text_origin<V, O>();
           g.text(draw::text(fmt(i), p2, text_origin), font, color);
 
-          const T sub_step = detail::scale_fn<T, S>::sub(i, sub, min);
-          paint::draw_sub_ticks<T, V, S>(g, sub_color, sc,
-                                         i, sub_step, std::min(next, max),
-                                         d2 + tick_dimension::sub_tick_length, d2 + sub_ticks_length);
+          const auto sub_step = detail::scale_fn<S, T, F, I>::sub(i, sub, min);
+          paint::draw_sub_ticks<V, F, S, I, T>(g, sub_color, sc,
+                                            i, sub_step, std::min(next, max),
+                                            d2 + tick_dimension::sub_tick_length, d2 + sub_ticks_length);
           i = next;
         }
       }
 
+      template<orientation_t V, origin_t O, scaling F, typename S, typename I, typename T>
+      scale<S, V, F, O, I, T> mk_scale (const core::point& pos,
+                                        const scaler<S, F, I, T>& sc,
+                                        I main, I sub,
+                                        T main_ticks_length,
+                                        T sub_ticks_length,
+                                        os::color main_color,
+                                        os::color sub_color,
+                                        scale_formatter<S> fmt) {
+        return scale<S, V, F, O, I, T>(pos, sc, main, sub, 
+                                       main_ticks_length, sub_ticks_length,
+                                       main_color, sub_color, fmt);
+      }
       // --------------------------------------------------------------------------
-      template<typename X, typename Y, scaling SX, scaling SY>
-      wall<X, Y, SX, SY>::wall (const scaler<X, SX>& sx,
-                                const scaler<Y, SY>& sy)
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      wall<X, Y, SX, SY, IX, IY, T>::wall (const scaler<X, SX, IX, T>& sx,
+                                           const scaler<Y, SY, IY, T>& sy)
         : sx(sx)
         , sy(sy)
       {}
 
-      template<typename X, typename Y, scaling SX, scaling SY>
-      void wall<X, Y, SX, SY>::operator() (graphics& g, const brush& b, const pen& p) const {
-        g.fill(draw::rectangle(core::point(static_cast<float>(sx.get_target().begin()), static_cast<float>(sy.get_target().begin())),
-                               core::point(static_cast<float>(sx.get_target().end()), static_cast<float>(sy.get_target().end()))), b);
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void wall<X, Y, SX, SY, IX, IY, T>::operator() (graphics& g, const brush& b, const pen& p) const {
+        g.fill(draw::rectangle(core::point(sx.get_target().begin(), sy.get_target().begin()),
+                               core::point(sx.get_target().end(),   sy.get_target().end())), b);
+      }
+
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      wall<X, Y, SX, SY, IX, IY, T> mk_wall (const scaler<X, SX, IX, T>& sx,
+                                             const scaler<Y, SY, IY, T>& sy) {
+        return wall<X, Y, SX, SY, IX, IY, T>(sx, sy);
       }
 
       // --------------------------------------------------------------------------
-      template<typename X, typename Y, scaling SX, scaling SY>
-      headline<X, Y, SX, SY>::headline (const scaler<X, SX>& sx,
-                                        const scaler<Y, SY>& sy,
-                                        const std::string& text)
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      headline<X, Y, SX, SY, IX, IY, T>::headline (const scaler<X, SX, IX, T>& sx,
+                                           const scaler<Y, SY, IY, T>& sy,
+                                           const std::string& text)
         : sx(sx)
         , sy(sy)
         , text(text)
       {}
 
-      template<typename X, typename Y, scaling SX, scaling SY>
-      void headline<X, Y, SX, SY>::operator() (graphics& g, const font& f, os::color color) const {
-        core::point p(static_cast<float>(sx.get_target().begin()), static_cast<float>(sy.get_target().end()));
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void headline<X, Y, SX, SY, IX, IY, T>::operator() (graphics& g, const font& f, os::color color) const {
+        core::point p(sx.get_target().begin(), sy.get_target().end());
         g.text(draw::text(text, p, text_origin_t::bottom_left), f, color);
       }
 
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      headline<X, Y, SX, SY, IX, IY, T> mk_headline (const scaler<X, SX, IX, T>& sx,
+                                                     const scaler<Y, SY, IY, T>& sy,
+                                                     const std::string& s) {
+        return headline<X, Y, SX, SY, IX, IY, T>(sx, sy, s);
+      }
+
       // --------------------------------------------------------------------------
-      template<typename X, typename Y, scaling SX, scaling SY>
-      legend<X, Y, SX, SY>::legend (const scaler<X, SX>& sx,
-                                    const scaler<Y, SY>& sy,
-                                    const std::vector<legend_label>& labels)
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      legend<X, Y, SX, SY, IX, IY, T>::legend (const scaler<X, SX, IX, T>& sx,
+                                               const scaler<Y, SY, IY, T>& sy,
+                                               const std::vector<legend_label>& labels)
         : sx(sx)
         , sy(sy)
         , labels(labels)
       {}
 
-      template<typename X, typename Y, scaling SX, scaling SY>
-      void legend<X, Y, SX, SY>::operator() (graphics& g, const font& f, os::color color) const {
-        core::point p(static_cast<float>(sx.get_target().begin()),
-                      static_cast<float>(sy.get_target().begin() + scale_dim<X, orientation_t::horizontal>::main_tick_length * 2));
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void legend<X, Y, SX, SY, IX, IY, T>::operator() (graphics& g, const font& f, os::color color) const {
+        core::point p(sx.get_target().begin(),
+                      sy.get_target().begin() + scale_dim<X, orientation_t::horizontal>::main_tick_length * 2);
         bool first = true;
         for(const auto& l : labels) {
           core::rectangle area(p, core::size{5, 5});
@@ -590,78 +646,94 @@ namespace gui {
         }
       }
 
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      legend<X, Y, SX, SY, IX, IY, T> mk_legend (const scaler<X, SX, IX, T>& sx,
+                                                 const scaler<Y, SY, IY, T>& sy,
+                                                 const std::vector<legend_label>& l) {
+        return legend<X, Y, SX, SY, IX, IY, T>(sx, sy, l);
+      }
+
       // --------------------------------------------------------------------------
-      template<typename T, orientation_t V, scaling S>
-      axis<T, V, S>::axis (const core::point& pos,
-                             const scaler<T, S>& sc)
+      template<orientation_t V, typename S, scaling F, typename I, typename T>
+      axis<V, S, F, I, T>::axis (const core::point& pos,
+                                 const scaler<S, F, I, T>& sc)
         : pos(pos)
         , sc(sc)
       {}
 
-      template<typename T, orientation_t V, scaling S>
-      void axis<T, V, S>::operator() (graphics& g, const pen& p) const {
-        paint::draw_axis<T, V, S>(g, pos, p, sc);
+      template<orientation_t V, typename S, scaling F, typename I, typename T>
+      void axis<V, S, F, I, T>::operator() (graphics& g, const pen& p) const {
+        paint::draw_axis<V, F, S, I, T>(g, pos, p, sc);
+      }
+
+      template<orientation_t V, scaling F, typename S, typename I, typename T>
+      axis<V, S, F, I, T> mk_axis (const core::point& pos,
+                                   const scaler<S, F, I, T>& sc) {
+        return axis<V, S, F, I, T>(pos, sc);
       }
 
       // --------------------------------------------------------------------------
-      template<typename X, typename Y, scaling SX, scaling SY>
-      xy_axis<X, Y, SX, SY>::xy_axis (const scaler<X, SX>& sx,
-                                      const scaler<Y, SY>& sy)
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      xy_axis<X, Y, SX, SY, IX, IY, T>::xy_axis (const scaler<X, SX, IX, T>& sx,
+                                                 const scaler<Y, SY, IY, T>& sy)
         : sx(sx)
         , sy(sy)
       {}
 
-      template<typename X, typename Y, scaling SX, scaling SY>
-      void xy_axis<X, Y, SX, SY>::operator() (graphics& g, const pen& p) const {
-        core::point pos(static_cast<float>(sx.get_target().begin()),
-                        static_cast<float>(sy.get_target().begin()));
-        paint::draw_axis<X, orientation_t::horizontal, SX>(g, pos, p, sx);
-        paint::draw_axis<Y, orientation_t::vertical, SY>(g, pos, p, sy);
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void xy_axis<X, Y, SX, SY, IX, IY, T>::operator() (graphics& g, const pen& p) const {
+        core::point pos(sx.get_target().begin(), sy.get_target().begin());
+        paint::draw_axis<orientation_t::horizontal, SX, X, IX, T>(g, pos, p, sx);
+        paint::draw_axis<orientation_t::vertical, SY, Y, IY, T>(g, pos, p, sy);
+      }
+
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      xy_axis<X, Y, SX, SY, IX, IY, T> mk_xy_axis (const scaler<X, SX, IX, T>& sx,
+                                           const scaler<Y, SY, IY, T>& sy) {
+        return xy_axis<X, Y, SX, SY, IX, IY, T>(sx, sy);
       }
 
       // --------------------------------------------------------------------------
-      template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      graph_base<X, Y, C, SX, SY>::graph_base (const scaler<X, SX>& sx,
-                                               const scaler<Y, SY>& sy,
-                                               point2d_data points)
+      template<typename X, typename Y, typename C, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      graph_base<X, Y, C, SX, SY, IX, IY, T>::graph_base (const scaler<X, SX, IX, T>& sx,
+                                                          const scaler<Y, SY, IY, T>& sy,
+                                                          point2d_data points)
         : sx(sx)
         , sy(sy)
         , points(points)
       {}
 
-      template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      core::rectangle graph_base<X, Y, C, SX, SY>::get_graph_area () const {
+      template<typename X, typename Y, typename C, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      core::rectangle graph_base<X, Y, C, SX, SY, IX, IY, T>::get_graph_area () const {
         const auto& sxt = sx.get_target();
         const auto& syt = sy.get_target();
-        const auto x0 = static_cast<core::point::type>(std::min(sxt.begin(), sxt.end()));
-        const auto y0 = static_cast<core::point::type>(std::min(syt.begin(), syt.end()));
-        const auto x1 = static_cast<core::point::type>(std::max(sxt.begin(), sxt.end()));
-        const auto y1 = static_cast<core::point::type>(std::max(syt.begin(), syt.end()));
+        const auto x0 = std::min(sxt.begin(), sxt.end());
+        const auto y0 = std::min(syt.begin(), syt.end());
+        const auto x1 = std::max(sxt.begin(), sxt.end());
+        const auto y1 = std::max(syt.begin(), syt.end());
         return core::rectangle(core::point(x0, y0), core::point(x1, y1)).grow({1, 1});
       }
 
       // --------------------------------------------------------------------------
-      template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      line_graph<X, Y, C, SX, SY>::line_graph (const scaler<X, SX>& sx,
-                                               const scaler<Y, SY>& sy,
-                                               typename super::point2d_data points,
-                                               Y zero)
+      template<typename X, typename Y, typename C, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      line_graph<X, Y, C, SX, SY, IX, IY, T>::line_graph (const scaler<X, SX, IX, T>& sx,
+                                                          const scaler<Y, SY, IY, T>& sy,
+                                                          typename super::point2d_data points,
+                                                          Y zero)
         : super(sx, sy, points)
         , zero(zero)
       {}
 
-      // --------------------------------------------------------------------------
-      template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      void line_graph<X, Y, C, SX, SY>::operator() (graphics& g, const pen& p) const {
+      template<typename X, typename Y, typename C, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void line_graph<X, Y, C, SX, SY, IX, IY, T>::operator() (graphics& g, const pen& p) const {
         clip clp(g, super::get_graph_area());
         std::vector<core::point> pts;
         calc_points(pts);
         g.frame(draw::polyline(pts), p);
       }
 
-      // --------------------------------------------------------------------------
-      template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      void line_graph<X, Y, C, SX, SY>::operator() (graphics& g, const brush& b) const {
+      template<typename X, typename Y, typename C, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void line_graph<X, Y, C, SX, SY, IX, IY, T>::operator() (graphics& g, const brush& b) const {
         clip clp(g, super::get_graph_area());
 
         std::vector<core::point> pts;
@@ -669,9 +741,9 @@ namespace gui {
         const auto sz = super::points.size();
         pts.reserve(sz+2);
 
-        const core::point::type y0 = static_cast<core::point::type>(super::sy(zero));
-        const core::point::type x0 = static_cast<core::point::type>(super::sx(get_x<X, Y>(super::points[0])));
-        const core::point::type x1 = static_cast<core::point::type>(super::sx(get_x<X, Y>(super::points[sz - 1])));
+        const core::point::type y0 = super::sy(zero);
+        const core::point::type x0 = super::sx(get_x<X>(super::points[0]));
+        const core::point::type x1 = super::sx(get_x<X>(super::points[sz - 1]));
 
         pts.push_back({ x0, y0 });
         calc_points(pts);
@@ -680,243 +752,275 @@ namespace gui {
         g.fill(draw::polygon(pts), b);
       }
 
-      // --------------------------------------------------------------------------
-      template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      void line_graph<X, Y, C, SX, SY>::calc_points (std::vector<core::point>& pts) const {
+      template<typename X, typename Y, typename C, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void line_graph<X, Y, C, SX, SY, IX, IY, T>::calc_points (std::vector<core::point>& pts) const {
         const auto sz = super::points.size();
         pts.reserve(sz);
         for (int i = 0; i < sz; ++i) {
           const auto pt = super::points[i];
-          pts.push_back({static_cast<core::point::type>(super::sx(get_x<X, Y>(pt))),
-                         static_cast<core::point::type>(super::sy(get_y<X, Y>(pt)))});
+          pts.push_back({super::sx(get_x<X>(pt)),
+                         super::sy(get_y<Y>(pt))});
         }
       }
 
+      template<typename X, typename Y, typename C, scaling SX, scaling SY,
+               typename IX, typename IY, typename T>
+      line_graph<X, Y, C, SX, SY, IX, IY, T> mk_line_graph (const scaler<X, SX, IX, T>& sx,
+                                                            const scaler<Y, SY, IY, T>& sy,
+                                                            C data, Y zero) {
+        return line_graph<X, Y, C, SX, SY, IX, IY, T>(sx, sy, data, zero);
+      }
+
       // --------------------------------------------------------------------------
-      template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      cascade<X, Y, C, SX, SY>::cascade (const scaler<X, SX>& sx,
-                                         const scaler<Y, SY>& sy,
-                                         typename super::point2d_data points,
-                                         Y zero)
+      template<typename X, typename Y, typename C, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      cascade<X, Y, C, SX, SY, IX, IY, T>::cascade (const scaler<X, SX, IX, T>& sx,
+                                                    const scaler<Y, SY, IY, T>& sy,
+                                                    typename super::point2d_data points,
+                                                    Y zero)
         : super(sx, sy, points)
         , zero(zero)
       {}
 
-      // --------------------------------------------------------------------------
-      template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      void cascade<X, Y, C, SX, SY>::operator() (graphics& g, const pen& p) const {
+      template<typename X, typename Y, typename C, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void cascade<X, Y, C, SX, SY, IX, IY, T>::operator() (graphics& g, const pen& p) const {
         clip clp(g, super::get_graph_area());
         std::vector<core::point> pts;
         calc_points(pts);
         g.frame(draw::polyline(pts), p);
       }
 
-      // --------------------------------------------------------------------------
-      template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      void cascade<X, Y, C, SX, SY>::operator() (graphics& g, const brush& b) const {
+      template<typename X, typename Y, typename C, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void cascade<X, Y, C, SX, SY, IX, IY, T>::operator() (graphics& g, const brush& b) const {
         clip clp(g, super::get_graph_area());
         std::vector<core::point> pts;
         calc_points(pts);
         g.fill(draw::polygon(pts), b);
       }
 
-      // --------------------------------------------------------------------------
-      template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      void cascade<X, Y, C, SX, SY>::calc_points (std::vector<core::point>& pts) const {
+      template<typename X, typename Y, typename C, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void cascade<X, Y, C, SX, SY, IX, IY, T>::calc_points (std::vector<core::point>& pts) const {
         const auto sz = super::points.size();
         pts.reserve(sz*2 + 1);
-        const core::point::type y0 = static_cast<core::point::type>(super::sy(zero));
+        const core::point::type y0 = super::sy(zero);
         core::point::type last_y = y0;
         for (int i = 0; i < sz; ++i) {
           const auto pt = super::points[i];
-          core::point::type next_x = static_cast<core::point::type>(super::sx(get_x<X, Y>(pt)));
-          core::point::type next_y = static_cast<core::point::type>(super::sy(get_y<X, Y>(pt)));
+          core::point::type next_x = super::sx(get_x<X>(pt));
+          core::point::type next_y = super::sy(get_y<Y>(pt));
           pts.push_back({next_x, last_y});
           pts.push_back({next_x, next_y});
           last_y = next_y;
         }
-        const core::point::type x1 = static_cast<core::point::type>(super::sx(get_x<X, Y>(super::points[sz - 1])));
+        const core::point::type x1 = super::sx(get_x<X>(super::points[sz - 1]));
         pts.push_back({ x1, y0 });
       }
 
+      template<typename X, typename Y, typename C, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      cascade<X, Y, C, SX, SY, IX, IY, T> mk_cascade (const scaler<X, SX, IX, T>& sx,
+                                                      const scaler<Y, SY, IY, T>& sy,
+                                                      C data, Y zero) {
+        return cascade<X, Y, C, SX, SY, IX, IY, T>(sx, sy, data, zero);
+      }
+
       // --------------------------------------------------------------------------
-      template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      bar_graph<X, Y, C, SX, SY>::bar_graph (const scaler<X, SX>& sx,
-                                             const scaler<Y, SY>& sy,
-                                             typename super::point2d_data points,
-                                             X space)
+      template<typename X, typename Y, typename C, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      bar_graph<X, Y, C, SX, SY, IX, IY, T>::bar_graph (const scaler<X, SX, IX, T>& sx,
+                                                        const scaler<Y, SY, IY, T>& sy,
+                                                        typename super::point2d_data points,
+                                                        T space)
         : super(sx, sy, points)
         , space(space)
       {}
 
-      // --------------------------------------------------------------------------
-      template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      void bar_graph<X, Y, C, SX, SY>::operator() (graphics& g, const brush& b) const {
+      template<typename X, typename Y, typename C, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void bar_graph<X, Y, C, SX, SY, IX, IY, T>::operator() (graphics& g, const brush& b) const {
         clip clp(g, super::get_graph_area());
         const auto sz = super::points.size();
-        const float w = std::max(1.0F, static_cast<float>((super::sx.get_target().end() - super::sx.get_target().begin()) / (sz * 2) - space));
-        const auto y0 = static_cast<core::point::type>(super::sy(0));
+        const auto w = std::max<T>(T(1), T((super::sx.get_target().end() - super::sx.get_target().begin()) / (sz * 2) - space));
+        const auto y0 = super::sy(0);
         for (int i = 0; i < sz; ++i) {
           const auto pt = super::points[i];
-          const auto x = static_cast<core::point::type>(super::sx(get_x<X, Y>(pt)));
-          const auto y = static_cast<core::point::type>(super::sy(get_y<X, Y>(pt)));
+          const auto x = super::sx(get_x<X>(pt));
+          const auto y = super::sy(get_y<Y>(pt));
           g.fill(draw::rectangle(core::point(x - w, y0), core::point(x + w, y)), b);
         }
       }
 
+      template<typename X, typename Y, typename C, scaling SX, scaling SY,
+               typename IX, typename IY, typename T>
+      bar_graph<X, Y, C, SX, SY, IX, IY, T> mk_bar_graph (const scaler<X, SX, IX, T>& sx,
+                                                          const scaler<Y, SY, IY, T>& sy,
+                                                          C data, T space) {
+        return bar_graph<X, Y, C, SX, SY, IX, IY, T>(sx, sy, data, space);
+      }
+
       // --------------------------------------------------------------------------
-      template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      points_graph<X, Y, C, SX, SY>::points_graph (const scaler<X, SX>& sx,
-                                                   const scaler<Y, SY>& sy,
-                                                   typename super::point2d_data points,
-                                                   point_drawer drawer)
+      template<typename X, typename Y, typename C, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      points_graph<X, Y, C, SX, SY, IX, IY, T>::points_graph (const scaler<X, SX, IX, T>& sx,
+                                                              const scaler<Y, SY, IY, T>& sy,
+                                                              typename super::point2d_data points,
+                                                              point_drawer drawer)
         : super(sx, sy, points)
         , drawer(drawer)
       {}
 
-      // --------------------------------------------------------------------------
-      template<typename X, typename Y, typename C, scaling SX, scaling SY>
-      void points_graph<X, Y, C, SX, SY>::operator() (graphics& g, const brush& b) const {
+      template<typename X, typename Y, typename C, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void points_graph<X, Y, C, SX, SY, IX, IY, T>::operator() (graphics& g, const brush& b) const {
         if (drawer) {
           clip clp(g, super::get_graph_area());
           const auto sz = super::points.size();
           for (std::size_t i = 0; i < sz; ++i) {
             const auto pt = super::points[i];
-            const auto x = static_cast<core::point::type>(super::sx(get_x<X, Y>(pt)));
-            const auto y = static_cast<core::point::type>(super::sy(get_y<X, Y>(pt)));
+            const auto x = super::sx(get_x<X>(pt));
+            const auto y = super::sy(get_y<Y>(pt));
             drawer(g, b, core::point(x, y));
           }
         }
       }
 
-      // --------------------------------------------------------------------------
-      template<typename X, typename Y, scaling SX, scaling SY>
-      constexpr os::color chart<X, Y, SX, SY>::wall_back;
+      template<typename X, typename Y, typename C, scaling SX, scaling SY,
+               typename IX, typename IY, typename T>
+      points_graph<X, Y, C, SX, SY, IX, IY, T> mk_points_graph (const scaler<X, SX, IX, T>& sx,
+                                                                const scaler<Y, SY, IY, T>& sy,
+                                                                C data, point_drawer drawer) {
+        return points_graph<X, Y, C, SX, SY, IX, IY, T>(sx, sy, data, drawer);
+      }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
-      chart<X, Y, SX, SY>::chart (const core::rectangle& area, core::range<X> range_x, core::range<Y> range_y)
-        : p0(static_cast<float>(area.x() + 50), static_cast<float>(area.y2() - 50))
-        , scale_x(range_x, {static_cast<X>(p0.x()), static_cast<X>(area.x2() - 50)})
-        , scale_y(range_y, {static_cast<Y>(p0.y()), static_cast<Y>(area.y() + 20)})
+      // --------------------------------------------------------------------------
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      constexpr os::color chart<X, Y, SX, SY, IX, IY, T>::wall_back;
+
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      chart<X, Y, SX, SY, IX, IY, T>::chart (const core::rectangle& area, core::range<X> range_x, core::range<Y> range_y)
+        : p0(area.x() + 50, area.y2() - 50)
+        , scale_x(range_x, {convert<T>(p0.x()), convert<T>(area.x2() - 50)})
+        , scale_y(range_y, {convert<T>(p0.y()), convert<T>(area.y() + 20)})
       {}
 
-      template<typename X, typename Y, scaling SX, scaling SY>
-      auto chart<X, Y, SX, SY>::get_scale_x() const -> const scaler_x_type& {
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      auto chart<X, Y, SX, SY, IX, IY, T>::get_scale_x() const -> const scaler_x_type& {
         return scale_x;
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
-      auto chart<X, Y, SX, SY>::get_scale_y() const -> const scaler_y_type& {
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      auto chart<X, Y, SX, SY, IX, IY, T>::get_scale_y() const -> const scaler_y_type& {
         return scale_y;
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
-      const core::point& chart<X, Y, SX, SY>::get_point_00 () const {
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      const core::point& chart<X, Y, SX, SY, IX, IY, T>::get_point_00 () const {
         return p0;
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
-      void chart<X, Y, SX, SY>::fill_area (graphics& graph) const {
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void chart<X, Y, SX, SY, IX, IY, T>::fill_area (graphics& graph) const {
         graph.draw(wall<X, Y, SX, SY>(scale_x, scale_y), wall_back, wall_back);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
-      void chart<X, Y, SX, SY>::draw_xscale (graphics& graph, X main, X sub, typename scale_x_type::formatter fmt) const {
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_xscale (graphics& graph, IX main, IX sub, scale_formatter<X> fmt) const {
         graph.text(scale_x_type(p0, scale_x, main, sub,
-                                static_cast<X>(scale_y.get_target().size()),
-                                static_cast<X>(scale_y.get_target().size()),
+                                convert<T>(scale_y.get_target_size()),
+                                convert<T>(scale_y.get_target_size()),
                                 color::very_light_gray,
                                 color::very_very_light_gray,
                                 fmt),
                    font::system_small(), color::black);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
-      void chart<X, Y, SX, SY>::draw_yscale (graphics& graph, Y main, Y sub, typename scale_y_type::formatter fmt) const {
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_yscale (graphics& graph, IY main, IY sub, scale_formatter<Y> fmt) const {
         graph.text(scale_y_type(p0, scale_y, main, sub,
-                                static_cast<Y>(scale_x.get_target().size()),
-                                static_cast<Y>(scale_x.get_target().size()),
+                                convert<T>(scale_x.get_target_size()),
+                                convert<T>(scale_x.get_target_size()),
                                 color::very_light_gray,
                                 color::very_very_light_gray,
                                 fmt),
                    font::system_small(), color::black);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
-      void chart<X, Y, SX, SY>::draw_axis (graphics& graph) const {
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_axis (graphics& graph) const {
         graph.frame(xy_axis<X, Y, SX, SY>(scale_x, scale_y), color::black);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
-      void chart<X, Y, SX, SY>::draw_title (graphics& graph, const std::string& title) const {
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_title (graphics& graph, const std::string& title) const {
         graph.text(headline<X, Y, SX, SY>(scale_x, scale_y, title), font::system_bold(), color::black);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
-      void chart<X, Y, SX, SY>::draw_legend (graphics& graph, const std::vector<legend_label>& labels) const {
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_legend (graphics& graph, const std::vector<legend_label>& labels) const {
         graph.text(legend<X, Y, SX, SY>(scale_x, scale_y, labels), font::system(), color::black);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
-      void chart<X, Y, SX, SY>::draw_background (graphics& graph, X xmain, X xsub, Y ymain, Y ysub) const {
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_background (graphics& graph, IX xmain, IX xsub, IY ymain, IY ysub) const {
         fill_area(graph);
         draw_xscale(graph, xmain, xsub);
         draw_yscale(graph, ymain, ysub);
         draw_axis(graph);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_line_graph (graphics& graph, C data, os::color color, Y zero) const {
-        graph.frame(line_graph<X, Y, C, SX, SY>(scale_x, scale_y, data, zero), color);
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_line_graph (graphics& graph, C data, os::color color, Y zero) const {
+        graph.frame(line_graph<X, Y, C, SX, SY, IX, IY, T>(scale_x, scale_y, data, zero), color);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_area_graph (graphics& graph, C data, os::color color, Y zero) const {
-        graph.fill(line_graph<X, Y, C, SX, SY>(scale_x, scale_y, data, zero), color);
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_area_graph (graphics& graph, C data, os::color color, Y zero) const {
+        graph.fill(line_graph<X, Y, C, SX, SY, IX, IY, T>(scale_x, scale_y, data, zero), color);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_cascade_graph (graphics& graph, C data, os::color color, Y zero) const {
-        graph.frame(cascade<X, Y, C, SX, SY>(scale_x, scale_y, data, zero), color);
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_cascade_graph (graphics& graph, C data, os::color color, Y zero) const {
+        graph.frame(cascade<X, Y, C, SX, SY, IX, IY, T>(scale_x, scale_y, data, zero), color);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_cascade_area_graph (graphics& graph, C data, os::color color, Y zero) const {
-        graph.fill(cascade<X, Y, C, SX, SY>(scale_x, scale_y, data, zero), color);
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_cascade_area_graph (graphics& graph, C data, os::color color, Y zero) const {
+        graph.fill(cascade<X, Y, C, SX, SY, IX, IY, T>(scale_x, scale_y, data, zero), color);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_bar_graph (graphics& graph, C data, os::color color, Y space) const {
-        graph.fill(bar_graph<X, Y, C, SX, SY>(scale_x, scale_y, data, space), color);
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_bar_graph (graphics& graph, C data, os::color color, Y space) const {
+        graph.fill(bar_graph<X, Y, C, SX, SY, IX, IY, T>(scale_x, scale_y, data, space), color);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_point_graph (graphics& graph, C data, os::color color, float radius) const {
-        graph.fill(points_graph<X, Y, C, SX, SY>(scale_x, scale_y, data, circle(radius)), color);
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_point_graph (graphics& graph, C data, os::color color, float radius) const {
+        graph.fill(points_graph<X, Y, C, SX, SY, IX, IY, T>(scale_x, scale_y, data, circle(radius)), color);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_diamond_graph (graphics& graph, C data, os::color color, float radius) const {
-        graph.fill(points_graph<X, Y, C, SX, SY>(scale_x, scale_y, data, diamond(radius)), color);
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_diamond_graph (graphics& graph, C data, os::color color, float radius) const {
+        graph.fill(points_graph<X, Y, C, SX, SY, IX, IY, T>(scale_x, scale_y, data, diamond(radius)), color);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_cross_graph (graphics& graph, C data, os::color color, float radius) const {
-        graph.fill(points_graph<X, Y, C, SX, SY>(scale_x, scale_y, data, cross(radius)), color);
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_cross_graph (graphics& graph, C data, os::color color, float radius) const {
+        graph.fill(points_graph<X, Y, C, SX, SY, IX, IY, T>(scale_x, scale_y, data, cross(radius)), color);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY>
+      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
       template<typename C>
-      void chart<X, Y, SX, SY>::draw_square_graph (graphics& graph, C data, os::color color, float radius) const {
-        graph.fill(points_graph<X, Y, C, SX, SY>(scale_x, scale_y, data, square(radius)), color);
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_square_graph (graphics& graph, C data, os::color color, float radius) const {
+        graph.fill(points_graph<X, Y, C, SX, SY, IX, IY, T>(scale_x, scale_y, data, square(radius)), color);
+      }
+
+      template<scaling SX, scaling SY, typename T, typename X, typename Y, typename IX, typename IY>
+      chart<X, Y, SX, SY, IX, IY, T> mk_chart (const core::rectangle& area,
+                                       core::range<X> range_x,
+                                       core::range<Y> range_y) {
+        return chart<X, Y, SX, SY, IX, IY, T>(area, range_x, range_y);
       }
 
       // --------------------------------------------------------------------------

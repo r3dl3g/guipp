@@ -145,7 +145,7 @@ namespace gui {
     template<text_origin_t A, char C, draw::frame::drawer D>
     std::string basic_pass<A, C, D>::get_selected_text () const {
       auto r = super::get_selection();
-      return std::string(r.size(), C);
+      return std::string(r.end() - r.begin(), C);
     }
 
   } // ctrl

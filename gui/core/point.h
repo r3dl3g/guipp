@@ -90,6 +90,8 @@ namespace gui {
       self operator- () const;
 
       size_t diff (const self& pt) const;
+      self min (const self& pt) const;
+      self max (const self& pt) const;
 
       self& move (const self& pt);
       self& move_x (type dx);

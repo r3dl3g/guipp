@@ -172,6 +172,16 @@ namespace gui {
     }
 
     template<typename T, coordinate_system C>
+    inline auto basic_point<T, C>::min (const self& pt) const -> self {
+      return {std::min(x(), pt.x()), std::min(y(), pt.y())};
+    }
+
+    template<typename T, coordinate_system C>
+    inline auto basic_point<T, C>::max (const self& pt) const -> self  {
+      return {std::max(x(), pt.x()), std::max(y(), pt.y())};
+    }
+
+    template<typename T, coordinate_system C>
     inline auto basic_point<T, C>::operator+ (const self& pt) const -> self {
       return {type(x() + pt.x()), type(y() + pt.y())};
     }

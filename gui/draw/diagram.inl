@@ -546,6 +546,9 @@ namespace gui {
         while (i <= max) {
           const auto d1 = sc(i);
           const auto next = detail::scale_fn<S, T, F, I>::inc(i, main_step, min);
+          if (i == next) {
+            throw std::runtime_error(ostreamfmt("Scale step hast to be greater than 0! (" << main_step << ")"));
+          }
 
           traits::set_1(p0, d1);
           traits::set_1(p1, d1);
@@ -577,62 +580,59 @@ namespace gui {
                                        main_color, sub_color, fmt);
       }
       // --------------------------------------------------------------------------
-      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      wall<X, Y, SX, SY, IX, IY, T>::wall (const scaler<X, SX, IX, T>& sx,
-                                           const scaler<Y, SY, IY, T>& sy)
+      template<typename SX, typename SY, typename T>
+      wall<SX, SY, T>::wall (const SX& sx, const SY& sy)
         : sx(sx)
         , sy(sy)
       {}
 
-      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      void wall<X, Y, SX, SY, IX, IY, T>::operator() (graphics& g, const brush& b, const pen& p) const {
+      template<typename SX, typename SY, typename T>
+      void wall<SX, SY, T>::operator() (graphics& g, const brush& b, const pen& p) const {
         g.fill(draw::rectangle(core::point(sx.get_target().begin(), sy.get_target().begin()),
                                core::point(sx.get_target().end(),   sy.get_target().end())), b);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      wall<X, Y, SX, SY, IX, IY, T> mk_wall (const scaler<X, SX, IX, T>& sx,
-                                             const scaler<Y, SY, IY, T>& sy) {
-        return wall<X, Y, SX, SY, IX, IY, T>(sx, sy);
+      template<typename SX, typename SY, typename T>
+      wall<SX, SY, T> mk_wall (const SX& sx, const SY& sy) {
+        return wall<SX, SY, T>(sx, sy);
       }
 
       // --------------------------------------------------------------------------
-      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      headline<X, Y, SX, SY, IX, IY, T>::headline (const scaler<X, SX, IX, T>& sx,
-                                           const scaler<Y, SY, IY, T>& sy,
-                                           const std::string& text)
+      template<typename SX, typename SY, typename T>
+      headline<SX, SY, T>::headline (const SX& sx,
+                                     const SY& sy,
+                                     const std::string& text)
         : sx(sx)
         , sy(sy)
         , text(text)
       {}
 
-      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      void headline<X, Y, SX, SY, IX, IY, T>::operator() (graphics& g, const font& f, os::color color) const {
+      template<typename SX, typename SY, typename T>
+      void headline<SX, SY, T>::operator() (graphics& g, const font& f, os::color color) const {
         core::point p(sx.get_target().begin(), sy.get_target().end());
         g.text(draw::text(text, p, text_origin_t::bottom_left), f, color);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      headline<X, Y, SX, SY, IX, IY, T> mk_headline (const scaler<X, SX, IX, T>& sx,
-                                                     const scaler<Y, SY, IY, T>& sy,
-                                                     const std::string& s) {
-        return headline<X, Y, SX, SY, IX, IY, T>(sx, sy, s);
+      template<typename SX, typename SY, typename T>
+      headline<SX, SY, T> mk_headline (const SX& sx, const SY& sy,
+                                       const std::string& s) {
+        return headline<SX, SY, T>(sx, sy, s);
       }
 
       // --------------------------------------------------------------------------
-      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      legend<X, Y, SX, SY, IX, IY, T>::legend (const scaler<X, SX, IX, T>& sx,
-                                               const scaler<Y, SY, IY, T>& sy,
-                                               const std::vector<legend_label>& labels)
+      template<typename SX, typename SY, typename T>
+      legend<SX, SY, T>::legend (const SX& sx,
+                                 const SY& sy,
+                                 const std::vector<legend_label>& labels)
         : sx(sx)
         , sy(sy)
         , labels(labels)
       {}
 
-      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      void legend<X, Y, SX, SY, IX, IY, T>::operator() (graphics& g, const font& f, os::color color) const {
+      template<typename SX, typename SY, typename T>
+      void legend<SX, SY, T>::operator() (graphics& g, const font& f, os::color color) const {
         core::point p(sx.get_target().begin(),
-                      sy.get_target().begin() + scale_dim<X, orientation_t::horizontal>::main_tick_length * 2);
+                      sy.get_target().begin() + scale_dim<T, orientation_t::horizontal>::main_tick_length * 2);
         bool first = true;
         for(const auto& l : labels) {
           core::rectangle area(p, core::size{5, 5});
@@ -648,11 +648,10 @@ namespace gui {
         }
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      legend<X, Y, SX, SY, IX, IY, T> mk_legend (const scaler<X, SX, IX, T>& sx,
-                                                 const scaler<Y, SY, IY, T>& sy,
-                                                 const std::vector<legend_label>& l) {
-        return legend<X, Y, SX, SY, IX, IY, T>(sx, sy, l);
+      template<typename SX, typename SY, typename T>
+      legend<SX, SY, T> mk_legend (const SX& sx, const SY& sy,
+                                   const std::vector<legend_label>& l) {
+        return legend<SX, SY, T>(sx, sy, l);
       }
 
       // --------------------------------------------------------------------------
@@ -916,7 +915,7 @@ namespace gui {
 
       template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
       void chart<X, Y, SX, SY, IX, IY, T>::fill_area (graphics& graph) const {
-        graph.draw(wall<X, Y, SX, SY>(scale_x, scale_y), wall_back, wall_back);
+        graph.draw(wall<scaler_x_type, scaler_y_type, T>(scale_x, scale_y), wall_back, wall_back);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
@@ -943,17 +942,17 @@ namespace gui {
 
       template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
       void chart<X, Y, SX, SY, IX, IY, T>::draw_axis (graphics& graph) const {
-        graph.frame(xy_axis<X, Y, SX, SY>(scale_x, scale_y), color::black);
+        graph.frame(xy_axis<X, Y, SX, SY, IX, IY, T>(scale_x, scale_y), color::black);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
       void chart<X, Y, SX, SY, IX, IY, T>::draw_title (graphics& graph, const std::string& title) const {
-        graph.text(headline<X, Y, SX, SY>(scale_x, scale_y, title), font::system_bold(), color::black);
+        graph.text(headline<scaler_x_type, scaler_y_type, T>(scale_x, scale_y, title), font::system_bold(), color::black);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
       void chart<X, Y, SX, SY, IX, IY, T>::draw_legend (graphics& graph, const std::vector<legend_label>& labels) const {
-        graph.text(legend<X, Y, SX, SY>(scale_x, scale_y, labels), font::system(), color::black);
+        graph.text(legend<scaler_x_type, scaler_y_type, T>(scale_x, scale_y, labels), font::system(), color::black);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>

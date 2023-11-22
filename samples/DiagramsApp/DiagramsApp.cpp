@@ -1,7 +1,9 @@
 
+#include <gui/ctrl/std_dialogs.h>
 #include <gui/win/overlapped_window.h>
 #include <gui/draw/diagram.h>
 #include <gui/core/grid.h>
+#include <gui/win/background_repeater.h>
 #ifdef WIN32
 #include <math.h>
 #endif // GUIPP_WIN
@@ -78,8 +80,8 @@ struct sinus_data_t<util::time::duration, Y, S> {
 template<typename Y, std::size_t S>
 struct sinus_data_t<util::time::time_point, Y, S> {
 
-  sinus_data_t (util::time::time_point dy = 0)
-    : delta(dy)
+  sinus_data_t (util::time::time_point dx, int dy = 0)
+    : delta_x(dx), delta_y(dy)
   {}
 
   std::size_t size () const {
@@ -87,13 +89,14 @@ struct sinus_data_t<util::time::time_point, Y, S> {
   }
 
   point2d<util::time::time_point, Y> operator[] (std::size_t i) const {
-    const util::time::time_point x = delta + util::time::mkduration(0, 0, i);
-    const Y y{std::sin(i * M_PI / 30.0)};
+    const util::time::time_point x = delta_x + util::time::mkduration(0, 0, i);
+    const Y y{std::sin((delta_y + i) * M_PI / 30.0)};
     return {x, y};
   }
 
 private:
-  util::time::time_point delta;
+  util::time::time_point delta_x;
+  int delta_y;
 };
 
 template<typename X, typename Y>
@@ -162,8 +165,7 @@ void draw_graph_1 (graphics& graph, const core::rectangle& area) {
   scaler<double> xscale({0.0, 6.5}, {p0.x(), area.x2() - 20});
   scaler<double> yscale({-1.2, 1.2}, {p0.y(), area.y() + 20});
 
-  graph.draw(wall<double, double>(xscale, yscale), wall_back, wall_back);
-  graph.text(mk_headline(xscale, yscale, "graph 1"), font_serif(), color::black);
+  graph.draw(mk_wall(xscale, yscale), wall_back, wall_back);
 
   graph.text(mk_scale<orientation_t::horizontal>(p0, xscale, 1.0, 0.2,
                                                  yscale.get_target_size(),
@@ -196,6 +198,7 @@ void draw_graph_1 (graphics& graph, const core::rectangle& area) {
   graph.fill(points_graph<double, double, sinus_data>(xscale, yscale, sinus_data(-1), diagram::cross(2)), color::green);
 
   graph.frame(mk_xy_axis(xscale, yscale), color::black);
+  graph.text(mk_headline(xscale, yscale, "graph 1"), font_serif(), color::black);
 }
 // --------------------------------------------------------------------------
 void draw_graph_2 (graphics& graph, const core::rectangle& area) {
@@ -208,8 +211,7 @@ void draw_graph_2 (graphics& graph, const core::rectangle& area) {
   scaler<double> xscale({0, 6.5}, {p0.x(), area.x2() - 20});
   scaler<double, scaling::log> yscale({0.01, 10000}, {p0.y(), area.y() + 20});
 
-  graph.draw(wall<double, double, scaling::linear, scaling::log>(xscale, yscale), wall_back, wall_back);
-  graph.text(mk_headline(xscale, yscale, "graph 2"), font_serif(), color::black);
+  graph.draw(mk_wall(xscale, yscale), wall_back, wall_back);
 
   graph.text(scale<double, orientation_t::horizontal>(p0, xscale, 1, 0.2, yscale.get_target_size(), yscale.get_target_size()),
              font_serif(), color::black);
@@ -221,6 +223,7 @@ void draw_graph_2 (graphics& graph, const core::rectangle& area) {
   graph.fill(points_graph<double, double, sinus_data, scaling::linear, scaling::log>(xscale, yscale, sinus_data(), diagram::diamond(2)), color::green);
 
   graph.frame(xy_axis<double, double, scaling::linear, scaling::log>(xscale, yscale), color::black);
+  graph.text(mk_headline(xscale, yscale, "graph 2"), font_serif(), color::black);
 }
 // --------------------------------------------------------------------------
 void draw_graph_3 (graphics& graph, const core::rectangle& area) {
@@ -232,8 +235,7 @@ void draw_graph_3 (graphics& graph, const core::rectangle& area) {
   scaler<double> yscale({0, 10000}, {p0.y(), area.y() + 20});
 
   graph.frame(draw::rectangle(area), color::black);
-  graph.draw(wall<double, double, scaling::log>(xscale, yscale), wall_back, wall_back);
-  graph.text(mk_headline(xscale, yscale, "graph 3"), font_serif(), color::black);
+  graph.draw(mk_wall(xscale, yscale), wall_back, wall_back);
 
   graph.text(scale<double, orientation_t::horizontal, scaling::log>(p0, xscale, 1, 1, yscale.get_target_size(), yscale.get_target_size()),
              font_serif(), color::black);
@@ -244,6 +246,7 @@ void draw_graph_3 (graphics& graph, const core::rectangle& area) {
   graph.frame(line_graph<double, double, linear_data, scaling::log, scaling::linear>(xscale, yscale, linear_data()), color::green);
 
   graph.frame(xy_axis<double, double, scaling::log>(xscale, yscale), color::black);
+  graph.text(mk_headline(xscale, yscale, "graph 3"), font_serif(), color::black);
 }
 // --------------------------------------------------------------------------
 void draw_graph_4 (graphics& graph, const core::rectangle& area) {
@@ -256,8 +259,7 @@ void draw_graph_4 (graphics& graph, const core::rectangle& area) {
   scaler<double, scaling::log> xscale({0.01, 10}, {p0.x(), area.x2() - 20});
   scaler<double, scaling::log> yscale({0.01, 10000}, {p0.y(), area.y() + 20});
 
-  graph.draw(wall<double, double, scaling::log, scaling::log>(xscale, yscale), wall_back, wall_back);
-  graph.text(mk_headline(xscale, yscale, "graph 4"), font_serif(), color::black);
+  graph.draw(mk_wall(xscale, yscale), wall_back, wall_back);
 
   graph.text(scale<double, orientation_t::horizontal, scaling::log>(p0, xscale, 1, 1, yscale.get_target_size(), yscale.get_target_size()),
              font_serif(), color::black);
@@ -268,6 +270,7 @@ void draw_graph_4 (graphics& graph, const core::rectangle& area) {
   graph.frame(line_graph<double, double, linear_data, scaling::log, scaling::log>(xscale, yscale, linear_data()), color::light_red);
 
   graph.frame(xy_axis<double, double, scaling::log, scaling::log>(xscale, yscale), color::black);
+  graph.text(mk_headline(xscale, yscale, "graph 4"), font_serif(), color::black);
 }
 // --------------------------------------------------------------------------
 void draw_graph_5 (graphics& graph, const core::rectangle& area) {
@@ -281,14 +284,13 @@ void draw_graph_5 (graphics& graph, const core::rectangle& area) {
   // const xtype now = std::chrono::system_clock::now();
   const auto min_time = util::time::mkduration();
   const auto max_time = util::time::mkduration(0, 1, 40);
-  const auto main_scale = util::time::mkduration(0, 0, 15);
+  const auto main_scale = util::time::mkduration(0, 0, 30);
   const auto sub_scale = util::time::mkduration(0, 0, 5);
 
   scaler<xtype> xscale({{}, max_time}, {p0.x(), area.x2() - 20});
   scaler<float> yscale({0.0F, 5.0F}, {p0.y(), area.y() + 20});
 
   graph.draw(mk_wall(xscale, yscale), wall_back, wall_back);
-  graph.text(mk_headline(xscale, yscale, "graph 5"), font_serif(), color::black);
 
   graph.text(scale<xtype, orientation_t::horizontal>(p0, xscale, main_scale, sub_scale,
                                                      xscale.get_target_size(),
@@ -320,6 +322,7 @@ void draw_graph_5 (graphics& graph, const core::rectangle& area) {
   graph.fill(mk_points_graph(xscale, yscale, data2, diagram::circle(2)), color::light_green);
 
   graph.frame(mk_xy_axis(xscale, yscale), color::black);
+  graph.text(mk_headline(xscale, yscale, "graph 5"), font_serif(), color::black);
 }
 // --------------------------------------------------------------------------
 void draw_graph_6 (graphics& graph, const core::rectangle& area) {
@@ -332,8 +335,7 @@ void draw_graph_6 (graphics& graph, const core::rectangle& area) {
   scaler<int> xscale({0, 100}, {p0.x(), (area.x2() - 20)});
   scaler<double, scaling::log> yscale({0.01, 10000.0}, {p0.y(), area.y() + 20});
 
-  graph.draw(wall<int, double, scaling::linear, scaling::log>(xscale, yscale), wall_back, wall_back);
-  graph.text(mk_headline(xscale, yscale, "graph 6"), font_serif(), color::black);
+  graph.draw(mk_wall(xscale, yscale), wall_back, wall_back);
 
   graph.text(scale<int, orientation_t::horizontal>(p0, xscale, 20, 5,
                                                    static_cast<int>(yscale.get_target_size()), static_cast<int>(yscale.get_target_size())),
@@ -346,23 +348,37 @@ void draw_graph_6 (graphics& graph, const core::rectangle& area) {
              xscale, yscale, data_type(100), yscale.get_source().begin()), color::very_light_red);
 
   graph.frame(mk_axis<orientation_t::vertical>(p0, yscale), color::black);
+  graph.text(mk_headline(xscale, yscale, "graph 6"), font_serif(), color::black);
 }
 // --------------------------------------------------------------------------
 void draw_graph_7 (graphics& graph, const core::rectangle& area) {
   logging::trace() << "Draw graph 7 in area:" << area;
 
-  chart<double, double> d(area, {0, 6.5}, {-1.2, 1.2});
+  chart<double, double> d(area, {0.0, 6.5}, {-1.2, 1.2});
   d.draw_background(graph, 1, 0.2, 0.2, 0.05);
-  d.draw_title(graph, "graph 7");
   d.draw_line_graph(graph, sinus_data(0.5), color::very_light_red);
   d.draw_bar_graph(graph, sinus_data(-0.5), color::blue, 2);
   d.draw_cross_graph(graph, sinus_data(-1), color::green, 2);
+  d.draw_title(graph, "graph 7");
+  d.draw_legend(graph, {
+    {color::very_light_red, "sinus 0.5"},
+    {color::blue, "sinus -0.5"},
+    {color::green, "sinus -1"}
+  });
 }
+// --------------------------------------------------------------------------
+util::time::time_point with_second (util::time::time_point const& tp, int secs) {
+  using namespace util::time;
+  std::tm t = utc_time(tp);
+  return mktime_point_from_utc(year_of(t), month_of(t), day_of(t), t.tm_hour, t.tm_min, secs, 0);
+}
+
 // --------------------------------------------------------------------------
 void draw_graph_8 (graphics& graph, const core::rectangle& area) {
   logging::trace() << "Draw graph 8 in area:" << area;
 
   const util::time::time_point min_time = util::time::now();
+  std::tm t = util::time::utc_time(min_time);
   const util::time::time_point max_time = min_time + std::chrono::minutes(2);
   const auto main_scale = util::time::mkduration(0, 1, 0);
   const auto sub_scale = util::time::mkduration(0, 0, 15);
@@ -372,11 +388,16 @@ void draw_graph_8 (graphics& graph, const core::rectangle& area) {
   auto d = mk_chart(area, core::mk_range(min_time, max_time), core::mk_range(-1.2, 1.2));
   d.draw_xscale(graph, main_scale, sub_scale, time_point_fmt);
   d.draw_yscale(graph, 0.2, 0.05);
-  d.draw_title(graph, "graph 8");
-  d.draw_area_graph(graph, sinus_data_t<xtype, double, 110>(min_time), color::very_light_red);
-  d.draw_bar_graph(graph, sinus_data_t<xtype, double>(min_time), color::blue, 2);
-  d.draw_cross_graph(graph, sinus_data_t<xtype, double, 120>(min_time), color::green, 2);
+  d.draw_area_graph(graph, sinus_data_t<xtype, double, 110>(min_time, t.tm_sec), color::very_light_red);
+  d.draw_bar_graph(graph, sinus_data_t<xtype, double>(min_time, t.tm_sec), color::blue, 2);
+  d.draw_cross_graph(graph, sinus_data_t<xtype, double, 120>(min_time, t.tm_sec), color::green, 2);
   d.draw_axis(graph);
+  d.draw_title(graph, "graph 8");
+  d.draw_legend(graph, {
+    {color::very_light_red, "sinus 1:50"},
+    {color::blue, "sinus 1.40"},
+    {color::green, "sinus 2:00"}
+  });
 }
 // --------------------------------------------------------------------------
 void draw_graph_9 (graphics& graph, const core::rectangle& area) {
@@ -386,9 +407,12 @@ void draw_graph_9 (graphics& graph, const core::rectangle& area) {
           core::mk_range(0, 100), core::mk_range(0.01, 10000.0));
   d.draw_xscale(graph, 20, 5);
   d.draw_yscale(graph, 1, 1);
-  d.draw_title(graph, "graph 9");
   d.draw_area_graph(graph, linear_data_t<int, double>(100), color::very_light_red);
   d.draw_axis(graph);
+  d.draw_title(graph, "graph 9");
+  d.draw_legend(graph, {
+    {color::very_light_red, "linear-log"}
+  });
 }
 // --------------------------------------------------------------------------
 void draw_graph_10 (graphics& graph, const core::rectangle& area) {
@@ -403,10 +427,13 @@ void draw_graph_10 (graphics& graph, const core::rectangle& area) {
   logging::trace() << "Draw yscale in graph 10";
   d.draw_yscale(graph, 1, 1, fmt);
   logging::trace() << "Draw line_graph in graph 10";
-  d.draw_title(graph, "graph 10");
   d.draw_line_graph(graph, linear_data_t<int, double>(100, -100), color::very_light_red);
   logging::trace() << "Draw axis in graph 10";
   d.draw_axis(graph);
+  d.draw_title(graph, "graph 10");
+  d.draw_legend(graph, {
+    {color::very_light_red, "linear-symlog"}
+  });
 }
 // --------------------------------------------------------------------------
 void draw_graph_11 (graphics& graph, const core::rectangle& area) {
@@ -418,9 +445,12 @@ void draw_graph_11 (graphics& graph, const core::rectangle& area) {
   };
   d.draw_xscale(graph, 1, 1, fmt);
   d.draw_yscale(graph, 1, 1, fmt);
-  d.draw_title(graph, "graph 11");
   d.draw_line_graph(graph, linear_data_t<double, double>(100, -100), color::very_light_red);
   d.draw_axis(graph);
+  d.draw_title(graph, "graph 11");
+  d.draw_legend(graph, {
+    {color::very_light_red, "symlog-symlog"}
+  });
 }
 // --------------------------------------------------------------------------
 void draw_graph_12 (graphics& graph, const core::rectangle& area) {
@@ -432,15 +462,19 @@ void draw_graph_12 (graphics& graph, const core::rectangle& area) {
   };
   d.draw_xscale(graph, 1, 1, fmt);
   d.draw_yscale(graph, 100, 10, fmt);
-  d.draw_title(graph, "graph 12");
   d.draw_line_graph(graph, linear_data_t<double, double>(100, -100), color::very_light_red);
   d.draw_axis(graph);
+  d.draw_title(graph, "graph 12");
+  d.draw_legend(graph, {
+    {color::very_light_red, "symlog-linear"}
+  });
 }
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::win;
 
   main_window main;
+  background_repeater refresher(main, std::chrono::seconds(1), [&] { main.invalidate(); });
 
   main.on_size([&] (const core::size& sz) {
     logging::trace() << "Resized to " << sz << " -> initiate redraw";
@@ -474,11 +508,28 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     logging::trace() << "Left button down at " << pt << " -> initiate redraw";
     main.invalidate();
   });
+  main.on_close([&] {
+    refresher.stop();
+    quit_main_loop();
+  });
+
+  global::register_error_handler([&] (const core::event& e, const std::exception& ex) {
+    gui::ctrl::yes_no_dialog::ask(main, "Fatal Error",
+                                  ostreamfmt("A fatal error occured inside this application:\n" <<
+                                            ex.what() << "\nDo you wan't to exit this application?"), 
+                                  "Yes", "no", [&] (overlapped_window& dlg, bool y) {
+      if (y) {
+        exit(1);
+      }
+    });
+  });
 
   main.create({50, 50, 800, 600});
   main.on_destroy(&quit_main_loop);
   main.set_title("Diagrams");
   main.set_visible();
+
+  refresher.start();
 
   return run_main_loop();
 }

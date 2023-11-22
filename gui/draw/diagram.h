@@ -273,79 +273,70 @@ namespace gui {
                                         scale_formatter<S> fmt = default_formatter<S>);
 
       // --------------------------------------------------------------------------
-      template<typename X,
-               typename Y,
-               scaling SX = scaling::linear,
-               scaling SY = scaling::linear,
-               typename IX = typename default_sub_type<X>::type,
-               typename IY = typename default_sub_type<Y>::type,
+      template<typename SX,
+               typename SY,
                typename T = core::point::type>
       struct wall {
-        wall (const scaler<X, SX, IX, T>& sx,
-              const scaler<Y, SY, IY, T>& sy);
+        typedef SX scaler_x;
+        typedef SY scaler_y;
+        wall (const scaler_x& sx,
+              const scaler_y& sy);
 
         void operator() (graphics&, const brush&, const pen&) const;
 
       private:
-        const scaler<X, SX, IX, T>& sx;
-        const scaler<Y, SY, IY, T>& sy;
+        const scaler_x& sx;
+        const scaler_y& sy;
       };
 
-      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      wall<X, Y, SX, SY, IX, IY, T> mk_wall (const scaler<X, SX, IX, T>& sx,
-                                             const scaler<Y, SY, IY, T>& sy);
+      template<typename SX, typename SY, typename T = core::point::type>
+      wall<SX, SY, T> mk_wall (const SX& sx, const SY& sy);
 
       // --------------------------------------------------------------------------
-      template<typename X,
-               typename Y,
-               scaling SX = scaling::linear,
-               scaling SY = scaling::linear,
-               typename IX = typename default_sub_type<X>::type,
-               typename IY = typename default_sub_type<Y>::type,
+      template<typename SX,
+               typename SY,
                typename T = core::point::type>
       struct headline {
-        headline (const scaler<X, SX, IX, T>& sx,
-                  const scaler<Y, SY, IY, T>& sy,
+        typedef SX scaler_x;
+        typedef SY scaler_y;
+        headline (const scaler_x& sx,
+                  const scaler_y& sy,
                   const std::string&);
 
         void operator() (graphics&, const font&, os::color) const;
 
       private:
-        const scaler<X, SX, IX, T>& sx;
-        const scaler<Y, SY, IY, T>& sy;
+        const scaler_x& sx;
+        const scaler_y& sy;
         const std::string& text;
       };
 
-      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      headline<X, Y, SX, SY, IX, IY, T> mk_headline (const scaler<X, SX, IX, T>& sx,
-                                                     const scaler<Y, SY, IY, T>& sy,
-                                                     const std::string& s);
+      template<typename SX, typename SY, typename T = core::point::type>
+      headline<SX, SY, T> mk_headline (const SX& sx, const SY& sy,
+                                       const std::string& s);
 
       // --------------------------------------------------------------------------
-      template<typename X,
-               typename Y, 
-               scaling SX = scaling::linear,
-               scaling SY = scaling::linear,
-               typename IX = typename default_sub_type<X>::type,
-               typename IY = typename default_sub_type<Y>::type,
+      template<typename SX,
+               typename SY,
                typename T = core::point::type>
       struct legend {
-        legend (const scaler<X, SX, IX, T>& sx,
-                const scaler<Y, SY, IY, T>& sy,
+        typedef SX scaler_x;
+        typedef SY scaler_y;
+        legend (const scaler_x& sx,
+                const scaler_y& sy,
                 const std::vector<legend_label>& labels);
 
         void operator() (graphics&, const font&, os::color) const;
 
       private:
-        const scaler<X, SX, IX, T>& sx;
-        const scaler<Y, SY, IY, T>& sy;
+        const scaler_x& sx;
+        const scaler_y& sy;
         const std::vector<legend_label> labels;
       };
 
-      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      legend<X, Y, SX, SY, IX, IY, T> mk_legend (const scaler<X, SX, IX, T>& sx,
-                                                 const scaler<Y, SY, IY, T>& sy,
-                                                 const std::vector<legend_label>& l);
+      template<typename SX, typename SY, typename T = core::point::type>
+      legend<SX, SY, T> mk_legend (const SX& sx, const SY& sy,
+                                   const std::vector<legend_label>& l);
 
       // --------------------------------------------------------------------------
       template<orientation_t V, typename S,

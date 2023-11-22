@@ -609,8 +609,9 @@ namespace gui {
 
       template<typename SX, typename SY, typename T>
       void headline<SX, SY, T>::operator() (graphics& g, const font& f, os::color color) const {
-        core::point p(sx.get_target().begin(), sy.get_target().end() - 10);
-        g.text(draw::text(text, p, text_origin_t::vcenter_left), f, color);
+        core::rectangle r(core::point{sx.get_target().begin(), sy.get_target().end()},
+                          core::point{sx.get_target().end(), sy.get_target().end() - 20});
+        g.text(draw::text_box(text, r, text_origin_t::center), f, color);
       }
 
       template<typename SX, typename SY, typename T>

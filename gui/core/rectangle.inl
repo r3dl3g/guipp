@@ -675,7 +675,7 @@ namespace gui {
 
     template<typename T, typename S, coordinate_system C>
     bool basic_rectangle<T, S, C>::overlap (const self& rhs) const {
-      return (x() <= rhs.x2()) && ((rhs.x() <= x2())) && (y() <= rhs.y2()) && ((rhs.y() <= y2()));
+      return (x() < rhs.x2()) && (rhs.x() < x2()) && (y() < rhs.y2()) && (rhs.y() < y2());
     }
 
     template<typename T, typename S, coordinate_system C>

@@ -66,7 +66,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     class GUIPP_DRAW_EXPORT graphics {
     public:
-      graphics (core::context* ctx);
+      graphics (core::context* ctx, const core::native_rect&);
       explicit graphics (draw::basic_map& target);
       ~graphics ();
 
@@ -133,6 +133,8 @@ namespace gui {
       const core::context& context () const;
       core::context& context ();
 
+      const core::rectangle& get_invalid_area () const;
+
 #ifdef GUIPP_USE_XFT
       operator XftDraw* () const;
 #endif // GUIPP_USE_XFT
@@ -146,6 +148,7 @@ namespace gui {
       void destroy ();
 
       core::context* ctx;
+      const core::rectangle invalid_area;
       bool own_gctx;
     };
 

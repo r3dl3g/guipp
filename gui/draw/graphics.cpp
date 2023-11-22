@@ -86,27 +86,34 @@ namespace gui {
       return color::is_transparent(p.color()) || (p.style() == brush::Style::invisible);
     }
 
-#ifdef GUIPP_WIN
-    // --------------------------------------------------------------------------
-    graphics::graphics (core::context* ctx)
+    graphics::graphics (core::context* ctx, const core::native_rect& r)
       : ctx(ctx)
+      , invalid_area(core::global::scale_from_native(r))
       , own_gctx(false)
     {}
 
     graphics::graphics (draw::basic_map& target)
       : ctx(0)
+      , invalid_area(target.scaled_size())
       , own_gctx(true)
     {
       ctx = new core::context(target);
+#ifdef GUIPP_QT
+      gc()->begin(target);
+#endif // GUIPP_QT
     }
 
     graphics::~graphics () {
+      flush();
       destroy();
     }
 
     void graphics::destroy () {
       if (ctx) {
         if (own_gctx) {
+#ifdef GUIPP_QT
+          gc()->end();
+#endif // GUIPP_QT
           delete ctx;
         }
         ctx = 0;
@@ -114,6 +121,8 @@ namespace gui {
       own_gctx = false;
     }
 
+#ifdef GUIPP_WIN
+    // --------------------------------------------------------------------------
     graphics& graphics::draw_pixel (const core::native_point& pt,
                                           os::color c) {
       SetPixel(gc(), pt.x(), pt.y(), c);
@@ -282,33 +291,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    graphics::graphics (core::context* ctx)
-      : ctx(ctx)
-      , own_gctx(false)
-    {}
-
-    graphics::graphics (draw::basic_map& target)
-      : ctx(0)
-      , own_gctx(true)
-    {
-      ctx = new core::context(target);
-    }
-
-    graphics::~graphics () {
-      flush();
-      destroy();
-    }
-
-    void graphics::destroy () {
-      if (ctx) {
-        if (own_gctx) {
-          delete ctx;
-        }
-        ctx = 0;
-      }
-      own_gctx = false;
-    }
-
     graphics& graphics::draw_pixel (const core::native_point& pt,
                                           os::color c) {
       Use<pen> pn(gc(), pen(c));
@@ -450,6 +432,10 @@ namespace gui {
       return get_drawable_area(target());
     }
 
+    const core::rectangle& graphics::get_invalid_area () const {
+      return invalid_area;
+    }
+
 #ifdef GUIPP_USE_XFT
     XftDraw* graphics::get_xft () const {
       return core::native::x11::get_xft_draw(*ctx);
@@ -464,34 +450,6 @@ namespace gui {
 
 #ifdef GUIPP_QT
     // --------------------------------------------------------------------------
-    graphics::graphics (core::context* ctx)
-      : ctx(ctx)
-      , own_gctx(false)
-    {}
-
-    graphics::graphics (draw::basic_map& target)
-      : ctx(0)
-      , own_gctx(true)
-    {
-      ctx = new core::context(target);
-      gc()->begin(target);
-    }
-
-    graphics::~graphics () {
-      destroy();
-    }
-
-    void graphics::destroy () {
-      if (ctx) {
-        if (own_gctx) {
-          gc()->end();
-          delete ctx;
-        }
-        ctx = 0;
-      }
-      own_gctx = false;
-    }
-
     graphics& graphics::draw_pixel (const core::native_point& pt,
                                           os::color c) {
       gc()->setPen(c);
@@ -730,7 +688,7 @@ namespace gui {
 
     void paint::operator() (core::context* s, core::native_rect* r) {
       if (p) {
-        draw::graphics graph(s);
+        draw::graphics graph(s, *r);
         p(graph);
       }
     }

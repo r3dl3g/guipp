@@ -126,7 +126,7 @@ private:
 typedef sinus_data_t<double, double> sinus_data;
 typedef linear_data_t<double, double> linear_data;
 
-constexpr os::color wall_back = color::rgb_gray<0xF8>::value;
+constexpr os::color wall_back = color::white;
 
 // --------------------------------------------------------------------------
 auto duration_fmt = [] (util::time::duration i) {
@@ -167,16 +167,18 @@ void draw_graph_1 (graphics& graph, const core::rectangle& area) {
 
   graph.draw(mk_wall(xscale, yscale), wall_back, wall_back);
 
-  graph.text(mk_scale<orientation_t::horizontal>(p0, xscale, 1.0, 0.2,
+  graph.text(mk_scale<orientation_t::horizontal>(p0, xscale, 1.0, 0.25,
                                                  yscale.get_target_size(),
-                                                 yscale.get_target_size()),
+                                                 yscale.get_target_size(),
+                                                 color::light_gray,
+                                                 color::very_light_gray),
              font_serif(), color::black);
 
   graph.text(mk_scale<orientation_t::vertical>(p0, yscale, 0.2, 0.05,
                                                xscale.get_target_size(),
                                                xscale.get_target_size(),
+                                               color::light_gray,
                                                color::very_light_gray,
-                                               color::very_very_light_gray,
                                                fmt),
              font_serif(), color::black);
 
@@ -213,7 +215,7 @@ void draw_graph_2 (graphics& graph, const core::rectangle& area) {
 
   graph.draw(mk_wall(xscale, yscale), wall_back, wall_back);
 
-  graph.text(scale<double, orientation_t::horizontal>(p0, xscale, 1, 0.2, yscale.get_target_size(), yscale.get_target_size()),
+  graph.text(scale<double, orientation_t::horizontal>(p0, xscale, 1, 0.25, yscale.get_target_size(), yscale.get_target_size()),
              font_serif(), color::black);
 
   graph.text(scale<double, orientation_t::vertical, scaling::log>(p0, yscale, 1, 1, xscale.get_target_size(), xscale.get_target_size()),
@@ -293,8 +295,8 @@ void draw_graph_5 (graphics& graph, const core::rectangle& area) {
   graph.draw(mk_wall(xscale, yscale), wall_back, wall_back);
 
   graph.text(scale<xtype, orientation_t::horizontal>(p0, xscale, main_scale, sub_scale,
-                                                     xscale.get_target_size(),
-                                                     xscale.get_target_size(),
+                                                     yscale.get_target_size(),
+                                                     yscale.get_target_size(),
                                                      color::very_light_gray,
                                                      color::very_very_light_gray,
                                                      duration_fmt),
@@ -304,9 +306,10 @@ void draw_graph_5 (graphics& graph, const core::rectangle& area) {
     return ostreamfmt(std::fixed << std::setprecision(1) << i);
   };
   graph.text(scale<float, orientation_t::vertical>(p0, yscale, 1.0F, 0.25F,
-                                                   yscale.get_target_size(),
-                                                   yscale.get_target_size(),
-                                                   color::very_light_gray, color::very_very_light_gray, yfmt),
+                                                   xscale.get_target_size(),
+                                                   xscale.get_target_size(),
+                                                   color::very_light_gray,
+                                                   color::very_very_light_gray, yfmt),
              font_serif(), color::black);
 
   std::vector<point2d<xtype, float>> data1;
@@ -372,7 +375,6 @@ util::time::time_point with_second (util::time::time_point const& tp, int secs) 
   std::tm t = utc_time(tp);
   return mktime_point_from_utc(year_of(t), month_of(t), day_of(t), t.tm_hour, t.tm_min, secs, 0);
 }
-
 // --------------------------------------------------------------------------
 void draw_graph_8 (graphics& graph, const core::rectangle& area) {
   logging::trace() << "Draw graph 8 in area:" << area;
@@ -386,6 +388,7 @@ void draw_graph_8 (graphics& graph, const core::rectangle& area) {
   typedef util::time::time_point xtype;
 
   auto d = mk_chart(area, core::mk_range(min_time, max_time), core::mk_range(-1.2, 1.2));
+  d.fill_area(graph);
   d.draw_xscale(graph, main_scale, sub_scale, time_point_fmt);
   d.draw_yscale(graph, 0.2, 0.05);
   d.draw_area_graph(graph, sinus_data_t<xtype, double, 110>(min_time, t.tm_sec), color::very_light_red);
@@ -405,6 +408,7 @@ void draw_graph_9 (graphics& graph, const core::rectangle& area) {
 
   auto d = mk_chart<scaling::linear, scaling::log>(area,
           core::mk_range(0, 100), core::mk_range(0.01, 10000.0));
+  d.fill_area(graph);
   d.draw_xscale(graph, 20, 5);
   d.draw_yscale(graph, 1, 1);
   d.draw_area_graph(graph, linear_data_t<int, double>(100), color::very_light_red);
@@ -419,6 +423,7 @@ void draw_graph_10 (graphics& graph, const core::rectangle& area) {
   logging::trace() << "Draw graph 10 in area:" << area;
 
   chart<int, double, scaling::linear, scaling::symlog> d(area, {-100, 100}, {0.01, 10000.0});
+  d.fill_area(graph);
   logging::trace() << "Draw xscale in graph 10";
   d.draw_xscale(graph, 50, 10);
   auto fmt = [] (double i) {
@@ -443,6 +448,7 @@ void draw_graph_11 (graphics& graph, const core::rectangle& area) {
   auto fmt = [] (double i) {
     return ostreamfmt(i);
   };
+  d.fill_area(graph);
   d.draw_xscale(graph, 1, 1, fmt);
   d.draw_yscale(graph, 1, 1, fmt);
   d.draw_line_graph(graph, linear_data_t<double, double>(100, -100), color::very_light_red);
@@ -460,6 +466,7 @@ void draw_graph_12 (graphics& graph, const core::rectangle& area) {
   auto fmt = [] (double i) {
     return ostreamfmt(i);
   };
+  d.fill_area(graph);
   d.draw_xscale(graph, 1, 1, fmt);
   d.draw_yscale(graph, 100, 10, fmt);
   d.draw_line_graph(graph, linear_data_t<double, double>(100, -100), color::very_light_red);
@@ -494,10 +501,9 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   });
   main.on_paint(draw::paint([&](graphics& graph) {
     logging::trace() << "Received on_paint, clear white";
-    graph.clear(color::white);
+    graph.clear(color::very_light_gray);
 
     auto area = main.client_geometry();
-    graph.fill(draw::rectangle(area), color::very_very_light_gray);
     logging::trace() << "Draw graphs in area:" << area;
 
     core::grid<4, 3> g(area);

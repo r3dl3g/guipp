@@ -222,7 +222,7 @@ void draw_graph_2 (graphics& graph, const core::rectangle& area) {
   graph.frame(line_graph<double, double, linear_data, scaling::linear, scaling::log>(xscale, yscale, linear_data()), color::blue);
   graph.fill(points_graph<double, double, sinus_data, scaling::linear, scaling::log>(xscale, yscale, sinus_data(), diagram::diamond(2)), color::green);
 
-  graph.frame(xy_axis<double, double, scaling::linear, scaling::log>(xscale, yscale), color::black);
+  graph.frame(mk_xy_axis(xscale, yscale), color::black);
   graph.text(mk_headline(xscale, yscale, "graph 2"), font_serif(), color::black);
 }
 // --------------------------------------------------------------------------
@@ -245,7 +245,7 @@ void draw_graph_3 (graphics& graph, const core::rectangle& area) {
 
   graph.frame(line_graph<double, double, linear_data, scaling::log, scaling::linear>(xscale, yscale, linear_data()), color::green);
 
-  graph.frame(xy_axis<double, double, scaling::log>(xscale, yscale), color::black);
+  graph.frame(mk_xy_axis(xscale, yscale), color::black);
   graph.text(mk_headline(xscale, yscale, "graph 3"), font_serif(), color::black);
 }
 // --------------------------------------------------------------------------
@@ -269,7 +269,7 @@ void draw_graph_4 (graphics& graph, const core::rectangle& area) {
 
   graph.frame(line_graph<double, double, linear_data, scaling::log, scaling::log>(xscale, yscale, linear_data()), color::light_red);
 
-  graph.frame(xy_axis<double, double, scaling::log, scaling::log>(xscale, yscale), color::black);
+  graph.frame(mk_xy_axis(xscale, yscale), color::black);
   graph.text(mk_headline(xscale, yscale, "graph 4"), font_serif(), color::black);
 }
 // --------------------------------------------------------------------------

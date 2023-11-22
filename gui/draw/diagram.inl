@@ -468,11 +468,11 @@ namespace gui {
       // --------------------------------------------------------------------------
       namespace paint {
 
-        template<orientation_t V, scaling F, typename S, typename I, typename T>
+        template<orientation_t V, typename S>
         void draw_axis (graphics& g,
                         const core::point& pos,
                         const pen& p,
-                        const scaler<S, F, I, T>& sc) {
+                        const S& sc) {
           typedef core::orientation_traits<V> traits;
 
           const auto d2 = traits::get_2(pos);
@@ -655,43 +655,39 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<orientation_t V, typename S, scaling F, typename I, typename T>
-      axis<V, S, F, I, T>::axis (const core::point& pos,
-                                 const scaler<S, F, I, T>& sc)
+      template<orientation_t V, typename S>
+      axis<V, S>::axis (const core::point& pos, const S& sc)
         : pos(pos)
         , sc(sc)
       {}
 
-      template<orientation_t V, typename S, scaling F, typename I, typename T>
-      void axis<V, S, F, I, T>::operator() (graphics& g, const pen& p) const {
-        paint::draw_axis<V, F, S, I, T>(g, pos, p, sc);
+      template<orientation_t V, typename S>
+      void axis<V, S>::operator() (graphics& g, const pen& p) const {
+        paint::draw_axis<V>(g, pos, p, sc);
       }
 
-      template<orientation_t V, scaling F, typename S, typename I, typename T>
-      axis<V, S, F, I, T> mk_axis (const core::point& pos,
-                                   const scaler<S, F, I, T>& sc) {
-        return axis<V, S, F, I, T>(pos, sc);
+      template<orientation_t V, typename S>
+      axis<V, S> mk_axis (const core::point& pos, const S& sc) {
+        return axis<V, S>(pos, sc);
       }
 
       // --------------------------------------------------------------------------
-      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      xy_axis<X, Y, SX, SY, IX, IY, T>::xy_axis (const scaler<X, SX, IX, T>& sx,
-                                                 const scaler<Y, SY, IY, T>& sy)
+      template<typename SX, typename SY>
+      xy_axis<SX, SY>::xy_axis (const SX& sx, const SY& sy)
         : sx(sx)
         , sy(sy)
       {}
 
-      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      void xy_axis<X, Y, SX, SY, IX, IY, T>::operator() (graphics& g, const pen& p) const {
+      template<typename SX, typename SY>
+      void xy_axis<SX, SY>::operator() (graphics& g, const pen& p) const {
         core::point pos(sx.get_target().begin(), sy.get_target().begin());
-        paint::draw_axis<orientation_t::horizontal, SX, X, IX, T>(g, pos, p, sx);
-        paint::draw_axis<orientation_t::vertical, SY, Y, IY, T>(g, pos, p, sy);
+        paint::draw_axis<orientation_t::horizontal>(g, pos, p, sx);
+        paint::draw_axis<orientation_t::vertical>(g, pos, p, sy);
       }
 
-      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      xy_axis<X, Y, SX, SY, IX, IY, T> mk_xy_axis (const scaler<X, SX, IX, T>& sx,
-                                           const scaler<Y, SY, IY, T>& sy) {
-        return xy_axis<X, Y, SX, SY, IX, IY, T>(sx, sy);
+      template<typename SX, typename SY>
+      xy_axis<SX, SY> mk_xy_axis (const SX& sx, const SY& sy) {
+        return xy_axis<SX, SY>(sx, sy);
       }
 
       // --------------------------------------------------------------------------
@@ -942,7 +938,7 @@ namespace gui {
 
       template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
       void chart<X, Y, SX, SY, IX, IY, T>::draw_axis (graphics& graph) const {
-        graph.frame(xy_axis<X, Y, SX, SY, IX, IY, T>(scale_x, scale_y), color::black);
+        graph.frame(xy_axis<scaler_x_type, scaler_y_type>(scale_x, scale_y), color::black);
       }
 
       template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>

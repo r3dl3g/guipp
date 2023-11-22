@@ -339,47 +339,38 @@ namespace gui {
                                    const std::vector<legend_label>& l);
 
       // --------------------------------------------------------------------------
-      template<orientation_t V, typename S,
-               scaling F = scaling::linear,
-               typename I = typename default_sub_type<S>::type,
-               typename T = core::point::type>
+      template<orientation_t V, typename S>
       struct axis {
-        axis (const core::point& pos,
-              const scaler<S, F, I, T>& sc);
+        typedef S scaler_t;
+        axis (const core::point& pos, const scaler_t& sc);
 
         void operator() (graphics&, const pen&) const;
 
       private:
         const core::point pos;
-        const scaler<S, F, I, T>& sc;
+        const scaler_t& sc;
       };
 
-      template<orientation_t V, scaling F, typename S, typename I, typename T>
-      axis<V, S, F, I, T> mk_axis (const core::point& pos,
-                                   const scaler<S, F, I, T>& sc);
+      template<orientation_t V, typename S>
+      axis<V, S> mk_axis (const core::point& pos, const S& sc);
 
       // --------------------------------------------------------------------------
-      template<typename X,
-               typename Y,
-               scaling SX = scaling::linear,
-               scaling SY = scaling::linear,
-               typename IX = typename default_sub_type<X>::type,
-               typename IY = typename default_sub_type<Y>::type,
-               typename T = core::point::type>
+      template<typename SX, typename SY>
       struct xy_axis {
-        xy_axis (const scaler<X, SX, IX, T>& sx,
-                 const scaler<Y, SY, IY, T>& sy);
+        typedef SX scaler_x;
+        typedef SY scaler_y;
+        xy_axis (const scaler_x& sx,
+                 const scaler_y& sy);
 
         void operator() (graphics&, const pen&) const;
 
       private:
-        const scaler<X, SX, IX, T>& sx;
-        const scaler<Y, SY, IY, T>& sy;
+        const scaler_x& sx;
+        const scaler_y& sy;
       };
 
-      template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      xy_axis<X, Y, SX, SY, IX, IY, T> mk_xy_axis (const scaler<X, SX, IX, T>& sx,
-                                                   const scaler<Y, SY, IY, T>& sy);
+      template<typename SX, typename SY>
+      xy_axis<SX, SY> mk_xy_axis (const SX& sx, const SY& sy);
 
       // --------------------------------------------------------------------------
       template<typename X,

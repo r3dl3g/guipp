@@ -25,8 +25,9 @@
 //
 // Library includes
 //
-#include <logging/logger.h>
+#include <gui/win/window_event_proc.h>
 #include <gui/core/event_container.h>
+#include <logging/logger.h>
 
 namespace gui {
 
@@ -65,10 +66,12 @@ namespace gui {
       for (size_type i = 0; i < event_handlers.size(); ++i) {
         try {
           result |= event_handlers[i](ev, resultValue);
-        } catch (std::exception& e) {
-          logging::fatal() << "exception in event_container::handle_event: " << e;
+        } catch (std::exception& ex) {
+          logging::fatal() << "exception in event_container::handle_event: " << ex;
+          gui::win::global::notify_error_handler(ev, ex);
         } catch (...) {
           logging::fatal() << "Unknown exception in event_container::handle_event()";
+          gui::win::global::notify_error_handler(ev, std::runtime_error("Unknown exception"));
         }
       }
 

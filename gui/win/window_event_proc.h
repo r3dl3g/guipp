@@ -92,6 +92,11 @@ namespace gui {
       GUIPP_WIN_EXPORT void register_utf8_window (const window&);
       GUIPP_WIN_EXPORT void unregister_utf8_window (const window&);
 
+      typedef void (error_handler)(const core::event&, const std::exception&);
+      
+      GUIPP_WIN_EXPORT void register_error_handler (std::function<error_handler> handler);
+      GUIPP_WIN_EXPORT void notify_error_handler (const core::event&, const std::exception&);
+
     } // namespace global
 
     GUIPP_WIN_EXPORT bool is_button_event_outside (const window& w, const core::event& e);

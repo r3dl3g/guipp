@@ -73,9 +73,13 @@ namespace util {
 
   } // namespace robbery
 
-} // namespace basepp
+} // namespace util
 
 namespace gui {
+
+  namespace hidden {
+    std::function<win::global::error_handler> global_error_handler;
+  }
 
   namespace win {
 
@@ -583,6 +587,16 @@ namespace gui {
       }
 
 #endif // GUIPP_X11
+
+      void register_error_handler (std::function<error_handler> handler) {
+        hidden::global_error_handler = handler;
+      }
+
+      void notify_error_handler (const core::event& ev, const std::exception& ex) {
+        if (hidden::global_error_handler) {
+          hidden::global_error_handler(ev, ex);
+        }
+      }
 
     } // global
 

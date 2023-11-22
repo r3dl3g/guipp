@@ -470,11 +470,23 @@ void draw_graph_12 (graphics& graph, const core::rectangle& area) {
   });
 }
 // --------------------------------------------------------------------------
+typedef void (draw_fnkt) (graphics&, const core::rectangle&);
+// --------------------------------------------------------------------------
+void if_overlap (draw_fnkt fn, graphics& graph, const core::rectangle& area) {
+  const core::rectangle& invalid = graph.get_invalid_area();
+  if (invalid.overlap(area)) {
+    fn(graph, area);
+  }
+}
+// --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::win;
 
   main_window main;
-  background_repeater refresher(main, std::chrono::seconds(1), [&] { main.invalidate(); });
+  background_repeater refresher(main, std::chrono::seconds(1), [&] {
+    core::grid<4, 3, core::native_rect> g(main.surface_geometry());
+     main.invalidate(g(1, 2)); 
+  });
 
   main.on_size([&] (const core::size& sz) {
     logging::trace() << "Resized to " << sz << " -> initiate redraw";
@@ -489,18 +501,18 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     logging::trace() << "Draw graphs in area:" << area;
 
     core::grid<4, 3> g(area);
-    draw_graph_1(graph, g(0, 0));
-    draw_graph_2(graph, g(1, 0));
-    draw_graph_3(graph, g(2, 0));
-    draw_graph_4(graph, g(0, 1));
-    draw_graph_5(graph, g(1, 1));
-    draw_graph_6(graph, g(2, 1));
-    draw_graph_7(graph, g(0, 2));
-    draw_graph_8(graph, g(1, 2));
-    draw_graph_9(graph, g(2, 2));
-    draw_graph_10(graph, g(3, 0));
-    draw_graph_11(graph, g(3, 1));
-    draw_graph_12(graph, g(3, 2));
+    if_overlap(draw_graph_1, graph, g(0, 0));
+    if_overlap(draw_graph_2, graph, g(1, 0));
+    if_overlap(draw_graph_5, graph, g(1, 1));
+    if_overlap(draw_graph_6, graph, g(2, 1));
+    if_overlap(draw_graph_7, graph, g(0, 2));
+    if_overlap(draw_graph_8, graph, g(1, 2));
+    if_overlap(draw_graph_9, graph, g(2, 2));
+    if_overlap(draw_graph_4, graph, g(0, 1));
+    if_overlap(draw_graph_3, graph, g(2, 0));
+    if_overlap(draw_graph_10, graph, g(3, 0));
+    if_overlap(draw_graph_11, graph, g(3, 1));
+    if_overlap(draw_graph_12, graph, g(3, 2));
 
     logging::trace() << "on_paint finished";
   }));

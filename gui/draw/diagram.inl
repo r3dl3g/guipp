@@ -514,6 +514,7 @@ namespace gui {
                                       I sub,
                                       T main_ticks_length,
                                       T sub_ticks_length,
+                                      const std::string& u, 
                                       os::color main_color,
                                       os::color sub_color,
                                       scale_formatter<S> fmt)
@@ -523,6 +524,7 @@ namespace gui {
         , sub(sub)
         , main_ticks_length(main_ticks_length)
         , sub_ticks_length(sub_ticks_length)
+        , unit(u)
         , main_color(main_color)
         , sub_color(sub_color)
         , fmt(fmt)
@@ -540,10 +542,11 @@ namespace gui {
 
         const auto main_step = detail::scale_fn<S, T, F, I>::step(main);
 
+        const auto text_origin = scale_text_origin<V, O>();
         const auto min = sc.get_source().begin();
         const auto max = sc.get_source().end();
         auto i = detail::scale_fn<S, T, F, I>::min(sc.get_source());
-        while (i <= max) {
+        while (i < max) {
           const auto d1 = sc(i);
           const auto next = detail::scale_fn<S, T, F, I>::inc(i, main_step, min);
           if (i == next) {
@@ -555,7 +558,6 @@ namespace gui {
           g.frame(line(p0, p1), main_color);
 
           traits::set_1(p2, d1);
-          const auto text_origin = scale_text_origin<V, O>();
           g.text(draw::text(fmt(i), p2, text_origin), font, color);
 
           const auto sub_step = detail::scale_fn<S, T, F, I>::sub(i, sub, min);
@@ -564,6 +566,8 @@ namespace gui {
                                             d2 + tick_dimension::sub_tick_length, d2 + sub_ticks_length);
           i = next;
         }
+        traits::set_1(p2, sc(max));
+        g.text(draw::text(ostreamfmt("[" << unit << "]"), p2, text_origin), font, color);
       }
 
       template<orientation_t V, origin_t O, scaling F, typename S, typename I, typename T>
@@ -572,12 +576,13 @@ namespace gui {
                                         I main, I sub,
                                         T main_ticks_length,
                                         T sub_ticks_length,
+                                        const std::string& unit,
                                         os::color main_color,
                                         os::color sub_color,
                                         scale_formatter<S> fmt) {
         return scale<S, V, F, O, I, T>(pos, sc, main, sub, 
                                        main_ticks_length, sub_ticks_length,
-                                       main_color, sub_color, fmt);
+                                       unit, main_color, sub_color, fmt);
       }
       // --------------------------------------------------------------------------
       template<typename SX, typename SY, typename T>
@@ -916,10 +921,11 @@ namespace gui {
       }
 
       template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      void chart<X, Y, SX, SY, IX, IY, T>::draw_xscale (graphics& graph, IX main, IX sub, scale_formatter<X> fmt) const {
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_xscale (graphics& graph, IX main, IX sub, const std::string& u, scale_formatter<X> fmt) const {
         graph.text(scale_x_type(p0, scale_x, main, sub,
                                 convert<T>(scale_y.get_target_size()),
                                 convert<T>(scale_y.get_target_size()),
+                                u,
                                 color::very_light_gray,
                                 color::very_very_light_gray,
                                 fmt),
@@ -927,10 +933,11 @@ namespace gui {
       }
 
       template<typename X, typename Y, scaling SX, scaling SY, typename IX, typename IY, typename T>
-      void chart<X, Y, SX, SY, IX, IY, T>::draw_yscale (graphics& graph, IY main, IY sub, scale_formatter<Y> fmt) const {
+      void chart<X, Y, SX, SY, IX, IY, T>::draw_yscale (graphics& graph, IY main, IY sub, const std::string& u, scale_formatter<Y> fmt) const {
         graph.text(scale_y_type(p0, scale_y, main, sub,
                                 convert<T>(scale_x.get_target_size()),
                                 convert<T>(scale_x.get_target_size()),
+                                u,
                                 color::very_light_gray,
                                 color::very_very_light_gray,
                                 fmt),

@@ -170,6 +170,7 @@ void draw_graph_1 (graphics& graph, const core::rectangle& area) {
   graph.text(mk_scale<orientation_t::horizontal>(p0, xscale, 1.0, 0.25,
                                                  yscale.get_target_size(),
                                                  yscale.get_target_size(),
+                                                 "π",
                                                  color::light_gray,
                                                  color::very_light_gray),
              font_serif(), color::black);
@@ -177,6 +178,7 @@ void draw_graph_1 (graphics& graph, const core::rectangle& area) {
   graph.text(mk_scale<orientation_t::vertical>(p0, yscale, 0.2, 0.05,
                                                xscale.get_target_size(),
                                                xscale.get_target_size(),
+                                               "1.2",
                                                color::light_gray,
                                                color::very_light_gray,
                                                fmt),
@@ -297,6 +299,7 @@ void draw_graph_5 (graphics& graph, const core::rectangle& area) {
   graph.text(scale<xtype, orientation_t::horizontal>(p0, xscale, main_scale, sub_scale,
                                                      yscale.get_target_size(),
                                                      yscale.get_target_size(),
+                                                     {},
                                                      color::very_light_gray,
                                                      color::very_very_light_gray,
                                                      duration_fmt),
@@ -308,6 +311,7 @@ void draw_graph_5 (graphics& graph, const core::rectangle& area) {
   graph.text(scale<float, orientation_t::vertical>(p0, yscale, 1.0F, 0.25F,
                                                    xscale.get_target_size(),
                                                    xscale.get_target_size(),
+                                                   {},
                                                    color::very_light_gray,
                                                    color::very_very_light_gray, yfmt),
              font_serif(), color::black);
@@ -389,7 +393,7 @@ void draw_graph_8 (graphics& graph, const core::rectangle& area) {
 
   auto d = mk_chart(area, core::mk_range(min_time, max_time), core::mk_range(-1.2, 1.2));
   d.fill_area(graph);
-  d.draw_xscale(graph, main_scale, sub_scale, time_point_fmt);
+  d.draw_xscale(graph, main_scale, sub_scale, "min", time_point_fmt);
   d.draw_yscale(graph, 0.2, 0.05);
   d.draw_area_graph(graph, sinus_data_t<xtype, double, 110>(min_time, t.tm_sec), color::very_light_red);
   d.draw_bar_graph(graph, sinus_data_t<xtype, double>(min_time, t.tm_sec), color::blue, 2);
@@ -430,7 +434,7 @@ void draw_graph_10 (graphics& graph, const core::rectangle& area) {
     return ostreamfmt(i);
   };
   logging::trace() << "Draw yscale in graph 10";
-  d.draw_yscale(graph, 1, 1, fmt);
+  d.draw_yscale(graph, 1, 1, {}, fmt);
   logging::trace() << "Draw line_graph in graph 10";
   d.draw_line_graph(graph, linear_data_t<int, double>(100, -100), color::very_light_red);
   logging::trace() << "Draw axis in graph 10";
@@ -449,8 +453,8 @@ void draw_graph_11 (graphics& graph, const core::rectangle& area) {
     return ostreamfmt(i);
   };
   d.fill_area(graph);
-  d.draw_xscale(graph, 1, 1, fmt);
-  d.draw_yscale(graph, 1, 1, fmt);
+  d.draw_xscale(graph, 1, 1, {}, fmt);
+  d.draw_yscale(graph, 1, 1, {}, fmt);
   d.draw_line_graph(graph, linear_data_t<double, double>(100, -100), color::very_light_red);
   d.draw_axis(graph);
   d.draw_title(graph, "graph 11");
@@ -467,8 +471,8 @@ void draw_graph_12 (graphics& graph, const core::rectangle& area) {
     return ostreamfmt(i);
   };
   d.fill_area(graph);
-  d.draw_xscale(graph, 1, 1, fmt);
-  d.draw_yscale(graph, 100, 10, fmt);
+  d.draw_xscale(graph, 1, 1, {}, fmt);
+  d.draw_yscale(graph, 100, 10, "°C", fmt);
   d.draw_line_graph(graph, linear_data_t<double, double>(100, -100), color::very_light_red);
   d.draw_axis(graph);
   d.draw_title(graph, "graph 12");

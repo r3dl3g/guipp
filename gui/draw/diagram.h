@@ -241,6 +241,7 @@ namespace gui {
                I sub = 0,
                T main_ticks_length = 0,
                T sub_ticks_length = 0,
+               const std::string& u = {},
                os::color main_color = color::very_light_gray,
                os::color sub_color = color::very_very_light_gray,
                scale_formatter<S> fmt = default_formatter<S>);
@@ -254,6 +255,7 @@ namespace gui {
         I sub;
         T main_ticks_length;
         T sub_ticks_length;
+        std::string unit;
         os::color main_color;
         os::color sub_color;
         scale_formatter<S> fmt;
@@ -268,6 +270,7 @@ namespace gui {
                                         I sub = I{0},
                                         T main_ticks_length = T{0},
                                         T sub_ticks_length = T{0},
+                                        const std::string& unit = {},
                                         os::color main_color = color::very_light_gray,
                                         os::color sub_color = color::very_very_light_gray,
                                         scale_formatter<S> fmt = default_formatter<S>);
@@ -575,8 +578,8 @@ namespace gui {
         chart (const core::rectangle& area, core::range<X> range_x, core::range<Y> range_y);
 
         void fill_area (graphics& graph) const;
-        void draw_xscale (graphics& graph, IX main, IX sub, scale_formatter<X> fmt = default_formatter<X>) const;
-        void draw_yscale (graphics& graph, IY main, IY sub, scale_formatter<Y> fmt = default_formatter<Y>) const;
+        void draw_xscale (graphics& graph, IX main, IX sub, const std::string& u = {}, scale_formatter<X> fmt = default_formatter<X>) const;
+        void draw_yscale (graphics& graph, IY main, IY sub, const std::string& u = {}, scale_formatter<Y> fmt = default_formatter<Y>) const;
         void draw_axis (graphics& graph) const;
         void draw_title (graphics& graph, const std::string& title) const;
         void draw_legend (graphics& graph, const std::vector<legend_label>& labels) const;

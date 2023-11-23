@@ -416,6 +416,12 @@ namespace gui {
         return super::event(e);
       }
 
+      core::native_point get_current_pointer_pos (gui::os::window id) {
+        const auto cp = QCursor::pos();
+        const auto wp = w->position();
+        return {cp.x() - wp.x(), cp.y() - wp.y()};
+      }
+
     } // namespace qt
 
   } // namespace os

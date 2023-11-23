@@ -136,6 +136,8 @@ namespace gui {
       GUIPP_WIN_EXPORT void send_mouse_event (window* win, bool enter);
       GUIPP_WIN_EXPORT void send_notify_visibility (window* win, bool visible);
 
+      GUIPP_WIN_EXPORT core::native_point get_current_pointer_pos (os::window id);
+
     } // namespace native
 
   } // namespace win

@@ -620,6 +620,10 @@ namespace gui {
       return native::screen_to_surface(get_os_window(), core::global::scale_to_native(pt));
     }
     // --------------------------------------------------------------------------
+    core::point overlapped_window::get_current_pointer_pos () const {
+      return surface_to_client(native::get_current_pointer_pos(get_os_window()));
+    }
+    // --------------------------------------------------------------------------
     core::size overlapped_window::client_size () const {
       return native::client_size(get_os_window(), super::client_size());
     }

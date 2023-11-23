@@ -471,6 +471,14 @@ namespace gui {
         }
       }
 
+      core::native_point get_current_pointer_pos (gui::os::window id) {
+        POINT pt;
+        GetCursorPos(&pt);
+        RECT r;
+        GetWindowRect(id, &r);
+        return {os::get_x(pt) - os::get_x(r), os::get_y(pt) - os::get_y(r)};
+      }
+
     } // namespace native
 
     // --------------------------------------------------------------------------

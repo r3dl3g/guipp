@@ -777,6 +777,17 @@ namespace gui {
         }
       }
 
+      // --------------------------------------------------------------------------
+      core::native_point get_current_pointer_pos (gui::os::window id) {
+        gui::os::window root, child;
+        int root_x, root_y, child_x, child_y;
+        unsigned int mask;
+        XQueryPointer(core::global::get_instance(), id,
+                      &root, &child, &root_x, &root_y,
+                      &child_x, &child_y, &mask);
+        return {root_x, root_y};
+      }
+
     } // namespace native
 
   } // namespace win

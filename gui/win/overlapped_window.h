@@ -99,6 +99,8 @@ namespace gui {
       core::point surface_to_screen (const core::native_point&) const;
       core::native_point screen_to_surface (const core::point&) const;
 
+      core::point get_current_pointer_pos () const;
+
       void shift_focus (bool backward = false);
 
       void set_focus_window (window* w);

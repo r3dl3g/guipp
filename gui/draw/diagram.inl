@@ -566,8 +566,13 @@ namespace gui {
                                             d2 + tick_dimension::sub_tick_length, d2 + sub_ticks_length);
           i = next;
         }
-        traits::set_1(p2, sc(max));
-        g.text(draw::text(ostreamfmt("[" << unit << "]"), p2, text_origin), font, color);
+        if (unit.empty()) {
+          traits::set_1(p2, sc(max));
+          g.text(draw::text(fmt(max), p2, text_origin), font, color);
+        } else {
+          traits::set_1(p2, sc(max));
+          g.text(draw::text(ostreamfmt("[" << unit << "]"), p2, text_origin), font, color);
+        }
       }
 
       template<orientation_t V, origin_t O, scaling F, typename S, typename I, typename T>

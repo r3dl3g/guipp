@@ -235,6 +235,7 @@ namespace gui {
       void notify_hilite_changed (bool);  // true if hilite is visible, false for no hilite
       void notify_content_changed ();
 
+      void add_tooltip (text_source);
     };
 
     // --------------------------------------------------------------------------

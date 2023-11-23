@@ -14,11 +14,16 @@
  * @license   MIT license. See accompanying file LICENSE.
  */
 
+#include <atomic>
+#include <mutex>
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
+#include <util/time_util.h>
+#include <gui/core/native.h>
 #include <gui/draw/bitmap.h>
+#include <gui/draw/font.h>
 #include <gui/ctrl/look/control.h>
 #include <gui/ctrl/control.h>
 
@@ -96,6 +101,32 @@ namespace gui {
 #endif // GUIPP_QT
 
     // --------------------------------------------------------------------------
+    class GUIPP_CTRL_EXPORT tooltip : public win::popup_window {
+    public:
+      typedef win::popup_window super;
+
+      tooltip ();
+      ~tooltip ();
+
+      void create (win::window& p);
+      void set_next_tooltip (text_source, win::window*, const core::rectangle&);
+      void clear_tooltip ();
+
+    private:
+      void start ();
+      void show ();
+
+      util::time::time_point next;
+      text_source text;
+      core::rectangle area;
+      win::window* win;
+      std::atomic_bool active;
+
+      std::thread tooltip_task;
+
+    };
+
+    // --------------------------------------------------------------------------
     void control::on_selection_changed (selection_changed_event::function&& f) {
       on<selection_changed_event>(std::move(f));
     }
@@ -134,6 +165,98 @@ namespace gui {
 
     void control::notify_content_changed () {
       notify_event(detail::CONTENT_CHANGED_MESSAGE);
+    }
+
+    namespace {
+      std::mutex tooltip_quard;
+      std::unique_ptr<tooltip> tooltip_window;
+    }
+
+    tooltip& get_tooltip () {
+      if (!tooltip_window) {
+        tooltip_window = std::make_unique<tooltip>();
+      }
+      return *tooltip_window.get();
+    }
+
+    void control::add_tooltip (text_source t) {
+      on_mouse_enter([&, t] {
+        std::lock_guard<std::mutex> lock(tooltip_quard);
+        get_tooltip().set_next_tooltip(t, this, absolute_geometry());
+      });
+      on_mouse_leave([&] {
+        std::lock_guard<std::mutex> lock(tooltip_quard);
+        get_tooltip().clear_tooltip();
+      });
+    }
+
+    // --------------------------------------------------------------------------
+    tooltip::tooltip ()
+      : win(nullptr) {
+      on_paint(draw::paint([&](draw::graphics& graph) {
+        graph.clear(color::dark_gray);
+        graph.text(draw::text_box(text(), client_geometry(), text_origin_t::center),
+                   draw::font::system(), color::white);
+      }));
+    }
+
+    tooltip::~tooltip () {
+      active = false;
+      if (tooltip_task.joinable()) {
+        tooltip_task.join();
+      }
+    }
+
+    void tooltip::create (win::window& p) {
+      if (!is_valid()) {
+        auto& root = p.get_overlapped_window();
+        super::create(root);
+        set_visible(false);
+      }
+    }
+
+    void tooltip::start () {
+      if (!tooltip_task.joinable()) {
+        tooltip_task = std::thread([&] () {
+          active = true;
+          while (active) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(300));
+            std::lock_guard<std::mutex> lock(tooltip_quard);
+            if (active && win && text && (util::time::now() > next) && !is_visible()) {
+              show();
+            }
+          }
+        });
+      }
+    }
+
+    void tooltip::show () {
+      win::run_on_main(*win, [&] () {
+        std::lock_guard<std::mutex> lock(tooltip_quard);
+        create(*win);
+        const overlapped_window& overlapped = win->get_overlapped_window();
+        const auto length = text().size();
+        core::point pt = overlapped.get_current_pointer_pos().dxy(15, 15);
+        geometry({pt, core::size{length * 8.0F, 25.0F}}, true, true);
+        set_visible(true);
+      });
+    }
+
+    void tooltip::set_next_tooltip (text_source t, win::window* w, const core::rectangle& r) {
+      text = t;
+      area = r;
+      win = w;
+      next = util::time::now() + std::chrono::seconds(2);
+      // show();
+      start();
+    }
+
+    void tooltip::clear_tooltip () {
+      // active = false;
+      set_visible(false);
+      text = {};
+      area = {};
+      win = nullptr;
     }
 
     // --------------------------------------------------------------------------

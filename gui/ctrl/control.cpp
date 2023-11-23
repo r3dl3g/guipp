@@ -23,6 +23,7 @@
 #include <util/time_util.h>
 #include <gui/core/native.h>
 #include <gui/draw/bitmap.h>
+#include <gui/draw/pen.h>
 #include <gui/draw/font.h>
 #include <gui/ctrl/look/control.h>
 #include <gui/ctrl/control.h>
@@ -101,9 +102,9 @@ namespace gui {
 #endif // GUIPP_QT
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT tooltip : public win::popup_window {
+    class GUIPP_CTRL_EXPORT tooltip : public win::tooltip_window {
     public:
-      typedef win::popup_window super;
+      typedef win::tooltip_window super;
 
       tooltip ();
       ~tooltip ();
@@ -116,6 +117,7 @@ namespace gui {
       void start ();
       void show ();
 
+      std::mutex tooltip_quard;
       util::time::time_point next;
       text_source text;
       core::rectangle area;
@@ -125,6 +127,13 @@ namespace gui {
       std::thread tooltip_task;
 
     };
+
+    // --------------------------------------------------------------------------
+    // lazy create static
+    tooltip& get_tooltip () {
+      static tooltip w;
+      return w;
+    }
 
     // --------------------------------------------------------------------------
     void control::on_selection_changed (selection_changed_event::function&& f) {
@@ -167,25 +176,11 @@ namespace gui {
       notify_event(detail::CONTENT_CHANGED_MESSAGE);
     }
 
-    namespace {
-      std::mutex tooltip_quard;
-      std::unique_ptr<tooltip> tooltip_window;
-    }
-
-    tooltip& get_tooltip () {
-      if (!tooltip_window) {
-        tooltip_window = std::make_unique<tooltip>();
-      }
-      return *tooltip_window.get();
-    }
-
     void control::add_tooltip (text_source t) {
       on_mouse_enter([&, t] {
-        std::lock_guard<std::mutex> lock(tooltip_quard);
         get_tooltip().set_next_tooltip(t, this, absolute_geometry());
       });
       on_mouse_leave([&] {
-        std::lock_guard<std::mutex> lock(tooltip_quard);
         get_tooltip().clear_tooltip();
       });
     }
@@ -243,16 +238,16 @@ namespace gui {
     }
 
     void tooltip::set_next_tooltip (text_source t, win::window* w, const core::rectangle& r) {
+      std::lock_guard<std::mutex> lock(tooltip_quard);
       text = t;
       area = r;
       win = w;
       next = util::time::now() + std::chrono::seconds(2);
-      // show();
       start();
     }
 
     void tooltip::clear_tooltip () {
-      // active = false;
+      std::lock_guard<std::mutex> lock(tooltip_quard);
       set_visible(false);
       text = {};
       area = {};

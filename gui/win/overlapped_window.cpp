@@ -830,6 +830,12 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    void tooltip_window::create (const class_info& cls, overlapped_window& parent, const core::rectangle& r, bool adjust_size) {
+      super::create(cls, parent, r, adjust_size);
+      native::prepare_tooltip_window(get_os_window());
+    }
+
+    // --------------------------------------------------------------------------
     void dialog_window::create (const class_info& cls, overlapped_window& parent, const core::rectangle& r, bool adjust_size) {
       super::create(cls, parent, r, adjust_size);
       native::prepare_dialog_window(get_os_window(), parent.get_os_window());

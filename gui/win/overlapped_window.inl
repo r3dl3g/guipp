@@ -37,6 +37,10 @@ namespace gui {
       create(clazz::get(), parent, r, adjust_size);
     }
 
+    inline void tooltip_window::create (overlapped_window& parent, const core::rectangle& r, bool adjust_size) {
+      create(clazz::get(), parent, r, adjust_size);
+    }
+
     inline void dialog_window::create (overlapped_window& parent, const core::rectangle& r, bool adjust_size) {
       create(clazz::get(), parent, r, adjust_size);
     }

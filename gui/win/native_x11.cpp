@@ -657,6 +657,16 @@ namespace gui {
         XChangeWindowAttributes(display, id, CWOverrideRedirect, &swa);
       }
 
+      void prepare_tooltip_window (os::window id) {
+        gui::os::instance display = core::global::get_instance();
+
+        x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_TOOLTIP");
+
+        XSetWindowAttributes swa;
+        swa.override_redirect = 1;
+        XChangeWindowAttributes(display, id, CWOverrideRedirect, &swa);
+      }
+
       void prepare_dialog_window (os::window id, os::window pid) {
         gui::os::instance display = core::global::get_instance();
         x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DIALOG");

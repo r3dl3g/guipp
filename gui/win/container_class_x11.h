@@ -35,6 +35,9 @@ namespace gui {
       template<typename T, os::color C = color::very_light_gray>
       using popup_window_class = window_class<T, C>;
 
+      template<typename T, os::color C = color::dark_gray>
+      using tooltip_window_class = window_class<T, C>;
+
       template<typename T, os::color C = color::very_light_gray>
       using dialog_window_class = window_class<T, C>;
 

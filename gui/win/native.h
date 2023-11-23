@@ -112,6 +112,7 @@ namespace gui {
 
       GUIPP_WIN_EXPORT void prepare_main_window (os::window id);
       GUIPP_WIN_EXPORT void prepare_popup_window (os::window id);
+      GUIPP_WIN_EXPORT void prepare_tooltip_window (os::window id);
       GUIPP_WIN_EXPORT void prepare_dialog_window (os::window id, os::window pid);
 
       GUIPP_WIN_EXPORT void erase (os::drawable id, os::graphics gc,

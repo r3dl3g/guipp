@@ -220,6 +220,24 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    class GUIPP_WIN_EXPORT tooltip_window : public modal_window {
+    public:
+      typedef modal_window super;
+      using clazz = cls::tooltip_window_class<tooltip_window>;
+
+      void create (overlapped_window& parent,
+                   const core::rectangle& r = core::rectangle::def,
+                   bool adjust_size = true);
+
+    protected:
+      void create (const class_info& cls,
+                   overlapped_window& parent,
+                   const core::rectangle& r = core::rectangle::def,
+                   bool adjust_size = true);
+
+    };
+
+    // --------------------------------------------------------------------------
     class GUIPP_WIN_EXPORT dialog_window : public modal_window {
     public:
       typedef modal_window super;

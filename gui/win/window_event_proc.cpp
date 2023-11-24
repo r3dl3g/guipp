@@ -700,7 +700,7 @@ namespace gui {
       return (e.type == Expose);// || (e.type == GraphicsExpose);// || (e.type == NoExpose);
     }
 
-    void wait_for_event (int fd, timeval timeout = {0, 10}) {
+    void wait_for_event (int fd, timeval timeout = {0, 10000}) {
       // Create a file description set containing fd
       fd_set read_fds;
       FD_ZERO(&read_fds);

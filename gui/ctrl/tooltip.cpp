@@ -37,7 +37,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     tooltip::tooltip ()
       : win(nullptr)
-      , delay(std::chrono::seconds(2)) {
+      , delay(std::chrono::seconds(1)) {
       on_paint(draw::paint([&](draw::graphics& graph) {
         graph.clear(color::dark_gray);
         graph.text(draw::text_box(text(), client_geometry(), text_origin_t::center),
@@ -46,7 +46,11 @@ namespace gui {
     }
 
     tooltip::~tooltip () {
-      active = false;
+      {
+        std::unique_lock<std::mutex> lock(guard);
+        active = false;
+        timer.notify_all(); // it is safe, and *sometimes* optimal, to do this outside the lock
+      }
       if (tooltip_task.joinable()) {
         tooltip_task.join();
       }
@@ -63,13 +67,16 @@ namespace gui {
     void tooltip::start () {
       if (!tooltip_task.joinable()) {
         tooltip_task = std::thread([&] () {
+          const auto T100ms = util::time::mkduration(0, 0, 0, 100000);
           active = true;
           while (active) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(300));
-            std::lock_guard<std::mutex> lock(tooltip_quard);
-            if (active && win && text && (util::time::now() > next) && !is_visible()) {
+            std::unique_lock<std::mutex> lock(guard);
+            timer.wait_until(lock, next);
+            if (active && /* (util::time::now() > next) && */ win && text && !is_visible()) {
               show();
             }
+            const auto d = std::max(delay, T100ms);
+            next = util::time::now() + d;
           }
         });
       }
@@ -77,7 +84,7 @@ namespace gui {
 
     void tooltip::show () {
       win::run_on_main(*win, [&] () {
-        std::lock_guard<std::mutex> lock(tooltip_quard);
+        std::unique_lock<std::mutex> lock(guard);
         create(*win);
         const overlapped_window& overlapped = win->get_overlapped_window();
         const auto length = text().size();
@@ -87,8 +94,8 @@ namespace gui {
       });
     }
 
-    void tooltip::set_next_tooltip (core::text_source t, win::window* w, const core::rectangle& r) {
-      std::lock_guard<std::mutex> lock(tooltip_quard);
+    void tooltip::set (core::text_source t, win::window* w, const core::rectangle& r) {
+      std::unique_lock<std::mutex> lock(guard);
       text = t;
       area = r;
       win = w;
@@ -100,8 +107,8 @@ namespace gui {
       delay = d;
     }
 
-    void tooltip::clear_tooltip () {
-      std::lock_guard<std::mutex> lock(tooltip_quard);
+    void tooltip::clear () {
+      std::unique_lock<std::mutex> lock(guard);
       set_visible(false);
       text = {};
       area = {};

@@ -21,6 +21,7 @@
 // Common includes
 //
 #include <atomic>
+#include <condition_variable>
 #include <mutex>
 
 // --------------------------------------------------------------------------
@@ -44,8 +45,8 @@ namespace gui {
 
       static tooltip& get ();
 
-      void set_next_tooltip (core::text_source, win::window*, const core::rectangle&);
-      void clear_tooltip ();
+      void set (core::text_source, win::window*, const core::rectangle&);
+      void clear ();
 
       void set_delay (util::time::duration delay);
 
@@ -58,7 +59,8 @@ namespace gui {
       void start ();
       void show ();
 
-      std::mutex tooltip_quard;
+      std::mutex guard;
+      std::condition_variable timer;
       util::time::time_point next;
       util::time::duration delay;
       core::text_source text;

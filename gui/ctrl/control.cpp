@@ -137,10 +137,10 @@ namespace gui {
 
     void control::add_tooltip (core::text_source t) {
       on_mouse_enter([&, t] {
-        tooltip::get().set_next_tooltip(t, this, absolute_geometry());
+        tooltip::get().set(t, this, absolute_geometry());
       });
       on_mouse_leave([&] {
-        tooltip::get().clear_tooltip();
+        tooltip::get().clear();
       });
     }
 

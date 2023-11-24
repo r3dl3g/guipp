@@ -368,6 +368,12 @@ namespace gui {
         }
       }
 
+      core::native_point get_current_pointer_pos (gui::os::window id) {
+        const auto cp = QCursor::pos();
+        const auto wp = id->position();
+        return {cp.x() - wp.x(), cp.y() - wp.y()};
+      }
+
     } // namespace native
 
   } // namespace win
@@ -415,12 +421,6 @@ namespace gui {
           return true;
         }
         return super::event(e);
-      }
-
-      core::native_point get_current_pointer_pos (gui::os::window id) {
-        const auto cp = QCursor::pos();
-        const auto wp = w->position();
-        return {cp.x() - wp.x(), cp.y() - wp.y()};
       }
 
     } // namespace qt

@@ -44,6 +44,12 @@ namespace gui {
                                               (Qt::WindowType)(Qt::WindowFlags::Int)(Qt::Popup | Qt::WindowShadeButtonHint | Qt::MSWindowsFixedSizeDialogHint | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint)>;
 
       template<typename T, os::color C = color::light_gray>
+      using tooltip_window_class = window_class<T,
+                                                C,
+                                                window_class_defaults<>::cursor,
+                                                (Qt::WindowType)(Qt::WindowFlags::Int)(Qt::ToolTip | Qt::WindowTransparentForInput | Qt::WindowDoesNotAcceptFocus | Qt::MSWindowsFixedSizeDialogHint | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint)>;
+
+      template<typename T, os::color C = color::light_gray>
       using dialog_window_class = window_class<T,
                                                C,
                                                window_class_defaults<>::cursor,

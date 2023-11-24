@@ -24,6 +24,7 @@
 #endif // GUIPP_X11
 #ifdef GUIPP_QT
 # include <QtGui/QBitmap>
+# include <QtGui/QScreen>
 #endif // GUIPP_QT
 
 // --------------------------------------------------------------------------
@@ -432,10 +433,6 @@ namespace gui {
       return get_drawable_area(target());
     }
 
-    const core::rectangle& graphics::get_invalid_area () const {
-      return invalid_area;
-    }
-
 #ifdef GUIPP_USE_XFT
     XftDraw* graphics::get_xft () const {
       return core::native::x11::get_xft_draw(*ctx);
@@ -516,8 +513,7 @@ namespace gui {
                                          const copy_mode mode) {
       QWindow* w = dynamic_cast<QWindow*>(d);
       if (w) {
-        QPixmap pix;
-        pix.grabWindow(w->winId(), r.x(), r.y(), r.width(), r.height());
+        QPixmap pix = QGuiApplication::primaryScreen()->grabWindow(w->winId(), r.x(), r.y(), r.width(), r.height());
         const QPainter::CompositionMode oldMode = gc()->compositionMode();
         gc()->setCompositionMode(static_cast<QPainter::CompositionMode>(mode));
         gc()->drawPixmap(pt.x(), pt.y(), pix);
@@ -590,6 +586,10 @@ namespace gui {
 
 #endif // GUIPP_QT
     // --------------------------------------------------------------------------
+
+    const core::rectangle& graphics::get_invalid_area () const {
+      return invalid_area;
+    }
 
     graphics& graphics::clear (os::color color) {
 #ifdef GUIPP_QT

@@ -32,9 +32,11 @@
 #include <gui/core/list_state.h>
 #include <gui/core/selector.h>
 #include <gui/core/selection_adjustment.h>
+#include <gui/draw/drawers.h>
 #include <gui/draw/brush.h>
 #include <gui/ctrl/virtual_view.h>
 #include <gui/ctrl/edit.h>
+#include <gui/ctrl/item_state.h>
 #include <gui/ctrl/look/control.h>
 
 

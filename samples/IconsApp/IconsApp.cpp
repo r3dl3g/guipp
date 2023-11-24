@@ -56,8 +56,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   vertical_scrollable_tile_view icons_view;
   group_window<horizontal_adaption<2, 10>> statusbar;
   label current_size;
-  text_button adjust_button(const_text("Adjust"));
-  check_box<> autoadjust_button(const_text("Auto adjust"));
+  text_button adjust_button(core::const_text("Adjust"));
+  check_box<> autoadjust_button(core::const_text("Auto adjust"));
 
   scrollbar.set_min_max_step_page(20, 400, 1, 10);
   scrollbar.set_value(50, false);

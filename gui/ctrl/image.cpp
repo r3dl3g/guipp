@@ -14,7 +14,13 @@
  * @license   MIT license. See accompanying file LICENSE.
  */
 
-#include "image.h"
+// --------------------------------------------------------------------------
+//
+// Library includes
+//
+#include <gui/draw/graphics.h>
+#include <gui/ctrl/image.h>
+
 
 using namespace gui::draw;
 using namespace gui::win;

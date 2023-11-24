@@ -23,7 +23,7 @@
 #include <gui/win/overlapped_window.h>
 #include <gui/draw/bitmap.h>
 #include <gui/ctrl/control.h>
-
+#include <gui/ctrl/item_state.h>
 
 namespace gui {
 
@@ -40,7 +40,7 @@ namespace gui {
     struct GUIPP_CTRL_EXPORT menu_entry {
       typedef draw::masked_bitmap icon_type;
 
-      menu_entry (const text_source& label,
+      menu_entry (const core::text_source& label,
                   char menu_key,
                   std::function<menu_action> action,
                   const core::hot_key& hotkey = core::hot_key(),
@@ -74,7 +74,7 @@ namespace gui {
       bool is_enabled () const;
       bool has_separator () const;
 
-      void set_label (const text_source& l);
+      void set_label (const core::text_source& l);
       void set_icon (const icon_type& i);
       void set_enabled (bool d);
       void set_width (core::size::type w);
@@ -84,7 +84,7 @@ namespace gui {
       void check_hot_key (os::key_state, os::key_symbol);
 
       menu_entry (bool sub_menu,
-                  const text_source& label,
+                  const core::text_source& label,
                   char menu_key,
                   std::function<menu_action> action,
                   const core::hot_key& hotkey = core::hot_key(),
@@ -95,7 +95,7 @@ namespace gui {
       menu_entry ();
 
     private:
-      text_source label;
+      core::text_source label;
       core::hot_key hotkey;
       icon_type icon;
       std::function<menu_action> action;
@@ -270,7 +270,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     GUIPP_CTRL_EXPORT
-    menu_entry sub_menu_entry (const text_source& label,
+    menu_entry sub_menu_entry (const core::text_source& label,
                                char menu_key,
                                std::function<menu_action> action,
                                bool separator = false,
@@ -287,7 +287,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     GUIPP_CTRL_EXPORT
-    menu_entry main_menu_entry (const text_source& label,
+    menu_entry main_menu_entry (const core::text_source& label,
                                 char menu_key,
                                 std::function<menu_action> action,
                                 menu_state state = menu_state::enabled);
@@ -299,7 +299,7 @@ namespace gui {
                                 menu_state state = menu_state::enabled);
 
     GUIPP_CTRL_EXPORT
-    menu_entry main_menu_entry (const text_source& label,
+    menu_entry main_menu_entry (const core::text_source& label,
                                 char menu_key,
                                 main_menu& main,
                                 popup_menu& sub);

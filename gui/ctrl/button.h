@@ -159,7 +159,7 @@ namespace gui {
     public:
       typedef basic_button<T, BG> super;
 
-      explicit basic_text_button (const text_source& t = const_text());
+      explicit basic_text_button (const core::text_source& t = core::const_text());
       explicit basic_text_button (const std::string& t);
       basic_text_button (const basic_text_button& rhs);
       basic_text_button (basic_text_button&& rhs) noexcept ;
@@ -170,18 +170,18 @@ namespace gui {
                    const std::string& txt,
                    const core::rectangle& place = core::rectangle::def);
       void create (win::container& parent,
-                   const text_source& txt,
+                   const core::text_source& txt,
                    const core::rectangle& place = core::rectangle::def);
 
       void set_text (const std::string& t);
-      void set_text (const text_source& t);
+      void set_text (const core::text_source& t);
 
       std::string get_text () const;
 
     private:
       void init ();
 
-      text_source text;
+      core::text_source text;
     };
     // --------------------------------------------------------------------------
     using push_button = basic_button<push_button_traits, look::button_frame>;
@@ -212,7 +212,7 @@ namespace gui {
                                                      look::check_box_frame,
                                                      look::check_button_text> super;
 
-      explicit check_box (const text_source& t = const_text())
+      explicit check_box (const core::text_source& t = core::const_text())
         : super(t)
       {}
 
@@ -240,7 +240,7 @@ namespace gui {
                                                      look::switch_button,
                                                      look::switch_button_text> super;
 
-      switch_button (const text_source& t = const_text())
+      switch_button (const core::text_source& t = core::const_text())
         : super(t) {
         super::set_foreground(color::highLightColor());
         super::set_background(color::buttonColor());
@@ -388,7 +388,7 @@ namespace gui {
 //      typedef basic_text_button<animated_button_traits<keep_state>,
 //                                animated_text_button_drawer&, look::animated_switch_button> super;
 
-//      animated_switch_button (const text_source& t = const_text())
+//      animated_switch_button (const core::text_source& t = core::const_text())
 //        : super(t) {
 //        super::set_foreground(color::highLightColor());
 //        super::set_background(color::buttonColor());

@@ -36,7 +36,7 @@ namespace gui {
       }
 
       void label_base::create (win::container& parent,
-                               const text_source& txt,
+                               const core::text_source& txt,
                                const core::rectangle& place) {
         create(parent, place);
         set_text(txt);
@@ -45,26 +45,26 @@ namespace gui {
       void label_base::create (win::container& parent,
                                const std::string& txt,
                                const core::rectangle& place) {
-        create(parent, const_text(txt), place);
+        create(parent, core::const_text(txt), place);
       }
 
       label_base::label_base (const std::string& t)
-        : text(const_text(t))
+        : text(core::const_text(t))
       {}
 
-      label_base::label_base (const text_source& t)
+      label_base::label_base (const core::text_source& t)
         : text(t)
       {}
 
-      label_base::label_base (text_source&& t) noexcept
+      label_base::label_base (core::text_source&& t) noexcept
         : text(std::move(t))
       {}
 
       void label_base::set_text (const std::string& t) {
-        set_text(const_text(t));
+        set_text(core::const_text(t));
       }
 
-      void label_base::set_text (const text_source& t) {
+      void label_base::set_text (const core::text_source& t) {
         text = t;
         invalidate();
       }
@@ -74,7 +74,7 @@ namespace gui {
       }
 
       void label_base::set (const std::string& t) {
-        set_text(const_text(t));
+        set_text(core::const_text(t));
       }
 
       std::string label_base::get () const {

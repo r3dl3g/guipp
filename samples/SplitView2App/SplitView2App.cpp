@@ -49,13 +49,13 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   auto& bot = client.get<2>();
   bot.get<0>().set_text([&] () { return ostreamfmt("Left (" << bot.get<0>().geometry() << ")"); });
   bot.get<1>().set_text("Raise");
-  bot.get<1>().add_tooltip(const_text("Press to Raise"));
+  bot.get<1>().add_tooltip(core::const_text("Press to Raise"));
   bot.get<1>().on_clicked([&] () {
     mid.get<1>().set(&raised_center_label);
     mid.layout();
   });
   bot.get<2>().set_text("Deep");
-  bot.get<2>().add_tooltip(const_text("Press to Deep"));
+  bot.get<2>().add_tooltip(core::const_text("Press to Deep"));
   bot.get<2>().on_clicked([&] () {
     mid.get<1>().set(&deep_center_label);
     mid.layout();

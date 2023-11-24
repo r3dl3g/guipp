@@ -50,13 +50,13 @@ namespace gui {
     }
 
     template<orientation_t O, typename B, typename L>
-    inline void toggle_group<O, B, L>::add_button (const text_source& label) {
+    inline void toggle_group<O, B, L>::add_button (const core::text_source& label) {
       add_button(std::make_shared<B>(label));
     }
 
     template<orientation_t O, typename B, typename L>
     inline void toggle_group<O, B, L>::add_button (const std::string& label) {
-      add_button(const_text(label));
+      add_button(core::const_text(label));
     }
 
     template<orientation_t O, typename B, typename L>
@@ -67,8 +67,8 @@ namespace gui {
     }
 
     template<orientation_t O, typename B, typename L>
-    void toggle_group<O, B, L>::add_buttons (const std::vector<const_text>& labels) {
-      for (const const_text& label : labels) {
+    void toggle_group<O, B, L>::add_buttons (const std::vector<core::const_text>& labels) {
+      for (const core::const_text& label : labels) {
         add_button(label);
       }
     }

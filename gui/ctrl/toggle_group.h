@@ -46,10 +46,10 @@ namespace gui {
 
       void add_button (button_type btn);
       void add_button (const std::string& label);
-      void add_button (const text_source& label);
+      void add_button (const core::text_source& label);
 
       void add_buttons (const std::vector<button_type>& buttons);
-      void add_buttons (const std::vector<const_text>& labels);
+      void add_buttons (const std::vector<core::const_text>& labels);
 
       template<typename T = B, typename I>
       void add_custom_buttons (std::initializer_list<I> items) {

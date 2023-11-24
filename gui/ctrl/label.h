@@ -20,6 +20,9 @@
 //
 // Library includes
 //
+#include <gui/draw/graphics.h>
+#include <gui/draw/text_origin.h>
+#include <gui/draw/frames.h>
 #include <gui/ctrl/control.h>
 #include <gui/ctrl/look/label.h>
 #include <util/string_util.h>
@@ -37,8 +40,8 @@ namespace gui {
         typedef win::no_focus_window_class<label_base> clazz;
 
         explicit label_base (const std::string& = std::string());
-        explicit label_base (const text_source&);
-        explicit label_base (text_source&&) noexcept;
+        explicit label_base (const core::text_source&);
+        explicit label_base (core::text_source&&) noexcept;
 
         label_base (const label_base& rhs) = default;
         label_base (label_base&& rhs) = default;
@@ -47,14 +50,14 @@ namespace gui {
                      const core::rectangle& place = core::rectangle::def);
 
         void create (win::container& parent,
-                     const text_source& txt,
+                     const core::text_source& txt,
                      const core::rectangle& place = core::rectangle::def);
 
         void create (win::container& parent,
                      const std::string& txt,
                      const core::rectangle& place = core::rectangle::def);
 
-        void set_text (const text_source&);
+        void set_text (const core::text_source&);
         void set_text (const std::string&);
 
         std::string get_text () const;
@@ -72,7 +75,7 @@ namespace gui {
         void operator>> (T&& t) const;
 
       protected:
-        text_source text;
+        core::text_source text;
 
       };
 
@@ -86,7 +89,7 @@ namespace gui {
       typedef detail::label_base super;
 
       explicit basic_label (const std::string& = std::string());
-      explicit basic_label (const text_source&);
+      explicit basic_label (const core::text_source&);
       basic_label (const basic_label& rhs);
       basic_label (basic_label&& rhs) noexcept;
 

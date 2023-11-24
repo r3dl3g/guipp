@@ -49,7 +49,7 @@ namespace gui {
     }
 
     template<text_origin_t A, draw::frame::drawer D>
-    inline basic_label<A, D>::basic_label (const text_source& t)
+    inline basic_label<A, D>::basic_label (const core::text_source& t)
       : super(t) {
       init();
     }

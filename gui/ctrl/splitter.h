@@ -20,6 +20,7 @@
 //
 // Library includes
 //
+#include <gui/draw/graphics.h>
 #include <gui/ctrl/control.h>
 #include <gui/ctrl/look/splitter.h>
 

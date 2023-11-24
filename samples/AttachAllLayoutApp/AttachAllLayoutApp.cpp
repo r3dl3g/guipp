@@ -29,7 +29,7 @@ struct drawing {
                gui::color::dark_blue);
   }
 
-  void set_text (const gui::ctrl::text_source& t) {
+  void set_text (const gui::ctrl::core::text_source& t) {
     text = t;
     if (win) win->invalidate();
   }
@@ -43,7 +43,7 @@ struct drawing {
     return area;
   }
 
-  gui::ctrl::text_source text;
+  gui::ctrl::core::text_source text;
   gui::core::rectangle area;
   gui::win::window* win;
 };

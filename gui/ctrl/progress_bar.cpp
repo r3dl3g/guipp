@@ -75,7 +75,7 @@ namespace gui {
         });
       }
 
-      void progress_bar_base::set_prefix (const text_source& t) {
+      void progress_bar_base::set_prefix (const core::text_source& t) {
         set_text([&, t] () {
           if (data.max == 1) {
             return ostreamfmt(t() << std::fixed << std::setprecision(1) << (data.value * 100) << "%");

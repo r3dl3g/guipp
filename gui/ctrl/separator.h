@@ -20,6 +20,7 @@
 //
 // Library includes
 //
+#include <gui/draw/drawers.h>
 #include <gui/ctrl/control.h>
 
 

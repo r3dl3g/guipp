@@ -61,7 +61,7 @@ namespace gui {
       return state == menu_state::enabled;
     }
 
-    inline void menu_entry::set_label (const text_source& l) {
+    inline void menu_entry::set_label (const core::text_source& l) {
       label = l;
     }
 

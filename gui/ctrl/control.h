@@ -21,13 +21,11 @@
 // Library includes
 //
 #include <util/ostreamfmt.h>
+#include <gui/core/text_source.h>
 #include <gui/win/window.h>
 #include <gui/win/window_event_handler.h>
-#include <gui/draw/graphics.h>
-#include <gui/draw/drawers.h>
-#include <gui/draw/frames.h>
 #include <gui/layout/layout_container.h>
-#include <gui/ctrl/item_state.h>
+#include <gui/draw/draw_fwd.h>
 #include <gui/ctrl/gui++-ctrl-export.h>
 
 
@@ -80,34 +78,6 @@ namespace gui {
       const os::event_id CONTENT_CHANGED_MESSAGE = QEvent::User + 11;
 #endif // GUIPP_QT
     } // detail
-
-    // --------------------------------------------------------------------------
-    typedef std::string (text_source_fn)();
-    typedef std::function<text_source_fn> text_source;
-
-    // --------------------------------------------------------------------------
-    struct const_text {
-      const_text () = default;
-
-      const_text (const std::string& text)
-        : text(text)
-      {}
-
-      const_text (std::string&& text)
-        : text(std::move(text))
-      {}
-
-      const_text (const char* text)
-        : text(text)
-      {}
-
-      const std::string& operator() () const {
-        return text;
-      }
-
-    private:
-      std::string text;
-    };
 
     // --------------------------------------------------------------------------
     enum class event_source {
@@ -235,7 +205,7 @@ namespace gui {
       void notify_hilite_changed (bool);  // true if hilite is visible, false for no hilite
       void notify_content_changed ();
 
-      void add_tooltip (text_source);
+      void add_tooltip (core::text_source);
     };
 
     // --------------------------------------------------------------------------

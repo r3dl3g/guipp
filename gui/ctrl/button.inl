@@ -120,7 +120,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<class T, button_drawer BG, text_button_drawer D>
-    inline basic_text_button<T, BG, D>::basic_text_button (const text_source& t)
+    inline basic_text_button<T, BG, D>::basic_text_button (const core::text_source& t)
       : text(t)
     {
       init();
@@ -128,7 +128,7 @@ namespace gui {
 
     template<class T, button_drawer BG, text_button_drawer D>
     inline basic_text_button<T, BG, D>::basic_text_button (const std::string& t)
-      : text(const_text(t))
+      : text(core::const_text(t))
     {
       init();
     }
@@ -159,12 +159,12 @@ namespace gui {
     inline void basic_text_button<T, BG, D>::create (win::container& parent,
                                                     const std::string& txt,
                                                     const core::rectangle& place) {
-      create(parent, const_text(txt), place);
+      create(parent, core::const_text(txt), place);
     }
 
     template<class T, button_drawer BG, text_button_drawer D>
     inline void basic_text_button<T, BG, D>::create (win::container& parent,
-                                                    const text_source& txt,
+                                                    const core::text_source& txt,
                                                     const core::rectangle& place) {
       super::create(parent, place);
       set_text(txt);
@@ -172,11 +172,11 @@ namespace gui {
 
     template<class T, button_drawer BG, text_button_drawer D>
     inline void basic_text_button<T, BG, D>::set_text (const std::string& t) {
-      set_text(const_text(t));
+      set_text(core::const_text(t));
     }
 
     template<class T, button_drawer BG, text_button_drawer D>
-    inline void basic_text_button<T, BG, D>::set_text (const text_source& t) {
+    inline void basic_text_button<T, BG, D>::set_text (const core::text_source& t) {
       text = t;
       super::invalidate();
     }

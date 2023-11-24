@@ -51,7 +51,7 @@ namespace gui {
         type get_value () const;
 
         void set_prefix (const std::string&);
-        void set_prefix (const text_source&);
+        void set_prefix (const core::text_source&);
 
         os::color get_bar_color () const;
         void set_bar_color (os::color);
@@ -71,7 +71,7 @@ namespace gui {
           os::color bar_color;
           os::color foreground;
 
-          text_source prefix;
+          core::text_source prefix;
         } data;
 
       };

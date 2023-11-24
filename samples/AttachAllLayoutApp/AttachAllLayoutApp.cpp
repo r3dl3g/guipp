@@ -1,4 +1,9 @@
 
+#include <gui/core/text_source.h>
+#include <gui/draw/graphics.h>
+#include <gui/draw/drawers.h>
+#include <gui/draw/brush.h>
+#include <gui/draw/font.h>
 #include <gui/win/container.h>
 #include <gui/layout/layout_container.h>
 #include <gui/layout/attach_layout.h>
@@ -7,8 +12,6 @@
 #include <gui/layout/grid_layout.h>
 #include <gui/ctrl/split_view.h>
 #include <gui/ctrl/label.h>
-#include <gui/draw/brush.h>
-#include <gui/draw/font.h>
 
 
 struct drawing {
@@ -29,7 +32,7 @@ struct drawing {
                gui::color::dark_blue);
   }
 
-  void set_text (const gui::ctrl::core::text_source& t) {
+  void set_text (const gui::core::text_source& t) {
     text = t;
     if (win) win->invalidate();
   }
@@ -43,7 +46,7 @@ struct drawing {
     return area;
   }
 
-  gui::ctrl::core::text_source text;
+  gui::core::text_source text;
   gui::core::rectangle area;
   gui::win::window* win;
 };

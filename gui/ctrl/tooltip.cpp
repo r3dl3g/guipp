@@ -85,12 +85,14 @@ namespace gui {
     void tooltip::show () {
       win::run_on_main(*win, [&] () {
         std::unique_lock<std::mutex> lock(guard);
-        create(*win);
-        const overlapped_window& overlapped = win->get_overlapped_window();
-        const auto length = text().size();
-        core::point pt = overlapped.get_current_pointer_pos().dxy(15, 15);
-        geometry({pt, core::size{length * 8.0F, 25.0F}}, true, true);
-        set_visible(true);
+        if (win && text) {
+          create(*win);
+          const overlapped_window& overlapped = win->get_overlapped_window();
+          const auto length = text().size();
+          core::point pt = overlapped.get_current_pointer_pos().dxy(15, 15);
+          geometry({pt, core::size{length * 8.0F, 25.0F}}, true, true);
+          set_visible(true);
+        }
       });
     }
 

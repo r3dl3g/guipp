@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 function(print_var VAR)
   message(STATUS "${PROJECT_NAME} ${VAR}: '" ${${VAR}} "'")

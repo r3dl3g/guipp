@@ -153,7 +153,7 @@ namespace gui {
           action(dlg, sel, data[sel]);
         }
       });
-      vlist->set_data(data);
+      vlist->set_data<T>(data);
       auto it = std::find(data.begin(), data.end(), initial);
       if (it != data.end()) {
         int idx = std::distance(data.begin(), it);

@@ -226,6 +226,9 @@ namespace gui {
           return true;
         }
         break;
+      case WM_MOUSEHOVER:
+        s_mouse_inside[e.id] = true;
+        return true;
       case WM_MOUSELEAVE:
         s_mouse_inside[e.id] = false;
         break;

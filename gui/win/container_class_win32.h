@@ -47,6 +47,14 @@ namespace gui {
                                               CS_DBLCLKS | CS_DROPSHADOW>;
 
       template<typename T, os::color C = color::light_gray>
+      using tooltip_window_class = window_class<T,
+                                              C,
+                                              window_class_defaults<>::cursor,
+                                              WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                                              WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED,
+                                              CS_DBLCLKS>;
+
+      template<typename T, os::color C = color::light_gray>
       using dialog_window_class = window_class<T,
                                                C,
                                                window_class_defaults<>::cursor,

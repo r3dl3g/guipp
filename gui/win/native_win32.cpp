@@ -458,7 +458,7 @@ namespace gui {
 
       void send_mouse_event (window* win, bool enter) {
         if (win && win->is_valid()) {
-          core::event e{ NULL, (gui::os::event_id)(enter ? WM_MOUSEMOVE : WM_MOUSELEAVE), 0, 0};
+          core::event e{ NULL, (gui::os::event_id)(enter ? WM_MOUSEHOVER : WM_MOUSELEAVE), 0, 0};
           gui::os::event_result result;
           win->handle_event(e, result);
         }
@@ -475,9 +475,9 @@ namespace gui {
       core::native_point get_current_pointer_pos (gui::os::window id) {
         POINT pt;
         GetCursorPos(&pt);
-        RECT r;
-        GetWindowRect(id, &r);
-        return {os::get_x(pt) - os::get_x(r), os::get_y(pt) - os::get_y(r)};
+        //RECT r;
+        //GetWindowRect(id, &r);
+        return {os::get_x(pt) /*- os::get_x(r)*/, os::get_y(pt) /*- os::get_y(r)*/};
       }
 
     } // namespace native

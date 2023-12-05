@@ -57,6 +57,7 @@ endif()
 set(LOGGING_CXX_STANDARD "${GUIPP_CXX_STANDARD}" CACHE STRING "C++ standard")
 set(UTIL_CXX_STANDARD "${GUIPP_CXX_STANDARD}" CACHE STRING "C++ standard")
 set(TESTING_CXX_STANDARD "${GUIPP_CXX_STANDARD}" CACHE STRING "C++ standard")
+set(GUIPP_LIBS_DIR "${PROJECT_SOURCE_DIR}/libs" CACHE STRING "Path to required libraries")
 
 debug_print_var(CMAKE_SOURCE_DIR)
 debug_print_var(CMAKE_CURRENT_SOURCE_DIR)
@@ -91,8 +92,8 @@ endif()
 
 
 if(GUIPP_BUILD_DEPENDENT_LIBS)
-  add_subdirectory(${CMAKE_SOURCE_DIR}/libs/logging logging)
-  add_subdirectory(${CMAKE_SOURCE_DIR}/libs/util util)
+  add_subdirectory(${GUIPP_LIBS_DIR}/logging logging)
+  add_subdirectory(${GUIPP_LIBS_DIR}/util util)
 else ()
   find_package(logging REQUIRED)
   find_package(util REQUIRED)

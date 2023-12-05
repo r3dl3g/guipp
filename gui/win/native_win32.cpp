@@ -151,7 +151,7 @@ namespace gui {
           display,
           nullptr,
           type.get_cursor(),
-          back,
+          nullptr,//back,
           nullptr,
           name.c_str()
         };
@@ -235,7 +235,7 @@ namespace gui {
 
       void invalidate (os::window id, const core::native_rect& r) {
         RECT rect = gui::os::mk_rectangle(r.x(), r.y(), r.x2(), r.y2());
-        InvalidateRect(id, &rect, TRUE);
+        InvalidateRect(id, &rect, FALSE);
       }
 
       void redraw (window&, os::window id, const core::native_rect& r) {

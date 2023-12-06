@@ -31,6 +31,7 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/pen.h>
 #include <gui/draw/use.h>
+#include <util/ostreamfmt.h>
 
 
 #ifdef GUIPP_X11
@@ -144,15 +145,27 @@ namespace gui {
       auto visual = DefaultRootWindow(display);
       const auto depth = bmi.depth();
       os::bitmap id = XCreatePixmap(display, visual, bmi.width, bmi.height, depth);
-      if (data) {
-        bitmap_put_data(id, data, bmi);
+      switch (id) {
+        case BadValue:
+        case BadDrawable:
+        case BadAlloc:
+          throw std::runtime_error(ostreamfmt("XCreatePixmap failed with " << id));
+        return 0;
+      
+        default:
+          if (data) {
+            bitmap_put_data(id, data, bmi);
+          }
+        return id;
       }
-      return id;
     }
 
     void free_bitmap (os::bitmap& id) {
       auto display = core::global::get_instance();
-      XFreePixmap(display, id);
+      int result = XFreePixmap(display, id);
+      if (result == BadPixmap) {
+          throw std::runtime_error(ostreamfmt("XCreatePixmap XFreePixmap with " << result));
+      }
     }
 
     draw::bitmap_info bitmap_get_info (const os::bitmap& id) {
@@ -163,12 +176,20 @@ namespace gui {
         unsigned int w, h, b, d;
         auto display = core::global::get_instance();
         Status st = XGetGeometry(display, id, &root, &x, &y, &w, &h, &b, &d);
-        (void)st;
-        bmi = {
-          static_cast<uint32_t>(w),
-          static_cast<uint32_t>(h),
-          get_pixel_format(d, core::byte_order_t(ImageByteOrder(display)))
-        };
+        switch (st) {
+          case BadDrawable:
+          case BadWindow:
+            throw std::runtime_error(ostreamfmt("XGetGeometry failed with " << st));
+          break;
+          
+          default:
+            bmi = {
+              static_cast<uint32_t>(w),
+              static_cast<uint32_t>(h),
+              get_pixel_format(d, core::byte_order_t(ImageByteOrder(display)))
+            };
+          break;
+        }
       }
       return bmi;
     }
@@ -180,7 +201,15 @@ namespace gui {
         unsigned int w, h, b, d;
         auto display = core::global::get_instance();
         Status st = XGetGeometry(display, id, &root, &x, &y, &w, &h, &b, &d);
-        (void)st;
+        switch (st) {
+          case BadDrawable:
+          case BadWindow:
+            throw std::runtime_error(ostreamfmt("XGetGeometry failed with " << st));
+          break;
+          
+          default:
+          break;
+        }
         XImage* im = XGetImage(display, id, 0, 0, w, h, AllPlanes, ZPixmap);
         if (im) {
           bmi = {
@@ -197,31 +226,48 @@ namespace gui {
       }
     }
 
+    int calc_padding (int bytes_per_line, int width, int bits_per_pixel) {
+      int rest = bytes_per_line - width * (bits_per_pixel / 8);
+      switch (rest) {
+        case 0: return 8;
+        case 1: return 16;
+        default: return 32;
+      }
+    }
+
     void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi) {
       auto display = core::global::get_instance();
       auto gc = core::native::create_graphics_context(id);
 
       core::byte_order_t byte_order = get_pixel_format_byte_order(bmi.pixel_format);
+      const int bpl = static_cast<int>(bmi.bytes_per_line);
+      const int width = static_cast<int>(bmi.width);
+      const int bpp = bmi.bits_per_pixel();
+      const int pad = calc_padding(bpl, width, bpp);
+      char *idata = const_cast<char*>(reinterpret_cast<const char*>(data));
 
       XImage im {
-        static_cast<int>(bmi.width),
-        static_cast<int>(bmi.height),                           /* size of image */
-        0,                                                      /* number of pixels offset in X direction */
-        ZPixmap,                                                /* XYBitmap, XYPixmap, ZPixmap */
-        const_cast<char*>(reinterpret_cast<const char*>(data)), /* pointer to image data */
-        static_cast<bool>(byte_order),                          /* data byte order, LSBFirst, MSBFirst */
-        BitmapUnit(display),                                    /* quant. of scanline 8, 16, 32 */
-        BitmapBitOrder(display),                                /* LSBFirst, MSBFirst */
-        BitmapPad(display),                                     /* 8, 16, 32 either XY or ZPixmap */
-        bmi.depth(),                                            /* depth of image */
-        static_cast<int>(bmi.bytes_per_line),                   /* accelarator to next line */
-        bmi.bits_per_pixel()                                    /* bits per pixel (ZPixmap) */
+        width,
+        static_cast<int>(bmi.height),   /* size of image */
+        0,                              /* number of pixels offset in X direction */
+        ZPixmap,                        /* XYBitmap, XYPixmap, ZPixmap */
+        idata,                          /* pointer to image data */
+        static_cast<bool>(byte_order),  /* data byte order, LSBFirst, MSBFirst */
+        BitmapUnit(display),            /* quant. of scanline 8, 16, 32 */
+        BitmapBitOrder(display),        /* LSBFirst, MSBFirst */
+        pad, //BitmapPad(display),      /* 8, 16, 32 either XY or ZPixmap */
+        bmi.depth(),                    /* depth of image */
+        bpl,                            /* accelarator to next line */
+        bpp                             /* bits per pixel (ZPixmap) */
       };
 
       Status st = XInitImage(&im);
-      (void)st;
-      int res = XPutImage(display, id, gc, &im, 0, 0, 0, 0, bmi.width, bmi.height);
-      core::native::delete_graphics_context(gc);
+      if (st) {
+        int res = XPutImage(display, id, gc, &im, 0, 0, 0, 0, bmi.width, bmi.height);
+        core::native::delete_graphics_context(gc);
+      } else {
+        throw std::runtime_error("XInitImage failed");
+      }
     }
 
 # endif // !USE_XSHM

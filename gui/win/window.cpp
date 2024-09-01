@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <map>
 #include <set>
+#include <shared_mutex>
 
 // --------------------------------------------------------------------------
 //
@@ -197,11 +198,13 @@ namespace gui {
 
       ~event_guard () {
         if (iter.second) {
+          std::lock_guard<std::mutex> guard(lock);
           active_events.erase(iter.first);
         }
       }
 
       bool insert () {
+        std::lock_guard<std::mutex> guard(lock);
         iter = active_events.insert(*this);
         return iter.second;
       }
@@ -217,10 +220,12 @@ namespace gui {
       typedef std::set<event_guard> set_t;
       std::pair<set_t::iterator, bool> iter;
 
+      static std::mutex lock;
       static set_t active_events;
     };
 
     std::set<event_guard> event_guard::active_events;
+    std::mutex event_guard::lock;
 
     bool window::handle_event (const core::event& e, gui::os::event_result& result) {
 

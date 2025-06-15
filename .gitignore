@@ -22,3 +22,4 @@ build/compile_commands.json
 build/CMakeCache.txt
 build-Debug*/*
 build-Release*/*
+*.log

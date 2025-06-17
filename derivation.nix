@@ -1,6 +1,11 @@
 # https://discourse.nixos.org/t/how-to-use-a-nix-derivation-from-a-local-folder/5498/4
 
-{ stdenv, lib, pkgs } :
+{ stdenv, lib, pkgs,
+  testing ? import ../testing {},
+  logging ? import ../logging {},
+  util ? import ../util {},
+  persistent ? import ../persistent {}
+} :
 
 stdenv.mkDerivation rec {
   pname = "guipp";
@@ -16,6 +21,10 @@ stdenv.mkDerivation rec {
     xorg.libXft.dev
     xorg.libxcb.dev
     xorg.libXdmcp.dev
+    testing
+    util
+    logging
+    persistent
   ];
 
   enableParallelBuilding = true;
@@ -29,11 +38,12 @@ stdenv.mkDerivation rec {
     "-DLOGGING_CONFIG_INSTALL=OFF"
     "-DUTIL_CONFIG_INSTALL=OFF"
     "-DTESTING_CONFIG_INSTALL=OFF"
-    "-DGUIPP_BUILD_DEPENDENT_LIBS=ON"
+    "-DGUIPP_BUILD_DEPENDENT_LIBS=OFF"
     "-DGUIPP_BUILD_STATIC_MODULE_LIBS=OFF"
     "-DGUIPP_BUILD_SHARED_MODULE_LIBS=OFF"
-    "-DLOGGING_BUILD_STATIC_MODULE_LIB=ON"
-    "-DUTIL_BUILD_STATIC_MODULE_LIB=ON"
+    "-DLOGGING_BUILD_STATIC_MODULE_LIB=OFF"
+    "-DUTIL_BUILD_STATIC_MODULE_LIB=OFF"
+    "-DCMAKE_INSTALL_PREFIX=$out"
   ];
 
   meta = with lib; {

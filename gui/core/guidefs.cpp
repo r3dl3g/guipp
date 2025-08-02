@@ -444,7 +444,8 @@ namespace gui {
             dpi = 96;
           }
 
-          return  std::max(floor((double)dpi * 2.0 / 95.9) / 2.0, 0.5);
+          const auto f = floor((double)dpi * 20.0 / 96.0) / 20.0; // scale factor in 5% steps
+          return  std::max(f, 0.5);
         }
       }
 

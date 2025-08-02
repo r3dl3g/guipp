@@ -19,6 +19,7 @@ include (../Functions.cmake)
 
 if(POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
+  cmake_policy(SET CMP0177 NEW)
 endif()
 
 if(NOT DEFINED CMAKE_CXX_VISIBILITY_PRESET AND
@@ -37,10 +38,10 @@ if(NOT "${CMAKE_CXX_STANDARD}")
 endif()
 
 option(GUIPP_BUILD_STATIC_MODULE_LIBS "On to build a static library for each submodule, Off to build shared libraries. Default Off" OFF)
-option(GUIPP_BUILD_SHARED_MODULE_LIBS "On to build a shared library for each submodule, Off to build static libraries. default Off" OFF)
-option(GUIPP_CONFIG_INSTALL "On to configure installation, Off to build as part of a project. Default Off" OFF)
+option(GUIPP_BUILD_SHARED_MODULE_LIBS "On to build a shared library for each submodule, Off to build static libraries. default Off" ON)
+option(GUIPP_CONFIG_INSTALL "On to configure installation, Off to build as part of a project. Default Off" ON)
 option(GUIPP_BUILD_FOR_MOBILE "On to optimize for smartphone, Off to optimize for dekstop. Default Off" OFF)
-option(GUIPP_BUILD_DEPENDENT_LIBS "On to build dependent libs logging, util and testlib.  Default Off" ON)
+option(GUIPP_BUILD_DEPENDENT_LIBS "On to build dependent libs logging, util and testlib.  Default Off" OFF)
 option(GUIPP_USE_XCB "On to make use of the xcb library. Default Off" ON)
 option(GUIPP_USE_QT5 "On to make use of the Qt5 library. Default Off" OFF)
 option(GUIPP_USE_QT6 "On to make use of the Qt6 library. Default Off" OFF)

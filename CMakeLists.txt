@@ -4,6 +4,11 @@ project("guipp" CXX)
 
 include (Functions.cmake)
 
+if(POLICY CMP0077)
+  cmake_policy(SET CMP0077 NEW)
+  cmake_policy(SET CMP0177 NEW)
+endif()
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 option(GUIPP_SAMPLES "On to build the samples. Default ON" ON)

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 project("Samples" CXX)
 
@@ -34,6 +34,13 @@ DebugPrint("samples GUIPP_APP_LIBRARIES: ${GUIPP_APP_LIBRARIES}")
 DebugPrint("samples GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
 DebugPrint("samples GUIPP_EXE_LINKER_FLAGS: ${GUIPP_EXE_LINKER_FLAGS}")
 
+if(GUIPP_BUILD_DEPENDENT_LIBS)
+  add_subdirectory(${GUIPP_LIBS_DIR}/logging logging)
+  add_subdirectory(${GUIPP_LIBS_DIR}/util util)
+else ()
+  find_package(logging REQUIRED)
+  find_package(util REQUIRED)
+endif()
 
 # add the binary tree to the search path for include files
 # so that we will find Version.h

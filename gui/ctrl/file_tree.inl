@@ -226,7 +226,7 @@ namespace gui {
       if (order != sort_order::name_up) {
         sort_list_by(current_dir, order);
       }
-      super::list.invalidate();
+      super::list.layout();
       super::header.invalidate();
     }
 

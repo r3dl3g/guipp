@@ -37,6 +37,7 @@ namespace gui {
         // visual studio throws an error without this-> (compiler bug?)
         this->edit.create(*this);
         this->buttons.create(*this);
+        this->buttons.set_accept_focus(false);
       });
       buttons.on_change([&] (int sign) {
         step(increment * sign);

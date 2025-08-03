@@ -154,6 +154,8 @@ namespace gui {
         , scroll_pos(0)
         , last_mouse_point(core::native_point::undefined)
         , insert_mode(false)
+        , is_empty(false)
+        , has_dot_at_end(false)
       {}
 
       edit_base::edit_base () {
@@ -214,6 +216,10 @@ namespace gui {
           invalidate();
           notify_selection_changed(event_source::logic);
         }
+      }
+
+      void edit_base::select_all (event_source src) {
+        set_selection(range::max(), src);
       }
 
       edit_base::range edit_base::get_selection () const {
@@ -281,6 +287,10 @@ namespace gui {
         return data.text_limit;
       }
 
+      std::string edit_base::get_text () const {
+        return (is_empty() ? std::string() : get_value_as_text ()) + (has_dot_at_end() ? "." : "");
+      }
+
       edit_base::pos_t edit_base::get_text_length () const {
         return (pos_t)get_text().size();
       }
@@ -291,6 +301,22 @@ namespace gui {
 
       void edit_base::set_insert_mode (bool b) {
         data.insert_mode = b;
+      }
+
+      bool edit_base::is_empty () const {
+        return data.is_empty;
+      }
+
+      void edit_base::set_empty (bool b) {
+        data.is_empty = b;
+      }
+
+      bool edit_base::has_dot_at_end () const {
+        return data.has_dot_at_end;
+      }
+
+      void edit_base::set_has_dot_at_end (bool b) {
+        data.has_dot_at_end = b;
       }
 
       void edit_base::replace_selection (const std::string& new_text) {
@@ -405,7 +431,7 @@ namespace gui {
           notify_selection_cancel();
           break;
         case core::keys::clear:
-          set_selection(range(0, get_text().size()), event_source::keyboard);
+          select_all(event_source::keyboard);
           replace_selection(std::string());
           set_cursor_pos(0, false);
           break;
@@ -422,8 +448,7 @@ namespace gui {
           if (ctrl) {
             switch (keycode) {
             case core::keys::a:
-              // select all
-              set_selection(range(0, get_text().size()), event_source::keyboard);
+              select_all(event_source::keyboard);
               break;
             case core::keys::v: {
               win::clipboard::get().get_text(*this, [&](const std::string & t) {

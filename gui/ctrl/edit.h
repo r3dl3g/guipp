@@ -76,7 +76,9 @@ namespace gui {
         void init ();
 
         void init_text (const std::string&);
-        virtual std::string get_text () const = 0;
+        virtual std::string get_value_as_text () const = 0;
+
+        std::string get_text () const;
 
         void set_text_limit (pos_t max_chars);
         pos_t get_text_limit () const;
@@ -84,9 +86,10 @@ namespace gui {
 
         void handle_key (os::key_state, os::key_symbol, const std::string&);
 
-        void set_selection(const range &sel, event_source);
+        void set_selection (const range &sel, event_source);
         range get_selection () const;
         void make_selection_visible (bool update = true);
+        void select_all (event_source);
 
         pos_t get_cursor_pos () const;
         void set_cursor_pos (pos_t pos, bool shift = false);
@@ -105,6 +108,12 @@ namespace gui {
       protected:
         void register_handler ();
 
+        bool is_empty () const;
+        void set_empty (bool);
+
+        bool has_dot_at_end () const;
+        void set_has_dot_at_end (bool);
+
       private:
         virtual void set_text (const std::string&) = 0;
 
@@ -121,6 +130,8 @@ namespace gui {
           core::native_point last_mouse_point;
           input_filter filter;
           bool insert_mode;
+          bool is_empty;
+          bool has_dot_at_end;
         } data;
 
       };
@@ -171,7 +182,7 @@ namespace gui {
 
       edit_t (T = {}, limiter_type l = {});
 
-      std::string get_text () const override;
+      std::string get_value_as_text () const override;
       void set_text (const std::string&) override;
 
       void set (const type& t);
@@ -179,6 +190,8 @@ namespace gui {
 
       void set_limiter (limiter_type l);
       limiter_type get_limiter () const;
+
+      bool is_invalid () const;
 
     private:
       T value;

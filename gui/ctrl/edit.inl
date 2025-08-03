@@ -45,13 +45,45 @@ namespace gui {
       return value;
     }
 
+    namespace hidden {
+
+      template<typename T>
+      inline bool ends_with_dot (const std::string& t) {
+        return util::string::ends_with(t, ".");
+      }
+
+      template<>
+      inline bool ends_with_dot<std::string> (const std::string& t) {
+        return false;
+      }
+
+      template<typename T>
+      inline bool is_invalid (bool is_empty) {
+        return is_empty;
+      }
+
+      template<>
+      inline bool is_invalid<std::string> (bool) {
+        return false;
+      }
+
+
+    }
+
     template<typename T, typename F, typename L>
     inline void edit_t<T, F, L>::set_text (const std::string& t) {
+      super::set_has_dot_at_end(hidden::ends_with_dot<T>(t));
+      super::set_empty(t.size() < 1);
       set(F::parse(t));
     }
 
     template<typename T, typename F, typename L>
-    inline std::string edit_t<T, F, L>::get_text () const {
+    bool edit_t<T, F, L>::is_invalid () const {
+      return hidden::is_invalid<T>(super::is_empty());
+    }
+
+    template<typename T, typename F, typename L>
+    inline std::string edit_t<T, F, L>::get_value_as_text () const {
       return F::format(get());
     }
 
@@ -91,9 +123,9 @@ namespace gui {
     inline void basic_edit<T, F, L, origin, frame>::paint (draw::graphics& graph) {
       auto area = frame(graph, super::client_geometry());
       area.shrink(core::size::one);
-      look::edit_line(graph, area, super::get_text(), draw::font::system(),
-                      super::get_foreground(), super::get_background(), origin,
-                      super::get_selection(), super::get_cursor_pos(),
+      look::edit_line(graph, area, super::get_text(), draw::font::system(), super::get_foreground(), 
+                      super::is_invalid() ? color::very_light_red : super::get_background(), 
+                      origin, super::get_selection(), super::get_cursor_pos(),
                       super::get_scroll_pos(), super::is_focused(), super::is_enabled());
     }
 

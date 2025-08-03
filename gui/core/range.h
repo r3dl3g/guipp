@@ -39,6 +39,9 @@ namespace gui {
     struct range {
       typedef T type;
 
+      static range max ();
+      static range clean ();
+
       range (type v = type());
       range (const type& f, const type& l);
       range (type&& f, type&& l);

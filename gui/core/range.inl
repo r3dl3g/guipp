@@ -21,6 +21,16 @@ namespace gui {
   namespace core {
 
     template<typename T>
+    range<T> range<T>::max () {
+      return {std::numeric_limits<T>::min(), std::numeric_limits<T>::max()};
+    }
+
+    template<typename T>
+    range<T> range<T>::clean () {
+      return {type(), type()};
+    }
+
+    template<typename T>
     range<T>::range (type v)
       : first(v)
       , last(v)

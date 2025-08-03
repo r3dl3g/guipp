@@ -445,6 +445,7 @@ namespace gui {
       button_pair ();
 
       void on_change (sign_fn f);
+      void set_accept_focus (bool a);
 
       icon_push_button_t<traits::plus_icon, look::button_frame> plus;
       icon_push_button_t<traits::minus_icon, look::button_frame> minus;

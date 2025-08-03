@@ -321,6 +321,13 @@ namespace gui {
       minus.on_clicked([=] () { f(-1); });
     }
 
+    template<orientation_t H, typename T>
+    inline void button_pair<H, T>::set_accept_focus (bool a) {
+      super::set_accept_focus(a);
+      plus.set_accept_focus(a);
+      minus.set_accept_focus(a);
+    }
+
     // --------------------------------------------------------------------------
   } // namespace ctrl
 

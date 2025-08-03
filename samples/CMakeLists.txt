@@ -69,7 +69,7 @@ function(guipp_sample PROJECT_NAME)
   endif ()
 
   target_link_libraries(${PROJECT_NAME} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
-  install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+  #install(TARGETS ${PROJECT_NAME} DESTINATION bin)
   set_target_properties(${PROJECT_NAME} PROPERTIES
                         FOLDER apps
                         CXX_STANDARD ${GUIPP_CXX_STANDARD}

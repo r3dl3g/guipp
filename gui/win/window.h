@@ -77,6 +77,8 @@ namespace gui {
       void set_disable_redraw (bool on = true); /// disable automatic redraw on any change
       bool is_redraw_disabled () const;         /// return if automatic redraw is desabled
 
+      void set_accept_focus (bool a);
+
       bool is_focus_accepting () const; /// window type is general able to accept focus (like edits)
       bool is_focused () const;
 
@@ -161,8 +163,6 @@ namespace gui {
 
       void create_internal (const class_info&,
                             const core::rectangle&);
-
-      void set_accept_focus (bool a);
 
     protected:
       friend class container;

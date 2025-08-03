@@ -112,10 +112,11 @@ namespace gui {
     void container::collect_children (window_list_t& list, const std::function<window_filter>& filter) const {
       for (window* win : children) {
         if (filter(win)) {
-          list.push_back(win);
           const container* cont = dynamic_cast<const container*>(win);
           if (cont) {
             cont->collect_children(list, filter);
+          } else {
+            list.push_back(win);
           }
         }
       }

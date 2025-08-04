@@ -235,7 +235,7 @@ namespace gui {
     dir_tree_view::dir_tree_view (create_subdirectory_fn fn)
       : fn(fn)
     {
-      init();
+      //init();
     }
 
     dir_tree_view::dir_tree_view (dir_tree_view&& rhs)
@@ -265,6 +265,8 @@ namespace gui {
             }
           }
         });
+      } else {
+        add_button.set_visible(false);
       }
     }
 

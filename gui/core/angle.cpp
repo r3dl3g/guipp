@@ -33,32 +33,32 @@ namespace gui {
 
   namespace core {
 
-    angle::angle (float degrees)
+    angle::angle (double degrees)
       : degrees(degrees)
     {}
 
-    float angle::deg () const {
+    double angle::deg () const {
       return degrees;
     }
 
-    float angle::rad () const {
-      return static_cast<float>(M_PI * degrees / 180.0);
+    double angle::rad () const {
+      return static_cast<double>(M_PI * degrees / 180.0);
     }
 
-    angle angle::deg (float d) {
+    angle angle::deg (double d) {
       return {d};
     }
 
-    angle angle::rad (float r) {
-      return {static_cast<float>(r * 180.0 / M_PI)};
+    angle angle::rad (double r) {
+      return {static_cast<double>(r * 180.0 / M_PI)};
     }
 
     angle angle::os (int n) {
-      return {static_cast<float>(n) / IF_WIN32_X11_QT_ELSE(1.0F, 64.0F, 16.0F, 1.0F)};
+      return {static_cast<double>(n) / IF_WIN32_X11_QT_ELSE(1.0, 64.0, 16.0, 1.0)};
     }
 
     int angle::os () const {
-      return static_cast<int>(degrees * IF_WIN32_X11_QT_ELSE(1.0F, 64.0F, 16.0F, 1.0F));
+      return static_cast<int>(degrees * IF_WIN32_X11_QT_ELSE(1.0, 64.0, 16.0, 1.0));
     }
 
     angle angle::operator+ (const angle& rhs) const {
@@ -77,11 +77,11 @@ namespace gui {
       return {degrees / i};
     }
 
-    angle angle::operator* (float f) const {
+    angle angle::operator* (double f) const {
       return {degrees * f};
     }
 
-    angle angle::operator/ (float f) const {
+    angle angle::operator/ (double f) const {
       return {degrees / f};
     }
 
@@ -101,11 +101,11 @@ namespace gui {
       degrees /= i;
     }
 
-    void angle::operator*= (float f) {
+    void angle::operator*= (double f) {
       degrees *= f;
     }
 
-    void angle::operator/= (float f) {
+    void angle::operator/= (double f) {
       degrees /= f;
     }
 

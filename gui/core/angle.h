@@ -30,16 +30,16 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct GUIPP_CORE_EXPORT angle {
 
-      angle (float degrees = 0);
+      angle (double degrees = 0);
       angle (const angle&) = default;
       angle (angle&&) = default;
 
-      static angle deg (float);
-      static angle rad (float);
+      static angle deg (double);
+      static angle rad (double);
       static angle os (int);
 
-      float deg () const;
-      float rad () const;
+      double deg () const;
+      double rad () const;
 
       int os () const;
 
@@ -47,15 +47,15 @@ namespace gui {
       angle operator- (const angle&) const;
       angle operator* (int) const;
       angle operator/ (int) const;
-      angle operator* (float) const;
-      angle operator/ (float) const;
+      angle operator* (double) const;
+      angle operator/ (double) const;
 
       void operator+= (const angle&);
       void operator-= (const angle&);
       void operator*= (int);
       void operator/= (int);
-      void operator*= (float);
-      void operator/= (float);
+      void operator*= (double);
+      void operator/= (double);
 
       bool operator< (const angle&) const;
       bool operator<= (const angle&) const;
@@ -65,7 +65,7 @@ namespace gui {
       bool operator>= (const angle&) const;
 
     private:
-      float degrees;
+      double degrees;
     };
 
 // --------------------------------------------------------------------------

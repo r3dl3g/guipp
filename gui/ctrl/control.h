@@ -225,7 +225,7 @@ namespace gui {
     class GUIPP_CTRL_EXPORT client_control : public control {
     public:
       typedef control super;
-      typedef win::window_class<client_control, color::very_light_gray> clazz;
+      typedef win::no_focus_window_class<client_control> clazz;
 
       client_control (os::color bg = color::very_light_gray);
 

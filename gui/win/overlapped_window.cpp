@@ -243,18 +243,13 @@ namespace gui {
 
     template<typename iterator>
     iterator iterate_focus (iterator begin, iterator end, window* current_focus) {
-      auto i = std::find(begin, end, current_focus);
-      if (i != end) {
-        ++i;
+      auto current = std::find(begin, end, current_focus);
+      auto found = end;
+      if (current != end) {
+        found = focus_next(current + 1, end);
       }
-      auto found = i;
-      if (i != end) {
-        found = focus_next(i, end);
-        if (found == end) {
-          found = focus_next(begin, i);
-        }
-      } else {
-        found = focus_next(begin, end);
+      if (found == end) {
+        found = focus_next(begin, current);
       }
 
       if (found != end) {
@@ -273,15 +268,9 @@ namespace gui {
       });
       if (!children.empty()) {
         if (backward) {
-          auto end = std::rend(children);
-          if (iterate_focus(std::rbegin(children), end, get_current_focus_window()) != end) {
-            return;
-          }
+          iterate_focus(std::rbegin(children), std::rend(children), get_current_focus_window());
         } else {
-          auto end = std::end(children);
-          if (iterate_focus(std::begin(children), end, get_current_focus_window()) != end) {
-            return;
-          }
+          iterate_focus(std::begin(children), std::end(children), get_current_focus_window());
         }
       }
     }

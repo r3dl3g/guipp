@@ -46,7 +46,9 @@ namespace gui {
       , parent(nullptr)
       , background(color::transparent)
       , class_name(nullptr)
-    {}
+    {
+      set_state().visible(true);
+    }
 
     window::window (const window& rhs)
       : area(rhs.area)
@@ -106,7 +108,6 @@ namespace gui {
       }
       auto s = set_state();
       s.created(true);
-      s.visible(true);
       s.accept_focus(type.get_style() & WS_TABSTOP);
       notify_event(core::WM_CREATE_WINDOW);
     }
@@ -343,7 +344,7 @@ namespace gui {
     }
 
     void window::set_visible (bool s) {
-      if (is_valid() && set_state().visible(s)) {
+      if (set_state().visible(s) && is_valid()) {
         invalidate();
         notify_visibility(s);
       }

@@ -15,7 +15,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::core;
 
   layout_main_window<header_layout> main;
-  dir_file_view<> client;
+  dir_file_view<> client(make_default_create_subdirectory_fn());
   main_menu menu;
   popup_menu file_sub_menu;
   popup_menu edit_sub_menu;

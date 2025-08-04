@@ -33,11 +33,11 @@ namespace gui {
       template<typename T>
       struct point<T, coordinate_system::local> {
         static inline gui::os::point_type to_os_x (T v, const context& ctx) {
-          return global::scale_to_native<gui::os::point_type>(v) + ctx.offset_x();
+          return global::scale_to_native<gui::os::point_type>(std::round(v)) + ctx.offset_x();
         }
 
         static inline gui::os::point_type to_os_y (T v, const context& ctx) {
-          return global::scale_to_native<gui::os::point_type>(v) + ctx.offset_y();
+          return global::scale_to_native<gui::os::point_type>(std::round(v)) + ctx.offset_y();
         }
 
         static inline T from_os_x (const gui::os::point_type& v, const context& ctx) {
@@ -52,8 +52,8 @@ namespace gui {
 
       template<typename T>
       struct point<T, coordinate_system::surface> {
-        static inline gui::os::point_type to_os_x (const T& v, const context&)    { return static_cast<gui::os::point_type>(v); }
-        static inline gui::os::point_type to_os_y (const T& v, const context&)    { return static_cast<gui::os::point_type>(v); }
+        static inline gui::os::point_type to_os_x (const T& v, const context&)    { return static_cast<gui::os::point_type>(std::round(v)); }
+        static inline gui::os::point_type to_os_y (const T& v, const context&)    { return static_cast<gui::os::point_type>(std::round(v)); }
         static inline T from_os_x (const gui::os::point_type& v, const context&)  { return static_cast<T>(v); }
         static inline T from_os_y (const gui::os::point_type& v, const context&)  { return static_cast<T>(v); }
       };

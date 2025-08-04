@@ -26,7 +26,7 @@ namespace gui {
   namespace core {
 
     namespace state {
-      const gui::os::key_state none = Qt::Key_unknown;
+      const gui::os::key_state none = 0;
 
       const gui::os::key_state left_button = Qt::LeftButton;
       const gui::os::key_state middle_button = Qt::MiddleButton;

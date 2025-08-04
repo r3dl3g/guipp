@@ -1,8 +1,7 @@
 {
   "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-  "cmake.buildDirectory" : "${workspaceRoot}/build-${buildType}",
   "cmake.configureOnOpen": true,
-  "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
+  "nixEnvSelector.nixFile": "${workspaceFolder}/shell.nix",
   "files.associations": {
     "*.tcc": "cpp",
     "algorithm": "cpp",
@@ -70,6 +69,12 @@
     "utility": "cpp",
     "vector": "cpp",
     "list": "cpp",
-    "variant": "cpp"
-  }
+    "variant": "cpp",
+    "charconv": "cpp",
+    "optional": "cpp",
+    "format": "cpp",
+    "span": "cpp",
+    "text_encoding": "cpp"
+  },
+  "cmake.buildDirectory": "/home/armin/Projekte/ibr/build/${workspaceFolderBasename}/${buildType}"
 }

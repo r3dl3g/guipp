@@ -367,7 +367,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_type::off> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
-      g.frame(draw::arc(center, radius * 0.9F, 120, 60+360), pn);
+      g.frame(draw::arc(center, radius/* 0.9F*/, 120, 60+360), pn);
       g.frame(draw::line(calc_clock_point<0>(center, radius * 0.3F), calc_clock_point<0>(center, radius)), pn);
     }
     // --------------------------------------------------------------------------
@@ -532,14 +532,14 @@ namespace gui {
     void draw_icon<icon_type::info> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       g.frame(draw::arc(center, radius, 0, 360), pn);
       g.draw(draw::pie(center - core::size(0, radius / 2), radius / 20, 0, 360), pn.color(), pn);
-      g.frame(draw::line(center - core::size(0, radius / 4),  center + core::size(0, radius / 2)), pn);
+      g.frame(draw::line(center - core::size(0, radius / 6),  center + core::size(0, radius / 2)), pn);
     }
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_type::important> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       g.frame(draw::arc(center, radius, 0, 360), pn);
       g.draw(draw::pie(center + core::size(0, radius / 2), radius / 20, 0, 360), pn.color(), pn);
-      g.frame(draw::line(center + core::size(0, radius / 4),  center - core::size(0, radius / 2)), pn);
+      g.frame(draw::line(center + core::size(0, radius / 6),  center - core::size(0, radius / 2)), pn);
     }
     // --------------------------------------------------------------------------
     template<>

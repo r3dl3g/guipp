@@ -532,7 +532,7 @@ namespace gui {
 
     graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) {
       if (bmp.mask && bmp.image) {
-        QRegion clip(*bmp.mask.get_os_bitmap());
+        QRegion clip(*(const QBitmap*)bmp.mask.get_os_bitmap());
         clip.translate(pt.x(), pt.y());
         gc()->setClipRegion(clip);
         gc()->drawPixmap(pt.x(), pt.y(), *bmp.image.get_os_bitmap());

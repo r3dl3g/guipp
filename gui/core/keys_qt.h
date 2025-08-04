@@ -53,6 +53,7 @@ namespace gui {
       const gui::os::key_symbol home = Qt::Key_Home;
       const gui::os::key_symbol end = Qt::Key_End;
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
       namespace numpad {
         const gui::os::key_symbol left = Qt::Key_Left | Qt::KeypadModifier;
         const gui::os::key_symbol right = Qt::Key_Right | Qt::KeypadModifier;
@@ -66,7 +67,21 @@ namespace gui {
 
         const gui::os::key_symbol del = Qt::Key_Delete | Qt::KeypadModifier;
       }
+#else
+      namespace numpad {
+        const gui::os::key_symbol left = QKeyCombination(Qt::KeypadModifier, Qt::Key_Left).toCombined();
+        const gui::os::key_symbol right = QKeyCombination(Qt::KeypadModifier, Qt::Key_Right).toCombined();
+        const gui::os::key_symbol up = QKeyCombination(Qt::KeypadModifier, Qt::Key_Up).toCombined();
+        const gui::os::key_symbol down = QKeyCombination(Qt::KeypadModifier, Qt::Key_Down).toCombined();
 
+        const gui::os::key_symbol page_up = QKeyCombination(Qt::KeypadModifier, Qt::Key_PageUp).toCombined();
+        const gui::os::key_symbol page_down = QKeyCombination(Qt::KeypadModifier, Qt::Key_PageDown).toCombined();
+        const gui::os::key_symbol home = QKeyCombination(Qt::KeypadModifier, Qt::Key_Home).toCombined();
+        const gui::os::key_symbol end = QKeyCombination(Qt::KeypadModifier, Qt::Key_End).toCombined();
+
+        const gui::os::key_symbol del = QKeyCombination(Qt::KeypadModifier, Qt::Key_Delete).toCombined();
+      }
+#endif
       const gui::os::key_symbol del = Qt::Key_Delete;
       const gui::os::key_symbol insert = Qt::Key_Insert;
       const gui::os::key_symbol escape = Qt::Key_Escape;

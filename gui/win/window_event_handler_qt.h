@@ -72,12 +72,12 @@ namespace gui {
 
     inline core::native_point get_mouse_point (const core::event& e) {
       const QMouseEvent& m = e.cast<QMouseEvent>();
-      return core::native_point(m.x(), m.y());
+      return core::native_point(m.position().x(), m.position().y());
     }
 
     inline core::native_point get_root_mouse_pos (const core::event& e) {
       const QMouseEvent& m = e.cast<QMouseEvent>();
-      return core::native_point(m.globalX(), m.globalY());
+      return core::native_point(m.globalPosition().x(), m.globalPosition().y());
     }
 
     template<os::event_id id, os::key_state btn>

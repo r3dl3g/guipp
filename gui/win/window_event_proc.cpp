@@ -717,7 +717,7 @@ namespace gui {
         case QEvent::MouseButtonPress:
         case QEvent::MouseButtonRelease: {
           const QMouseEvent& me = e.cast<QMouseEvent>();
-          const auto pt = me.globalPos();
+          const auto pt = me.globalPosition();
           return !w.absolute_geometry().is_inside(core::global::scale_from_native(core::native_point(pt.x(), pt.y())));
         }
         default: break;

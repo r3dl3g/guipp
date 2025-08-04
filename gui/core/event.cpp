@@ -676,7 +676,9 @@ namespace std {
         DEFINE_MESSAGE(QEvent::UngrabMouse),
         DEFINE_MESSAGE(QEvent::GrabKeyboard),
         DEFINE_MESSAGE(QEvent::UngrabKeyboard),
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         DEFINE_MESSAGE(QEvent::MacGLClearDrawable),
+#endif
         DEFINE_MESSAGE(QEvent::StateMachineSignal),
         DEFINE_MESSAGE(QEvent::StateMachineWrapped),
         DEFINE_MESSAGE(QEvent::TouchBegin),

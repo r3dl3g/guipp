@@ -1,7 +1,7 @@
 {
   "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
   "cmake.configureOnOpen": true,
-  "nixEnvSelector.nixFile": "${workspaceFolder}/shell.nix",
+  "nixEnvSelector.nixFile": "${workspaceFolder}/shell-qt6.nix",
   "files.associations": {
     "*.tcc": "cpp",
     "algorithm": "cpp",
@@ -76,5 +76,8 @@
     "span": "cpp",
     "text_encoding": "cpp"
   },
-  "cmake.buildDirectory": "/home/armin/Projekte/ibr/build/${workspaceFolderBasename}/${buildType}"
+  "cmake.buildDirectory": "/home/armin/Projekte/ibr/build/${workspaceFolderBasename}/${buildType}-qt",
+  "cmake.configureArgs": [
+    "-DGUIPP_USE_QT6=ON"
+  ]
 }

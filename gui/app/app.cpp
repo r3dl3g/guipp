@@ -153,7 +153,9 @@ int main (int argc, char* argv[]) {
   gui::core::global::init(XOpenDisplay(display));
 #endif // GUIPP_X11
 #ifdef GUIPP_QT
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   QGuiApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
+# endif
 # ifdef GUIPP_QT_HIDPI
   if (QGuiApplication::testAttribute(Qt::AA_EnableHighDpiScaling)) {
     logging::debug() << "Qt HighDpiScaling is enabled";

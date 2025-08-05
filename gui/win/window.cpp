@@ -340,7 +340,7 @@ namespace gui {
     }
 
     bool window::is_visible () const {
-       return get_state().visible();
+       return get_state().visible() && is_valid();
     }
 
     void window::set_visible (bool s) {

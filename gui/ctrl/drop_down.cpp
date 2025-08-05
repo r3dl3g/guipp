@@ -85,6 +85,8 @@ namespace gui {
 
     void drop_down_list::init () {
 
+      data.popup.set_visible(false);
+
       super::on_paint(draw::paint(util::bind_method(this, &drop_down_list::paint)));
 
       super::on_lost_focus([&] () {

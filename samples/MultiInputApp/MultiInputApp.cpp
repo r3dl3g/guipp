@@ -22,22 +22,17 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main_window main;
   main.create();
 
-  auto option = mk_selectable_option<std::string, std::array<std::string, 5>>("Default", {"One", "Two", "Default", "Three", "Four"});
-
   std::string value = "Default";
   std::array<std::string, 5> values{"One", "Two", "Default", "Three", "Four"};
-  auto option2 = mk_selectable_option(value, values);
-
-  std::vector<std::string> values2{"One", "Two", "Default", "Three", "Four"};
-  auto option3 = mk_selectable_option(value, values2);
+  auto option = mk_selectable_option(value, values);
 
   auto unsigned_int = mk_limited_number(4711, ctrl::detail::min_limiter(0));
   auto limited_float = mk_limited_number(0.1F, ctrl::detail::min_max_limiter(-0.2F, 0.3F));
 
   typedef multi_input_dialog<std::string, bool, int, float, time_point, duration, currency,
-                     decltype(option2), decltype(unsigned_int), decltype(limited_float)> dialog_t;
+                     decltype(option), decltype(unsigned_int), decltype(limited_float)> dialog_t;
   dialog_t::ask(main, "Input", {"Text:", "Boolean", "Number:", "Float:", "Time point:", "Duration:", "Currency:", "Option", "Unsigned Number", "Limited Float"},
-            std::make_tuple(std::string("Text"), false, 17, 47.11F, now, oneh2m3s, 12.34_EUR, option2, unsigned_int, limited_float),
+            std::make_tuple(std::string("Text"), false, 17, 47.11F, now, oneh2m3s, 12.34_EUR, option, unsigned_int, limited_float),
             "Yes", "No",
             [&] (const dialog_t::result_types& t) {
     message_dialog::show(main, "Your input",

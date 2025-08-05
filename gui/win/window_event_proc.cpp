@@ -378,6 +378,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void register_hot_key (const core::hot_key& hk, const core::hot_key::call& fn, window* win) {
+        os::window root = nullptr;
 #ifdef GUIPP_WIN
         UINT modifiers = MOD_NOREPEAT;
         if (core::control_key_bit_mask::is_set(hk.get_modifiers())) {
@@ -392,7 +393,6 @@ namespace gui {
         if (core::shift_key_bit_mask::is_set(hk.get_modifiers())) {
           modifiers |= MOD_SHIFT;
         }
-        os::window root = NULL;
         if (win && win->is_valid()) {
           auto& o = win->get_overlapped_window();
           root = o.get_os_window();
@@ -400,7 +400,7 @@ namespace gui {
         RegisterHotKey(root, hk.get_key(), modifiers, hk.get_key());
 #elif GUIPP_X11
         auto dpy = core::global::get_instance();
-        os::window root = DefaultRootWindow(dpy);
+        root = DefaultRootWindow(dpy);
         if (win && win->is_valid()) {
           auto& o = win->get_overlapped_window();
           o.add_event_mask(KeyPressMask);
@@ -408,13 +408,21 @@ namespace gui {
         }
         //XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root, False, GrabModeAsync, GrabModeAsync);
 #elif GUIPP_QT
-        os::window root = (os::window)QGuiApplication::topLevelWindows().first();
         if (win && win->is_valid()) {
           root = win->get_overlapped_window().get_os_window();
+        } else {
+          auto top_windows = QGuiApplication::topLevelWindows();
+          if (!top_windows.isEmpty()) {
+            root = (os::window)top_windows.first();
+          }
         }
         detail::install_message_filter();
 #endif
-        detail::hot_keys.emplace(hk, std::make_pair(root, fn));
+        if (root) {
+          detail::hot_keys.emplace(hk, std::make_pair(root, fn));
+        } else {
+          logging::warn() << "Root Windows is not yet created. Hotkey could not be registered!";
+        }
       }
 
       void unregister_hot_key (const core::hot_key& hk) {

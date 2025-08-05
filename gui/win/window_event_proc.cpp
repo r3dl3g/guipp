@@ -378,7 +378,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void register_hot_key (const core::hot_key& hk, const core::hot_key::call& fn, window* win) {
-        os::window root = nullptr;
+        os::window root = {};
 #ifdef GUIPP_WIN
         UINT modifiers = MOD_NOREPEAT;
         if (core::control_key_bit_mask::is_set(hk.get_modifiers())) {

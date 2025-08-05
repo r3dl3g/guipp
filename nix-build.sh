@@ -1,1 +1,2 @@
-nix-build
+export NIXPKGS_CONFIG=
+nix-build $*

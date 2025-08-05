@@ -101,14 +101,12 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     menu_entry("Save as", 'a', save_as, hot_key(keys::s, state::control | state::shift)),
     menu_entry("Exit", 'x', quit, hot_key(keys::f4, state::alt), true)
   });
-  file_sub_menu.register_hot_keys(&main);
 
   edit_sub_menu.add_entries({
     menu_entry("Cut", 't', cut, hot_key('X', state::control), false),
     menu_entry("Copy", 'C', copy, hot_key('C', state::control), false),
     menu_entry("Paste", 'P', paste, hot_key('V', state::control), false),
   });
-  edit_sub_menu.register_hot_keys(&main);
 
   help_sub_menu.add_entry(
     menu_entry("About", 'A', about)
@@ -119,6 +117,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.on_create([&] () {
     menu.create(main);
     client.create(main);
+    file_sub_menu.register_hot_keys(&main);
+    edit_sub_menu.register_hot_keys(&main);
   });
   main.on_close(quit);
 

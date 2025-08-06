@@ -1,6 +1,8 @@
 { pkgs ? import <nixpkgs> {} }:
 
 pkgs.mkShell {
+  hardeningDisable = [ "fortify" ];
+
   nativeBuildInputs = with pkgs; [
     cmake
     coreutils

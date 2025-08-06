@@ -84,6 +84,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   });
   main.on_close(quit_main_loop);
 
+  client.view.set_font(draw::font::system_bold().with_size(14));
   main.create({50, 50, 800, 600});
   main.on_destroy(quit_main_loop);
   main.set_title("gui++ ProjectDirApp");

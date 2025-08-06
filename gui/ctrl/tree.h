@@ -160,12 +160,14 @@ namespace gui {
         void add_nodes (const node_list& nodes);
 
         const node_list& nodes () const;
+        const std::string& label () const;
 
         iterator begin () const;
         iterator end () const;
 
-        std::string label;
-        node_list sub_nodes;
+      private:
+        std::string label_;
+        node_list nodes_;
       };
 
       // --------------------------------------------------------------------------
@@ -177,7 +179,6 @@ namespace gui {
         typedef std::vector<type> list_type;
 
         static bool has_sub_nodes (const node& n);
-        static node_range sub_nodes (node const& n);
         static reference make_reference (node const& n);
         static type const& dereference (reference const& r);
         static std::string label (node const& n);

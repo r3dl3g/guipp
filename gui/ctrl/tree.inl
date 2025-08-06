@@ -338,29 +338,29 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       inline node::node (const std::string& label)
-        : label(label)
+        : label_(label)
       {}
 
       inline node::node (const char* label)
-        : label(label)
+        : label_(label)
       {}
 
       inline node::node (std::string&& label)
-        : label(std::move(label))
+        : label_(std::move(label))
       {}
 
       inline node::node (const std::string& label, const node_list& nodes)
-        : label(label)
+        : label_(label)
       {
         add_nodes(nodes);
       }
 
       inline void node::add_node (const node& node) {
-        sub_nodes.emplace_back(node);
+        nodes_.emplace_back(node);
       }
 
       inline void node::add_node (node&& node) {
-        sub_nodes.emplace_back(std::move(node));
+        nodes_.emplace_back(std::move(node));
       }
 
       inline void node::add_nodes (const node_list& nodes) {
@@ -369,25 +369,25 @@ namespace gui {
         }
       }
 
-      inline auto node::nodes() const->const node_list& {
-        return sub_nodes;
+      inline auto node::nodes () const->const node_list& {
+        return nodes_;
       }
 
-      inline auto node::begin() const->iterator {
-        return sub_nodes.begin();
+      inline const std::string& node::label () const {
+        return label_;
       }
 
-      inline auto node::end() const->iterator {
-        return sub_nodes.end();
+      inline auto node::begin () const->iterator {
+        return nodes_.begin();
+      }
+
+      inline auto node::end () const->iterator {
+        return nodes_.end();
       }
 
       // --------------------------------------------------------------------------
       inline bool default_node_info::has_sub_nodes (const node& n) {
         return !n.nodes().empty();
-      }
-
-      inline auto default_node_info::sub_nodes(node const & n)->node_range {
-        return {n.begin(), n.end()};
       }
 
       inline auto default_node_info::make_reference(node const & n)->reference {
@@ -399,7 +399,7 @@ namespace gui {
       }
 
       inline std::string default_node_info::label (node const& n) {
-        return n.label;
+        return n.label();
       }
 
       inline gui::tree::icon_drawer default_node_info::icon (type const&, bool has_children, bool is_open, bool selected) {

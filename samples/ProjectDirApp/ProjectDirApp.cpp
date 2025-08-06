@@ -9,17 +9,54 @@
 #include <gui/layout/split_layout.h>
 #include <util/string_util.h>
 
-// --------------------------------------------------------------------------
-int gui_main(const std::vector<std::string>& /*args*/) {
-
   using namespace gui;
   using namespace gui::win;
   using namespace gui::layout;
   using namespace gui::ctrl;
   using namespace gui::core;
 
-  typedef layout_main_window<header_layout> mainview_t;
-  typedef virtual_view<editbox> clientview_t;
+typedef layout_main_window<header_layout> mainview_t;
+typedef virtual_view<editbox> clientview_t;
+
+void open (mainview_t& main, clientview_t& client) {
+  dir_open_dialog::show(main, "Open Project", "Open", "Cancel", [&] (container&, const sys_fs::path& dirname) {
+    if (sys_fs::exists(dirname)) {
+      std::ifstream file((dirname / "project.txt").string());
+      client.view.set_text(std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()));
+    }
+  }, [] (const sys_fs::directory_entry& e) -> bool {
+    return !e.is_directory() || !util::string::ends_with(e.path().string(), ".prj");
+  }, [] (const sys_fs::directory_entry& e) -> bool {
+    return util::string::ends_with(e.path().string(), ".prj");
+  });
+}
+
+void open_file (mainview_t& main, clientview_t& client) {
+  file_open_dialog::show(main, "Open File", "Open", "Cancel", [&] (container&, const sys_fs::path& filename) {
+    if (sys_fs::exists(filename)) {
+      std::ifstream file(filename.string());
+      client.view.set_text(std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()));
+    }
+  }, [] (const sys_fs::directory_entry& e) -> bool {
+    return !util::string::ends_with(e.path().string(), ".txt");
+  });
+}
+
+void save (mainview_t& main, clientview_t& client) {
+  file_save_dialog::show(main, "Save Project as", "new_project.prj", "Project name:", "Save", "Cancel",
+                          [&] (container&, const sys_fs::path& path) {
+    sys_fs::path dirname = path;
+    if (!util::string::ends_with(dirname.string(), ".prj")) {
+      dirname.replace_extension("prj");
+    }
+
+    sys_fs::create_directories(dirname);
+    std::ofstream((dirname / "project.txt").string()) << client.view.get_text();
+  });
+}
+
+// --------------------------------------------------------------------------
+int gui_main(const std::vector<std::string>& /*args*/) {
 
   mainview_t main;
   clientview_t client;
@@ -31,48 +68,14 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     main_menu_entry("File", 'F', menu, file_sub_menu),
   });
 
-  auto open = [&]() {
-    dir_open_dialog::show(main, "Open Project", "Open", "Cancel", [&] (container&, const sys_fs::path& dirname) {
-      if (sys_fs::exists(dirname)) {
-        std::ifstream file((dirname / "project.txt").string());
-        client.view.set_text(std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()));
-      }
-    }, [] (const sys_fs::directory_entry& e) -> bool {
-      return !e.is_directory() || !util::string::ends_with(e.path().string(), ".prj");
-    }, [] (const sys_fs::directory_entry& e) -> bool {
-      return util::string::ends_with(e.path().string(), ".prj");
-    });
-  };
-  auto open_file = [&]() {
-    file_open_dialog::show(main, "Open File", "Open", "Cancel", [&] (container&, const sys_fs::path& filename) {
-      if (sys_fs::exists(filename)) {
-        std::ifstream file(filename.string());
-        client.view.set_text(std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()));
-      }
-    }, [] (const sys_fs::directory_entry& e) -> bool {
-      return !util::string::ends_with(e.path().string(), ".txt");
-    });
-  };
-  auto save = [&] () {
-    file_save_dialog::show(main, "Save Project as", "new_project.prj", "Project name:", "Save", "Cancel",
-                           [&] (container&, const sys_fs::path& path) {
-      sys_fs::path dirname = path;
-      if (!util::string::ends_with(dirname.string(), ".prj")) {
-        dirname.replace_extension("prj");
-      }
-
-      sys_fs::create_directories(dirname);
-      std::ofstream((dirname / "project.txt").string()) << client.view.get_text();
-    });
-  };
   auto about = [&]() {
     message_dialog::show(main, "About ProjectDirApp", "gui++ sample ProjectDirApp version 1.0.0", "Ok");
   };
 
   file_sub_menu.add_entries({
-    menu_entry("Open project", 'o', open, hot_key(keys::o, state::control)),
-    menu_entry("Open file", 'f', open_file, hot_key(keys::f, state::control)),
-    menu_entry("Save", 's', save, hot_key(keys::s, state::control)),
+    menu_entry("Open project", 'o', [&] () { open(main, client); }, hot_key(keys::o, state::control)),
+    menu_entry("Open file", 'f', [&] () { open_file(main, client); }, hot_key(keys::f, state::control)),
+    menu_entry("Save", 's', [&] () { save(main, client); }, hot_key(keys::s, state::control)),
     menu_entry("About", 'a', about, hot_key(), true),
     menu_entry("Exit", 'x', quit_main_loop, hot_key(keys::f4, state::alt), true)
   });

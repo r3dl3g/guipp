@@ -249,7 +249,7 @@ namespace gui {
         return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)),
                                            [filter] (const sys_fs::directory_entry & i) {
           try {
-            return !sys_fs::is_directory(i.path()) || is_hidden(i.path()) || (filter && filter(i));
+            return !i.is_directory() || is_hidden(i.path()) || (filter && filter(i));
           } catch (std::exception& ex) {
             logging::warn() << ex;
           } catch (...) {}
@@ -262,7 +262,7 @@ namespace gui {
         return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)),
                                            [filter] (const sys_fs::directory_entry & i) {
           try {
-            return sys_fs::is_directory(i.path()) || is_hidden(i.path()) || (filter && filter(i));
+            return i.is_directory() || is_hidden(i.path()) || (filter && filter(i));
           } catch (std::exception& ex) {
             logging::warn() << ex;
           } catch (...) {}
@@ -273,7 +273,9 @@ namespace gui {
 
       auto sorted_path_info::sub_nodes(type const & n, const std::function<fs::filter_fn>& filter) -> range {
         range v;
-        for (auto i = sys_fs::begin(path_iterator(n)), e = sys_fs::end(path_iterator(n)); i != e; ++i) {
+        for (auto i = sys_fs::begin(path_iterator(n)),
+                  e = sys_fs::end(path_iterator(n));
+                  i != e; ++i) {
           try {
             if (!is_hidden(i->path()) && !(filter && filter(*i))) {
               v.emplace_back(*i);
@@ -289,9 +291,10 @@ namespace gui {
       auto sorted_dir_info::sub_nodes(type const & n, const std::function<fs::filter_fn>& filter) -> range {
         range v;
         for (auto i = sys_fs::begin(path_iterator(n)),
-             e = sys_fs::end(path_iterator(n)); i != e; ++i) {
+                  e = sys_fs::end(path_iterator(n));
+                  i != e; ++i) {
           try {
-            if (sys_fs::is_directory(i->path()) && !is_hidden(i->path()) && !(filter && filter(*i))) {
+            if (i->is_directory() && !is_hidden(i->path()) && !(filter && filter(*i))) {
               v.emplace_back(*i);
             }
           } catch (std::exception& ex) {
@@ -305,9 +308,10 @@ namespace gui {
       auto sorted_file_info::sub_nodes(type const & n, const std::function<fs::filter_fn>& filter) -> range {
         range v;
         for (auto i = sys_fs::begin(path_iterator(n)),
-             e = sys_fs::end(path_iterator(n)); i != e; ++i) {
+                  e = sys_fs::end(path_iterator(n));
+                  i != e; ++i) {
           try {
-            if (!(sys_fs::is_directory(i->path()) || is_hidden(i->path())) && !(filter && filter(*i))) {
+            if (!(i->is_directory() || is_hidden(i->path())) && !(filter && filter(*i))) {
               v.emplace_back(*i);
             }
           } catch (std::exception& ex) {

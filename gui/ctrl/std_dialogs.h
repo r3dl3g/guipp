@@ -336,7 +336,7 @@ namespace gui {
     };
 
     //-----------------------------------------------------------------------------
-    template<typename T = path_tree::sorted_path_info>
+    template<typename T = path_tree::sorted_path_info, bool open_dirs_on_right = true>
     class dir_file_view : public vertical_split_view<dir_tree_view, file_column_list<T>> {
     public:
       typedef file_column_list<T> file_list_type;
@@ -352,10 +352,10 @@ namespace gui {
     };
 
     //-----------------------------------------------------------------------------
-    template<typename T>
-    class path_open_dialog_base : public standard_dialog<dir_file_view<T>> {
+    template<typename T, bool open_dirs_on_right>
+    class path_open_dialog_base : public standard_dialog<dir_file_view<T, open_dirs_on_right>> {
     public:
-      typedef standard_dialog<dir_file_view<T>> super;
+      typedef standard_dialog<dir_file_view<T, open_dirs_on_right>> super;
       typedef std::function<create_subdirectory> create_subdirectory_fn;
 
       path_open_dialog_base (create_subdirectory_fn fn = nullptr);
@@ -378,8 +378,8 @@ namespace gui {
     };
 
     //-----------------------------------------------------------------------------
-    typedef path_open_dialog_base<path_tree::sorted_path_info> file_open_dialog;
-    typedef path_open_dialog_base<path_tree::sorted_dir_info> dir_open_dialog;
+    typedef path_open_dialog_base<path_tree::sorted_path_info, true> file_open_dialog;
+    typedef path_open_dialog_base<path_tree::sorted_dir_info, false> dir_open_dialog;
 
     //-----------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT file_save_dialog :

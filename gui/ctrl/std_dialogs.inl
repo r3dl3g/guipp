@@ -241,15 +241,15 @@ namespace gui {
     }
 
     //-----------------------------------------------------------------------------
-    template<typename T>
-    dir_file_view<T>::dir_file_view (create_subdirectory_fn fn) {
+    template<typename T, bool O>
+    dir_file_view<T, O>::dir_file_view (create_subdirectory_fn fn) {
       std::get<0>(super::views).set_create_subdirectory_fn(fn);
     }
 
-    template<typename T>
-    void dir_file_view<T>::init (std::function<file_selected> action,
-                                 std::function<fs::filter_fn> filter) {
-      
+    template<typename T, bool O>
+    void dir_file_view<T, O>::init (std::function<file_selected> action,
+                                    std::function<fs::filter_fn> filter) {
+
       std::get<0>(super::views).view->on_selection_changed([&,filter](event_source) {
         auto& dirs = std::get<0>(super::views);
         auto& files = std::get<1>(super::views);
@@ -261,7 +261,7 @@ namespace gui {
         auto& dirs = std::get<0>(super::views);
         auto& files = std::get<1>(super::views);
         auto path = files.get_selected_path();
-        if (sys_fs::is_directory(path)) {
+        if (O && sys_fs::is_directory(path)) {
           dirs.view->open_node(path.parent_path());
           dirs.view->select_node(path);
           files.set_path(path, filter);
@@ -272,13 +272,13 @@ namespace gui {
     }
 
     //-----------------------------------------------------------------------------
-    template<typename T>
-    path_open_dialog_base<T>::path_open_dialog_base (create_subdirectory_fn fn)
-      : super(dir_file_view<T>(fn))
+    template<typename T, bool O>
+    path_open_dialog_base<T, O>::path_open_dialog_base (create_subdirectory_fn fn)
+      : super(dir_file_view<T, O>(fn))
     {}
 
-    template<typename T>
-    void path_open_dialog_base<T>::create (win::overlapped_window& parent,
+    template<typename T, bool O>
+    void path_open_dialog_base<T, O>::create (win::overlapped_window& parent,
                                            const std::string& title,
                                            const std::string& ok_label,
                                            const std::string& cancel_label,
@@ -321,8 +321,8 @@ namespace gui {
       file_list.set_path(current, filter);
     }
 
-    template<typename T>
-    void path_open_dialog_base<T>::show (win::overlapped_window& parent,
+    template<typename T, bool O>
+    void path_open_dialog_base<T, O>::show (win::overlapped_window& parent,
                                          const std::string& title,
                                          const std::string& ok_label,
                                          const std::string& cancel_label,

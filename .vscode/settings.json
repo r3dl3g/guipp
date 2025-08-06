@@ -4,6 +4,7 @@
   "nixEnvSelector.nixFile": "${workspaceFolder}/shell.nix",
   "files.associations": {
     "*.tcc": "cpp",
+    "*.inl": "cpp",
     "algorithm": "cpp",
     "array": "cpp",
     "atomic": "cpp",

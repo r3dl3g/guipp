@@ -182,7 +182,7 @@ namespace gui {
       template<typename I>
       inline void basic_tree<I>::open_sub (const type& n) {
         data.open_nodes.insert(tree_info::make_reference(n));
-        for (const auto& i : tree_info::sub_nodes(n)) {
+        for (const auto& i : data.info.sub_nodes(n)) {
           open_sub(i);
         }
       }
@@ -274,7 +274,7 @@ namespace gui {
         auto ref = tree_info::make_reference(n);
         data.nodes.emplace_back(depth_info(ref, depth));
         if (is_open(ref)) {
-          for (const auto& i : tree_info::sub_nodes(n)) {
+          for (const auto& i : data.info.sub_nodes(n)) {
             collect_children(i, depth + 1);
           }
         }
@@ -326,8 +326,9 @@ namespace gui {
                                               item_state state) const {
         const depth_info& i = nodes[idx];
         const type& n = tree_info::dereference(i.ref);
+        bool has_children = info.has_sub_nodes(n);
         tree_node_drawer<I>(g, r, b, n, i.depth,
-                            tree_info::has_sub_nodes(n), is_open(i.ref),
+                            has_children, is_open(i.ref),
                             state);
       }
 
@@ -386,15 +387,19 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      inline bool default_node_info::has_sub_nodes (const node& n) {
+      inline bool default_node_info::has_sub_nodes (const node& n) const {
         return !n.nodes().empty();
       }
 
-      inline auto default_node_info::make_reference(node const & n)->reference {
+      inline auto default_node_info::sub_nodes (node const & n) const -> node_range {
+        return {n.begin(), n.end()};
+      }
+
+      inline auto default_node_info::make_reference (node const & n) -> reference {
         return &n;
       }
 
-      inline auto default_node_info::dereference(reference const & r)->type const & {
+      inline auto default_node_info::dereference (reference const & r) -> type const & {
         return *r;
       }
 

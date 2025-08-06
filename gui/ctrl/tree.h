@@ -142,6 +142,7 @@ namespace gui {
 
           node_list nodes;
           node_set open_nodes;
+          tree_info info;
         } data;
       };
 
@@ -178,7 +179,9 @@ namespace gui {
         typedef core::range<iterator> node_range;
         typedef std::vector<type> list_type;
 
-        static bool has_sub_nodes (const node& n);
+        node_range sub_nodes (node const& n) const;
+        bool has_sub_nodes (const node& n) const;
+
         static reference make_reference (node const& n);
         static type const& dereference (reference const& r);
         static std::string label (node const& n);

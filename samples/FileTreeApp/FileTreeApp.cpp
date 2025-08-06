@@ -2,7 +2,7 @@
 
 #include <gui/layout/layout_container.h>
 #include <gui/layout/border_layout.h>
-#include <gui/ctrl/tree.h>
+#include <gui/ctrl/file_tree.h>
 
 
 // --------------------------------------------------------------------------
@@ -13,32 +13,15 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::ctrl;
   using namespace gui::core;
 
-  typedef ctrl::tree::node node;
-  node::node_list sub_nodes = {
-    node("1. One"),
-    node("2. Two"),
-    node("3. Three"),
-    node("4. Four"),
-    node("5. Five")
-  };
-
-  node root("root");
-  root.add_nodes({
-    node("One", sub_nodes),
-    node("Two", sub_nodes),
-    node("Three", sub_nodes),
-    node("Four", sub_nodes),
-    node("Five", sub_nodes)
-  });
-
   layout_main_window<gui::layout::border::layouter<25, 25, 25, 25>> main;
-  scrollable_tree_view client;
+  virtual_view<sorted_dir_tree> client;
 
   main.on_create([&] () {
     client.create(main, main.client_geometry());
 
-    client->set_root(root);
-    client->open_root();
+    sys_fs::path current = sys_fs::current_path();
+    client->set_roots(fs::get_all_root_file_infos());
+    client->add_open_node(current.root_path());
     client->update_node_list();
 
     main.get_layout().set_center(layout::lay(client));
@@ -46,7 +29,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   main.create({50, 50, 800, 600});
   main.on_destroy(&quit_main_loop);
-  main.set_title("TreeApp");
+  main.set_title("FileTreeApp");
   main.set_visible();
 
   return run_main_loop();

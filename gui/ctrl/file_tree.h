@@ -101,20 +101,24 @@ namespace gui {
 
     namespace path_tree {
 
-      sys_fs::directory_iterator path_iterator (sys_fs::path const& n);
+      sys_fs::directory_iterator path_iterator (fs::file_info const& n);
 
       struct GUIPP_CTRL_EXPORT path_info {
         typedef fs::file_info type;
         typedef fs::filtered_iterator iterator;
         typedef fs::file_info reference;
+        typedef core::range<iterator> node_range;
         typedef std::vector<type> list_type;
 
-        static bool has_sub_nodes (type const& n);
+        node_range sub_nodes (type const& n) const;
+        bool has_sub_nodes (type const& n) const;
+
         static reference make_reference (type const& n);
         static type const& dereference (reference const& r);
         static std::string label (type const& n);
         static gui::tree::icon_drawer icon (type const&, bool has_children, bool is_open, bool selected);
 
+        std::function<fs::filter_fn> filter;
       };
 
       struct GUIPP_CTRL_EXPORT unsorted_path_info : public path_info {

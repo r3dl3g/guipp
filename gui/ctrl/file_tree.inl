@@ -79,15 +79,22 @@ namespace gui {
 #endif // GUIPP_QT
       }
 
-      inline bool path_info::has_sub_nodes (type const& n) {
+      inline auto path_info::sub_nodes (type const & n) const -> node_range {
+        return {
+          fs::filtered_iterator(sys_fs::begin(path_iterator(n))),
+          fs::filtered_iterator(sys_fs::end(sys_fs::directory_iterator()))
+        };
+      }
+
+      inline bool path_info::has_sub_nodes (type const& n) const {
         return n.is_directory();
       }
 
-      inline auto path_info::make_reference(type const & n) -> reference {
+      inline auto path_info::make_reference(type const& n) -> reference {
         return n;
       }
 
-      inline auto path_info::dereference(reference const & r) -> type const& {
+      inline auto path_info::dereference(reference const& r) -> type const& {
         return r;
       }
 

@@ -107,10 +107,8 @@ namespace gui {
         typedef fs::file_info type;
         typedef fs::filtered_iterator iterator;
         typedef fs::file_info reference;
-        typedef core::range<iterator> node_range;
         typedef std::vector<type> list_type;
 
-        node_range sub_nodes (type const& n) const;
         bool has_sub_nodes (type const& n) const;
 
         static reference make_reference (type const& n);
@@ -124,37 +122,37 @@ namespace gui {
       struct GUIPP_CTRL_EXPORT unsorted_path_info : public path_info {
         typedef core::range<iterator> range;
 
-        static range sub_nodes (type const& n, const std::function<fs::filter_fn>& f = nullptr);
+        range sub_nodes (type const& n) const;
       };
 
       struct GUIPP_CTRL_EXPORT unsorted_dir_info : public path_info {
         typedef core::range<iterator> range;
 
-        static range sub_nodes (type const& n, const std::function<fs::filter_fn>& f = nullptr);
+        range sub_nodes (type const& n) const;
       };
 
       struct GUIPP_CTRL_EXPORT unsorted_file_info : public path_info {
         typedef core::range<iterator> range;
 
-        static range sub_nodes (type const& n, const std::function<fs::filter_fn>& f = nullptr);
+        range sub_nodes (type const& n) const;
       };
 
       struct GUIPP_CTRL_EXPORT sorted_path_info : public path_info {
         typedef std::vector<type> range;
 
-        static range sub_nodes (type const& n, const std::function<fs::filter_fn>& f = nullptr);
+        range sub_nodes (type const& n) const;
       };
 
       struct GUIPP_CTRL_EXPORT sorted_dir_info : public path_info {
         typedef std::vector<type> range;
 
-        static range sub_nodes (type const& n, const std::function<fs::filter_fn>& f = nullptr);
+        range sub_nodes (type const& n) const;
       };
 
       struct GUIPP_CTRL_EXPORT sorted_file_info : public path_info {
         typedef std::vector<type> range;
 
-        static range sub_nodes (type const& n, const std::function<fs::filter_fn>& f = nullptr);
+        range sub_nodes (type const& n) const;
       };
 
 
@@ -227,6 +225,11 @@ namespace gui {
     public:
       typedef vertical_list_t<S> super;
 
+      typedef T tree_info;
+      typedef typename tree_info::type type;
+      typedef typename tree_info::reference reference;
+      typedef typename tree_info::list_type roots_list_type;
+
       explicit file_list (core::size::type item_size = list_defaults<>::item_size,
                  os::color background = color::white,
                  bool grab_focus = true);
@@ -234,10 +237,11 @@ namespace gui {
       file_list (const file_list&);
       file_list (file_list&&) noexcept ;
 
-      void set_path (const sys_fs::path& dir, std::function<fs::filter_fn> f = nullptr);
+      void set_path (const sys_fs::path& dir);
       sys_fs::path get_selected_path () const;
       const sys_fs::path& get_current_path () const;
 
+      tree_info info;
     private:
       std::vector<fs::file_info> current_dir;
       sys_fs::path current_path;
@@ -264,6 +268,10 @@ namespace gui {
     public:
       typedef column_list_t<layout::weight_column_list_layout, S,
                             gui::tree::icon_drawer, const fs::file_info&, const fs::file_info&, const sys_fs::file_time_type&> super;
+      typedef T tree_info;
+      typedef typename tree_info::type type;
+      typedef typename tree_info::reference reference;
+      typedef typename tree_info::list_type roots_list_type;
 
       explicit file_column_list (core::size::type item_size = list_defaults<>::item_size,
                         os::color background = color::white,
@@ -271,12 +279,13 @@ namespace gui {
       file_column_list (const file_column_list& rhs);
       file_column_list (file_column_list&& rhs) noexcept ;
 
-      void set_path (const sys_fs::path& dir, std::function<fs::filter_fn> f = nullptr);
+      void set_path (const sys_fs::path& dir);
       sys_fs::path get_selected_path () const;
 
       void sort_by (sort_order order);
       sort_order get_sort_order () const;
 
+      tree_info info;
     protected:
       void init_file_list_header (column_list_header<layout::weight_column_list_layout>&);
 

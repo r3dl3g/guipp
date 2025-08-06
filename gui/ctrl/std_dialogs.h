@@ -347,7 +347,8 @@ namespace gui {
       dir_file_view (dir_file_view&&) = default;
 
       void init (std::function<file_selected> action,
-                 std::function<fs::filter_fn> filter = nullptr);
+                 std::function<fs::filter_fn> file_filter = nullptr,
+                 std::function<fs::filter_fn> dir_filter = nullptr);
 
     };
 
@@ -366,14 +367,16 @@ namespace gui {
                    const std::string& cancel_label,
                    const core::rectangle& rect,
                    std::function<file_selected> action,
-                   std::function<fs::filter_fn> filter = nullptr);
+                   std::function<fs::filter_fn> file_filter = nullptr,
+                  std::function<fs::filter_fn> dir_filter = nullptr);
 
       static void show (win::overlapped_window& parent,
                         const std::string& title,
                         const std::string& ok_label,
                         const std::string& cancel_label,
                         std::function<file_selected> action,
-                        std::function<fs::filter_fn> filter = nullptr,
+                        std::function<fs::filter_fn> file_filter = nullptr,
+                        std::function<fs::filter_fn> dir_filter = nullptr,
                         create_subdirectory_fn fn = nullptr);
     };
 

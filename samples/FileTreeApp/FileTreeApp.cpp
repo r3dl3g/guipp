@@ -16,6 +16,10 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   layout_main_window<gui::layout::border::layouter<25, 25, 25, 25>> main;
   virtual_view<sorted_dir_tree> client;
 
+  client->info().filter = [] (const sys_fs::directory_entry& e) -> bool {
+    return !e.is_directory() || util::string::ends_with(e.path().string(), ".prj");
+  };
+
   main.on_create([&] () {
     client.create(main, main.client_geometry());
 

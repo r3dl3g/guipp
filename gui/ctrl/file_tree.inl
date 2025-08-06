@@ -79,13 +79,6 @@ namespace gui {
 #endif // GUIPP_QT
       }
 
-      inline auto path_info::sub_nodes (type const & n) const -> node_range {
-        return {
-          fs::filtered_iterator(sys_fs::begin(path_iterator(n))),
-          fs::filtered_iterator(sys_fs::end(sys_fs::directory_iterator()))
-        };
-      }
-
       inline bool path_info::has_sub_nodes (type const& n) const {
         return n.is_directory();
       }
@@ -142,9 +135,9 @@ namespace gui {
     }
 
     template<typename T, file_item_drawer D, typename S>
-    inline void file_list<T, D, S>::set_path (const sys_fs::path& dir, std::function<fs::filter_fn> filter) {
+    inline void file_list<T, D, S>::set_path (const sys_fs::path& dir) {
       current_path = dir;
-      current_dir = T::sub_nodes(current_path, filter);
+      current_dir = info.sub_nodes(current_path);
       super::clear_selection(event_source::logic);
       super::set_scroll_pos(core::point::zero);
       super::invalidate();
@@ -223,8 +216,8 @@ namespace gui {
     }
 
     template<typename T, typename S>
-    inline void file_column_list<T, S>::set_path (const sys_fs::path& dir, std::function<fs::filter_fn> filter) {
-      current_dir = T::sub_nodes(dir, filter);
+    inline void file_column_list<T, S>::set_path (const sys_fs::path& dir) {
+      current_dir = info.sub_nodes(dir);
       super::list->clear_selection(event_source::logic);
       super::list->set_scroll_pos(core::point::zero);
       if (order == sort_order::none) {

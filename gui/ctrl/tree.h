@@ -110,6 +110,8 @@ namespace gui {
 
         int size () const;
 
+        tree_info& info ();
+
       private:
         roots_list_type roots;
 

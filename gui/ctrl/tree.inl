@@ -182,7 +182,7 @@ namespace gui {
       template<typename I>
       inline void basic_tree<I>::open_sub (const type& n) {
         data.open_nodes.insert(tree_info::make_reference(n));
-        for (const auto& i : data.info.sub_nodes(n)) {
+        for (const auto& i : info().sub_nodes(n)) {
           open_sub(i);
         }
       }
@@ -274,7 +274,7 @@ namespace gui {
         auto ref = tree_info::make_reference(n);
         data.nodes.emplace_back(depth_info(ref, depth));
         if (is_open(ref)) {
-          for (const auto& i : data.info.sub_nodes(n)) {
+          for (const auto& i : info().sub_nodes(n)) {
             collect_children(i, depth + 1);
           }
         }
@@ -288,6 +288,11 @@ namespace gui {
       template<typename I>
       inline int basic_tree<I>::size () const {
         return static_cast<int>(data.size());
+      }
+
+      template<typename I>
+      inline auto basic_tree<I>::info () -> tree_info& {
+        return data.info;
       }
 
       template<typename I>

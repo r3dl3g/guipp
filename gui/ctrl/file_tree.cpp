@@ -268,42 +268,45 @@ namespace gui {
         });
       }
 
-      auto unsorted_path_info::sub_nodes (type const& n, const std::function<fs::filter_fn>& filter) -> range {
-        return range(unsorted_path_iterator(n, filter), fs::filtered_iterator(sys_fs::end(path_iterator(n))));
+      auto unsorted_path_info::sub_nodes (type const& n) const -> range {
+        return range(unsorted_path_iterator(n, filter), fs::filtered_iterator(sys_fs::directory_iterator()));
       }
 
-      auto unsorted_dir_info::sub_nodes (type const& n, const std::function<fs::filter_fn>& filter) -> range {
-        return range(unsorted_dir_iterator(n, filter), fs::filtered_iterator(sys_fs::end(path_iterator(n))));
+      auto unsorted_dir_info::sub_nodes (type const& n) const -> range {
+        return range(unsorted_dir_iterator(n, filter), fs::filtered_iterator(sys_fs::directory_iterator()));
       }
 
-      auto unsorted_file_info::sub_nodes (type const& n, const std::function<fs::filter_fn>& filter) -> range {
-        return range(unsorted_file_iterator(n, filter), fs::filtered_iterator(sys_fs::end(path_iterator(n))));
+      auto unsorted_file_info::sub_nodes (type const& n) const -> range {
+        return range(unsorted_file_iterator(n, filter), fs::filtered_iterator(sys_fs::directory_iterator()));
       }
 
-      auto sorted_path_info::sub_nodes(type const& n, const std::function<fs::filter_fn>& filter) -> range {
-        auto r = unsorted_path_info::sub_nodes(n, filter);
+      auto sorted_path_info::sub_nodes(type const& n) const -> range {
+        auto beg = unsorted_path_iterator(n, filter);
+        auto end = fs::filtered_iterator(sys_fs::directory_iterator());
         range v;
-        for (auto i = r.begin(), e = r.end(); i != e; ++i) {
+        for (auto i = beg, e = end; i != e; ++i) {
               v.emplace_back(*i);
         }
         std::sort(v.begin(), v.end(), comp_by_name_dirs_first());
         return v;
       }
 
-      auto sorted_dir_info::sub_nodes(type const & n, const std::function<fs::filter_fn>& filter) -> range {
-        auto r = unsorted_dir_info::sub_nodes(n, filter);
+      auto sorted_dir_info::sub_nodes(type const & n) const -> range {
+        auto beg = unsorted_dir_iterator(n, filter);
+        auto end = fs::filtered_iterator(sys_fs::directory_iterator());
         range v;
-        for (auto i = r.begin(), e = r.end(); i != e; ++i) {
+        for (auto i = beg, e = end; i != e; ++i) {
               v.emplace_back(*i);
         }
         std::sort(v.begin(), v.end(), comp_by_name());
         return v;
       }
 
-      auto sorted_file_info::sub_nodes(type const & n, const std::function<fs::filter_fn>& filter) -> range {
-        auto r = unsorted_file_info::sub_nodes(n, filter);
+      auto sorted_file_info::sub_nodes(type const & n) const -> range {
+        auto beg = unsorted_file_iterator(n, filter);
+        auto end = fs::filtered_iterator(sys_fs::directory_iterator());
         range v;
-        for (auto i = r.begin(), e = r.end(); i != e; ++i) {
+        for (auto i = beg, e = end; i != e; ++i) {
               v.emplace_back(*i);
         }
         std::sort(v.begin(), v.end(), comp_by_name());

@@ -248,23 +248,30 @@ namespace gui {
 
     template<typename T, bool O>
     void dir_file_view<T, O>::init (std::function<file_selected> action,
-                                    std::function<fs::filter_fn> filter) {
+                                    std::function<fs::filter_fn> file_filter,
+                                    std::function<fs::filter_fn> dir_filter) {
 
-      std::get<0>(super::views).view->on_selection_changed([&,filter](event_source) {
+      dir_tree_view& tree = std::get<0>(super::views);
+      file_list_type& files = std::get<1>(super::views);
+
+      tree.view.view.info().filter = dir_filter;
+      files.info.filter = file_filter;
+
+      tree.view->on_selection_changed([&](event_source) {
         auto& dirs = std::get<0>(super::views);
         auto& files = std::get<1>(super::views);
         if (dirs.view->has_selection()) {
-          files.set_path(dirs.view->get_item(dirs.view->get_selection().get_first_index()).path, filter);
+          files.set_path(dirs.view->get_item(dirs.view->get_selection().get_first_index()).path);
         }
       });
-      std::get<1>(super::views).list->on_selection_commit([&, action, filter] () {
+      std::get<1>(super::views).list->on_selection_commit([&, action] () {
         auto& dirs = std::get<0>(super::views);
         auto& files = std::get<1>(super::views);
         auto path = files.get_selected_path();
         if (O && sys_fs::is_directory(path)) {
           dirs.view->open_node(path.parent_path());
           dirs.view->select_node(path);
-          files.set_path(path, filter);
+          files.set_path(path);
         } else {
           action(super::get_overlapped_window(), path);
         }
@@ -284,7 +291,8 @@ namespace gui {
                                            const std::string& cancel_label,
                                            const core::rectangle& rect,
                                            std::function<file_selected> action,
-                                           std::function<fs::filter_fn> filter) {
+                                           std::function<fs::filter_fn> file_filter,
+                                           std::function<fs::filter_fn> dir_filter) {
       auto& dir_tree = std::get<0>(super::content_view.views).view.view;
       auto& file_list = std::get<1>(super::content_view.views);
 
@@ -292,7 +300,7 @@ namespace gui {
         super::set_visible(false);
         super::end_modal();
         action(dlg, path);
-      }, filter);
+      }, file_filter, dir_filter);
 
       super::create(parent, title, rect, {cancel_label, ok_label},
                     [&, action] (win::overlapped_window& dlg, int btn) {
@@ -318,7 +326,7 @@ namespace gui {
       dir_tree.add_open_node(current.root_path());
       dir_tree.update_node_list();
       dir_tree.select_node(current);
-      file_list.set_path(current, filter);
+      file_list.set_path(current);
     }
 
     template<typename T, bool O>
@@ -327,12 +335,13 @@ namespace gui {
                                          const std::string& ok_label,
                                          const std::string& cancel_label,
                                          std::function<file_selected> action,
-                                         std::function<fs::filter_fn> filter,
+                                         std::function<fs::filter_fn> file_filter,
+                                         std::function<fs::filter_fn> dir_filter,
                                          create_subdirectory_fn fn) {
       path_open_dialog_base dialog(fn);
       dialog.create(parent, title, ok_label, cancel_label,
                     detail::std_path_open_dialog_size<>(parent.geometry()),
-                    action, filter);
+                    action, file_filter, dir_filter);
       dialog.super::show(parent);
     }
 

@@ -37,8 +37,10 @@ int gui_main(const std::vector<std::string>& /*args*/) {
         std::ifstream file((dirname / "project.txt").string());
         client.view.set_text(std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()));
       }
-    }, [] (const sys_fs::directory_entry& e) {
+    }, [] (const sys_fs::directory_entry& e) -> bool {
       return !e.is_directory() || !util::string::ends_with(e.path().string(), ".prj");
+    }, [] (const sys_fs::directory_entry& e) -> bool {
+      return util::string::ends_with(e.path().string(), ".prj");
     });
   };
   auto open_file = [&]() {
@@ -47,8 +49,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
         std::ifstream file(filename.string());
         client.view.set_text(std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()));
       }
-    }, [] (const sys_fs::directory_entry& e) {
-      return !e.is_directory() || !util::string::ends_with(e.path().string(), ".prj");
+    }, [] (const sys_fs::directory_entry& e) -> bool {
+      return !util::string::ends_with(e.path().string(), ".txt");
     });
   };
   auto save = [&] () {

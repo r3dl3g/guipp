@@ -275,7 +275,7 @@ if(NOT TARGET guipp)
 
   if((CMAKE_CXX_COMPILER_ID STREQUAL GNU) AND (CMAKE_BUILD_TYPE MATCHES Debug) AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 10.0))
     message(STATUS "GUIPP: Debug build!")
-    #set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -D_FORTIFY_SOURCE=0 -O0 -fno-inline)
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -O0 -D_FORTIFY_SOURCE=0 -fno-inline)
   else ()
     message(STATUS "GUIPP: Release build!")
   endif()

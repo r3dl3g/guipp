@@ -1,0 +1,71 @@
+#/bin/sh
+
+SCRIPT_NAME=$(basename $0)
+ACTION=${SCRIPT_NAME/.sh/}
+PROJECT=${PWD##*/}
+INSTALL_PREFIX=~/.local
+BUILD_PREFIX=~/.cache/build
+PARALLEL=$(nproc)
+DEFINES="-DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DCMAKE_PREFIX_PATH=$INSTALL_PREFIX"
+TYPE=undefined
+
+_exec() {
+  echo Execute $@
+  $@
+}
+
+_prepare() {
+  _exec cmake -S. -B $BUILD_PREFIX/$PROJECT/$TYPE -DCMAKE_BUILD_TYPE=$TYPE $DEFINES $@
+}
+
+_build() {
+  _exec cmake --build $BUILD_PREFIX/$PROJECT/$TYPE --parallel $PARALLEL $@
+}
+
+_install() {
+  _exec cmake --build $BUILD_PREFIX/$PROJECT/$TYPE --target install $@
+}
+
+_clean() {
+  _exec cmake --build $BUILD_PREFIX/$PROJECT/$TYPE --target clean $@
+}
+
+do_logged() {
+  command=$1
+  shift
+
+  echo -e "\n======= New $TYPE $ACTION at $(date) =======\n"
+
+  if [ -r "$HOME/.config/project_defines" ]; then
+    echo Loading user project_defines from $HOME/.config/project_defines
+    . $HOME/.config/project_defines
+  else
+    echo No user project_defines found at $HOME/.config/project_defines
+  fi
+
+  $command $@
+}
+
+prepare() {
+  TYPE=$1
+  shift
+  do_logged _prepare $@ 2>&1 | tee -a $ACTION.log
+}
+
+build() {
+  TYPE=$1
+  shift
+  do_logged _build $@ 2>&1 | tee -a $ACTION.log
+}
+
+install() {
+  TYPE=$1
+  shift
+  do_logged _install $@ 2>&1 | tee -a $ACTION.log
+}
+
+clean() {
+  TYPE=$1
+  shift
+  do_logged _clean $@ 2>&1 | tee -a $ACTION.log
+}

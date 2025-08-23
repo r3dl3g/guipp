@@ -6,12 +6,15 @@ include (Functions.cmake)
 
 if(POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
+endif()
+
+if(POLICY CMP0177)
   cmake_policy(SET CMP0177 NEW)
 endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-option(GUIPP_SAMPLES "On to build the samples. Default ON" ON)
+option(GUIPP_SAMPLES "On to build the samples. Default ON" OFF)
 option(GUIPP_TESTS "On to build the tests. Default Off" OFF)
 option(GUIPP_TOOLS "On to build the tools. Default Off" OFF)
 

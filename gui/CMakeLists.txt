@@ -226,6 +226,7 @@ if(NOT TARGET guipp)
       if (GUIPP_DONT_USE_XFT)
         DebugPrint("GUIPP: Don't use Xft!")
       elseif (X11_Xft_FOUND)
+
         DebugPrint("GUIPP: X11_Xft found!")
         if(NOT X11_Xrender_FOUND)
           message(SEND_ERROR "Xrender library is required!")
@@ -233,9 +234,17 @@ if(NOT TARGET guipp)
         if(NOT Freetype_FOUND)
           message(SEND_ERROR "Freetype library is required!")
         endif()
-        set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${X11_Xft_LIB} ${X11_Xrender_LIB} ${FREETYPE_LIBRARIES} fontconfig)
+
+        find_package(Fontconfig)
+
+        if(NOT Fontconfig_FOUND)
+          message(SEND_ERROR "Fontconfig library is required!")
+        endif()
+
+        set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${X11_Xft_LIB} ${X11_Xrender_LIB} ${FREETYPE_LIBRARIES} ${Fontconfig_LIBRARIES})
         set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_USE_XFT)
         set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${X11_Xft_INCLUDE_PATH} ${FREETYPE_INCLUDE_DIRS})
+
       else()
         DebugPrint("GUIPP: X11_Xft NOT found!")
       endif()

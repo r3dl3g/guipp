@@ -778,6 +778,7 @@ namespace gui {
       data.take_focus();
       down_idx.clear();
       set_cursor(win::cursor::move());
+      data.capture_pointer();
     }
 
     void table_view::handle_left_btn_up (os::key_state keys, const core::native_point& pt) {
@@ -800,11 +801,12 @@ namespace gui {
       last_mouse_point = core::native_point::undefined;
       down_idx.clear();
       set_cursor(win::cursor::arrow());
+      data.uncapture_pointer();
     }
 
     void table_view::handle_mouse_move (os::key_state keys, const core::native_point& pt) {
       const auto r = data.surface_geometry();
-      if (core::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
+      if (core::left_button_bit_mask::is_set(keys)/*  && r.is_inside(pt) */) {
         if (last_mouse_point != core::native_point::undefined) {
           auto delta = last_mouse_point - pt;
           set_scroll_pos(get_scroll_pos() + core::global::scale_from_native(delta));

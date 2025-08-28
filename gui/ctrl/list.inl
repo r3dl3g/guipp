@@ -160,7 +160,7 @@ namespace gui {
       void oriented_list<T, O>::handle_mouse_move (os::key_state keys,
                                                const core::native_point& pt) {
         const auto r = super::surface_geometry();
-        if (core::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
+        if (core::left_button_bit_mask::is_set(keys)/*  && r.is_inside(pt) */) {
           if ((super::get_last_mouse_point() != core::native_point::undefined) &&
               (super::get_last_mouse_point() != pt)) {
             super::set_cursor(win::cursor::move());

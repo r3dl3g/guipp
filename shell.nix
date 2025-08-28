@@ -15,6 +15,7 @@ pkgs.mkShell {
     xorg.libXft.dev
     xorg.libxcb.dev
     xorg.libXdmcp.dev
+    fontconfig.dev
   ];
 
   cmakeFlags = [

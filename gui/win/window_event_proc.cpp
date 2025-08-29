@@ -774,13 +774,12 @@ namespace gui {
 
       while (running) {
 
-        // Only call wait_for_event() when we have no events.
-        if (0 == XPending(display)) {
-          wait_for_event(fd);
+        while (x11::queued_actions.try_dequeue(action)) {
+          action();
         }
 
-        if (x11::queued_actions.try_dequeue(action)) {
-          action();
+        if (0 == XPending(display)) {
+          wait_for_event(fd);
         }
 
         while (XPending(display) > 0) {

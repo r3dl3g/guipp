@@ -9,7 +9,7 @@
         "-g",
         "${file}",
         "-o",
-        "${userHome}/.cache/build/${workspaceFolderBasename}/${buildType}/${fileBasenameNoExtension}"
+        "${userHome}/.cache/build/${workspaceFolderBasename}/Debug/bin/${fileBasenameNoExtension}"
       ],
       "options": {
         "cwd": "${fileDirname}"

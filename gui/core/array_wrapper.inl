@@ -36,7 +36,7 @@ namespace gui {
 
       inline void boundary_check::operator () (size_t i) const {
 #ifndef NDEBUG
-        if (i >= maximum) {
+        if (!(i <= maximum)) {
           throw std::out_of_range("array_wrapper try to access element beyond size");
         }
 #else
@@ -67,13 +67,13 @@ namespace gui {
 
     template<typename T>
     inline auto array_wrapper<T>::sub (size_t offset, size_t n) -> array_wrapper {
-      check_boundary(offset + n - 1);
+      check_boundary(offset + n);
       return array_wrapper(data_ + offset, n);
     }
 
     template<typename T>
     inline auto array_wrapper<T>::data (size_t offset, size_t n) -> type* {
-      check_boundary(offset + n - 1);
+      check_boundary(offset + n);
       return data_ + offset;
     }
 
@@ -85,26 +85,26 @@ namespace gui {
 
     template<typename T>
     inline auto array_wrapper<T>::sub (size_t offset, size_t sz) const -> array_wrapper {
-      check_boundary(offset + sz - 1);
+      check_boundary(offset + sz);
       return array_wrapper(data_ + offset, sz);
     }
 
     template<typename T>
     inline auto array_wrapper<T>::data (size_t offset, size_t n) const -> const type* {
-      check_boundary(offset + n - 1);
+      check_boundary(offset + n);
       return data_ + offset;
     }
 
     template<typename T>
     array_wrapper<T>& array_wrapper<T>::copy_from (const array_wrapper<T>& rhs, size_t n) {
-      check_boundary(n - 1);
+      check_boundary(n);
       memcpy(data_, rhs.data(0, n), n);
       return *this;
     }
 
     template<typename T>
     array_wrapper<T>& array_wrapper<T>::copy_from (const array_wrapper<const T>& rhs, size_t n) {
-      check_boundary(n - 1);
+      check_boundary(n);
       memcpy(data_, rhs.data(0, n), n);
       return *this;
     }
@@ -130,13 +130,13 @@ namespace gui {
 
     template<typename T>
     inline auto array_wrapper<T const>::sub (size_t offset, size_t sz) const -> array_wrapper {
-      check_boundary(offset + sz - 1);
+      check_boundary(offset + sz);
       return array_wrapper(data_ + offset, sz);
     }
 
     template<typename T>
     inline auto array_wrapper<T const>::data (size_t offset, size_t n) const -> const type* {
-      check_boundary(offset + n - 1);
+      check_boundary(offset + n);
       return data_ + offset;
     }
 
@@ -161,20 +161,20 @@ namespace gui {
 
     template<typename T>
     inline auto bit_array_wrapper<T>::sub (size_t offset, size_t n) -> bit_array_wrapper {
-      check_boundary(offset + n - 1);
+      check_boundary(offset + n);
       return bit_array_wrapper(data_ + offset / 8, n);
     }
 
     template<typename T>
     bit_array_wrapper<T>& bit_array_wrapper<T>::copy_from (const bit_array_wrapper<T>& rhs, size_t n) {
-      check_boundary(n - 1);
+      check_boundary(n);
       memcpy(data_, rhs.data_, n / 8);
       return *this;
     }
 
     template<typename T>
     bit_array_wrapper<T>& bit_array_wrapper<T>::copy_from (const bit_array_wrapper<const T>& rhs, size_t n) {
-      check_boundary(n - 1);
+      check_boundary(n);
       memcpy(data_, rhs.data_, n / 8);
       return *this;
     }
@@ -200,7 +200,7 @@ namespace gui {
 
     template<typename T>
     inline auto bit_array_wrapper<T const>::sub (size_t offset, size_t n) const -> bit_array_wrapper {
-      check_boundary(offset + n - 1);
+      check_boundary(offset + n);
       return bit_array_wrapper(data_ + offset / 8, n);
     }
 

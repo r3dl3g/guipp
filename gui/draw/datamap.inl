@@ -87,8 +87,7 @@ namespace gui {
       const auto w = bmi.width;
       const auto h = bmi.height;
 
-      info = {w, h, T};
-      data.resize(info.mem_size());
+      prepare({w, h, T});
 
       convert::format::convert<S, T>(src, get_data(), w, h);
     }
@@ -105,8 +104,7 @@ namespace gui {
 
     template<pixel_format_t T>
     inline void datamap<T>::create (uint32_t w, uint32_t h) {
-      info = {w, h, T};
-      data.resize(info.mem_size());
+      prepare({w, h, T});
     }
 
     template<pixel_format_t T>
@@ -122,13 +120,18 @@ namespace gui {
     template<pixel_format_t T>
     inline void datamap<T>::create (const const_image_data<T>& rhs) {
       const bitmap_info& bmi = rhs.get_info();
-      info = bitmap_info(bmi.width, bmi.height, T);
+      
+      prepare({bmi.width, bmi.height, T});
+      
+      const auto& info = get_info();
       const auto sz = info.mem_size();
-      data.resize(sz);
+
       if (sz == bmi.mem_size()) {
-        memcpy(data.data(), rhs.raw_data().data(0, sz), sz);
+        assign(rhs.raw_data().data(0, sz), sz);
       } else {
-        byte* in = data.data();
+        auto data = access();
+        byte* in = data.data(0, sz);
+
         const byte* out = rhs.raw_data().data(0, bmi.mem_size());
         const auto bytes_per_line = std::min(info.bytes_per_line, bmi.bytes_per_line);
         for(uint32_t i = 0; i < bmi.height; ++i) {
@@ -146,7 +149,7 @@ namespace gui {
       bitmap_info src_bmi = src_img.get_info();
 
       auto src = checked_area(src_bmi, src_rect);
-      auto dest = checked_area(info, dest_pt, src.size());
+      auto dest = checked_area(get_info(), dest_pt, src.size());
 
       if ((dest.width() < 1) || (dest.height() < 1)) {
         return;
@@ -159,8 +162,7 @@ namespace gui {
     inline void datamap<T>::crop (uint32_t x, uint32_t y, uint32_t w, uint32_t h) {
       datamap bmp(w, h);
       bmp.copy_from(*this, core::rectangle(x, y, w, h), core::point::zero);
-      std::swap(data, bmp.data);
-      std::swap(info, bmp.info);
+      swap(bmp);
     }
 
     template<pixel_format_t T>
@@ -177,7 +179,7 @@ namespace gui {
       bitmap_info src_bmi = src_img.get_info();
 
       auto src = checked_area(src_bmi, src_rect);
-      auto dest = checked_area(info, dest_rect);
+      auto dest = checked_area(get_info(), dest_rect);
 
       if ((dest.width() < 1) || (dest.height() < 1)) {
         return;
@@ -203,27 +205,33 @@ namespace gui {
     template<pixel_format_t T>
     inline auto datamap<T>::brightness (double f) const -> datamap {
       datamap bmp = *this;
-      bitmap_info& bmi = bmp.info;
+      const bitmap_info& bmi = bmp.get_info();
       convert::brightness::adjust<T>(bmp.get_data(), bmi.width, bmi.height, f);
       return bmp;
     }
 
     template<pixel_format_t T>
     inline void datamap<T>::invert () {
-      for (auto& c : data) {
-        c = ~c;
+      const auto sz = get_info().mem_size();
+      auto data = access();
+      byte* in = data.data(0, sz);
+      const byte* end = in + sz;
+      while (in < end) {
+        *in = ~(*in);
       }
     }
 
     template<pixel_format_t T>
     inline void datamap<T>::fill (const pixel_type& c) {
-      convert::fill::fill<T>(get_data(), info.width, info.height, c);
+      const bitmap_info& bmi = get_info();
+      convert::fill::fill<T>(get_data(), bmi.width, bmi.height, c);
     }
 
     template<pixel_format_t T>
     inline datamap<pixel_format_t::BW> datamap<T>::get_mask (pixel::gray limit) const {
-      datamap<pixel_format_t::BW> img(info.size());
-      convert::format::mask<T, pixel_format_t::BW>(get_data(), img.get_data(), info.width, info.height, limit);
+      const bitmap_info& bmi = get_info();
+      datamap<pixel_format_t::BW> img(bmi.size());
+      convert::format::mask<T, pixel_format_t::BW>(get_data(), img.get_data(), bmi.width, bmi.height, limit);
       if (!core::os::bitmap_bit_white) {
         img.invert();
       }

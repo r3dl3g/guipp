@@ -20,7 +20,7 @@
 //
 // Library includes
 //
-#include <gui/draw/converter.h>
+#include "gui/draw/converter.h"
 
 
 namespace gui {
@@ -55,25 +55,33 @@ namespace gui {
 
       void clear ();
 
+      void swap (basic_datamap& rhs);
+
       template<pixel_format_t S>
       const const_image_data<S> const_reinterpret () const {
-        return const_image_data<S>(core::array_wrapper<const byte>(data), info);
+        return const_image_data<S>(core::array_wrapper<const byte>(data.data(), data.size()), info);
       }
 
       template<pixel_format_t S>
       const const_image_data<S> const_reinterpret () {
-        return const_image_data<S>(core::array_wrapper<const byte>(data), info);
+        return const_image_data<S>(core::array_wrapper<const byte>(data.data(), data.size()), info);
       }
 
       template<pixel_format_t S>
       const image_data<S> reinterpret () {
-        return image_data<S>(core::array_wrapper<byte>(data), info);
+        return image_data<S>(core::array_wrapper<byte>(data.data(), data.size()), info);
       }
 
     protected:
       basic_datamap (const blob&, const bitmap_info&);
       basic_datamap (blob&&, bitmap_info&&);
 
+      void prepare (const bitmap_info& info);
+      void assign (const byte* data, std::size_t sz);
+
+      core::array_wrapper<byte> access () ;
+
+    private:
       bitmap_info info;
       blob data;
     };

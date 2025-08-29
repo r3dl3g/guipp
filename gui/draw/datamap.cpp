@@ -24,7 +24,7 @@
 //
 // Library includes
 //
-#include <gui/draw/datamap.h>
+#include "gui/draw/datamap.h"
 
 
 namespace gui {
@@ -79,6 +79,27 @@ namespace gui {
 
     void basic_datamap::clear () {
       data.clear();
+    }
+
+    void basic_datamap::swap (basic_datamap& rhs) {
+      data.swap(rhs.data);
+      info.swap(rhs.info);
+    }
+
+    void basic_datamap::prepare (const bitmap_info& bmi) {
+      info = bmi;
+      data.resize(info.mem_size());
+    }
+
+    void basic_datamap::assign (const byte* ptr, std::size_t sz) {
+      if (data.size() < sz) {
+        data.resize(sz);
+      }
+      data.assign(ptr, ptr + sz);
+    }
+
+    core::array_wrapper<byte> basic_datamap::access () {
+      return core::array_wrapper<byte>(data.data(), data.size());
     }
 
     core::native_rect checked_area (const bitmap_info& bmi, const core::native_rect& area) {

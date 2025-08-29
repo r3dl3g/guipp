@@ -20,6 +20,7 @@
 //
 // Common includes
 //
+#include <vector>
 #include <CoreGraphics/CoreGraphics.h>
 
 // --------------------------------------------------------------------------
@@ -30,6 +31,9 @@
 
 
 namespace gui {
+
+  // --------------------------------------------------------------------------
+  typedef std::vector<byte> blob;
 
   namespace os {
 

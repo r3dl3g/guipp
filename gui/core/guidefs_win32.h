@@ -24,6 +24,7 @@
 //
 // Common includes
 //
+#include <vector>
 #undef NOMINMAX
 #define NOMINMAX 1
 #include <windows.h>
@@ -52,6 +53,9 @@
 #endif // MK_CAPS_LOCK
 
 namespace gui {
+
+  // --------------------------------------------------------------------------
+  typedef std::vector<byte> blob;
 
   namespace os {
 

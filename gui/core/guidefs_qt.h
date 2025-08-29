@@ -24,6 +24,7 @@
 //
 // Common includes
 //
+#include <vector>
 #include <QtGui/QtEvents>
 #include <QtGui/QWindow>
 #include <QtGui/QFontInfo>
@@ -40,6 +41,9 @@
 #endif // WS_TABSTOP
 
 namespace gui {
+
+  // --------------------------------------------------------------------------
+  typedef std::vector<byte> blob;
 
   namespace win {
 

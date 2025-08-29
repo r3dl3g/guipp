@@ -32,8 +32,8 @@
 #error Unknown target system
 #endif // GUIPP_QT
 
-#include <vector>
 #include <string>
+#include <vector>
 #include <logging/logger.h>
 
 // --------------------------------------------------------------------------
@@ -56,8 +56,23 @@ namespace gui {
   typedef word* wordptr;
   typedef const word* cwordptr;
 
-  // --------------------------------------------------------------------------
-  typedef std::vector<byte> blob;
+  struct GUIPP_CORE_EXPORT blob {
+    typedef std::vector<byte> buffer_type;
+    typedef const byte* iterator;
+
+    byte* data ();
+    const byte* data () const;
+    std::size_t size() const;
+    void resize (std::size_t);
+    void assign (const iterator start, const iterator end);
+    void clear ();
+    bool empty () const;
+
+    void swap (blob&);
+
+  private:
+    buffer_type buffer;
+  };
 
   // --------------------------------------------------------------------------
   enum class pixel_format_t : int {

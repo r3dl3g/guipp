@@ -218,7 +218,7 @@ namespace gui {
             static_cast<uint32_t>(im->bytes_per_line),
             get_pixel_format(im->bits_per_pixel, core::byte_order_t(im->byte_order))
           };
-          data.assign(im->data, im->data + bmi.mem_size());
+          data.assign((const byte*)im->data, (const byte*)(im->data + bmi.mem_size()));
           XDestroyImage(im);
         } else {
           throw std::runtime_error("get image failed");

@@ -32,9 +32,6 @@
 
 namespace gui {
 
-  // --------------------------------------------------------------------------
-  typedef std::vector<byte> blob;
-
   namespace os {
 
     typedef struct CF_BRIDGED_TYPE(id) CGInstance *instance;

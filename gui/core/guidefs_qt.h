@@ -42,9 +42,6 @@
 
 namespace gui {
 
-  // --------------------------------------------------------------------------
-  typedef std::vector<byte> blob;
-
   namespace win {
 
     class overlapped_window;

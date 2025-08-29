@@ -26,6 +26,7 @@
 # ifdef GUIPP_USE_XRANDR
 #  include <X11/extensions/Xrandr.h>
 # endif // GUIPP_USE_XRANDR
+
 #elif GUIPP_WIN
 //#include <shellscalingapi.h>
 #pragma warning(disable:4996)
@@ -84,45 +85,6 @@ namespace gui {
       return core::byte_order_t::little_endian;
     }
   }
-
-#ifdef GUIPP_X11
-  byte* blob::data () {
-    return buffer.data();
-  }
-
-  const byte* blob::data () const {
-    return buffer.data();
-  }
-
-  std::size_t blob::size() const {
-    return buffer.size();
-  }
-
-  void blob::resize (std::size_t i) {
-    buffer.resize(i);
-  }
-
-  void blob::assign (const iterator start, const iterator end) {
-    const auto length = std::distance(start, end);
-    if (length > size()) {
-      resize(length);
-    }
-    buffer.assign(start, end);
-  }
-
-  void blob::clear () {
-    buffer.clear();
-  }
-
-  bool blob::empty () const {
-    return buffer.empty();
-  }
-
-  void blob::swap (blob& rhs) {
-    buffer.swap(rhs.buffer);
-  }
-
-#endif // GUIPP_X11
 
   // --------------------------------------------------------------------------
   namespace core {

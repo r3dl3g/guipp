@@ -54,9 +54,6 @@
 
 namespace gui {
 
-  // --------------------------------------------------------------------------
-  typedef std::vector<byte> blob;
-
   namespace os {
 
     typedef HINSTANCE instance;

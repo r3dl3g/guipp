@@ -30,9 +30,16 @@
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #ifdef GUIPP_USE_XFT
-#include <X11/Xft/Xft.h>
-#include <X11/extensions/Xrender.h>
+# include <X11/Xft/Xft.h>
+# include <X11/extensions/Xrender.h>
 #endif // GUIPP_USE_XFT
+#ifdef GUIPP_USE_XSHM
+# include <X11/Xlib.h>
+# include <X11/extensions/XShm.h>
+# include <sys/ipc.h>
+# include <sys/shm.h>
+#endif // GUIPP_USE_XSHM
+
 
 // --------------------------------------------------------------------------
 //

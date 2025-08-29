@@ -115,10 +115,30 @@ namespace gui {
                 draw::image_data<px_fmt> dest_data,
                 const core::native_point& src,
                 const core::native_rect& dest) {
-        for (uint_fast32_t y = 0; y < dest.height(); ++y) {
-          row<px_fmt>(src_data.row(src.y() + y),
-                   dest_data.row(dest.y() + y),
-                   src.x(), dest.x(), dest.width());
+
+        const auto src_x = src.x();
+        const auto src_y = src.y();
+        const auto dest_h = dest.height();
+        const auto dest_w = dest.width();
+        const auto dest_x = dest.x();
+        const auto dest_y = dest.y();
+        const auto dest_data_h = dest_data.height();
+        const auto dest_data_w = dest_data.width();
+        const auto src_data_h = src_data.height();
+        const auto src_data_w = src_data.width();
+        if ((dest_h > 0) && (dest_w > 0) && 
+            (dest_data_h > dest_y) && (src_data_h > src_y) && 
+            (dest_data_w > dest_x) && (src_data_w > src_x)) {
+          const auto max_h = std::min(std::min(dest_h, dest_data_h - dest_y),
+                                      src_data_h - src_y);
+          const auto max_w = std::min(std::min(dest_w, dest_data_w - dest_x),
+                                      src_data_w - src_x);
+
+          for (uint_fast32_t y = 0; y < max_h; ++y) {
+            row<px_fmt>(src_data.row(src_y + y),
+                        dest_data.row(dest_y + y),
+                        src_x, dest_x, max_w);
+          }
         }
       }
 
@@ -130,13 +150,14 @@ namespace gui {
 
       static void row (const typename draw::const_image_data<F>::row_type src,
                        typename draw::image_data<F>::row_type dst,
-                       uint32_t src_x0, uint32_t dest_x0,
-                       uint32_t src_w, uint32_t dest_w) {
+                       uint32_t src_x, uint32_t dest_x,
+                       uint32_t src_w, uint32_t dest_w,
+                       double src_max_w, uint32_t dest_max_w) {
         const double scale_x = static_cast<double>(src_w) / static_cast<double>(dest_w);
-        for (uint_fast32_t x = 0; x < dest_w; ++x) {
+        for (uint_fast32_t x = 0; x < dest_max_w; ++x) {
           const double fx = (x + 0.5) * scale_x;
-          const uint32_t src_x = std::min(src_w - 1, static_cast<uint32_t>(fx));
-          dst[dest_x0 + x] = src[src_x0 + src_x];
+          const uint32_t sx = static_cast<uint32_t>(std::max(0.0, std::min(src_max_w, src_x + fx)));
+          dst[dest_x + x] = src[sx];
         }
       }
 
@@ -144,15 +165,40 @@ namespace gui {
                        draw::image_data<F> dest_data,
                        const core::native_rect& src,
                        const core::native_rect& dest) {
-        const uint32_t src_h = src.height();
-        const uint32_t dest_h = dest.height();
-        const double scale_y = static_cast<double>(src_h) / static_cast<double>(dest_h);
-        for (uint_fast32_t y = 0; y < dest_h; ++y) {
-          const double fy = (y + 0.5) * scale_y;
-          const uint32_t src_y = std::min(src_h - 1, static_cast<uint32_t>(fy));
-          row(src_data.row(src.y() + src_y),
-              dest_data.row(dest.y() + y),
-              src.x(), dest.x(), src.width(), dest.width());
+        const auto src_h = src.height();
+        const auto src_w = src.width();
+        const auto dest_h = dest.height();
+        const auto dest_w = dest.width();
+        if ((src_h > 0) && (dest_h > 0) && (src_w > 0) && (dest_w > 0)) {
+          const auto scale_y = static_cast<double>(src_h) / static_cast<double>(dest_h);
+
+          const auto src_x = src.x();
+          const auto src_y = src.y();
+          const auto dest_x = dest.x();
+          const auto dest_y = dest.y();
+
+          const auto dest_data_h = dest_data.height();
+          const auto dest_data_w = dest_data.width();
+          const auto src_data_h = src_data.height();
+          const auto src_data_w = src_data.width();
+
+          if ((dest_data_h > dest_y) && (src_data_h > src_y) && 
+              (dest_data_w > dest_x) && (src_data_w > src_x)) {
+
+            const auto dest_max_h = std::min(dest_h, dest_data_h - 1 - dest_y);
+            const auto dest_max_w = std::min(dest_w, dest_data_w - 1 - dest_x);
+            
+            const double src_max_h = src_data_h - 1;
+            const double src_max_w = src_data_w - 1;
+
+            for (uint_fast32_t y = 0; y < dest_max_h; ++y) {
+              const double fy = (y + 0.5) * scale_y;
+              const uint32_t sy = static_cast<uint32_t>(std::max(0.0, std::min(src_max_h, src_y + fy)));
+              row(src_data.row(sy),
+                  dest_data.row(dest_y + y),
+                  src_x, dest_x, src_w, dest_w, src_max_w, dest_max_w);
+            }
+          }
         }
       }
 

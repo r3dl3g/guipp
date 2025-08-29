@@ -23,15 +23,15 @@
 #include <map>
 #include <set>
 #include <shared_mutex>
+#include <logging/logger.h>
+#include <util/ostreamfmt.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <util/ostreamfmt.h>
-#include <logging/logger.h>
-#include <gui/win/overlapped_window.h>
-#include <gui/win/native.h>
+#include "gui/win/overlapped_window.h"
+#include "gui/win/native.h"
 
 #define NO_CAPTURExx
 

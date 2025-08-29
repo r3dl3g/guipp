@@ -18,15 +18,20 @@
 
 // --------------------------------------------------------------------------
 //
-// Library includes
+// Common includes
 //
 #include <util/ostreamfmt.h>
-#include <gui/core/text_source.h>
-#include <gui/win/window.h>
-#include <gui/win/window_event_handler.h>
-#include <gui/layout/layout_container.h>
-#include <gui/draw/draw_fwd.h>
-#include <gui/ctrl/gui++-ctrl-export.h>
+
+// --------------------------------------------------------------------------
+//
+// Library includes
+//
+#include "gui/core/text_source.h"
+#include "gui/win/window.h"
+#include "gui/win/window_event_handler.h"
+#include "gui/layout/layout_container.h"
+#include "gui/draw/draw_fwd.h"
+#include "gui/ctrl/gui++-ctrl-export.h"
 
 
 namespace gui {

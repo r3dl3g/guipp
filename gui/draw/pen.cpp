@@ -24,7 +24,7 @@
 //
 // Library includes
 //
-#include <gui/draw/pen.h>
+#include "gui/draw/pen.h"
 
 
 namespace gui {

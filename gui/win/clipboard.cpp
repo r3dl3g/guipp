@@ -14,18 +14,19 @@
  * @license   MIT license. See accompanying file LICENSE.
  */
 
+#include <limits>
 #ifdef GUIPP_QT
 #include <QtGui/QClipboard>
 #include <QtGui/QGuiApplication>
 #endif // GUIPP_QT
+#include <util/string_util.h>
+
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <util/string_util.h>
-#include <gui/win/clipboard.h>
-#include <gui/win/overlapped_window.h>
-#include <limits>
+#include "gui/win/clipboard.h"
+#include "gui/win/overlapped_window.h"
 
 namespace gui {
 

@@ -26,8 +26,8 @@
 //
 // Library includes
 //
-#include <gui/ctrl/list.h>
-#include <gui/ctrl/look/tree.h>
+#include "gui/ctrl/list.h"
+#include "gui/ctrl/look/tree.h"
 
 
 namespace gui {
@@ -200,4 +200,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/tree.inl>
+#include "gui/ctrl/tree.inl"

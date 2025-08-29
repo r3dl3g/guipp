@@ -20,8 +20,8 @@
 //
 // Library includes
 //
-#include <gui/layout/layout_container.h>
-#include <gui/ctrl/scroll_bar.h>
+#include "gui/layout/layout_container.h"
+#include "gui/ctrl/scroll_bar.h"
 
 
 namespace gui {
@@ -137,4 +137,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/scroll_view.inl>
+#include "gui/ctrl/scroll_view.inl"

@@ -25,8 +25,8 @@
 //
 // Library includes
 //
-#include <gui/core/rectangle.h>
-#include <gui/draw/image_data.h>
+#include "gui/core/rectangle.h"
+#include "gui/draw/image_data.h"
 
 
 namespace gui {
@@ -123,4 +123,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/draw/converter.inl>
+#include "gui/draw/converter.inl"

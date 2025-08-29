@@ -25,8 +25,8 @@
 //
 // Library includes
 //
-#include <gui/core/guidefs.h>
-#include <gui/core/core_fwd.h>
+#include "gui/core/guidefs.h"
+#include "gui/core/core_fwd.h"
 
 
 namespace gui {
@@ -109,4 +109,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/core/context.inl>
+#include "gui/core/context.inl"

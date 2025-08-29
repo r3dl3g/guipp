@@ -18,12 +18,12 @@
 //
 // Library includes
 //
-#include <gui/draw/text_origin.h>
-#include <gui/draw/graphics.h>
-#include <gui/draw/drawers.h>
-#include <gui/draw/pen.h>
-#include <gui/draw/font.h>
-#include <gui/ctrl/tooltip.h>
+#include "gui/draw/text_origin.h"
+#include "gui/draw/graphics.h"
+#include "gui/draw/drawers.h"
+#include "gui/draw/pen.h"
+#include "gui/draw/font.h"
+#include "gui/ctrl/tooltip.h"
 
 
 using namespace gui::draw;

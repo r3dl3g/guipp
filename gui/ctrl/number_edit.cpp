@@ -18,7 +18,7 @@
 //
 // Library includes
 //
-#include <gui/ctrl/number_edit.h>
+#include "gui/ctrl/number_edit.h"
 
 
 namespace gui {

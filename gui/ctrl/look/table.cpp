@@ -23,12 +23,12 @@
 //
 // Library includes
 //
-#include <gui/draw/graphics.h>
-#include <gui/draw/drawers.h>
-#include <gui/draw/brush.h>
-#include <gui/draw/font.h>
-#include <gui/ctrl/look/control.h>
-#include <gui/ctrl/look/table.h>
+#include "gui/draw/graphics.h"
+#include "gui/draw/drawers.h"
+#include "gui/draw/brush.h"
+#include "gui/draw/font.h"
+#include "gui/ctrl/look/control.h"
+#include "gui/ctrl/look/table.h"
 
 
 namespace gui {

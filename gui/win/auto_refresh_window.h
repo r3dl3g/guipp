@@ -21,8 +21,8 @@
 //
 // Library includes
 //
-#include <gui/win/background_repeater.h>
-#include <gui/win/window.h>
+#include "gui/win/background_repeater.h"
+#include "gui/win/window.h"
 
 
 namespace gui {

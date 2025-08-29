@@ -18,7 +18,7 @@
 //
 // Library includes
 //
-#include <gui/win/cursor.h>
+#include "gui/win/cursor.h"
 
 
 namespace gui {

@@ -23,14 +23,14 @@
 #endif // GUIPP_QT
 #include <iterator>
 #include <utility>
+#include <util/time_util.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <util/time_util.h>
-#include <gui/draw/pen.h>
-#include <gui/ctrl/file_tree.h>
+#include "gui/draw/pen.h"
+#include "gui/ctrl/file_tree.h"
 
 
 namespace gui {

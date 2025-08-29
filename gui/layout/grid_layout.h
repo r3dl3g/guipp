@@ -25,7 +25,7 @@
 //
 // Library includes
 //
-#include <gui/layout/layout.h>
+#include "gui/layout/layout.h"
 
 
 namespace gui {
@@ -145,4 +145,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/layout/grid_layout.inl>
+#include "gui/layout/grid_layout.inl"

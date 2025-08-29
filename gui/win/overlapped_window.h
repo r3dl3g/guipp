@@ -27,7 +27,7 @@
 //
 // Library includes
 //
-#include <gui/win/container.h>
+#include "gui/win/container.h"
 #ifdef GUIPP_WIN
 # include <gui/win/container_class_win32.h>
 #elif GUIPP_X11
@@ -260,4 +260,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/win/overlapped_window.inl>
+#include "gui/win/overlapped_window.inl"

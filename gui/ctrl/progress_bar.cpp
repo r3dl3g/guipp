@@ -18,7 +18,7 @@
 //
 // Library includes
 //
-#include <gui/ctrl/progress_bar.h>
+#include "gui/ctrl/progress_bar.h"
 #include <iomanip>
 
 //#define SHOW_TEXT_AREA

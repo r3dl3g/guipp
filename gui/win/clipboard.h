@@ -23,7 +23,7 @@
 //
 // Library includes
 //
-#include <gui/win/gui++-win-export.h>
+#include "gui/win/gui++-win-export.h"
 
 
 namespace gui {

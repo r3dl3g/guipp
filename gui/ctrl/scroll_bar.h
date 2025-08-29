@@ -20,10 +20,10 @@
 //
 // Library includes
 //
-#include <gui/core/orientation_traits.h>
-#include <gui/ctrl/control.h>
-#include <gui/ctrl/scrollbar_item.h>
-#include <gui/ctrl/look/scroll_bar.h>
+#include "gui/core/orientation_traits.h"
+#include "gui/ctrl/control.h"
+#include "gui/ctrl/scrollbar_item.h"
+#include "gui/ctrl/look/scroll_bar.h"
 
 
 namespace gui {
@@ -223,4 +223,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/scroll_bar.inl>
+#include "gui/ctrl/scroll_bar.inl"

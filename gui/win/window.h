@@ -29,9 +29,9 @@
 //
 // Library includes
 //
-#include <gui/core/window_state.h>
-#include <gui/win/window_class.h>
-#include <gui/win/receiver.h>
+#include "gui/core/window_state.h"
+#include "gui/win/window_class.h"
+#include "gui/win/receiver.h"
 
 
 namespace gui {
@@ -219,4 +219,4 @@ namespace std {
 
 } // namespace std
 
-#include <gui/win/window.inl>
+#include "gui/win/window.inl"

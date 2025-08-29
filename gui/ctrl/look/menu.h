@@ -20,12 +20,12 @@
 //
 // Library includes
 //
-#include <gui/core/core_fwd.h>
-#include <gui/core/gui_types.h>
-#include <gui/draw/draw_fwd.h>
-#include <gui/core/keys.h>
-#include <gui/ctrl/item_state.h>
-#include <gui/ctrl/look/gui++-look-export.h>
+#include "gui/core/core_fwd.h"
+#include "gui/core/gui_types.h"
+#include "gui/draw/draw_fwd.h"
+#include "gui/core/keys.h"
+#include "gui/ctrl/item_state.h"
+#include "gui/ctrl/look/gui++-look-export.h"
 
 
 namespace gui {

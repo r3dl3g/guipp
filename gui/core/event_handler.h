@@ -20,14 +20,14 @@
 //
 // Common includes
 //
+#include <util/bind_method.h>
+#include <util/variadic_util.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <util/bind_method.h>
-#include <util/variadic_util.h>
-#include <gui/core/event.h>
+#include "gui/core/event.h"
 
 
 namespace gui {

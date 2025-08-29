@@ -24,7 +24,7 @@
 //
 // Library includes
 //
-#include <gui/ctrl/table.h>
+#include "gui/ctrl/table.h"
 
 
 namespace gui {

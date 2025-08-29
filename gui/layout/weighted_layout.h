@@ -25,7 +25,7 @@
 //
 // Library includes
 //
-#include <gui/layout/layout.h>
+#include "gui/layout/layout.h"
 
 
 namespace gui {
@@ -106,4 +106,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/layout/weighted_layout.inl>
+#include "gui/layout/weighted_layout.inl"

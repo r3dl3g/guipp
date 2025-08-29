@@ -20,9 +20,9 @@
 //
 // Library includes
 //
-#include <gui/core/gui_types.h>
-#include <gui/draw/draw_fwd.h>
-#include <gui/draw/gui++-draw-export.h>
+#include "gui/core/gui_types.h"
+#include "gui/draw/draw_fwd.h"
+#include "gui/draw/gui++-draw-export.h"
 
 
 namespace gui {
@@ -66,4 +66,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/draw/frames.inl>
+#include "gui/draw/frames.inl"

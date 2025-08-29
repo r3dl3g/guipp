@@ -16,11 +16,16 @@
 
 // --------------------------------------------------------------------------
 //
-// Library includes
+// Common includes
 //
 #include <util/string_util.h>
-#include <gui/ctrl/scroll_bar.h>
-#include <gui/ctrl/button.h>
+
+// --------------------------------------------------------------------------
+//
+// Library includes
+//
+#include "gui/ctrl/scroll_bar.h"
+#include "gui/ctrl/button.h"
 
 
 namespace gui {

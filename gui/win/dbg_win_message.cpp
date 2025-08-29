@@ -24,7 +24,7 @@
 //
 // Library includes
 //
-#include <gui/win/dbg_win_message.h>
+#include "gui/win/dbg_win_message.h"
 
 
 namespace gui {

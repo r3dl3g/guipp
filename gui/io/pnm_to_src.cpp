@@ -25,7 +25,7 @@
 //
 // Library includes
 //
-#include <gui/io/pnm_to_src.h>
+#include "gui/io/pnm_to_src.h"
 
 
 namespace gui {

@@ -22,19 +22,19 @@
 //
 #include <array>
 #include <QtGui/qpainterpath.h>
+#include <logging/logger.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <logging/logger.h>
-#include <gui/draw/graphics.h>
-#include <gui/draw/drawers.h>
-#include <gui/draw/arc_coords.h>
-#include <gui/draw/pen.h>
-#include <gui/draw/brush.h>
-#include <gui/draw/font.h>
-#include <gui/draw/use.h>
+#include "gui/draw/graphics.h"
+#include "gui/draw/drawers.h"
+#include "gui/draw/arc_coords.h"
+#include "gui/draw/pen.h"
+#include "gui/draw/brush.h"
+#include "gui/draw/font.h"
+#include "gui/draw/use.h"
 
 
 namespace gui {

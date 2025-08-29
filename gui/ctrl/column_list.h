@@ -28,8 +28,8 @@
 //
 // Library includes
 //
-#include <gui/ctrl/list.h>
-#include <gui/layout/layout_container.h>
+#include "gui/ctrl/list.h"
+#include "gui/layout/layout_container.h"
 
 
 namespace gui {
@@ -554,4 +554,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/column_list.inl>
+#include "gui/ctrl/column_list.inl"

@@ -26,7 +26,7 @@
 //
 // Library includes
 //
-#include <gui/draw/icons.h>
+#include "gui/draw/icons.h"
 
 
 namespace gui {

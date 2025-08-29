@@ -18,14 +18,6 @@
 
 // --------------------------------------------------------------------------
 //
-// Library includes
-//
-#include <gui/core/event.h>
-#include <util/bind_method.h>
-
-
-// --------------------------------------------------------------------------
-//
 // Common includes
 //
 #include <cstddef>
@@ -33,6 +25,13 @@
 #include <map>
 #include <functional>
 #include <memory>
+#include <util/bind_method.h>
+
+// --------------------------------------------------------------------------
+//
+// Library includes
+//
+#include "gui/core/event.h"
 
 
 #ifndef REGISTER_FUNCTION
@@ -80,4 +79,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/core/event_container.inl>
+#include "gui/core/event_container.inl"

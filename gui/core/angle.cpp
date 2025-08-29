@@ -25,8 +25,8 @@
 //
 // Library includes
 //
-#include <gui/core/bits.h>
-#include <gui/core/angle.h>
+#include "gui/core/bits.h"
+#include "gui/core/angle.h"
 
 
 namespace gui {

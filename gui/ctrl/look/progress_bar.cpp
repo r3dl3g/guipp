@@ -18,12 +18,12 @@
 //
 // Library includes
 //
-#include <gui/ctrl/look/progress_bar.h>
-#include <gui/draw/drawers.h>
-#include <gui/draw/graphics.h>
-#include <gui/draw/pen.h>
-#include <gui/draw/brush.h>
-#include <gui/draw/font.h>
+#include "gui/ctrl/look/progress_bar.h"
+#include "gui/draw/drawers.h"
+#include "gui/draw/graphics.h"
+#include "gui/draw/pen.h"
+#include "gui/draw/brush.h"
+#include "gui/draw/font.h"
 
 
 //#define SHOW_TEXT_AREA

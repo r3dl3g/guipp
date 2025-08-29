@@ -24,7 +24,7 @@
 //
 // Library includes
 //
-#include <gui/draw/bitmap_info.h>
+#include "gui/draw/bitmap_info.h"
 
 
 namespace gui {

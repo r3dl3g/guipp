@@ -27,7 +27,7 @@
 //
 // Library includes
 //
-#include <gui/draw/diagram.h>
+#include "gui/draw/diagram.h"
 
 
 namespace gui {

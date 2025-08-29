@@ -26,9 +26,9 @@
 //
 // Library includes
 //
-#include <gui/core/array_wrapper.h>
-#include <gui/core/color.h>
-#include <gui/draw/bitmap_info.h>
+#include "gui/core/array_wrapper.h"
+#include "gui/core/color.h"
+#include "gui/draw/bitmap_info.h"
 
 
 namespace gui {
@@ -567,4 +567,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/draw/image_data.inl>
+#include "gui/draw/image_data.inl"

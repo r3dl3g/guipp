@@ -25,7 +25,7 @@
 //
 // Library includes
 //
-#include <gui/core/rectangle.h>
+#include "gui/core/rectangle.h"
 
 
 namespace gui {
@@ -82,4 +82,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/core/orientation_traits.inl>
+#include "gui/core/orientation_traits.inl"

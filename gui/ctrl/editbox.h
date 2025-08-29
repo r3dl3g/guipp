@@ -20,7 +20,7 @@
 //
 // Library includes
 //
-#include <gui/ctrl/textbox.h>
+#include "gui/ctrl/textbox.h"
 
 
 namespace gui {
@@ -79,4 +79,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/editbox.inl>
+#include "gui/ctrl/editbox.inl"

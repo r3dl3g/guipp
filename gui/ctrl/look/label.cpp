@@ -18,11 +18,11 @@
 //
 // Library includes
 //
-#include <gui/draw/graphics.h>
-#include <gui/draw/brush.h>
-#include <gui/draw/font.h>
-#include <gui/draw/drawers.h>
-#include <gui/ctrl/look/label.h>
+#include "gui/draw/graphics.h"
+#include "gui/draw/brush.h"
+#include "gui/draw/font.h"
+#include "gui/draw/drawers.h"
+#include "gui/ctrl/look/label.h"
 
 
 //#define SHOW_TEXT_AREA

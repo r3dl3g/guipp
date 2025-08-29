@@ -21,17 +21,17 @@
 #include <limits>
 #include <algorithm>
 #include <map>
+#include <util/ostreamfmt.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <gui/core/native.h>
-#include <gui/draw/bitmap.h>
-#include <gui/draw/graphics.h>
-#include <gui/draw/pen.h>
-#include <gui/draw/use.h>
-#include <util/ostreamfmt.h>
+#include "gui/core/native.h"
+#include "gui/draw/bitmap.h"
+#include "gui/draw/graphics.h"
+#include "gui/draw/pen.h"
+#include "gui/draw/use.h"
 
 
 #ifdef GUIPP_X11

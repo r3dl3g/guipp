@@ -25,9 +25,9 @@
 //
 // Library includes
 //
-#include <gui/core/guidefs.h>
+#include "gui/core/guidefs.h"
 #ifdef GUIPP_WIN
-#include <gui/core/win32_event.h>
+#include "gui/core/win32_event.h"
 #endif // Win32
 
 

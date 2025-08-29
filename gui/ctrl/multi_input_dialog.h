@@ -18,12 +18,17 @@
 
 // --------------------------------------------------------------------------
 //
+// Common includes
+//
+#include <util/tuple_util.h>
+
+// --------------------------------------------------------------------------
+//
 // Library includes
 //
-#include <gui/ctrl/std_dialogs.h>
-#include <gui/ctrl/date_time_header_line.h>
-#include <gui/ctrl/drop_down.h>
-#include <util/tuple_util.h>
+#include "gui/ctrl/std_dialogs.h"
+#include "gui/ctrl/date_time_header_line.h"
+#include "gui/ctrl/drop_down.h"
 
 
 namespace gui {
@@ -195,4 +200,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/multi_input_dialog.inl>
+#include "gui/ctrl/multi_input_dialog.inl"

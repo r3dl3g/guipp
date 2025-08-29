@@ -20,11 +20,11 @@
 //
 // Library includes
 //
-#include <gui/layout/adaption_layout.h>
-#include <gui/layout/layout_container.h>
-#include <gui/ctrl/control.h>
-#include <gui/ctrl/separator.h>
-#include <gui/ctrl/button.h>
+#include "gui/layout/adaption_layout.h"
+#include "gui/layout/layout_container.h"
+#include "gui/ctrl/control.h"
+#include "gui/ctrl/separator.h"
+#include "gui/ctrl/button.h"
 
 
 namespace gui {
@@ -94,4 +94,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/toggle_group.inl>
+#include "gui/ctrl/toggle_group.inl"

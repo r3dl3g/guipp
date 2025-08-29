@@ -32,7 +32,7 @@
 //
 // Library includes
 //
-#include <gui/win/gui++-win-export.h>
+#include "gui/win/gui++-win-export.h"
 
 #ifdef WIN32
 #pragma warning(push)

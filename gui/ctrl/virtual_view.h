@@ -20,7 +20,7 @@
 //
 // Library includes
 //
-#include <gui/ctrl/scroll_view.h>
+#include "gui/ctrl/scroll_view.h"
 
 
 namespace gui {
@@ -89,4 +89,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/virtual_view.inl>
+#include "gui/ctrl/virtual_view.inl"

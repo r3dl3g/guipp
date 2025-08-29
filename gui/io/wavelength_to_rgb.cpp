@@ -23,7 +23,7 @@
 //
 // Library includes
 //
-#include <gui/io/wavelength_to_rgb.h>
+#include "gui/io/wavelength_to_rgb.h"
 
 // --------------------------------------------------------------------------
 //

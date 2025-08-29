@@ -20,7 +20,7 @@
 //
 // Library includes
 //
-#include <gui/draw/datamap.h>
+#include "gui/draw/datamap.h"
 
 
 namespace gui {
@@ -220,4 +220,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/draw/bitmap.inl>
+#include "gui/draw/bitmap.inl"

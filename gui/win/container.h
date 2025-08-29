@@ -21,7 +21,7 @@
 //
 // Library includes
 //
-#include <gui/win/window.h>
+#include "gui/win/window.h"
 
 
 namespace gui {

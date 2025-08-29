@@ -20,8 +20,8 @@
 //
 // Library includes
 //
-#include <gui/ctrl/look/progress_bar.h>
-#include <gui/ctrl/label.h>
+#include "gui/ctrl/look/progress_bar.h"
+#include "gui/ctrl/label.h"
 
 
 namespace gui {
@@ -115,4 +115,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/progress_bar.inl>
+#include "gui/ctrl/progress_bar.inl"

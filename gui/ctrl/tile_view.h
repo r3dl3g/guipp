@@ -20,7 +20,7 @@
 //
 // Library includes
 //
-#include <gui/ctrl/list.h>
+#include "gui/ctrl/list.h"
 
 
 namespace gui {
@@ -157,4 +157,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/tile_view.inl>
+#include "gui/ctrl/tile_view.inl"

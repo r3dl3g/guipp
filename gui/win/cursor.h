@@ -28,8 +28,8 @@
 //
 // Library includes
 //
-#include <gui/core/guidefs.h>
-#include <gui/win/gui++-win-export.h>
+#include "gui/core/guidefs.h"
+#include "gui/win/gui++-win-export.h"
 
 
 namespace gui {
@@ -87,4 +87,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/win/cursor.inl>
+#include "gui/win/cursor.inl"

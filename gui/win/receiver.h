@@ -20,10 +20,10 @@
 //
 // Library includes
 //
-#include <gui/core/gui_types.h>
-#include <gui/core/keys.h>
-#include <gui/core/event_container.h>
-#include <gui/win/window_event_handler.h>
+#include "gui/core/gui_types.h"
+#include "gui/core/keys.h"
+#include "gui/core/event_container.h"
+#include "gui/win/window_event_handler.h"
 
 
 // --------------------------------------------------------------------------
@@ -142,4 +142,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/win/receiver.inl>
+#include "gui/win/receiver.inl"

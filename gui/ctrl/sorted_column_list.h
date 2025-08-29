@@ -18,12 +18,16 @@
 
 // --------------------------------------------------------------------------
 //
+// Common includes
+//
+#include <util/sort_order.h>
+
+// --------------------------------------------------------------------------
+//
 // Library includes
 //
-#include <gui/ctrl/column_list.h>
-#include <gui/ctrl/file_tree.h>
-
-#include <util/sort_order.h>
+#include "gui/ctrl/column_list.h"
+#include "gui/ctrl/file_tree.h"
 
 
 namespace gui {
@@ -62,4 +66,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/sorted_column_list.inl>
+#include "gui/ctrl/sorted_column_list.inl"

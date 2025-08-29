@@ -18,7 +18,7 @@
 //
 // Library includes
 //
-#include <gui/ctrl/std_dialogs.h>
+#include "gui/ctrl/std_dialogs.h"
 
 namespace gui {
 

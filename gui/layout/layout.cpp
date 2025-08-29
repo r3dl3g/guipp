@@ -23,8 +23,8 @@
 //
 // Library includes
 //
-#include <gui/win/window.h>
-#include <gui/layout/layout.h>
+#include "gui/win/window.h"
+#include "gui/layout/layout.h"
 
 
 namespace gui {

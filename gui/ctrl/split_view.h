@@ -20,10 +20,10 @@
 //
 // Library includes
 //
-#include <gui/layout/layout_container.h>
-#include <gui/layout/split_layout.h>
-#include <gui/ctrl/splitter.h>
-#include <gui/core/orientation_traits.h>
+#include "gui/layout/layout_container.h"
+#include "gui/layout/split_layout.h"
+#include "gui/ctrl/splitter.h"
+#include "gui/core/orientation_traits.h"
 
 
 namespace gui {
@@ -179,4 +179,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/split_view.inl>
+#include "gui/ctrl/split_view.inl"

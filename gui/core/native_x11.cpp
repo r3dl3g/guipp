@@ -26,8 +26,8 @@
 //
 // Library includes
 //
-#include <gui/core/native.h>
-#include <gui/core/context.h>
+#include "gui/core/native.h"
+#include "gui/core/context.h"
 
 
 namespace gui {

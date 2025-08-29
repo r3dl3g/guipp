@@ -31,9 +31,8 @@
 //
 // Library includes
 //
-#include <util/string_util.h>
-#include <gui/ctrl/edit.h>
-#include <gui/win/clipboard.h>
+#include "gui/ctrl/edit.h"
+#include "gui/win/clipboard.h"
 
 
 //#define SHOW_TEXT_AREA

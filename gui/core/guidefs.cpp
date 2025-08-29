@@ -35,15 +35,16 @@
 //#include <QtWidgets/QDesktopWidget>
 #endif // GUIPP_QT
 
+#include <logging/logger.h>
+
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <logging/logger.h>
-#include <gui/core/guidefs.h>
-#include <gui/core/context.h>
-#include <gui/core/color.h>
+#include "gui/core/guidefs.h"
+#include "gui/core/context.h"
+#include "gui/core/color.h"
 
 
 namespace gui {

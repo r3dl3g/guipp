@@ -18,8 +18,8 @@
 //
 // Library includes
 //
-#include <gui/win/container.h>
-#include <gui/win/animation.h>
+#include "gui/win/container.h"
+#include "gui/win/animation.h"
 
 namespace gui {
 

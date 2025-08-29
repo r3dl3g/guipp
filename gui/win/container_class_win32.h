@@ -20,7 +20,7 @@
 //
 // Library includes
 //
-#include <gui/win/window_class.h>
+#include "gui/win/window_class.h"
 
 
 namespace gui {

@@ -20,7 +20,7 @@
 //
 // Library includes
 //
-#include <gui/ctrl/list.h>
+#include "gui/ctrl/list.h"
 
 
 namespace gui {
@@ -133,4 +133,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/uneven_list.inl>
+#include "gui/ctrl/uneven_list.inl"

@@ -27,8 +27,8 @@
 //
 // Library includes
 //
-#include <gui/layout/layout.h>
-#include <gui/win/window.h>
+#include "gui/layout/layout.h"
+#include "gui/win/window.h"
 
 
 namespace gui {
@@ -298,4 +298,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/layout/attach_layout.inl>
+#include "gui/layout/attach_layout.inl"

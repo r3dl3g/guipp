@@ -20,11 +20,11 @@
 //
 // Library includes
 //
-#include <gui/layout/layout_container.h>
-#include <gui/ctrl/list.h>
-#include <gui/ctrl/label.h>
-#include <gui/ctrl/button.h>
-#include <gui/ctrl/look/drop_down.h>
+#include "gui/layout/layout_container.h"
+#include "gui/ctrl/list.h"
+#include "gui/ctrl/label.h"
+#include "gui/ctrl/button.h"
+#include "gui/ctrl/look/drop_down.h"
 
 
 namespace gui {
@@ -154,4 +154,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/drop_down.inl>
+#include "gui/ctrl/drop_down.inl"

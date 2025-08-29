@@ -16,14 +16,18 @@
 
 // --------------------------------------------------------------------------
 //
+// Common includes
+//
+#include <util/string_util.h>
+
+// --------------------------------------------------------------------------
+//
 // Library includes
 //
-
-#include <gui/draw/clock.h>
-#include <gui/draw/pen.h>
-#include <gui/draw/brush.h>
-#include <gui/draw/font.h>
-#include <util/string_util.h>
+#include "gui/draw/clock.h"
+#include "gui/draw/pen.h"
+#include "gui/draw/brush.h"
+#include "gui/draw/font.h"
 
 
 namespace gui {

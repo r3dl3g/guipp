@@ -21,16 +21,16 @@
 // Common includes
 //
 #include <cstddef>
+#include <logging/logger.h>
 
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <logging/logger.h>
-#include <gui/core/event_handler.h>
-#include <gui/core/context.h>
-#include <gui/win/window_event_proc.h>
+#include "gui/core/event_handler.h"
+#include "gui/core/context.h"
+#include "gui/win/window_event_proc.h"
 
 
 namespace gui {

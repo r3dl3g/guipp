@@ -25,7 +25,7 @@
 //
 // Library includes
 //
-#include <gui/layout/border_layout.h>
+#include "gui/layout/border_layout.h"
 
 
 namespace gui {
@@ -140,4 +140,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/layout/dynamic_border_layout.inl>
+#include "gui/layout/dynamic_border_layout.inl"

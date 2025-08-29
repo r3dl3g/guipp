@@ -24,7 +24,7 @@
 //
 // Library includes
 //
-#include <gui/draw/converter.h>
+#include "gui/draw/converter.h"
 
 namespace gui {
 

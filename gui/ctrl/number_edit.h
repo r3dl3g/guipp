@@ -18,12 +18,17 @@
 
 // --------------------------------------------------------------------------
 //
+// Common includes
+//
+#include <util/time_util.h>
+
+// --------------------------------------------------------------------------
+//
 // Library includes
 //
-#include <gui/ctrl/edit.h>
-#include <gui/layout/split_layout.h>
-#include <gui/ctrl/button.h>
-#include <util/time_util.h>
+#include "gui/ctrl/edit.h"
+#include "gui/layout/split_layout.h"
+#include "gui/ctrl/button.h"
 
 
 namespace gui {
@@ -246,4 +251,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/number_edit.inl>
+#include "gui/ctrl/number_edit.inl"

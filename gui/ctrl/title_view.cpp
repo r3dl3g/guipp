@@ -18,7 +18,7 @@
 //
 // Library includes
 //
-#include <gui/ctrl/title_view.h>
+#include "gui/ctrl/title_view.h"
 
 
 namespace gui {

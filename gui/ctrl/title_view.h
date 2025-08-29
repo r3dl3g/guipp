@@ -20,10 +20,10 @@
 //
 // Library includes
 //
-#include <gui/layout/layout_container.h>
-#include <gui/layout/dynamic_border_layout.h>
-#include <gui/ctrl/button.h>
-#include <gui/ctrl/label.h>
+#include "gui/layout/layout_container.h"
+#include "gui/layout/dynamic_border_layout.h"
+#include "gui/ctrl/button.h"
+#include "gui/ctrl/label.h"
 
 namespace gui {
 

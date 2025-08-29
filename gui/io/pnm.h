@@ -22,14 +22,14 @@
 //
 #include <iostream>
 #include <fstream>
+#include <util/ostreamfmt.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <util/ostreamfmt.h>
-#include <gui/draw/bitmap.h>
-#include <gui/io/gui++-io-export.h>
+#include "gui/draw/bitmap.h"
+#include "gui/io/gui++-io-export.h"
 
 
 namespace gui {
@@ -264,4 +264,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/io/pnm.inl>
+#include "gui/io/pnm.inl"

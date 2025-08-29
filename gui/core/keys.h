@@ -26,8 +26,8 @@
 //
 // Library includes
 //
-#include <gui/core/guidefs.h>
-#include <gui/core/gui++-core-export.h>
+#include "gui/core/guidefs.h"
+#include "gui/core/gui++-core-export.h"
 
 
 #ifdef GUIPP_WIN
@@ -88,4 +88,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/core/keys.inl>
+#include "gui/core/keys.inl"

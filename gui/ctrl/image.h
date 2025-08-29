@@ -20,8 +20,8 @@
 //
 // Library includes
 //
-#include <gui/ctrl/control.h>
-#include <gui/win/container.h>
+#include "gui/ctrl/control.h"
+#include "gui/win/container.h"
 #include "gui/draw/bitmap.h"
 
 namespace gui {

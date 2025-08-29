@@ -20,17 +20,17 @@
 //
 // Library includes
 //
-#include <gui/win/container.h>
-#include <gui/layout/border_layout.h>
-#include <gui/layout/adaption_layout.h>
-#include <gui/layout/lineup_layout.h>
-#include <gui/ctrl/control.h>
-#include <gui/ctrl/file_tree.h>
-#include <gui/ctrl/button.h>
-#include <gui/ctrl/label.h>
-#include <gui/ctrl/split_view.h>
-#include <gui/ctrl/textbox.h>
-#include <gui/ctrl/list.h>
+#include "gui/win/container.h"
+#include "gui/layout/border_layout.h"
+#include "gui/layout/adaption_layout.h"
+#include "gui/layout/lineup_layout.h"
+#include "gui/ctrl/control.h"
+#include "gui/ctrl/file_tree.h"
+#include "gui/ctrl/button.h"
+#include "gui/ctrl/label.h"
+#include "gui/ctrl/split_view.h"
+#include "gui/ctrl/textbox.h"
+#include "gui/ctrl/list.h"
 
 
 
@@ -427,4 +427,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/std_dialogs.inl>
+#include "gui/ctrl/std_dialogs.inl"

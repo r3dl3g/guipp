@@ -20,14 +20,14 @@
 // Common includes
 //
 #include <algorithm>
+#include <logging/logger.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <gui/win/window_event_proc.h>
-#include <gui/core/event_container.h>
-#include <logging/logger.h>
+#include "gui/win/window_event_proc.h"
+#include "gui/core/event_container.h"
 
 namespace gui {
 

@@ -26,9 +26,9 @@
 //
 // Library includes
 //
-#include <gui/ctrl/number_edit.h>
-#include <gui/layout/layout_container.h>
-#include <gui/layout/adaption_layout.h>
+#include "gui/ctrl/number_edit.h"
+#include "gui/layout/layout_container.h"
+#include "gui/layout/adaption_layout.h"
 
 
 namespace gui {
@@ -66,4 +66,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/date_time_header_line.inl>
+#include "gui/ctrl/date_time_header_line.inl"

@@ -33,7 +33,7 @@
 //
 // Library includes
 //
-#include <gui/core/bits.h>
+#include "gui/core/bits.h"
 
 #ifndef WS_TABSTOP
 # define WS_TABSTOP (~Qt::WindowDoesNotAcceptFocus)

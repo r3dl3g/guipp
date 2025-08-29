@@ -34,13 +34,12 @@
 
 #include <vector>
 #include <string>
+#include <logging/logger.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <logging/logger.h>
-
 
 #ifdef GUIPP_WIN
 #pragma warning (disable: 4251)

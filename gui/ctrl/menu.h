@@ -20,10 +20,10 @@
 //
 // Library includes
 //
-#include <gui/win/overlapped_window.h>
-#include <gui/draw/bitmap.h>
-#include <gui/ctrl/control.h>
-#include <gui/ctrl/item_state.h>
+#include "gui/win/overlapped_window.h"
+#include "gui/draw/bitmap.h"
+#include "gui/ctrl/control.h"
+#include "gui/ctrl/item_state.h"
 
 namespace gui {
 
@@ -314,4 +314,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/menu.inl>
+#include "gui/ctrl/menu.inl"

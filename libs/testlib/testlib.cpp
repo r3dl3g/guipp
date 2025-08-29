@@ -1,11 +1,12 @@
 // SettingsFile Test: Test for reading and writing the camera settings file
 //
 
-#include "testlib.h"
-#include <gui/core/guidefs.h>
 #include <logging/dbgstream.h>
 #include <logging/logger.h>
 #include <logging/core.h>
+
+#include "testlib.h"
+#include "gui/core/guidefs.h"
 
 #ifdef GUIPP_QT
 #include <QtWidgets/qapplication.h>

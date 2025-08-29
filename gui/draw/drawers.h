@@ -27,11 +27,11 @@
 //
 // Library includes
 //
-#include <gui/core/gui_types.h>
-#include <gui/core/angle.h>
-#include <gui/draw/graphics.h>
-#include <gui/draw/text_origin.h>
-#include <gui/draw/gui++-draw-export.h>
+#include "gui/core/gui_types.h"
+#include "gui/core/angle.h"
+#include "gui/draw/graphics.h"
+#include "gui/draw/text_origin.h"
+#include "gui/draw/gui++-draw-export.h"
 
 namespace gui {
 
@@ -257,4 +257,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/draw/drawers.inl>
+#include "gui/draw/drawers.inl"

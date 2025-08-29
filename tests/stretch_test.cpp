@@ -1,8 +1,8 @@
 
-#include <gui/draw/datamap.h>
-#include <gui/io/pnm.h>
-#include <testlib/image_test_lib.h>
-#include <testlib/testlib.h>
+#include "gui/draw/datamap.h"
+#include "gui/io/pnm.h"
+#include "testlib/image_test_lib.h"
+#include "testlib/testlib.h"
 
 
 // --------------------------------------------------------------------------

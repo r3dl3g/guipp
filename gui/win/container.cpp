@@ -19,15 +19,15 @@
 //
 // Common includes
 //
+#include <util/ostreamfmt.h>
 
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <util/ostreamfmt.h>
-#include <gui/win/container.h>
-#include <gui/win/native.h>
+#include "gui/win/container.h"
+#include "gui/win/native.h"
 
 
 namespace gui {

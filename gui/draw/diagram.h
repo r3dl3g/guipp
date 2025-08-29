@@ -23,19 +23,19 @@
 #include <array>
 #include <iomanip>
 #include <functional>
+#include <util/ostreamfmt.h>
 
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <gui/core/orientation_traits.h>
-#include <gui/draw/graphics.h>
-#include <gui/draw/drawers.h>
-#include <gui/draw/pen.h>
-#include <gui/draw/brush.h>
-#include <gui/draw/font.h>
-#include <util/ostreamfmt.h>
+#include "gui/core/orientation_traits.h"
+#include "gui/draw/graphics.h"
+#include "gui/draw/drawers.h"
+#include "gui/draw/pen.h"
+#include "gui/draw/brush.h"
+#include "gui/draw/font.h"
 
 
 namespace gui {
@@ -641,4 +641,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/draw/diagram.inl>
+#include "gui/draw/diagram.inl"

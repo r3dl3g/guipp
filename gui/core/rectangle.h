@@ -20,13 +20,13 @@
 //
 // Common includes
 //
+#include <util/math_util.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
 #include "point.h"
-#include <util/math_util.h>
 
 
 namespace gui {
@@ -215,4 +215,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/core/rectangle.inl>
+#include "gui/core/rectangle.inl"

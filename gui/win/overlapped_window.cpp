@@ -28,19 +28,19 @@
 # include <QtGui/QBackingStore>
 # include <QtGui/QPainter>
 #endif // GUIPP_QT
+#include <util/ostreamfmt.h>
 
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <util/ostreamfmt.h>
-#include <gui/core/native.h>
-#include <gui/win/overlapped_window.h>
-#include <gui/win/window_event_proc.h>
-#include <gui/win/window_event_handler.h>
-#include <gui/win/native.h>
-#include <gui/win/dbg_win_message.h>
+#include "gui/core/native.h"
+#include "gui/win/overlapped_window.h"
+#include "gui/win/window_event_proc.h"
+#include "gui/win/window_event_handler.h"
+#include "gui/win/native.h"
+#include "gui/win/dbg_win_message.h"
 
 #if !defined(GUIPP_BUILD_FOR_MOBILE)
 # define USE_INPUT_EATER

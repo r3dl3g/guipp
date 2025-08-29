@@ -23,7 +23,7 @@
 //
 // Library includes
 //
-#include <gui/core/color.h>
+#include "gui/core/color.h"
 
 
 #define DEFINE_SYS_COLOR(name, SYS_NAME) \

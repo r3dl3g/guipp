@@ -20,13 +20,13 @@
 //
 // Library includes
 //
-#include <gui/core/selection_adjustment.h>
-#include <gui/layout/layout_container.h>
-#include <gui/layout/dynamic_border_layout.h>
-#include <gui/ctrl/scroll_bar.h>
-#include <gui/ctrl/label.h>
-#include <gui/ctrl/edit.h>
-#include <gui/ctrl/look/table.h>
+#include "gui/core/selection_adjustment.h"
+#include "gui/layout/layout_container.h"
+#include "gui/layout/dynamic_border_layout.h"
+#include "gui/ctrl/scroll_bar.h"
+#include "gui/ctrl/label.h"
+#include "gui/ctrl/edit.h"
+#include "gui/ctrl/look/table.h"
 
 
 namespace gui {
@@ -520,4 +520,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/table.inl>
+#include "gui/ctrl/table.inl"

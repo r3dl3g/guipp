@@ -19,8 +19,8 @@
 // Library includes
 //
 
-#include <gui/core/rectangle.h>
-#include <gui/draw/arc_coords.h>
+#include "gui/core/rectangle.h"
+#include "gui/draw/arc_coords.h"
 
 
 namespace gui {

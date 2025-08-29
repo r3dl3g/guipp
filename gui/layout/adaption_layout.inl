@@ -18,7 +18,7 @@
 
 // --------------------------------------------------------------------------
 //
-// Library includes
+// Common includes
 //
 #include <util/bind_method.h>
 

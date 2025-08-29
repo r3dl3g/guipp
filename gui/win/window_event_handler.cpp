@@ -26,8 +26,8 @@
 //
 // Library includes
 //
-#include <gui/win/window_event_handler.h>
-#include <gui/win/overlapped_window.h>
+#include "gui/win/window_event_handler.h"
+#include "gui/win/overlapped_window.h"
 
 #ifdef GUIPP_WIN
 # include <util/string_util.h>

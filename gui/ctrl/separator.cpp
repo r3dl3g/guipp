@@ -18,7 +18,7 @@
 //
 // Library includes
 //
-#include <gui/ctrl/separator.h>
+#include "gui/ctrl/separator.h"
 
 
 namespace gui {

@@ -26,15 +26,15 @@
 //
 // Library includes
 //
-#include <gui/win/window_event_handler.h>
-#include <gui/win/background_repeater.h>
-#include <gui/ctrl/look/control.h>
-#include <gui/ctrl/look/button.h>
-#include <gui/ctrl/control.h>
-#include <gui/layout/adaption_layout.h>
-#include <gui/layout/layout_container.h>
-#include <gui/draw/pen.h>
-#include <gui/draw/icons.h>
+#include "gui/win/window_event_handler.h"
+#include "gui/win/background_repeater.h"
+#include "gui/ctrl/look/control.h"
+#include "gui/ctrl/look/button.h"
+#include "gui/ctrl/control.h"
+#include "gui/layout/adaption_layout.h"
+#include "gui/layout/layout_container.h"
+#include "gui/draw/pen.h"
+#include "gui/draw/icons.h"
 
 
 namespace gui {
@@ -456,4 +456,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/button.inl>
+#include "gui/ctrl/button.inl"

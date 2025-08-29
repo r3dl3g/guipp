@@ -18,7 +18,7 @@
 //
 // Library includes
 //
-#include <gui/ctrl/label.h>
+#include "gui/ctrl/label.h"
 
 
 //#define SHOW_TEXT_AREA

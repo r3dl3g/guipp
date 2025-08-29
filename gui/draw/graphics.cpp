@@ -27,22 +27,22 @@
 # include <QtGui/QScreen>
 #endif // GUIPP_QT
 
-// --------------------------------------------------------------------------
-//
-// Library includes
-//
 #include <util/ostreamfmt.h>
 #ifdef GUIPP_WIN
 # include <util/string_util.h>
 #endif // GUIPP_WIN
 
-#include <gui/core/native.h>
-#include <gui/draw/graphics.h>
-#include <gui/draw/bitmap.h>
-#include <gui/draw/drawers.h>
-#include <gui/draw/pen.h>
-#include <gui/draw/brush.h>
-#include <gui/draw/use.h>
+// --------------------------------------------------------------------------
+//
+// Library includes
+//
+#include "gui/core/native.h"
+#include "gui/draw/graphics.h"
+#include "gui/draw/bitmap.h"
+#include "gui/draw/drawers.h"
+#include "gui/draw/pen.h"
+#include "gui/draw/brush.h"
+#include "gui/draw/use.h"
 
 #ifdef GUIPP_X11
 // For debugging

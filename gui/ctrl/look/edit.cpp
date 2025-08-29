@@ -19,17 +19,17 @@
 //
 // Common includes
 //
+#include <util/string_util.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <util/string_util.h>
-#include <gui/draw/drawers.h>
-#include <gui/draw/graphics.h>
-#include <gui/draw/brush.h>
-#include <gui/draw/pen.h>
-#include <gui/ctrl/look/edit.h>
+#include "gui/draw/drawers.h"
+#include "gui/draw/graphics.h"
+#include "gui/draw/brush.h"
+#include "gui/draw/pen.h"
+#include "gui/ctrl/look/edit.h"
 
 
 //#define SHOW_TEXT_AREA

@@ -27,7 +27,7 @@
 //
 // Library includes
 //
-#include <gui/core/event.h>
+#include "gui/core/event.h"
 
 namespace gui {
 

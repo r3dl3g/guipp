@@ -20,7 +20,7 @@
 //
 // Library includes
 //
-#include <gui/core/window_state.h>
+#include "gui/core/window_state.h"
 
 
 namespace gui {

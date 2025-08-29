@@ -23,14 +23,14 @@
 //
 #include <map>
 #include <X11/cursorfont.h>
+#include <logging/logger.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <logging/logger.h>
-#include <gui/win/native.h>
-#include <gui/win/overlapped_window.h>
+#include "gui/win/native.h"
+#include "gui/win/overlapped_window.h"
 
 
 namespace gui {

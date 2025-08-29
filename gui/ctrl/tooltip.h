@@ -23,15 +23,15 @@
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
+#include <util/time_util.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <util/time_util.h>
-#include <gui/core/text_source.h>
-#include <gui/win/overlapped_window.h>
-#include <gui/ctrl/gui++-ctrl-export.h>
+#include "gui/core/text_source.h"
+#include "gui/win/overlapped_window.h"
+#include "gui/ctrl/gui++-ctrl-export.h"
 
 
 namespace gui {

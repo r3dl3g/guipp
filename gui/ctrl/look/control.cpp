@@ -18,13 +18,13 @@
 //
 // Library includes
 //
-#include <gui/draw/graphics.h>
-#include <gui/draw/drawers.h>
-#include <gui/draw/brush.h>
-#include <gui/draw/font.h>
-#include <gui/ctrl/item_state.h>
-#include <gui/ctrl/look/look_and_feel.h>
-#include <gui/ctrl/look/control.h>
+#include "gui/draw/graphics.h"
+#include "gui/draw/drawers.h"
+#include "gui/draw/brush.h"
+#include "gui/draw/font.h"
+#include "gui/ctrl/item_state.h"
+#include "gui/ctrl/look/look_and_feel.h"
+#include "gui/ctrl/look/control.h"
 
 
 namespace gui {

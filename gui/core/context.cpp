@@ -16,12 +16,17 @@
 
 // --------------------------------------------------------------------------
 //
-// Library includes
+// Common includes
 //
 #include <logging/logger.h>
-#include <gui/core/context.h>
-#include <gui/core/native.h>
-#include <gui/core/rectangle.h>
+
+// --------------------------------------------------------------------------
+//
+// Library includes
+//
+#include "gui/core/context.h"
+#include "gui/core/native.h"
+#include "gui/core/rectangle.h"
 
 
 namespace gui {

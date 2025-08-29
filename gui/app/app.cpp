@@ -14,6 +14,10 @@
  * @license   MIT license. See accompanying file LICENSE.
  */
 
+// --------------------------------------------------------------------------
+//
+// Common includes
+//
 #include <fstream>
 #include <cstring>
 #include <signal.h>
@@ -27,17 +31,18 @@
 #include <logging/redirect_stream.h>
 #endif // ANDROID
 
- // --------------------------------------------------------------------------
-//
-// Library includes
-//
 #include <logging/dbgstream.h>
 #include <logging/file_logger.h>
 #include <logging/logger.h>
 #include <logging/core.h>
 #include <util/string_util.h>
-#include <gui/app/app.h>
-#include <gui/core/guidefs.h>
+
+ // --------------------------------------------------------------------------
+//
+// Library includes
+//
+#include "gui/app/app.h"
+#include "gui/core/guidefs.h"
 
 #ifdef USE_BOOST
 #define ENABLE_STACKTRACE

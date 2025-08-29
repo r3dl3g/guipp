@@ -19,9 +19,9 @@
 //
 // Library includes
 //
-#include <gui/core/guidefs.h>
-#include <gui/draw/draw_fwd.h>
-#include <gui/draw/gui++-draw-export.h>
+#include "gui/core/guidefs.h"
+#include "gui/draw/draw_fwd.h"
+#include "gui/draw/gui++-draw-export.h"
 
 
 namespace gui {

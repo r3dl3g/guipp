@@ -20,9 +20,9 @@
 //
 // Library includes
 //
-#include <gui/ctrl/toggle_group.h>
-#include <gui/ctrl/button.h>
-#include <gui/layout/adaption_layout.h>
+#include "gui/ctrl/toggle_group.h"
+#include "gui/ctrl/button.h"
+#include "gui/layout/adaption_layout.h"
 
 
 namespace gui {

@@ -1,22 +1,22 @@
 
 #include <iomanip>
 
-#include <gui/draw/graphics.h>
-#include <gui/draw/drawers.h>
-#include <gui/draw/brush.h>
-#include <gui/draw/pen.h>
-#include <gui/draw/font.h>
-#include <gui/draw/bitmap.h>
-#include <gui/draw/icons.h>
-#include <gui/io/pnm.h>
-#include <gui/ctrl/tree.h>
-#include <testlib/testlib.h>
-#include <testlib/image_test_lib.h>
+#include "gui/draw/graphics.h"
+#include "gui/draw/drawers.h"
+#include "gui/draw/brush.h"
+#include "gui/draw/pen.h"
+#include "gui/draw/font.h"
+#include "gui/draw/bitmap.h"
+#include "gui/draw/icons.h"
+#include "gui/io/pnm.h"
+#include "gui/ctrl/tree.h"
+#include "testlib/testlib.h"
+#include "testlib/image_test_lib.h"
 
 namespace image_data {
-#include <gui/ctrl/look/res/file_icon.h>
-#include <gui/ctrl/look/res/close_folder_icon.h>
-#include <gui/ctrl/look/res/open_folder_icon.h>
+#include "gui/ctrl/look/res/file_icon.h"
+#include "gui/ctrl/look/res/close_folder_icon.h"
+#include "gui/ctrl/look/res/open_folder_icon.h"
 } // namespace image_data
 
 

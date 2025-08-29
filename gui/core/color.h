@@ -25,7 +25,7 @@
 //
 // Library includes
 //
-#include <gui/core/guidefs.h>
+#include "gui/core/guidefs.h"
 
 
 namespace gui {

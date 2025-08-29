@@ -18,7 +18,7 @@
 //
 // Library includes
 //
-#include <gui/core/selection_adjustment.h>
+#include "gui/core/selection_adjustment.h"
 
 
 namespace gui {

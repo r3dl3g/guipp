@@ -20,8 +20,8 @@
 //
 // Library includes
 //
-#include <gui/win/overlapped_window.h>
-#include <gui/layout/layout.h>
+#include "gui/win/overlapped_window.h"
+#include "gui/layout/layout.h"
 
 
 namespace gui {
@@ -92,4 +92,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/layout/layout_container.inl>
+#include "gui/layout/layout_container.inl"

@@ -16,12 +16,17 @@
 
 // --------------------------------------------------------------------------
 //
-// Library includes
+// Common includes
 //
 #include <util/string_util.h>
-#include <gui/ctrl/editbox.h>
-#include <gui/ctrl/edit.h>
-#include <gui/win/clipboard.h>
+
+// --------------------------------------------------------------------------
+//
+// Library includes
+//
+#include "gui/ctrl/editbox.h"
+#include "gui/ctrl/edit.h"
+#include "gui/win/clipboard.h"
 
 
 namespace gui {

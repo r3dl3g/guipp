@@ -27,8 +27,8 @@
 //
 // Library includes
 //
-#include <gui/ctrl/splitter.h>
-#include <gui/core/guidefs.h>
+#include "gui/ctrl/splitter.h"
+#include "gui/core/guidefs.h"
 
 
 namespace gui {

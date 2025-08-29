@@ -29,14 +29,14 @@
 # include <QtGui/QFontMetrics>
 #endif // GUIPP_QT
 
+#include <logging/logger.h>
+#include <util/string_util.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <logging/logger.h>
-#include <gui/draw/font.h>
-#include <util/string_util.h>
+#include "gui/draw/font.h"
 #
 
 namespace std {

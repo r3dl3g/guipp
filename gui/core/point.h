@@ -122,4 +122,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/core/point.inl>
+#include "gui/core/point.inl"

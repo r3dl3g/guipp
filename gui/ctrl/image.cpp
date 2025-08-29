@@ -18,8 +18,8 @@
 //
 // Library includes
 //
-#include <gui/draw/graphics.h>
-#include <gui/ctrl/image.h>
+#include "gui/draw/graphics.h"
+#include "gui/ctrl/image.h"
 
 
 using namespace gui::draw;

@@ -24,7 +24,7 @@
 //
 // Library includes
 //
-#include <gui/draw/brush.h>
+#include "gui/draw/brush.h"
 
 #ifdef DEBUG_LOGGING
 # include <logging/logger.h>

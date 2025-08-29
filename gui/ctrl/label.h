@@ -18,14 +18,19 @@
 
 // --------------------------------------------------------------------------
 //
+// Common includes
+//
+#include <util/string_util.h>
+
+// --------------------------------------------------------------------------
+//
 // Library includes
 //
-#include <gui/draw/graphics.h>
-#include <gui/draw/text_origin.h>
-#include <gui/draw/frames.h>
-#include <gui/ctrl/control.h>
-#include <gui/ctrl/look/label.h>
-#include <util/string_util.h>
+#include "gui/draw/graphics.h"
+#include "gui/draw/text_origin.h"
+#include "gui/draw/frames.h"
+#include "gui/ctrl/control.h"
+#include "gui/ctrl/look/label.h"
 
 
 namespace gui {
@@ -116,4 +121,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/ctrl/label.inl>
+#include "gui/ctrl/label.inl"

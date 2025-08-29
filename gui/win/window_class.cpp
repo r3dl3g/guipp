@@ -18,8 +18,8 @@
 //
 // Library includes
 //
-#include <gui/win/window.h>
-#include <gui/win/window_event_proc.h>
+#include "gui/win/window.h"
+#include "gui/win/window_event_proc.h"
 
 
 namespace gui {

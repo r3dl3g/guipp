@@ -19,13 +19,13 @@
 // Common includes
 //
 #include <iostream>
+#include <util/string_util.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <util/string_util.h>
-#include <gui/io/pnm.h>
+#include "gui/io/pnm.h"
 
 
 namespace gui {

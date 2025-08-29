@@ -27,14 +27,14 @@
 #include <QtGui/QPainter>
 #include <QtGui/QBitmap>
 #include <QtGui/QBackingStore>
+#include <logging/logger.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <logging/logger.h>
-#include <gui/win/native.h>
-#include <gui/win/overlapped_window.h>
+#include "gui/win/native.h"
+#include "gui/win/overlapped_window.h"
 
 
 namespace gui {

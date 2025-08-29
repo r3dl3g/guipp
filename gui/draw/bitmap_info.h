@@ -20,8 +20,8 @@
 //
 // Library includes
 //
-#include <gui/core/gui_types.h>
-#include <gui/draw/gui++-draw-export.h>
+#include "gui/core/gui_types.h"
+#include "gui/draw/gui++-draw-export.h"
 
 
 namespace gui {
@@ -68,4 +68,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/draw/bitmap_info.inl>
+#include "gui/draw/bitmap_info.inl"

@@ -27,8 +27,8 @@
 //
 // Library includes
 //
-#include <gui/core/color.h>
-#include <gui/io/gui++-io-export.h>
+#include "gui/core/color.h"
+#include "gui/io/gui++-io-export.h"
 
 
 namespace gui {
@@ -47,4 +47,4 @@ namespace gui {
 
 } // namespace gui
 
-//#include <gui/io/pnm_to_src.inl>
+//#include "gui/io/pnm_to_src.inl"

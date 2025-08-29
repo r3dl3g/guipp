@@ -28,7 +28,7 @@
 //
 // Library includes
 //
-#include <gui/io/pnm.h>
+#include "gui/io/pnm.h"
 
 
 namespace gui {
@@ -83,4 +83,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/io/pnm_to_src.inl>
+#include "gui/io/pnm_to_src.inl"

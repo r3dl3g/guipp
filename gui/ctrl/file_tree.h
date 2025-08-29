@@ -21,15 +21,15 @@
 // Common includes
 //
 #include <functional>
+#include <util/sys_fs.h>
+#include <util/string_util.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <util/sys_fs.h>
-#include <util/string_util.h>
-#include <gui/ctrl/tree.h>
-#include <gui/ctrl/column_list.h>
+#include "gui/ctrl/tree.h"
+#include "gui/ctrl/column_list.h"
 
 
 namespace gui {
@@ -308,4 +308,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/file_tree.inl>
+#include "gui/ctrl/file_tree.inl"

@@ -21,13 +21,13 @@
 //
 #include <sstream>
 #include <cctype>
+#include <logging/logger.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <logging/logger.h>
-#include <gui/core/keys.h>
+#include "gui/core/keys.h"
 
 
 namespace gui {

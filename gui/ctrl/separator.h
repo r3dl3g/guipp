@@ -20,8 +20,8 @@
 //
 // Library includes
 //
-#include <gui/draw/drawers.h>
-#include <gui/ctrl/control.h>
+#include "gui/draw/drawers.h"
+#include "gui/ctrl/control.h"
 
 
 namespace gui {
@@ -82,4 +82,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/separator.inl>
+#include "gui/ctrl/separator.inl"

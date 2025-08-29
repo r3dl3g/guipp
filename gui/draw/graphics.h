@@ -24,17 +24,17 @@
 #ifdef GUIPP_QT
 # include <QtGui/QPainter>
 #endif // GUIPP_QT
+#include <util/bind_method.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <util/bind_method.h>
-#include <gui/core/context.h>
-#include <gui/core/color.h>
-#include <gui/core/rectangle.h>
-#include <gui/draw/draw_fwd.h>
-#include <gui/draw/gui++-draw-export.h>
+#include "gui/core/context.h"
+#include "gui/core/color.h"
+#include "gui/core/rectangle.h"
+#include "gui/draw/draw_fwd.h"
+#include "gui/draw/gui++-draw-export.h"
 
 
 namespace gui {
@@ -177,4 +177,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/draw/graphics.inl>
+#include "gui/draw/graphics.inl"

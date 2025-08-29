@@ -20,8 +20,8 @@
 //
 // Library includes
 //
-#include <gui/ctrl/tab_group.h>
-#include <gui/layout/split_layout.h>
+#include "gui/ctrl/tab_group.h"
+#include "gui/layout/split_layout.h"
 
 
 // --------------------------------------------------------------------------
@@ -115,4 +115,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/ctrl/tab_view.inl>
+#include "gui/ctrl/tab_view.inl"

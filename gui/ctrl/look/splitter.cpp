@@ -18,10 +18,10 @@
 //
 // Library includes
 //
-#include <gui/draw/graphics.h>
-#include <gui/draw/drawers.h>
-#include <gui/draw/brush.h>
-#include <gui/ctrl/look/splitter.h>
+#include "gui/draw/graphics.h"
+#include "gui/draw/drawers.h"
+#include "gui/draw/brush.h"
+#include "gui/ctrl/look/splitter.h"
 
 
 namespace gui {

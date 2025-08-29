@@ -27,7 +27,7 @@
 //
 // Library includes
 //
-#include <gui/core/guidefs.h>
+#include "gui/core/guidefs.h"
 
 
 namespace gui {
@@ -89,4 +89,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/core/range.inl>
+#include "gui/core/range.inl"

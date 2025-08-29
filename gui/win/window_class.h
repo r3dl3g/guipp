@@ -27,8 +27,8 @@
 //
 // Library includes
 //
-#include <gui/core/color.h>
-#include <gui/win/cursor.h>
+#include "gui/core/color.h"
+#include "gui/win/cursor.h"
 
 
 namespace gui {

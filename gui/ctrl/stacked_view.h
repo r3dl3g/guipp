@@ -28,8 +28,8 @@
 //
 // Library includes
 //
-#include <gui/win/stacked_view_controller.h>
-#include <gui/layout/layout_container.h>
+#include "gui/win/stacked_view_controller.h"
+#include "gui/layout/layout_container.h"
 
 
 namespace gui {
@@ -69,4 +69,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/stacked_view.inl>
+#include "gui/ctrl/stacked_view.inl"

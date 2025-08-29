@@ -25,7 +25,7 @@
 //
 // Library includes
 //
-#include <gui/core/bits.h>
+#include "gui/core/bits.h"
 
 
 namespace gui {

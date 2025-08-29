@@ -1,7 +1,7 @@
 // testlib.h
 //
 #include <vector>
-#include <gui/draw/bitmap.h>
+#include "gui/draw/bitmap.h"
 
 namespace testing {
 

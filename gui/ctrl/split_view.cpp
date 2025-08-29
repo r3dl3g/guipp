@@ -18,8 +18,8 @@
 //
 // Library includes
 //
-#include <gui/draw/graphics.h>
-#include <gui/ctrl/split_view.h>
+#include "gui/draw/graphics.h"
+#include "gui/ctrl/split_view.h"
 
 
 namespace gui {

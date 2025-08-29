@@ -18,8 +18,8 @@
 //
 // Library includes
 //
-#include <gui/ctrl/control.h>
-#include <gui/ctrl/tooltip.h>
+#include "gui/ctrl/control.h"
+#include "gui/ctrl/tooltip.h"
 
 
 namespace gui {

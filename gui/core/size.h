@@ -28,7 +28,7 @@
 //
 // Library includes
 //
-#include <gui/core/guidefs.h>
+#include "gui/core/guidefs.h"
 #include "coordinate_system.h"
 
 
@@ -118,4 +118,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/core/size.inl>
+#include "gui/core/size.inl"

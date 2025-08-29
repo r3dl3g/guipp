@@ -20,12 +20,12 @@
 //
 // Library includes
 //
-#include <gui/draw/graphics.h>
-#include <gui/draw/font.h>
-#include <gui/draw/text_origin.h>
-#include <gui/draw/frames.h>
-#include <gui/ctrl/control.h>
-#include <gui/ctrl/look/textbox.h>
+#include "gui/draw/graphics.h"
+#include "gui/draw/font.h"
+#include "gui/draw/text_origin.h"
+#include "gui/draw/frames.h"
+#include "gui/ctrl/control.h"
+#include "gui/ctrl/look/textbox.h"
 
 
 namespace gui {
@@ -132,4 +132,4 @@ namespace gui {
 
 } // gui
 
-#include <gui/ctrl/textbox.inl>
+#include "gui/ctrl/textbox.inl"

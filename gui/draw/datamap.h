@@ -34,14 +34,18 @@ namespace gui {
     public:
       bool is_valid () const;
 
-      basic_datamap () = default;
+      basic_datamap ();
+      basic_datamap (const basic_datamap&);
+      basic_datamap (basic_datamap&&);
+
+      ~basic_datamap ();
+
+      basic_datamap& operator= (const basic_datamap&);
 
       operator bool () const;
 
       const bitmap_info& get_info () const;
       bitmap_info& get_info ();
-
-      const blob& get_raw () const;
 
       template<pixel_format_t S>
       datamap<S> convert () const;
@@ -59,17 +63,17 @@ namespace gui {
 
       template<pixel_format_t S>
       const const_image_data<S> const_reinterpret () const {
-        return const_image_data<S>(core::array_wrapper<const byte>(data.data(), data.size()), info);
+        return const_image_data<S>(core::array_wrapper<const byte>(data(), size()), info);
       }
 
       template<pixel_format_t S>
       const const_image_data<S> const_reinterpret () {
-        return const_image_data<S>(core::array_wrapper<const byte>(data.data(), data.size()), info);
+        return const_image_data<S>(core::array_wrapper<const byte>(data(), size()), info);
       }
 
       template<pixel_format_t S>
       const image_data<S> reinterpret () {
-        return image_data<S>(core::array_wrapper<byte>(data.data(), data.size()), info);
+        return image_data<S>(core::array_wrapper<byte>(data(), size()), info);
       }
 
     protected:
@@ -82,8 +86,18 @@ namespace gui {
       core::array_wrapper<byte> access () ;
 
     private:
+      std::size_t size () const;
+      byte* data ();
+      const byte* data () const;
+      void destroy();
+
       bitmap_info info;
-      blob data;
+  #ifdef GUIPP_USE_XSHM
+      XShmSegmentInfo shminfo;
+      XImage* image;
+  #else
+      blob buffer;
+  #endif // GUIPP_USE_XSHM
     };
 
     // --------------------------------------------------------------------------

@@ -49,6 +49,8 @@ namespace gui {
 
       bool operator== (const bitmap_info&) const;
 
+      void swap (bitmap_info& rhs);
+
 #ifdef GUIPP_QT
 
       static pixel_format_t convert (QImage::Format f);

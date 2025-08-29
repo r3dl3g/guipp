@@ -164,6 +164,13 @@ namespace gui {
       return (width == rhs.width) && (height == rhs.height) && (pixel_format == rhs.pixel_format) && (bytes_per_line == rhs.bytes_per_line);
     }
 
+    void bitmap_info::swap (bitmap_info& rhs) {
+      std::swap(width, rhs.width);
+      std::swap(height, rhs.height);
+      std::swap(pixel_format, rhs.pixel_format);
+      std::swap(bytes_per_line, rhs.bytes_per_line);
+    }
+
     std::ostream& operator<< (std::ostream& out, const bitmap_info& bmi) {
       out << "bitmap_info{" << bmi.width << ", " << bmi.height << ", " << bmi.bytes_per_line << ", " << bmi.pixel_format << "}";
       return out;

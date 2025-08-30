@@ -419,9 +419,10 @@ namespace gui {
 #ifdef GUIPP_USE_XSHM
         if (core::global::x11::has_XShm()) {
           auto display = core::global::get_instance();
+          logging::trace() << "Call XShmPutImage for id " << bmp.shminfo.shmid << " and adress " << std::hex << (ptrdiff_t)bmp.shminfo.shmaddr;
           Bool result = XShmPutImage(display, target(), gc(), bmp.image, src.x(), src.y(), pt.x(), pt.y(), src.width(), src.height(), False);
           if (!result) {
-              logging::error() << "XShmPutImage of area " << src << " to point " << pt << " failed!\n";
+              logging::error() << "XShmPutImage of area " << src << " to point " << pt << " failed!";
           } else {
             XFlush(display);
           }

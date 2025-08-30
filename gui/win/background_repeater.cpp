@@ -48,6 +48,7 @@ namespace gui {
     }
 
     background_repeater::~background_repeater () {
+      stop();
       wait_for_finish();
     }
 

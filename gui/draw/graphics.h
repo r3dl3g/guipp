@@ -109,12 +109,18 @@ namespace gui {
       graphics& copy_from (const draw::masked_bitmap&, const core::native_point& dest = core::native_point::zero);
 
       graphics& copy_from (os::drawable, const core::rectangle& src,
-                                 const core::point& dest = core::point::zero,
-                                 const copy_mode = copy_mode::bit_copy);
+                           const core::point& dest = core::point::zero,
+                           const copy_mode = copy_mode::bit_copy);
 
       graphics& copy_from (os::drawable, const core::native_rect& src,
-                                 const core::native_point& dest = core::native_point::zero,
-                                 const copy_mode = copy_mode::bit_copy);
+                           const core::native_point& dest = core::native_point::zero,
+                           const copy_mode = copy_mode::bit_copy);
+
+      graphics& copy_from (const draw::basic_datamap&, const core::point& dest);
+      graphics& copy_from (const draw::basic_datamap&, const core::rectangle& src, const core::point& dest);
+
+      graphics& copy_from (const draw::basic_datamap&, const core::native_point& dest);
+      graphics& copy_from (const draw::basic_datamap&, const core::native_rect& src, const core::native_point& dest);
 
       void invert (const core::rectangle&);
       void flush ();

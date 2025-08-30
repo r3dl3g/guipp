@@ -410,6 +410,29 @@ namespace gui {
       return *this;
     }
 
+    graphics& graphics::copy_from (const draw::basic_datamap& bmp, const core::native_point& pt) {
+      return copy_from(bmp, core::native_rect(bmp.native_size()), pt);
+    }
+
+    graphics& graphics::copy_from (const draw::basic_datamap& bmp, const core::native_rect& src, const core::native_point& pt) {
+      if (bmp.is_valid()) {
+#ifdef GUIPP_USE_XSHM
+        if (core::global::x11::has_XShm()) {
+          auto display = core::global::get_instance();
+          Bool result = XShmPutImage(display, target(), gc(), bmp.image, src.x(), src.y(), pt.x(), pt.y(), src.width(), src.height(), False);
+          XFlush(display);
+        } else {
+#endif // GUIPP_USE_XSHM
+          pixmap buffer;
+          buffer = bmp.convert<gui::pixel_format_t::RGB>();
+          copy_from(buffer, src, pt);
+#ifdef GUIPP_USE_XSHM
+        }
+#endif // GUIPP_USE_XSHM
+      }
+      return *this;
+    }
+
     void graphics::invert (const core::rectangle& r) {
       auto display = core::global::get_instance();
 
@@ -633,6 +656,14 @@ namespace gui {
 
     graphics& graphics::copy_from (const draw::pixmap& bmp, const core::point& pt) {
       return copy_from(bmp, core::native_point(pt.os(context()), context()));
+    }
+
+    graphics& graphics::copy_from (const draw::basic_datamap& bmp, const core::point& pt) {
+      return copy_from(bmp, core::native_point(pt.os(context()), context()));
+    }
+
+    graphics& graphics::copy_from (const draw::basic_datamap& bmp, const core::rectangle& r, const core::point& pt) {
+      return copy_from(bmp, core::global::scale_to_native(r), core::native_point(pt.os(context()), context()));
     }
 
 #ifndef GUIPP_QT

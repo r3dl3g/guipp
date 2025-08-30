@@ -416,7 +416,7 @@ namespace gui {
 
     graphics& graphics::copy_from (const draw::basic_datamap& bmp, const core::native_rect& src, const core::native_point& pt) {
       if (bmp.is_valid()) {
-#ifdef GUIPP_USE_XSHM
+#ifdef GUIPP_USE_XSHMx
         if (core::global::x11::has_XShm()) {
           auto display = core::global::get_instance();
           logging::trace() << "Call XShmPutImage for id " << bmp.shminfo.shmid << " and adress " << std::hex << (ptrdiff_t)bmp.shminfo.shmaddr;
@@ -431,7 +431,7 @@ namespace gui {
           pixmap buffer;
           buffer = bmp.convert<gui::pixel_format_t::RGB>();
           copy_from(buffer, src, pt);
-#ifdef GUIPP_USE_XSHM
+#ifdef GUIPP_USE_XSHMx
         }
 #endif // GUIPP_USE_XSHM
       }

@@ -33,12 +33,12 @@
 
 namespace gui {
 
-  namespace image_data {
+  namespace pnm_data {
 
 #   include <gui/ctrl/look/res/osx_dropdown_button.h>
 #   include <gui/ctrl/look/res/osx_dropdown_disabled_button.h>
 
-  } // namespace image_data
+  } // namespace pnm_data
 
   namespace detail {
 
@@ -53,8 +53,8 @@ namespace gui {
     T upscale (const T& img);
 
     const draw::rgbmap& get_osx_dropdown_button (bool enabled) {
-      static draw::rgbmap img = upscale(build_rgb_image(make_string(image_data::osx_dropdown_button)));
-      static draw::rgbmap dis = upscale(build_gray_image(make_string(image_data::osx_dropdown_disabled_button)).convert<pixel_format_t::RGB>());
+      static draw::rgbmap img = upscale(build_rgb_image(make_string(pnm_data::osx_dropdown_button)));
+      static draw::rgbmap dis = upscale(build_gray_image(make_string(pnm_data::osx_dropdown_disabled_button)).convert<pixel_format_t::RGB>());
       return enabled ? img : dis;
     }
 

@@ -36,7 +36,7 @@
 
 namespace gui {
 
-  namespace image_data {
+  namespace pnm_data {
 
 #   include <gui/ctrl/look/res/button_frame.h>
 #   include <gui/ctrl/look/res/button_pressed_frame.h>
@@ -69,7 +69,7 @@ namespace gui {
 #   include <gui/ctrl/look/res/osx_frame_default.h>
 #   include <gui/ctrl/look/res/osx_frame_pressed.h>
 
-  } // namespace image_data
+  } // namespace pnm_data
 
   namespace detail {
 
@@ -93,14 +93,14 @@ namespace gui {
     }
 
     draw::rgbmap build_button_frame_image (bool pressed, bool rot) {
-      return build_rgb_image(pressed ? (rot ? make_string(image_data::button_pressed_rot_frame_bytes)
-                                            : make_string(image_data::button_pressed_frame_bytes))
-                                     : (rot ? make_string(image_data::button_rot_frame_bytes)
-                                            : make_string(image_data::button_frame_bytes)));
+      return build_rgb_image(pressed ? (rot ? make_string(pnm_data::button_pressed_rot_frame_bytes)
+                                            : make_string(pnm_data::button_pressed_frame_bytes))
+                                     : (rot ? make_string(pnm_data::button_rot_frame_bytes)
+                                            : make_string(pnm_data::button_frame_bytes)));
     }
 
     draw::rgbmap build_simple_frame_image () {
-      return build_rgb_image(make_string(image_data::simple_frame_bytes));
+      return build_rgb_image(make_string(pnm_data::simple_frame_bytes));
     }
 
     template<bool rot, bool pressed>
@@ -173,34 +173,34 @@ namespace gui {
 
 
     const draw::masked_bitmap& get_osx_checkbox (bool active, bool disabled) {
-      static draw::masked_bitmap off      = make_masked(upscale(build_gray_image(make_string(image_data::osx_checkbox_off)).convert<pixel_format_t::RGB>()));
-      static draw::masked_bitmap on       = make_masked(upscale(build_rgb_image(make_string(image_data::osx_checkbox_on))));
-      static draw::masked_bitmap dis_off  = make_masked(upscale(build_gray_image(make_string(image_data::osx_checkbox_disabled_off)).convert<pixel_format_t::RGB>()));
-      static draw::masked_bitmap dis_on   = make_masked(upscale(build_gray_image(make_string(image_data::osx_checkbox_disabled_on)).convert<pixel_format_t::RGB>()));
+      static draw::masked_bitmap off      = make_masked(upscale(build_gray_image(make_string(pnm_data::osx_checkbox_off)).convert<pixel_format_t::RGB>()));
+      static draw::masked_bitmap on       = make_masked(upscale(build_rgb_image(make_string(pnm_data::osx_checkbox_on))));
+      static draw::masked_bitmap dis_off  = make_masked(upscale(build_gray_image(make_string(pnm_data::osx_checkbox_disabled_off)).convert<pixel_format_t::RGB>()));
+      static draw::masked_bitmap dis_on   = make_masked(upscale(build_gray_image(make_string(pnm_data::osx_checkbox_disabled_on)).convert<pixel_format_t::RGB>()));
       return disabled ? (active ? dis_on : dis_off) : (active ? on : off);
     }
 
     const draw::masked_bitmap& get_osx_radio (bool active, bool disabled) {
-      static draw::masked_bitmap off      = make_masked(upscale(build_gray_image(make_string(image_data::osx_radio_off)).convert<pixel_format_t::RGB>()));
-      static draw::masked_bitmap on       = make_masked(upscale(build_rgb_image(make_string(image_data::osx_radio_on))));
-      static draw::masked_bitmap dis_off  = make_masked(upscale(build_gray_image(make_string(image_data::osx_radio_disabled_off)).convert<pixel_format_t::RGB>()));
-      static draw::masked_bitmap dis_on   = make_masked(upscale(build_gray_image(make_string(image_data::osx_radio_disabled_on)).convert<pixel_format_t::RGB>()));
+      static draw::masked_bitmap off      = make_masked(upscale(build_gray_image(make_string(pnm_data::osx_radio_off)).convert<pixel_format_t::RGB>()));
+      static draw::masked_bitmap on       = make_masked(upscale(build_rgb_image(make_string(pnm_data::osx_radio_on))));
+      static draw::masked_bitmap dis_off  = make_masked(upscale(build_gray_image(make_string(pnm_data::osx_radio_disabled_off)).convert<pixel_format_t::RGB>()));
+      static draw::masked_bitmap dis_on   = make_masked(upscale(build_gray_image(make_string(pnm_data::osx_radio_disabled_on)).convert<pixel_format_t::RGB>()));
       return disabled ? (active ? dis_on : dis_off) : (active ? on : off);
     }
 
     const draw::masked_bitmap& get_metal_checkbox (bool active, bool disabled) {
-      static draw::masked_bitmap off      = make_masked(downscale(build_gray_image(make_string(image_data::metal_check_off))));
-      static draw::masked_bitmap on       = make_masked(downscale(build_gray_image(make_string(image_data::metal_check_on))));
-      static draw::masked_bitmap dis_off  = make_masked(downscale(build_gray_image(make_string(image_data::metal_check_disabled))));
-      static draw::masked_bitmap dis_on   = make_masked(downscale(build_gray_image(make_string(image_data::metal_check_disabled_on))));
+      static draw::masked_bitmap off      = make_masked(downscale(build_gray_image(make_string(pnm_data::metal_check_off))));
+      static draw::masked_bitmap on       = make_masked(downscale(build_gray_image(make_string(pnm_data::metal_check_on))));
+      static draw::masked_bitmap dis_off  = make_masked(downscale(build_gray_image(make_string(pnm_data::metal_check_disabled))));
+      static draw::masked_bitmap dis_on   = make_masked(downscale(build_gray_image(make_string(pnm_data::metal_check_disabled_on))));
       return disabled ? (active ? dis_on : dis_off) : (active ? on : off);
     }
 
     const draw::masked_bitmap& get_metal_radio (bool active, bool disabled) {
-      static draw::masked_bitmap off = make_masked(downscale(build_gray_image(make_string(image_data::metal_radio_off))));
-      static draw::masked_bitmap on = make_masked(downscale(build_gray_image(make_string(image_data::metal_radio_on))));
-      static draw::masked_bitmap dis_off = make_masked(downscale(build_gray_image(make_string(image_data::metal_radio_disabled))));
-      static draw::masked_bitmap dis_on = make_masked(downscale(build_gray_image(make_string(image_data::metal_radio_disabled_on))));
+      static draw::masked_bitmap off = make_masked(downscale(build_gray_image(make_string(pnm_data::metal_radio_off))));
+      static draw::masked_bitmap on = make_masked(downscale(build_gray_image(make_string(pnm_data::metal_radio_on))));
+      static draw::masked_bitmap dis_off = make_masked(downscale(build_gray_image(make_string(pnm_data::metal_radio_disabled))));
+      static draw::masked_bitmap dis_on = make_masked(downscale(build_gray_image(make_string(pnm_data::metal_radio_disabled_on))));
       return disabled ? (active ? dis_on : dis_off) : (active ? on : off);
     }
 
@@ -212,22 +212,22 @@ namespace gui {
     namespace osx {
 
       const draw::rgbmap& get_frame () {
-        static draw::rgbmap img = detail::build_gray_image(detail::make_string(image_data::osx_frame)).convert<pixel_format_t::RGB>();
+        static draw::rgbmap img = detail::build_gray_image(detail::make_string(pnm_data::osx_frame)).convert<pixel_format_t::RGB>();
         return img;
       }
 
       const draw::rgbmap& get_disabled_frame () {
-        static draw::rgbmap img = detail::build_gray_image(detail::make_string(image_data::osx_frame_disabled)).convert<pixel_format_t::RGB>();
+        static draw::rgbmap img = detail::build_gray_image(detail::make_string(pnm_data::osx_frame_disabled)).convert<pixel_format_t::RGB>();
         return img;
       }
 
       const draw::rgbmap& get_focused_frame () {
-        static draw::rgbmap img = detail::build_rgb_image(detail::make_string(image_data::osx_frame_default));
+        static draw::rgbmap img = detail::build_rgb_image(detail::make_string(pnm_data::osx_frame_default));
         return img;
       }
 
       const draw::rgbmap& get_pressed_frame () {
-        static draw::rgbmap img = detail::build_rgb_image(detail::make_string(image_data::osx_frame_pressed));
+        static draw::rgbmap img = detail::build_rgb_image(detail::make_string(pnm_data::osx_frame_pressed));
         return img;
       }
 

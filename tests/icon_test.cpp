@@ -13,11 +13,11 @@
 #include "testlib/testlib.h"
 #include "testlib/image_test_lib.h"
 
-namespace image_data {
+namespace pnm_data {
 #include "gui/ctrl/look/res/file_icon.h"
 #include "gui/ctrl/look/res/close_folder_icon.h"
 #include "gui/ctrl/look/res/open_folder_icon.h"
-} // namespace image_data
+} // namespace pnm_data
 
 
 using namespace gui;
@@ -176,7 +176,7 @@ void test_bitmap_get_data () {
   core::global::set_scale_factor(1.0);
 
   draw::bwmap mask;
-  std::istringstream in(make_string(image_data::file_icon_bits));
+  std::istringstream in(make_string(pnm_data::file_icon_bits));
   io::load_pnm(in, mask);
 
   auto data = mask.get_data();
@@ -196,7 +196,7 @@ void test_bitmap_get_image () {
   core::global::set_scale_factor(1.0);
 
   draw::bwmap mask;
-  std::istringstream in(make_string(image_data::file_icon_bits));
+  std::istringstream in(make_string(pnm_data::file_icon_bits));
   io::load_pnm(in, mask);
 
   draw::pixmap pix(mask);
@@ -221,7 +221,7 @@ void test_bitmap_get_image_inv () {
   core::global::set_scale_factor(1.0);
 
   draw::bwmap mask;
-  std::istringstream in(make_string(image_data::file_icon_bits));
+  std::istringstream in(make_string(pnm_data::file_icon_bits));
   io::load_pnm(in, mask);
 
   draw::pixmap pix(mask);
@@ -247,7 +247,7 @@ void test_bitmap_get_image_mask () {
   core::global::set_scale_factor(1.0);
 
   draw::bwmap bw;
-  std::istringstream in(make_string(image_data::file_icon_bits));
+  std::istringstream in(make_string(pnm_data::file_icon_bits));
   io::load_pnm(in, bw);
 
   draw::bitmap mask(bw);
@@ -304,7 +304,7 @@ void test_copy_bitmap () {
   core::global::set_scale_factor(1.0);
 
   draw::bwmap bw;
-  std::istringstream in(make_string(image_data::file_icon_bits));
+  std::istringstream in(make_string(pnm_data::file_icon_bits));
   io::load_pnm(in, bw);
 
   draw::bitmap bm0(bw);
@@ -333,7 +333,7 @@ void test_copy_pixmap () {
   core::global::set_scale_factor(1.0);
 
   draw::bwmap bw;
-  std::istringstream in(make_string(image_data::file_icon_bits));
+  std::istringstream in(make_string(pnm_data::file_icon_bits));
   io::load_pnm(in, bw);
 
   draw::pixmap pix0(bw);
@@ -520,7 +520,7 @@ void test_file_icon () {
   core::global::set_scale_factor(1.0);
 
   draw::bwmap mask;
-  std::istringstream in(make_string(image_data::file_icon_bits));
+  std::istringstream in(make_string(pnm_data::file_icon_bits));
   io::load_pnm(in, mask);
 
   EXPECT_TRUE(mask.is_valid());

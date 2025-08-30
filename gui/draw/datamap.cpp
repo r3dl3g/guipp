@@ -37,6 +37,7 @@ namespace gui {
       , buffer(data)
 #else
       , image(nullptr)
+      , shminfo{0}
 #endif // !GUIPP_USE_XSHM
     {
 #ifdef GUIPP_USE_XSHM
@@ -51,6 +52,7 @@ namespace gui {
       , buffer(std::move(data))
 #else
       , image(nullptr)
+      , shminfo{0}
 #endif // !GUIPP_USE_XSHM
     {
 #ifdef GUIPP_USE_XSHM
@@ -62,6 +64,7 @@ namespace gui {
     basic_datamap::basic_datamap ()
 #ifdef GUIPP_USE_XSHM
       : image(nullptr)
+      , shminfo{0}
 #endif // !GUIPP_USE_XSHM
     {}
 
@@ -71,6 +74,7 @@ namespace gui {
       , buffer(rhs.buffer)
 #else
       , image(nullptr)
+      , shminfo{0}
 #endif // !GUIPP_USE_XSHM
     {
 #ifdef GUIPP_USE_XSHM
@@ -88,21 +92,23 @@ namespace gui {
       info = rhs.info;
       buffer = rhs.buffer;
 #else
-      prepare(rhs.get_info());
+      prepare(rhs.info);
       assign(rhs.data(), rhs.size());
 #endif // GUIPP_USE_XSHM
       return *this;
     }
 
     basic_datamap::basic_datamap (basic_datamap&& rhs)
-      : info(std::move(rhs.info))
+      : info()//(std::move(rhs.info))
 #ifndef GUIPP_USE_XSHM
       , buffer(std::move(rhs.buffer))
 #else
-      , image(std::move(rhs.image))
-      , shminfo(std::move(rhs.shminfo))
+      , image(nullptr)
+      , shminfo{0}
 #endif // !GUIPP_USE_XSHM
-    {}
+    {
+      swap(rhs);
+    }
 
     basic_datamap::~basic_datamap () {
       destroy();
@@ -157,11 +163,7 @@ namespace gui {
     }
 
     std::size_t basic_datamap::size () const {
-#ifndef GUIPP_USE_XSHM
-      return buffer.size();
-#else // GUIPP_USE_XSHM
-      return is_valid() ? image->bytes_per_line * image->height : 0;
-#endif // !GUIPP_USE_XSHM
+      return info.mem_size();
     }
 
     byte* basic_datamap::data () {
@@ -212,7 +214,23 @@ namespace gui {
                               ZPixmap, nullptr, &shminfo,
                               info.width, info.height);
 
-      shminfo.shmid = shmget(IPC_PRIVATE, size(), IPC_CREAT | 0777);
+      switch (image->bits_per_pixel) {
+        case 1:
+            info.pixel_format = pixel_format_t::BW;
+        break;
+        case 8:
+            info.pixel_format = pixel_format_t::GRAY;
+        break;
+        case 24:
+            info.pixel_format = pixel_format_t::RGB;
+        break;
+        case 32:
+            info.pixel_format = pixel_format_t::ARGB;
+        break;
+      }
+      info.bytes_per_line = image->bytes_per_line;
+
+      shminfo.shmid = shmget(IPC_PRIVATE, size(), IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
       if (shminfo.shmid < 0) {
           logging::error() << "Fehler: shmget fehlgeschlagen\n";
           return;
@@ -244,7 +262,7 @@ namespace gui {
 #else // GUIPP_USE_XSHM
       const size_t imsz = size();
       if (sz <= imsz) {
-        memcpy(image->data, ptr, sz);
+        memmove(image->data, ptr, sz);
       }
 #endif // !GUIPP_USE_XSHM
     }
@@ -254,8 +272,7 @@ namespace gui {
       return core::array_wrapper<byte>(data(), size());
 #else // GUIPP_USE_XSHM
       if (is_valid()) {
-        const size_t sz = image->bytes_per_line * image->height;
-        return core::array_wrapper<byte>((byte*)image->data, sz);
+        return core::array_wrapper<byte>((byte*)image->data, size());
       }
       return core::array_wrapper<byte>(nullptr, 0);
 #endif // !GUIPP_USE_XSHM

@@ -92,56 +92,56 @@ namespace gui {
       return bmp;
     }
 
-    draw::graymap build_button_frame_image (bool pressed, bool rot) {
-      return build_gray_image(pressed ? (rot ? make_string(image_data::button_pressed_rot_frame_bytes)
+    draw::rgbmap build_button_frame_image (bool pressed, bool rot) {
+      return build_rgb_image(pressed ? (rot ? make_string(image_data::button_pressed_rot_frame_bytes)
                                              : make_string(image_data::button_pressed_frame_bytes))
                                       : (rot ? make_string(image_data::button_rot_frame_bytes)
                                              : make_string(image_data::button_frame_bytes)));
     }
 
-    draw::graymap build_simple_frame_image () {
-      return build_gray_image(make_string(image_data::simple_frame_bytes));
+    draw::rgbmap build_simple_frame_image () {
+      return build_rgb_image(make_string(image_data::simple_frame_bytes));
     }
 
     template<bool rot, bool pressed>
-    const draw::graymap& get_button_frame () {
-      static draw::graymap image(detail::build_button_frame_image(pressed, rot));
+    const draw::rgbmap& get_button_frame () {
+      static draw::rgbmap image(detail::build_button_frame_image(pressed, rot));
       return image;
     }
 
-    const draw::graymap& get_simple_frame () {
-      static draw::graymap image(detail::build_simple_frame_image());
+    const draw::rgbmap& get_simple_frame () {
+      static draw::rgbmap image(detail::build_simple_frame_image());
       return image;
     }
 
     template<alignment_t A>
-    const draw::graymap& get_tab_frame (bool pressed);
+    const draw::rgbmap& get_tab_frame (bool pressed);
 
     template<>
-    const draw::graymap& get_tab_frame<alignment_t::top> (bool pressed) {
-      static draw::graymap image(get_button_frame<false, false>().sub(1, 0, 7, 24));
-      static draw::graymap image_pressed(get_button_frame<false, true>().sub(1, 0, 7, 24));
+    const draw::rgbmap& get_tab_frame<alignment_t::top> (bool pressed) {
+      static draw::rgbmap image(get_button_frame<false, false>().sub(1, 0, 7, 24));
+      static draw::rgbmap image_pressed(get_button_frame<false, true>().sub(1, 0, 7, 24));
       return pressed ? image_pressed : image;
     }
 
     template<>
-    const draw::graymap& get_tab_frame<alignment_t::bottom> (bool pressed) {
-      static draw::graymap image(get_button_frame<false, true>().sub(1, 4, 7, 24));
-      static draw::graymap image_pressed(get_button_frame<false, false>().sub(1, 4, 7, 24));
+    const draw::rgbmap& get_tab_frame<alignment_t::bottom> (bool pressed) {
+      static draw::rgbmap image(get_button_frame<false, true>().sub(1, 4, 7, 24));
+      static draw::rgbmap image_pressed(get_button_frame<false, false>().sub(1, 4, 7, 24));
       return pressed ? image_pressed : image;
     }
 
     template<>
-    const draw::graymap& get_tab_frame<alignment_t::left> (bool pressed) {
-      static draw::graymap image(get_button_frame<true, false>().sub(0, 1, 24, 7));
-      static draw::graymap image_pressed(get_button_frame<true, true>().sub(0, 1, 24, 7));
+    const draw::rgbmap& get_tab_frame<alignment_t::left> (bool pressed) {
+      static draw::rgbmap image(get_button_frame<true, false>().sub(0, 1, 24, 7));
+      static draw::rgbmap image_pressed(get_button_frame<true, true>().sub(0, 1, 24, 7));
       return pressed ? image_pressed : image;
     }
 
     template<>
-    const draw::graymap& get_tab_frame<alignment_t::right> (bool pressed) {
-      static draw::graymap image(get_button_frame<true, true>().sub(4, 1, 24, 7));
-      static draw::graymap image_pressed(get_button_frame<true, false>().sub(4, 1, 24, 7));
+    const draw::rgbmap& get_tab_frame<alignment_t::right> (bool pressed) {
+      static draw::rgbmap image(get_button_frame<true, true>().sub(4, 1, 24, 7));
+      static draw::rgbmap image_pressed(get_button_frame<true, false>().sub(4, 1, 24, 7));
       return pressed ? image_pressed : image;
     }
 

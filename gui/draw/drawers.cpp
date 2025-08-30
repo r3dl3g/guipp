@@ -136,6 +136,10 @@ namespace gui {
       const int32_t width = dest_bmi.width;
       const int32_t height = dest_bmi.height;
 
+      if ((src_bmi.width < 1) || (src_bmi.height < 1) || (width < 1) || (height < 1)) {
+        return;
+      }
+
       const int32_t left = std::min(frame.x(), width);
       const int32_t right = std::min<int32_t>(frame.width(), width - left);
       const int32_t top = std::min(frame.y(), height);
@@ -229,9 +233,7 @@ namespace gui {
       copy_frame_image<T>(img.get_data(), dest.get_data(),
                           img.get_info(), dest.get_info(), frame);
 
-      pixmap buffer;
-      buffer = dest;
-      g.copy_from(buffer, pt);
+      g.copy_from(dest, pt);
     }
 
     template<>

@@ -91,15 +91,9 @@ namespace gui {
       std::size_t size () const;
       byte* data ();
       const byte* data () const;
-      void destroy();
 
       bitmap_info info;
-#ifdef GUIPP_USE_XSHM
-      XShmSegmentInfo shminfo;
-      XImage* image;
-#else
       blob buffer;
-#endif // GUIPP_USE_XSHM
     };
 
     // --------------------------------------------------------------------------

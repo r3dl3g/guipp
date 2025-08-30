@@ -33,105 +33,43 @@ namespace gui {
 
     basic_datamap::basic_datamap (const blob& data, const bitmap_info& bmi)
       : info(bmi)
-#ifndef GUIPP_USE_XSHM
       , buffer(data)
-#else
-      , image(nullptr)
-      , shminfo{0}
-#endif // !GUIPP_USE_XSHM
-    {
-#ifdef GUIPP_USE_XSHM
-      prepare(info);
-      assign(data.data(), data.size());
-#endif // GUIPP_USE_XSHM
-    }
+    {}
 
     basic_datamap::basic_datamap (blob&& data, bitmap_info&& bmi)
       : info(std::move(bmi))
-#ifndef GUIPP_USE_XSHM
       , buffer(std::move(data))
-#else
-      , image(nullptr)
-      , shminfo{0}
-#endif // !GUIPP_USE_XSHM
-    {
-#ifdef GUIPP_USE_XSHM
-      prepare(info);
-      assign(data.data(), data.size());
-#endif // GUIPP_USE_XSHM
-    }
+    {}
 
     basic_datamap::basic_datamap ()
-#ifdef GUIPP_USE_XSHM
-      : image(nullptr)
-      , shminfo{0}
-#endif // !GUIPP_USE_XSHM
     {}
 
     basic_datamap::basic_datamap (const basic_datamap& rhs)
       : info(rhs.info)
-#ifndef GUIPP_USE_XSHM
       , buffer(rhs.buffer)
-#else
-      , image(nullptr)
-      , shminfo{0}
-#endif // !GUIPP_USE_XSHM
-    {
-#ifdef GUIPP_USE_XSHM
-      prepare(info);
-      assign(rhs.data(), rhs.size());
-#endif // GUIPP_USE_XSHM
-    }
+    {}
 
     basic_datamap& basic_datamap::operator= (const basic_datamap& rhs) {
       if (this == &rhs) {
         return *this;
       }
 
-#ifndef GUIPP_USE_XSHM
       info = rhs.info;
       buffer = rhs.buffer;
-#else
-      prepare(rhs.info);
-      assign(rhs.data(), rhs.size());
-#endif // GUIPP_USE_XSHM
+
       return *this;
     }
 
     basic_datamap::basic_datamap (basic_datamap&& rhs)
-      : info()//(std::move(rhs.info))
-#ifndef GUIPP_USE_XSHM
+      : info(std::move(rhs.info))
       , buffer(std::move(rhs.buffer))
-#else
-      , image(nullptr)
-      , shminfo{0}
-#endif // !GUIPP_USE_XSHM
-    {
-      swap(rhs);
-    }
+    {}
 
-    basic_datamap::~basic_datamap () {
-      destroy();
-    }
-
-    void basic_datamap::destroy () {
-#ifdef GUIPP_USE_XSHM
-      if (is_valid()) {
-        XShmDetach(core::global::get_instance(), &shminfo);
-        shmdt(shminfo.shmaddr);
-        shmctl(shminfo.shmid, IPC_RMID, 0);
-        XDestroyImage(image);
-        image = nullptr;
-      }
-#endif // !GUIPP_USE_XSHM
-    }
+    basic_datamap::~basic_datamap () 
+    {}
 
     bool basic_datamap::is_valid () const {
-#ifndef GUIPP_USE_XSHM
       return !buffer.empty();
-#else // GUIPP_USE_XSHM
-      return image != nullptr;
-#endif // !GUIPP_USE_XSHM
     }
 
     basic_datamap::operator bool () const {
@@ -167,119 +105,36 @@ namespace gui {
     }
 
     byte* basic_datamap::data () {
-#ifndef GUIPP_USE_XSHM
       return buffer.data();
-#else // GUIPP_USE_XSHM
-      return is_valid() ? (byte*)image->data : nullptr;
-#endif // !GUIPP_USE_XSHM
     }
 
     const byte* basic_datamap::data () const {
-#ifndef GUIPP_USE_XSHM
       return buffer.data();
-#else // GUIPP_USE_XSHM
-      return is_valid() ? (const byte*)image->data : nullptr;
-#endif // !GUIPP_USE_XSHM
     }
 
     void basic_datamap::clear () {
-#ifndef GUIPP_USE_XSHM
       buffer.clear();
-#else // GUIPP_USE_XSHM
-      if (is_valid()) {
-        memset(image->data, 0, size());
-      }
-#endif // !GUIPP_USE_XSHM
     }
 
     void basic_datamap::swap (basic_datamap& rhs) {
       info.swap(rhs.info);
-#ifndef GUIPP_USE_XSHM
       buffer.swap(rhs.buffer);
-#else // GUIPP_USE_XSHM
-      std::swap(image, rhs.image);
-      std::swap(shminfo, rhs.shminfo);
-#endif // !GUIPP_USE_XSHM
     }
 
     void basic_datamap::prepare (const bitmap_info& bmi) {
       info = bmi;
-#ifndef GUIPP_USE_XSHM
       buffer.resize(info.mem_size());
-#else // GUIPP_USE_XSHM
-      destroy();
-      image = XShmCreateImage(core::global::get_instance(),
-                              core::global::x11::get_visual(),
-                              core::global::get_device_depth(),
-                              ZPixmap, nullptr, &shminfo,
-                              info.width, info.height);
-      if (nullptr == image) {
-          logging::error() << "XShmCreateImage for " << info << " failed!\n";
-          return;
-      }
-
-      switch (image->bits_per_pixel) {
-        case 1:
-            info.pixel_format = pixel_format_t::BW;
-        break;
-        case 8:
-            info.pixel_format = pixel_format_t::GRAY;
-        break;
-        case 24:
-            info.pixel_format = pixel_format_t::RGB;
-        break;
-        case 32:
-            info.pixel_format = pixel_format_t::ARGB;
-        break;
-      }
-      info.bytes_per_line = image->bytes_per_line;
-
-      shminfo.shmid = shmget(IPC_PRIVATE, size(), IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
-      if (shminfo.shmid < 0) {
-          logging::error() << "shmget of size " << size() << " failed!\n";
-          return;
-      }
-
-      shminfo.shmaddr = (char*)shmat(shminfo.shmid, nullptr, 0);
-      if (shminfo.shmaddr == (char*)-1) {
-          logging::error() << "shmat for id " << shminfo.shmid << " failed\n";
-          return;
-      }
-
-      image->data = shminfo.shmaddr;
-      shminfo.readOnly = False;
-
-      if (!XShmAttach(core::global::get_instance(), &shminfo)) {
-          logging::error() << "XShmAttach for id " << shminfo.shmid << " failed\n";
-          return;
-      }
-
-#endif // !GUIPP_USE_XSHM
     }
 
     void basic_datamap::assign (const byte* ptr, std::size_t sz) {
-#ifndef GUIPP_USE_XSHM
       if (buffer.size() < sz) {
         buffer.resize(sz);
       }
       buffer.assign(ptr, ptr + sz);
-#else // GUIPP_USE_XSHM
-      const size_t imsz = size();
-      if (sz <= imsz) {
-        memmove(image->data, ptr, sz);
-      }
-#endif // !GUIPP_USE_XSHM
     }
 
     core::array_wrapper<byte> basic_datamap::access () {
-#ifndef GUIPP_USE_XSHM
       return core::array_wrapper<byte>(data(), size());
-#else // GUIPP_USE_XSHM
-      if (is_valid()) {
-        return core::array_wrapper<byte>((byte*)image->data, size());
-      }
-      return core::array_wrapper<byte>(nullptr, 0);
-#endif // !GUIPP_USE_XSHM
     }
 
     core::native_rect checked_area (const bitmap_info& bmi, const core::native_rect& area) {

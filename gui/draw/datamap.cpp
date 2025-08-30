@@ -213,6 +213,10 @@ namespace gui {
                               core::global::get_device_depth(),
                               ZPixmap, nullptr, &shminfo,
                               info.width, info.height);
+      if (nullptr == image) {
+          logging::error() << "XShmCreateImage for " << info << " failed!\n";
+          return;
+      }
 
       switch (image->bits_per_pixel) {
         case 1:
@@ -232,13 +236,13 @@ namespace gui {
 
       shminfo.shmid = shmget(IPC_PRIVATE, size(), IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
       if (shminfo.shmid < 0) {
-          logging::error() << "Fehler: shmget fehlgeschlagen\n";
+          logging::error() << "shmget of size " << size() << " failed!\n";
           return;
       }
 
       shminfo.shmaddr = (char*)shmat(shminfo.shmid, nullptr, 0);
       if (shminfo.shmaddr == (char*)-1) {
-          logging::error() << "Fehler: shmat fehlgeschlagen\n";
+          logging::error() << "shmat for id " << shminfo.shmid << " failed\n";
           return;
       }
 
@@ -246,7 +250,7 @@ namespace gui {
       shminfo.readOnly = False;
 
       if (!XShmAttach(core::global::get_instance(), &shminfo)) {
-          logging::error() << "Fehler: XShmAttach fehlgeschlagen\n";
+          logging::error() << "XShmAttach for id " << shminfo.shmid << " failed\n";
           return;
       }
 

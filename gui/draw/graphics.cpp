@@ -420,7 +420,11 @@ namespace gui {
         if (core::global::x11::has_XShm()) {
           auto display = core::global::get_instance();
           Bool result = XShmPutImage(display, target(), gc(), bmp.image, src.x(), src.y(), pt.x(), pt.y(), src.width(), src.height(), False);
-          XFlush(display);
+          if (!result) {
+              logging::error() << "XShmPutImage of area " << src << " to point " << pt << " failed!\n";
+          } else {
+            XFlush(display);
+          }
         } else {
 #endif // GUIPP_USE_XSHM
           pixmap buffer;

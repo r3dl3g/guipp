@@ -129,6 +129,9 @@ namespace gui {
         GUIPP_CORE_EXPORT gui::os::x11::screen get_screen ();
         GUIPP_CORE_EXPORT void set_screen(gui::os::x11::screen);
         GUIPP_CORE_EXPORT gui::os::x11::visual get_visual ();
+        GUIPP_CORE_EXPORT bool has_XShm ();
+
+
       }
 
     } // global

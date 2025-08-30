@@ -200,6 +200,15 @@ namespace gui {
                                           << ":" << static_cast<unsigned int>(color::part::green)
                                           << ":" << static_cast<unsigned int>(color::part::blue)
                                           << ":" << static_cast<unsigned int>(color::part::alpha);
+#ifdef GUIPP_USE_XSHM
+        int shmMajor, shmMinor;
+        Bool pixmaps;
+        if (!XShmQueryVersion(instance, &shmMajor, &shmMinor, &pixmaps)) {
+          logging::debug() << "No MIT-SHM available";
+        } else {
+          logging::debug() << "MIT-SHM Version " << shmMajor << "." << shmMinor << (pixmaps ? " with" : " without") << " pixmaps";
+        }
+#endif // GUIPP_USE_XSHM
       }
 
       void fini () {
@@ -335,6 +344,12 @@ namespace gui {
         gui::os::x11::visual get_visual () {
           return DefaultVisual(get_instance(), get_screen());
         }
+
+        GUIPP_CORE_EXPORT bool has_XShm () {
+          static bool has = XShmQueryExtension(get_instance());
+          return has;
+        }
+
       }
 
 # ifdef GUIPP_USE_XCB

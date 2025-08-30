@@ -86,18 +86,20 @@ namespace gui {
       core::array_wrapper<byte> access () ;
 
     private:
+      friend class graphics;
+
       std::size_t size () const;
       byte* data ();
       const byte* data () const;
       void destroy();
 
       bitmap_info info;
-  #ifdef GUIPP_USE_XSHM
+#ifdef GUIPP_USE_XSHM
       XShmSegmentInfo shminfo;
       XImage* image;
-  #else
+#else
       blob buffer;
-  #endif // GUIPP_USE_XSHM
+#endif // GUIPP_USE_XSHM
     };
 
     // --------------------------------------------------------------------------

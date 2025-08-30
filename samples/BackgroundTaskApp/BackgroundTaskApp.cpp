@@ -9,6 +9,11 @@
 #include <util/fps_counter.h>
 // #include <gui/ctrl/button.h>
 
+#ifdef NDEBUG
+# define IF_DEBUG_ELSE(a, b) b
+#else
+# define IF_DEBUG_ELSE(a, b) a
+#endif
 
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
@@ -20,11 +25,11 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main_window main;
   // gui::ctrl::text_button ok_button(const_text("Click me!"));
 
-  draw::rgbamap img(core::size(800, 600));
+  draw::rgbmap img(core::size(800, 600));
 
   int frame = 0;
   auto draw_colors = [&] () {
-    ++frame;
+    frame += IF_DEBUG_ELSE(10, 1);
     auto data = img.get_data();
     for (int y = 0; y < data.height(); ++y) {
       auto row = data.row(y);
@@ -32,14 +37,14 @@ int gui_main(const std::vector<std::string>& /*args*/) {
           byte r = (x * 255) / data.width();
           byte g = (y * 255) / data.height();
           byte b = std::abs(256 - frame % 512);
-          row[x] = {r, g, b, 0};
+          row[x] = {r, g, b};
       }
     }
     main.invalidate();
   };
   draw_colors();
 
-  background_repeater task(main, std::chrono::milliseconds(40), draw_colors);
+  background_repeater task(main, std::chrono::milliseconds(IF_DEBUG_ELSE(500, 40)), draw_colors);
   fps_counter fps;
 
   main.on_destroy(&quit_main_loop);

@@ -87,6 +87,7 @@ function(guipp_sample PROJECT_NAME)
 endfunction(guipp_sample)
 
 add_subdirectory(AttachAllLayoutApp)
+add_subdirectory(BackgroundTaskApp)
 add_subdirectory(BorderLayoutApp)
 add_subdirectory(ColumnListViewApp)
 add_subdirectory(DiagramsApp)

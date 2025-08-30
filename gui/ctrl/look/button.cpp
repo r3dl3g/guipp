@@ -94,9 +94,9 @@ namespace gui {
 
     draw::rgbmap build_button_frame_image (bool pressed, bool rot) {
       return build_rgb_image(pressed ? (rot ? make_string(image_data::button_pressed_rot_frame_bytes)
-                                             : make_string(image_data::button_pressed_frame_bytes))
-                                      : (rot ? make_string(image_data::button_rot_frame_bytes)
-                                             : make_string(image_data::button_frame_bytes)));
+                                            : make_string(image_data::button_pressed_frame_bytes))
+                                     : (rot ? make_string(image_data::button_rot_frame_bytes)
+                                            : make_string(image_data::button_frame_bytes)));
     }
 
     draw::rgbmap build_simple_frame_image () {

@@ -32,25 +32,57 @@ namespace gui {
       const bitmap_info& bmi = get_info();
 
       if (S == bmi.pixel_format) {
-        return datamap<S>(const_reinterpret<S>());
+        return datamap<S>(reinterpret<S>());
       } else {
         const auto w = bmi.width;
         const auto h = bmi.height;
 
         datamap<S> dest(w, h);
         switch (bmi.pixel_format) {
-          case pixel_format_t::BW:   convert::format::convert<pixel_format_t::BW,   S>(const_reinterpret<pixel_format_t::BW>(),   dest.get_data(), w, h); break;
-          case pixel_format_t::GRAY: convert::format::convert<pixel_format_t::GRAY, S>(const_reinterpret<pixel_format_t::GRAY>(), dest.get_data(), w, h); break;
-          case pixel_format_t::RGB:  convert::format::convert<pixel_format_t::RGB,  S>(const_reinterpret<pixel_format_t::RGB>(),  dest.get_data(), w, h); break;
-          case pixel_format_t::RGBA: convert::format::convert<pixel_format_t::RGBA, S>(const_reinterpret<pixel_format_t::RGBA>(), dest.get_data(), w, h); break;
-          case pixel_format_t::BGR:  convert::format::convert<pixel_format_t::BGR,  S>(const_reinterpret<pixel_format_t::BGR>(),  dest.get_data(), w, h); break;
-          case pixel_format_t::BGRA: convert::format::convert<pixel_format_t::BGRA, S>(const_reinterpret<pixel_format_t::BGRA>(), dest.get_data(), w, h); break;
-          case pixel_format_t::ARGB: convert::format::convert<pixel_format_t::ARGB, S>(const_reinterpret<pixel_format_t::ARGB>(), dest.get_data(), w, h); break;
-          case pixel_format_t::ABGR: convert::format::convert<pixel_format_t::ABGR, S>(const_reinterpret<pixel_format_t::ABGR>(), dest.get_data(), w, h); break;
+          case pixel_format_t::BW:   convert::format::convert<pixel_format_t::BW,   S>(reinterpret<pixel_format_t::BW>(),   dest.get_data(), w, h); break;
+          case pixel_format_t::GRAY: convert::format::convert<pixel_format_t::GRAY, S>(reinterpret<pixel_format_t::GRAY>(), dest.get_data(), w, h); break;
+          case pixel_format_t::RGB:  convert::format::convert<pixel_format_t::RGB,  S>(reinterpret<pixel_format_t::RGB>(),  dest.get_data(), w, h); break;
+          case pixel_format_t::RGBA: convert::format::convert<pixel_format_t::RGBA, S>(reinterpret<pixel_format_t::RGBA>(), dest.get_data(), w, h); break;
+          case pixel_format_t::BGR:  convert::format::convert<pixel_format_t::BGR,  S>(reinterpret<pixel_format_t::BGR>(),  dest.get_data(), w, h); break;
+          case pixel_format_t::BGRA: convert::format::convert<pixel_format_t::BGRA, S>(reinterpret<pixel_format_t::BGRA>(), dest.get_data(), w, h); break;
+          case pixel_format_t::ARGB: convert::format::convert<pixel_format_t::ARGB, S>(reinterpret<pixel_format_t::ARGB>(), dest.get_data(), w, h); break;
+          case pixel_format_t::ABGR: convert::format::convert<pixel_format_t::ABGR, S>(reinterpret<pixel_format_t::ABGR>(), dest.get_data(), w, h); break;
           default: break;
         }
         return dest;
       }
+    }
+
+    template<pixel_format_t S>
+    const image_data<S> basic_datamap::reinterpret () const {
+      return image_data<S>(core::array_wrapper<byte>(const_cast<byte*>(data()), size()), info);
+    }
+
+    template<pixel_format_t S>
+    image_data<S> basic_datamap::reinterpret () {
+      return image_data<S>(core::array_wrapper<byte>(data(), size()), info);
+    }
+    // --------------------------------------------------------------------------
+
+    template<pixel_format_t T>
+    inline datamap<T>::datamap () {
+
+    }
+
+    template<pixel_format_t T>
+    inline datamap<T>::datamap (datamap&& rhs)
+      : super(std::move(rhs))
+    {}
+
+    template<pixel_format_t T>
+    inline datamap<T>::datamap (const datamap& rhs)
+      : super(rhs)
+    {}
+
+    template<pixel_format_t T>
+    inline datamap<T>& datamap<T>::operator= (const datamap& rhs) {
+      super::operator=(rhs);
+      return *this;
     }
 
     template<pixel_format_t T>
@@ -64,7 +96,7 @@ namespace gui {
     }
 
     template<pixel_format_t T>
-    inline datamap<T>::datamap (const const_image_data<T>& data) {
+    inline datamap<T>::datamap (const image_data<T>& data) {
       create(data);
     }
 
@@ -81,7 +113,7 @@ namespace gui {
 
     template<pixel_format_t T>
     template<pixel_format_t S>
-    inline datamap<T>::datamap (const const_image_data<S>& src) {
+    inline datamap<T>::datamap (const image_data<S>& src) {
       const bitmap_info& bmi = src.get_info();
 
       const auto w = bmi.width;
@@ -118,7 +150,7 @@ namespace gui {
     }
 
     template<pixel_format_t T>
-    inline void datamap<T>::create (const const_image_data<T>& rhs) {
+    inline void datamap<T>::create (const image_data<T>& rhs) {
       const bitmap_info& bmi = rhs.get_info();
       
       prepare({bmi.width, bmi.height, T});

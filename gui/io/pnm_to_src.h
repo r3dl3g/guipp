@@ -50,7 +50,7 @@ namespace gui {
       void write_pixel (std::ostream& out, T pixel);
 
       template<pixel_format_t p>
-      void save_pnm_src (std::ostream& out, const draw::const_image_data<p>& img);
+      void save_pnm_src (std::ostream& out, const draw::image_data<p>& img);
 
       template<pixel_format_t T>
       void save_pnm_src (std::ostream& out, const draw::datamap<T>& bmp, const std::string& name);

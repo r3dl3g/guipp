@@ -65,9 +65,9 @@ int gui_main(const std::vector<std::string>& args) {
         auto out = p.string();
         logging::info() << "Convert " << f << " to " << out;
         switch (bmp.pixel_format()) {
-          case F::BW: io::save_pnm(out, bmp.const_reinterpret<F::BW>(), false); break;
-          case F::GRAY: io::save_pnm(out, bmp.const_reinterpret<F::GRAY>(), false); break;
-          case F::RGB: io::save_pnm(out, bmp.const_reinterpret<F::RGB>(), false); break;
+          case F::BW: io::save_pnm(out, bmp.reinterpret<F::BW>(), false); break;
+          case F::GRAY: io::save_pnm(out, bmp.reinterpret<F::GRAY>(), false); break;
+          case F::RGB: io::save_pnm(out, bmp.reinterpret<F::RGB>(), false); break;
           default:
             break;
         }
@@ -78,9 +78,9 @@ int gui_main(const std::vector<std::string>& args) {
         auto out = p.string();
         logging::info() << "Convert " << f << " to " << out;
         switch (bmp.pixel_format()) {
-          case F::BW: io::save_pnm(out, bmp.const_reinterpret<F::BW>(), true); break;
-          case F::GRAY: io::save_pnm(out, bmp.const_reinterpret<F::GRAY>(), true); break;
-          case F::RGB: io::save_pnm(out, bmp.const_reinterpret<F::RGB>(), true); break;
+          case F::BW: io::save_pnm(out, bmp.reinterpret<F::BW>(), true); break;
+          case F::GRAY: io::save_pnm(out, bmp.reinterpret<F::GRAY>(), true); break;
+          case F::RGB: io::save_pnm(out, bmp.reinterpret<F::RGB>(), true); break;
           default:
             break;
         }

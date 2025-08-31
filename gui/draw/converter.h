@@ -38,22 +38,22 @@ namespace gui {
 
       template<pixel_format_t From, pixel_format_t To>
       struct line {
-        static void convert (typename draw::const_image_data<From>::row_type in,
+        static void convert (const typename draw::image_data<From>::const_row_type in,
                              typename draw::image_data<To>::row_type out,
                              uint32_t w);
 
-        static void mask (typename draw::const_image_data<From>::row_type in,
+        static void mask (const typename draw::image_data<From>::const_row_type in,
                           typename draw::image_data<To>::row_type out,
                           uint32_t w, pixel::gray limit);
       };
 
       template<pixel_format_t From, pixel_format_t To>
-      void convert (typename draw::const_image_data<From> in,
+      void convert (const typename draw::image_data<From> in,
                     draw::image_data<To> out,
                     uint32_t w, uint32_t h);
 
       template<pixel_format_t From, pixel_format_t To>
-      void mask (typename draw::const_image_data<From> in,
+      void mask (const typename draw::image_data<From> in,
                  draw::image_data<To> out,
                  uint32_t w, uint32_t h, pixel::gray limit);
 
@@ -63,12 +63,12 @@ namespace gui {
     namespace copy {
 
       template<pixel_format_t px_fmt>
-      void row (typename draw::const_image_data<px_fmt>::row_type src,
+      void row (const typename draw::image_data<px_fmt>::const_row_type src,
                 typename draw::image_data<px_fmt>::row_type dst,
                 uint32_t src_x0, uint32_t dest_x0, uint32_t w);
 
       template<pixel_format_t px_fmt>
-      void sub (typename draw::const_image_data<px_fmt> src_data,
+      void sub (const typename draw::image_data<px_fmt> src_data,
                 draw::image_data<px_fmt> dest_data,
                 const core::native_point& src,
                 const core::native_rect& dest);
@@ -86,12 +86,12 @@ namespace gui {
     template<pixel_format_t F, interpolation I = interpolation::nearest>
     struct stretch {
 
-      static void sub (typename draw::const_image_data<F> src_data,
+      static void sub (const typename draw::image_data<F> src_data,
                        draw::image_data<F> dest_data,
                        const core::native_rect& src,
                        const core::native_rect& dest);
 
-      static void sub (typename draw::const_image_data<F> src_data,
+      static void sub (const typename draw::image_data<F> src_data,
                        draw::image_data<F> dest_data);
 
     }; // namespace stretch
@@ -110,10 +110,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace fill {
 
-      template<pixel_format_t px_fmt, typename pixel_type = typename draw::BPP2Pixel<px_fmt>::pixel>
+      template<pixel_format_t px_fmt, typename pixel_type = typename pixel::BPP2Pixel<px_fmt>::pixel>
       void row (typename draw::image_data<px_fmt>::row_type data, uint32_t w, const pixel_type& px);
 
-      template<pixel_format_t px_fmt, typename pixel_type = typename draw::BPP2Pixel<px_fmt>::pixel>
+      template<pixel_format_t px_fmt, typename pixel_type = typename pixel::BPP2Pixel<px_fmt>::pixel>
       void fill (draw::image_data<px_fmt> data, uint32_t w, uint32_t h, const pixel_type& px);
 
     }

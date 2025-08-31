@@ -27,7 +27,7 @@ namespace gui {
     {}
 
     template<bool BIN, pixel_format_t T>
-    inline opnm<BIN, T>::opnm (const draw::const_image_data<T>& bmp)
+    inline opnm<BIN, T>::opnm (const draw::image_data<T>& bmp)
       : bmp(bmp)
     {}
 
@@ -37,20 +37,6 @@ namespace gui {
       write_pnm_header(out, BPP2PNM<T, BIN>::pnm, bmi, BPP2MAX<T>::max);
       write_pnm<BPP2PNM<T, BIN>::pnm, T>(out, bmp);
     }
-
-//    template<>
-//    inline void opnm<false, pixel_format_t::RGBA>::write (std::ostream& out) const {
-//      const draw::bitmap_info& bmi = bmp.get_info();
-//      write_pnm_header(out, BPP2PNM<pixel_format_t::RGBA, false>::pnm, bmi, BPP2MAX<pixel_format_t::RGBA>::max);
-//      write_pnm_rgba<false>(out, bmp.get_data());
-//    }
-
-//    template<>
-//    inline void opnm<true, pixel_format_t::RGBA>::write (std::ostream& out) const {
-//      const draw::bitmap_info& bmi = bmp.get_info();
-//      write_pnm_header(out, BPP2PNM<pixel_format_t::RGBA, true>::pnm, bmi, BPP2MAX<pixel_format_t::RGBA>::max);
-//      write_pnm_rgba<true>(out, bmp.get_data());
-//    }
 
     // --------------------------------------------------------------------------
     template<bool BIN, pixel_format_t T>
@@ -77,17 +63,13 @@ namespace gui {
       int max;
       PNM pnm;
       draw::bitmap_info bmi = read_pnm_header(in, pnm, max);
-      if (pnm2bpp(pnm) == T) {
-        switch (pnm) {
-          case PNM::P1: bmp = draw::datamap<T>{read_pnm<PNM::P1>(in, bmi)};  break;
-          case PNM::P2: bmp = draw::datamap<T>{read_pnm<PNM::P2>(in, bmi)};  break;
-          case PNM::P3: bmp = draw::datamap<T>{read_pnm<PNM::P3>(in, bmi)};  break;
-          case PNM::P4: bmp = draw::datamap<T>{read_pnm<PNM::P4>(in, bmi)};  break;
-          case PNM::P5: bmp = draw::datamap<T>{read_pnm<PNM::P5>(in, bmi)};  break;
-          case PNM::P6: bmp = draw::datamap<T>{read_pnm<PNM::P6>(in, bmi)};  break;
-        }
-      } else {
-
+      switch (pnm) {
+        case PNM::P1: bmp = draw::datamap<T>{read_pnm<PNM::P1>(in, bmi)};  break;
+        case PNM::P2: bmp = draw::datamap<T>{read_pnm<PNM::P2>(in, bmi)};  break;
+        case PNM::P3: bmp = draw::datamap<T>{read_pnm<PNM::P3>(in, bmi)};  break;
+        case PNM::P4: bmp = draw::datamap<T>{read_pnm<PNM::P4>(in, bmi)};  break;
+        case PNM::P5: bmp = draw::datamap<T>{read_pnm<PNM::P5>(in, bmi)};  break;
+        case PNM::P6: bmp = draw::datamap<T>{read_pnm<PNM::P6>(in, bmi)};  break;
       }
     }
 
@@ -188,7 +170,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<pixel_format_t T>
-    inline void save_pnm (std::ostream& out, const draw::const_image_data<T>& bmp, bool binary) {
+    inline void save_pnm (std::ostream& out, const draw::image_data<T>& bmp, bool binary) {
       if (binary) {
         out << opnm<true, T>(bmp);
       } else {
@@ -197,7 +179,7 @@ namespace gui {
     }
 
     template<pixel_format_t T>
-    inline void save_pnm (const std::string& name, const draw::const_image_data<T>& bmp, bool binary) {
+    inline void save_pnm (const std::string& name, const draw::image_data<T>& bmp, bool binary) {
       std::ofstream out(name);
       save_pnm(out, bmp, binary);
     }

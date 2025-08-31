@@ -44,164 +44,106 @@ namespace gui {
 #endif // NDEBUG
       }
 
+      template<typename I, typename T>
+      struct index_type {
+        static I make (T* data, int i) {
+          return data[i];
+        }
+
+        static int offset (int i) {
+          return i;
+        }
+      };
+
+      template<typename I>
+      struct index_type<I, pixel::mono> {
+        static I make (byte* data, int i) {
+          return I(data[i / 8], i % 8);
+        }
+
+        static int offset (int i) {
+          return i / 8;
+        }
+      };
+
+      template<typename I>
+      struct index_type<I, const pixel::mono> {
+        static I make (const byte* const data, int i) {
+          return I(data[i / 8], i % 8);
+        }
+
+        static int offset (int i) {
+          return i / 8;
+        }
+      };
+
     } // namespace detail
 
     // --------------------------------------------------------------------------
     template<typename T>
-    inline array_wrapper<T>::array_wrapper (type* data, size_t size)
+    inline array_wrapper<T>::array_wrapper (raw_type* data, size_t size)
       : data_(data)
       , check_boundary(size)
     {}
 
     template<typename T>
-    inline array_wrapper<T>::array_wrapper (std::vector<type>& data)
+    inline array_wrapper<T>::array_wrapper (std::vector<T>& data)
       : data_(data.data())
       , check_boundary(data.size())
     {}
 
     template<typename T>
-    inline auto array_wrapper<T>::operator[] (size_t i) -> type& {
+    inline auto array_wrapper<T>::operator[] (size_t i) -> index_type {
       check_boundary(i);
-      return data_[i];
+      return detail::index_type<index_type, T>::make(data_, i);
     }
 
     template<typename T>
-    inline auto array_wrapper<T>::sub (size_t offset, size_t n) -> array_wrapper {
+    inline auto array_wrapper<T>::sub (size_t offs, size_t n) -> array_wrapper {
+      const auto offset = detail::index_type<index_type, T>::offset(offs);
       check_boundary(offset + n);
       return array_wrapper(data_ + offset, n);
     }
 
     template<typename T>
-    inline auto array_wrapper<T>::data (size_t offset, size_t n) -> type* {
+    inline auto array_wrapper<T>::data (size_t offs, size_t n) -> full_raw_type* {
+      const auto offset = detail::index_type<index_type, T>::offset(offs);
       check_boundary(offset + n);
       return data_ + offset;
     }
 
     template<typename T>
-    inline auto array_wrapper<T>::operator[] (size_t i) const -> const type& {
+    inline auto array_wrapper<T>::operator[] (size_t i) const -> const const_index_type {
       check_boundary(i);
-      return data_[i];
+      return detail::index_type<const_index_type, T>::make(data_, i);
     }
 
     template<typename T>
-    inline auto array_wrapper<T>::sub (size_t offset, size_t sz) const -> array_wrapper {
+    inline auto array_wrapper<T>::sub (size_t offs, size_t sz) const -> const array_wrapper {
+      const auto offset = detail::index_type<index_type, T>::offset(offs);
       check_boundary(offset + sz);
       return array_wrapper(data_ + offset, sz);
     }
 
     template<typename T>
-    inline auto array_wrapper<T>::data (size_t offset, size_t n) const -> const type* {
+    inline auto array_wrapper<T>::data (size_t offs, size_t n) const -> const raw_type* {
+      const auto offset = detail::index_type<index_type, T>::offset(offs);
       check_boundary(offset + n);
       return data_ + offset;
     }
 
     template<typename T>
-    array_wrapper<T>& array_wrapper<T>::copy_from (const array_wrapper<T>& rhs, size_t n) {
+    array_wrapper<T>& array_wrapper<T>::copy_from (const array_wrapper<type>& rhs, size_t n) {
       check_boundary(n);
       memcpy(data_, rhs.data(0, n), n);
       return *this;
     }
 
     template<typename T>
-    array_wrapper<T>& array_wrapper<T>::copy_from (const array_wrapper<const T>& rhs, size_t n) {
+    array_wrapper<T>& array_wrapper<T>::copy_from (const array_wrapper<const type>& rhs, size_t n) {
       check_boundary(n);
       memcpy(data_, rhs.data(0, n), n);
       return *this;
-    }
-
-    // --------------------------------------------------------------------------
-    template<typename T>
-    inline array_wrapper<T const>::array_wrapper (const type* data, size_t size)
-      : data_(data)
-      , check_boundary(size)
-    {}
-
-    template<typename T>
-    inline array_wrapper<T const>::array_wrapper (const std::vector<type>& data)
-      : data_(data.data())
-      , check_boundary(data.size())
-    {}
-
-    template<typename T>
-    inline auto array_wrapper<T const>::operator[] (size_t i) const -> const type& {
-      check_boundary(i);
-      return data_[i];
-    }
-
-    template<typename T>
-    inline auto array_wrapper<T const>::sub (size_t offset, size_t sz) const -> array_wrapper {
-      check_boundary(offset + sz);
-      return array_wrapper(data_ + offset, sz);
-    }
-
-    template<typename T>
-    inline auto array_wrapper<T const>::data (size_t offset, size_t n) const -> const type* {
-      check_boundary(offset + n);
-      return data_ + offset;
-    }
-
-    // --------------------------------------------------------------------------
-    template<typename T>
-    inline bit_array_wrapper<T>::bit_array_wrapper (type* data, size_t size)
-      : data_(data)
-      , check_boundary(size)
-    {}
-
-    template<typename T>
-    inline bit_array_wrapper<T>::bit_array_wrapper (std::vector<type>& data)
-      : data_(data.data())
-      , check_boundary(data.size())
-    {}
-
-    template<typename T>
-    inline bit_wrapper<T> bit_array_wrapper<T>::operator[] (size_t i) {
-      check_boundary(i);
-      return bit_wrapper<T>(data_[i / 8], i % 8);
-    }
-
-    template<typename T>
-    inline auto bit_array_wrapper<T>::sub (size_t offset, size_t n) -> bit_array_wrapper {
-      check_boundary(offset + n);
-      return bit_array_wrapper(data_ + offset / 8, n);
-    }
-
-    template<typename T>
-    bit_array_wrapper<T>& bit_array_wrapper<T>::copy_from (const bit_array_wrapper<T>& rhs, size_t n) {
-      check_boundary(n);
-      memcpy(data_, rhs.data_, n / 8);
-      return *this;
-    }
-
-    template<typename T>
-    bit_array_wrapper<T>& bit_array_wrapper<T>::copy_from (const bit_array_wrapper<const T>& rhs, size_t n) {
-      check_boundary(n);
-      memcpy(data_, rhs.data_, n / 8);
-      return *this;
-    }
-
-    // --------------------------------------------------------------------------
-    template<typename T>
-    inline bit_array_wrapper<T const>::bit_array_wrapper (const type* data, size_t size)
-      : data_(data)
-      , check_boundary(size)
-    {}
-
-    template<typename T>
-    inline bit_array_wrapper<T const>::bit_array_wrapper (const std::vector<type>& data)
-      : data_(data.data())
-      , check_boundary(data.size())
-    {}
-
-    template<typename T>
-    inline bit_wrapper<T const> bit_array_wrapper<T const>::operator[] (size_t i) const {
-      check_boundary(i);
-      return bit_wrapper<T const>(data_[i / 8], i % 8);
-    }
-
-    template<typename T>
-    inline auto bit_array_wrapper<T const>::sub (size_t offset, size_t n) const -> bit_array_wrapper {
-      check_boundary(offset + n);
-      return bit_array_wrapper(data_ + offset / 8, n);
     }
 
   } // namespace core

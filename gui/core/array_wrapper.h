@@ -29,7 +29,7 @@
 //
 // Library includes
 //
-#include "bits.h"
+#include "pixel.h"
 
 
 namespace gui {
@@ -48,91 +48,69 @@ namespace gui {
 #endif // NDEBUG
       };
 
-    } // namespace detail
+      template<typename T>
+      struct index_return_type { using type = T&; };
+
+      template<>
+      struct index_return_type<bool> { using type = bit_wrapper<bool>; };
+
+      template<>
+      struct index_return_type<const bool> { using type = bit_wrapper<const bool>; };
+
+      template<>
+      struct index_return_type<pixel::mono> { using type = bit_wrapper<pixel::mono>; };
+
+      template<>
+      struct index_return_type<const pixel::mono> { using type = bit_wrapper<const pixel::mono>; };
+
+      template<typename T>
+      struct array2raw_type { using type = T; };
+
+      template<>
+      struct array2raw_type<bool> { using type = byte; };
+
+      template<>
+      struct array2raw_type<const bool> { using type = const byte; };
+
+      template<>
+      struct array2raw_type<pixel::mono> { using type = byte; };
+
+      template<>
+      struct array2raw_type<const pixel::mono> { using type = const byte; };
+
+    } // namespace detail  
+
 
     // --------------------------------------------------------------------------
     template<typename T>
     struct array_wrapper {
-      typedef T type;
+      using type = typename std::remove_const<T>::type;
+      using raw_type = typename detail::array2raw_type<type>::type;
+      using full_type = T;
+      using full_raw_type = typename detail::array2raw_type<T>::type;
+      using index_type = typename detail::index_return_type<T>::type;
+      using const_index_type = typename detail::index_return_type<const type>::type;
 
-      array_wrapper (type* data, size_t size);
-      explicit array_wrapper (std::vector<type>& data);
+      array_wrapper (raw_type* data, size_t size);
+      explicit array_wrapper (std::vector<T>& data);
 
-      type& operator[] (size_t i);
+      index_type operator[] (size_t i);
       array_wrapper sub (size_t offset, size_t n);
-      type* data (size_t offset, size_t n);
+      full_raw_type* data (size_t offset, size_t n);
 
-      const type& operator[] (size_t i) const;
-      array_wrapper sub (size_t offset, size_t sz) const;
-      const type* data (size_t offset, size_t n) const;
+      const const_index_type operator[] (size_t i) const;
+      const array_wrapper sub (size_t offset, size_t sz) const;
+      const raw_type* data (size_t offset, size_t n) const;
 
-      array_wrapper& copy_from (const array_wrapper<T>& rhs, size_t n);
-      array_wrapper& copy_from (const array_wrapper<const T>& rhs, size_t n);
-
-    private:
-      type* data_;
-      detail::boundary_check check_boundary;
-    };
-
-    // --------------------------------------------------------------------------
-    template<typename T>
-    struct array_wrapper<T const> {
-      typedef T type;
-
-      array_wrapper (const type* data, size_t size);
-      explicit array_wrapper (const std::vector<type>& data);
-
-      const type& operator[] (size_t i) const;
-      array_wrapper sub (size_t offset, size_t sz) const;
-      const type* data (size_t offset, size_t n) const;
+      array_wrapper& copy_from (const array_wrapper<type>& rhs, size_t n);
+      array_wrapper& copy_from (const array_wrapper<const type>& rhs, size_t n);
 
     private:
-      const type* data_;
+      raw_type* data_;
       detail::boundary_check check_boundary;
     };
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    struct bit_array_wrapper {
-      typedef byte type;
-
-      bit_array_wrapper (type* data, size_t size);
-      explicit bit_array_wrapper (std::vector<type>& data);
-
-      bit_wrapper<T> operator[] (size_t i);
-      bit_array_wrapper sub (size_t offset, size_t n);
-
-      bit_array_wrapper& copy_from (const bit_array_wrapper<T>& rhs, size_t n);
-      bit_array_wrapper& copy_from (const bit_array_wrapper<const T>& rhs, size_t n);
-
-    protected:
-      type* data_;
-      detail::boundary_check check_boundary;
-    };
-
-    // --------------------------------------------------------------------------
-    template<typename T>
-    struct bit_array_wrapper<T const> {
-      typedef byte type;
-
-      bit_array_wrapper (const type* data, size_t size);
-      explicit bit_array_wrapper (const std::vector<type>& data);
-
-      bit_wrapper<T const> operator[] (size_t i) const;
-      bit_array_wrapper sub (size_t offset, size_t n) const;
-
-    protected:
-      friend struct bit_array_wrapper<T>;
-      const type* data_;
-      detail::boundary_check check_boundary;
-    };
-
-    // --------------------------------------------------------------------------
-    template<>
-    struct array_wrapper<bool> : public bit_array_wrapper<bool> {};
-
-    template<>
-    struct array_wrapper<const bool> : public bit_array_wrapper<const bool> {};
 
   } // namespace core
 

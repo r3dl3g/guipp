@@ -128,7 +128,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<pixel_format_t px_fmt>
-    void copy_frame_image (draw::const_image_data<px_fmt> src_img,
+    void copy_frame_image (const draw::image_data<px_fmt> src_img,
                            draw::image_data<px_fmt> dest_img,
                            const bitmap_info& src_bmi, const bitmap_info& dest_bmi,
                            const core::native_rect& frame) {

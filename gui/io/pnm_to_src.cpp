@@ -60,12 +60,12 @@ namespace gui {
 
         using pf = pixel_format_t;
         switch (bmp.pixel_format()) {
-          case pf::BW:    save_pnm_src<pf::BW>(out, bmp.const_reinterpret<pf::BW>()); break;
-          case pf::GRAY:  save_pnm_src<pf::GRAY>(out, bmp.const_reinterpret<pf::GRAY>()); break;
-          case pf::RGB:   save_pnm_src<pf::RGB>(out, bmp.const_reinterpret<pf::RGB>()); break;
-          case pf::RGBA:  save_pnm_src<pf::RGBA>(out, bmp.const_reinterpret<pf::RGBA>()); break;
-          case pf::BGR:   save_pnm_src<pf::BGR>(out, bmp.const_reinterpret<pf::BGR>()); break;
-          case pf::BGRA:  save_pnm_src<pf::BGRA>(out, bmp.const_reinterpret<pf::BGRA>()); break;
+          case pf::BW:    save_pnm_src<pf::BW>(out, bmp.reinterpret<pf::BW>()); break;
+          case pf::GRAY:  save_pnm_src<pf::GRAY>(out, bmp.reinterpret<pf::GRAY>()); break;
+          case pf::RGB:   save_pnm_src<pf::RGB>(out, bmp.reinterpret<pf::RGB>()); break;
+          case pf::RGBA:  save_pnm_src<pf::RGBA>(out, bmp.reinterpret<pf::RGBA>()); break;
+          case pf::BGR:   save_pnm_src<pf::BGR>(out, bmp.reinterpret<pf::BGR>()); break;
+          case pf::BGRA:  save_pnm_src<pf::BGRA>(out, bmp.reinterpret<pf::BGRA>()); break;
           default:
             throw std::out_of_range(ostreamfmt("Can not save pixel format " << bmp.pixel_format() << "to source"));
         }

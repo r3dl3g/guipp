@@ -96,20 +96,20 @@ namespace gui {
     GUIPP_IO_EXPORT draw::bitmap_info read_pnm_header (std::istream& in, PNM& magic_num, int& max);
 
     template<PNM i, pixel_format_t fmt>
-    void write_pnm (std::ostream& out, const draw::const_image_data<fmt>&);
+    void write_pnm (std::ostream& out, const draw::image_data<fmt>&);
 
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P1, pixel_format_t::BW> (std::ostream&, const draw::const_image_data<pixel_format_t::BW>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P2, pixel_format_t::GRAY> (std::ostream&, const draw::const_image_data<pixel_format_t::GRAY>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P3, pixel_format_t::RGB> (std::ostream&, const draw::const_image_data<pixel_format_t::RGB>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P3, pixel_format_t::RGBA> (std::ostream&, const draw::const_image_data<pixel_format_t::RGBA>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P3, pixel_format_t::BGR> (std::ostream&, const draw::const_image_data<pixel_format_t::BGR>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P3, pixel_format_t::BGRA> (std::ostream&, const draw::const_image_data<pixel_format_t::BGRA>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P4, pixel_format_t::BW> (std::ostream&, const draw::const_image_data<pixel_format_t::BW>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P5, pixel_format_t::GRAY> (std::ostream&, const draw::const_image_data<pixel_format_t::GRAY>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P6, pixel_format_t::RGB> (std::ostream&, const draw::const_image_data<pixel_format_t::RGB>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P6, pixel_format_t::RGBA> (std::ostream&, const draw::const_image_data<pixel_format_t::RGBA>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P6, pixel_format_t::BGR> (std::ostream&, const draw::const_image_data<pixel_format_t::BGR>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P6, pixel_format_t::BGRA> (std::ostream&, const draw::const_image_data<pixel_format_t::BGRA>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P1, pixel_format_t::BW> (std::ostream&, const draw::image_data<pixel_format_t::BW>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P2, pixel_format_t::GRAY> (std::ostream&, const draw::image_data<pixel_format_t::GRAY>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P3, pixel_format_t::RGB> (std::ostream&, const draw::image_data<pixel_format_t::RGB>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P3, pixel_format_t::RGBA> (std::ostream&, const draw::image_data<pixel_format_t::RGBA>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P3, pixel_format_t::BGR> (std::ostream&, const draw::image_data<pixel_format_t::BGR>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P3, pixel_format_t::BGRA> (std::ostream&, const draw::image_data<pixel_format_t::BGRA>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P4, pixel_format_t::BW> (std::ostream&, const draw::image_data<pixel_format_t::BW>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P5, pixel_format_t::GRAY> (std::ostream&, const draw::image_data<pixel_format_t::GRAY>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P6, pixel_format_t::RGB> (std::ostream&, const draw::image_data<pixel_format_t::RGB>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P6, pixel_format_t::RGBA> (std::ostream&, const draw::image_data<pixel_format_t::RGBA>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P6, pixel_format_t::BGR> (std::ostream&, const draw::image_data<pixel_format_t::BGR>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P6, pixel_format_t::BGRA> (std::ostream&, const draw::image_data<pixel_format_t::BGRA>&);
 
     // --------------------------------------------------------------------------
     template<PNM i>
@@ -172,10 +172,10 @@ namespace gui {
     void save_pnm (const std::string& name, const draw::datamap<T>& bmp, bool binary = true);
 
     template<pixel_format_t T>
-    void save_pnm (std::ostream& out, const draw::const_image_data<T>& bmp, bool binary = true);
+    void save_pnm (std::ostream& out, const draw::image_data<T>& bmp, bool binary = true);
 
     template<pixel_format_t T>
-    void save_pnm (const std::string& name, const draw::const_image_data<T>& bmp, bool binary = true);
+    void save_pnm (const std::string& name, const draw::image_data<T>& bmp, bool binary = true);
 
     template<pixel_format_t T>
     void load_pnm (std::istream& in, draw::datamap<T>& bmp);
@@ -191,11 +191,11 @@ namespace gui {
     class opnm {
     public:
       explicit opnm (const draw::datamap<T>& bmp);
-      explicit opnm (const draw::const_image_data<T>& bmp);
+      explicit opnm (const draw::image_data<T>& bmp);
       void write (std::ostream& out) const;
 
     private:
-      draw::const_image_data<T> bmp;
+      const draw::image_data<T> bmp;
     };
 
     // --------------------------------------------------------------------------
@@ -235,7 +235,7 @@ namespace gui {
 
       void operator<< (const draw::pixmap& b);
       void operator<< (const draw::datamap<PNM2BPP<i>::px_fmt>& b);
-      void operator<< (const draw::const_image_data<PNM2BPP<i>::px_fmt>& b);
+      void operator<< (const draw::image_data<PNM2BPP<i>::px_fmt>& b);
 
     private:
       std::ofstream out;

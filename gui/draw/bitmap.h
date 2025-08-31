@@ -113,7 +113,7 @@ namespace gui {
       pixmap (const datamap<T>& rhs);
 
       template<pixel_format_t T>
-      pixmap (const const_image_data<T>& rhs);
+      pixmap (const image_data<T>& rhs);
 
       pixmap (uint32_t w, uint32_t h);
       pixmap (const core::native_size& sz);
@@ -133,7 +133,7 @@ namespace gui {
       pixmap& operator= (const datamap<T>& rhs);
 
       template<pixel_format_t T>
-      pixmap& operator= (const const_image_data<T>& rhs);
+      pixmap& operator= (const image_data<T>& rhs);
 
       void operator= (const pixmap& rhs);
 
@@ -152,7 +152,7 @@ namespace gui {
       void put (const datamap<T>& rhs);
 
       template<pixel_format_t T>
-      void put (const const_image_data<T>& rhs);
+      void put (const image_data<T>& rhs);
 
     private:
       template<pixel_format_t T>

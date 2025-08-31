@@ -87,7 +87,7 @@ namespace gui {
     }
 
     template<pixel_format_t T>
-    inline pixmap::pixmap (const const_image_data<T>& rhs) {
+    inline pixmap::pixmap (const image_data<T>& rhs) {
       put(rhs);
     }
 
@@ -120,7 +120,7 @@ namespace gui {
     }
 
     template<pixel_format_t T>
-    void pixmap::put (const const_image_data<T>& rhs) {
+    void pixmap::put (const image_data<T>& rhs) {
       const auto& bmi = rhs.get_info();
       create(bmi.size());
       if (pixel_format() == T) {
@@ -147,7 +147,7 @@ namespace gui {
     }
 
     template<pixel_format_t T>
-    pixmap& pixmap::operator= (const const_image_data<T>& rhs) {
+    pixmap& pixmap::operator= (const image_data<T>& rhs) {
       put<T>(rhs);
       return *this;
     }

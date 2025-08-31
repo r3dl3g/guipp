@@ -62,19 +62,10 @@ namespace gui {
       void swap (basic_datamap& rhs);
 
       template<pixel_format_t S>
-      const const_image_data<S> const_reinterpret () const {
-        return const_image_data<S>(core::array_wrapper<const byte>(data(), size()), info);
-      }
+      const image_data<S> reinterpret () const;
 
       template<pixel_format_t S>
-      const const_image_data<S> const_reinterpret () {
-        return const_image_data<S>(core::array_wrapper<const byte>(data(), size()), info);
-      }
-
-      template<pixel_format_t S>
-      const image_data<S> reinterpret () {
-        return image_data<S>(core::array_wrapper<byte>(data(), size()), info);
-      }
+      image_data<S> reinterpret ();
 
     protected:
       basic_datamap (const blob&, const bitmap_info&);
@@ -101,14 +92,16 @@ namespace gui {
     class datamap : public basic_datamap {
     public:
       typedef basic_datamap super;
-      using pixel_type = typename BPP2Pixel<T>::pixel;
+      using pixel_type = typename pixel::BPP2Pixel<T>::pixel;
       static constexpr pixel_format_t px_fmt = T;
 
-      datamap () = default;
+      datamap ();
+      datamap (datamap&&);
+      datamap (const datamap&);
 
       datamap (uint32_t w, uint32_t h);
       explicit datamap (const core::native_size& sz);
-      explicit datamap (const const_image_data<T>& data);
+      explicit datamap (const image_data<T>& data);
       explicit datamap (const core::size& sz);
 
       datamap (const blob& data, const bitmap_info& bmi);
@@ -118,23 +111,21 @@ namespace gui {
       explicit datamap (const datamap<S>& src);
 
       template<pixel_format_t S>
-      explicit datamap (const const_image_data<S>& src);
+      explicit datamap (const image_data<S>& src);
+
+      datamap& operator= (const datamap&);
 
       void create (uint32_t w, uint32_t h);
       void create (const core::size& sz);
       void create (const core::native_size& sz);
-      void create (const const_image_data<T>& rhs);
+      void create (const image_data<T>& rhs);
 
       void copy_from (const datamap& src_img,
                       const core::native_rect& src_rect,
                       const core::native_point& dest_pt);
 
-      const_image_data<T> get_data () const {
-        return super::const_reinterpret<T>();
-      }
-
-      const_image_data<T> get_const_data () {
-        return super::const_reinterpret<T>();
+      const draw::image_data<T> get_data () const {
+        return super::reinterpret<T>();
       }
 
       image_data<T> get_data () {

@@ -53,7 +53,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<pixel_format_t T>
-      void save_pnm_src (std::ostream& out, const draw::const_image_data<T>& img) {
+      void save_pnm_src (std::ostream& out, const draw::image_data<T>& img) {
         auto& bmi = img.get_info();
         out.fill(' ');
         for (uint_fast32_t y = 0; y < bmi.height; ++y) {

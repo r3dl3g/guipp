@@ -1,5 +1,5 @@
 /**
- * @copyright (c) 2016-2021 Ing. Buero Rothfuss
+ * @copyright (c) 2016-2025 Ing. Buero Rothfuss
  *                          Riedlinger Str. 8
  *                          70327 Stuttgart
  *                          Germany
@@ -9,7 +9,7 @@
  *
  * Project    gui++ lib
  *
- * @brief     direct access image data
+ * @brief     pixel image data
  *
  * @license   MIT license. See accompanying file LICENSE.
  */
@@ -23,7 +23,7 @@
 //
 // Library includes
 //
-#include "image_data.h"
+#include "pixel.h"
 
 
 namespace gui {

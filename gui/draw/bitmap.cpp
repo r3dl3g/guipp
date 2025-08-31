@@ -509,7 +509,7 @@ namespace gui {
         } else {
           bwmap data = rhs;
           data.invert();
-          const auto raw = data.get_const_data();
+          const auto raw = data.get_data();
           bitmap_put_data(get_os_bitmap(), raw.raw_data().data(0, bmi.mem_size()), bmi);
         }
       } else {

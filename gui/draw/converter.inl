@@ -30,7 +30,7 @@ namespace gui {
       template<pixel_format_t From>
       struct line<From, pixel_format_t::BW> {
 
-        static inline void convert (const typename draw::const_image_data<From>::row_type in,
+        static inline void convert (const typename draw::image_data<From>::const_row_type in,
                                     typename draw::image_data<pixel_format_t::BW>::row_type out,
                                     uint32_t w) {
           for (uint_fast32_t x = 0; x < w; ++x) {
@@ -38,7 +38,7 @@ namespace gui {
           }
         }
 
-        static inline void mask (const typename draw::const_image_data<From>::row_type in,
+        static inline void mask (const typename draw::image_data<From>::const_row_type in,
                                  typename draw::image_data<pixel_format_t::BW>::row_type out,
                                  uint32_t w, pixel::gray limit) {
           for (uint_fast32_t x = 0; x < w; ++x) {
@@ -49,7 +49,7 @@ namespace gui {
       };
 
       template<pixel_format_t From, pixel_format_t To>
-      void line<From, To>::convert (const typename draw::const_image_data<From>::row_type in,
+      void line<From, To>::convert (const typename draw::image_data<From>::const_row_type in,
                                     typename draw::image_data<To>::row_type out,
                                     uint32_t w) {
         for (uint_fast32_t x = 0; x < w; ++x) {
@@ -71,7 +71,7 @@ namespace gui {
       }
 
       template<pixel_format_t From, pixel_format_t To>
-      void line<From, To>::mask (const typename draw::const_image_data<From>::row_type in,
+      void line<From, To>::mask (const typename draw::image_data<From>::const_row_type in,
                                  typename draw::image_data<To>::row_type out,
                                  uint32_t w, pixel::gray limit) {
         for (uint_fast32_t x = 0; x < w; ++x) {
@@ -80,7 +80,7 @@ namespace gui {
       }
 
       template<pixel_format_t From, pixel_format_t To>
-      void convert (const typename draw::const_image_data<From> in,
+      void convert (const typename draw::image_data<From> in,
                     draw::image_data<To> out,
                     uint32_t w, uint32_t h) {
         for (uint_fast32_t y = 0; y < h; ++y) {
@@ -89,7 +89,7 @@ namespace gui {
       }
 
       template<pixel_format_t From, pixel_format_t To>
-      void mask (const typename draw::const_image_data<From> in,
+      void mask (const typename draw::image_data<From> in,
                  draw::image_data<To> out,
                  uint32_t w, uint32_t h, pixel::gray limit) {
         for (uint_fast32_t y = 0; y < h; ++y) {
@@ -102,7 +102,7 @@ namespace gui {
     namespace copy {
 
       template<pixel_format_t px_fmt>
-      void row (const typename draw::const_image_data<px_fmt>::row_type src,
+      void row (const typename draw::image_data<px_fmt>::const_row_type src,
                 typename draw::image_data<px_fmt>::row_type dst,
                 uint32_t src_x0, uint32_t dest_x0, uint32_t w) {
         for (uint_fast32_t x = 0; x < w; ++x) {
@@ -111,7 +111,7 @@ namespace gui {
       }
 
       template<pixel_format_t px_fmt>
-      void sub (const typename draw::const_image_data<px_fmt> src_data,
+      void sub (const typename draw::image_data<px_fmt> src_data,
                 draw::image_data<px_fmt> dest_data,
                 const core::native_point& src,
                 const core::native_rect& dest) {
@@ -148,7 +148,7 @@ namespace gui {
     template<pixel_format_t F>
     struct stretch<F, interpolation::nearest> {
 
-      static void row (const typename draw::const_image_data<F>::row_type src,
+      static void row (const typename draw::image_data<F>::const_row_type src,
                        typename draw::image_data<F>::row_type dst,
                        uint32_t src_x, uint32_t dest_x,
                        uint32_t src_w, uint32_t dest_w,
@@ -161,7 +161,7 @@ namespace gui {
         }
       }
 
-      static void sub (const typename draw::const_image_data<F> src_data,
+      static void sub (const typename draw::image_data<F> src_data,
                        draw::image_data<F> dest_data,
                        const core::native_rect& src,
                        const core::native_rect& dest) {
@@ -185,11 +185,11 @@ namespace gui {
           if ((dest_data_h > dest_y) && (src_data_h > src_y) && 
               (dest_data_w > dest_x) && (src_data_w > src_x)) {
 
-            const auto dest_max_h = std::min(dest_h, dest_data_h - 1 - dest_y);
-            const auto dest_max_w = std::min(dest_w, dest_data_w - 1 - dest_x);
+            const auto dest_max_h = std::min(dest_h, dest_data_h - dest_y);
+            const auto dest_max_w = std::min(dest_w, dest_data_w - dest_x);
             
-            const double src_max_h = src_data_h - 1;
-            const double src_max_w = src_data_w - 1;
+            const double src_max_h = src_data_h;
+            const double src_max_w = src_data_w;
 
             for (uint_fast32_t y = 0; y < dest_max_h; ++y) {
               const double fy = (y + 0.5) * scale_y;
@@ -278,9 +278,9 @@ namespace gui {
     template<pixel_format_t F>
     struct stretch<F, interpolation::bilinear> {
 
-      using type = typename draw::const_image_data<F>::pixel_type;
+      using type = const typename draw::image_data<F>::pixel_type;
 
-      static void sub (const typename draw::const_image_data<F> src_data,
+      static void sub (const typename draw::image_data<F> src_data,
                        draw::image_data<F> dest_data,
                        const core::native_rect& src,
                        const core::native_rect& dest) {
@@ -405,12 +405,12 @@ namespace gui {
     template<pixel_format_t F>
     struct stretch<F, interpolation::bicubic> {
 
-      static void sub (const typename draw::const_image_data<F> src_data,
+      static void sub (const typename draw::image_data<F> src_data,
                        draw::image_data<F> dest_data,
                        const core::native_rect& src,
                        const core::native_rect& dest) {
 
-        using type = typename draw::const_image_data<F>::pixel_type;
+        using type = const typename draw::image_data<F>::pixel_type;
         const scaling::constants c(src, dest);
 
         for (uint_fast32_t y = 0; y < c.dest_h; ++y) {
@@ -437,7 +437,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<pixel_format_t F, interpolation I>
-    inline void stretch<F, I>::sub (const typename draw::const_image_data<F> src,
+    inline void stretch<F, I>::sub (const typename draw::image_data<F> src,
                                     draw::image_data<F> dest) {
       sub(src, dest, {0, 0, src.width(), src.hright()}, {0, 0, dest.width(), dest.hright()});
     }

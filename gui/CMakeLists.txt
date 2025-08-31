@@ -108,8 +108,6 @@ endif()
 
 if(NOT TARGET guipp)
 
-
-
   if(WIN32)
     set(GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN -D_USE_MATH_DEFINES)
   else ()

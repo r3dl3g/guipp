@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 project("guipp-test" CXX)
 
@@ -26,11 +26,15 @@ endif()
 
 set (TESTING_CXX_STANDARD ${GUIPP_CXX_STANDARD})
 
+add_subdirectory(./../libs/testlib testlib)
+
 if(GUIPP_BUILD_DEPENDENT_LIBS)
-  add_subdirectory(./../libs/testlib testlib)
+  add_subdirectory(${GUIPP_LIBS_DIR}/logging logging)
+  add_subdirectory(${GUIPP_LIBS_DIR}/util util)
   add_subdirectory(./../libs/testing testing)
-else()
-  find_package(testlib REQUIRED)
+else ()
+  find_package(logging REQUIRED)
+  find_package(util REQUIRED)
   find_package(testing REQUIRED)
 endif()
 
@@ -68,7 +72,7 @@ endif ()
 
 foreach(test ${tests})
     add_executable(${test} WIN32 ${test}.cpp)
-    target_link_libraries(${test} testing testlib ${GUIPP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
+    target_link_libraries(${test} ${TESTING_LIBRARIES} testlib ${GUIPP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
     add_test(${test} ${CMAKE_CURRENT_BINARY_DIR}/${test})
     set_target_properties(${test} PROPERTIES
                           FOLDER tests

@@ -20,8 +20,9 @@ if(NOT TARGET ${PROJECT_NAME})
       native_qt.cpp
       native_win32.cpp
       native_x11.cpp
-      window_state.cpp
+      pixel.cpp
       selection_adjustment.cpp
+      window_state.cpp
   )
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 

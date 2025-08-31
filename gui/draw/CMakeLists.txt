@@ -23,7 +23,6 @@ if(NOT TARGET ${PROJECT_NAME})
       bitmap.cpp
       font.cpp
       graphics.cpp
-      image_data.cpp
       pen.cpp
       text_origin.cpp
       use.cpp

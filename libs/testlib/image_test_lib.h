@@ -1,5 +1,8 @@
 // testlib.h
 //
+
+#pragma once
+
 #include <vector>
 #include "gui/draw/bitmap.h"
 

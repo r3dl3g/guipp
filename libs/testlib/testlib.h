@@ -1,6 +1,8 @@
 // testlib.h
 //
 
+#pragma once
+
 #include <testing/testing.h>
 
 namespace testing {

@@ -4,14 +4,15 @@
 #pragma once
 
 #include <vector>
+#include <testing/testing.h>
 #include "gui/draw/bitmap.h"
 
 namespace testing {
 
-  typedef std::vector<gui::os::color> colorline;
+  typedef std::vector<gui::pixel::rgba> colorline;
   typedef std::vector<colorline> colormap;
 
-  typedef std::vector<uint8_t> grayline;
+  typedef std::vector<gui::pixel::gray> grayline;
   typedef std::vector<grayline> graysmap;
 
   bool operator== (const colorline&, const colorline&);
@@ -29,9 +30,9 @@ namespace testing {
       colorline line;
       line.reserve(data.width());
       for (uint32_t x = 0; x < data.width(); ++x) {
-        auto v = row[x];
+        const auto v = row[x];
         using namespace gui::pixel;
-        line.emplace_back(gui::pixel::get_color(v));
+        line.emplace_back(gui::pixel::rgba::build(v));
       }
       result.emplace_back(line);
     }
@@ -56,14 +57,8 @@ namespace testing {
 
   graysmap datamap2graysmap (const gui::draw::graymap&);
   gui::draw::graymap graysmap2datamap (const graysmap&);
-
-  inline colormap CM(const std::vector<colorline>& i) {
-    return colormap(i);
-  }
-
-  inline graysmap GM(const std::vector<grayline>& i) {
-    return graysmap(i);
-  }
+  colormap CM(const std::vector<std::vector<uint32_t>>& i);
+  graysmap GM(const std::vector<std::vector<gui::byte>>& i);
 
   typedef std::vector<std::string> pixmap_str;
 
@@ -95,3 +90,24 @@ namespace std {
 
   // --------------------------------------------------------------------------
 } // namespace std
+
+namespace testing {
+  namespace detail {
+
+    template<>
+    inline void print_value (std::ostream& os, const testing::colormap& v) {
+      os << v;
+    }
+
+    template<>
+    inline void print_value (std::ostream& os, const testing::graysmap& v) {
+      os << v;
+    }
+
+    template<>
+    inline void print_value (std::ostream& os, const testing::pixmap_str& v) {
+      os << v;
+    }
+
+  } // namespace detail
+} // namespace testing

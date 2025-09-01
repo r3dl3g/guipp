@@ -84,18 +84,18 @@ namespace testing {
       switch (bits_per_pixel) {
         case 32:
           for (int x = 0; x < width * 4; x += 4) {
-            line.push_back(flip_rgba(*reinterpret_cast<const uint32_t*>(raw_data + y_offset + x)));
+            line.push_back(gui::pixel::rgba::build(flip_rgba(*reinterpret_cast<const uint32_t*>(raw_data + y_offset + x))));
           }
           break;
         case 24:
           for (int x = 0; x < width * 3; x += 3) {
-            line.push_back(flip_rgb(*reinterpret_cast<const uint32_t*>(raw_data + y_offset + x) & 0x00ffffff));
+            line.push_back(gui::pixel::rgba::build(flip_rgb(*reinterpret_cast<const uint32_t*>(raw_data + y_offset + x) & 0x00ffffff)));
           }
           break;
         case 8:
           for (int x = 0; x < width; ++x) {
             uint32_t gray = *reinterpret_cast<const unsigned char*>(raw_data + y_offset + x);
-            line.push_back(gray | gray << 8 | gray << 16);
+            line.push_back(gui::pixel::rgba::build(gray | gray << 8 | gray << 16));
           }
           break;
         case 1: {
@@ -108,7 +108,7 @@ namespace testing {
 //            const char test_bit = (bits >> (x & 7)) & 1;
 //#endif // WIN32
             const int bit = gui::core::get_bit(bits, x & 7);
-            line.push_back(gui::color::system_bw_colors::value[bit]);
+            line.push_back(gui::pixel::rgba::build(gui::color::system_bw_colors::value[bit]));
           }
           break;
         }
@@ -157,7 +157,7 @@ namespace testing {
       grayline line;
       line.reserve(data.width());
       for (uint32_t x = 0; x < data.width(); ++x) {
-        line.emplace_back(row[x].value);
+        line.emplace_back(row[x]);
       }
       result.emplace_back(line);
     }
@@ -180,13 +180,42 @@ namespace testing {
     return img;
   }
 
+  colormap CM(const std::vector<std::vector<uint32_t>>& i) {
+    colormap cm;
+    cm.reserve(i.size());
+    for (const auto& l : i) {
+      colorline cl;
+      cl.reserve(l.size());
+      for (const auto& c : l) {
+        cl.push_back(gui::pixel::rgba::build(c));
+      }
+      cm.push_back(cl);
+    }
+    return cm;
+  }
+
+  graysmap GM(const std::vector<std::vector<gui::byte>>& i) {
+    graysmap cm;
+    cm.reserve(i.size());
+    for (const auto& l : i) {
+      grayline cl;
+      cl.reserve(l.size());
+      for (const auto& c : l) {
+        cl.push_back(gui::pixel::gray::build(c));
+      }
+      cm.push_back(cl);
+    }
+    return cm;
+  }
+
+
   // --------------------------------------------------------------------------
   bool operator== (const colorline& lhs, const colorline& rhs) {
     if (lhs.size() != rhs.size()) {
       return false;
     }
     for (int i = 0; i < lhs.size(); ++i) {
-      if (gui::color::remove_transparency(lhs[i]) != gui::color::remove_transparency(rhs[i])) {
+      if (!(gui::pixel::rgb::build(lhs[i]) == gui::pixel::rgb::build(rhs[i]))) {
         return false;
       }
     }
@@ -224,25 +253,25 @@ namespace std {
       //}
       out << '{';
       bool first = true;
-      for(const uint32_t v: line) {
+      for(const auto v: line) {
         if (first) {
           first = false;
         } else {
           out << ",";
         }
-        switch (v & 0xffffff) {
-          case testing::_ & 0xffffff: out << "_"; break;
-          case testing::R & 0xffffff: out << "R"; break;
-          case testing::G & 0xffffff: out << "G"; break;
-          case testing::B & 0xffffff: out << "B"; break;
-          case testing::W & 0xffffff: out << "W"; break;
-          case testing::Y & 0xffffff: out << "Y"; break;
-          case testing::V & 0xffffff: out << "V"; break;
-          case testing::M & 0xffffff: out << "M"; break;
-          case testing::D & 0xffffff: out << "D"; break;
-          case testing::L & 0xffffff: out << "L"; break;
+        switch (v) {
+          case testing::_: out << "_"; break;
+          case testing::R: out << "R"; break;
+          case testing::G: out << "G"; break;
+          case testing::B: out << "B"; break;
+          case testing::W: out << "W"; break;
+          case testing::Y: out << "Y"; break;
+          case testing::V: out << "V"; break;
+          case testing::M: out << "M"; break;
+          case testing::D: out << "D"; break;
+          case testing::L: out << "L"; break;
           default:
-            out << "0x" << setw(6) << setfill('0') << hex << (v & 0xffffff);
+            out << "0x" << setw(8) << setfill('0') << hex << (v & 0xffffff);
             break;
         }
       }
@@ -264,13 +293,13 @@ namespace std {
       }
       out << '[';
       bool first = true;
-      for(const uint8_t v: line) {
+      for(const auto v: line) {
         if (first) {
           first = false;
         } else {
           out << ",";
         }
-        out << (int)v;
+        out << v;
       }
       out << ']' << endl;
     }

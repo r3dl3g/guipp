@@ -9,7 +9,7 @@
 
 namespace testing {
 
-  typedef std::vector<gui::pixel::rgba> colorline;
+  typedef std::vector<gui::pixel::rgb> colorline;
   typedef std::vector<colorline> colormap;
 
   typedef std::vector<gui::pixel::gray> grayline;
@@ -17,6 +17,8 @@ namespace testing {
 
   bool operator== (const colorline&, const colorline&);
   bool operator== (const colormap&, const colormap&);
+  bool operator<= (const colormap&, const colormap&);
+  bool operator>= (const colormap&, const colormap&);
 
   colormap data2colormap (const char* data, const int bits_per_pixel, const int bytes_per_line, const int width, const int height);
   colormap pixmap2colormap (const gui::draw::basic_map&);
@@ -32,7 +34,7 @@ namespace testing {
       for (uint32_t x = 0; x < data.width(); ++x) {
         const auto v = row[x];
         using namespace gui::pixel;
-        line.emplace_back(gui::pixel::rgba::build(v));
+        line.emplace_back(gui::pixel::rgb::build(v));
       }
       result.emplace_back(line);
     }
@@ -58,7 +60,7 @@ namespace testing {
   graysmap datamap2graysmap (const gui::draw::graymap&);
   gui::draw::graymap graysmap2datamap (const graysmap&);
   colormap CM(const std::vector<std::vector<uint32_t>>& i);
-  graysmap GM(const std::vector<std::vector<gui::byte>>& i);
+  graysmap GM(const std::vector<std::vector<uint32_t>>& i);
 
   typedef std::vector<std::string> pixmap_str;
 

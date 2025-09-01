@@ -84,18 +84,18 @@ namespace testing {
       switch (bits_per_pixel) {
         case 32:
           for (int x = 0; x < width * 4; x += 4) {
-            line.push_back(gui::pixel::rgba::build(flip_rgba(*reinterpret_cast<const uint32_t*>(raw_data + y_offset + x))));
+            line.push_back(gui::pixel::rgb::build(flip_rgba(*reinterpret_cast<const uint32_t*>(raw_data + y_offset + x) & 0x00ffffff)));
           }
           break;
         case 24:
           for (int x = 0; x < width * 3; x += 3) {
-            line.push_back(gui::pixel::rgba::build(flip_rgb(*reinterpret_cast<const uint32_t*>(raw_data + y_offset + x) & 0x00ffffff)));
+            line.push_back(gui::pixel::rgb::build(flip_rgb(*reinterpret_cast<const uint32_t*>(raw_data + y_offset + x) & 0x00ffffff)));
           }
           break;
         case 8:
           for (int x = 0; x < width; ++x) {
             uint32_t gray = *reinterpret_cast<const unsigned char*>(raw_data + y_offset + x);
-            line.push_back(gui::pixel::rgba::build(gray | gray << 8 | gray << 16));
+            line.push_back(gui::pixel::rgb::build(gray));
           }
           break;
         case 1: {
@@ -108,7 +108,7 @@ namespace testing {
 //            const char test_bit = (bits >> (x & 7)) & 1;
 //#endif // WIN32
             const int bit = gui::core::get_bit(bits, x & 7);
-            line.push_back(gui::pixel::rgba::build(gui::color::system_bw_colors::value[bit]));
+            line.push_back(gui::pixel::rgb::build(gui::color::system_bw_colors::value[bit]));
           }
           break;
         }
@@ -187,21 +187,21 @@ namespace testing {
       colorline cl;
       cl.reserve(l.size());
       for (const auto& c : l) {
-        cl.push_back(gui::pixel::rgba::build(c));
+        cl.push_back(gui::pixel::rgb::build(c));
       }
       cm.push_back(cl);
     }
     return cm;
   }
 
-  graysmap GM(const std::vector<std::vector<gui::byte>>& i) {
+  graysmap GM(const std::vector<std::vector<uint32_t>>& i) {
     graysmap cm;
     cm.reserve(i.size());
     for (const auto& l : i) {
       grayline cl;
       cl.reserve(l.size());
       for (const auto& c : l) {
-        cl.push_back(gui::pixel::gray::build(c));
+        cl.push_back(gui::pixel::gray::build((gui::byte)(c & 0xff)));
       }
       cm.push_back(cl);
     }
@@ -232,7 +232,30 @@ namespace testing {
       }
     }
     return true;
+  }
 
+  bool operator<= (const colormap& lhs, const colormap& rhs) {
+    if (lhs.size() != rhs.size()) {
+      return false;
+    }
+    for (int i = 0; i < lhs.size(); ++i) {
+      if (!(lhs[i] > rhs[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool operator>= (const colormap& lhs, const colormap& rhs) {
+    if (lhs.size() != rhs.size()) {
+      return false;
+    }
+    for (int i = 0; i < lhs.size(); ++i) {
+      if (!(lhs[i] < rhs[i])) {
+        return false;
+      }
+    }
+    return true;
   }
 
   // --------------------------------------------------------------------------
@@ -283,7 +306,7 @@ namespace std {
 
   // --------------------------------------------------------------------------
   ostream& operator<< (ostream& out, const testing::graysmap& m) {
-    out << '[';
+    out << endl << '[';
     bool first_line = true;
     for(const auto& line: m) {
       if (first_line) {
@@ -299,7 +322,7 @@ namespace std {
         } else {
           out << ",";
         }
-        out << v;
+        out << setw(2) << setfill('0') << hex << v;
       }
       out << ']' << endl;
     }

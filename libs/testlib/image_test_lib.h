@@ -45,7 +45,7 @@ namespace testing {
       auto row = data.row(y);
       const colorline& line = colors[y];
       for (int x = 0; x < width; ++x) {
-        row[x] = gui::draw::to_pixel<T, gui::os::color>::to(line[x]);
+        row[x] = gui::pixel::to_pixel<T, gui::os::color>::to(line[x]);
       }
     }
     return img;

@@ -277,7 +277,7 @@ void test_bitmap_white () {
 
   bwmap bw = img.get();
 
-  const_image_data<pixel_format_t::BW> bw_raw = static_cast<const bwmap&>(bw).get_data();
+  const image_data<pixel_format_t::BW> bw_raw = static_cast<const bwmap&>(bw).get_data();
   EXPECT_EQUAL(bw_raw.pixel(0, 0), pixel::mono::white);
   EXPECT_EQUAL(bw_raw.pixel(0, 1), pixel::mono::white);
   EXPECT_EQUAL(bw_raw.pixel(1, 0), pixel::mono::white);
@@ -297,7 +297,7 @@ void test_bitmap_checked () {
 
   bwmap bw = img.get();
 
-  const_image_data<pixel_format_t::BW> bw_raw = static_cast<const bwmap&>(bw).get_data();
+  const image_data<pixel_format_t::BW> bw_raw = static_cast<const bwmap&>(bw).get_data();
   EXPECT_EQUAL(bw_raw.pixel(0, 0), pixel::mono::white);
   EXPECT_EQUAL(bw_raw.pixel(0, 1), pixel::mono::black);
   EXPECT_EQUAL(bw_raw.pixel(1, 0), pixel::mono::black);
@@ -318,7 +318,7 @@ void test_pixmap_black () {
 
   rgbamap rgb = img.get<pixel_format_t::RGBA>();
 
-  const_image_data<pixel_format_t::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
+  const image_data<pixel_format_t::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), black);
   EXPECT_EQUAL(raw.pixel(0, 1), black);
   EXPECT_EQUAL(raw.pixel(1, 0), black);
@@ -339,7 +339,7 @@ void test_pixmap_red () {
 
   rgbamap rgb = img.get<pixel_format_t::RGBA>();
 
-  const_image_data<pixel_format_t::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
+  const image_data<pixel_format_t::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), red);
   EXPECT_EQUAL(raw.pixel(0, 1), red);
   EXPECT_EQUAL(raw.pixel(1, 0), red);
@@ -360,7 +360,7 @@ void test_pixmap_green () {
 
   rgbamap rgb = img.get<pixel_format_t::RGBA>();
 
-  const_image_data<pixel_format_t::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
+  const image_data<pixel_format_t::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), green);
   EXPECT_EQUAL(raw.pixel(0, 1), green);
   EXPECT_EQUAL(raw.pixel(1, 0), green);
@@ -381,7 +381,7 @@ void test_pixmap_blue () {
 
   rgbamap rgb = img.get<pixel_format_t::RGBA>();
 
-  const_image_data<pixel_format_t::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
+  const image_data<pixel_format_t::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), blue);
   EXPECT_EQUAL(raw.pixel(0, 1), blue);
   EXPECT_EQUAL(raw.pixel(1, 0), blue);
@@ -402,7 +402,7 @@ void test_pixmap_white () {
 
   rgbamap rgb = img.get<pixel_format_t::RGBA>();
 
-  const_image_data<pixel_format_t::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
+  const image_data<pixel_format_t::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), white);
   EXPECT_EQUAL(raw.pixel(0, 1), white);
   EXPECT_EQUAL(raw.pixel(1, 0), white);
@@ -587,7 +587,7 @@ void test_pixmap2bitmap () {
 
   bwmap bw1 = pix.get<pixel_format_t::BW>();
 
-  const_image_data<pixel_format_t::BW> bw_raw = static_cast<const bwmap&>(bw1).get_data();
+  const image_data<pixel_format_t::BW> bw_raw = static_cast<const bwmap&>(bw1).get_data();
   EXPECT_EQUAL(bw_raw.pixel(0, 0), pixel::mono::black);
   EXPECT_EQUAL(bw_raw.pixel(0, 1), pixel::mono::white);
   EXPECT_EQUAL(bw_raw.pixel(1, 0), pixel::mono::white);
@@ -636,7 +636,7 @@ void test_pixmap2bitmap () {
 
   bwmap bw2 = img.get();
 
-  const_image_data<pixel_format_t::BW> bw2_raw = static_cast<const bwmap&>(bw2).get_data();
+  const image_data<pixel_format_t::BW> bw2_raw = static_cast<const bwmap&>(bw2).get_data();
   EXPECT_EQUAL(bw2_raw.pixel(0, 0), pixel::mono::black);
   EXPECT_EQUAL(bw2_raw.pixel(0, 1), pixel::mono::white);
   EXPECT_EQUAL(bw2_raw.pixel(1, 0), pixel::mono::white);

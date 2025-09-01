@@ -39,7 +39,7 @@
 #include "gui/draw/font.h"
 #include "gui/draw/use.h"
 
-#define OPTIMIZE_DRAWxx
+#define OPTIMIZE_DRAW_not
 
 namespace gui {
 
@@ -137,12 +137,16 @@ namespace gui {
       const auto pw = p.os_size();
       if (pw == 1) {
         Use<pen> pn(g, p);
-        XDrawRectangle(get_instance(), g, g, r.x, r.y, r.width - 1, r.height - 1);
+        if ((r.width < 1) || (r.height < 1)) {
+          XDrawLine(get_instance(), g, g, r.x, r.y, r.x + r.width, r.y + r.height);
+        } else {
+          XDrawRectangle(get_instance(), g, g, r.x, r.y, r.width, r.height);
+        }
       } else {
         const auto off = pw / 2;
-        if ((r.width > pw) && (r.height > pw)) {
+        if ((r.width >= pw) && (r.height >= pw)) {
           Use<pen> pn(g, p);
-          XDrawRectangle(get_instance(), g, g, r.x + off, r.y + off, r.width - pw, r.height - pw);
+          XDrawRectangle(get_instance(), g, g, r.x + off, r.y + off, r.width/*  - pw */, r.height/*  - pw */);
         } else if ((r.width > 1) && (r.height > 1)) {
           Use<brush> br(g, brush(p.color()));
           XFillRectangle(get_instance(), g, g, r.x, r.y, pw, pw);
@@ -172,7 +176,7 @@ namespace gui {
       gui::os::instance display = get_instance();
       const auto pw = p.os_size();
       const auto off = pw/*(pw - 1)*/ / 2;
-      const os::rectangle r = (rect - core::size::one).os(g.context());
+      const os::rectangle r = rect.os(g.context());
       if ((r.width == 0) && (r.height == 0)) {
         if (!is_transparent(p)) {
           if (pw < 2) {
@@ -203,7 +207,7 @@ namespace gui {
       gui::os::instance display = get_instance();
       const auto pw = p.os_size();
       const auto off = pw/*(pw - 1)*/ / 2;
-      const os::rectangle r = (rect - core::size::one).os(g.context());
+      const os::rectangle r = rect.os(g.context());
       if ((r.width == 0) && (r.height == 0)) {
         if (pw < 2) {
           Use<pen> pn(g, p);

@@ -288,9 +288,10 @@ graysmap expected_bilinear[] = {
 };
 
 graysmap graysmap2bwsmap (graysmap m) {
+  using namespace gui::pixel;
   for (grayline& y : m) {
-    for (uint8_t& x : y) {
-      x = (x < 128) ? 0 : 255;
+    for (auto& x : y) {
+      x = (x < 128) ? color<gray>::white : color<gray>::black;
     }
   }
   return m;

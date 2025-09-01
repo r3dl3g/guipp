@@ -95,7 +95,7 @@ namespace testing {
         case 8:
           for (int x = 0; x < width; ++x) {
             uint32_t gray = *reinterpret_cast<const unsigned char*>(raw_data + y_offset + x);
-            line.push_back(gui::pixel::rgb::build(gray));
+            line.push_back(gui::pixel::rgb::build(gray | gray << 8 | gray << 16));
           }
           break;
         case 1: {

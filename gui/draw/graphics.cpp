@@ -39,6 +39,7 @@
 #include "gui/core/native.h"
 #include "gui/draw/graphics.h"
 #include "gui/draw/bitmap.h"
+#include "gui/draw/shared_datamap.h"
 #include "gui/draw/drawers.h"
 #include "gui/draw/pen.h"
 #include "gui/draw/brush.h"
@@ -416,7 +417,20 @@ namespace gui {
 
     graphics& graphics::copy_from (const draw::basic_datamap& bmp, const core::native_rect& src, const core::native_point& pt) {
       if (bmp.is_valid()) {
-#ifdef GUIPP_USE_XSHMx
+        pixmap buffer;
+        buffer = bmp.convert<gui::pixel_format_t::RGB>();
+        copy_from(buffer, src, pt);
+      }
+      return *this;
+    }
+
+#ifdef GUIPP_USE_XSHM
+    graphics& graphics::copy_from (const draw::shared_datamap& bmp, const core::native_point& pt) {
+      return copy_from(bmp, core::native_rect(bmp.native_size()), pt);
+    }
+
+    graphics& graphics::copy_from (const draw::shared_datamap& bmp, const core::native_rect& src, const core::native_point& pt) {
+      if (bmp.is_valid()) {
         if (core::global::x11::has_XShm()) {
           auto display = core::global::get_instance();
           logging::trace() << "Call XShmPutImage for id " << bmp.shminfo.shmid << " and adress " << std::hex << (ptrdiff_t)bmp.shminfo.shmaddr;
@@ -427,16 +441,13 @@ namespace gui {
             XFlush(display);
           }
         } else {
-#endif // GUIPP_USE_XSHM
-          pixmap buffer;
-          buffer = bmp.convert<gui::pixel_format_t::RGB>();
+          pixmap buffer(bmp.get_data());
           copy_from(buffer, src, pt);
-#ifdef GUIPP_USE_XSHMx
         }
-#endif // GUIPP_USE_XSHM
       }
       return *this;
     }
+#endif // GUIPP_USE_XSHM
 
     void graphics::invert (const core::rectangle& r) {
       auto display = core::global::get_instance();
@@ -670,6 +681,16 @@ namespace gui {
     graphics& graphics::copy_from (const draw::basic_datamap& bmp, const core::rectangle& r, const core::point& pt) {
       return copy_from(bmp, core::global::scale_to_native(r), core::native_point(pt.os(context()), context()));
     }
+
+#ifdef GUIPP_USE_XSHM
+    graphics& graphics::copy_from (const draw::shared_datamap& bmp, const core::point& pt) {
+      return copy_from(bmp, core::native_point(pt.os(context()), context()));
+    }
+
+    graphics& graphics::copy_from (const draw::shared_datamap& bmp, const core::rectangle& r, const core::point& pt) {
+      return copy_from(bmp, core::global::scale_to_native(r), core::native_point(pt.os(context()), context()));
+    }
+#endif // GUIPP_USE_XSHM
 
 #ifndef GUIPP_QT
     graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) {

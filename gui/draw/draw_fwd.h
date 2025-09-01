@@ -34,6 +34,9 @@ namespace gui {
     class bitmap;
     class pixmap;
     class masked_bitmap;
+#ifdef GUIPP_USE_XSHM
+    class shared_datamap;
+#endif // GUIPP_USE_XSHM
 
     class basic_datamap;
 

@@ -28,6 +28,7 @@ if(NOT TARGET ${PROJECT_NAME})
       use.cpp
       icons.cpp
       clock.cpp
+      shared_datamap.cpp
   )
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 

@@ -21,8 +21,8 @@ namespace gui {
 
   namespace pixel {
     // --------------------------------------------------------------------------
-    template<typename T>
-    inline typename std::enable_if<is_rgb_type<T>::value, byte>::type get_gray (T p) {
+    template<typename T, typename std::enable_if<is_rgb_type<T>::value, int>::type = 0>
+    inline byte get_gray (T p) {
       return static_cast<byte>((static_cast<uint16_t>(p.red) +
                                 static_cast<uint16_t>(p.green) +
                                 static_cast<uint16_t>(p.blue)) / 3);
@@ -49,8 +49,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    inline typename std::enable_if<is_rgb_type<T>::value, mono>::type get_bw (T p) {
+    template<typename T, typename std::enable_if<is_rgb_type<T>::value, int>::type = 0>
+    inline mono get_bw (T p) {
       return get_gray(p) < 128 ? mono::black : mono::white;
     }
 
@@ -71,8 +71,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    inline typename std::enable_if<is_rgb_type<T>::value, byte>::type get_red (T p) {
+    template<typename T, typename std::enable_if<is_rgb_type<T>::value, int>::type = 0>
+    inline byte get_red (T p) {
       return p.red;
     }
 
@@ -93,8 +93,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    inline typename std::enable_if<is_rgb_type<T>::value, byte>::type get_green (T p) {
+    template<typename T, typename std::enable_if<is_rgb_type<T>::value, int>::type = 0>
+    inline byte get_green (T p) {
       return p.green;
     }
 
@@ -115,8 +115,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    inline typename std::enable_if<is_rgb_type<T>::value, byte>::type get_blue (T p) {
+    template<typename T, typename std::enable_if<is_rgb_type<T>::value, int>::type = 0>
+    inline byte get_blue (T p) {
       return p.blue;
     }
 
@@ -137,13 +137,16 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    inline typename std::enable_if<is_alpha_type<T>::value, byte>::type get_alpha (T p) {
+    template<typename T, typename std::enable_if<is_alpha_type<T>::value, int>::type = 0>
+    inline byte get_alpha (T p) {
       return p.alpha;
     }
 
-    template<typename T>
-    inline typename std::enable_if<!is_alpha_type<T>::value, byte>::type get_alpha (T) {
+    inline byte get_alpha (mono p) {
+      return IF_WIN32_ELSE(0, 255);
+    }
+
+    inline byte get_alpha (gray p) {
       return IF_WIN32_ELSE(0, 255);
     }
 

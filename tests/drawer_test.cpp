@@ -3887,6 +3887,18 @@ void test_main (const testing::start_params& params) {
   run_test(test_draw_polygon);
 #endif //TEST_POLYGON
 
+#ifdef TEST_RAW_RECT
+  for (int scale = 1; scale < 4; ++scale) {
+    for (int w = 0; w < 5; ++w) {
+      for (int h = 0; h < 5; ++h) {
+          auto buffer = draw_raw_rect(scale, 20, 1*scale, 1*scale, w*scale, h*scale);
+          std::cout << "Scale " << scale << " width " << w << " height " << h;
+          std::cout << buffer << std::endl;
+      }
+    }
+  }
+#endif //TEST_RAW_RECT
+
 }
 
 // --------------------------------------------------------------------------

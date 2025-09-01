@@ -286,12 +286,60 @@ graysmap expected_bilinear[] = {
 //        {156, 0, 156},
 //        {94, 156, 94}})
 };
+// --------------------------------------------------------------------------
+graysmap expected_bilinear_bw[] = {
+  GM({{_,_,_,_,_},
+      {_,W,W,W,_},
+      {_,W,_,W,_},
+      {_,W,W,W,_},
+      {_,_,_,_,_}})
+  , GM({{_,_,_,_,_,_,_,_},
+        {_,W,W,W,W,W,W,_},
+        {_,W,W,W,W,W,W,_},
+        {_,W,W,_,_,W,W,_},
+        {_,W,W,_,_,W,W,_},
+        {_,W,W,W,W,W,W,_},
+        {_,W,W,W,W,W,W,_},
+        {_,_,_,_,_,_,_,_}})
+  , GM({{_,_,_,_,_,_,_,_,_,_},
+        {_,_,_,_,_,_,_,_,_,_},
+        {_,_,W,W,W,W,W,W,_,_},
+        {_,_,W,W,W,W,W,W,_,_},
+        {_,_,W,W,_,_,W,W,_,_},
+        {_,_,W,W,_,_,W,W,_,_},
+        {_,_,W,W,W,W,W,W,_,_},
+        {_,_,W,W,W,W,W,W,_,_},
+        {_,_,_,_,_,_,_,_,_,_},
+        {_,_,_,_,_,_,_,_,_,_}})
+  ,  GM({{_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+         {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+         {_,_,W,W,W,W,W,W,W,W,W,W,W,_,_},
+         {_,_,W,W,W,W,W,W,W,W,W,W,W,_,_},
+         {_,_,W,W,W,W,W,W,W,W,W,W,W,_,_},
+         {_,_,W,W,W,W,W,W,W,W,W,W,W,_,_},
+         {_,_,W,W,W,W,_,_,_,W,W,W,W,_,_},
+         {_,_,W,W,W,W,_,_,_,W,W,W,W,_,_},
+         {_,_,W,W,W,W,_,_,_,W,W,W,W,_,_},
+         {_,_,W,W,W,W,W,W,W,W,W,W,W,_,_},
+         {_,_,W,W,W,W,W,W,W,W,W,W,W,_,_},
+         {_,_,W,W,W,W,W,W,W,W,W,W,W,_,_},
+         {_,_,W,W,W,W,W,W,W,W,W,W,W,_,_},
+         {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+         {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}})
+  , GM({{_,_,_,_},
+        {_,W,W,_},
+        {_,W,W,_},
+        {_,_,_,_}})
+  , GM({{_,_,_},
+        {_,_,_},
+        {_,_,_}})
+};
 
 graysmap graysmap2bwsmap (graysmap m) {
   using namespace gui::pixel;
   for (grayline& y : m) {
     for (auto& x : y) {
-      x = (x < 128) ? color<gray>::white : color<gray>::black;
+      x = (x.value < 128) ? color<gray>::black : color<gray>::white;
     }
   }
   return m;
@@ -324,7 +372,8 @@ void test_bw_bilinear () {
   EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::BW);
 
   auto buffer = datamap2graysmap(graymap(stretched));
-  EXPECT_EQUAL(buffer, graysmap2bwsmap(expected_bilinear[stretch_f]));
+  auto expected = graysmap2bwsmap(expected_bilinear_bw[stretch_f]);
+  EXPECT_EQUAL(buffer, expected);
 }
 
 // --------------------------------------------------------------------------
@@ -354,7 +403,8 @@ void test_gray_bilinear () {
   io::ofpnm<io::PNM::P2>(ostreamfmt("gray_" << stretch_f)) << stretched;
 
   auto buffer = datamap2graysmap(stretched);
-  EXPECT_EQUAL(buffer, expected_bilinear[stretch_f]);
+  auto expected = expected_bilinear[stretch_f];
+  EXPECT_EQUAL(buffer, expected);
 }
 
 // --------------------------------------------------------------------------
@@ -491,7 +541,8 @@ void test_bw_bicubic () {
   EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::BW);
 
   auto buffer = datamap2graysmap(graymap(stretched));
-  EXPECT_EQUAL(buffer, graysmap2bwsmap(expected_bicubic[stretch_f]));
+  auto expected = graysmap2bwsmap(expected_bicubic[stretch_f]);
+  EXPECT_EQUAL(buffer, expected);
 }
 
 // --------------------------------------------------------------------------

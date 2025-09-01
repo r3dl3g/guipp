@@ -2,6 +2,17 @@
 
 pkgs.mkShell {
   hardeningDisable = [ "fortify" ];
+  buildInputs = with pkgs; [
+    stdenv.cc.cc.lib
+    xcbutilxrm
+    xorg.libX11.dev
+    xorg.libXft.dev
+    xorg.libxcb.dev
+    xorg.libXdmcp.dev
+    xorg.libXext.dev
+    fontconfig.dev
+    pkg-config
+  ];
 
   nativeBuildInputs = with pkgs; [
     cmake
@@ -10,27 +21,10 @@ pkgs.mkShell {
     gcc
     gdb
     git
-    xcbutilxrm
-    xorg.libX11.dev
-    xorg.libXft.dev
-    xorg.libxcb.dev
-    xorg.libXdmcp.dev
-    xorg.libXext.dev
-    fontconfig.dev
   ];
 
-  cmakeFlags = [
-    "-DGUIPP_TESTS=OFF"
-    "-DGUIPP_SAMPLES=ON"
-    "-DGUIPP_CONFIG_INSTALL=OFF"
-    "-DLOGGING_CONFIG_INSTALL=OFF"
-    "-DUTIL_CONFIG_INSTALL=OFF"
-    "-DTESTING_CONFIG_INSTALL=OFF"
-    "-DGUIPP_BUILD_DEPENDENT_LIBS=ON"
-    "-DGUIPP_BUILD_STATIC_MODULE_LIBS=OFF"
-    "-DGUIPP_BUILD_SHARED_MODULE_LIBS=ON"
-    "-DLOGGING_BUILD_STATIC_MODULE_LIB=OFF"
-    "-DUTIL_BUILD_STATIC_MODULE_LIB=OFF"
-  ];
-
+  shellHook = ''
+    export MYPS1='\n\[\033[1;35m\](guipp)[\[\e]0;\u@\h: \w\a\]\u@\h:\w]\$\[\033[0m\] '
+    export PS1=$MYPS1
+  '';
 }

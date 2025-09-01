@@ -250,6 +250,7 @@ namespace gui {
       const byte* end = in + sz;
       while (in < end) {
         *in = ~(*in);
+        ++in;
       }
     }
 

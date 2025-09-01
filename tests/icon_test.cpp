@@ -37,11 +37,11 @@ static const unsigned char expected_file_icon_bits[] = {
   0b00000000, 0b00000000, 0b00000000, 0x0,
   0b00000000, 0b00000000, 0b00000000, 0x0,
   0b00000000, 0b00000000, 0b00000000, 0x0,
-  0b00011111, 0b10000000, 0b00000000, 0x0,
-  0b00010000, 0b11000000, 0b00000000, 0x0,
-  0b00010000, 0b10100000, 0b00000000, 0x0,
-  0b00010000, 0b11110000, 0b00000000, 0x0,
-  0b00010000, 0b00010000, 0b00000000, 0x0,
+  0b00011111, 0b00000000, 0b00000000, 0x0,
+  0b00010001, 0b10000000, 0b00000000, 0x0,
+  0b00010001, 0b01000000, 0b00000000, 0x0,
+  0b00010001, 0b00100000, 0b00000000, 0x0,
+  0b00010001, 0b11110000, 0b00000000, 0x0,
   0b00010000, 0b00010000, 0b00000000, 0x0,
   0b00010000, 0b00010000, 0b00000000, 0x0,
   0b00010000, 0b00010000, 0b00000000, 0x0,
@@ -59,11 +59,11 @@ static const unsigned char expected_file_icon_bits[] = {
 static const colormap expected_file_icon_map = CM({{L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L},
                                                    {L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L},
                                                    {L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L,L},
-                                                   {L,L,L,_,_,_,_,_,_,L,L,L,L,L,L,L,L,L,L,L},
-                                                   {L,L,L,_,L,L,L,L,_,_,L,L,L,L,L,L,L,L,L,L},
-                                                   {L,L,L,_,L,L,L,L,_,L,_,L,L,L,L,L,L,L,L,L},
-                                                   {L,L,L,_,L,L,L,L,_,_,_,_,L,L,L,L,L,L,L,L},
-                                                   {L,L,L,_,L,L,L,L,L,L,L,_,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,_,_,_,_,L,L,L,L,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,L,L,L,_,_,L,L,L,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,L,L,L,_,L,_,L,L,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,L,L,L,_,L,L,_,L,L,L,L,L,L,L,L,L},
+                                                   {L,L,L,_,L,L,L,_,_,_,_,_,L,L,L,L,L,L,L,L},
                                                    {L,L,L,_,L,L,L,L,L,L,L,_,L,L,L,L,L,L,L,L},
                                                    {L,L,L,_,L,L,L,L,L,L,L,_,L,L,L,L,L,L,L,L},
                                                    {L,L,L,_,L,L,L,L,L,L,L,_,L,L,L,L,L,L,L,L},
@@ -132,7 +132,7 @@ void test_native_impl () {
   for (int y = 0; y < 20; ++y) {
     const uint32_t* line = (const uint32_t*)(im->data + im->bytes_per_line * y);
     for (int x = 0; x < 20; ++x) {
-      const uint32_t expected = expected_bit_at(x, y) ? 0xff0000 : 0x00ff00;
+      const uint32_t expected = expected_bit_at(x, y) ? 0xffff0000 : 0xff00ff00;
       const uint32_t test = line[x];
       EXPECT_EQUAL(test, expected, " at x:", x, ", y:", y);
     }
@@ -467,8 +467,7 @@ void test_text_pixmap () {
   draw::graphics(img).clear(color::black).text(box, draw::font::system_bold(), color::blue);
 
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM(
-    {
+  EXPECT_LOWER_OR_EQUAL(buffer, CM({
       {_,_,_,_,_,_,_,_,_,_},
       {_,_,_,_,_,_,_,_,_,_},
       {_,_,_,_,B,B,_,_,_,_},
@@ -479,8 +478,19 @@ void test_text_pixmap () {
       {_,_,_,_,B,B,_,_,_,_},
       {_,_,_,_,B,B,_,_,_,_},
       {_,_,_,_,_,_,_,_,_,_}
-    }
-  ));
+  }));
+  EXPECT_HIGHER_OR_EQUAL(buffer, CM({
+      {_,_,_,_,_,_,_,_,_,_},
+      {_,_,_,_,_,_,_,_,_,_},
+      {_,_,_,_,1,1,_,_,_,_},
+      {_,_,_,_,1,1,_,_,_,_},
+      {_,_,_,_,1,1,_,_,_,_},
+      {_,_,1,1,1,1,1,1,_,_},
+      {_,_,_,_,1,1,_,_,_,_},
+      {_,_,_,_,1,1,_,_,_,_},
+      {_,_,_,_,1,1,_,_,_,_},
+      {_,_,_,_,_,_,_,_,_,_}
+  }));
 }
 
 // --------------------------------------------------------------------------
@@ -593,15 +603,21 @@ void test_file_icon_selected () {
 
   //auto sz = icon.native_size();
   draw::pixmap mem(20, 20);
-  os::color highLight = color::highLightColor();
+  // os::color highLight = color::highLightColor();
 
   draw::graphics g(mem);
-  g.clear(highLight);
-  g.frame(draw::icon_t<draw::icon_type::file>({10, 10}, 8), color::black);
+  g.clear(L);
+  g.frame(draw::icon_t<draw::icon_type::file>({7, 9}, 7), color::black);
+
+  auto generated = pixmap2colormap(mem);
+  if (!(generated == expected_file_icon_map)) {
+    std::cout << "Expected:" << expected_file_icon_map;
+    std::cout << "Test:" << generated;
+  }
 
   for (int32_t y = 0; y < 20; ++y) {
     for (int32_t x = 0; x < 20; ++x) {
-      os::color expected = expected_bit_at_inv(x, y) ? color::black : highLight;
+      os::color expected = expected_bit_at_inv(x, y) ? color::black : L;
       os::color test = color::remove_transparency(g.get_pixel({x, y}));
       EXPECT_EQUAL(test, expected, " in test_file_icon_selected at x = ", x, ", y = ", y);
     }

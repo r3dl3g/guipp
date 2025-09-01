@@ -393,13 +393,13 @@ void test_masked_from_pixmap () {
     {pixel::mono::black, pixel::mono::black, pixel::mono::black, pixel::mono::black, pixel::mono::black}
   };
 
-  colormap expected_bw_color = {
+  colormap expected_bw_color = CM({
     {color::black, color::black, color::black, color::black, color::black},
     {color::black, color::white, color::white, color::white, color::black},
     {color::black, color::white, color::white, color::white, color::black},
     {color::black, color::white, color::white, color::white, color::black},
     {color::black, color::black, color::black, color::black, color::black}
-  };
+  });
 
   draw::masked_bitmap icon(pix);
 

@@ -100,19 +100,19 @@ void tester2 (float scale, int sz, const core::point& p1, const core::point& p2,
 }
 
 // --------------------------------------------------------------------------
-void test_raw_rect () {
-  core::global::set_scale_factor(1.0);
-  pixmap img(5, 5);
+testing::colormap draw_raw_rect (int scale, int sz, int x, int y, unsigned int w, unsigned h) {
+  core::global::set_scale_factor(scale);
+  pixmap img(sz, sz);
   graphics g(img);
   g.clear(color::black);
   pen p(color::red);
   draw::Use<pen> up(g, p);
 
-  core::rectangle r(core::point(1, 1), core::size(3, 3));
 #ifdef GUIPP_X11
-  XDrawRectangle(core::global::get_instance(), img, g, 1, 1, 2, 2);
+  XDrawRectangle(core::global::get_instance(), img, g, x, y, w, h);
 #endif
 #ifdef GUIPP_WIN
+  core::rectangle r(core::point(1, 1), core::size(3, 3));
   SelectObject(g, GetStockObject(NULL_BRUSH));
   Rectangle(g, r.os_x(g.context()), r.os_y(g.context()), r.os_x2(g.context()), r.os_y2(g.context()));
 #endif
@@ -120,7 +120,11 @@ void test_raw_rect () {
   g.os()->drawRect(1, 1, 2, 2);
 #endif
 
-  auto buffer = pixmap2colormap(img);
+  return pixmap2colormap(img);
+}
+
+void test_raw_rect () {
+  auto buffer = draw_raw_rect(1, 5, 1, 1, 2, 2);
   EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
                            {_,R,R,R,_},
                            {_,R,_,R,_},

@@ -6,6 +6,7 @@
 #include <gui/draw/graphics.h>
 #include "gui/draw/font.h"
 #include "gui/draw/drawers.h"
+#include "gui/draw/shared_datamap.h"
 #include <util/fps_counter.h>
 // #include <gui/ctrl/button.h>
 
@@ -25,18 +26,27 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main_window main;
   // gui::ctrl::text_button ok_button(const_text("Click me!"));
 
+#ifdef GUIPP_USE_XSHM
+  int ms_delay = IF_DEBUG_ELSE(50, 20);
+  int frame_step = 1;
+  draw::shared_datamap img(core::size(800, 600));
+#else
+  int ms_delay = 500;
+  int frame_step = 10;
   draw::rgbmap img(core::size(800, 600));
+#endif
 
   int frame = 0;
   auto draw_colors = [&] () {
-    frame += IF_DEBUG_ELSE(10, 1);
+    frame += frame_step;
+    int step = std::abs(256 - frame % 512);
     auto data = img.get_data();
     for (int y = 0; y < data.height(); ++y) {
       auto row = data.row(y);
       for (int x = 0; x < data.width(); ++x) {
           byte r = (x * 255) / data.width();
           byte g = (y * 255) / data.height();
-          byte b = std::abs(256 - frame % 512);
+          byte b = step;
           row[x] = {r, g, b};
       }
     }
@@ -44,7 +54,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   };
   draw_colors();
 
-  background_repeater task(main, std::chrono::milliseconds(IF_DEBUG_ELSE(500, 40)), draw_colors);
+  background_repeater task(main, std::chrono::milliseconds(ms_delay), draw_colors);
   fps_counter fps;
 
   main.on_destroy(&quit_main_loop);

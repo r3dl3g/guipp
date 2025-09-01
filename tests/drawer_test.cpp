@@ -83,7 +83,7 @@ void tester (float scale, int sz, const core::point& p1, const core::point& p2,
   g.clear(color::black);
   T(p1, p2)(g, D(color::red));
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, expected);
+  EXPECT_EQUAL(buffer, expected, " from (", p1.x(), ", ", p1.y(), ") to (", p2.x(), ", ", p2.y(), ")");
 }
 
 // --------------------------------------------------------------------------
@@ -96,7 +96,7 @@ void tester2 (float scale, int sz, const core::point& p1, const core::point& p2,
   g.clear(color::black);
   T(p1, p2)(g, brush(B), pen(P));
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, expected);
+  EXPECT_EQUAL(buffer, expected, " from (", p1.x(), ", ", p1.y(), ") to (", p2.x(), ", ", p2.y(), ")");
 }
 
 // --------------------------------------------------------------------------

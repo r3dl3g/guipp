@@ -3667,11 +3667,14 @@ void listX11Fonts () {
 #define TEST_CLEAR
 #define TEST_RAW
 #define TEST_LINE
-#define TEST_RECT
+#define TEST_RECT_FRAME
+#define TEST_RECT_FILL
+#define TEST_RECT_DRAW
 #define TEST_ELLIPSE
 #define TEST_ARC
 #define TEST_ROUND_RECT
 #define TEST_POLYGON
+// #define TEST_RAW_RECT
 
 // --------------------------------------------------------------------------
 void test_main (const testing::start_params& params) {
@@ -3699,7 +3702,7 @@ void test_main (const testing::start_params& params) {
   run_test(test_raw_ellipse);
 #endif // TEST_RAW
 
-#ifdef TEST_RECT
+#ifdef TEST_RECT_FRAME
   run_test(test_frame_rect_4x4);
   run_test(test_frame_rect_3x3);
   run_test(test_frame_rect_3x2);
@@ -3725,7 +3728,9 @@ void test_main (const testing::start_params& params) {
   run_test(test_frame_rect_2x2_x4);
   run_test(test_frame_rect_1x1_x4);
   run_test(test_frame_rect_0x0_x4);
+#endif //TEST_RECT_FRAME
 
+#ifdef TEST_RECT_FILL
   run_test(test_fill_rect_4x4);
   run_test(test_fill_rect_3x3);
   run_test(test_fill_rect_2x2);
@@ -3743,7 +3748,9 @@ void test_main (const testing::start_params& params) {
   run_test(test_fill_rect_2x2_x3);
   run_test(test_fill_rect_1x1_x3);
   run_test(test_fill_rect_0x0_x3);
+#endif //TEST_RECT_FILL
 
+#ifdef TEST_RECT_DRAW
   run_test(test_draw_rect_4x4);
   run_test(test_draw_rect_3x3);
   run_test(test_draw_rect_2x2);
@@ -3761,7 +3768,7 @@ void test_main (const testing::start_params& params) {
   run_test(test_draw_rect_2x2_x3);
   run_test(test_draw_rect_1x1_x3);
   run_test(test_draw_rect_0x0_x3);
-#endif //TEST_RECT
+#endif //TEST_RECT_DRAW
 
 #ifdef TEST_LINE
   run_test(test_draw_line_4x4);

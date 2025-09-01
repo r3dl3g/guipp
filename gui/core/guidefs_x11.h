@@ -60,8 +60,8 @@ namespace gui {
     typedef Drawable drawable;
     typedef GC graphics;
 
-    typedef unsigned long color;
-    typedef unsigned int style;
+    typedef uint32_t color;
+    typedef uint32_t style;
 
     typedef Pixmap backstore;
     typedef Pixmap bitmap;

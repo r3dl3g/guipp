@@ -66,10 +66,12 @@ namespace gui {
       type value;
 
       template<typename T>
-      static gray build(T t);
+      static constexpr gray build(T t);
 
       template<typename T>
       gray& operator= (T);
+
+      constexpr operator os::color () const;
     };
 
     // --------------------------------------------------------------------------
@@ -80,10 +82,12 @@ namespace gui {
       byte blue;
 
       template<typename T>
-      static rgb build(T t);
+      static constexpr rgb build(T t);
 
       template<typename T>
       rgb& operator= (T);
+
+      constexpr operator os::color () const;
     };
 
     // --------------------------------------------------------------------------
@@ -95,10 +99,12 @@ namespace gui {
       byte alpha;
 
       template<typename T>
-      static rgba build(T t);
+      static constexpr rgba build(T t);
 
       template<typename T>
       rgba& operator= (T);
+
+      constexpr operator os::color () const;
     };
 
     // --------------------------------------------------------------------------
@@ -109,10 +115,12 @@ namespace gui {
       byte red;
 
       template<typename T>
-      static bgr build(T t);
+      static constexpr bgr build(T t);
 
       template<typename T>
       bgr& operator= (T);
+
+      constexpr operator os::color () const;
     };
 
     // --------------------------------------------------------------------------
@@ -124,10 +132,12 @@ namespace gui {
       byte alpha;
 
       template<typename T>
-      static bgra build(T t);
+      static constexpr bgra build(T t);
 
       template<typename T>
       bgra& operator= (T);
+
+      constexpr operator os::color () const;
     };
 
     // --------------------------------------------------------------------------
@@ -139,10 +149,12 @@ namespace gui {
       byte blue;
 
       template<typename T>
-      static argb build(T t);
+      static constexpr argb build(T t);
 
       template<typename T>
       argb& operator= (T);
+
+      constexpr operator os::color () const;
     };
 
     // --------------------------------------------------------------------------
@@ -154,10 +166,12 @@ namespace gui {
       byte red;
 
       template<typename T>
-      static abgr build(T t);
+      static constexpr abgr build(T t);
 
       template<typename T>
       abgr& operator= (T);
+
+      constexpr operator os::color () const;
     };
 
 #pragma pack(pop)

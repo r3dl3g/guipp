@@ -162,7 +162,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T>
-    gray gray::build(T t) {
+    constexpr gray gray::build(T t) {
       gray p{};
       p = t;
       return p;
@@ -172,6 +172,10 @@ namespace gui {
     inline gray& gray::operator= (T rhs) {
       value = get_gray(rhs);
       return *this;
+    }
+
+    constexpr gray::operator os::color () const {
+      return gui::color::calc_rgb_gray(value);
     }
 
     // --------------------------------------------------------------------------
@@ -218,7 +222,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T>
-    rgb rgb::build(T t) {
+    constexpr rgb rgb::build(T t) {
       rgb p{};
       p = t;
       return p;
@@ -230,9 +234,13 @@ namespace gui {
       return *this;
     }
 
+    constexpr rgb::operator os::color () const {
+      return gui::color::calc_rgb(red, green, blue);
+    }
+
     // --------------------------------------------------------------------------
     template<typename T>
-    rgba rgba::build(T t) {
+    constexpr rgba rgba::build(T t) {
       rgba p{};
       p = t;
       return p;
@@ -244,9 +252,13 @@ namespace gui {
       return *this;
     }
 
+    constexpr rgba::operator os::color () const {
+      return gui::color::calc_rgba(red, green, blue, alpha);
+    }
+
     // --------------------------------------------------------------------------
     template<typename T>
-    bgr bgr::build(T t) {
+    constexpr bgr bgr::build(T t) {
       bgr p{};
       p = t;
       return p;
@@ -258,9 +270,13 @@ namespace gui {
       return *this;
     }
 
+    constexpr bgr::operator os::color () const {
+      return gui::color::calc_rgb(red, green, blue);
+    }
+
     // --------------------------------------------------------------------------
     template<typename T>
-    bgra bgra::build(T t) {
+    constexpr bgra bgra::build(T t) {
       bgra p{};
       p = t;
       return p;
@@ -272,9 +288,13 @@ namespace gui {
       return *this;
     }
 
+    constexpr bgra::operator os::color () const {
+      return gui::color::calc_rgba(red, green, blue, alpha);
+    }
+
     // --------------------------------------------------------------------------
     template<typename T>
-    argb argb::build(T t) {
+    constexpr argb argb::build(T t) {
       argb p{};
       p = t;
       return p;
@@ -286,9 +306,13 @@ namespace gui {
       return *this;
     }
 
+    constexpr argb::operator os::color () const {
+      return gui::color::calc_rgba(red, green, blue, alpha);
+    }
+
     // --------------------------------------------------------------------------
     template<typename T>
-    abgr abgr::build(T t) {
+    constexpr abgr abgr::build(T t) {
       abgr p{};
       p = t;
       return p;
@@ -298,6 +322,10 @@ namespace gui {
     inline abgr& abgr::operator= (T rhs) {
       put_rgba(*this, rhs);
       return *this;
+    }
+
+    constexpr abgr::operator os::color () const {
+      return gui::color::calc_rgba(red, green, blue, alpha);
     }
 
     // --------------------------------------------------------------------------

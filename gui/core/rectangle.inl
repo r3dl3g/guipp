@@ -52,7 +52,7 @@ namespace gui {
     inline basic_rectangle<T, S, C>::basic_rectangle (const point_t& p1,
                                                       const point_t& p2)
       : pos(p1.min(p2))
-      , sz(std::abs(p1.x() - p2.x()), std::abs(p1.y() - p2.y()))
+      , sz(std::abs(p1.x() - p2.x()) + 1, std::abs(p1.y() - p2.y()) + 1)
     {}
 
     template<typename T, typename S, coordinate_system C>

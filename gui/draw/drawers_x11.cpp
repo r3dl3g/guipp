@@ -79,14 +79,14 @@ namespace gui {
     // --------------------------------------------------------------------------
     void line::operator() (graphics& g, const pen& p) const {
       gui::os::instance display = get_instance();
-//      const short pw = p.os_size();
-//      const short off = pw / 2;
+     const short pw = p.os_size();
+     const short off = pw / 2;
       Use<pen> pn(g, p);
 
-      const auto x0 = from.os_x(g.context());
-      const auto y0 = from.os_y(g.context());
-      const auto x1 = to.os_x(g.context());
-      const auto y1 = to.os_y(g.context());
+      const auto x0 = from.os_x(g.context()) + off;
+      const auto y0 = from.os_y(g.context()) + off;
+      const auto x1 = to.os_x(g.context()) + off;
+      const auto y1 = to.os_y(g.context()) + off;
 
       XDrawLine(display, g, g, x0, y0, x1, y1);
 //      XDrawLine(display, g, g, x0 + off, y0 + off, x1 + off, y1 + off);

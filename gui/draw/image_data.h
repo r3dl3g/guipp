@@ -68,6 +68,7 @@ namespace gui {
       using row_type = core::array_wrapper<pixel_type>;
       using index_type = typename core::array_wrapper<pixel_type>::index_type;
       using const_index_type = typename core::array_wrapper<pixel_type>::const_index_type;
+      using const_raw_type = core::array_wrapper<byte const>;
       using const_row_type = core::array_wrapper<pixel_type const>;
       static constexpr size_t pixel_size = sizeof(pixel_type);
 
@@ -79,8 +80,8 @@ namespace gui {
       index_type pixel (uint32_t x, uint32_t y);
       const const_index_type pixel (uint32_t x, uint32_t y) const;
 
-      raw_type& raw_data ();
-      const raw_type& raw_data () const;
+      raw_type raw_data ();
+      const_raw_type raw_data () const;
 
       image_data& operator= (const image_data&);
 

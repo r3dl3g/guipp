@@ -41,7 +41,7 @@ namespace gui {
     }
 
     template<pixel_format_t T>
-    inline auto image_data<T>::raw_data () -> raw_type& {
+    inline auto image_data<T>::raw_data () -> raw_type {
       return data;
     }
 
@@ -58,8 +58,8 @@ namespace gui {
     }
 
     template<pixel_format_t T>
-    inline auto image_data<T>::raw_data () const -> const raw_type& {
-      return data;
+    inline auto image_data<T>::raw_data () const -> const_raw_type {
+      return const_raw_type(data.data(0, get_info().mem_size()), get_info().mem_size());
     }
 
     template<pixel_format_t T>

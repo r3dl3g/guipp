@@ -862,7 +862,7 @@ namespace gui {
       event.window = w.get_overlapped_window().get_os_window();
       event.format = 32;
       XSendEvent(display, event.window, False, 0, (XEvent*)&event);
-      XFlush(display);
+      // XFlush(display);
 
 #endif // GUIPP_X11
 #ifdef GUIPP_WIN

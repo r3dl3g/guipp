@@ -105,7 +105,7 @@ namespace gui {
         auto display = core::global::get_instance();
         XSetWindowBackgroundPixmap(display, id, pixel_store);
         XClearWindow(display, id);
-        XFlush(display);
+        // XFlush(display);
 # ifdef DEBUG_RECTANGLES
         return {id};
 # else

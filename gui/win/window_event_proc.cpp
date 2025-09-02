@@ -774,12 +774,6 @@ namespace gui {
 
       while (running) {
 
-        if (x11::queued_actions.try_dequeue(action)) {
-          action();
-        } else if ((0 == XPending(display)) && x11::queued_actions.isEmpty()) {
-          wait_for_event(fd);
-        }
-
         if (XPending(display) > 0) {
 
           core::event e;
@@ -805,6 +799,10 @@ namespace gui {
           if ((e.type == ConfigureNotify) && running) {
             update_last_geometry(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));
           }
+        } else if (x11::queued_actions.try_dequeue(action)) {
+          action();
+        } else {
+          wait_for_event(fd);
         }
 
         for (auto& w : x11::s_invalidated_windows) {

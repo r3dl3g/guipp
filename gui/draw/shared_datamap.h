@@ -48,6 +48,9 @@ namespace gui {
       shared_datamap& operator= (const shared_datamap&);
       shared_datamap& operator= (const image_data_type&);
 
+      template<pixel_format_t T>
+      inline shared_datamap& copy_from (const image_data<T>& rhs);
+
       void create (const core::size& sz);
       void create (const core::native_size& sz);
       void create (const image_data_type& rhs);
@@ -90,6 +93,12 @@ namespace gui {
       XShmSegmentInfo shminfo;
       XImage* image;
     };
+
+    template<pixel_format_t T>
+    inline shared_datamap& shared_datamap::copy_from (const image_data<T>& rhs) {
+      get_data().copy_from(rhs);
+      return *this;
+    }
 
 #endif // GUIPP_USE_XSHM
 

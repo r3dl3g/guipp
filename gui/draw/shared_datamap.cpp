@@ -86,7 +86,7 @@ namespace gui {
         destroy();
         create(rhs.get_info().size());
       }
-      get_data() = rhs;
+      get_data().copy_from(rhs);
       return *this;
     }
 
@@ -135,7 +135,7 @@ namespace gui {
     }
 
     std::size_t shared_datamap::size () const {
-      return info.mem_size();
+      return is_valid() ? info.mem_size() : 0;
     }
 
     byte* shared_datamap::data () {
@@ -225,7 +225,7 @@ namespace gui {
 
     void shared_datamap::create (const image_data_type& rhs) {
       create(rhs.get_info().size());
-      get_data() = rhs;
+      get_data().copy_from(rhs);
     }
 
     void shared_datamap::copy_from (const image_data_type& rhs,

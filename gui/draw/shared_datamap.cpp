@@ -170,7 +170,7 @@ namespace gui {
         return;
       }
 
-      pixel_format_t fmt = pixel_format_t::ARGB;
+      pixel_format_t fmt = px_fmt;
       switch (image->bits_per_pixel) {
         case 1:
           fmt = pixel_format_t::BW;
@@ -179,10 +179,10 @@ namespace gui {
           fmt = pixel_format_t::GRAY;
         break;
         case 24:
-          fmt = pixel_format_t::RGB;
+          fmt = pixel_format_t::BGR;
         break;
         case 32:
-          fmt = pixel_format_t::ARGB;
+          fmt = pixel_format_t::BGRA;
         break;
       }
       info = {sz, fmt};

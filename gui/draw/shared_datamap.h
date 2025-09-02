@@ -31,8 +31,8 @@ namespace gui {
     class GUIPP_DRAW_EXPORT shared_datamap {
     public:
       typedef pixel::rgba pixel_type;
-      typedef image_data<pixel_format_t::RGBA> image_data_type;
-      static constexpr pixel_format_t px_fmt = pixel_format_t::RGBA;
+      typedef image_data<pixel_format_t::BGRA> image_data_type;
+      static constexpr pixel_format_t px_fmt = pixel_format_t::BGRA;
 
       shared_datamap ();
       shared_datamap (const shared_datamap&);

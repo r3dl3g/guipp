@@ -437,8 +437,6 @@ namespace gui {
           Bool result = XShmPutImage(display, target(), gc(), bmp.image, src.x(), src.y(), pt.x(), pt.y(), src.width(), src.height(), False);
           if (!result) {
               logging::error() << "XShmPutImage of area " << src << " to point " << pt << " failed!";
-          // } else {
-          //   XFlush(display);
           }
         } else {
           pixmap buffer(bmp.get_data());

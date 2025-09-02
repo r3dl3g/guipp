@@ -105,7 +105,6 @@ namespace gui {
         auto display = core::global::get_instance();
         XSetWindowBackgroundPixmap(display, id, pixel_store);
         XClearWindow(display, id);
-        // XFlush(display);
 # ifdef DEBUG_RECTANGLES
         return {id};
 # else
@@ -138,6 +137,8 @@ namespace gui {
 # ifdef DEBUG_RECTANGLES
         EndPaint((os::window)ctx.drawable(), &ps);
 # endif
+#elif GUIPP_X11
+        XFlushGC(core::global::get_instance(), gc);
 #endif
       }
 

@@ -774,14 +774,10 @@ namespace gui {
 
       while (running) {
 
-        if (XPending(display) > 0) {
+        while (XPending(display) > 0) {
 
           core::event e;
           XNextEvent(display, &e);
-
-//        if (!win::is_frequent_event(e)) {
-//          logging::debug() << e;
-//        }
 
           if (filter && filter(e)) {
             continue;
@@ -799,7 +795,9 @@ namespace gui {
           if ((e.type == ConfigureNotify) && running) {
             update_last_geometry(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));
           }
-        } else if (x11::queued_actions.try_dequeue(action)) {
+        }
+
+        if (x11::queued_actions.try_dequeue(action)) {
           action();
         } else {
           wait_for_event(fd);
@@ -812,6 +810,8 @@ namespace gui {
           }
         }
         x11::s_invalidated_windows.clear();
+
+        XFlush(display);
 
       }
 
@@ -862,7 +862,6 @@ namespace gui {
       event.window = w.get_overlapped_window().get_os_window();
       event.format = 32;
       XSendEvent(display, event.window, False, 0, (XEvent*)&event);
-      // XFlush(display);
 
 #endif // GUIPP_X11
 #ifdef GUIPP_WIN

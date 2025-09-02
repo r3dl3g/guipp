@@ -26,6 +26,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main_window main;
   // gui::ctrl::text_button ok_button(const_text("Click me!"));
 
+  fps_counter fps;
+
 #ifdef GUIPP_USE_XSHM
   int ms_delay = IF_DEBUG_ELSE(50, 20);
   int frame_step = 1;
@@ -37,6 +39,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 #endif
 
   int frame = 0;
+  bool changed = false;
   auto draw_colors = [&] () {
     frame += frame_step;
     int step = std::abs(256 - frame % 512);
@@ -50,21 +53,23 @@ int gui_main(const std::vector<std::string>& /*args*/) {
           row[x] = {r, g, b};
       }
     }
+    fps();
+    changed = true;
     main.invalidate();
   };
   draw_colors();
 
   background_repeater task(main, std::chrono::milliseconds(ms_delay), draw_colors);
-  fps_counter fps;
 
   main.on_destroy(&quit_main_loop);
   main.set_title("BackgroundTaskApp");
 
   main.create({50, 50, 800, 600});
   main.on_paint(draw::paint([&](graphics&g){
-    fps();
-    g.copy_from(img, point::zero);
-    g.text(draw::text(fps.str("FPS:"), point(5, 5)), font::system_bold(), color::white);
+    if (changed) {
+      g.copy_from(img, point::zero);
+      g.text(draw::text(fps.str("FPS:"), point(5, 5)), font::system_bold(), color::white);
+    }
   }));
   // ok_button.create(main, rectangle(100, 550, 600, 50));
   main.set_visible();

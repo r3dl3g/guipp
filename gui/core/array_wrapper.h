@@ -85,7 +85,7 @@ namespace gui {
     template<typename T>
     struct array_wrapper {
       using type = typename std::remove_const<T>::type;
-      using raw_type = typename detail::array2raw_type<type>::type;
+      using raw_type = typename detail::array2raw_type<T>::type;
       using full_type = T;
       using full_raw_type = typename detail::array2raw_type<T>::type;
       using index_type = typename detail::index_return_type<T>::type;

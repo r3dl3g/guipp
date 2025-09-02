@@ -29,7 +29,7 @@
 #include "gui/core/pixel.h"
 #include "gui/core/array_wrapper.h"
 #include "gui/core/color.h"
-#include "gui/draw/bitmap_info.h"
+#include "bitmap_info.h"
 
 
 namespace gui {
@@ -83,7 +83,11 @@ namespace gui {
       raw_type raw_data ();
       const_raw_type raw_data () const;
 
-      image_data& operator= (const image_data&);
+      template<pixel_format_t S>
+      image_data& copy_from (const image_data<S>&);
+
+      template<pixel_format_t S>
+      image_data& operator= (const image_data<S>&);
 
     private:
       raw_type data;

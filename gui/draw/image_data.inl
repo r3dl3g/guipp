@@ -63,19 +63,30 @@ namespace gui {
     }
 
     template<pixel_format_t T>
-    image_data<T>& image_data<T>::operator= (const image_data<T>& rhs) {
+    template<pixel_format_t S>
+    image_data<T>& image_data<T>::copy_from (const image_data<S>& rhs) {
       if (get_info() == rhs.get_info()) {
         // copy 1:1
         data.copy_from(rhs.raw_data(), get_info().mem_size());
       } else {
-        // copy row:row
-        auto rows = std::min(height(), rhs.height());
-        auto length = std::min(get_info().bytes_per_line, rhs.get_info().bytes_per_line);
-        for (int y = 0; y < rows; ++y) {
-          raw_data().sub(y, length).copy_from(rhs.raw_data().sub(y, length), length);
+        // copy row by row and possibly convert it
+        auto h = std::min(height(), rhs.height());
+        auto w = std::min(width(), rhs.width());
+        for (uint_fast32_t y = 0; y < h; ++y) {
+          auto in = rhs.row(y);
+          auto out = row(y);
+          for (uint_fast32_t x = 0; x < w; ++x) {
+            out[x] = in[x];
+          }
         }
       }
       return *this;
+    }
+
+    template<pixel_format_t T>
+    template<pixel_format_t S>
+    image_data<T>& image_data<T>::operator= (const image_data<S>& rhs) {
+      return copy_from(rhs);
     }
 
     // --------------------------------------------------------------------------

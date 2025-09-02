@@ -63,7 +63,8 @@ namespace gui {
         active = true;
         while (active) {
           const auto end_time = std::chrono::system_clock::now() + delay;
-          win::run_on_main(win, action);
+          action();
+          //win::run_on_main(win, action);
           if (active) {
             std::this_thread::sleep_until(end_time);
           }

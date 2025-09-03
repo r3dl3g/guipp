@@ -80,6 +80,7 @@
     "stdfloat": "cpp"
   },
   "cmake.configureArgs": [
-    "-DGUIPP_SAMPLES=ON"
+    "-DGUIPP_SAMPLES=ON",
+    "-DGUIPP_TESTS=ON"
   ]
 }

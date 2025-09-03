@@ -10,6 +10,7 @@ pkgs.mkShell {
     xorg.libxcb.dev
     xorg.libXdmcp.dev
     xorg.libXext.dev
+    xorg.libXrender.dev
     fontconfig.dev
     pkg-config
   ];

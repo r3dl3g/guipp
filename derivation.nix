@@ -21,6 +21,8 @@ stdenv.mkDerivation rec {
     xorg.libXft.dev
     xorg.libxcb.dev
     xorg.libXdmcp.dev
+    xorg.libXext.dev
+    xorg.libXrender.dev
     testing
     util
     logging

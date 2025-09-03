@@ -98,12 +98,15 @@ namespace gui {
       graphics& copy_from (graphics&, const core::point& dest);
 
       graphics& copy_from (const draw::pixmap&, const core::point& dest);
-      graphics& copy_from (const draw::pixmap&, const core::rectangle& src, const core::point& dest);
+      graphics& copy_from (const draw::pixmap&, const core::rectangle& src,
+                           const core::point& dest = core::point::zero);
       graphics& copy_from (const draw::pixmap&, const core::native_point& dest = core::native_point::zero);
-      graphics& copy_from (const draw::pixmap&, const core::native_rect& src, const core::native_point& dest);
+      graphics& copy_from (const draw::pixmap&, const core::native_rect& src,
+                           const core::native_point& dest = core::native_point::zero);
       
       graphics& copy_from (graphics&, const core::native_point& dest = core::native_point::zero);
-      graphics& copy_from (graphics&, const core::native_rect& src, const core::native_point& dest = core::native_point::zero);
+      graphics& copy_from (graphics&, const core::native_rect& src,
+                           const core::native_point& dest = core::native_point::zero);
       
       graphics& copy_from (const draw::masked_bitmap&, const core::point& dest);
       graphics& copy_from (const draw::masked_bitmap&, const core::native_point& dest = core::native_point::zero);
@@ -117,18 +120,29 @@ namespace gui {
                            const copy_mode = copy_mode::bit_copy);
 
       graphics& copy_from (const draw::basic_datamap&, const core::point& dest);
-      graphics& copy_from (const draw::basic_datamap&, const core::rectangle& src, const core::point& dest);
+      graphics& copy_from (const draw::basic_datamap&, const core::rectangle& src,
+                           const core::point& dest = core::point::zero);
 
-      graphics& copy_from (const draw::basic_datamap&, const core::native_point& dest);
-      graphics& copy_from (const draw::basic_datamap&, const core::native_rect& src, const core::native_point& dest);
+      graphics& copy_from (const draw::basic_datamap&, const core::native_point& dest = core::native_point::zero);
+      graphics& copy_from (const draw::basic_datamap&, const core::native_rect& src,
+                           const core::native_point& dest = core::native_point::zero);
 
 #ifdef GUIPP_USE_XSHM
       graphics& copy_from (const draw::shared_datamap&, const core::point& dest);
-      graphics& copy_from (const draw::shared_datamap&, const core::rectangle& src, const core::point& dest);
+      graphics& copy_from (const draw::shared_datamap&, const core::rectangle& src,
+                           const core::point& dest = core::point::zero);
 
-      graphics& copy_from (const draw::shared_datamap&, const core::native_point& dest);
-      graphics& copy_from (const draw::shared_datamap&, const core::native_rect& src, const core::native_point& dest);
+      graphics& copy_from (const draw::shared_datamap&, const core::native_point& dest = core::native_point::zero);
+      graphics& copy_from (const draw::shared_datamap&, const core::native_rect& src,
+                           const core::native_point& dest = core::native_point::zero);
 #endif // GUIPP_USE_XSHM
+
+      graphics& draw_streched (const draw::pixmap&, const core::rectangle& dest,
+                               const core::point& src = core::point::zero, const std::string& filter = {});
+      graphics& draw_streched (const draw::pixmap&, const core::native_rect& dest,
+                               const core::native_point& src = core::native_point::zero, const std::string& filter = {});
+
+      static std::vector<std::string> get_filter_list (os::drawable);
 
       void invert (const core::rectangle&);
       void flush ();

@@ -21,6 +21,7 @@
 #include <array>
 #ifdef GUIPP_X11
 # include <algorithm>
+# include <X11/extensions/Xrender.h>
 #endif // GUIPP_X11
 #ifdef GUIPP_QT
 # include <QtGui/QBitmap>
@@ -345,9 +346,9 @@ namespace gui {
 
 
     graphics& graphics::copy_from (os::drawable w,
-                                         const core::native_rect& r,
-                                         const core::native_point& pt,
-                                         const copy_mode mode) {
+                                   const core::native_rect& r,
+                                   const core::native_point& pt,
+                                   const copy_mode mode) {
       const int dd = get_drawable_depth(w);
       const int md = depth();
       if (dd == md) {
@@ -446,6 +447,56 @@ namespace gui {
       return *this;
     }
 #endif // GUIPP_USE_XSHM
+
+    static inline XFixed fx(double v) { return XDoubleToFixed(v); }
+
+    graphics& graphics::draw_streched (const draw::pixmap& pixmap,
+                                       const core::native_rect& dest,
+                                       const core::native_point& src,
+                                       const std::string& filter) {
+      if (pixmap) {
+        auto display = core::global::get_instance();
+
+        XRenderPictureAttributes pa;
+        pa.subwindow_mode = IncludeInferiors;
+
+        Picture picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
+        Picture window = XRenderCreatePicture(display, target(), XRenderFindVisualFormat(display, core::global::x11::get_visual()), 0, &pa);
+
+        auto sz = pixmap.native_size();
+
+        double sx = double(sz.width())  / double(dest.os_width());
+        double sy = double(sz.height()) / double(dest.os_height());
+        XTransform xf = {{
+            { fx(sx),  fx(0),  fx(0) },
+            { fx(0),   fx(sy), fx(0) },
+            { fx(0),   fx(0),  fx(1) }
+        }};
+        XRenderSetPictureTransform(display, picture, &xf);
+        if (!filter.empty()) {
+          XRenderSetPictureFilter(display, picture, const_cast<char*>(filter.c_str()), nullptr, 0);
+        }
+
+        XRenderComposite(display, PictOpSrc, picture, 0, window, src.x(), src.y(), 0, 0, dest.x(), dest.y(), dest.width(), dest.height());
+        XRenderFreePicture(display, window);
+        XRenderFreePicture(display, picture);
+      }
+      return *this;
+    }
+
+    std::vector<std::string> graphics::get_filter_list (os::drawable d) {
+      std::vector<std::string> list;
+      XFilters* filters = XRenderQueryFilters(core::global::get_instance(), d);
+      if (filters) {
+        list.reserve(filters->nfilter);
+        if (filters) {
+          for (int i = 0; i < filters->nfilter; ++i) {
+            list.push_back(filters->filter[i]);
+          }
+        }
+      }
+      return list;
+    }
 
     void graphics::invert (const core::rectangle& r) {
       auto display = core::global::get_instance();
@@ -690,6 +741,13 @@ namespace gui {
     }
 #endif // GUIPP_USE_XSHM
 
+    graphics& graphics::draw_streched (const draw::pixmap& bmp,
+                                       const core::rectangle& r,
+                                       const core::point& pt,
+                                       const std::string& filter) {
+      return draw_streched(bmp, core::global::scale_to_native(r), core::native_point(pt.os(context()), context()), filter);
+
+    }
 #ifndef GUIPP_QT
     graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) {
       if (bmp) {

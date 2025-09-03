@@ -10,7 +10,7 @@ if(NOT TARGET testlib)
     find_package(testing REQUIRED)
   endif()
 
-  set (testlib_Include "${CMAKE_CURRENT_SOURCE_DIR}/..")
+  set (testlib_Include "${CMAKE_CURRENT_SOURCE_DIR}")
   set (testlib_Include ${testlib_Include} PARENT_SCOPE)
 
   include_directories(${testlib_Include} ${GUIPP_INCLUDE_DIRS})

@@ -7,8 +7,8 @@
 #include "gui/draw/brush.h"
 #include "gui/draw/pen.h"
 #include "gui/draw/use.h"
-#include "testlib/image_test_lib.h"
-#include "testlib/testlib.h"
+#include "image_test_lib.h"
+#include "testlib.h"
 
 
 using namespace gui;

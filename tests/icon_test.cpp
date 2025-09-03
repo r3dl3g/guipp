@@ -10,8 +10,8 @@
 #include "gui/draw/icons.h"
 #include "gui/io/pnm.h"
 #include "gui/ctrl/tree.h"
-#include "testlib/testlib.h"
-#include "testlib/image_test_lib.h"
+#include "testlib.h"
+#include "image_test_lib.h"
 
 namespace pnm_data {
 #include "gui/ctrl/look/res/file_icon.h"

@@ -11,8 +11,8 @@
 #include "gui/draw/brush.h"
 #include "gui/draw/pen.h"
 #include "gui/draw/font.h"
-#include "testlib/testlib.h"
-#include "testlib/image_test_lib.h"
+#include "testlib.h"
+#include "image_test_lib.h"
 
 
 using namespace gui;

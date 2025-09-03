@@ -1,7 +1,7 @@
 
 #include "gui/draw/diagram.h"
 #include "gui/draw/graphics.h"
-#include "testlib/testlib.h"
+#include "testlib.h"
 #ifdef WIN32
 #include <cmath>
 #endif // WIN32

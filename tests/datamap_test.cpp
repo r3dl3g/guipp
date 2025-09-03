@@ -1,7 +1,7 @@
 
 #include "gui/draw/datamap.h"
 #include "gui/draw/graphics.h"
-#include "testlib/testlib.h"
+#include "testlib.h"
 
 
 // --------------------------------------------------------------------------

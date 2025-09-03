@@ -73,12 +73,20 @@ namespace gui {
     public:
       static constexpr int size = S;
 
+      gui::core::rectangle header_size (const gui::core::rectangle& r) {
+        return r.with_height(size);
+      }
+
+      gui::core::rectangle body_size (const gui::core::rectangle& r) {
+        return r.with_vertical(r.y() + size, r.height() - size);
+      }
+
       void layout (const gui::core::rectangle& r) {
         if (header) {
-          header(r.with_height(size));
+          header(header_size(r));
         }
         if (body) {
-          body(r.with_vertical(r.y() + size, r.height() - size));
+          body(body_size(r));
         }
       }
     };
@@ -89,12 +97,20 @@ namespace gui {
     public:
       static constexpr int size = S;
 
+      gui::core::rectangle header_size (const gui::core::rectangle& r) {
+        return r.with_vertical(r.y2() - size, size);
+      }
+
+      gui::core::rectangle body_size (const gui::core::rectangle& r) {
+        return r.with_height(r.height() - size);
+      }
+
       void layout (const gui::core::rectangle& r) {
         if (header) {
-          header(r.with_vertical(r.y2() - size, size));
+          header(header_size(r));
         }
         if (body) {
-          body(r.with_height(r.height() - size));
+          body(body_size(r));
         }
       }
     };
@@ -105,12 +121,20 @@ namespace gui {
     public:
       static constexpr int size = S;
 
+      gui::core::rectangle header_size (const gui::core::rectangle& r) {
+        return r.with_width(size);
+      }
+
+      gui::core::rectangle body_size (const gui::core::rectangle& r) {
+        return r.with_horizontal(r.x() + size, r.width() - size);
+      }
+
       void layout (const gui::core::rectangle& r) {
         if (header) {
-          header(r.with_width(size));
+          header(header_size(r));
         }
         if (body) {
-          body(r.with_horizontal(r.x() + size, r.width() - size));
+          body(body_size(r));
         }
       }
     };
@@ -121,12 +145,20 @@ namespace gui {
     public:
       static constexpr int size = S;
 
+      gui::core::rectangle header_size (const gui::core::rectangle& r) {
+        return r.with_horizontal(r.x2() - size, size);
+      }
+
+      gui::core::rectangle body_size (const gui::core::rectangle& r) {
+        return r.with_width(r.width() - size);
+      }
+
       void layout (const gui::core::rectangle& r) {
         if (header) {
-          header(r.with_horizontal(r.x2() - size, size));
+          header(header_size(r));
         }
         if (body) {
-          body(r.with_width(r.width() - size));
+          body(body_size(r));
         }
       }
     };

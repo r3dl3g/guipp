@@ -745,9 +745,9 @@ namespace gui {
                                        const core::rectangle& r,
                                        const core::point& pt,
                                        const std::string& filter) {
-      return draw_streched(bmp, core::global::scale_to_native(r), core::native_point(pt.os(context()), context()), filter);
-
+      return draw_streched(bmp, core::native_rect(r.os(context()), context()), core::global::scale_to_native(pt), filter);
     }
+
 #ifndef GUIPP_QT
     graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) {
       if (bmp) {

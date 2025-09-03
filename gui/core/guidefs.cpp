@@ -200,13 +200,28 @@ namespace gui {
                                           << ":" << static_cast<unsigned int>(color::part::green)
                                           << ":" << static_cast<unsigned int>(color::part::blue)
                                           << ":" << static_cast<unsigned int>(color::part::alpha);
+        int major = XProtocolVersion(instance);
+        int minor = XProtocolRevision(instance);
+        logging::debug() << "XProtocol Version " << major << "." << minor;
+
+        XRenderQueryVersion(instance, &major, &minor);
+        logging::debug() << "XRender Version " << major << "." << minor;
+
+#ifdef GUIPP_USE_XFT
+        int revision = XftGetVersion();
+        minor = revision / 100;
+        major = minor / 100;
+        minor = minor - major * 100;
+        revision = revision - minor * 100 - major * 10000;
+        logging::debug() << "Xft Version " << major << "." << minor << "." << revision;
+#endif //GUIPP_USE_XFT
+
 #ifdef GUIPP_USE_XSHM
-        int shmMajor, shmMinor;
         Bool pixmaps;
-        if (!XShmQueryVersion(instance, &shmMajor, &shmMinor, &pixmaps)) {
+        if (!XShmQueryVersion(instance, &major, &minor, &pixmaps)) {
           logging::debug() << "No MIT-SHM available";
         } else {
-          logging::debug() << "MIT-SHM Version " << shmMajor << "." << shmMinor << (pixmaps ? " with" : " without") << " pixmaps";
+          logging::debug() << "MIT-SHM Version " << major << "." << minor << (pixmaps ? " with" : " without") << " pixmaps";
         }
 #endif // GUIPP_USE_XSHM
       }

@@ -225,7 +225,7 @@ namespace gui {
 #ifdef GUIPP_QT
       return get_context().get_context().drawable();
 #else
-      return id;
+      return get_context().get_drawable();
 #endif
     }
     // --------------------------------------------------------------------------

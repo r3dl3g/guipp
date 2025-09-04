@@ -473,7 +473,6 @@ namespace gui {
       bool enable_hilite_;
       bool enable_selection_;
 
-      bool moved;
       core::native_point last_mouse_point;
       table::position down_idx;
       core::selection_adjustment adjustment;

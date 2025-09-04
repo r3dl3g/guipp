@@ -487,7 +487,6 @@ namespace gui {
       , enable_h_size(false)
       , enable_hilite_(false)
       , enable_selection_(false)
-      , moved(false)
       , last_mouse_point(core::native_point::undefined)
       , adjustment(core::selection_adjustment::next)
     {
@@ -516,7 +515,6 @@ namespace gui {
       , enable_h_size(false)
       , enable_hilite_(false)
       , enable_selection_(false)
-      , moved(false)
       , last_mouse_point(core::native_point::undefined)
     {
       init();
@@ -532,7 +530,6 @@ namespace gui {
       , enable_h_size(false)
       , enable_hilite_(false)
       , enable_selection_(false)
-      , moved(false)
       , last_mouse_point(core::native_point::undefined)
     {
       init();
@@ -774,15 +771,14 @@ namespace gui {
 
     void table_view::handle_left_btn_down (os::key_state, const core::native_point& pt) {
       last_mouse_point = pt;
-      moved = false;
+      data.set_state().moved(false);
       data.take_focus();
       down_idx.clear();
-      set_cursor(win::cursor::move());
-      data.capture_pointer();
+      data.set_cursor(win::cursor::move());
     }
 
     void table_view::handle_left_btn_up (os::key_state keys, const core::native_point& pt) {
-      if (enable_selection_ && !moved && (last_mouse_point != core::native_point::undefined)) {
+      if (enable_selection_ && !data.is_moved() && (last_mouse_point != core::native_point::undefined)) {
         auto new_selection = data.get_index_at_point(data.surface_to_client(pt));
         const auto spawn = geometrie.spawns.get(new_selection);
         if (spawn.is_hidden()) {
@@ -801,7 +797,9 @@ namespace gui {
       last_mouse_point = core::native_point::undefined;
       down_idx.clear();
       set_cursor(win::cursor::arrow());
-      data.uncapture_pointer();
+      if (data.is_capture_input()) {
+        data.uncapture_pointer();
+      }
     }
 
     void table_view::handle_mouse_move (os::key_state keys, const core::native_point& pt) {
@@ -810,7 +808,10 @@ namespace gui {
         if (last_mouse_point != core::native_point::undefined) {
           auto delta = last_mouse_point - pt;
           set_scroll_pos(get_scroll_pos() + core::global::scale_from_native(delta));
-          moved = true;
+          if (!data.is_moved()) {
+            data.capture_pointer();
+            data.set_state().moved(true);
+          }
         }
         last_mouse_point = pt;
       } else if (enable_hilite_) {
@@ -825,16 +826,15 @@ namespace gui {
 
     void table_view::handle_column_left_btn_down (os::key_state, const core::native_point& npt) {
       last_mouse_point = npt;
-      moved = false;
+      columns.set_state().moved(false);
       if (enable_h_size) {
         down_idx.x(geometrie.widths.split_idx_at(columns.surface_to_client(npt).x(), 2.0F));
       }
       columns.set_cursor(down_idx.x() > -1 ? win::cursor::size_h() : win::cursor::move());
-      columns.capture_pointer();
     }
 
     void table_view::handle_column_left_btn_up (os::key_state keys, const core::native_point& npt) {
-      if (enable_selection_ && !moved && (last_mouse_point != core::native_point::undefined)) {
+      if (enable_selection_ && !columns.is_moved() && (last_mouse_point != core::native_point::undefined)) {
         const auto new_selection = columns.get_index_at_point(columns.surface_to_client(npt));
         if (get_selection() != new_selection) {
           set_selection(new_selection, event_source::mouse);
@@ -845,7 +845,9 @@ namespace gui {
       last_mouse_point = core::native_point::undefined;
       down_idx.clear();
       columns.set_cursor(win::cursor::arrow());
-      columns.uncapture_pointer();
+      if (columns.is_capture_input()) {
+        columns.uncapture_pointer();
+      }
     }
 
     void table_view::handle_column_mouse_move (os::key_state keys, const core::native_point& npt) {
@@ -860,7 +862,10 @@ namespace gui {
               hscroll.set_value(hscroll.get_value() - delta, true);
             }
           }
-          moved = true;
+          if (!columns.is_moved()) {
+            columns.capture_pointer();
+            columns.set_state().moved(true);
+          }
         }
         last_mouse_point = npt;
       } else {
@@ -880,16 +885,15 @@ namespace gui {
 
     void table_view::handle_row_left_btn_down (os::key_state, const core::native_point& npt) {
       last_mouse_point = npt;
-      moved = false;
+      rows.set_state().moved(false);
       if (enable_v_size) {
         down_idx.y(geometrie.heights.split_idx_at(rows.surface_to_client(npt).y(), 2.0F));
       }
       rows.set_cursor(down_idx.y() > -1 ? win::cursor::size_v() : win::cursor::move());
-      rows.capture_pointer();
     }
 
     void table_view::handle_row_left_btn_up (os::key_state keys, const core::native_point& npt) {
-      if (enable_selection_ && !moved && (last_mouse_point != core::native_point::undefined)) {
+      if (enable_selection_ && !rows.is_moved() && (last_mouse_point != core::native_point::undefined)) {
         const auto new_selection = rows.get_index_at_point(rows.surface_to_client(npt));
         if (get_selection() != new_selection) {
           set_selection(new_selection, event_source::mouse);
@@ -900,7 +904,9 @@ namespace gui {
       last_mouse_point = core::native_point::undefined;
       down_idx.clear();
       rows.set_cursor(win::cursor::arrow());
-      rows.uncapture_pointer();
+      if (rows.is_capture_input()) {
+        rows.uncapture_pointer();
+      }
     }
 
     void table_view::handle_row_mouse_move (os::key_state keys, const core::native_point& npt) {
@@ -915,7 +921,10 @@ namespace gui {
               vscroll.set_value(vscroll.get_value() - delta, true);
             }
           }
-          moved = true;
+          if (!rows.is_moved()) {
+            rows.capture_pointer();
+            rows.set_state().moved(true);
+          }
         }
         last_mouse_point = npt;
       } else {

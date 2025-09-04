@@ -63,10 +63,11 @@ namespace gui {
           if (get_state().grab_focus()) {
             take_focus();
           }
-          capture_pointer();
         });
         on_left_btn_up([&] (os::key_state, const core::native_point& pt) {
-          uncapture_pointer();
+          if (is_capture_input()) {
+            uncapture_pointer();
+          }
         });
         on_set_focus([&] () {
           invalidate();

@@ -163,7 +163,10 @@ namespace gui {
             auto delta = otraits::get_1(super::get_last_mouse_point()) - otraits::get_1(pt);
             set_scroll_offset(traits.get_list_dimension(*this),
                               get_scroll_offset() + core::global::scale_from_native<pos_t>(delta));
-            super::set_state().moved(true);
+            if (!super::is_moved()) {
+              super::capture_pointer();
+              super::set_state().moved(true);
+            }
           }
           super::data.last_mouse_point = pt;
         } else {

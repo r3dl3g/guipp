@@ -266,7 +266,7 @@ namespace gui {
       last_mouse_point = pt;
       down_idx = layouter.split_idx_at(pt.x(), 2.0F);
       super::set_cursor(down_idx > -1 ? win::cursor::size_h() : win::cursor::arrow());
-      super::capture_pointer();
+      super::set_state().moved(false);
     }
 
     template<typename Layout>
@@ -274,7 +274,9 @@ namespace gui {
       last_mouse_point = core::point::undefined;
       down_idx = -1;
       super::set_cursor(win::cursor::arrow());
-      super::uncapture_pointer();
+      if (super::is_capture_input()) {
+        super::uncapture_pointer();
+      }
     }
 
     template<typename Layout>
@@ -288,6 +290,10 @@ namespace gui {
           }
         }
         last_mouse_point = pt;
+        if (!super::is_moved()) {
+          super::capture_pointer();
+          super::set_state().moved(true);
+        }
       } else {
         const int idx = layouter.split_idx_at(pt.x(), 2.0F);
         super::set_cursor(idx > -1 ? win::cursor::size_h() : win::cursor::arrow());

@@ -64,6 +64,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     client.get<1>().set_path(current);
     client.init([] (container&, const sys_fs::path& path) {
       if (sys_fs::is_regular_file(path)) {
+        logging::debug() << "Exec " << path;
         const auto ret = util::fs::execute_or_open(path);
         logging::debug() << "exec return:" << ret;
       }

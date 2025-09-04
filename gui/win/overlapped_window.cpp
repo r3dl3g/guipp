@@ -29,6 +29,7 @@
 # include <QtGui/QPainter>
 #endif // GUIPP_QT
 #include <util/ostreamfmt.h>
+#include <util/time_util.h>
 
 
 // --------------------------------------------------------------------------
@@ -548,6 +549,7 @@ namespace gui {
           return;
         }
 
+        util::time::chronometer chrono;
 #ifdef GUIPP_QT
         if (!get_os_window()->isExposed()) {
           logging::trace() << "skip redraw, window is not exposed " << this;
@@ -589,6 +591,7 @@ namespace gui {
         surface.finish(wctxt);
 
         invalid_rect = core::native_rect::zero;
+        logging::trace() << "overlapped_window::redraw finished in "<< chrono.stop();
       } else {
         logging::trace() << "ignore redraw, state: " << get_state() << " in window " << this;
       }

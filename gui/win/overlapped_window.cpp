@@ -393,14 +393,11 @@ namespace gui {
         area.set_position(move_event::Caller::get_param<0>(e));
       } else if (lost_focus_event::match(e)) {
         set_mouse_window(nullptr);
-#define NO_CAPTUREx
-#ifndef NO_CAPTURE
         if (!capture_stack.empty()) {
           capture_window = nullptr;
           capture_stack.clear();
           native::uncapture_pointer(get_os_window());
         }
-#endif
       } else if (mouse_leave_event::match(e)) {
         set_mouse_window(nullptr);
       } else if (show_event::match(e)) {

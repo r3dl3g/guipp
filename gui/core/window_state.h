@@ -51,6 +51,7 @@ namespace gui {
         bool mouse_moved:1;
         bool scroll_bar_enabled:1;
         bool grab_focus:1;
+        bool capture_input:1;
       };
       unsigned short flags;
 
@@ -71,6 +72,9 @@ namespace gui {
         bool focus_accepting () const;
         bool redraw_disabled () const;
         bool overlapped () const;
+        bool capture_input () const;
+        bool moved () const;
+        bool grab_focus () const;
 
       protected:
         const state_type& flags;
@@ -87,6 +91,9 @@ namespace gui {
         bool accept_focus (bool a);
         bool disable_redraw (bool on = true);
         bool overlapped (bool on);
+        bool capture_input (bool b);
+        bool moved (bool b);
+        bool grab_focus (bool b);
 
       protected:
         state_type& flags;

@@ -81,6 +81,7 @@ namespace gui {
 
       bool is_focus_accepting () const; /// window type is general able to accept focus (like edits)
       bool is_focused () const;
+      bool is_moved () const;
 
       bool can_accept_focus () const;   /// this specific window will accept focus (is_focus_accepting and visible and enabled)
       void take_focus ();               /// grabs the input focus
@@ -130,6 +131,7 @@ namespace gui {
 
       void capture_pointer ();
       void uncapture_pointer ();
+      bool is_capture_input () const;
 
       virtual bool handle_event (const core::event&, gui::os::event_result&);
 

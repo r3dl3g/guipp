@@ -276,7 +276,6 @@ namespace gui {
 
         bool is_valid_idx (int idx) const;
         bool is_scroll_bar_enabled () const;
-        bool is_moved () const;
 
         void draw_item (std::size_t idx,
                         draw::graphics&,

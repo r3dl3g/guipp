@@ -73,10 +73,6 @@ namespace gui {
         return get_state().scroll_bar_enabled();
       }
 
-      inline bool list_base::is_moved () const {
-        return get_state().moved();
-      }
-
       inline core::native_point list_base::get_last_mouse_point () const {
         return data.last_mouse_point;
       }

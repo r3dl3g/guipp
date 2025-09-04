@@ -343,6 +343,10 @@ namespace gui {
        return get_state().visible() && is_valid();
     }
 
+    bool window::is_moved () const {
+      return get_state().moved();
+    }
+
     void window::set_visible (bool s) {
       if (set_state().visible(s) && is_valid()) {
         invalidate();
@@ -539,12 +543,18 @@ namespace gui {
       }
     }
 
+    bool window::is_capture_input () const {
+       return get_state().capture_input();
+    }
+
     void window::capture_pointer () {
       get_overlapped_window().capture_pointer(this);
+      set_state().capture_input(true);
     }
 
     void window::uncapture_pointer () {
       get_overlapped_window().uncapture_pointer(this);
+      set_state().capture_input(false);
     }
 
     const char* window::get_class_name () const {

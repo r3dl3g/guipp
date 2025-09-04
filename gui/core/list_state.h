@@ -35,9 +35,7 @@ namespace gui {
 
         explicit is (const state_type& state);
 
-        bool moved () const;
         bool scroll_bar_enabled () const;
-        bool grab_focus () const;
 
       };
 
@@ -45,9 +43,7 @@ namespace gui {
 
         explicit set (state_type& state);
 
-        bool moved (bool b);
         bool scroll_bar_enabled (bool b);
-        bool grab_focus (bool b);
 
       };
 

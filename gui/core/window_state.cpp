@@ -64,6 +64,18 @@ namespace gui {
       return flags.is_overlapped;
     }
 
+    bool window_state::is::capture_input () const {
+      return flags.capture_input;
+    }
+
+    bool window_state::is::moved () const {
+      return flags.mouse_moved;
+    }
+
+    bool window_state::is::grab_focus () const {
+      return flags.grab_focus;
+    }
+
     // --------------------------------------------------------------------------
     window_state::set::set (state_type& state)
       : flags(state)
@@ -97,6 +109,18 @@ namespace gui {
       return (flags.window_disabled == !on ? false : flags.window_disabled = !on, true);
     }
 
+    bool window_state::set::capture_input (bool on) {
+      return (flags.capture_input == on ? false : flags.capture_input = on, true);
+    }
+
+    bool window_state::set::moved (bool on) {
+      return (flags.mouse_moved == on ? false : flags.mouse_moved = on, true);
+    }
+
+    bool window_state::set::grab_focus (bool on) {
+      return (flags.grab_focus == on ? false : flags.grab_focus = on, true);
+    }
+
     // --------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& out, const window_state::is& s) {
       if (s.created()) out << " created,";
@@ -106,6 +130,9 @@ namespace gui {
       if (s.focus_accepting()) out << " focus_accepting,";
       if (s.redraw_disabled()) out << " redraw_disabled,";
       if (s.overlapped()) out << " overlapped,";
+      if (s.capture_input()) out << " capture_input,";
+      if (s.moved()) out << " moved,";
+      if (s.grab_focus()) out << " grab_focus,";
 
       return out;
     }

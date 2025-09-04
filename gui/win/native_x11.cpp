@@ -475,30 +475,36 @@ namespace gui {
       std::vector<os::window> capture_stack;
 
       inline void grab (os::window id) {
+#ifndef NO_CAPTURE
         x11::check_return(XGrabPointer(core::global::get_instance(), id,
-                                       False,
-                                       ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | LeaveWindowMask,
-                                       GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
+        False,
+        ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | LeaveWindowMask,
+        GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
+        logging::debug() << "XGrabPointer for " << std::hex << id;
+#else
+        logging::debug() << "Simulated XGrabPointer for " << std::hex << id;
+#endif // NO_CAPTURE
       }
 
       inline void ungrab () {
+#ifndef NO_CAPTURE
         x11::check_return(XUngrabPointer(core::global::get_instance(), CurrentTime));
+        logging::debug() << "XUngrabPointer";
+#else
+        logging::debug() << "Simulated XUngrabPointer";
+#endif // NO_CAPTURE
       }
 
-#define NO_CAPTUREx
 
       void capture_pointer (os::window id) {
-#ifndef NO_CAPTURE
         if (!capture_stack.empty()) {
           ungrab();
         }
         capture_stack.push_back(id);
         grab(id);
-#endif // NO_CAPTURE
       }
 
       void uncapture_pointer (os::window id) {
-#ifndef NO_CAPTURE
         if (!capture_stack.empty()) {
           ungrab();
           capture_stack.pop_back();
@@ -506,7 +512,6 @@ namespace gui {
             grab(capture_stack.back());
           }
         }
-#endif // NO_CAPTURE
       }
 
       os::window get_desktop_window () {

@@ -796,7 +796,7 @@ namespace gui {
       }
       last_mouse_point = core::native_point::undefined;
       down_idx.clear();
-      set_cursor(win::cursor::arrow());
+      data.set_cursor(win::cursor::arrow());
       if (data.is_capture_input()) {
         data.uncapture_pointer();
       }

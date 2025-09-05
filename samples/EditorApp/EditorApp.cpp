@@ -94,6 +94,12 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   auto about = [&]() {
     message_dialog::show(main, "About gui++ editor", "gui++ sample editor version 1.0.0", "Ok");
   };
+  auto disable = [&]() {
+    main.disable();
+  };
+  auto enable = [&]() {
+    main.enable();
+  };
 
   file_sub_menu.add_entries({
     menu_entry("Open", 'o', open, hot_key(keys::o, state::control)),
@@ -108,9 +114,11 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     menu_entry("Paste", 'P', paste, hot_key('V', state::control), false),
   });
 
-  help_sub_menu.add_entry(
-    menu_entry("About", 'A', about)
-  );
+  help_sub_menu.add_entries({
+    menu_entry("About", 'A', about),
+    menu_entry("Disable", 'D', disable, hot_key('D', state::control), true),
+    menu_entry("Enable", 'E', enable, hot_key('E', state::control))
+});
 
   main.get_layout().set_header_and_body(lay(menu.view()), lay(client));
 
@@ -119,6 +127,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     client.create(main);
     file_sub_menu.register_hot_keys(&main);
     edit_sub_menu.register_hot_keys(&main);
+    help_sub_menu.register_hot_keys(&main);
   });
   main.on_close(quit);
 

@@ -677,6 +677,8 @@ namespace gui {
         x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DIALOG");
         x11::change_property(display, id, "_NET_WM_STATE", "_NET_WM_STATE_MODAL");
         x11::change_property(display, id, "WM_CLIENT_LEADER", pid);
+        x11::change_property(display, id, "WM_TRANSIENT_FOR", pid);
+        
         x11::set_wm_protocols(display, id);
       }
 

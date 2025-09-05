@@ -419,13 +419,7 @@ namespace gui {
       }
 
       void enable (overlapped_window& w, bool on) {
-        auto curs = w.get_window_class().get_cursor();
-        if (curs) {
-          unsigned long mask = CWCursor;
-          XSetWindowAttributes wa = {0};
-          wa.cursor = on ? curs : (os::cursor)win::cursor::arrow();
-          x11::check_return(XChangeWindowAttributes(core::global::get_instance(), w.get_os_window(), mask, &wa));
-        }
+        set_cursor(w.get_os_window(), on ? cursor::none() : cursor::wait());
       }
 
       void to_front (os::window id) {

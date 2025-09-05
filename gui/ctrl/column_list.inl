@@ -265,7 +265,7 @@ namespace gui {
       auto pt = super::surface_to_client(npt);
       last_mouse_point = pt;
       down_idx = layouter.split_idx_at(pt.x(), 2.0F);
-      super::set_cursor(down_idx > -1 ? win::cursor::size_h() : win::cursor::arrow());
+      super::set_cursor(down_idx > -1 ? win::cursor::size_h() : win::cursor::none());
       super::set_state().moved(false);
     }
 
@@ -273,7 +273,7 @@ namespace gui {
     void column_list_header<Layout>::handle_left_btn_up (os::key_state keys, const core::native_point& pt) {
       last_mouse_point = core::point::undefined;
       down_idx = -1;
-      super::set_cursor(win::cursor::arrow());
+      super::set_cursor(win::cursor::none());
       if (super::is_capture_input()) {
         super::uncapture_pointer();
       }
@@ -296,7 +296,7 @@ namespace gui {
         }
       } else {
         const int idx = layouter.split_idx_at(pt.x(), 2.0F);
-        super::set_cursor(idx > -1 ? win::cursor::size_h() : win::cursor::arrow());
+        super::set_cursor(idx > -1 ? win::cursor::size_h() : win::cursor::none());
       }
     }
 

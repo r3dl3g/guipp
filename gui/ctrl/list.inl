@@ -358,7 +358,7 @@ namespace gui {
             set_selection(new_selection, event_source::mouse, shift_pressed);
           }
         }
-        super::set_cursor(win::cursor::arrow());
+        super::set_cursor(win::cursor::none());
         super::data.last_mouse_point = core::native_point::undefined;
       }
 

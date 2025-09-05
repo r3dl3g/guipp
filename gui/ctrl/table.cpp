@@ -796,7 +796,7 @@ namespace gui {
       }
       last_mouse_point = core::native_point::undefined;
       down_idx.clear();
-      data.set_cursor(win::cursor::arrow());
+      data.set_cursor(win::cursor::none());
       if (data.is_capture_input()) {
         data.uncapture_pointer();
       }
@@ -844,7 +844,7 @@ namespace gui {
       }
       last_mouse_point = core::native_point::undefined;
       down_idx.clear();
-      columns.set_cursor(win::cursor::arrow());
+      columns.set_cursor(win::cursor::none());
       if (columns.is_capture_input()) {
         columns.uncapture_pointer();
       }
@@ -871,7 +871,7 @@ namespace gui {
       } else {
         core::point cpt = columns.surface_to_client(npt);
         const int idx = enable_h_size ? geometrie.widths.split_idx_at(cpt.x(), 2.0F) : -1;
-        columns.set_cursor(idx > -1 ? win::cursor::size_h() : win::cursor::arrow());
+        columns.set_cursor(idx > -1 ? win::cursor::size_h() : win::cursor::none());
         if (enable_hilite_ && (idx < 0)) {
           const auto new_hilite = columns.get_index_at_point(cpt);
           if (geometrie.hilite != new_hilite) {
@@ -903,7 +903,7 @@ namespace gui {
       }
       last_mouse_point = core::native_point::undefined;
       down_idx.clear();
-      rows.set_cursor(win::cursor::arrow());
+      rows.set_cursor(win::cursor::none());
       if (rows.is_capture_input()) {
         rows.uncapture_pointer();
       }
@@ -930,7 +930,7 @@ namespace gui {
       } else {
         core::point rpt = rows.surface_to_client(npt);
         const int idx = enable_v_size ? geometrie.heights.split_idx_at(rpt.y(), 2.0F) : -1;
-        rows.set_cursor(idx > -1 ? win::cursor::size_v() : win::cursor::arrow());
+        rows.set_cursor(idx > -1 ? win::cursor::size_v() : win::cursor::none());
         if (enable_hilite_ && (idx < 0)) {
           const auto new_hilite = rows.get_index_at_point(rpt);
           if (geometrie.hilite != new_hilite) {

@@ -360,10 +360,10 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     bool overlapped_window::handle_event (const core::event& e, gui::os::event_result& r) {
-      if (is_mouse_event(e)) {
+      if (is_enabled() && is_mouse_event(e)) {
           if (capture_window && (capture_window != this)) {
             return capture_window->handle_event(e, r);
-          } else if (is_enabled()) {
+          } else {
             core::native_point pt = mouse_move_event::Caller::get_param<1>(e);
             window* win = window_at_point(pt);
             if (win == this) {
@@ -375,9 +375,9 @@ namespace gui {
               return mouse_window->handle_event(e, r);
             }
           }
-      } else if (any_key_down_event::match(e) && (any_key_down_event::Caller::get_param<1>(e) == core::keys::tab)) {
+      } else if (is_enabled() && any_key_down_event::match(e) && (any_key_down_event::Caller::get_param<1>(e) == core::keys::tab)) {
         shift_focus(any_key_down_event::Caller::get_param<0>(e) == core::state::shift);
-      } else if (is_key_event(e) && focus_window && (focus_window != this)) {
+      } else if (is_enabled() && is_key_event(e) && focus_window && (focus_window != this)) {
         focus_window->handle_event(e, r);
 #ifdef GUIPP_WIN
       } else if (win32::window_pos_changed_event::match(e)) {

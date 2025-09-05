@@ -43,9 +43,9 @@
 #include "gui/win/native.h"
 #include "gui/win/dbg_win_message.h"
 
-#if !defined(GUIPP_BUILD_FOR_MOBILE)
-# define USE_INPUT_EATER
-#endif
+// #if !defined(GUIPP_BUILD_FOR_MOBILE)
+// # define USE_INPUT_EATER
+// #endif
 
 #define DEBUG_RECTANGLESx
 #ifdef DEBUG_RECTANGLES
@@ -363,7 +363,7 @@ namespace gui {
       if (is_mouse_event(e)) {
           if (capture_window && (capture_window != this)) {
             return capture_window->handle_event(e, r);
-          } else {
+          } else if (is_enabled()) {
             core::native_point pt = mouse_move_event::Caller::get_param<1>(e);
             window* win = window_at_point(pt);
             if (win == this) {

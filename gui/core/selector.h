@@ -97,7 +97,7 @@ namespace gui {
           }
         }
 
-        inline void set_selecteion (selection_type i) {
+        inline void set_selection (selection_type i) {
           selection = i;
         }
 
@@ -173,7 +173,7 @@ namespace gui {
           }
         }
 
-        inline void set_selecteion (const selection_type& i) {
+        inline void set_selection (const selection_type& i) {
           selection = i;
           last_selected_index = has_selection() ? get_last_index() : -1;
         }
@@ -287,7 +287,7 @@ namespace gui {
         inline void set_unselected (int) {
         }
 
-        inline void set_selecteion (selection_type i) {
+        inline void set_selection (selection_type i) {
         }
 
         inline void clear_selection () {

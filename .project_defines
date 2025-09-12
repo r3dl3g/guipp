@@ -8,6 +8,7 @@ BUILD_PREFIX=~/.cache/build
 PARALLEL=$(nproc)
 DEFINES="-DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DCMAKE_PREFIX_PATH=$INSTALL_PREFIX"
 TYPE=undefined
+LOGFILE=$ACTION.log
 
 _exec() {
   echo Execute $@
@@ -30,6 +31,23 @@ _clean() {
   _exec cmake --build $BUILD_PREFIX/$PROJECT/$TYPE --target clean $@
 }
 
+log_rename() {
+  base=$ACTION$1.log
+  next=$ACTION$2.log
+  if [ -f $base ]; then
+    mv -f $base $next
+  fi
+}
+
+log_rotate() {
+  next=10
+  for i in {9..1}; do
+    log_rename .$i .$next
+    next=$i
+  done
+  log_rename "" .1
+}
+
 do_logged() {
   command=$1
   shift
@@ -49,23 +67,27 @@ do_logged() {
 prepare() {
   TYPE=$1
   shift
-  do_logged _prepare $@ 2>&1 | tee -a $ACTION.log
+  log_rotate
+  do_logged _prepare $@ 2>&1 | tee -a $LOGFILE
 }
 
 build() {
   TYPE=$1
   shift
-  do_logged _build $@ 2>&1 | tee -a $ACTION.log
+  log_rotate
+  do_logged _build $@ 2>&1 | tee -a $LOGFILE
 }
 
 install() {
   TYPE=$1
   shift
-  do_logged _install $@ 2>&1 | tee -a $ACTION.log
+  log_rotate
+  do_logged _install $@ 2>&1 | tee -a $LOGFILE
 }
 
 clean() {
   TYPE=$1
   shift
-  do_logged _clean $@ 2>&1 | tee -a $ACTION.log
+  log_rotate
+  do_logged _clean $@ 2>&1 | tee -a $LOGFILE
 }

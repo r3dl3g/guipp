@@ -12,6 +12,7 @@ pkgs.mkShell {
     xorg.libXext.dev
     xorg.libXrender.dev
     fontconfig.dev
+    expat.dev
     pkg-config
   ];
 

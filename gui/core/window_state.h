@@ -52,6 +52,7 @@ namespace gui {
         bool scroll_bar_enabled:1;
         bool grab_focus:1;
         bool capture_input:1;
+        bool parent_disabled:1;
       };
       unsigned short flags;
 
@@ -75,6 +76,7 @@ namespace gui {
         bool capture_input () const;
         bool moved () const;
         bool grab_focus () const;
+        bool parent_enabled () const;
 
       protected:
         const state_type& flags;
@@ -94,6 +96,7 @@ namespace gui {
         bool capture_input (bool b);
         bool moved (bool b);
         bool grab_focus (bool b);
+        bool parent_enabled (bool on);
 
       protected:
         state_type& flags;

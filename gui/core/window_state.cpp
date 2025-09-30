@@ -57,7 +57,7 @@ namespace gui {
     }
 
     bool window_state::is::enabled () const {
-      return !flags.window_disabled;
+      return !flags.window_disabled && !flags.parent_disabled;
     }
 
     bool window_state::is::overlapped () const {
@@ -74,6 +74,10 @@ namespace gui {
 
     bool window_state::is::grab_focus () const {
       return flags.grab_focus;
+    }
+
+    bool window_state::is::parent_enabled () const {
+      return !flags.parent_disabled;
     }
 
     // --------------------------------------------------------------------------
@@ -119,6 +123,10 @@ namespace gui {
 
     bool window_state::set::grab_focus (bool on) {
       return (flags.grab_focus == on ? false : flags.grab_focus = on, true);
+    }
+
+    bool window_state::set::parent_enabled (bool on) {
+      return (flags.parent_disabled == !on ? false : flags.parent_disabled = !on, true);
     }
 
     // --------------------------------------------------------------------------

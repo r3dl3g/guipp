@@ -76,7 +76,7 @@ namespace gui {
         bool capture_input () const;
         bool moved () const;
         bool grab_focus () const;
-        bool parent_enabled () const;
+        bool container_enabled () const;
 
       protected:
         const state_type& flags;
@@ -96,7 +96,7 @@ namespace gui {
         bool capture_input (bool b);
         bool moved (bool b);
         bool grab_focus (bool b);
-        bool parent_enabled (bool on);
+        bool container_enabled (bool on);
 
       protected:
         state_type& flags;

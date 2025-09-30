@@ -76,7 +76,7 @@ namespace gui {
       return flags.grab_focus;
     }
 
-    bool window_state::is::parent_enabled () const {
+    bool window_state::is::container_enabled () const {
       return !flags.parent_disabled;
     }
 
@@ -125,7 +125,7 @@ namespace gui {
       return (flags.grab_focus == on ? false : flags.grab_focus = on, true);
     }
 
-    bool window_state::set::parent_enabled (bool on) {
+    bool window_state::set::container_enabled (bool on) {
       return (flags.parent_disabled == !on ? false : flags.parent_disabled = !on, true);
     }
 

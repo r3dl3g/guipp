@@ -183,15 +183,15 @@ namespace gui {
       if (is_valid()) {
         super::enable(on);
         for (auto w : children) {
-          w->parent_enabled(on);
+          w->container_enabled(on);
         }
       }
     }
 
-    void container::parent_enabled (bool on) {
-      super::parent_enabled(on);
+    void container::container_enabled (bool on) {
+      super::container_enabled(on);
       for (auto w : children) {
-        w->parent_enabled(on);
+        w->container_enabled(on);
       }
     }
 

@@ -360,8 +360,8 @@ namespace gui {
       }
     }
 
-    void window::parent_enabled (bool on) {
-      set_state().parent_enabled(on);
+    void window::container_enabled (bool on) {
+      set_state().container_enabled(on);
     }
 
     void window::to_front () {

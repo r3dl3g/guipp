@@ -72,7 +72,7 @@ namespace gui {
       container (const container&);
       container (container&&) noexcept ;
 
-      void parent_enabled (bool on) override;
+      void container_enabled (bool on) override;
 
     private:
       window_list_t children;

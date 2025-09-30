@@ -744,7 +744,7 @@ namespace gui {
       get_os_window()->setModality(Qt::WindowModality::ApplicationModal);
 # endif
 #else
-      parent.disable();
+      //parent.disable();
 #endif
       set_visible();
       to_front();
@@ -800,7 +800,7 @@ namespace gui {
 #endif // USE_INPUT_EATER
 #endif // GUIPP_X11
 
-      parent.enable();
+      //parent.enable();
       parent.take_focus();
 
       logging::trace() << *this << " Exit modal loop";

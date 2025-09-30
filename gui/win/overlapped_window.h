@@ -66,9 +66,8 @@ namespace gui {
 
       operator os::drawable() const;
 
-      void set_visible (bool s = true); /// set window visible
-      void enable (bool on = true);     /// enable of disable this window
-      void disable ();                  /// disable this window
+      void set_visible (bool s = true);       /// set window visible
+      void enable (bool on = true) override;  /// enable of disable this window
 
       void set_title (const std::string&);
       std::string get_title () const;

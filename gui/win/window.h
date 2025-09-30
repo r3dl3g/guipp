@@ -70,9 +70,9 @@ namespace gui {
       void set_visible (bool s = true); /// set window visible
       bool is_visible () const;         /// window is visible
 
-      void enable (bool on = true);     /// enable of disable this window
-      void disable ();                  /// disable this window
-      bool is_enabled () const;         /// return if window is enabled
+      virtual void enable (bool on = true);     /// enable of disable this window
+      void disable ();                          /// disable this window
+      bool is_enabled () const;                 /// return if window is enabled
 
       void set_disable_redraw (bool on = true); /// disable automatic redraw on any change
       bool is_redraw_disabled () const;         /// return if automatic redraw is desabled

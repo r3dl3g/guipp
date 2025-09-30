@@ -457,10 +457,6 @@ namespace gui {
       }
     }
     // --------------------------------------------------------------------------
-    void overlapped_window::disable () {
-      enable(false);
-    }
-    // --------------------------------------------------------------------------
     void overlapped_window::to_front () {
       return native::to_front(get_os_window());
     }

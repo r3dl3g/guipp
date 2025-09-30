@@ -63,12 +63,16 @@ namespace gui {
       bool handle_event (const core::event&, gui::os::event_result&) override;
       os::event_id collect_event_mask () const override;
 
+      void enable (bool on = true) override;  /// enable of disable this window
+
     protected:
 
       using window::create;
 
       container (const container&);
       container (container&&) noexcept ;
+
+      void parent_enabled (bool on) override;
 
     private:
       window_list_t children;

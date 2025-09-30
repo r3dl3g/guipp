@@ -179,6 +179,23 @@ namespace gui {
       }
     }
 
+    void container::enable (bool on) {
+      if (is_valid()) {
+        super::enable(on);
+        for (auto w : children) {
+          w->parent_enabled(on);
+        }
+      }
+    }
+
+    void container::parent_enabled (bool on) {
+      super::parent_enabled(on);
+      for (auto w : children) {
+        w->parent_enabled(on);
+      }
+    }
+
+
     bool container::handle_event (const core::event& e, gui::os::event_result& r) {
       if (paint_event::match(e)) {
         core::context* cntxt = paint_event::Caller::get_param<0>(e);
@@ -191,7 +208,7 @@ namespace gui {
 
           ret = super::handle_event(e, r);
 
-          for (auto& w : children) {
+          for (auto w : children) {
             if (w && w->is_valid()) {
               const auto rect = w->surface_geometry();
 
@@ -216,7 +233,7 @@ namespace gui {
 
     os::event_id container::collect_event_mask () const {
       os::event_id mask = get_event_mask();
-      for (auto& w : children) {
+      for (auto w : children) {
         if (!w->get_state().overlapped()) {
           mask |= w->collect_event_mask();
         }

@@ -169,6 +169,7 @@ namespace gui {
     protected:
       friend class container;
       void remove_parent ();
+      virtual void parent_enabled (bool on);
 
     protected:
       gui::core::state_type flags;

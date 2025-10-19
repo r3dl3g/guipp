@@ -48,6 +48,15 @@ namespace gui {
 
   namespace core {
 
+    namespace global {
+
+      typedef void (error_handler)(const core::event&, const std::exception&);
+
+      GUIPP_CORE_EXPORT void register_error_handler(std::function<error_handler> handler);
+      GUIPP_CORE_EXPORT void notify_error_handler(const core::event&, const std::exception&);
+
+    } // namespace global
+    
     class GUIPP_CORE_EXPORT event_container {
     public:
       typedef std::function<event_handler_callback> event_handler_function;

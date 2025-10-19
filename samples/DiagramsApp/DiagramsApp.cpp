@@ -535,7 +535,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     quit_main_loop();
   });
 
-  global::register_error_handler([&] (const core::event& e, const std::exception& ex) {
+  core::global::register_error_handler([&] (const core::event& e, const std::exception& ex) {
     gui::ctrl::yes_no_dialog::ask(main, "Fatal Error",
                                   ostreamfmt("A fatal error occured inside this application:\n" <<
                                             ex.what() << "\nDo you wan't to exit this application?"), 

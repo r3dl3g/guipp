@@ -44,16 +44,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     buttons.add_button(f);
   }
 
-  int format = 0;
-  switch (draw::pixmap::default_depth()) {
-    case 32:
-      format = PictStandardARGB32;
-    break;
-    case 24:
-      format = PictStandardRGB24;
-    break;
-  }
-  
   main.on_destroy(&quit_main_loop);
   main.set_title("DrawStrechedApp");
 

@@ -80,7 +80,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
         row[x] = (byte)std::abs(255 - (x + y + frame) % 511);
       }
     }
-    img.copy_from(data);
+    img.get_data().copy_from(data);
     fps();
     changed = true;
     main.invalidate();

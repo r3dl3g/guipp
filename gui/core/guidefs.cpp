@@ -200,12 +200,14 @@ namespace gui {
                                           << ":" << static_cast<unsigned int>(color::part::green)
                                           << ":" << static_cast<unsigned int>(color::part::blue)
                                           << ":" << static_cast<unsigned int>(color::part::alpha);
+#ifdef GUIPP_X11
         int major = XProtocolVersion(instance);
         int minor = XProtocolRevision(instance);
         logging::debug() << "XProtocol Version " << major << "." << minor;
 
         XRenderQueryVersion(instance, &major, &minor);
         logging::debug() << "XRender Version " << major << "." << minor;
+#endif // GUIPP_X11
 
 #ifdef GUIPP_USE_XFT
         int revision = XftGetVersion();

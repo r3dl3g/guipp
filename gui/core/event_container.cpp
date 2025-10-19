@@ -33,6 +33,24 @@ namespace gui {
 
   namespace core {
 
+    namespace hidden {
+      std::function<core::global::error_handler> global_error_handler;
+    }
+
+    namespace global {
+
+      void register_error_handler(std::function<error_handler> handler) {
+        hidden::global_error_handler = handler;
+      }
+
+      void notify_error_handler(const core::event& ev, const std::exception& ex) {
+        if (hidden::global_error_handler) {
+          hidden::global_error_handler(ev, ex);
+        }
+      }
+
+    } // namespace global
+
     event_container::event_container ()
     {}
 
@@ -68,10 +86,10 @@ namespace gui {
           result |= event_handlers[i](ev, resultValue);
         } catch (std::exception& ex) {
           logging::fatal() << "exception in event_container::handle_event: " << ex;
-          gui::win::global::notify_error_handler(ev, ex);
+          gui::core::global::notify_error_handler(ev, ex);
         } catch (...) {
           logging::fatal() << "Unknown exception in event_container::handle_event()";
-          gui::win::global::notify_error_handler(ev, std::runtime_error("Unknown exception"));
+          gui::core::global::notify_error_handler(ev, std::runtime_error("Unknown exception"));
         }
       }
 

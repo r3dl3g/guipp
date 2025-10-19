@@ -44,6 +44,10 @@ namespace gui {
       return gui::color::calc_medium_gray(c);
     }
 
+    inline byte get_gray(uint32_t c) {
+      return gui::color::calc_medium_gray(c);
+    }
+
     inline byte get_gray (core::bit_wrapper<const mono> p) {
       return get_gray(static_cast<mono>(p));
     }

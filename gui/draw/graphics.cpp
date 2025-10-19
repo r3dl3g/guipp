@@ -137,7 +137,7 @@ namespace gui {
     }
 
     graphics& graphics::draw_lines (const std::vector<core::point>& points,
-                                          const pen& p) {
+                                    const pen& p) {
       Use<pen> pn(gc(), p);
       const auto off = p.os_size() / 2;
       bool first = true;
@@ -152,7 +152,9 @@ namespace gui {
       return *this;
     }
 
-    graphics& graphics::copy_from (graphics& src, const core::native_rect& r, const core::native_point& pt) {
+    graphics& graphics::copy_from (graphics& src,
+                                   const core::native_rect& r,
+                                   const core::native_point& pt) {
       if (!BitBlt(gc(), pt.x(), pt.y(), r.width(), r.height(),
                   src, r.x(), r.y(), SRCCOPY)) {
         throw std::runtime_error("graphics::copy_from failed");
@@ -161,9 +163,9 @@ namespace gui {
     }
 
     graphics& graphics::copy_from (os::drawable w,
-                                         const core::native_rect& r,
-                                         const core::native_point& pt,
-                                         const copy_mode mode) {
+                                   const core::native_rect& r,
+                                   const core::native_point& pt,
+                                   const copy_mode mode) {
       HDC source_gc = GetDC((HWND)w);
       if (!source_gc) {
         source_gc = CreateCompatibleDC(gc());
@@ -184,41 +186,68 @@ namespace gui {
       return *this;
     }
 
-    /*
-    graphics& graphics::stretch_from (os::drawable w,
-                                            const core::rectangle& src,
-                                            const core::rectangle& dst) {
-      HDC source_gc = GetDC((HWND)w);
-      if (!source_gc) {
-        source_gc = CreateCompatibleDC(gc());
-        HGDIOBJ old = SelectObject(source_gc, w);
-        if (!StretchBlt(gc(), dst.os_x(), dst.os_y(), dst.os_width(), dst.os_height(),
-                        source_gc, src.os_x(), src.os_y(), src.os_width(), src.os_height(), SRCCOPY)) {
-          throw std::runtime_error("graphics::stretch_from failed");
+    int get_stretch_blt_mode (const std::string& m) {
+      if (m == "STRETCH_ANDSCANS") {
+        return STRETCH_ANDSCANS;
+      } else if (m == "STRETCH_ORSCANS") {
+        return STRETCH_ORSCANS;
+      } else if (m == "STRETCH_DELETESCANS") {
+        return STRETCH_DELETESCANS;
+      } else if(m == "STRETCH_HALFTONE") {
+        return STRETCH_HALFTONE;
+      }
+      return 0;
+    }
+
+    graphics& graphics::draw_streched (const draw::pixmap& pixmap,
+                                       const core::native_rect& dst,
+                                       const core::native_point& src,
+                                       const std::string& filter) {
+      if (pixmap) {
+        auto sz = pixmap.native_size();
+        auto w = static_cast<const os::drawable&>(pixmap);
+        HDC source_gc = GetDC((HWND)w);
+        HDC dest_gc = gc();
+        const auto old_mode = SetStretchBltMode(dest_gc, get_stretch_blt_mode(filter));
+        if (!source_gc) {
+          source_gc = CreateCompatibleDC(dest_gc);
+          HGDIOBJ old = SelectObject(source_gc, w);
+          if (!StretchBlt(dest_gc, dst.x(), dst.y(), dst.width(), dst.height(),
+            source_gc, src.x(), src.y(), sz.width(), sz.height(), SRCCOPY)) {
+            throw std::runtime_error("graphics::stretch_from failed");
+          }
+          SelectObject(source_gc, old);
+          DeleteDC(source_gc);
+        } else {
+          if (!StretchBlt(dest_gc, dst.x(), dst.y(), dst.width(), dst.height(),
+            source_gc, src.x(), src.y(), sz.width(), sz.height(), SRCCOPY)) {
+            throw std::runtime_error("graphics::stretch_from failed");
+          }
+          ReleaseDC((HWND)w, source_gc);
         }
-        SelectObject(source_gc, old);
-        DeleteDC(source_gc);
-      } else {
-        if (!StretchBlt(gc(), dst.os_x(), dst.os_y(), dst.os_width(), dst.os_height(),
-                        source_gc, src.os_x(), src.os_y(), src.os_width(), src.os_height(), SRCCOPY)) {
-          throw std::runtime_error("graphics::stretch_from failed");
-        }
-        ReleaseDC((HWND)w, source_gc);
+        SetStretchBltMode(dest_gc, old_mode);
       }
       return *this;
     }
-    */
 
-    graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) {
+    std::vector<std::string> graphics::get_filter_list(os::drawable d) {
+      static std::vector<std::string> list = {"STRETCH_ANDSCANS", "STRETCH_ORSCANS", "STRETCH_DELETESCANS", "STRETCH_HALFTONE"};
+      return list;
+    }
+
+    graphics& graphics::copy_from (const draw::masked_bitmap& bmp,
+                                   const core::native_point& pt) {
       if (bmp.mask) {
         HDC dc = CreateCompatibleDC(gc());
         SelectObject(dc, bmp.mask.get_os_bitmap());
         core::native_size sz = bmp.mask.native_size();
-        BitBlt(gc(), pt.x(), pt.y(), sz.width(), sz.height(), dc, 0, 0, static_cast<int>(copy_mode::bit_and)); //DSna, https://docs.microsoft.com/en-us/windows/win32/gdi/ternary-raster-operations
+        BitBlt(gc(), pt.x(), pt.y(), sz.width(), sz.height(), dc, 0, 0,
+               static_cast<int>(copy_mode::bit_and)); //DSna, https://docs.microsoft.com/en-us/windows/win32/gdi/ternary-raster-operations
         if (bmp.image) {
           sz = bmp.image.native_size();
           SelectObject(dc, bmp.image.get_os_bitmap());
-          BitBlt(gc(), pt.x(), pt.y(), sz.width(), sz.height(), dc, 0, 0, static_cast<int>(copy_mode::bit_or));  // DSo
+          BitBlt(gc(), pt.x(), pt.y(), sz.width(), sz.height(), dc, 0, 0,
+                 static_cast<int>(copy_mode::bit_or));  // DSo
         }
         DeleteDC(dc);
       } else {
@@ -408,19 +437,6 @@ namespace gui {
 
       if (bmp.mask) {
         ctx->restore_clipping();
-      }
-      return *this;
-    }
-
-    graphics& graphics::copy_from (const draw::basic_datamap& bmp, const core::native_point& pt) {
-      return copy_from(bmp, core::native_rect(bmp.native_size()), pt);
-    }
-
-    graphics& graphics::copy_from (const draw::basic_datamap& bmp, const core::native_rect& src, const core::native_point& pt) {
-      if (bmp.is_valid()) {
-        pixmap buffer;
-        buffer = bmp.convert<gui::pixel_format_t::RGB>();
-        copy_from(buffer, src, pt);
       }
       return *this;
     }
@@ -721,6 +737,19 @@ namespace gui {
 
     graphics& graphics::copy_from (const draw::pixmap& bmp, const core::point& pt) {
       return copy_from(bmp, core::native_point(pt.os(context()), context()));
+    }
+
+    graphics& graphics::copy_from(const draw::basic_datamap& bmp, const core::native_rect& src, const core::native_point& pt) {
+      if (bmp.is_valid()) {
+        pixmap buffer;
+        buffer = bmp.convert<gui::pixel_format_t::RGB>();
+        copy_from(buffer, src, pt);
+      }
+      return *this;
+    }
+
+    graphics& graphics::copy_from (const draw::basic_datamap& bmp, const core::native_point& pt) {
+      return copy_from(bmp, core::native_rect(bmp.native_size()), pt);
     }
 
     graphics& graphics::copy_from (const draw::basic_datamap& bmp, const core::point& pt) {

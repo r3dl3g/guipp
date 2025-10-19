@@ -15,6 +15,7 @@ if(NOT TARGET ${PROJECT_NAME})
       container.cpp
       cursor.cpp
       dbg_win_message.cpp
+      enable_drag.cpp
       native_qt.cpp
       native_win32.cpp
       native_x11.cpp

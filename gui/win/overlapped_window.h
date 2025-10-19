@@ -92,6 +92,7 @@ namespace gui {
       void redraw (const core::native_rect&);
 
       core::point position () const override;
+      using window::position;
       core::size client_size () const override;
       core::native_point surface_position () const override;
 

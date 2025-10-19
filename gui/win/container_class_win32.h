@@ -62,6 +62,14 @@ namespace gui {
                                                WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
                                                WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED>;
 
+      template<typename T, os::color C = color::light_gray>
+      using palette_window_class = window_class<T,
+                                              C,
+                                              window_class_defaults<>::cursor,
+                                              WS_POPUP | WS_CAPTION | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                                              WS_EX_PALETTEWINDOW | WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED,
+                                              CS_DBLCLKS | CS_DROPSHADOW>;
+
       // --------------------------------------------------------------------------
     } // namespace cls
 

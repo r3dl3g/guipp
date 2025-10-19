@@ -55,6 +55,12 @@ namespace gui {
                                                window_class_defaults<>::cursor,
                                                (Qt::WindowType)(Qt::WindowFlags::Int)(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowShadeButtonHint | Qt::WindowStaysOnTopHint | Qt::WindowCloseButtonHint)>;
 
+      template<typename T, os::color C = color::light_gray>
+      using palette_window_class = window_class<T,
+                                                C,
+                                                window_class_defaults<>::cursor,
+                                                (Qt::WindowType)(Qt::WindowFlags::Int)(Qt::Tool | Qt::WindowTransparentForInput | Qt::WindowDoesNotAcceptFocus | Qt::MSWindowsFixedSizeDialogHint | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint)>;
+
       // --------------------------------------------------------------------------
     } // namespace cls
 

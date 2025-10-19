@@ -88,6 +88,10 @@ namespace gui {
     using layout_dialog_window = detail::layout_container_base<dialog_window, L, Args ...>;
 
     // --------------------------------------------------------------------------
+    template<typename L = layout::standard_layout, typename ... Args>
+    using layout_palette_window = detail::layout_container_base<palette_window, L, Args ...>;
+
+    // --------------------------------------------------------------------------
   } // namespace win
 
 } // namespace gui

@@ -831,6 +831,12 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    void palette_window::create (const class_info& cls, overlapped_window& parent, const core::rectangle& r, bool adjust_size) {
+      super::create(cls, parent, r, adjust_size);
+      native::prepare_palette_window(get_os_window());
+    }
+
+    // --------------------------------------------------------------------------
 
   } // win
 

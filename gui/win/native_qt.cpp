@@ -294,6 +294,7 @@ namespace gui {
       void prepare_popup_window (os::window) {}
       void prepare_tooltip_window (os::window) {}
       void prepare_dialog_window (os::window, os::window) {}
+      void prepare_palette_window (os::window) {}
 
       void erase (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
         const int sc = static_cast<int>(core::global::get_scale_factor());

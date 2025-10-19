@@ -676,6 +676,16 @@ namespace gui {
         x11::set_wm_protocols(display, id);
       }
 
+      void prepare_palette_window (os::window id) {
+        gui::os::instance display = core::global::get_instance();
+
+        x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_UTILITY");
+
+        XSetWindowAttributes swa;
+        swa.override_redirect = 1;
+        XChangeWindowAttributes(display, id, CWOverrideRedirect, &swa);
+      }
+
       void erase (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
         if (!color::is_transparent(c)) {
           gui::os::instance display = core::global::get_instance();

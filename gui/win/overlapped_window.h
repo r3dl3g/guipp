@@ -255,6 +255,24 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    class GUIPP_WIN_EXPORT palette_window : public overlapped_window {
+    public:
+      typedef overlapped_window super;
+      using clazz = cls::palette_window_class<palette_window>;
+
+      void create (overlapped_window& parent,
+                   const core::rectangle& r = core::rectangle::def,
+                   bool adjust_size = true);
+
+    protected:
+      void create (const class_info& cls,
+                   overlapped_window& parent,
+                   const core::rectangle& r = core::rectangle::def,
+                   bool adjust_size = true);
+
+    };
+
+    // --------------------------------------------------------------------------
   } // namespace win
 
 } // namespace gui

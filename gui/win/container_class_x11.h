@@ -41,6 +41,9 @@ namespace gui {
       template<typename T, os::color C = color::very_light_gray>
       using dialog_window_class = window_class<T, C>;
 
+      template<typename T, os::color C = color::very_light_gray>
+      using palette_window_class = window_class<T, C>;
+
       // --------------------------------------------------------------------------
     } // namespace cls
 

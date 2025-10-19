@@ -1,0 +1,6 @@
+@echo off
+
+call .project_defines.cmd
+
+%PREPARE_RELEASE% -DGUIPP_SAMPLES=ON -DGUIPP_TESTS=ON %TEE% %~n0.log
+%PREPARE_DEBUG% -DGUIPP_SAMPLES=ON -DGUIPP_TESTS=ON %TEE% %~n0.log

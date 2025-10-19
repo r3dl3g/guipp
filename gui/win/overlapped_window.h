@@ -202,9 +202,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_WIN_EXPORT popup_window : public modal_window {
+    class GUIPP_WIN_EXPORT popup_window : public overlapped_window {
     public:
-      typedef modal_window super;
+      typedef overlapped_window super;
       using clazz = cls::popup_window_class<popup_window>;
 
       void create (overlapped_window& parent,
@@ -220,9 +220,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_WIN_EXPORT tooltip_window : public modal_window {
+    class GUIPP_WIN_EXPORT tooltip_window : public overlapped_window {
     public:
-      typedef modal_window super;
+      typedef overlapped_window super;
       using clazz = cls::tooltip_window_class<tooltip_window>;
 
       void create (overlapped_window& parent,

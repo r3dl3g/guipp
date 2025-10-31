@@ -335,6 +335,16 @@ namespace gui {
       create_subdirectory_fn fn;
     };
 
+    namespace filter {
+
+      auto by_extension (const std::string& ext) {
+        return [=] (const sys_fs::directory_entry& e) {
+          return !util::string::ends_with(e.path().string(), ext);
+        };
+      }
+
+    } // namespace filter
+
     //-----------------------------------------------------------------------------
     template<typename T = path_tree::sorted_path_info, bool open_dirs_on_right = true>
     class dir_file_view : public vertical_split_view<dir_tree_view, file_column_list<T>> {

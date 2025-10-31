@@ -209,6 +209,26 @@ namespace gui {
       dialog.show(parent);
     }
 
+    bool show_create_subdirectory_dialog (win::overlapped_window& parent,
+                                          const sys_fs::path& parent_dir,
+                                          const std::string& title,
+                                          const std::string& message,
+                                          const std::string& initial,
+                                          const std::string& ok_label,
+                                          const std::string& cancel_label) {
+      bool return_value = false;
+      input_dialog::ask(parent, title, message, initial, ok_label, cancel_label,
+                        [&] (win::overlapped_window&, const std::string& t) {
+        return_value = sys_fs::create_directory(parent_dir / t);
+      });
+      return return_value;
+    }
+
+    bool show_default_create_subdirectory_dialog (win::overlapped_window& parent, const sys_fs::path& parent_dir) {
+      return show_create_subdirectory_dialog(parent, parent_dir,
+          "Create directory", "Create new sub-directory", "", "Create", "Cancel");
+    }
+
     //-----------------------------------------------------------------------------
     std::function<create_subdirectory>
     make_create_subdirectory_fn (const std::string& title,

@@ -295,6 +295,19 @@ namespace gui {
       list_t vlist;
     };
 
+    GUIPP_CTRL_EXPORT
+    bool show_create_subdirectory_dialog (win::overlapped_window& parent,
+                                          const sys_fs::path& parent_dir,
+                                          const std::string& title,
+                                          const std::string& message,
+                                          const std::string& initial,
+                                          const std::string& ok_label,
+                                          const std::string& cancel_label);
+
+    GUIPP_CTRL_EXPORT
+    bool show_default_create_subdirectory_dialog (win::overlapped_window& parent,
+                                                  const sys_fs::path& parent_dir);
+    
     //-----------------------------------------------------------------------------
     GUIPP_CTRL_EXPORT std::function<create_subdirectory>
     make_create_subdirectory_fn (const std::string& title,

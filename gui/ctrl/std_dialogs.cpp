@@ -237,12 +237,7 @@ namespace gui {
                                  const std::string& ok_label,
                                  const std::string& cancel_label) {
       return [=] (win::overlapped_window& parent, const sys_fs::path& parent_dir) -> bool {
-        bool return_value = false;
-        input_dialog::ask(parent, title, message, initial, ok_label, cancel_label,
-                          [&] (win::overlapped_window&, const std::string& t) {
-          return_value = sys_fs::create_directory(parent_dir / t);
-        });
-        return return_value;
+        return show_create_subdirectory_dialog(parent, parent_dir, title, message, initial, ok_label, cancel_label);
       };
     }
 
@@ -314,7 +309,9 @@ namespace gui {
                                    const std::string& ok_label,
                                    const std::string& cancel_label,
                                    const core::rectangle& rect,
-                                   std::function<file_selected> action) {
+                                   std::function<file_selected> action,
+                                   std::function<fs::filter_fn> file_filter,
+                                   std::function<fs::filter_fn> dir_filter) {
 
       auto& dir_tree = content_view.get<0>().view.view;
       auto& files = content_view.get<1>();
@@ -323,7 +320,7 @@ namespace gui {
         set_visible(false);
         end_modal();
         action(dlg, path);
-      });
+      }, file_filter, dir_filter);
 
       files.list->on_selection_changed([&] (event_source) {
         input_line.init_text(files.get_selected_path().filename().string());
@@ -370,11 +367,13 @@ namespace gui {
                                  const std::string& ok_label,
                                  const std::string& cancel_label,
                                  std::function<file_selected> action,
+                                 std::function<fs::filter_fn> file_filter,
+                                 std::function<fs::filter_fn> dir_filter,
                                  create_subdirectory_fn fn) {
       file_save_dialog dialog(fn);
       dialog.create(parent, title, default_name, name_label, ok_label, cancel_label,
                     detail::std_file_save_dialog_size<>(parent.geometry()),
-                    action);
+                    action, file_filter, dir_filter);
       dialog.super::show(parent);
     }
 

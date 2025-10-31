@@ -391,7 +391,7 @@ namespace gui {
                    const core::rectangle& rect,
                    std::function<file_selected> action,
                    std::function<fs::filter_fn> file_filter = nullptr,
-                  std::function<fs::filter_fn> dir_filter = nullptr);
+                   std::function<fs::filter_fn> dir_filter = nullptr);
 
       static void show (win::overlapped_window& parent,
                         const std::string& title,
@@ -400,7 +400,7 @@ namespace gui {
                         std::function<file_selected> action,
                         std::function<fs::filter_fn> file_filter = nullptr,
                         std::function<fs::filter_fn> dir_filter = nullptr,
-                        create_subdirectory_fn fn = nullptr);
+                        create_subdirectory_fn fn = show_default_create_subdirectory_dialog);
     };
 
     //-----------------------------------------------------------------------------
@@ -424,7 +424,9 @@ namespace gui {
                    const std::string& ok_label,
                    const std::string& cancel_label,
                    const core::rectangle& rect,
-                   std::function<file_selected> action);
+                   std::function<file_selected> action,
+                   std::function<fs::filter_fn> file_filter = nullptr,
+                   std::function<fs::filter_fn> dir_filter = nullptr);
 
       static void show (win::overlapped_window& parent,
                         const std::string& title,
@@ -433,7 +435,9 @@ namespace gui {
                         const std::string& ok_label,
                         const std::string& cancel_label,
                         std::function<file_selected> action,
-                        create_subdirectory_fn fn = nullptr);
+                        std::function<fs::filter_fn> file_filter = nullptr,
+                        std::function<fs::filter_fn> dir_filter = nullptr,
+                        create_subdirectory_fn fn = show_default_create_subdirectory_dialog);
 
       top_view_type top_view;
       basic_edit<std::string,

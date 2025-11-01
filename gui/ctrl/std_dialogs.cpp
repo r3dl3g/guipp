@@ -348,6 +348,7 @@ namespace gui {
       content_view.set_split_pos(0.3);
 
       top_view.set_background(color::very_very_light_gray);
+      input_label.set_background(color::very_very_light_gray);
 
       sys_fs::path current = sys_fs::current_path();
       dir_tree.set_roots(fs::get_all_root_file_infos());

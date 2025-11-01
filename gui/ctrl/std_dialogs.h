@@ -445,7 +445,7 @@ namespace gui {
                  default_limiter<std::string>,
                  text_origin_t::vcenter_left,
                  draw::frame::sunken_deep_relief> input_line;
-      basic_label<text_origin_t::vcenter_right,
+      basic_label<text_origin_t::center,
                   draw::frame::no_frame> input_label;
 
     };

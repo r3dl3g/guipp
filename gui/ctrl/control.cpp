@@ -18,8 +18,8 @@
 //
 // Library includes
 //
-#include "gui/ctrl/control.h"
-#include "gui/ctrl/tooltip.h"
+#include "control.h"
+#include "tooltip.h"
 
 
 namespace gui {
@@ -156,6 +156,10 @@ namespace gui {
     }
 
     os::color colored_control::get_foreground () const {
+      return is_enabled() ? foreground : color::lighter(foreground, 0.5F);
+    }
+
+    os::color colored_control::get_plain_foreground () const {
       return foreground;
     }
 

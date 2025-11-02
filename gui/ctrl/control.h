@@ -221,6 +221,7 @@ namespace gui {
 
       void set_foreground (os::color);
       os::color get_foreground () const;
+      os::color get_plain_foreground () const;
 
     private:
       os::color foreground;

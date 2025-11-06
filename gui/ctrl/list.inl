@@ -217,10 +217,8 @@ namespace gui {
       void selectable_list<T, O, S>::clear_selection (event_source notify) {
         if (selection.has_selection()) {
           selection.clear_selection();
-          if (notify != event_source::logic) {
-            super::notify_selection_changed(notify);
-            super::invalidate();
-          }
+          notify_selection_changed(notify);
+          super::invalidate();
         }
       }
 
@@ -262,8 +260,8 @@ namespace gui {
       }
 
       template<typename T, orientation_t O, typename S>
-      void selectable_list<T, O, S>::make_selection_visible () {
-        if (has_selection()) {
+      void selectable_list<T, O, S>::make_selection_visible (event_source notify) {
+        if ((notify != event_source::mouse) && has_selection()) {
           super::make_entry_visible(get_selection().get_first_index(),
                                     get_selection_adjustment());
         }
@@ -279,11 +277,9 @@ namespace gui {
           clear_selection(event_source::logic);
           selection.set_selected(new_selection);
         }
-        make_selection_visible();
+        make_selection_visible(notify);
         super::invalidate();
-        if (notify != event_source::logic) {
-          super::notify_selection_changed(notify);
-        }
+        notify_selection_changed(notify);
       }
 
       template<typename T, orientation_t O, typename S>
@@ -292,11 +288,9 @@ namespace gui {
                                            static_cast<int>(super::get_count() - 1));
         if (!selection.is_selected(new_selection)) {
           selection.set_selected(new_selection);
-          make_selection_visible();
+          make_selection_visible(notify);
           super::invalidate();
-          if (notify != event_source::logic) {
-            super::notify_selection_changed(notify);
-          }
+          notify_selection_changed(notify);
         }
       }
 
@@ -304,9 +298,7 @@ namespace gui {
       void selectable_list<T, O, S>::select_all (event_source notify) {
         selection.select_range(0, static_cast<int>(super::get_count()) - 1);
         super::invalidate();
-        if (notify != event_source::logic) {
-          super::notify_selection_changed(notify);
-        }
+        notify_selection_changed(notify);
       }
 
       template<typename T, orientation_t O, typename S>
@@ -314,10 +306,15 @@ namespace gui {
         if (selection.is_selected(sel)) {
           selection.set_unselected(sel);
           super::invalidate();
+          notify_selection_changed(notify);
+        }
+      }
+
+      template<typename T, orientation_t O, typename S>
+      void selectable_list<T, O, S>::notify_selection_changed (event_source notify) {
           if (notify != event_source::logic) {
             super::notify_selection_changed(notify);
           }
-        }
       }
 
       template<typename T, orientation_t O, typename S>
@@ -375,7 +372,7 @@ namespace gui {
           super::clear_hilite();
         });
         super::on_size ([&] (const core::size&) {
-          make_selection_visible();
+          make_selection_visible(event_source::logic);
         });
 
         super::on_left_btn_up(util::bind_method(this,

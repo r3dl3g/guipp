@@ -369,7 +369,9 @@ namespace gui {
         void select (int sel, event_source notify);
         void select_all (event_source notify);
         void unselect (int sel, event_source notify);
-        void make_selection_visible ();
+        void make_selection_visible (event_source notify);
+
+        void notify_selection_changed (event_source);
 
       public:
         void handle_left_btn_up (os::key_state keys, const core::native_point& pt);

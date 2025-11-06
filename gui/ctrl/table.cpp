@@ -657,7 +657,9 @@ namespace gui {
       if (geometrie.selection != selection) {
         geometrie.selection = selection;
         if (table::is_valid(geometrie.selection)) {
-          make_selection_visible();
+          if (notify != event_source::mouse) {
+            make_selection_visible();
+          }
           redraw_all();
         }
         notify_event(detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));

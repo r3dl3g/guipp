@@ -316,7 +316,7 @@ namespace gui {
         }
         return fg;
       } else {
-        return color::darker(fg);
+        return color::lighter(fg, 0.5);
       }
     }
 

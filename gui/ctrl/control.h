@@ -204,7 +204,7 @@ namespace gui {
       void on_hilite_changed (std::function<void(bool)>&& f);
       void on_content_changed (std::function<void()>&& f);
 
-      void notify_selection_changed (event_source);
+      void notify_selection_changed (event_source = event_source::logic);
       void notify_selection_commit ();
       void notify_selection_cancel ();
       void notify_hilite_changed (bool);  // true if hilite is visible, false for no hilite

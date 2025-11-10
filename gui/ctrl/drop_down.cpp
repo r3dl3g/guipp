@@ -194,8 +194,8 @@ namespace gui {
       } else {
         data.popup.geometry(get_popup_geometry(), true, false);
       }
-      data.items->set_selection(data.selection, event_source::logic);
-      data.items->make_selection_visible(event_source::logic);
+      data.items->set_selection(data.selection);
+      data.items->make_selection_visible();
       data.popup.set_visible();
     }
 

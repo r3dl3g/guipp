@@ -275,7 +275,7 @@ namespace gui {
         if (add) {
           selection.expand_to(new_selection);
         } else {
-          clear_selection(event_source::logic);
+          clear_selection();
           selection.set_selected(new_selection);
         }
         if (old_selection != selection) {
@@ -375,7 +375,7 @@ namespace gui {
           super::clear_hilite();
         });
         super::on_size ([&] (const core::size&) {
-          make_selection_visible(event_source::logic);
+          make_selection_visible();
         });
 
         super::on_left_btn_up(util::bind_method(this,

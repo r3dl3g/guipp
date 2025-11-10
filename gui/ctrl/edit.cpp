@@ -209,11 +209,11 @@ namespace gui {
         win::global::register_utf8_window(*this);
       }
 
-      void edit_base::set_selection (const edit_base::range& sel, event_source) {
+      void edit_base::set_selection (const edit_base::range& sel, event_source src) {
         if (sel != data.selection) {
           data.selection = sel;
           invalidate();
-          notify_selection_changed(event_source::logic);
+          notify_selection_changed(src);
         }
       }
 

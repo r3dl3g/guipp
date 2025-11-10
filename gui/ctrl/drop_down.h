@@ -98,7 +98,7 @@ namespace gui {
                        os::key_symbol key,
                        const std::string& t);
 
-      void handle_selection_changed (event_source src);
+      void handle_selection_changed (event_source src = event_source::logic);
 
       template<typename F, list_item_drawer<F> D = default_drop_down_drawer<F>, typename V = std::vector<F>>
       void set_data (const V& data);
@@ -113,7 +113,7 @@ namespace gui {
       void show_popup ();
       void hide_popup ();
 
-      void set_selection (int idx, event_source src);
+      void set_selection (int idx, event_source = event_source::logic);
       void set_visible_items (int n);
 
       int get_selection () const;

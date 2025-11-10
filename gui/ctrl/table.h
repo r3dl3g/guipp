@@ -413,8 +413,8 @@ namespace gui {
       void set_default_row_width (core::size::type);
       void set_default_column_height (core::size::type);
 
-      void clear_selection (event_source notify);
-      void set_selection (table::position selection, event_source notify);
+      void clear_selection (event_source = event_source::logic);
+      void set_selection (table::position selection, event_source = event_source::logic);
       const table::position& get_selection () const;
       bool has_selection () const;
 

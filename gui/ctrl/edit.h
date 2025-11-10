@@ -91,10 +91,10 @@ namespace gui {
 
         void handle_key (os::key_state, os::key_symbol, const std::string&);
 
-        void set_selection (const range &sel, event_source);
+        void set_selection (const range &sel, event_source = event_source::logic);
         range get_selection () const;
         void make_selection_visible (bool update = true);
-        void select_all (event_source);
+        void select_all (event_source = event_source::logic);
 
         pos_t get_cursor_pos () const;
         void set_cursor_pos (pos_t pos, bool shift = false);

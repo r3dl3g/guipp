@@ -157,7 +157,7 @@ namespace gui {
       auto it = std::find(data.begin(), data.end(), initial);
       if (it != data.end()) {
         int idx = std::distance(data.begin(), it);
-        vlist->set_selection(idx, event_source::logic);
+        vlist->set_selection(idx);
       }
       vlist->on_selection_commit([&, action] () {
         super::end_modal();
@@ -211,7 +211,7 @@ namespace gui {
       vlist.get_column_layout().set_column_count(labels.size());
       vlist.set_data([&] () -> data_t& { return data; });
       vlist.header.set_labels(labels);
-      vlist.list->set_selection(initial, event_source::logic);
+      vlist.list->set_selection(initial);
       vlist.list->on_selection_commit([&, action] () {
         super::end_modal();
         if (action) {

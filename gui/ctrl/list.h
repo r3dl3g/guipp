@@ -355,7 +355,7 @@ namespace gui {
 
         bool has_selection () const;
 
-        void clear_selection (event_source notify);
+        void clear_selection (event_source notify = event_source::logic);
 
         item_state get_item_state (int idx) const;
 
@@ -364,14 +364,14 @@ namespace gui {
         void set_selection_adjustment (core::selection_adjustment);
         core::selection_adjustment get_selection_adjustment () const;
 
-        bool try_to_select (int sel, event_source notify);
-        void set_selection (int sel, event_source notify, bool add = false);
-        void select (int sel, event_source notify);
-        void select_all (event_source notify);
-        void unselect (int sel, event_source notify);
-        void make_selection_visible (event_source notify);
+        bool try_to_select (int sel, event_source = event_source::logic);
+        void set_selection (int sel, event_source = event_source::logic, bool add = false);
+        void select (int sel, event_source = event_source::logic);
+        void select_all (event_source = event_source::logic);
+        void unselect (int sel, event_source = event_source::logic);
+        void make_selection_visible (event_source = event_source::logic);
 
-        void notify_selection_changed (event_source);
+        void notify_selection_changed (event_source = event_source::logic);
 
       public:
         void handle_left_btn_up (os::key_state keys, const core::native_point& pt);

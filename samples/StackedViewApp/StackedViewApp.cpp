@@ -43,7 +43,7 @@ public:
   void set_path (const std::string& dir) {
     current_path = dir;
     current_dir = fake_fs[dir];
-    super::clear_selection(event_source::logic);
+    super::clear_selection();
     super::set_scroll_pos(core::point::zero);
     super::invalidate();
     for (const auto& p : util::string::split<'/'>(current_path)) {

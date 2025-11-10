@@ -138,7 +138,7 @@ namespace gui {
     inline void file_list<T, D, S>::set_path (const sys_fs::path& dir) {
       current_path = dir;
       current_dir = info.sub_nodes(current_path);
-      super::clear_selection(event_source::logic);
+      super::clear_selection();
       super::set_scroll_pos(core::point::zero);
       super::invalidate();
     }
@@ -218,7 +218,7 @@ namespace gui {
     template<typename T, typename S>
     inline void file_column_list<T, S>::set_path (const sys_fs::path& dir) {
       current_dir = info.sub_nodes(dir);
-      super::list->clear_selection(event_source::logic);
+      super::list->clear_selection();
       super::list->set_scroll_pos(core::point::zero);
       if (order == sort_order::none) {
         order = sort_order::name_up;

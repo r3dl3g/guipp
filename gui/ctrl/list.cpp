@@ -80,7 +80,7 @@ namespace gui {
       void list_base::set_scroll_pos (const core::point& pos) {
         if (data.offset != pos) {
           data.offset = pos;
-          super::notify_selection_changed(event_source::logic);
+          super::notify_selection_changed();
           invalidate();
         }
       }

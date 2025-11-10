@@ -44,7 +44,7 @@ namespace gui {
         data.cursor_pos.clear();
         data.selection.clear();
         notify_content_changed();
-        notify_selection_changed(event_source::logic);
+        notify_selection_changed();
         invalidate();
       }
 

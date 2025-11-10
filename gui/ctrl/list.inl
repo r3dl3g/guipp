@@ -271,15 +271,18 @@ namespace gui {
       void selectable_list<T, O, S>::set_selection (int sel, event_source notify, bool add) {
         const int new_selection = std::min(std::max(0, sel), 
                                            static_cast<int>(super::get_count() - 1));
+        const selector_type old_selection = selection;
         if (add) {
           selection.expand_to(new_selection);
         } else {
           clear_selection(event_source::logic);
           selection.set_selected(new_selection);
         }
-        make_selection_visible(notify);
-        super::invalidate();
-        notify_selection_changed(notify);
+        if (old_selection != selection) {
+          make_selection_visible(notify);
+          super::invalidate();
+          notify_selection_changed(notify);
+        }
       }
 
       template<typename T, orientation_t O, typename S>

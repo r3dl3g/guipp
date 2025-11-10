@@ -144,6 +144,14 @@ namespace gui {
           return false;
         }
 
+        inline bool operator== (const single& other) const {
+          return selection == other.selection;
+        }
+
+        inline bool operator!= (const single& other) const {
+          return selection != other.selection;
+        }
+
       private:
         selection_type selection;
       };
@@ -230,6 +238,14 @@ namespace gui {
 
         inline bool is_multi_select () const {
           return false;
+        }
+
+        inline bool operator== (const multi& other) const {
+          return selection == other.selection;
+        }
+
+        inline bool operator!= (const multi& other) const {
+          return selection != other.selection;
         }
 
       private:
@@ -329,6 +345,14 @@ namespace gui {
 
         inline bool is_multi_select () const {
           return false;
+        }
+
+        inline bool operator== (const none&) const {
+          return false;
+        }
+
+        inline bool operator!= (const none&) const {
+          return true;
         }
 
       };

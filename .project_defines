@@ -8,6 +8,7 @@ BUILD_PREFIX=~/.cache/build
 PARALLEL=$(nproc)
 DEFINES="-DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DCMAKE_PREFIX_PATH=$INSTALL_PREFIX"
 TYPE=undefined
+ARCHIVE=./archive
 LOGFILE=$ACTION.log
 
 _exec() {
@@ -40,12 +41,15 @@ log_rename() {
 }
 
 log_rotate() {
+  mkdir -p $ARCHIVE
+  pushd $ARCHIVE
   next=10
   for i in {9..1}; do
     log_rename .$i .$next
     next=$i
   done
-  log_rename "" .1
+  popd
+  mv $ACTION.log $ARCHIVE/${ACTION}.1.log
 }
 
 do_logged() {

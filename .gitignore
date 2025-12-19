@@ -23,3 +23,4 @@ build/CMakeCache.txt
 build-Debug*/*
 build-Release*/*
 *.log
+archive/*.log

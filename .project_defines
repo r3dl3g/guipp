@@ -42,6 +42,9 @@ log_rename() {
 
 log_rotate() {
   mkdir -p $ARCHIVE
+  for i in ${ACTION}.*.log; do
+    mv $i $ARCHIVE/$i
+  done
   pushd $ARCHIVE
   next=10
   for i in {9..1}; do

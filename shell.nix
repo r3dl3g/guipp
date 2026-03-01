@@ -13,7 +13,6 @@ pkgs.mkShell {
     xorg.libXrender.dev
     fontconfig.dev
     expat.dev
-    pkg-config
   ];
 
   nativeBuildInputs = with pkgs; [
@@ -23,6 +22,7 @@ pkgs.mkShell {
     gcc
     gdb
     git
+    pkg-config
   ];
 
   shellHook = ''

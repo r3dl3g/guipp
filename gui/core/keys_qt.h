@@ -153,6 +153,21 @@ namespace gui {
       const gui::os::key_symbol x = Qt::Key_X;
       const gui::os::key_symbol y = Qt::Key_Y;
       const gui::os::key_symbol z = Qt::Key_Z;
+
+      const gui::os::key_symbol plus =      Qt::Key_Plus;
+      const gui::os::key_symbol minus =     Qt::Key_Minus;
+      const gui::os::key_symbol asterisk =  Qt::Key_Asterisk;
+      const gui::os::key_symbol comma =     Qt::Key_Comma;
+      const gui::os::key_symbol period =    Qt::Key_Period;
+      const gui::os::key_symbol slash =     Qt::Key_Slash;
+      const gui::os::key_symbol colon =     Qt::Key_Colon;
+      const gui::os::key_symbol semicolon = Qt::Key_Semicolon;
+      const gui::os::key_symbol less =      Qt::Key_Less;
+      const gui::os::key_symbol equal =     Qt::Key_Equal;
+      const gui::os::key_symbol greater =   Qt::Key_Greater;
+      const gui::os::key_symbol question =  Qt::Key_Question;
+      const gui::os::key_symbol at =        Qt::Key_At;
+
     }
 
   } // namespace core

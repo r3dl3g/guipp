@@ -139,6 +139,21 @@ namespace gui {
       const gui::os::key_symbol y = 'Y';
       const gui::os::key_symbol z = 'Z';
 
+      const gui::os::key_symbol plus =      '+';
+      const gui::os::key_symbol minus =     '-';
+      const gui::os::key_symbol asterisk =  '*';
+      const gui::os::key_symbol comma =     ',';
+      const gui::os::key_symbol period =    '.';
+      const gui::os::key_symbol slash =     '/';
+      const gui::os::key_symbol colon =     ':';
+      const gui::os::key_symbol semicolon = ';';
+      const gui::os::key_symbol less =      '<';
+      const gui::os::key_symbol equal =     '=';
+      const gui::os::key_symbol greater =   '>';
+      const gui::os::key_symbol question =  '?';
+      const gui::os::key_symbol at =        '@';
+
+
     }
 
   } // namespace core

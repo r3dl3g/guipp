@@ -21,7 +21,7 @@
 // Library includes
 //
 #include "gui/layout/layout_container.h"
-#include "gui/layout/dynamic_border_layout.h"
+#include "gui/layout/border_layout.h"
 #include "gui/ctrl/button.h"
 #include "gui/ctrl/label.h"
 
@@ -31,8 +31,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct GUIPP_CTRL_EXPORT title_view : public
-        win::group_window<layout::dynamic_border_layout<layout::border_layout_type::left_right_maximize, 5>, float, float, float, float> {
-      typedef win::group_window<layout::dynamic_border_layout<layout::border_layout_type::left_right_maximize, 5>, float, float, float, float> super;
+        win::group_window<layout::border::layouter<0, 0, 40, 0, layout::border::type_t::left_right_maximize>, float, float, float, float> {
+      typedef win::group_window<layout::border::layouter<0, 0, 40, 0, layout::border::type_t::left_right_maximize>, float, float, float, float> super;
 
       title_view (float back_size = 40);
 

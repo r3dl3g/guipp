@@ -3,7 +3,6 @@
 
 #include <gui/layout/layout_container.h>
 #include <gui/layout/border_layout.h>
-#include <gui/layout/dynamic_border_layout.h>
 #include <gui/layout/weighted_layout.h>
 #include <gui/ctrl/virtual_view.h>
 #include <gui/ctrl/file_tree.h>

@@ -2,7 +2,7 @@
 #include <gui/win/overlapped_window.h>
 #include <gui/layout/layout_container.h>
 #include <gui/layout/border_layout.h>
-#include <gui/layout/dynamic_border_layout.h>
+#include <gui/layout/border_layout.h>
 #include <gui/layout/grid_layout.h>
 #include <gui/ctrl/scroll_bar.h>
 #include <gui/ctrl/label.h>
@@ -18,15 +18,13 @@ using namespace gui::draw;
 typedef basic_label<text_origin_t::center,
                     draw::frame::raised_deep_relief> label_t;
 
-template<border_layout_type T>
+template<border::type_t T>
 struct layout_group {
 
   label_t top, bottom, left, right, center;
-  dynamic_border_layout<T> layouter;
+  border::layouter<20, 20, 100, 100, T> layouter;
 
-  layout_group (scroll_bar& ls, scroll_bar& rs, scroll_bar& ts, scroll_bar& bs)
-    : layouter(20, 20, 100, 100)
-  {
+  layout_group (scroll_bar& ls, scroll_bar& rs, scroll_bar& ts, scroll_bar& bs) {
     ls.on_scroll([&] (point::type v) {
       layouter.set_left_width(v);
     });
@@ -73,15 +71,15 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   top.set_min_max_step_value(0, 200, 1, 20);
   bottom.set_min_max_step_value(0, 200, 1, 20);
 
-  layout_group<border_layout_type::top_bottom_maximize> center0(left, right, top, bottom);
-  layout_group<border_layout_type::left_right_maximize> center1(left, right, top, bottom);
-  layout_group<border_layout_type::bottom_max_top_min> center2(left, right, top, bottom);
-  layout_group<border_layout_type::top_max_bottom_min> center3(left, right, top, bottom);
-  layout_group<border_layout_type::left_max_right_min> center4(left, right, top, bottom);
-  layout_group<border_layout_type::right_max_left_min> center5(left, right, top, bottom);
-  layout_group<border_layout_type::top_left_maximize> center6(left, right, top, bottom);
-  layout_group<border_layout_type::bottom_right_maximize> center7(left, right, top, bottom);
-  layout_group<border_layout_type::all_symmetric> center8(left, right, top, bottom);
+  layout_group<border::type_t::top_bottom_maximize> center0(left, right, top, bottom);
+  layout_group<border::type_t::left_right_maximize> center1(left, right, top, bottom);
+  layout_group<border::type_t::bottom_max_top_min> center2(left, right, top, bottom);
+  layout_group<border::type_t::top_max_bottom_min> center3(left, right, top, bottom);
+  layout_group<border::type_t::left_max_right_min> center4(left, right, top, bottom);
+  layout_group<border::type_t::right_max_left_min> center5(left, right, top, bottom);
+  layout_group<border::type_t::top_left_maximize> center6(left, right, top, bottom);
+  layout_group<border::type_t::bottom_right_maximize> center7(left, right, top, bottom);
+  layout_group<border::type_t::all_symmetric> center8(left, right, top, bottom);
 
   grid_adaption<3, 3, 5, 5> center({lay(center0.layouter), lay(center1.layouter), lay(center2.layouter),
                                     lay(center3.layouter), lay(center4.layouter), lay(center5.layouter),

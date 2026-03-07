@@ -71,7 +71,9 @@ namespace gui {
     template<int S>
     class split_layout<alignment_t::top, S> : public split_layout_base {
     public:
-      static constexpr int size = S;
+      typedef core::size::type type;
+
+      type size = S;
 
       gui::core::rectangle header_size (const gui::core::rectangle& r) {
         return r.with_height(size);
@@ -95,7 +97,9 @@ namespace gui {
     template<int S>
     class split_layout<alignment_t::bottom, S> : public split_layout_base {
     public:
-      static constexpr int size = S;
+      typedef core::size::type type;
+
+      type size = S;
 
       gui::core::rectangle header_size (const gui::core::rectangle& r) {
         return r.with_vertical(r.y2() - size, size);
@@ -119,7 +123,9 @@ namespace gui {
     template<int S>
     class split_layout<alignment_t::left, S> : public split_layout_base {
     public:
-      static constexpr int size = S;
+      typedef core::size::type type;
+
+      type size = S;
 
       gui::core::rectangle header_size (const gui::core::rectangle& r) {
         return r.with_width(size);
@@ -143,7 +149,9 @@ namespace gui {
     template<int S>
     class split_layout<alignment_t::right, S> : public split_layout_base {
     public:
-      static constexpr int size = S;
+      typedef core::size::type type;
+
+      type size = S;
 
       gui::core::rectangle header_size (const gui::core::rectangle& r) {
         return r.with_horizontal(r.x2() - size, size);

@@ -32,8 +32,8 @@ namespace gui {
       : super(list) {
     }
 
-    template<orientation_t height, unsigned border, unsigned gap, unsigned sep, unsigned min, unsigned max, origin_t o>
-    void adaption_layout<height, border, gap, sep, min, max, o>::layout (const core::rectangle& r) const {
+    template<orientation_t H, unsigned B, unsigned G, unsigned S, unsigned I, unsigned A, origin_t O>
+    void adaption_layout<H, B, G, S, I, A, O>::layout (const core::rectangle& r) const {
       logging::trace() << "adaption_layout::layout(" << r << ")";
       const auto& elements = super::get_elements();
       const std::size_t count = elements.size();

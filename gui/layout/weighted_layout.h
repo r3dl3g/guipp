@@ -62,8 +62,8 @@ namespace gui {
       typedef core::size::type type;
       typedef detail::origin_layout<H, R> super;
 
-      static constexpr unsigned border_width = B;
-      static constexpr unsigned gap = G;
+      type border_width = B;
+      type gap = G;
 
       weighted_layout () = default;
       weighted_layout (const std::vector<weight_element>& list);

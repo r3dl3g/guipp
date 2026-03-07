@@ -49,10 +49,10 @@ namespace gui {
       typedef core::size::type type;
       typedef detail::origin_layout<H, R> super;
 
-      static constexpr unsigned dimension = D;
-      static constexpr unsigned border_width = B;
-      static constexpr unsigned gap = G;
-      static constexpr unsigned separatior_width = S;
+      type dimension = D;
+      type border_width = B;
+      type gap = G;
+      type separatior_width = S;
 
       lineup_layout () = default;
       lineup_layout (const std::vector<layout_function>& list);

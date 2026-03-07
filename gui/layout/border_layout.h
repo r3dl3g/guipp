@@ -66,10 +66,18 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI, type_t T>
       struct border_geometrie {
-        static left_width get_top (const core::rectangle&);
-        static left_width get_bottom (const core::rectangle&);
-        static top_height get_left (const core::rectangle&);
-        static top_height get_right (const core::rectangle&);
+
+        typedef core::size::type type;
+
+        type top = TO;
+        type bottom = BO;
+        type left = LE;
+        type right = RI;
+
+        left_width get_top (const core::rectangle&) const;
+        left_width get_bottom (const core::rectangle&) const;
+        top_height get_left (const core::rectangle&) const;
+        top_height get_right (const core::rectangle&) const;
       };
 
       // --------------------------------------------------------------------------
@@ -111,20 +119,27 @@ namespace gui {
       class layouter : public layout_base {
       public:
         typedef layout_base super;
-        typedef border_geometrie<TO, BO, LE, RI, T> geometrie;
+        typedef border_geometrie<TO, BO, LE, RI, T> geometrie_t;
+        typedef typename geometrie_t::type type;
 
-        static constexpr int top = TO;
-        static constexpr int bottom = BO;
-        static constexpr int left = LE;
-        static constexpr int right = RI;
-        static constexpr type_t type = T;
+        static constexpr type_t symetry_type = T;
+        
+        geometrie_t geometrie;
 
-        explicit layouter (win::container* = nullptr);
+        explicit layouter (type top_height = TO,
+                           type bottom_height = BO,
+                           type left_width = LE,
+                           type right_width = RI);
 
-        int get_top_height () const;
-        int get_bottom_height () const;
-        int get_left_width () const;
-        int get_right_width () const;
+        type get_top_height () const;
+        type get_bottom_height () const;
+        type get_left_width () const;
+        type get_right_width () const;
+
+        void set_top_height (type v);
+        void set_bottom_height (type v);
+        void set_left_width (type v);
+        void set_right_width (type v);
 
         core::rectangle get_center_geometry (const core::rectangle& r) const;
         core::rectangle get_top_geometry (const core::rectangle& r) const;
@@ -168,6 +183,12 @@ namespace gui {
       template<int TO = 0, int BO = 0, int LE = 0, int RI = 0>
       class center_layout {
       public:
+
+        int top = TO;
+        int bottom = BO;
+        int left = LE;
+        int right = RI;
+
         center_layout ()
         {}
 
@@ -185,7 +206,7 @@ namespace gui {
 
         void layout (const gui::core::rectangle& r) {
           if (center) {
-            center(r.shrinked(TO, BO, LE, RI));
+            center(r.shrinked(top, bottom, left, right));
           }
         }
 

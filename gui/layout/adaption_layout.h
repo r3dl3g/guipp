@@ -37,18 +37,24 @@ namespace gui {
      * Linup all added elements with the same adapted width and hight
      * to fill up the available space
      * ----------------------------------------------------------------------- */
-    template<orientation_t H,     /// Orientation vertical or horizontal
-             unsigned border = 0, /// Border on all sides around the elements
-             unsigned gap = 0,    /// Gap between the elements
-             unsigned sep = 2,    /// Size of separator
-             unsigned min = 0,    /// Minimum size of an element
-             unsigned max = std::numeric_limits<unsigned>::max(), /// Maximum size of an element
-             origin_t R = origin_t::start /// origin where the elements begin to line up
+    template<orientation_t H,   /// Orientation vertical or horizontal
+             unsigned B = 0,    /// Border on all sides around the elements
+             unsigned G = 0,    /// Gap between the elements
+             unsigned S = 2,    /// Size of separator
+             unsigned I = 0,    /// Minimum size of an element
+             unsigned A = std::numeric_limits<unsigned>::max(), /// Maximum size of an element
+             origin_t O = origin_t::start /// origin where the elements begin to line up
              >
-    class adaption_layout : public detail::origin_layout<H, R> {
+    class adaption_layout : public detail::origin_layout<H, O> {
     public:
       typedef core::size::type type;
-      typedef detail::origin_layout<H, R> super;
+      typedef detail::origin_layout<H, O> super;
+
+      unsigned border = B; /// Border on all sides around the elements
+      unsigned gap = G;    /// Gap between the elements
+      unsigned sep = S;    /// Size of separator
+      unsigned min = I;    /// Minimum size of an element
+      unsigned max = A; /// Maximum size of an element
 
       adaption_layout () = default;
       adaption_layout (const std::vector<layout_function>& list);

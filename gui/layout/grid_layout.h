@@ -47,10 +47,10 @@ namespace gui {
       typedef core::size::type type;
       typedef layout_base super;
 
-      static constexpr unsigned width = W;
-      static constexpr unsigned height = H;
-      static constexpr unsigned border = B;
-      static constexpr unsigned gap = G;
+      type width = W;
+      type height = H;
+      type border = B;
+      type gap = G;
 
       grid_lineup () = default;
       grid_lineup (const std::vector<layout_function>& list);
@@ -83,11 +83,11 @@ namespace gui {
       typedef core::size::type type;
       typedef layout_base super;
 
-      static constexpr unsigned width = W;
-      static constexpr unsigned height = H;
-      static constexpr unsigned columns = C;
-      static constexpr unsigned border = B;
-      static constexpr unsigned gap = G;
+      type width = W;
+      type height = H;
+      type columns = C;
+      type border = B;
+      type gap = G;
 
       fixed_grid_lineup () = default;
       fixed_grid_lineup (const std::vector<layout_function>& list);
@@ -119,10 +119,10 @@ namespace gui {
       typedef core::size::type type;
       typedef layout_base super;
 
-      static constexpr unsigned columns = C;
-      static constexpr unsigned rows = R;
-      static constexpr unsigned border = B;
-      static constexpr unsigned gap = G;
+      type columns = C;
+      type rows = R;
+      type border = B;
+      type gap = G;
 
       grid_adaption () = default;
       grid_adaption (const std::vector<layout_function>& list);

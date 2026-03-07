@@ -29,20 +29,28 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI>
       struct border_geometrie<TO, BO, LE, RI, type_t::all_symmetric> {
-        static left_width get_top (const core::rectangle& r) {
-          return {r.x() + LE, r.width() - (RI + LE)};
+
+        typedef core::size::type type;
+
+        type top = TO;
+        type bottom = BO;
+        type left = LE;
+        type right = RI;
+
+        left_width get_top (const core::rectangle& r) const {
+          return {r.x() + left, r.width() - (right + left)};
         }
 
-        static left_width get_bottom (const core::rectangle& r) {
-          return {r.x() + LE, r.width() - (RI + LE)};
+        left_width get_bottom (const core::rectangle& r) const {
+          return {r.x() + left, r.width() - (right + left)};
         }
 
-        static top_height get_left (const core::rectangle& r) {
-          return {r.y() + TO, r.height() - (BO + TO)};
+        top_height get_left (const core::rectangle& r) const {
+          return {r.y() + top, r.height() - (bottom + top)};
         }
 
-        static top_height get_right (const core::rectangle& r) {
-          return {r.y() + TO, r.height() - (BO + TO)};
+        top_height get_right (const core::rectangle& r) const {
+          return {r.y() + top, r.height() - (bottom + top)};
         }
       };
 
@@ -51,20 +59,28 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI>
       struct border_geometrie<TO, BO, LE, RI, type_t::top_bottom_maximize> {
-        static left_width get_top (const core::rectangle& r) {
+
+        typedef core::size::type type;
+
+        type top = TO;
+        type bottom = BO;
+        type left = LE;
+        type right = RI;
+
+        left_width get_top (const core::rectangle& r) const {
           return {r.x(), r.width()};
         }
 
-        static left_width get_bottom (const core::rectangle& r) {
+        left_width get_bottom (const core::rectangle& r) const {
           return {r.x(), r.width()};
         }
 
-        static top_height get_left (const core::rectangle& r) {
-          return {r.y() + TO, r.height() - (BO + TO)};
+        top_height get_left (const core::rectangle& r) const {
+          return {r.y() + top, r.height() - (bottom + top)};
         }
 
-        static top_height get_right (const core::rectangle& r) {
-          return {r.y() + TO, r.height() - (BO + TO)};
+        top_height get_right (const core::rectangle& r) const {
+          return {r.y() + top, r.height() - (bottom + top)};
         }
       };
 
@@ -73,19 +89,27 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI>
       struct border_geometrie<TO, BO, LE, RI, type_t::left_right_maximize> {
-        static left_width get_top (const core::rectangle& r) {
-          return {r.x() + LE, r.width() - (RI + LE)};
+
+        typedef core::size::type type;
+
+        type top = TO;
+        type bottom = BO;
+        type left = LE;
+        type right = RI;
+
+        left_width get_top (const core::rectangle& r) const {
+          return {r.x() + left, r.width() - (right + left)};
         }
 
-        static left_width get_bottom (const core::rectangle& r) {
-          return {r.x() + LE, r.width() - (RI + LE)};
+        left_width get_bottom (const core::rectangle& r) const {
+          return {r.x() + left, r.width() - (right + left)};
         }
 
-        static top_height get_left (const core::rectangle& r) {
+        top_height get_left (const core::rectangle& r) const {
           return {r.y(), r.height()};
         }
 
-        static top_height get_right (const core::rectangle& r) {
+        top_height get_right (const core::rectangle& r) const {
           return {r.y(), r.height()};
         }
       };
@@ -95,20 +119,28 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI>
       struct border_geometrie<TO, BO, LE, RI, type_t::bottom_max_top_min> {
-        static left_width get_top (const core::rectangle& r) {
-          return {r.x() + LE, r.width() - (RI + LE)};
+
+        typedef core::size::type type;
+
+        type top = TO;
+        type bottom = BO;
+        type left = LE;
+        type right = RI;
+
+        left_width get_top (const core::rectangle& r) const {
+          return {r.x() + left, r.width() - (right + left)};
         }
 
-        static left_width get_bottom (const core::rectangle& r) {
+        left_width get_bottom (const core::rectangle& r) const {
           return {r.x(), r.width()};
         }
 
-        static top_height get_left (const core::rectangle& r) {
-          return {r.y(), r.height() - BO};
+        top_height get_left (const core::rectangle& r) const {
+          return {r.y(), r.height() - bottom};
         }
 
-        static top_height get_right (const core::rectangle& r) {
-          return {r.y(), r.height() - BO};
+        top_height get_right (const core::rectangle& r) const {
+          return {r.y(), r.height() - bottom};
         }
       };
 
@@ -117,20 +149,28 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI>
       struct border_geometrie<TO, BO, LE, RI, type_t::top_max_bottom_min> {
-        static left_width get_top (const core::rectangle& r) {
+
+        typedef core::size::type type;
+
+        type top = TO;
+        type bottom = BO;
+        type left = LE;
+        type right = RI;
+
+        left_width get_top (const core::rectangle& r) const {
           return {r.x(), r.width()};
         }
 
-        static left_width get_bottom (const core::rectangle& r) {
-          return {r.x() + LE, r.width() - (RI + LE)};
+        left_width get_bottom (const core::rectangle& r) const {
+          return {r.x() + left, r.width() - (right + left)};
         }
 
-        static top_height get_left (const core::rectangle& r) {
-          return {r.y() + TO, r.height() - TO};
+        top_height get_left (const core::rectangle& r) const {
+          return {r.y() + top, r.height() - top};
         }
 
-        static top_height get_right (const core::rectangle& r) {
-          return {r.y() + TO, r.height() - TO};
+        top_height get_right (const core::rectangle& r) const {
+          return {r.y() + top, r.height() - top};
         }
       };
 
@@ -139,20 +179,28 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI>
       struct border_geometrie<TO, BO, LE, RI, type_t::left_max_right_min> {
-        static left_width get_top (const core::rectangle& r) {
-          return {r.x() + LE, r.width() - LE};
+
+        typedef core::size::type type;
+
+        type top = TO;
+        type bottom = BO;
+        type left = LE;
+        type right = RI;
+
+        left_width get_top (const core::rectangle& r) const {
+          return {r.x() + left, r.width() - left};
         }
 
-        static left_width get_bottom (const core::rectangle& r) {
-          return {r.x() + LE, r.width() - LE};
+        left_width get_bottom (const core::rectangle& r) const {
+          return {r.x() + left, r.width() - left};
         }
 
-        static top_height get_left (const core::rectangle& r) {
+        top_height get_left (const core::rectangle& r) const {
           return {r.y(), r.height()};
         }
 
-        static top_height get_right (const core::rectangle& r) {
-          return {r.y() + TO, r.height() - (BO + TO)};
+        top_height get_right (const core::rectangle& r) const {
+          return {r.y() + top, r.height() - (bottom + top)};
         }
       };
 
@@ -161,19 +209,27 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI>
       struct border_geometrie<TO, BO, LE, RI, type_t::right_max_left_min> {
-        static left_width get_top (const core::rectangle& r) {
-          return {r.x(), r.width() - RI};
+
+        typedef core::size::type type;
+
+        type top = TO;
+        type bottom = BO;
+        type left = LE;
+        type right = RI;
+
+        left_width get_top (const core::rectangle& r) const {
+          return {r.x(), r.width() - right};
         }
 
-        static left_width get_bottom (const core::rectangle& r) {
-          return {r.x(), r.width() - RI};
+        left_width get_bottom (const core::rectangle& r) const {
+          return {r.x(), r.width() - right};
         }
 
-        static top_height get_left (const core::rectangle& r) {
-          return {r.y() + TO, r.height() - (BO + TO)};
+        top_height get_left (const core::rectangle& r) const {
+          return {r.y() + top, r.height() - (bottom + top)};
         }
 
-        static top_height get_right (const core::rectangle& r) {
+        top_height get_right (const core::rectangle& r) const {
           return {r.y(), r.height()};
         }
       };
@@ -183,20 +239,28 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI>
       struct border_geometrie<TO, BO, LE, RI, type_t::top_left_maximize> {
-        static left_width get_top (const core::rectangle& r) {
-          return {r.x() + LE, r.width() - LE};
+
+        typedef core::size::type type;
+
+        type top = TO;
+        type bottom = BO;
+        type left = LE;
+        type right = RI;
+
+        left_width get_top (const core::rectangle& r) const {
+          return {r.x() + left, r.width() - left};
         }
 
-        static left_width get_bottom (const core::rectangle& r) {
-          return {r.x() + LE, r.width() - (LE + RI)};
+        left_width get_bottom (const core::rectangle& r) const {
+          return {r.x() + left, r.width() - (left + right)};
         }
 
-        static top_height get_left (const core::rectangle& r) {
-          return {r.y() + TO, r.height() - TO};
+        top_height get_left (const core::rectangle& r) const {
+          return {r.y() + top, r.height() - top};
         }
 
-        static top_height get_right (const core::rectangle& r) {
-          return {r.y() + TO, r.height() - (TO + BO)};
+        top_height get_right (const core::rectangle& r) const {
+          return {r.y() + top, r.height() - (top + bottom)};
         }
       };
 
@@ -205,69 +269,79 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI>
       struct border_geometrie<TO, BO, LE, RI, type_t::bottom_right_maximize> {
-        static left_width get_top (const core::rectangle& r) {
-          return {r.x() + LE, r.width() - (LE + RI)};
+
+        typedef core::size::type type;
+
+        type top = TO;
+        type bottom = BO;
+        type left = LE;
+        type right = RI;
+
+        left_width get_top (const core::rectangle& r) const {
+          return {r.x() + left, r.width() - (left + right)};
         }
 
-        static left_width get_bottom (const core::rectangle& r) {
-          return {r.x(), r.width() - RI};
+        left_width get_bottom (const core::rectangle& r) const {
+          return {r.x(), r.width() - right};
         }
 
-        static top_height get_left (const core::rectangle& r) {
-          return {r.y() + TO, r.height() - (TO + BO)};
+        top_height get_left (const core::rectangle& r) const {
+          return {r.y() + top, r.height() - (top + bottom)};
         }
 
-        static top_height get_right (const core::rectangle& r) {
-          return {r.y(), r.height() - BO};
+        top_height get_right (const core::rectangle& r) const {
+          return {r.y(), r.height() - bottom};
         }
       };
 
       // --------------------------------------------------------------------------
-      inline const layout_function& layout_base::get_center() const {
+      inline const layout_function& layout_base::get_center () const {
         return data.center;
       }
 
-      inline const layout_function& layout_base::get_top() const {
+      inline const layout_function& layout_base::get_top () const {
         return data.top;
       }
 
-      inline const layout_function& layout_base::get_bottom() const {
+      inline const layout_function& layout_base::get_bottom () const {
         return data.bottom;
       }
 
-      inline const layout_function& layout_base::get_left() const {
+      inline const layout_function& layout_base::get_left () const {
         return data.left;
       }
 
-      inline const layout_function& layout_base::get_right() const {
+      inline const layout_function& layout_base::get_right () const {
         return data.right;
       }
 
-      inline void layout_base::set_center(const layout_function& center) {
+      inline void layout_base::set_center (const layout_function& center) {
         data.center = center;
       }
 
-      inline void layout_base::set_top(const layout_function& top) {
+      inline void layout_base::set_top (const layout_function& top) {
         data.top = top;
       }
 
-      inline void layout_base::set_bottom(const layout_function& bottom) {
+      inline void layout_base::set_bottom (const layout_function& bottom) {
         data.bottom = bottom;
       }
 
-      inline void layout_base::set_left(const layout_function& left) {
+      inline void layout_base::set_left (const layout_function& left) {
         data.left = left;
       }
 
-      inline void layout_base::set_right(const layout_function& right) {
+      inline void layout_base::set_right (const layout_function& right) {
         data.right = right;
       }
 
-      inline void layout_base::set_center_top_bottom_left_right(const layout_function& center,
+      inline void layout_base::set_center_top_bottom_left_right (
+        const layout_function& center,
         const layout_function& top,
         const layout_function& bottom,
         const layout_function& left,
-        const layout_function& right) {
+        const layout_function& right
+      ) {
         data.center = center;
         data.top = top;
         data.bottom = bottom;
@@ -275,7 +349,7 @@ namespace gui {
         data.right = right;
       }
 
-      inline void layout_base::add(const std::vector<std::reference_wrapper<win::window>>& list) {
+      inline void layout_base::add (const std::vector<std::reference_wrapper<win::window>>& list) {
         if (list.size() > 0) {
           data.center = lay(list[0].get());
           if (list.size() > 1) {
@@ -295,56 +369,81 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<int TO, int BO, int LE, int RI, type_t T>
-      layouter<TO, BO, LE, RI, T>::layouter (win::container*)
+      layouter<TO, BO, LE, RI, T>::layouter (type top_height,
+                                             type bottom_height,
+                                             type left_width,
+                                             type right_width)
+        : geometrie{top_height, bottom_height, left_width, right_width}
       {}
 
       template<int TO, int BO, int LE, int RI, type_t T>
-      inline int layouter<TO, BO, LE, RI, T>::get_top_height () const {
-        return TO;
+      inline auto layouter<TO, BO, LE, RI, T>::get_top_height () const -> type {
+        return geometrie.top;
       }
 
       template<int TO, int BO, int LE, int RI, type_t T>
-      inline int layouter<TO, BO, LE, RI, T>::get_bottom_height () const {
-        return BO;
+      inline auto layouter<TO, BO, LE, RI, T>::get_bottom_height () const -> type {
+        return geometrie.bottom;
       }
 
       template<int TO, int BO, int LE, int RI, type_t T>
-      inline int layouter<TO, BO, LE, RI, T>::get_left_width () const {
-        return LE;
+      inline auto layouter<TO, BO, LE, RI, T>::get_left_width () const -> type {
+        return geometrie.left;
       }
 
       template<int TO, int BO, int LE, int RI, type_t T>
-      inline int layouter<TO, BO, LE, RI, T>::get_right_width () const {
-        return RI;
+      inline auto layouter<TO, BO, LE, RI, T>::get_right_width () const -> type {
+        return geometrie.right;
       }
+
+      template<int TO, int BO, int LE, int RI, type_t T>
+      inline void layouter<TO, BO, LE, RI, T>::set_top_height (type v) {
+        geometrie.top = v;
+      }
+      template<int TO, int BO, int LE, int RI, type_t T>
+      inline void layouter<TO, BO, LE, RI, T>::set_bottom_height (type v) {
+        geometrie.bottom = v;
+      }
+
+      template<int TO, int BO, int LE, int RI, type_t T>
+      inline void layouter<TO, BO, LE, RI, T>::set_left_width (type v) {
+        geometrie.left = v;
+      }
+
+      template<int TO, int BO, int LE, int RI, type_t T>
+      inline void layouter<TO, BO, LE, RI, T>::set_right_width (type v) {
+        geometrie.right = v;
+      }
+
+
 
       template<int TO, int BO, int LE, int RI, type_t T>
       inline core::rectangle layouter<TO, BO, LE, RI, T>::get_center_geometry (const core::rectangle& r) const {
-        return r.shrinked(TO, BO, LE, RI);
+        return r.shrinked(get_top_height(), BO, get_left_width(), get_right_width());
       }
 
       template<int TO, int BO, int LE, int RI, type_t T>
       inline core::rectangle layouter<TO, BO, LE, RI, T>::get_top_geometry (const core::rectangle& r) const {
-        const left_width pt = geometrie::get_top(r);
-        return core::rectangle(pt.left, r.y(), pt.width, TO);
+        const left_width pt = geometrie.get_top(r);
+        return core::rectangle(pt.left, r.y(), pt.width, get_top_height());
       }
 
       template<int TO, int BO, int LE, int RI, type_t T>
       inline core::rectangle layouter<TO, BO, LE, RI, T>::get_bottom_geometry (const core::rectangle& r) const {
-        const left_width pt = geometrie::get_bottom(r);
-        return core::rectangle(pt.left, r.y2() - BO, pt.width, BO);
+        const left_width pt = geometrie.get_bottom(r);
+        return core::rectangle(pt.left, r.y2() - get_bottom_height(), pt.width, get_bottom_height());
       }
 
       template<int TO, int BO, int LE, int RI, type_t T>
       inline core::rectangle layouter<TO, BO, LE, RI, T>::get_left_geometry (const core::rectangle& r) const {
-        const top_height pt = geometrie::get_left(r);
-        return core::rectangle(r.x(), pt.top, LE, pt.height);
+        const top_height pt = geometrie.get_left(r);
+        return core::rectangle(r.x(), pt.top, get_left_width(), pt.height);
       }
 
       template<int TO, int BO, int LE, int RI, type_t T>
       inline core::rectangle layouter<TO, BO, LE, RI, T>::get_right_geometry (const core::rectangle& r) const {
-        const top_height pt = geometrie::get_right(r);
-        return core::rectangle(r.x2() - RI, pt.top, RI, pt.height);
+        const top_height pt = geometrie.get_right(r);
+        return core::rectangle(r.x2() - get_right_width(), pt.top, get_right_width(), pt.height);
       }
 
       template<int TO, int BO, int LE, int RI, type_t T>
@@ -417,16 +516,16 @@ namespace gui {
       void sym_layouter<TO, BO, LE, RI>::layout (const core::rectangle& r) {
         logging::trace() << "border::sym_layouter(" << r << ")";
         if (get_top_left()) {
-          get_top_left()(core::rectangle(r.x(), r.y(), LE, TO));
+          get_top_left()(core::rectangle(r.x(), r.y(), super::get_left_width(), super::get_top_height()));
         }
         if (get_top_right()) {
-          get_top_right()(core::rectangle(r.x2() - RI, r.y(), RI, TO));
+          get_top_right()(core::rectangle(r.x2() - super::get_right_width(), r.y(), super::get_right_width(), super::get_top_height()));
         }
         if (get_bottom_left()) {
-          get_bottom_left()(core::rectangle(r.x(), r.y2() - BO, LE, BO));
+          get_bottom_left()(core::rectangle(r.x(), r.y2() - super::get_bottom_height(), super::get_left_width(), super::get_bottom_height()));
         }
         if (get_bottom_right()) {
-          get_bottom_right()(core::rectangle(r.x2() - RI, r.y2() - BO, RI, BO));
+          get_bottom_right()(core::rectangle(r.x2() - super::get_right_width(), r.y2() - super::get_bottom_height(), super::get_right_width(), super::get_bottom_height()));
         }
         super::layout(r);
       }

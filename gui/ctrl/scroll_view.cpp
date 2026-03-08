@@ -192,7 +192,7 @@ namespace gui {
       }
     }
 
-    void scroll_view::layout (const core::rectangle& new_size) const {
+    void scroll_view::layout (const core::rectangle& new_size) {
       if (main) {
         std::vector<win::window*> children = main->get_children();
         core::rectangle required = get_client_area(new_size);
@@ -205,6 +205,7 @@ namespace gui {
         }
 
         super::layout(new_size, required);
+        set_last_scroll_pos({hscroll->get_value(), vscroll->get_value()});
 
         for (win::window* win : children) {
           if ((win != vscroll) && (win != hscroll) && (win != edge)) {
@@ -219,18 +220,25 @@ namespace gui {
       in_scroll_event = b;
     }
 
-    void scroll_view::handle_child_move (const core::point&) const {
+    void scroll_view::handle_child_move (const core::point&) {
       if (!in_scroll_event && main) {
         layout(main->client_geometry());
       }
     }
 
-    void scroll_view::handle_child_size (const core::size&) const {
+    void scroll_view::handle_child_size (const core::size&) {
       if (main) {
         layout(main->client_geometry());
       }
     }
 
+    void scroll_view::set_last_scroll_pos (const core::point& pt) {
+      last_scroll_pos = pt;
+    }
+
+    core::point scroll_view::get_last_scroll_pos () const {
+      return last_scroll_pos;
+    }
     // --------------------------------------------------------------------------
 
   } // layout
@@ -243,11 +251,11 @@ namespace gui {
       get_layout().init(&vscroll, &hscroll, &edge);
 
       vscroll.on_scroll([&](core::point::type y) {
-        move_children(0, y - current_pos.y());
+        move_children(0, y - get_layout().get_last_scroll_pos().y());
       });
 
       hscroll.on_scroll([&](core::point::type x) {
-        move_children(x - current_pos.x(), 0);
+        move_children(x - get_layout().get_last_scroll_pos().x(), 0);
       });
     }
 
@@ -263,7 +271,7 @@ namespace gui {
           win->position(win->position() - delta);
         }
       }
-      current_pos = current_pos + delta;
+      get_layout().set_last_scroll_pos(get_layout().get_last_scroll_pos() + delta);
       get_layout().set_in_scroll_event(false);
       invalidate();
     }
@@ -271,7 +279,7 @@ namespace gui {
     void scroll_view_base::set_scroll_pos (const core::point& pt) {
       hscroll.set_value(pt.x());
       vscroll.set_value(pt.y());
-      current_pos = pt;
+      get_layout().set_last_scroll_pos(pt);
     }
 
     core::point scroll_view_base::get_scroll_pos () const {

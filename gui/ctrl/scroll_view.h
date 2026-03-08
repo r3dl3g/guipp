@@ -63,7 +63,7 @@ namespace gui {
       scroll_view (const scroll_view&);
       scroll_view (scroll_view&&) noexcept ;
 
-      void layout (const core::rectangle& new_size) const;
+      void layout (const core::rectangle& new_size);
 
       void set_in_scroll_event (bool);
       bool is_in_scroll_event () const;
@@ -72,6 +72,10 @@ namespace gui {
       
       void add (const std::vector<std::reference_wrapper<win::window>>&);
 
+      void set_last_scroll_pos (const core::point& pt);
+      core::point get_last_scroll_pos () const;
+
+
     private:
       const win::move_event::function me;
       const win::size_event::function se;
@@ -79,8 +83,10 @@ namespace gui {
       win::container* main;
       bool in_scroll_event;
 
-      void handle_child_move (const core::point&) const;
-      void handle_child_size (const core::size&) const;
+      core::point last_scroll_pos;
+
+      void handle_child_move (const core::point&);
+      void handle_child_size (const core::size&);
     };
 
     // --------------------------------------------------------------------------
@@ -114,7 +120,6 @@ namespace gui {
       window& get_edge ();
 
     private:
-      core::point           current_pos;
       vertical_scroll_bar   vscroll;
       horizontal_scroll_bar hscroll;
       client_control        edge;

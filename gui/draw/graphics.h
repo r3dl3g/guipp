@@ -161,7 +161,7 @@ namespace gui {
       const core::context& context () const;
       core::context& context ();
 
-      const core::rectangle& get_invalid_area () const;
+      const core::native_rect& get_invalid_area () const;
 
 #ifdef GUIPP_USE_XFT
       operator XftDraw* () const;
@@ -176,7 +176,7 @@ namespace gui {
       void destroy ();
 
       core::context* ctx;
-      const core::rectangle invalid_area;
+      const core::native_rect invalid_area;
       bool own_gctx;
     };
 

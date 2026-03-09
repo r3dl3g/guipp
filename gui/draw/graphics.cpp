@@ -91,13 +91,13 @@ namespace gui {
 
     graphics::graphics (core::context* ctx, const core::native_rect& r)
       : ctx(ctx)
-      , invalid_area(core::global::scale_from_native(r))
+      , invalid_area(r)
       , own_gctx(false)
     {}
 
     graphics::graphics (draw::basic_map& target)
       : ctx(0)
-      , invalid_area(target.scaled_size())
+      , invalid_area(target.native_size())
       , own_gctx(true)
     {
       ctx = new core::context(target);
@@ -691,7 +691,7 @@ namespace gui {
 #endif // GUIPP_QT
     // --------------------------------------------------------------------------
 
-    const core::rectangle& graphics::get_invalid_area () const {
+    const core::native_rect& graphics::get_invalid_area () const {
       return invalid_area;
     }
 

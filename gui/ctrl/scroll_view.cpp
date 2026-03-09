@@ -204,11 +204,19 @@ namespace gui {
           }
         }
 
+        core::size delta{
+          required.x() < 0 ? std::max(new_size.width() - required.x2(), core::size::type(0)) : 0,
+          required.y() < 0 ? std::max(new_size.height() - required.y2(), core::size::type(0)) : 0
+        };
+
+        required.move(delta);
+
         super::layout(new_size, required);
         set_last_scroll_pos({hscroll->get_value(), vscroll->get_value()});
 
         for (win::window* win : children) {
           if ((win != vscroll) && (win != hscroll) && (win != edge)) {
+            win->position(win->position() + delta);
             win->on<win::move_event>(me);
             win->on<win::size_event>(se);
           }

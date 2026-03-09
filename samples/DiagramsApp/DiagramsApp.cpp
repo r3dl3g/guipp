@@ -483,8 +483,7 @@ void draw_graph_12 (graphics& graph, const core::rectangle& area) {
 // --------------------------------------------------------------------------
 typedef void (draw_fnkt) (graphics&, const core::rectangle&);
 // --------------------------------------------------------------------------
-void if_overlap (draw_fnkt fn, graphics& graph, const core::rectangle& area) {
-  const core::rectangle& invalid = graph.get_invalid_area();
+void if_overlap (draw_fnkt fn, graphics& graph, const core::rectangle& area, const core::rectangle& invalid) {
   if (invalid.overlap(area)) {
     fn(graph, area);
   }
@@ -510,19 +509,21 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     auto area = main.client_geometry();
     logging::trace() << "Draw graphs in area:" << area;
 
+    core::rectangle invalid = main.surface_to_client(graph.get_invalid_area());
+
     core::grid<4, 3> g(area);
-    if_overlap(draw_graph_1, graph, g(0, 0));
-    if_overlap(draw_graph_2, graph, g(1, 0));
-    if_overlap(draw_graph_5, graph, g(1, 1));
-    if_overlap(draw_graph_6, graph, g(2, 1));
-    if_overlap(draw_graph_7, graph, g(0, 2));
-    if_overlap(draw_graph_8, graph, g(1, 2));
-    if_overlap(draw_graph_9, graph, g(2, 2));
-    if_overlap(draw_graph_4, graph, g(0, 1));
-    if_overlap(draw_graph_3, graph, g(2, 0));
-    if_overlap(draw_graph_10, graph, g(3, 0));
-    if_overlap(draw_graph_11, graph, g(3, 1));
-    if_overlap(draw_graph_12, graph, g(3, 2));
+    if_overlap(draw_graph_1, graph, g(0, 0), invalid);
+    if_overlap(draw_graph_2, graph, g(1, 0), invalid);
+    if_overlap(draw_graph_5, graph, g(1, 1), invalid);
+    if_overlap(draw_graph_6, graph, g(2, 1), invalid);
+    if_overlap(draw_graph_7, graph, g(0, 2), invalid);
+    if_overlap(draw_graph_8, graph, g(1, 2), invalid);
+    if_overlap(draw_graph_9, graph, g(2, 2), invalid);
+    if_overlap(draw_graph_4, graph, g(0, 1), invalid);
+    if_overlap(draw_graph_3, graph, g(2, 0), invalid);
+    if_overlap(draw_graph_10, graph, g(3, 0), invalid);
+    if_overlap(draw_graph_11, graph, g(3, 1), invalid);
+    if_overlap(draw_graph_12, graph, g(3, 2), invalid);
 
     logging::trace() << "on_paint finished";
   }));

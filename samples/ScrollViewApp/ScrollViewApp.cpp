@@ -23,7 +23,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::core;
 
   layout_main_window<border::layouter<50, 50, 50, 50>> main;
-  ctrl::scroll_view<color::very_light_gray> scroll_view;
+  ctrl::scroll_view<color::light_gray> scroll_view;
   ctrl::client_control window1(color::very_very_light_gray);
   ctrl::client_control window2(color::gray);
   ctrl::client_control bottom(color::white);

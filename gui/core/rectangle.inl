@@ -408,15 +408,15 @@ namespace gui {
 
     template<typename T, typename S, coordinate_system C>
     inline auto basic_rectangle<T, S, C>::shrink (const size_type top, const size_type bottom, const size_type left, const size_type right) -> self& {
-      pos += {left,  top};
-      sz -= {(left + right), (top + bottom)};
+      pos += size_t{left,  top};
+      sz -= size_t{(left + right), (top + bottom)};
       return *this;
     }
 
     template<typename T, typename S, coordinate_system C>
     inline auto basic_rectangle<T, S, C>::grow (const size_type top, const size_type bottom, const size_type left, const size_type right) -> self& {
-      pos -= {left,  top};
-      sz += {(left + right), (top + bottom)};
+      pos -= size_t{left,  top};
+      sz += size_t{(left + right), (top + bottom)};
       return *this;
     }
 

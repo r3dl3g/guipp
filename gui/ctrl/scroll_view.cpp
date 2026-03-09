@@ -103,7 +103,7 @@ namespace gui {
 
 //        logging::debug() << *vscroll << " Y:{ min:" << ymin << ", pos:" << ypos << ", max:" << ymax << ", step:" << ypage << " }";
 
-        vscroll->set_min_max_page(ymin, ymax, ypage);
+        vscroll->set_min_max_page_value(ymin, ymax, ypage, 0);
       } else if (vscroll) {
         vscroll->set_min_max(0, 0);
       }
@@ -116,7 +116,7 @@ namespace gui {
 
 //        logging::debug() << *vscroll << " X:{ min:" << xmin << ", pos:" << xpos << ", max:" << xmax << ", step:" << xpage << " }";
 
-        hscroll->set_min_max_page(xmin, xmax, xpage);
+        hscroll->set_min_max_page_value(xmin, xmax, xpage, 0);
       } else if (hscroll) {
         hscroll->set_min_max(0, 0);
       }
@@ -195,21 +195,36 @@ namespace gui {
     void scroll_view::layout (const core::rectangle& new_size) {
       if (main) {
         std::vector<win::window*> children = main->get_children();
-        core::rectangle required = get_client_area(new_size);
+        core::rectangle client = new_size;
+        client.shrink(0, hscroll->is_visible() ? ctrl::scroll_bar::get_scroll_bar_width() : 0,
+                      0, vscroll->is_visible() ? ctrl::scroll_bar::get_scroll_bar_width() : 0);
+
+        core::rectangle required;
         for (win::window* win : children) {
           if ((win != vscroll) && (win != hscroll) && (win != edge)) {
-            required |= win->geometry();
+            if (required.empty()) {
+              required = win->geometry();
+            } else {
+              required |= win->geometry();
+            }
             win->unregister_event_handler<win::move_event>(me);
             win->unregister_event_handler<win::size_event>(se);
           }
         }
 
-        core::size delta{
-          required.x() < 0 ? std::max(new_size.width() - required.x2(), core::size::type(0)) : 0,
-          required.y() < 0 ? std::max(new_size.height() - required.y2(), core::size::type(0)) : 0
+        core::size delta;
+        if ((required.x() < 0) && (required.x2() < client.x2())) {
+          delta.width(std::min(client.x2() - required.x2(), -required.x()));
+        }
+        if ((required.y() < 0) && (required.y2() < client.y2())) {
+          delta.height(std::min(client.y2() - required.y2(), -required.y()));
         };
 
+        // logging::debug() << "client:" << client << ", required:" << required << ", delta:" << delta;
+
         required.move(delta);
+
+        // logging::debug() << "new required:" << required;
 
         super::layout(new_size, required);
         set_last_scroll_pos({hscroll->get_value(), vscroll->get_value()});

@@ -117,6 +117,7 @@ namespace gui {
 
       core::native_point client_to_surface (const core::point&) const;
       core::point surface_to_client (const core::native_point&) const;
+      core::rectangle surface_to_client (const core::native_rect& r) const;
 
       const char* get_class_name () const;
       const class_info& get_window_class () const;

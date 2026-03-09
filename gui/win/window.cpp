@@ -470,6 +470,10 @@ namespace gui {
       return core::global::scale_from_native(pt - surface_position());
     }
 
+    core::rectangle window::surface_to_client (const core::native_rect& r) const {
+      return {surface_to_client(r.position()), core::global::scale_from_native(r.size())};
+    }
+
     void window::move_native (const core::point&) {}
     void window::resize_native (const core::size&) {}
     void window::geometry_native (const core::rectangle&) {}

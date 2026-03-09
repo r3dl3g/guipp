@@ -202,6 +202,16 @@ namespace gui {
         s_invalidated_windows.erase(id);
       }
 
+      void draw_invalidated_windows () {
+        for (auto& w : s_invalidated_windows) {
+          win::overlapped_window* win = detail::get_window(w.first);
+          if (win && win->is_visible()) {
+            win->redraw(w.second);
+          }
+        }
+        s_invalidated_windows.clear();
+      }
+
       core::native_rect get_expose_rect (core::event& e) {
         return get<core::native_rect, XExposeEvent>::param(e);
       }
@@ -789,13 +799,7 @@ namespace gui {
           wait_for_event(fd);
         }
 
-        for (auto& w : x11::s_invalidated_windows) {
-          win::overlapped_window* win = detail::get_window(w.first);
-          if (win && win->is_visible()) {
-            win->redraw(w.second);
-          }
-        }
-        x11::s_invalidated_windows.clear();
+        x11::draw_invalidated_windows();
 
         XFlush(display);
 

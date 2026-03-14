@@ -676,14 +676,52 @@ namespace gui {
         x11::set_wm_protocols(display, id);
       }
 
+      typedef struct {
+        unsigned long flags;
+        unsigned long functions;
+        unsigned long decorations;
+        long input_mode;
+        unsigned long status;
+      } MotifWmHints;
+
+/* Motif Window Manager Hints */
+#define MWM_HINTS_FUNCTIONS     (1L << 0)
+#define MWM_HINTS_DECORATIONS   (1L << 1)
+#define MWM_HINTS_INPUT_MODE    (1L << 2)
+#define MWM_HINTS_STATUS        (1L << 3)
+
+/* MWM Function Flags */
+#define MWM_FUNC_ALL            (1L << 0)
+#define MWM_FUNC_RESIZE         (1L << 1)
+#define MWM_FUNC_MOVE           (1L << 2)
+#define MWM_FUNC_MINIMIZE       (1L << 3)
+#define MWM_FUNC_MAXIMIZE       (1L << 4)
+#define MWM_FUNC_CLOSE          (1L << 5)
+
+/* MWM Decoration Flags */
+#define MWM_DECOR_ALL           (1L << 0)
+#define MWM_DECOR_BORDER        (1L << 1)
+#define MWM_DECOR_RESIZEH       (1L << 2)
+#define MWM_DECOR_TITLE         (1L << 3)
+#define MWM_DECOR_MENU          (1L << 4)
+#define MWM_DECOR_MINIMIZE      (1L << 5)
+#define MWM_DECOR_MAXIMIZE      (1L << 6)
+
       void prepare_palette_window (os::window id) {
         gui::os::instance display = core::global::get_instance();
 
         x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_UTILITY");
 
-        XSetWindowAttributes swa;
-        swa.override_redirect = 1;
-        XChangeWindowAttributes(display, id, CWOverrideRedirect, &swa);
+        Atom motif_hints_atom = XInternAtom(display, "_MOTIF_WM_HINTS", False);
+        MotifWmHints hints;
+        memset(&hints, 0, sizeof(hints));
+
+        hints.flags = MWM_HINTS_DECORATIONS | MWM_HINTS_FUNCTIONS;
+        hints.decorations = MWM_DECOR_TITLE | MWM_DECOR_BORDER;
+        hints.functions = MWM_FUNC_MOVE | MWM_FUNC_RESIZE;
+
+        XChangeProperty(display, id, motif_hints_atom, XA_ATOM, 32, PropModeReplace, 
+                        reinterpret_cast<unsigned char*>(&hints), 5);
       }
 
       void erase (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {

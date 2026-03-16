@@ -29,9 +29,10 @@ namespace gui {
 
   namespace ctrl {
 
-    enum class menu_state : bool {
+    enum class menu_state : int8_t {
       disabled,
-      enabled
+      enabled,
+      checked
     };
 
     typedef void (menu_action)();
@@ -72,11 +73,13 @@ namespace gui {
       bool is_sub_menu () const;
       bool is_disabled () const;
       bool is_enabled () const;
+      bool is_checked () const;
       bool has_separator () const;
 
       void set_label (const core::text_source& l);
       void set_icon (const icon_type& i);
       void set_enabled (bool d);
+      void set_checked (bool d);
       void set_width (core::size::type w);
 
       void select () const;

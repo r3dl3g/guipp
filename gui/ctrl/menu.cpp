@@ -681,7 +681,7 @@ namespace gui {
         look::menu_item(g, r, back_brush, pos.text, pos.hotkey,
                         i.get_label(), i.get_menu_key(), i.get_icon(),
                         i.get_hot_key(), i.is_sub_menu(), i.has_separator(),
-                        get_item_state(idx));
+                        i.is_checked(), get_item_state(idx));
         r.move_y(static_cast<core::size::type>(item_height));
       }
     }

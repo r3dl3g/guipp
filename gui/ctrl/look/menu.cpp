@@ -92,6 +92,7 @@ namespace gui {
                     const core::hot_key& hotkey,
                     bool is_sub_menu,
                     bool separator,
+                    bool is_checked,
                     ctrl::item_state state) {
       if (state.is_selected()) {
         if (separator) {
@@ -141,6 +142,12 @@ namespace gui {
         g.fill(draw::polygon({core::point(x, y - 4),
                               core::point(x, y + 4),
                               core::point(x + 4, y)}), color::black);
+      } else if (is_checked) {
+        core::point::type y = r.center_y();
+        core::point::type x = r.x() + 8;
+        g.draw_lines({core::point(x - 4, y),
+                      core::point(x - 2, y + 4),
+                      core::point(x + 4, y - 4)}, color::black);
       }
     }
 

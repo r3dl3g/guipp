@@ -58,7 +58,11 @@ namespace gui {
     }
 
     inline bool menu_entry::is_enabled () const {
-      return state == menu_state::enabled;
+      return state != menu_state::disabled;
+    }
+
+    inline bool menu_entry::is_checked () const {
+      return state == menu_state::checked;
     }
 
     inline void menu_entry::set_label (const core::text_source& l) {
@@ -71,6 +75,10 @@ namespace gui {
 
     inline void menu_entry::set_enabled (bool d) {
       state = d ? menu_state::enabled : menu_state::disabled;
+    }
+
+    inline void menu_entry::set_checked (bool d) {
+      state = d ? menu_state::checked : menu_state::enabled;
     }
 
     inline void menu_entry::set_width (core::size::type w) {

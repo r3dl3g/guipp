@@ -51,6 +51,7 @@ namespace gui {
                                       const core::hot_key& hotkey,
                                       bool is_sub_menu,
                                       bool separator,
+                                      bool is_checked,
                                       ctrl::item_state state);
 
     // --------------------------------------------------------------------------

@@ -36,7 +36,7 @@ namespace gui {
     void adaption_layout<H, B, G, S, I, A, O>::layout (const core::rectangle& r) const {
       logging::trace() << "adaption_layout::layout(" << r << ")";
       const auto& elements = super::get_elements();
-      const std::size_t count = elements.size();
+      const std::size_t count = super::visible_count();
       const std::size_t sep_count = super::separator_count();
       const type border2 = (border * 2);
       const type offset_dim1 = super::get_dimension1(r.top_left());
@@ -54,12 +54,14 @@ namespace gui {
                                                   super::make_size(dim1, dim2), r.size(),
                                                   gap, count, sep, sep_count);
           for (auto const& e : elements) {
-            if (e.is_separator()) {
-              e(super::get_sep_area(area, type(sep)));
-              super::move_area(area, sep_offset);
-            } else {
-              e(area);
-              super::move_area(area, offset);
+            if (e.is_visible()) {
+              if (e.is_separator()) {
+                e(super::get_sep_area(area, type(sep)));
+                super::move_area(area, sep_offset);
+              } else {
+                e(area);
+                super::move_area(area, offset);
+              }
             }
           }
         } else {

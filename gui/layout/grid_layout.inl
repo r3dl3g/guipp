@@ -32,21 +32,24 @@ namespace gui {
       logging::trace() << "grid_lineup::layout(" << r << ")";
 
       const auto& elements = super::get_elements();
+      const std::size_t count = super::visible_count();
       const type border2 = border * 2;
       const type xmax = r.width() - border2;
       const type ymax = r.height() - border2;
 
-      if (elements.size()) {
+      if (count) {
         if ((xmax > border) && (ymax > border)) {
           const type xoffset = width + gap;
           const type yoffset = height + gap;
           core::rectangle area(border + r.x(), border + r.y(), width, height);
           for (auto const& e : elements) {
-            e(area);
-            area.move_x(xoffset);
-            if (area.x2() > xmax) {
-              area.move_to_x(border + r.x());
-              area.move_y(yoffset);
+            if (e.is_visible()) {
+              e(area);
+              area.move_x(xoffset);
+              if (area.x2() > xmax) {
+                area.move_to_x(border + r.x());
+                area.move_y(yoffset);
+              }
             }
           }
         } else {
@@ -68,25 +71,28 @@ namespace gui {
       logging::trace() << "fixed_grid_lineup::layout(" << r << ")";
 
       const auto& elements = super::get_elements();
+      const std::size_t count = super::visible_count();
       const type border2 = border * 2;
       const type xmax = r.width() - border2;
       const type ymax = r.height() - border2;
 
-      if (elements.size()) {
+      if (count) {
         if ((xmax > border) && (ymax > border)) {
           const type xoffset = width + gap;
           const type yoffset = height + gap;
           core::rectangle area(border + r.x(), border + r.y(), width, height);
           int column = 0;
           for (auto const& e : elements) {
-            e(area);
-            column++;
-            if (column < columns) {
-              area.move_x(xoffset);
-            } else {
-              column = 0;
-              area.move_to_x(border + r.x());
-              area.move_y(yoffset);
+            if (e.is_visible()) {
+              e(area);
+              column++;
+              if (column < columns) {
+                area.move_x(xoffset);
+              } else {
+                column = 0;
+                area.move_to_x(border + r.x());
+                area.move_y(yoffset);
+              }
             }
           }
         } else {
@@ -107,11 +113,12 @@ namespace gui {
     void grid_adaption<C, R, B, G>::layout (const core::rectangle& r) const {
       logging::trace() << "grid_adaption::layout(" << r << ")";
       const auto& elements = super::get_elements();
+      const std::size_t count = super::visible_count();
       const type border2 = (border * 2);
       const type xspace = r.width() - border2;
       const type yspace = r.height() - border2;
 
-      if (elements.size()) {
+      if (count) {
         if ((xspace > 0) && (yspace > 0)) {
           const type width = (xspace - (gap * (columns - 1))) / columns;
           const type height = (yspace - (gap * (rows - 1))) / rows;
@@ -121,14 +128,16 @@ namespace gui {
           core::rectangle area(border + r.x(), border + r.y(), width, height);
           int column = 0;
           for (auto const& e : elements) {
-            e(area);
-            column++;
-            if (column < columns) {
-              area.move_x(xoffset);
-            } else {
-              column = 0;
-              area.move_to_x(border + r.x());
-              area.move_y(yoffset);
+            if (e.is_visible()) {
+              e(area);
+              column++;
+              if (column < columns) {
+                area.move_x(xoffset);
+              } else {
+                column = 0;
+                area.move_to_x(border + r.x());
+                area.move_y(yoffset);
+              }
             }
           }
         } else {

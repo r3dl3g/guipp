@@ -30,7 +30,7 @@ namespace gui {
     void lineup_layout<H, D, B, G, S, R>::layout (const core::rectangle& r) const {
       logging::trace() << "lineup_layout::layout(" << r << ")";
       const auto& elements = super::get_elements();
-      const std::size_t count = elements.size();
+      const std::size_t count = super::visible_count();
       const std::size_t sep_count = super::separator_count();
       const type border2 = (border_width * 2);
       const type offset_dim1 = super::get_dimension1(r.top_left());
@@ -47,12 +47,14 @@ namespace gui {
                                                   super::make_size(dimension, dim2), r.size(),
                                                   gap, count, separatior_width, sep_count);
           for (auto const& e : elements) {
-            if (e.is_separator()) {
-              e(super::get_sep_area(area, type(separatior_width)));
-              super::move_area(area, sep_offset);
-            } else {
-              e(area);
-              super::move_area(area, offset);
+            if (e.is_visible()) {
+              if (e.is_separator()) {
+                e(super::get_sep_area(area, type(separatior_width)));
+                super::move_area(area, sep_offset);
+              } else {
+                e(area);
+                super::move_area(area, offset);
+              }
             }
           }
         } else {

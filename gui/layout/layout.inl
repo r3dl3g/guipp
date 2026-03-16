@@ -32,13 +32,6 @@ namespace gui {
         : super(list)
       {}
 
-      template<orientation_t O>
-      inline std::size_t orientation_layout<O>::separator_count () const {
-        return std::count_if(elements.begin(), elements.end(), [] (const layout_element& l) {
-          return l.is_separator();
-        });
-      }
-
       // --------------------------------------------------------------------------
       template<>
       inline auto orientation_layout<orientation_t::horizontal>::get_dimension1 (const core::point& pt) -> type {

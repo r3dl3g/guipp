@@ -23,6 +23,8 @@
 #include <vector>
 #include <functional>
 #include <algorithm>
+#include <variant>
+
 
 // --------------------------------------------------------------------------
 //
@@ -47,8 +49,34 @@ namespace gui {
       void layout (const core::rectangle&);
     };
 
-    using layout_callback = void(const core::rectangle&);
-    using layout_function = std::function<layout_callback>;
+    struct GUIPP_LAYOUT_EXPORT layout_function {
+      using callback = void(const core::rectangle&);
+      using function = std::function<callback>;
+
+      layout_function ();
+      layout_function (win::window*, bool separator = false);
+      layout_function (function&&);
+      layout_function (function&);
+
+      void operator() (const core::rectangle&) const;
+      
+      operator bool() const;
+
+      bool is_visible () const;
+
+      bool is_separator () const;
+
+    private:
+      struct window {
+        window ();
+        window (win::window*, bool);
+
+        win::window* win;
+        bool is_separator;
+      };
+
+      std::variant<window, function> data;
+    };
 
     GUIPP_LAYOUT_EXPORT layout_function lay (win::window&);
     GUIPP_LAYOUT_EXPORT layout_function lay (win::window*);
@@ -62,72 +90,44 @@ namespace gui {
 
     template<typename T, typename std::enable_if<is_layout<T>::value>::type* = nullptr>
     layout_function lay (T& l) {
-      return [&l] (const core::rectangle& r) {
+      return layout_function([&l] (const core::rectangle& r) {
         l.layout(r);
-      };
+      });
     }
 
     template<typename T, typename std::enable_if<is_layout<T>::value>::type* = nullptr>
     layout_function lay (T&& l) {
-      return [l] (const core::rectangle& r) {
+      return layout_function([l] (const core::rectangle& r) {
         l.layout(r);
-      };
+      });
     }
 
     template<typename T, typename std::enable_if<is_layout<T>::value>::type* = nullptr>
     layout_function lay (T* l) {
-      return [l] (const core::rectangle& r) {
+      return layout_function([l] (const core::rectangle& r) {
         l->layout(r);
-      };
+      });
     }
-
-    // --------------------------------------------------------------------------
-    struct GUIPP_LAYOUT_EXPORT layout_element {
-      explicit layout_element (const layout_function& fkt, bool is_separator = false)
-        : fkt(fkt)
-        , separator(is_separator)
-      {}
-
-      explicit layout_element (layout_function&& fkt, bool is_separator = false)
-        : fkt(std::move(fkt))
-        , separator(is_separator)
-      {}
-
-      void operator() (const core::rectangle& r) const {
-        fkt(r);
-      }
-
-      operator bool () const {
-        return (bool)fkt;
-      }
-
-      bool is_separator () const {
-        return separator;
-      }
-
-    private:
-      layout_function fkt;
-      bool separator;
-    };
 
     // --------------------------------------------------------------------------
     class GUIPP_LAYOUT_EXPORT layout_base {
     public:
-      typedef std::vector<layout_element> element_list;
+      typedef std::vector<layout_function> element_list;
 
       layout_base () = default;
       layout_base (const std::vector<layout_function>& list);
 
       const element_list& get_elements () const;
+      std::size_t visible_count () const;
+      std::size_t separator_count () const;
 
-      void add (const layout_function& e, bool is_separator = false);
-      void add (layout_function&& e, bool is_separator = false);
+      void add (const layout_function& e);
+      void add (layout_function&& e);
 
-      void add (win::window&);
-      void add (win::window*);
+      void add (win::window&, bool is_separator = false);
+      void add (win::window*, bool is_separator = false);
 
       void add (std::vector<layout_function> list);
-      void add (std::vector<win::window*> list);
       void add (std::vector<std::reference_wrapper<win::window>> list);
 
       void remove_all ();
@@ -202,8 +202,6 @@ namespace gui {
         static core::size make_size (type dim1, type dim2);
         static core::rectangle get_sep_area (const core::rectangle& area, type s);
         static void move_area (core::rectangle& area, type offs);
-
-        std::size_t separator_count () const;
 
       };
 

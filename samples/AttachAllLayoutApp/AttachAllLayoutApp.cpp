@@ -53,9 +53,9 @@ struct drawing {
 
 template<typename T>
 gui::layout::layout_function any (T& t) {
-  return [&t] (const gui::core::rectangle& r) {
+  return gui::layout::layout_function([&t] (const gui::core::rectangle& r) {
     t.geometry(r);
-  };
+  });
 }
 
 // --------------------------------------------------------------------------

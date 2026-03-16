@@ -36,16 +36,16 @@ namespace gui {
     // --------------------------------------------------------------------------
     class split_layout_base {
     public:
-      void set_header_and_body (layout_function header, layout_function body) {
+      void set_header_and_body (layout_element header, layout_element body) {
         this->header = header;
         this->body = body;
       }
 
-      void set_header (layout_function header) {
+      void set_header (layout_element header) {
         this->header = header;
       }
 
-      void set_body (layout_function body) {
+      void set_body (layout_element body) {
         this->body = body;
       }
 
@@ -59,8 +59,8 @@ namespace gui {
       }
 
     protected:
-      layout_function header;
-      layout_function body;
+      layout_element header;
+      layout_element body;
     };
 
     // --------------------------------------------------------------------------

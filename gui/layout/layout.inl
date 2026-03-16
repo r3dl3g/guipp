@@ -28,7 +28,7 @@ namespace gui {
     namespace detail {
 
       template<orientation_t O>
-      inline orientation_layout<O>::orientation_layout (const std::vector<layout_function>& list)
+      inline orientation_layout<O>::orientation_layout (const std::vector<layout_element>& list)
         : super(list)
       {}
 
@@ -86,7 +86,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<orientation_t H, origin_t R>
-      inline origin_layout<H, R>::origin_layout (const std::vector<layout_function>& list)
+      inline origin_layout<H, R>::origin_layout (const std::vector<layout_element>& list)
         : super(list)
       {}
 

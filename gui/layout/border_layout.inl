@@ -295,52 +295,52 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      inline const layout_function& layout_base::get_center () const {
+      inline const layout_element& layout_base::get_center () const {
         return data.center;
       }
 
-      inline const layout_function& layout_base::get_top () const {
+      inline const layout_element& layout_base::get_top () const {
         return data.top;
       }
 
-      inline const layout_function& layout_base::get_bottom () const {
+      inline const layout_element& layout_base::get_bottom () const {
         return data.bottom;
       }
 
-      inline const layout_function& layout_base::get_left () const {
+      inline const layout_element& layout_base::get_left () const {
         return data.left;
       }
 
-      inline const layout_function& layout_base::get_right () const {
+      inline const layout_element& layout_base::get_right () const {
         return data.right;
       }
 
-      inline void layout_base::set_center (const layout_function& center) {
+      inline void layout_base::set_center (const layout_element& center) {
         data.center = center;
       }
 
-      inline void layout_base::set_top (const layout_function& top) {
+      inline void layout_base::set_top (const layout_element& top) {
         data.top = top;
       }
 
-      inline void layout_base::set_bottom (const layout_function& bottom) {
+      inline void layout_base::set_bottom (const layout_element& bottom) {
         data.bottom = bottom;
       }
 
-      inline void layout_base::set_left (const layout_function& left) {
+      inline void layout_base::set_left (const layout_element& left) {
         data.left = left;
       }
 
-      inline void layout_base::set_right (const layout_function& right) {
+      inline void layout_base::set_right (const layout_element& right) {
         data.right = right;
       }
 
       inline void layout_base::set_center_top_bottom_left_right (
-        const layout_function& center,
-        const layout_function& top,
-        const layout_function& bottom,
-        const layout_function& left,
-        const layout_function& right
+        const layout_element& center,
+        const layout_element& top,
+        const layout_element& bottom,
+        const layout_element& left,
+        const layout_element& right
       ) {
         data.center = center;
         data.top = top;
@@ -473,42 +473,42 @@ namespace gui {
       {}
 
       template<int TO, int BO, int LE, int RI>
-      inline const layout_function& sym_layouter<TO, BO, LE, RI>::get_top_left () const {
+      inline const layout_element& sym_layouter<TO, BO, LE, RI>::get_top_left () const {
         return data.top_left;
       }
 
       template<int TO, int BO, int LE, int RI>
-      inline const layout_function& sym_layouter<TO, BO, LE, RI>::get_top_right () const {
+      inline const layout_element& sym_layouter<TO, BO, LE, RI>::get_top_right () const {
         return data.top_right;
       }
 
       template<int TO, int BO, int LE, int RI>
-      inline const layout_function& sym_layouter<TO, BO, LE, RI>::get_bottom_left () const {
+      inline const layout_element& sym_layouter<TO, BO, LE, RI>::get_bottom_left () const {
         return data.bottom_left;
       }
 
       template<int TO, int BO, int LE, int RI>
-      inline const layout_function& sym_layouter<TO, BO, LE, RI>::get_bottom_right () const {
+      inline const layout_element& sym_layouter<TO, BO, LE, RI>::get_bottom_right () const {
         return data.bottom_right;
       }
 
       template<int TO, int BO, int LE, int RI>
-      inline void sym_layouter<TO, BO, LE, RI>::set_top_left (const layout_function& top_left) {
+      inline void sym_layouter<TO, BO, LE, RI>::set_top_left (const layout_element& top_left) {
         data.top_left = top_left;
       }
 
       template<int TO, int BO, int LE, int RI>
-      inline void sym_layouter<TO, BO, LE, RI>::set_top_right (const layout_function& top_right) {
+      inline void sym_layouter<TO, BO, LE, RI>::set_top_right (const layout_element& top_right) {
         data.top_right = top_right;
       }
 
       template<int TO, int BO, int LE, int RI>
-      inline void sym_layouter<TO, BO, LE, RI>::set_bottom_left (const layout_function& bottom_left) {
+      inline void sym_layouter<TO, BO, LE, RI>::set_bottom_left (const layout_element& bottom_left) {
         data.bottom_left = bottom_left;
       }
 
       template<int TO, int BO, int LE, int RI>
-      inline void sym_layouter<TO, BO, LE, RI>::set_bottom_right (const layout_function& bottom_right) {
+      inline void sym_layouter<TO, BO, LE, RI>::set_bottom_right (const layout_element& bottom_right) {
         data.bottom_right = bottom_right;
       }
 

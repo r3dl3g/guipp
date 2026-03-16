@@ -49,14 +49,14 @@ namespace gui {
       void layout (const core::rectangle&);
     };
 
-    struct GUIPP_LAYOUT_EXPORT layout_function {
+    struct GUIPP_LAYOUT_EXPORT layout_element {
       using callback = void(const core::rectangle&);
       using function = std::function<callback>;
 
-      layout_function ();
-      layout_function (win::window*, bool separator = false);
-      layout_function (function&&);
-      layout_function (function&);
+      layout_element ();
+      layout_element (win::window*, bool separator = false);
+      layout_element (function&&);
+      layout_element (function&);
 
       void operator() (const core::rectangle&) const;
       
@@ -78,8 +78,8 @@ namespace gui {
       std::variant<window, function> data;
     };
 
-    GUIPP_LAYOUT_EXPORT layout_function lay (win::window&);
-    GUIPP_LAYOUT_EXPORT layout_function lay (win::window*);
+    GUIPP_LAYOUT_EXPORT layout_element lay (win::window&);
+    GUIPP_LAYOUT_EXPORT layout_element lay (win::window*);
 
     template <typename T>
     struct is_layout {
@@ -89,22 +89,22 @@ namespace gui {
     };
 
     template<typename T, typename std::enable_if<is_layout<T>::value>::type* = nullptr>
-    layout_function lay (T& l) {
-      return layout_function([&l] (const core::rectangle& r) {
+    layout_element lay (T& l) {
+      return layout_element([&l] (const core::rectangle& r) {
         l.layout(r);
       });
     }
 
     template<typename T, typename std::enable_if<is_layout<T>::value>::type* = nullptr>
-    layout_function lay (T&& l) {
-      return layout_function([l] (const core::rectangle& r) {
+    layout_element lay (T&& l) {
+      return layout_element([l] (const core::rectangle& r) {
         l.layout(r);
       });
     }
 
     template<typename T, typename std::enable_if<is_layout<T>::value>::type* = nullptr>
-    layout_function lay (T* l) {
-      return layout_function([l] (const core::rectangle& r) {
+    layout_element lay (T* l) {
+      return layout_element([l] (const core::rectangle& r) {
         l->layout(r);
       });
     }
@@ -112,22 +112,22 @@ namespace gui {
     // --------------------------------------------------------------------------
     class GUIPP_LAYOUT_EXPORT layout_base {
     public:
-      typedef std::vector<layout_function> element_list;
+      typedef std::vector<layout_element> element_list;
 
       layout_base () = default;
-      layout_base (const std::vector<layout_function>& list);
+      layout_base (const std::vector<layout_element>& list);
 
       const element_list& get_elements () const;
       std::size_t visible_count () const;
       std::size_t separator_count () const;
 
-      void add (const layout_function& e);
-      void add (layout_function&& e);
+      void add (const layout_element& e);
+      void add (layout_element&& e);
 
       void add (win::window&, bool is_separator = false);
       void add (win::window*, bool is_separator = false);
 
-      void add (std::vector<layout_function> list);
+      void add (std::vector<layout_element> list);
       void add (std::vector<std::reference_wrapper<win::window>> list);
 
       void remove_all ();
@@ -195,7 +195,7 @@ namespace gui {
         static constexpr orientation_t orientation = O;
 
         orientation_layout () = default;
-        orientation_layout (const std::vector<layout_function>& list);
+        orientation_layout (const std::vector<layout_element>& list);
 
         static type get_dimension1 (const core::point&);
         static type get_dimension2 (const core::point&);
@@ -215,7 +215,7 @@ namespace gui {
         static constexpr origin_t origin = R;
 
         origin_layout () = default;
-        origin_layout (const std::vector<layout_function>& list);
+        origin_layout (const std::vector<layout_element>& list);
 
         static core::rectangle init_area (type border, type dim1, type dim2,
                                           const core::size&, const core::size&,

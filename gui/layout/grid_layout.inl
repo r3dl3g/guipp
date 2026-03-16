@@ -23,7 +23,7 @@ namespace gui {
   namespace layout {
 
     template<unsigned W, unsigned H, unsigned B, unsigned G>
-    inline grid_lineup<W, H, B, G>::grid_lineup (const std::vector<layout_function>& list)
+    inline grid_lineup<W, H, B, G>::grid_lineup (const std::vector<layout_element>& list)
       : super(list)
     {}
 
@@ -62,7 +62,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<unsigned W, unsigned H, unsigned C, unsigned B, unsigned G>
-    inline fixed_grid_lineup<W, H, C, B, G>::fixed_grid_lineup (const std::vector<layout_function>& list)
+    inline fixed_grid_lineup<W, H, C, B, G>::fixed_grid_lineup (const std::vector<layout_element>& list)
       : super(list)
     {}
 
@@ -105,7 +105,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<unsigned C, unsigned R, unsigned B, unsigned G>
-    inline grid_adaption<C, R, B, G>::grid_adaption (const std::vector<layout_function>& list)
+    inline grid_adaption<C, R, B, G>::grid_adaption (const std::vector<layout_element>& list)
       : super(list)
     {}
 

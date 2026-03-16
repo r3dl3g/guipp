@@ -55,7 +55,7 @@ namespace gui {
       type separatior_width = S;
 
       lineup_layout () = default;
-      lineup_layout (const std::vector<layout_function>& list);
+      lineup_layout (const std::vector<layout_element>& list);
 
       void layout (const core::rectangle& r) const;
     };

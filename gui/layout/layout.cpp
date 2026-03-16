@@ -31,22 +31,22 @@ namespace gui {
 
   namespace layout {
 
-    layout_function::layout_function ()
+    layout_element::layout_element ()
     {}
 
-    layout_function::layout_function (win::window* w, bool sep)
+    layout_element::layout_element (win::window* w, bool sep)
       : data(window(w, sep))
     {}
 
-    layout_function::layout_function (function& f)
+    layout_element::layout_element (function& f)
       : data(f)
     {}
 
-    layout_function::layout_function (function&& f)
+    layout_element::layout_element (function&& f)
       : data(std::move(f))
     {}
 
-    void layout_function::operator() (const core::rectangle& r) const {
+    void layout_element::operator() (const core::rectangle& r) const {
       if (std::holds_alternative<window>(data)) {
         window w = std::get<window>(data);
         if (w.win->is_visible()) {
@@ -57,7 +57,7 @@ namespace gui {
       }
     }
 
-    layout_function::operator bool() const {
+    layout_element::operator bool() const {
       if (std::holds_alternative<window>(data)) {
         return std::get<window>(data).win != nullptr;
       } else {
@@ -65,7 +65,7 @@ namespace gui {
       }
     }
 
-    bool layout_function::is_visible () const {
+    bool layout_element::is_visible () const {
       if (std::holds_alternative<window>(data)) {
         return std::get<window>(data).win->is_visible();
       } else {
@@ -73,7 +73,7 @@ namespace gui {
       }
     }
 
-    bool layout_function::is_separator () const {
+    bool layout_element::is_separator () const {
       if (std::holds_alternative<window>(data)) {
         return std::get<window>(data).is_separator;
       } else {
@@ -81,27 +81,27 @@ namespace gui {
       }
     }
 
-    layout_function::window::window ()
+    layout_element::window::window ()
       : win(nullptr)
       , is_separator(false)
     {}
         
-    layout_function::window::window (win::window* w, bool separator)
+    layout_element::window::window (win::window* w, bool separator)
       : win(w)
       , is_separator(separator)
     {}
 
     // --------------------------------------------------------------------------
-    layout_function lay (win::window& w) {
+    layout_element lay (win::window& w) {
       return {&w};
     }
 
-    layout_function lay (win::window* w) {
+    layout_element lay (win::window* w) {
       return {w};
     }
 
     // --------------------------------------------------------------------------
-    layout_base::layout_base (const std::vector<layout_function>& list) {
+    layout_base::layout_base (const std::vector<layout_element>& list) {
       add(list);
     }
 
@@ -110,22 +110,22 @@ namespace gui {
     }
 
     std::size_t layout_base::visible_count () const {
-      return std::count_if(elements.begin(), elements.end(), [] (const layout_function& l) {
+      return std::count_if(elements.begin(), elements.end(), [] (const layout_element& l) {
         return l.is_visible();
       });
     }
 
     std::size_t layout_base::separator_count () const {
-      return std::count_if(elements.begin(), elements.end(), [] (const layout_function& l) {
+      return std::count_if(elements.begin(), elements.end(), [] (const layout_element& l) {
         return l.is_separator();
       });
     }
 
-    void layout_base::add (const layout_function& e) {
+    void layout_base::add (const layout_element& e) {
       elements.emplace_back(e);
     }
 
-    void layout_base::add (layout_function&& e) {
+    void layout_base::add (layout_element&& e) {
       elements.emplace_back(std::move(e));
     }
 
@@ -137,7 +137,7 @@ namespace gui {
       elements.emplace_back(w, is_separator);
     }
 
-    void layout_base::add (std::vector<layout_function> list) {
+    void layout_base::add (std::vector<layout_element> list) {
       for (auto& l : list) {
         add(l);
       }

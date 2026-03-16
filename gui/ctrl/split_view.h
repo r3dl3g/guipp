@@ -56,9 +56,9 @@ namespace gui {
 
       split_view ();
 
-      void set (std::size_t i, layout_function);
+      void set (std::size_t i, layout_element);
 
-      void set_splitter (std::size_t i, layout::layout_function);
+      void set_splitter (std::size_t i, layout::layout_element);
 
       void set_split_pos (std::size_t i, double);
 
@@ -69,8 +69,8 @@ namespace gui {
       void add(std::vector<std::reference_wrapper<win::window>> list);
 
     private:
-      std::array<layout::layout_function, N> views;
-      std::array<layout::layout_function, N-1> splitter;
+      std::array<layout::layout_element, N> views;
+      std::array<layout::layout_element, N-1> splitter;
       std::array<double, N-1> split_pos;
     };
 

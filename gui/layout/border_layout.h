@@ -83,33 +83,33 @@ namespace gui {
       // --------------------------------------------------------------------------
       class layout_base {
       public:
-        const layout_function& get_center () const;
-        const layout_function& get_top () const;
-        const layout_function& get_bottom () const;
-        const layout_function& get_left () const;
-        const layout_function& get_right () const;
+        const layout_element& get_center () const;
+        const layout_element& get_top () const;
+        const layout_element& get_bottom () const;
+        const layout_element& get_left () const;
+        const layout_element& get_right () const;
 
-        void set_center (const layout_function& center);
-        void set_top (const layout_function& top);
-        void set_bottom (const layout_function& bottom);
-        void set_left (const layout_function& left);
-        void set_right (const layout_function& right);
+        void set_center (const layout_element& center);
+        void set_top (const layout_element& top);
+        void set_bottom (const layout_element& bottom);
+        void set_left (const layout_element& left);
+        void set_right (const layout_element& right);
 
-        void set_center_top_bottom_left_right (const layout_function& center,
-                                               const layout_function& top,
-                                               const layout_function& bottom,
-                                               const layout_function& left,
-                                               const layout_function& right);
+        void set_center_top_bottom_left_right (const layout_element& center,
+                                               const layout_element& top,
+                                               const layout_element& bottom,
+                                               const layout_element& left,
+                                               const layout_element& right);
 
         void add (const std::vector<std::reference_wrapper<win::window>>&);
 
       protected:
         struct layout_base_data {
-          layout_function center;
-          layout_function top;
-          layout_function bottom;
-          layout_function left;
-          layout_function right;
+          layout_element center;
+          layout_element top;
+          layout_element bottom;
+          layout_element left;
+          layout_element right;
         } data;
 
       };
@@ -158,24 +158,24 @@ namespace gui {
 
         explicit sym_layouter (win::container* p = nullptr);
 
-        const layout_function& get_top_left () const;
-        const layout_function& get_top_right () const;
-        const layout_function& get_bottom_left () const;
-        const layout_function& get_bottom_right () const;
+        const layout_element& get_top_left () const;
+        const layout_element& get_top_right () const;
+        const layout_element& get_bottom_left () const;
+        const layout_element& get_bottom_right () const;
 
-        void set_top_left (const layout_function& top_left);
-        void set_top_right (const layout_function& top_right);
-        void set_bottom_left (const layout_function& bottom_left);
-        void set_bottom_right (const layout_function& bottom_right);
+        void set_top_left (const layout_element& top_left);
+        void set_top_right (const layout_element& top_right);
+        void set_bottom_left (const layout_element& bottom_left);
+        void set_bottom_right (const layout_element& bottom_right);
 
         void layout (const core::rectangle& r);
 
       protected:
         struct {
-          layout_function top_left;
-          layout_function top_right;
-          layout_function bottom_left;
-          layout_function bottom_right;
+          layout_element top_left;
+          layout_element top_right;
+          layout_element bottom_left;
+          layout_element bottom_right;
         } data;
       };
 
@@ -196,11 +196,11 @@ namespace gui {
           : center(lay(w))
         {}
 
-        center_layout (const layout_function& c)
+        center_layout (const layout_element& c)
           : center(c)
         {}
 
-        center_layout (layout_function&& c)
+        center_layout (layout_element&& c)
           : center(std::move(c))
         {}
 
@@ -210,12 +210,12 @@ namespace gui {
           }
         }
 
-        void set_center (const layout_function& c) {
+        void set_center (const layout_element& c) {
           center = c;
         }
 
       private:
-        layout_function center;
+        layout_element center;
       };
 
       // --------------------------------------------------------------------------
@@ -228,11 +228,11 @@ namespace gui {
           : center(lay(w))
         {}
 
-        zero_layout (const layout_function& c)
+        zero_layout (const layout_element& c)
           : center(c)
         {}
 
-        zero_layout (layout_function&& c)
+        zero_layout (layout_element&& c)
           : center(std::move(c))
         {}
 
@@ -242,12 +242,12 @@ namespace gui {
           }
         }
 
-        void set_center (const layout_function& c) {
+        void set_center (const layout_element& c) {
           center = c;
         }
 
       private:
-        layout_function center;
+        layout_element center;
       };
 
     } // namespace border

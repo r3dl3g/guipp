@@ -81,12 +81,12 @@ namespace gui {
           } else {
             area.set_size(layout::make_size(dim1, dim2));
           }
-          e.fkt(area);
+          e.element(area);
           layout::move_area(area, offset);
         }
       } else {
         for (auto const& e : elements) {
-          e.fkt(core::rectangle::zero);
+          e.element(core::rectangle::zero);
         }
       }
     }

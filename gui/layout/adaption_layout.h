@@ -57,7 +57,7 @@ namespace gui {
       unsigned max = A; /// Maximum size of an element
 
       adaption_layout () = default;
-      adaption_layout (const std::vector<layout_function>& list);
+      adaption_layout (const std::vector<layout_element>& list);
 
       void layout (const core::rectangle&) const;
     };

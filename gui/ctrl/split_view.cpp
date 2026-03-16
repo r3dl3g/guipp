@@ -52,6 +52,12 @@ namespace gui {
       }
     }
 
+    void placeholder::set_visible (bool b) {
+      if (win) {
+        win->set_visible(b);
+      }
+    }
+
   } // namespace ctrl
 
 } // gui

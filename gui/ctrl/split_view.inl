@@ -346,8 +346,6 @@ namespace gui {
 
       header.create(*this);
       body.create(*this);
-      header.set_visible();
-      body.set_visible();
     }
 
     // --------------------------------------------------------------------------

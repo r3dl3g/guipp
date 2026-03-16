@@ -495,21 +495,12 @@ namespace gui {
     void window::resize (const core::size& sz, bool repaint, bool force_layout) {
       const auto previous = size();
       if (previous != sz) {
-        area.set_size(sz);
+        area.set_size(sz.empty() ? core::size::zero : sz);
         force_layout = true;
-        if (sz.empty()) {
-          if (is_visible()) {
-            set_visible(false);
-          }
-        } else {
-          if (!is_visible()) {
-            set_visible();
-          }
-          if (is_valid()) {
-            resize_native(sz);
-            if (repaint) {
-              invalidate();
-            }
+        if (is_valid()) {
+          resize_native(area.size());
+          if (repaint) {
+            invalidate();
           }
         }
         native::notify_resize(*this, sz, previous);
@@ -522,20 +513,12 @@ namespace gui {
     void window::geometry (const core::rectangle& r, bool repaint, bool force_layout) {
       const auto previous = geometry();
       if (previous != r) {
-        area = r;
-        if (r.empty()) {
-          if (is_visible()) {
-            set_visible(false);
-          }
-        } else {
-          if (!is_visible()) {
-            set_visible();
-          }
-          if (is_valid()) {
-            geometry_native(area);
-            if (repaint) {
-              invalidate();
-            }
+        area.set_position(r.position());
+        area.set_size(r.empty() ? core::size::zero : r.size());
+        if (is_valid()) {
+          geometry_native(area);
+          if (repaint) {
+            invalidate();
           }
         }
         if (previous.position() != area.position()) {

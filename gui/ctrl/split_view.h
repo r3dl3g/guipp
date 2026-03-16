@@ -144,6 +144,8 @@ namespace gui {
 
       void set (win::window* w);
 
+      void set_visible (bool = true);
+
     private:
       win::window* win;
     };

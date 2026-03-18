@@ -789,7 +789,7 @@ namespace gui {
               }
             }
           }
-          return detail::check_expose(e);
+          return false;
         });
       }
 #endif // GUIPP_QT

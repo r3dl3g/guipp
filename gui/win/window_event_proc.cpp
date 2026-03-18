@@ -606,8 +606,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     bool check_message_filter (const core::event& ev) {
-      for (std::size_t i = 0, e = detail::message_filters.size(); i != e; ++i) {
-        detail::filter_call& f = detail::message_filters[i].second;
+      for (auto& i : detail::message_filters) {
+        detail::filter_call& f = i.second;
         if (f(ev)) {
           return true;
         }
@@ -775,7 +775,7 @@ namespace gui {
           core::event e;
           XNextEvent(display, &e);
 
-          if (filter && filter(e)) {
+          if (detail::check_expose(e) || check_message_filter(e) || (filter && filter(e))) {
             continue;
           }
 
@@ -822,9 +822,7 @@ namespace gui {
 #ifdef GUIPP_QT
       return gui::core::global::get_instance()->exec();
 #else
-      return run_loop(main_loop_is_running, [] (const core::event & e) {
-        return detail::check_expose(e) || check_message_filter(e) || check_hot_key(e);
-      });
+      return run_loop(main_loop_is_running, &check_hot_key);
 #endif // GUIPP_QT
     }
 

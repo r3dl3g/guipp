@@ -630,12 +630,7 @@ namespace gui {
 #endif
       }
 
-      void prepare_main_window (os::window id) {
-        gui::os::instance display = core::global::get_instance();
-
-        x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_NORMAL");
-        x11::set_wm_protocols(display, id);
-
+      void enable_input (gui::os::instance display, os::window id) {
         XWMHints* hints = XGetWMHints(display, id);
         if (!hints) {
           hints = XAllocWMHints();
@@ -644,6 +639,14 @@ namespace gui {
         hints->input = True;
         XSetWMHints(display, id, hints);
         XFree(hints);
+      }
+
+      void prepare_main_window (os::window id) {
+        gui::os::instance display = core::global::get_instance();
+
+        x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_NORMAL");
+        x11::set_wm_protocols(display, id);
+        enable_input(display, id);
       }
 
       void prepare_popup_window (os::window id) {
@@ -674,6 +677,7 @@ namespace gui {
         x11::change_property(display, id, "WM_TRANSIENT_FOR", pid);
         
         x11::set_wm_protocols(display, id);
+        enable_input(display, id);
       }
 
       typedef struct {

@@ -6,10 +6,12 @@ PROJECT=${PWD##*/}
 INSTALL_PREFIX=~/.local
 BUILD_PREFIX=~/.cache/build
 PARALLEL=$(nproc)
-DEFINES="-DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DCMAKE_PREFIX_PATH=$INSTALL_PREFIX"
+DEFINES=
 TYPE=undefined
 ARCHIVE=./archive
-LOGFILE=$ACTION.log
+LOGDIR=.
+LOGFILE=$LOGDIR/$ACTION.log
+CMAKE_CMD=cmake
 
 _exec() {
   echo Execute $@
@@ -17,19 +19,19 @@ _exec() {
 }
 
 _prepare() {
-  _exec cmake -S. -B $BUILD_PREFIX/$PROJECT/$TYPE -DCMAKE_BUILD_TYPE=$TYPE $DEFINES $@
+  _exec ${CMAKE_CMD} -S. -B $BUILD_PREFIX/$PROJECT/$TYPE -DCMAKE_BUILD_TYPE=$TYPE -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DCMAKE_PREFIX_PATH=$INSTALL_PREFIX ${DEFINES} $@
 }
 
 _build() {
-  _exec cmake --build $BUILD_PREFIX/$PROJECT/$TYPE --parallel $PARALLEL $@
+  _exec ${CMAKE_CMD} --build $BUILD_PREFIX/$PROJECT/$TYPE --parallel $PARALLEL $@
 }
 
 _install() {
-  _exec cmake --build $BUILD_PREFIX/$PROJECT/$TYPE --target install $@
+  _exec ${CMAKE_CMD} --build $BUILD_PREFIX/$PROJECT/$TYPE --target install $@
 }
 
 _clean() {
-  _exec cmake --build $BUILD_PREFIX/$PROJECT/$TYPE --target clean $@
+  _exec ${CMAKE_CMD} --build $BUILD_PREFIX/$PROJECT/$TYPE --target clean $@
 }
 
 log_rename() {
@@ -52,7 +54,7 @@ log_rotate() {
     next=$i
   done
   popd
-  mv $ACTION.log $ARCHIVE/${ACTION}.1.log
+  mv $LOGDIR/$ACTION.log $ARCHIVE/${ACTION}.1.log
 }
 
 do_logged() {

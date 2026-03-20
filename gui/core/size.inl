@@ -131,30 +131,20 @@ namespace gui {
 
     template<typename T, coordinate_system C>
     inline basic_size<T, C>::basic_size (const gui::os::size& s)
-      : w(convert::size<T, C>::from_os(IF_QT_ELSE(s.width(), s.cx)))
-      , h(convert::size<T, C>::from_os(IF_QT_ELSE(s.height(), s.cy)))
+      : w(convert::size<T, C>::from_os(gui::os::get_width(s)))
+      , h(convert::size<T, C>::from_os(gui::os::get_height(s)))
     {}
 
     template<typename T, coordinate_system C>
     inline basic_size<T, C>::basic_size (const gui::os::point& pt)
-      : w(convert::size<T, C>::from_os(IF_QT_ELSE(pt.x(), pt.x)))
-      , h(convert::size<T, C>::from_os(IF_QT_ELSE(pt.y(), pt.y)))
+      : w(convert::size<T, C>::from_os(gui::os::get_x(pt)))
+      , h(convert::size<T, C>::from_os(gui::os::get_y(pt)))
     {}
 
     template<typename T, coordinate_system C>
     inline basic_size<T, C>::basic_size (const gui::os::rectangle& r)
-#ifdef GUIPP_WIN
-      : w(convert::size<T, C>::from_os(r.right - r.left))
-      , h(convert::size<T, C>::from_os(r.bottom - r.top))
-#elif GUIPP_X11
-      : w(convert::size<T, C>::from_os(r.width))
-      , h(convert::size<T, C>::from_os(r.height))
-#elif GUIPP_QT
-      : w(convert::size<T, C>::from_os(r.width()))
-      , h(convert::size<T, C>::from_os(r.height()))
-#else
-# error Unknown target system: basic_size<T, C>::basic_size (const gui::os::rectangle& r)
-#endif // GUIPP_QT
+      : w(convert::size<T, C>::from_os(gui::os::get_width(r)))
+      , h(convert::size<T, C>::from_os(gui::os::get_height(r)))
     {}
 
     template<typename T, coordinate_system C>

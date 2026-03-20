@@ -119,24 +119,14 @@ namespace gui {
 
     template<typename T, coordinate_system C>
     inline basic_point<T, C>::basic_point (const gui::os::point& rhs, const context& ctx)
-      : x_(convert::point<T, C>::from_os_x(IF_QT_ELSE(rhs.x(), rhs.x), ctx))
-      , y_(convert::point<T, C>::from_os_y(IF_QT_ELSE(rhs.y(), rhs.y), ctx))
+      : x_(convert::point<T, C>::from_os_x(gui::os::get_x(rhs), ctx))
+      , y_(convert::point<T, C>::from_os_y(gui::os::get_x(rhs), ctx))
     {}
 
     template<typename T, coordinate_system C>
     inline basic_point<T, C>::basic_point (const gui::os::rectangle& r, const context& ctx)
-#ifdef GUIPP_WIN
-      : x_(convert::point<T, C>::from_os_x(r.left, ctx))
-      , y_(convert::point<T, C>::from_os_y(r.top, ctx))
-#elif GUIPP_X11
-      : x_(convert::point<T, C>::from_os_x(r.x, ctx))
-      , y_(convert::point<T, C>::from_os_y(r.y, ctx))
-#elif GUIPP_QT
-      : x_(convert::point<T, C>::from_os_x(r.x(), ctx))
-      , y_(convert::point<T, C>::from_os_y(r.y(), ctx))
-#else
-#error Unknown target system: basic_point<T, C>::basic_point (const gui::os::rectangle& r)
-#endif // GUIPP_QT
+      : x_(convert::point<T, C>::from_os_x(gui::os::get_x(r), ctx))
+      , y_(convert::point<T, C>::from_os_y(gui::os::get_x(r), ctx))
     {}
 
     template<typename T, coordinate_system C>

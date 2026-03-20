@@ -183,7 +183,7 @@ namespace gui {
         return false;
       }
 
-      gui::os::event_id get_event_id () const {
+      static constexpr gui::os::event_id get_event_id () {
         return E;
       }
 

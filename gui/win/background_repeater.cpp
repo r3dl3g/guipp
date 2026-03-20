@@ -28,8 +28,8 @@ namespace gui {
 
     background_repeater::background_repeater (window& win, std::chrono::milliseconds delay_ms, action_t action)
       : win(win)
-      , delay(delay_ms)
       , action(action)
+      , delay(delay_ms)
       , active(false)
     {
       if (delay_ms < std::chrono::milliseconds(1)) {

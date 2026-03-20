@@ -58,7 +58,7 @@ namespace gui {
       private:
         float f0;
         float delta;
-        float step;
+
         std::chrono::milliseconds duration;
         background_repeater repeater;
         std::vector<animation_t> animations;

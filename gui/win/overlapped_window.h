@@ -119,6 +119,9 @@ namespace gui {
       os::window get_os_window () const;
 
     protected:
+
+      using super::create;
+
       void create (const class_info&,
                    overlapped_window&,
                    const core::rectangle& = core::rectangle::def,

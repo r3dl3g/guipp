@@ -51,9 +51,9 @@ namespace gui {
     }
 
     window::window (const window& rhs)
-      : area(rhs.area)
+      : flags(rhs.flags)
+      , area(rhs.area)
       , parent(nullptr)
-      , flags(rhs.flags)
       , cursor_(rhs.cursor_)
       , background(rhs.background)
       , class_name(nullptr)
@@ -67,9 +67,9 @@ namespace gui {
     }
 
     window::window (window&& rhs) noexcept
-      : area(std::move(rhs.area))
+      : flags(std::move(rhs.flags))
+      , area(std::move(rhs.area))
       , parent(std::move(rhs.parent))
-      , flags(std::move(rhs.flags))
       , cursor_(std::move(rhs.cursor_))
       , background(rhs.background)
       , class_name(rhs.class_name)
@@ -296,7 +296,7 @@ namespace gui {
     }
 
     void window::notify_layout () {
-      notify_event(core::WM_LAYOUT_WINDOW, client_geometry());
+      notify_event(layout_event::get_event_id(), client_geometry());
     }
 
     void window::set_parent (container& p) {

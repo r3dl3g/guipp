@@ -300,7 +300,7 @@ namespace gui {
     }
 
     void window::notify_layout () {
-      notify_event(layout_event::get_event_id(), client_geometry());
+      notify_event(IF_X11_ELSE(core::WM_LAYOUT_WINDOW, layout_event::get_event_id()), client_geometry());
     }
 
     void window::set_parent (container& p) {

@@ -120,13 +120,13 @@ namespace gui {
     template<typename T, coordinate_system C>
     inline basic_point<T, C>::basic_point (const gui::os::point& rhs, const context& ctx)
       : x_(convert::point<T, C>::from_os_x(gui::os::get_x(rhs), ctx))
-      , y_(convert::point<T, C>::from_os_y(gui::os::get_x(rhs), ctx))
+      , y_(convert::point<T, C>::from_os_y(gui::os::get_y(rhs), ctx))
     {}
 
     template<typename T, coordinate_system C>
     inline basic_point<T, C>::basic_point (const gui::os::rectangle& r, const context& ctx)
       : x_(convert::point<T, C>::from_os_x(gui::os::get_x(r), ctx))
-      , y_(convert::point<T, C>::from_os_y(gui::os::get_x(r), ctx))
+      , y_(convert::point<T, C>::from_os_y(gui::os::get_y(r), ctx))
     {}
 
     template<typename T, coordinate_system C>

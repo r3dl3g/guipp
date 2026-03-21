@@ -35,6 +35,10 @@
 #elif GUIPP_QT
 # include <gui/win/container_class_qt.h>
 # include <QtCore/QEventLoop>
+#elif GUIPP_JS
+# include <gui/win/container_class_js.h>
+#else
+#error Unknown target system in overlapped_window.h
 #endif // GUIPP_QT
 
 

@@ -38,6 +38,8 @@ namespace gui {
       return std::string();
 #elif GUIPP_QT
       return qt_error_string().toStdString();
+#elif GUIPP_JS
+      return std::string();
 #else
 # error Undefined system: std::string getLastErrorText ()
 #endif

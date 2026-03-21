@@ -59,6 +59,9 @@ namespace gui {
 #elif GUIPP_QT
       switch (e.type()) {
         case QEvent::Type::MouseMove:
+#elif GUIPP_JS
+      switch (e.type) {
+        case os::event_type::MouseMove:
 #endif
           return true;
         default:

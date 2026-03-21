@@ -97,6 +97,20 @@ namespace gui {
     }    
 #endif // GUIPP_QT
 
+#ifdef GUIPP_JS
+    event_source get_event_source (const core::event& e) {
+      return static_cast<event_source>(std::get<int>(e.param_0));
+    }
+
+    bool get_hilite_changed (const core::event& e) {
+      return std::get<bool>(e.param_0);
+    }
+
+    core::point::type get_scroll_value (const core::event& e) {
+      return static_cast<core::point::type>(std::get<int>(e.param_0));
+    }    
+#endif // GUIPP_JS
+
     // --------------------------------------------------------------------------
     void control::on_selection_changed (selection_changed_event::function&& f) {
       on<selection_changed_event>(std::move(f));

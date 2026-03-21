@@ -167,13 +167,15 @@ namespace gui {
         if (matcher(e) && caller) {
 #ifdef GUIPP_WIN
           if (e.type != WM_MOUSEMOVE) {
-#endif // GUIPP_WIN
-#ifdef GUIPP_X11
+#elif GUIPP_X11
           if (e.type != MotionNotify) {
-#endif // GUIPP_X11
-#ifdef GUIPP_QT
+#elif GUIPP_QT
           if (e.type() != QEvent::Type::MouseMove) {
-#endif // GUIPP_QT
+#elif GUIPP_JS
+          if (true) {
+#else
+#error  Undefined System: event_handler::operator ()
+#endif
             logging::trace() << "Call " << e;
           }
           caller(e);

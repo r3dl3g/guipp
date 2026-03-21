@@ -222,7 +222,7 @@ namespace gui {
 
     template<pixel_format_t T>
     inline void datamap<T>::adjust_brightness (float f) {
-      convert::brightness::adjust<T>(get_data(), info.width, info.height, f);
+      convert::brightness::adjust<T>(get_data(), get_info().width, get_info().height, f);
     }
 
     template<pixel_format_t T>

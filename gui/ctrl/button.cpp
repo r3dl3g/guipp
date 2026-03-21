@@ -36,6 +36,11 @@ namespace gui {
     }
 #endif // GUIPP_QT
 
+#ifdef GUIPP_JS
+    bool get_button_state (const core::event& e) {
+      return std::get<bool>(e.param_0);
+    }
+#endif // GUIPP_QT
 
     // --------------------------------------------------------------------------
     button_base::button_base (os::color f)

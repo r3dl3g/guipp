@@ -46,10 +46,10 @@ namespace gui {
       , hotkey(hotkey)
       , icon(icon)
       , action(std::move(action))
-      , menu_key(menu_key)
       , width(0)
-      , separator(separator)
+      , menu_key(menu_key)
       , state(state)
+      , separator(separator)
       , sub_menu(false)
     {}
 
@@ -64,10 +64,10 @@ namespace gui {
       , hotkey(hotkey)
       , icon(icon)
       , action(std::move(action))
-      , menu_key(menu_key)
       , width(0)
-      , separator(separator)
+      , menu_key(menu_key)
       , state(state)
+      , separator(separator)
       , sub_menu(false)
     {}
 
@@ -83,18 +83,18 @@ namespace gui {
       , hotkey(hotkey)
       , icon(icon)
       , action(std::move(action))
-      , menu_key(menu_key)
       , width(0)
-      , separator(separator)
+      , menu_key(menu_key)
       , state(state)
+      , separator(separator)
       , sub_menu(sub_menu)
     {}
 
     menu_entry::menu_entry ()
-      : menu_key(0)
-      , width(0)
-      , separator(false)
+      : width(0)
+      , menu_key(0)
       , state(menu_state::enabled)
+      , separator(false)
       , sub_menu(false)
     {}
 

@@ -126,6 +126,8 @@ namespace gui {
         EndPaint(id, &ps);
         return true;
 # endif
+#elif GUIPP_JS
+        return true;
 #endif
       }
 
@@ -780,6 +782,8 @@ namespace gui {
           if (e.type == KeyPress) {
 #elif GUIPP_QT
           if (e.type() == QEvent::KeyPress) {
+#elif GUIPP_JS
+          if (e.type == os::event_type::KeyDown) {
 #endif // GUIPP_QT
             core::hot_key hk(get_key_symbol(e), get_key_state(e));
             for (hot_key_action k : hot_keys) {

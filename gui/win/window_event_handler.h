@@ -75,6 +75,8 @@ namespace gui {
 # include <gui/win/window_event_handler_x11.h>
 #elif GUIPP_QT
 # include <gui/win/window_event_handler_qt.h>
+#elif GUIPP_JS
+# include <gui/win/window_event_handler_js.h>
 #else
-# error Unknown target system
+# error Unknown target system in window_event_handler
 #endif // GUIPP_QT

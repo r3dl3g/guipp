@@ -113,7 +113,10 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
 #if defined(GUIPP_X11) || defined(GUIPP_QT)
 int main (int argc, char* argv[]) {
   std::vector<std::string> args(argv, argv + argc);
-#endif // GUIPP_X11 || GUIPP_QT
+#elif defined(GUIPP_JS)
+int main () {
+  std::vector<std::string> args;
+#endif // GUIPP_X11 || GUIPP_QT || GUIPP_JS
 
 #ifndef NDEBUG
   logging::core::instance().set_log_level(logging::level::trace);

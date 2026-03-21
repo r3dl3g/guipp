@@ -268,6 +268,8 @@ namespace gui {
           DefaultDepth(get_instance(), x11::get_screen());
 #elif GUIPP_QT
           QGuiApplication::primaryScreen()->depth();
+#elif GUIPP_JS
+          24;
 #else
 #error  Undefined System: int get_device_depth ()
 #endif

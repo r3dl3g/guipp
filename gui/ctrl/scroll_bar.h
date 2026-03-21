@@ -96,6 +96,8 @@ namespace gui {
       scroll_bar (const scroll_bar&);
       scroll_bar (scroll_bar&&) noexcept ;
 
+      using super::create;
+
       void create (const win::class_info& type,
                    win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
@@ -139,6 +141,11 @@ namespace gui {
 
     template<orientation_t H>
     struct scroll_bar_traits<H, core::os::platform_t::qt> {
+      static constexpr os::style style = win::window_class_defaults<>::style;
+    };
+
+    template<orientation_t H>
+    struct scroll_bar_traits<H, core::os::platform_t::js> {
       static constexpr os::style style = win::window_class_defaults<>::style;
     };
 

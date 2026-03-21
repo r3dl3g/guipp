@@ -8,10 +8,6 @@ message("Building gui version: ${project_version}")
 
 project("gui" LANGUAGES CXX VERSION ${project_version})
 
-set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/obj)
-set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
 include (Functions.cmake)
@@ -102,6 +98,8 @@ if(GUIPP_BUILD_DEPENDENT_LIBS)
   add_subdirectory(${GUIPP_LIBS_DIR}/logging logging)
   add_subdirectory(${GUIPP_LIBS_DIR}/util util)
 else ()
+  set(logging_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/logging)
+  set(util_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/util)
   find_package(logging REQUIRED)
   find_package(util REQUIRED)
 endif()
@@ -119,10 +117,11 @@ if(NOT TARGET guipp)
     set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} log)
   endif()
 
-#  if(EMSCRIPTEN)
-#    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -pthread -matomics)
-#    set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} -Wl --shared-memory --no-check-features)
-#  endif()
+  if(EMSCRIPTEN)
+    set(GUIPP_BUILD_STATIC_MODULE_LIBS ON)
+    #set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -pthread -matomics)
+    #set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} -Wl --shared-memory --no-check-features)
+  endif()
 
   if(GUIPP_USE_BOOST)
     find_package(Boost 1.65 REQUIRED COMPONENTS filesystem)
@@ -200,6 +199,10 @@ if(NOT TARGET guipp)
   elseif(APPLE)
     DebugPrint("GUIPP: build for Apple!")
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DCOCOA)
+  
+  elseif(EMSCRIPTEN)
+    DebugPrint("GUIPP: build for emscripten!")
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_JS -Wno-unknown-pragmas)
 
   elseif(UNIX)
     DebugPrint("GUIPP: build for Unix!")

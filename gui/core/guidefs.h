@@ -26,10 +26,12 @@
 # include <gui/core/guidefs_x11.h>
 #elif GUIPP_QT
 # include <gui/core/guidefs_qt.h>
+#elif GUIPP_JS
+# include <gui/core/guidefs_js.h>
 #elif GUIPP_COCOA
 # include <gui/core/guidefs_cocoa.h>
 #else
-#error Unknown target system
+#error Unknown target system in guidefs.h
 #endif // GUIPP_QT
 
 #include <string>

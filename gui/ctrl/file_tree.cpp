@@ -111,7 +111,7 @@ namespace gui {
 
     std::vector<sys_fs::path> get_all_root_paths () {
       std::vector<sys_fs::path> roots;
-#ifdef GUIPP_X11
+#if defined(GUIPP_X11) || defined(GUIPP_JS)
       roots.emplace_back(sys_fs::path("/"));
 #elif GUIPP_WIN
       DWORD available = GetLogicalDrives();

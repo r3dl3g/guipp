@@ -105,6 +105,24 @@ namespace gui {
 
 #endif // GUIPP_QT
 
+#ifdef GUIPP_JS
+    // --------------------------------------------------------------------------
+    template<>
+    void Use<pen>::set (const pen& p) {
+      // TBD
+    }
+
+    template<>
+    void Use<brush>::set (const brush& b) {
+      // TBD
+    }
+
+    template<>
+    void Use<font>::set (const font& f) {
+      // TBD
+    }
+#endif // GUIPP_JS
+
   } // namespace draw
 
 } // namespace gui

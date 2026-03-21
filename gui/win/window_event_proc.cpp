@@ -217,30 +217,8 @@ namespace gui {
       }
 
     } // namespace x11
-
+    
     namespace detail {
-#define USE_WINDOW_MAPx
-#ifdef USE_WINDOW_MAP
-      typedef std::map<os::window, win::window*> window_map;
-      window_map global_window_map;
-
-      window* get_window (os::window id) {
-        return global_window_map[id];
-      }
-
-      void set_os_window (window* win, os::window id) {
-        global_window_map[id] = win;
-        if (win) {
-          win->set_os_window(id);
-        }
-      }
-
-      void unset_os_window (os::window id) {
-        clear_last_geometry(id);
-        global_window_map.erase(id);
-      }
-
-#else
       overlapped_window* get_window (os::window id) {
         Atom     actual_type = 0;
         int      actual_format = -1;
@@ -289,8 +267,6 @@ namespace gui {
         clear_last_geometry(id);
       }
 
-#endif // USE_WINDOW_MAP
-
       bool check_expose (const core::event& e) {
         return (e.type == Expose) && (e.xexpose.count > 0);
       }
@@ -328,7 +304,33 @@ namespace gui {
 
     } // namespace detail
 
-#endif
+#elif GUIPP_JS
+    namespace detail {
+
+      typedef util::blocking_queue<core::event> event_queue_t;
+      event_queue_t event_queue;
+
+      typedef std::map<os::window, win::overlapped_window*> window_map;
+      window_map global_window_map;
+
+      overlapped_window* get_window (os::window id) {
+        return global_window_map[id];
+      }
+
+      void set_os_window (overlapped_window* win, os::window id) {
+        global_window_map[id] = win;
+        if (win) {
+          win->set_os_window(id);
+        }
+      }
+
+      void unset_os_window (os::window id) {
+        global_window_map.erase(id);
+      }
+
+    } // namespace detail
+
+#endif // GUIPP_JS
 
     bool check_message_filter (const core::event& ev);
     bool check_hot_key (const core::event& e);
@@ -437,12 +439,13 @@ namespace gui {
           return;
         }
 
-        os::window root = i->second.first;
-
+        
 #ifdef GUIPP_WIN
+        os::window root = i->second.first;
         UnregisterHotKey(root, hk.get_key());
 #endif // GUIPP_WIN
 #ifdef GUIPP_X11
+        os::window root = i->second.first;
         auto dpy = core::global::get_instance();
         XUngrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root);
 #endif // GUIPP_X11
@@ -623,6 +626,8 @@ namespace gui {
       if (e.type == KeyPress) {
 #elif GUIPP_QT
       if (e.type() == QEvent::KeyPress) {
+#elif GUIPP_JS
+      if (e.type == os::event_type::KeyDown) {
 #endif
         core::hot_key hk(get_key_symbol(e), get_key_state(e));
         auto i = detail::hot_keys.find(hk);
@@ -733,6 +738,23 @@ namespace gui {
       return false;
     }
 
+#elif GUIPP_JS
+    void process_event (const core::event& e, gui::os::event_result& resultValue) {
+      win::overlapped_window* win = win::detail::get_window(e.id);
+
+      if (win && win->is_valid()) {
+
+        resultValue = 0;
+
+        try {
+          win->handle_event(e, resultValue);
+        } catch (std::exception& ex) {
+          logging::fatal() << "exception in run_main_loop: " << ex;
+        } catch (...) {
+          logging::fatal() << "Unknown exception in run_main_loop()";
+        }
+      }
+    }
 #endif
 
     // --------------------------------------------------------------------------
@@ -809,6 +831,29 @@ namespace gui {
 #elif GUIPP_QT
       QEventLoop event_loop;
       return event_loop.exec(QEventLoop::AllEvents);
+#elif GUIPP_JS
+      gui::os::event_result resultValue = 0;
+      while (running) {
+        core::event e = detail::event_queue.dequeue(std::chrono::milliseconds(20));
+        if (e.id) {
+
+          if (detail::check_expose(e) || check_message_filter(e) || (filter && filter(e))) {
+            continue;
+          }
+
+          process_event(e, resultValue);
+        }
+
+        // if (x11::queued_actions.try_dequeue(action)) {
+        //   action();
+        // } else {
+        //   wait_for_event(fd);
+        // }
+  
+        // x11::draw_invalidated_windows();
+      }
+
+      return resultValue;
 #endif // GUIPP_QT
     }
 

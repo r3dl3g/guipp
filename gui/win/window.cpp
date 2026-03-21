@@ -108,8 +108,12 @@ namespace gui {
       }
       auto s = set_state();
       s.created(true);
+#ifdef GUIPP_JS
+      s.accept_focus(true);
+#else
       s.accept_focus(type.get_style() & WS_TABSTOP);
-      notify_event(core::WM_CREATE_WINDOW);
+#endif
+      notify_event(create_event::get_event_id());
     }
 
     void window::close () {

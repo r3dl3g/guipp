@@ -805,7 +805,7 @@ namespace gui {
     }
 
     void table_view::handle_mouse_move (os::key_state keys, const core::native_point& pt) {
-      const auto r = data.surface_geometry();
+      //const auto r = data.surface_geometry();
       if (core::left_button_bit_mask::is_set(keys)/*  && r.is_inside(pt) */) {
         if (last_mouse_point != core::native_point::undefined) {
           auto delta = last_mouse_point - pt;

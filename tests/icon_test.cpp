@@ -414,7 +414,7 @@ void test_masked_from_pixmap () {
     }
   }
 
-  auto buffer = pixmap2colormap(icon.mask);
+  auto buffer = bitmap2colormap(icon.mask);
   EXPECT_EQUAL(buffer, expected_bw_color);
 
   {

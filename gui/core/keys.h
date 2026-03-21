@@ -36,6 +36,8 @@
 # include <gui/core/keys_x11.h>
 #elif GUIPP_QT
 # include <gui/core/keys_qt.h>
+#elif GUIPP_JS
+# include <gui/core/keys_js.h>
 #else
 # error Unknown target system
 #endif

@@ -81,6 +81,7 @@
   },
   "cmake.configureArgs": [
     "-DGUIPP_SAMPLES=ON",
-    "-DGUIPP_TESTS=ON"
+    "-DGUIPP_TESTS=ON",
+    "-DVERBOSE=ON"
   ]
 }

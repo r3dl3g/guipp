@@ -20,6 +20,9 @@
 //
 // Common includes
 //
+#ifdef GUIPP_JS
+#include <variant>
+#endif
 
 // --------------------------------------------------------------------------
 //
@@ -29,6 +32,10 @@
 #ifdef GUIPP_WIN
 #include "gui/core/win32_event.h"
 #endif // Win32
+#ifdef GUIPP_JS
+#include "gui/core/rectangle.h"
+#include "gui/core/keys.h"
+#endif
 
 
 namespace gui {
@@ -98,7 +105,26 @@ namespace gui {
 
 #endif // GUIPP_QT
 
-    typedef bool (event_handler_callback)(const event&, gui::os::event_result&);
+#if defined(GUIPP_JS)
+
+    struct event {
+
+      gui::os::window   id;
+      gui::os::event_id type;
+
+      typedef std::variant<bool, int, unsigned int, 
+                           //gui::os::key_symbol, gui::os::graphics, gui::os::window,
+                           core::context*,
+                           core::point, core::size, core::rectangle, core::native_point,
+                           core::native_size, core::native_rect, core::native_rect*> variant_t;
+
+      variant_t param_0;
+      variant_t param_1;
+    };
+
+#endif // GUIPP_JS
+
+typedef bool (event_handler_callback)(const event&, gui::os::event_result&);
 
   } // core
 

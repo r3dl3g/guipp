@@ -261,8 +261,8 @@ namespace gui {
     template<orientation_t O, typename... Ts>
     inline split_view<O, Ts...>::split_view (split_view&& rhs) noexcept
       : super(std::move(rhs))
-      , splitter(std::move(rhs.splitter))
       , views(std::move(rhs.views))
+      , splitter(std::move(rhs.splitter))
     {
       init();
     }

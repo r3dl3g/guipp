@@ -119,6 +119,10 @@ namespace gui {
       }
 #elif GUIPP_QT
       return QKeySequence(key).toString().toStdString();
+#elif GUIPP_JS
+      std::ostringstream s;
+      s << std::hex << key;
+      return s.str();
 #else
 # error Undefined system: std::string key_symbol_to_string (gui::os::key_symbol key)
 #endif // GUIPP_X11

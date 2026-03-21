@@ -21,7 +21,8 @@ namespace testing {
   bool operator>= (const colormap&, const colormap&);
 
   colormap data2colormap (const char* data, const int bits_per_pixel, const int bytes_per_line, const int width, const int height);
-  colormap pixmap2colormap (const gui::draw::basic_map&);
+  colormap pixmap2colormap (const gui::draw::pixmap&);
+  colormap bitmap2colormap (const gui::draw::bitmap&);
 
   template<gui::pixel_format_t T>
   colormap datamap2colormap (const gui::draw::datamap<T>& img) {

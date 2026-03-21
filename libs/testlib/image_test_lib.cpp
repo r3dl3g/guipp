@@ -47,6 +47,12 @@ namespace testing {
 #elif GUIPP_QT
     auto pic = img.get_os_bitmap()->toImage();
     auto str = data2string((const char*)pic.constBits(), pic.depth() / 8, pic.bytesPerLine(), pic.height());
+#elif GUIPP_JS
+    auto pic = img.get<gui::pixel_format_t::RGB>();
+    auto info = pic.get_info();
+    auto str = data2string((const char*)pic.get_data().raw_data().data(0, info.bytes_per_line * info.height), pic.depth() / 8, info.bytes_per_line, info.height);
+#else
+# pragma error "Unknown target system"
 #endif
     return str;
   }
@@ -118,7 +124,7 @@ namespace testing {
     return result;
   }
 
-  colormap pixmap2colormap (const gui::draw::basic_map& map) {
+  colormap bitmap2colormap (const gui::draw::bitmap& map) {
 #ifdef GUIPP_X11
     gui::core::native_size sz = map.native_size();
     XImage* xim = XGetImage(gui::core::global::get_instance(), map.get_os_bitmap(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
@@ -137,14 +143,42 @@ namespace testing {
     return data2colormap((const char*)data.data(), bmp.bmBitsPixel, bmp.bmWidthBytes, bmp.bmWidth, bmp.bmHeight);
 #elif GUIPP_QT
     QImage img = map.get_os_bitmap()->toImage();
-//    if (img.depth() == 1) {
-//      img.invertPixels();
-//    }
-//      QImage gray = img.convertToFormat(QImage::Format_Grayscale8);
-//      return data2colormap((const char*)gray.constBits(), gray.depth(), gray.bytesPerLine(), gray.width(), gray.height());
-//    } else {
-      return data2colormap((const char*)img.constBits(), img.depth(), img.bytesPerLine(), img.width(), img.height());
-//    }
+    return data2colormap((const char*)img.constBits(), img.depth(), img.bytesPerLine(), img.width(), img.height());
+#elif GUIPP_JS
+    auto pic = map.get();
+    auto info = pic.get_info();
+    return data2colormap((const char*)pic.get_data().raw_data().data(0, info.bytes_per_line * info.height), pic.depth(), info.bytes_per_line, info.width, info.height);
+#else
+# pragma error "Unknown target system"
+#endif
+  }
+
+  colormap pixmap2colormap (const gui::draw::pixmap& map) {
+#ifdef GUIPP_X11
+    gui::core::native_size sz = map.native_size();
+    XImage* xim = XGetImage(gui::core::global::get_instance(), map.get_os_bitmap(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
+    auto result = data2colormap(xim->data, xim->bits_per_pixel, xim->bytes_per_line, xim->width, xim->height);
+    XDestroyImage(xim);
+    return result;
+#elif GUIPP_WIN
+    BITMAP bmp;
+    GetObject(map.get_os_bitmap(), sizeof (BITMAP), &bmp);
+    gui::blob data;
+    data.resize(bmp.bmWidthBytes * bmp.bmHeight);
+    int res = GetBitmapBits(map.get_os_bitmap(), (LONG)data.size(), data.data());
+    if (res != data.size()) {
+      std::cerr << "GetBitmapBits returned " << res << " expected:" << data.size() << std::endl;
+    }
+    return data2colormap((const char*)data.data(), bmp.bmBitsPixel, bmp.bmWidthBytes, bmp.bmWidth, bmp.bmHeight);
+#elif GUIPP_QT
+    QImage img = map.get_os_bitmap()->toImage();
+    return data2colormap((const char*)img.constBits(), img.depth(), img.bytesPerLine(), img.width(), img.height());
+#elif GUIPP_JS
+    auto pic = map.get<gui::pixel_format_t::RGB>();
+    auto info = pic.get_info();
+    return data2colormap((const char*)pic.get_data().raw_data().data(0, info.bytes_per_line * info.height), pic.depth(), info.bytes_per_line, info.width, info.height);
+#else
+# pragma error "Unknown target system"
 #endif
   }
 

@@ -221,7 +221,7 @@ namespace gui {
     void write_pnm<PNM::P5, pixel_format_t::GRAY> (std::ostream& out,
                                                    const draw::image_data<pixel_format_t::GRAY>& img) {
       const draw::bitmap_info& bmi = img.get_info();
-      const std::size_t n = bmi.mem_size();
+      // const std::size_t n = bmi.mem_size();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         out.write(reinterpret_cast<const char*>(img.row(y).data(0, bmi.width)), bmi.width);
       }

@@ -173,6 +173,7 @@ namespace gui {
 #ifdef GUIPP_QT
     GUIPP_CTRL_EXPORT event_source get_event_source (const core::event&);
     GUIPP_CTRL_EXPORT bool get_hilite_changed (const core::event&);
+    GUIPP_CTRL_EXPORT core::point::type get_scroll_value (const core::event&);
 
     using selection_commit_event = core::event_handler<detail::SELECTION_COMMIT_MESSAGE>;
     using selection_cancel_event = core::event_handler<detail::SELECTION_CANCEL_MESSAGE>;
@@ -185,8 +186,6 @@ namespace gui {
     using hilite_changed_event = core::event_handler<detail::HILITE_CHANGE_MESSAGE, 0,
                                                      core::params<bool>::
                                                      getter<get_hilite_changed>>;
-
-    GUIPP_CTRL_EXPORT core::point::type get_scroll_value (const core::event&);
 
     using scroll_event = core::event_handler<detail::SCROLLBAR_MESSAGE, 0,
                                              core::params<core::point::type>::

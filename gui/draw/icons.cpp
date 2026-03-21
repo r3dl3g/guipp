@@ -860,7 +860,7 @@ namespace gui {
       g.frame(draw::round_rectangle(r, radius/2), pn);
 
       const auto tl = r.top_left();
-      const auto br = r.bottom_right();
+      // const auto br = r.bottom_right();
       const auto dx = r.width() / 4;
       const auto dy = r.height() / 5;
       const auto x0 = tl.x() + dx;

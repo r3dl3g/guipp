@@ -92,6 +92,9 @@ namespace gui {
       return e.cast<win::QClientEvent>().l1() != 0;
     }
 
+    core::point::type get_scroll_value (const core::event& e) {
+      return *(core::point::type*)e.cast<win::QClientEvent>().l1();
+    }    
 #endif // GUIPP_QT
 
     // --------------------------------------------------------------------------

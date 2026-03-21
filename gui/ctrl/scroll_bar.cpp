@@ -32,14 +32,6 @@ namespace gui {
 
   namespace ctrl {
 
-#ifdef GUIPP_QT
-
-    core::point::type get_scroll_value (const core::event& e) {
-      return *(core::point::type*)e.cast<win::QClientEvent>().l1();
-    }
-
-#endif // GUIPP_QT
-
     scroll_bar_data::scroll_bar_data ()
       : selection(scrollbar_item::nothing)
       , hilite(scrollbar_item::nothing)

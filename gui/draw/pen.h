@@ -31,9 +31,7 @@ namespace gui {
 
     struct GUIPP_DRAW_EXPORT /*immutable*/ pen {
 
-#if defined(GUIPP_WIN) || defined(GUIPP_X11) || defined(GUIPP_X11) || defined(GUIPP_QT)
       typedef float size_type;
-#endif // GUIPP_WIN | GUIPP_X11
 
       enum struct Style : int {
         solid =       IF_WIN32_X11_QT_ELSE(PS_SOLID,          LineSolid,              Qt::PenStyle::SolidLine,      1),

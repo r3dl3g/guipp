@@ -119,8 +119,8 @@ if(NOT TARGET guipp)
 
   if(EMSCRIPTEN)
     set(GUIPP_BUILD_STATIC_MODULE_LIBS ON)
-    #set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -pthread -matomics)
-    #set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} -Wl --shared-memory --no-check-features)
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -pthread -matomics)
+    set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} -Wl --shared-memory --no-check-features)
   endif()
 
   if(GUIPP_USE_BOOST)

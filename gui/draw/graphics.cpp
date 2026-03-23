@@ -366,7 +366,7 @@ namespace gui {
     }
 
     graphics& graphics::copy_from (graphics& src, const core::native_rect& r, const core::native_point& pt) {
-      int res = XCopyArea(get_instance(), src, target(), gc(), r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y());
+      int res = XCopyArea(get_instance(), src.target(), target(), gc(), r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y());
       if (!res) {
         throw std::runtime_error("graphics::copy_from failed");
       }

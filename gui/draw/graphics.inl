@@ -37,10 +37,6 @@ namespace gui {
       return gc();
     }
 
-    inline graphics::operator os::drawable() const {
-      return target();
-    }
-
     inline const core::context& graphics::context () const {
       return *ctx;
     }

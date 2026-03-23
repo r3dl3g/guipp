@@ -153,7 +153,6 @@ namespace gui {
 
       os::graphics os () const;
       operator os::graphics () const;
-      operator os::drawable () const;
 
       os::graphics gc () const;
       os::drawable target () const;

@@ -27,14 +27,6 @@ namespace gui {
       return stack.back();
     }
     // --------------------------------------------------------------------------
-    inline context::operator gui::os::graphics () const {
-      return g;
-    }
-    // --------------------------------------------------------------------------
-    inline context::operator gui::os::drawable() const {
-      return id;
-    }
-    // --------------------------------------------------------------------------
     inline gui::os::graphics context::graphics () const {
       return g;
     }

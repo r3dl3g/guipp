@@ -68,9 +68,6 @@ namespace gui {
 
       void operator= (const context&) = delete;
 
-      operator gui::os::graphics () const;
-      operator gui::os::drawable () const;
-
       gui::os::graphics graphics () const;
       gui::os::drawable drawable () const;
 

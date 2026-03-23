@@ -109,7 +109,7 @@ namespace gui {
       auto s = set_state();
       s.created(true);
       s.accept_focus(type.get_style() & WS_TABSTOP);
-      notify_event(core::WM_CREATE_WINDOW);
+      notify_event(IF_X11_ELSE(core::WM_CREATE_WINDOW, create_event::get_event_id()));
     }
 
     void window::close () {

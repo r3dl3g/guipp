@@ -55,9 +55,9 @@ namespace gui {
             // auto visual = vinfo.visual;
             // auto colormap = XCreateColormap(display, target, visual, AllocNone);
 
-            s_xft = XftDrawCreate(display, ctx, visual, colormap);
+            s_xft = XftDrawCreate(display, ctx.drawable(), visual, colormap);
           } else {
-            XftDrawChange(s_xft, ctx);
+            XftDrawChange(s_xft, ctx.drawable());
           }
           return s_xft;
         }
@@ -67,7 +67,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void set_clip_rect (context& ctx, const gui::os::rectangle& r) {
-        XSetClipRectangles(global::get_instance(), ctx, 0, 0, const_cast<gui::os::rectangle*>(&r), 1, Unsorted);
+        XSetClipRectangles(global::get_instance(), ctx.graphics(), 0, 0, const_cast<gui::os::rectangle*>(&r), 1, Unsorted);
 #ifdef GUIPP_USE_XFT
         XftDrawSetClipRectangles(x11::get_xft_draw(ctx), 0, 0, &r, 1);
 #endif // GUIPP_USE_XFT
@@ -75,7 +75,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void clear_clip_rect (context& ctx) {
-        XSetClipMask(global::get_instance(), ctx, None);
+        XSetClipMask(global::get_instance(), ctx.graphics(), None);
 #ifdef GUIPP_USE_XFT
         XftDrawSetClip(x11::get_xft_draw(ctx), None);
 #endif // GUIPP_USE_XFT

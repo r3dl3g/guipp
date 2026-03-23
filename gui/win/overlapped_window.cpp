@@ -148,6 +148,10 @@ namespace gui {
     private:
       friend class overlapped_window;
       void destroy () {
+#ifdef GUIPP_JS
+          gc = {};
+          pixel_store = {};
+#else
         if (gc) {
           core::native::delete_graphics_context(gc);
           gc = 0;
@@ -156,6 +160,7 @@ namespace gui {
           native::delete_surface(pixel_store);
           pixel_store = 0;
         }
+#endif //GUIPP_JS
       }
 
     private:
@@ -221,7 +226,7 @@ namespace gui {
       auto s = set_state();
       s.visible(false);
       s.created(false);
-      id = 0;
+      id = {};
     }
    // --------------------------------------------------------------------------
     overlapped_window::operator os::drawable() const {
@@ -299,7 +304,11 @@ namespace gui {
                                              os::window parent_id,
                                              const core::rectangle& r) {
 
+#ifdef GUIPP_JS
+      if (get_os_window() != emscripten::val::undefined()) {
+#else
       if (get_os_window()) {
+#endif //GUIPP_JS
         destroy();
       }
       set_state().overlapped(true);
@@ -425,7 +434,11 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     bool overlapped_window::is_valid () const {
+#ifdef GUIPP_JS
+      return (get_os_window() != emscripten::val::undefined()) && super::is_valid();
+#else
       return (get_os_window() != 0) && super::is_valid();
+#endif //GUIPP_JS
     }
     // --------------------------------------------------------------------------
     void overlapped_window::set_accept_focus (bool a) {

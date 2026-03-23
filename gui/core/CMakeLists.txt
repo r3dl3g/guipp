@@ -20,6 +20,7 @@ if(NOT TARGET ${PROJECT_NAME})
       native_qt.cpp
       native_win32.cpp
       native_x11.cpp
+      native_js.cpp
       pixel.cpp
       selection_adjustment.cpp
       window_state.cpp

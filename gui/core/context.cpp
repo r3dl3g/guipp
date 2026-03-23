@@ -93,7 +93,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     context::context (gui::os::drawable id)
       : id(id)
+#ifndef GUIPP_JS
       , g(0)
+#endif //GUIPP_JS
       , offs_x(0)
       , offs_y(0)
       , own_gc(true)
@@ -104,7 +106,11 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     context::~context () {
+#ifdef GUIPP_JS
+      if (g != emscripten::val::undefined()) {
+#else
       if (g) {
+#endif //GUIPP_JS
         clippings.clear(*this);
       }
       detach();
@@ -116,7 +122,7 @@ namespace gui {
         core::native::delete_graphics_context(g);
         own_gc = false;
       }
-      g = 0;
+      g = {};
     }
 
     // --------------------------------------------------------------------------

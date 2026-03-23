@@ -163,7 +163,11 @@ namespace gui {
         }
 
         bool is_initialized () const {
+#ifdef GUIPP_JS
+          return (instance != emscripten::val::undefined());
+#else
           return (instance != nullptr);
+#endif //GUIPP_JS
         }
 
         ~gui_init () {

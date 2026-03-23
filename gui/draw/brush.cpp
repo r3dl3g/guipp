@@ -113,7 +113,7 @@ namespace gui {
 
 #endif // GUIPP_WIN
 
-#if defined(GUIPP_X11) || defined(GUIPP_QT)
+#if defined(GUIPP_X11) || defined(GUIPP_QT) || defined(GUIPP_JS)
     const brush brush::invisible(color::black, brush::Style::invisible);
     const brush brush::standard;
 
@@ -146,7 +146,7 @@ namespace gui {
       return ((m_color == rhs.m_color) &&
               (m_style == rhs.m_style));
     }
-#endif // GUIPP_X11 || GUIPP_QT
+#endif // GUIPP_X11 || GUIPP_QT || GUIPP_JS
 
   }
 

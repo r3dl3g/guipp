@@ -53,6 +53,10 @@
 
 #endif // GUIPP_QT
 
+#ifdef GUIPP_JS
+#include <emscripten/bind.h>
+#endif // GUIPP_JS
+
 
 namespace gui {
 
@@ -379,6 +383,50 @@ namespace gui {
     }
 #endif // GUIPP_QT
 
+#ifdef GUIPP_JS
+    os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data) {
+      auto img = emscripten::val::global("OffscreenCanvas").new_(bmi.width, bmi.height);
+      bitmap_put_data(img, data, bmi);
+      return img;
+    }
+
+    void free_bitmap (os::bitmap& id) {
+    }
+    
+    void bitmap_put_data (os::bitmap& id, cbyteptr dataptr, const draw::bitmap_info& bmi) {
+      auto ctx = id.call<emscripten::val>("getContext");
+      auto imgData = ctx.call<emscripten::val>("createImageData", bmi.width, bmi.height);
+      auto data = imgData["data"];
+      auto length = data["length"].as<int>();
+
+      auto heapup8 = emscripten::val::global("HEAPU8");
+        auto data0 = emscripten::val(dataptr, emscripten::allow_raw_pointers());
+        auto data1 = emscripten::val(dataptr + length, emscripten::allow_raw_pointers());
+      auto sub = heapup8.call<emscripten::val>("subarray", data0, data1);
+      data.call<void>("set", sub);
+    }
+    
+    void bitmap_get_data (const os::bitmap& id, blob& dataptr, draw::bitmap_info& bmi) {
+        auto imgData = id.call<emscripten::val>("getImageData", 0, 0, bmi.width, bmi.height);
+        auto data = imgData["data"];
+        auto length = data["length"].as<int>();
+        dataptr.resize(length);
+        
+        //HEAPU8.subarray(outPtr, outPtr + imageData.data.length).set(imageData.data);
+        auto heapup8 = emscripten::val::global("HEAPU8");
+        auto data0 = emscripten::val(dataptr.data(), emscripten::allow_raw_pointers());
+        auto data1 = emscripten::val(dataptr.data() + length, emscripten::allow_raw_pointers());
+        auto sub = heapup8.call<emscripten::val>("subarray", data0, data1);
+        sub.call<void>("set", data);
+    }
+    
+    draw::bitmap_info bitmap_get_info (const os::bitmap& id) {
+      auto w = id["width"].as<uint32_t>();
+      auto h = id["height"].as<uint32_t>();
+      return {w, h, pixel_format_t::RGBA};
+    }
+#endif // GUIPP_JS
+
   }
 
   namespace draw {
@@ -405,6 +453,9 @@ namespace gui {
           create(bmi);
 #ifdef GUIPP_QT
           *get_os_bitmap() = *rhs.get_os_bitmap();
+#elif GUIPP_JS
+          auto imageData = rhs.get_os_bitmap().call<emscripten::val>("getImageData", 0, 0, bmi.width, bmi.height);
+          id.call<void>("putImageData", imageData, 0, 0);
 #else
           graphics(*this).copy_from((os::drawable)rhs, core::native_rect(bmi.size()));
 #endif
@@ -417,6 +468,8 @@ namespace gui {
     bool basic_map::is_valid () const {
 #ifdef GUIPP_QT
       return id && !id->isNull();
+#elif GUIPP_JS
+      return (id != emscripten::val::undefined());
 #else
       return id != 0;
 #endif
@@ -433,7 +486,7 @@ namespace gui {
     void basic_map::clear () {
       if (is_valid()) {
         free_bitmap(get_os_bitmap());
-        set_os_bitmap(0);
+        set_os_bitmap(IF_JS_ELSE(emscripten::val::null(), 0));
       }
     }
 

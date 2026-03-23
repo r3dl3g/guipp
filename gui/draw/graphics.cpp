@@ -117,7 +117,9 @@ namespace gui {
 #ifdef GUIPP_QT
           gc()->end();
 #endif // GUIPP_QT
+#ifndef GUIPP_JS
           delete ctx;
+#endif // GUIPP_JS
         }
         ctx = 0;
       }

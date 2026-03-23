@@ -24,6 +24,7 @@
 //
 // Common includes
 //
+#include <emscripten/val.h>
 #include <vector>
 #include <string>
 
@@ -52,18 +53,18 @@ namespace gui {
 
     };
 
-    using instance = handle<void*>;
-    using window = handle<int>;
-    using drawable = handle<int>;
-    using graphics = handle<unsigned int>;
+    using instance = emscripten::val; // document
+    using window = emscripten::val;   // canvas
+    using drawable = emscripten::val;
+    using graphics = emscripten::val; // context 2d
 
     typedef uint32_t color;
     typedef int style;
 
     using backstore = drawable;
-    typedef int bitmap;
+    using bitmap = emscripten::val;
     typedef int icon;
-    typedef int cursor;
+    typedef std::string cursor;
     typedef int brush;
     typedef std::string font;
 

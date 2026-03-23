@@ -426,11 +426,13 @@ namespace gui {
         }
         detail::install_message_filter();
 #endif
+#ifndef GUIPP_JS
         if (root) {
           detail::hot_keys.emplace(hk, std::make_pair(root, fn));
         } else {
           logging::warn() << "Root Windows is not yet created. Hotkey could not be registered!";
         }
+#endif //GUIPP_JS
       }
 
       void unregister_hot_key (const core::hot_key& hk) {
@@ -835,7 +837,7 @@ namespace gui {
       gui::os::event_result resultValue = 0;
       while (running) {
         core::event e = detail::event_queue.dequeue(std::chrono::milliseconds(20));
-        if (e.id) {
+        if (e.id != emscripten::val::undefined()) {
 
           if (detail::check_expose(e) || check_message_filter(e) || (filter && filter(e))) {
             continue;

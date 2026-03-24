@@ -566,6 +566,34 @@ namespace gui {
     // --------------------------------------------------------------------------
 #endif // GUIPP_QT
 
+#ifdef GUIPP_JS
+
+    core::context* get_context (const core::event& e) {
+      return std::get<core::context*>(e.param_0);
+    }
+
+    bool is_mouse_event (const core::event& e) {
+      return (e.type >= os::js::event_type::LButtonDown) && (e.type <= os::js::event_type::MouseLeave);
+    }
+
+    bool is_key_event (const core::event& e) {
+      return (e.type == os::js::event_type::KeyDown) || (e.type == os::js::event_type::KeyUp);
+    }
+
+    os::key_state get_key_state (const core::event& e) {
+      return std::get<unsigned int>(e.param_1);
+    }
+
+    os::key_symbol get_key_symbol (const core::event& e) {
+      return std::get<unsigned int>(e.param_0);
+    }
+
+    std::string get_key_chars (const core::event& e) {
+      return std::string(1, static_cast<char>(std::get<unsigned int>(e.param_0)));
+    }
+
+#endif //GUIPP_JS
+
   } // win
 
 } // gui

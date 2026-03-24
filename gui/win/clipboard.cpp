@@ -19,6 +19,11 @@
 #include <QtGui/QClipboard>
 #include <QtGui/QGuiApplication>
 #endif // GUIPP_QT
+#ifdef GUIPP_JS
+#include <emscripten/val.h>
+#endif // GUIPP_JS
+
+
 #include <util/string_util.h>
 
 // --------------------------------------------------------------------------
@@ -197,6 +202,28 @@ namespace gui {
     }
 
 #endif // GUIPP_QT
+
+#ifdef GUIPP_JS
+
+    clipboard::clipboard ()
+    {}
+
+    using namespace emscripten;
+    
+    void clipboard::set_text (window& win, const std::string& t) {
+      val navigator = emscripten::val::global("navigator");
+      val clipboard = navigator["clipboard"];
+      clipboard.call<void>("writeText", t);
+    }
+
+    void clipboard::get_text (window& win, std::function<clipboard::text_callback>&& cb) {
+      val navigator = emscripten::val::global("navigator");
+      val clipboard = navigator["clipboard"];
+      auto t = clipboard.call<std::string>("readText");
+      cb(t);
+    }
+
+#endif // GUIPP_JS
 
   } // win
 

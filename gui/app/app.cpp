@@ -31,6 +31,10 @@
 #include <logging/redirect_stream.h>
 #endif // ANDROID
 
+#ifdef GUIPP_JS
+#include <emscripten/val.h>
+#endif //GUIPP_JS
+
 #include <logging/dbgstream.h>
 #include <logging/file_logger.h>
 #include <logging/logger.h>
@@ -180,6 +184,9 @@ int main () {
   logging::debug() << "Qt app platform name: '" << qapplication.platformName().toStdString() << "'";
   logging::debug() << "Qt version: '" QT_VERSION_STR << "', runtime: '" << qVersion() << "'";
 #endif // GUIPP_QT
+#ifdef GUIPP_JS
+  gui::core::global::init(emscripten::val::global("document"));
+#endif //GUIPP_JS
 
   int ret = 0;
   try {

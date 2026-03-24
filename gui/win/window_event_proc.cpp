@@ -607,6 +607,12 @@ namespace gui {
 
 #endif // GUIPP_X11
 
+#ifdef GUIPP_JS
+    void register_utf8_window (const window&) {}
+
+    void unregister_utf8_window (const window&) {}
+#endif //GUIPP_JS
+
     } // global
 
     // --------------------------------------------------------------------------
@@ -629,7 +635,7 @@ namespace gui {
 #elif GUIPP_QT
       if (e.type() == QEvent::KeyPress) {
 #elif GUIPP_JS
-      if (e.type == os::event_type::KeyDown) {
+      if (e.type == os::js::event_type::KeyDown) {
 #endif
         core::hot_key hk(get_key_symbol(e), get_key_state(e));
         auto i = detail::hot_keys.find(hk);
@@ -741,6 +747,14 @@ namespace gui {
     }
 
 #elif GUIPP_JS
+    bool is_button_event_outside (const window& w, const core::event& e) {
+      if ((e.type >= os::js::event_type::LButtonDown) && (e.type <= os::js::event_type::MButtonDblClk)) {
+        auto pt = std::get<core::native_point>(e.param_1);
+        return !w.absolute_geometry().is_inside(core::global::scale_from_native(pt));
+      }
+      return false;
+    }
+
     void process_event (const core::event& e, gui::os::event_result& resultValue) {
       win::overlapped_window* win = win::detail::get_window(e.id);
 
@@ -837,9 +851,9 @@ namespace gui {
       gui::os::event_result resultValue = 0;
       while (running) {
         core::event e = detail::event_queue.dequeue(std::chrono::milliseconds(20));
-        if (e.id != emscripten::val::undefined()) {
+        if (e.id != emscripten::val::null()) {
 
-          if (detail::check_expose(e) || check_message_filter(e) || (filter && filter(e))) {
+          if (check_message_filter(e) || (filter && filter(e))) {
             continue;
           }
 

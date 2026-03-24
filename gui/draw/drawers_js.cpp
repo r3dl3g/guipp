@@ -16,11 +16,13 @@
 
 #ifdef GUIPP_JS
 
+
 // --------------------------------------------------------------------------
 //
 // Common includes
 //
 #include <array>
+#include <cmath>
 #include <logging/logger.h>
 #include <util/string_util.h>
 
@@ -71,7 +73,6 @@ namespace gui {
 
     void rectangle::operator() (graphics& g,
                                 const pen& p) const {
-      Use<brush> ubr(g, b);
       Use<pen> pn(g, p);
 
       const os::rectangle r = rect.os(g.context());
@@ -105,7 +106,7 @@ namespace gui {
       int wy = (r.y2 - r.y) / 2;
 
       g.os().call<void>("beginPath");
-      g.os().call<void>("ellipse", cx, cy, wx, wy, 0, 2 * PI);
+      g.os().call<void>("ellipse", cx, cy, wx, wy, 0, 2 * M_PI);
       g.os().call<void>("stroke");
     }
 
@@ -119,7 +120,7 @@ namespace gui {
       int wy = (r.y2 - r.y) / 2;
 
       g.os().call<void>("beginPath");
-      g.os().call<void>("ellipse", cx, cy, wx, wy, 0, 2 * PI);
+      g.os().call<void>("ellipse", cx, cy, wx, wy, 0, 2 * M_PI);
       g.os().call<void>("fill");
     }
 
@@ -131,7 +132,7 @@ namespace gui {
       int rii = (radius.os_width() + radius.os_height()) / 2;
 
       g.os().call<void>("beginPath");
-      g.os().call<void>("roundRect", os::get_x(r), os::get_y(r), os::get_width(r), os::get_height(r)), rii);
+      g.os().call<void>("roundRect", os::get_x(r), os::get_y(r), os::get_width(r), os::get_height(r), rii);
       g.os().call<void>("stroke");
     }
 
@@ -142,7 +143,7 @@ namespace gui {
       int rii = (radius.os_width() + radius.os_height()) / 2;
 
       g.os().call<void>("beginPath");
-      g.os().call<void>("roundRect", os::get_x(r), os::get_y(r), os::get_width(r), os::get_height(r)), rii);
+      g.os().call<void>("roundRect", os::get_x(r), os::get_y(r), os::get_width(r), os::get_height(r), rii);
       g.os().call<void>("fill");
     }
 
@@ -163,11 +164,9 @@ namespace gui {
       int cx = c.x + rx;
       int cy = c.y + ry;
 
-      auto r = c.radius();
-
       g.os().call<void>("beginPath");
       g.os().call<void>("moveTo", cx, cy);
-      g.os().call<void>("ellipse", cx, cy, rx, ry, c.start().os(), c.end().os());
+      g.os().call<void>("ellipse", cx, cy, rx, ry, c.start.rad(), c.end.rad());
       g.os().call<void>("lineTo", cx, cy);
       g.os().call<void>("stroke");
     }
@@ -181,10 +180,8 @@ namespace gui {
       int cx = c.x + rx;
       int cy = c.y + ry;
 
-      auto r = c.radius();
-
       g.os().call<void>("beginPath");
-      g.os().call<void>("ellipse", cx, cy, rx, ry, c.start().os(), c.end().os());
+      g.os().call<void>("ellipse", cx, cy, rx, ry, c.start.rad(), c.end.rad());
       g.os().call<void>("stroke");
     }
 
@@ -197,11 +194,9 @@ namespace gui {
       int cx = c.x + rx;
       int cy = c.y + ry;
 
-      auto r = c.radius();
-
       g.os().call<void>("beginPath");
       g.os().call<void>("moveTo", cx, cy);
-      g.os().call<void>("ellipse", cx, cy, rx, ry, c.start().os(), c.end().os());
+      g.os().call<void>("ellipse", cx, cy, rx, ry, c.start.rad(), c.end.rad());
       g.os().call<void>("lineTo", cx, cy);
       g.os().call<void>("fill");
     }
@@ -215,10 +210,8 @@ namespace gui {
       int cx = c.x + rx;
       int cy = c.y + ry;
 
-      auto r = c.radius();
-
       g.os().call<void>("beginPath");
-      g.os().call<void>("ellipse", cx, cy, rx, ry, c.start().os(), c.end().os());
+      g.os().call<void>("ellipse", cx, cy, rx, ry, c.start.rad(), c.end.rad());
       g.os().call<void>("fill");
     }
 
@@ -346,10 +339,10 @@ namespace gui {
 
       set_alignment(g, origin);
 
-      core::rectangle r = rect
+      core::rectangle r = rect;
       bounding_box(str, r, origin)(g, f, c);
       
-      std::vector<std::string> lines = util::string::split(str);
+      std::vector<std::string> lines = util::string::split<'\n'>(str);
       auto x = r.os_x(g.context());
       auto y = r.os_y(g.context());
       auto line_height = r.os_height() / lines.size();
@@ -367,14 +360,14 @@ namespace gui {
                                    os::color) const {
       Use<font> fn(g, f);
 
-      std::vector<std::string> lines = util::string::split(str);
+      std::vector<std::string> lines = util::string::split<'\n'>(str);
       double h = 0;
       double w = 0;
       for (const auto& line : lines) {
-        auto metric = g.os().call<var>("measureText", line);
-        double width = metric.get<double>("width");
-        double ascent = metric.get<double>("fontBoundingBoxAscent");
-        double descent = metric.get<double>("fontBoundingBoxDescent");
+        auto metric = g.os().call<val>("measureText", line);
+        double width = metric["width"].as<double>();
+        double ascent = metric["fontBoundingBoxAscent"].as<double>();
+        double descent = metric["fontBoundingBoxDescent"].as<double>();
         w = std::max(w, width);
         h += (ascent + descent);
       }

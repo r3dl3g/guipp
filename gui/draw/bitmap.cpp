@@ -394,30 +394,45 @@ namespace gui {
     }
     
     void bitmap_put_data (os::bitmap& id, cbyteptr dataptr, const draw::bitmap_info& bmi) {
-      auto ctx = id.call<emscripten::val>("getContext");
-      auto imgData = ctx.call<emscripten::val>("createImageData", bmi.width, bmi.height);
-      auto data = imgData["data"];
-      auto length = data["length"].as<int>();
+      auto ctx = core::native::create_graphics_context(id);
+      EM_ASM_({
+        let ctx = $3;
+        const imgData = ctx.createImageData($1, $2);
+        imgData.data.set(HEAPU8.subarray(($0, $0 + $1 * $2 * 4)));
+        ctx.putImageData(imgData, 0, 0);
+      }, dataptr, bmi.width, bmi.height, ctx.as_handle());
 
-      auto heapup8 = emscripten::val::global("HEAPU8");
-        auto data0 = emscripten::val(dataptr, emscripten::allow_raw_pointers());
-        auto data1 = emscripten::val(dataptr + length, emscripten::allow_raw_pointers());
-      auto sub = heapup8.call<emscripten::val>("subarray", data0, data1);
-      data.call<void>("set", sub);
+      // auto imgData = ctx.call<emscripten::val>("createImageData", bmi.width, bmi.height);
+      // auto data = imgData["data"];
+      // auto length = data["length"].as<int>();
+
+      // auto heapup8 = emscripten::val::global("HEAPU8");
+      //   auto data0 = emscripten::val(dataptr, emscripten::allow_raw_pointers());
+      //   auto data1 = emscripten::val(dataptr + length, emscripten::allow_raw_pointers());
+      // auto sub = heapup8.call<emscripten::val>("subarray", data0, data1);
+      // data.call<void>("set", sub);
     }
     
     void bitmap_get_data (const os::bitmap& id, blob& dataptr, draw::bitmap_info& bmi) {
-        auto imgData = id.call<emscripten::val>("getImageData", 0, 0, bmi.width, bmi.height);
-        auto data = imgData["data"];
-        auto length = data["length"].as<int>();
-        dataptr.resize(length);
-        
-        //HEAPU8.subarray(outPtr, outPtr + imageData.data.length).set(imageData.data);
-        auto heapup8 = emscripten::val::global("HEAPU8");
-        auto data0 = emscripten::val(dataptr.data(), emscripten::allow_raw_pointers());
-        auto data1 = emscripten::val(dataptr.data() + length, emscripten::allow_raw_pointers());
-        auto sub = heapup8.call<emscripten::val>("subarray", data0, data1);
-        sub.call<void>("set", data);
+      auto ctx = core::native::create_graphics_context(id);
+      dataptr.resize(bmi.width * bmi.height * 4);
+      EM_ASM_({
+        let ctx = $3;
+        let imageData = ctx.getImageData(0, 0, $1, $2);
+        HEAPU8.subarray($0, $0 + $1 * $2 * 4).set(imageData.data);
+      }, dataptr.data(), bmi.width, bmi.height, ctx.as_handle());
+
+      // auto imgData = id.call<emscripten::val>("getImageData", 0, 0, bmi.width, bmi.height);
+      // auto data = imgData["data"];
+      // auto length = data["length"].as<int>();
+      // dataptr.resize(length);
+      
+      // //HEAPU8.subarray(outPtr, outPtr + imageData.data.length).set(imageData.data);
+      // auto heapup8 = emscripten::val::global("HEAPU8");
+      // auto data0 = emscripten::val(dataptr.data(), emscripten::allow_raw_pointers());
+      // auto data1 = emscripten::val(dataptr.data() + length, emscripten::allow_raw_pointers());
+      // auto sub = heapup8.call<emscripten::val>("subarray", data0, data1);
+      // sub.call<void>("set", data);
     }
     
     draw::bitmap_info bitmap_get_info (const os::bitmap& id) {
@@ -469,7 +484,7 @@ namespace gui {
 #ifdef GUIPP_QT
       return id && !id->isNull();
 #elif GUIPP_JS
-      return (id != emscripten::val::undefined());
+      return (id != emscripten::val::null());
 #else
       return id != 0;
 #endif
@@ -507,9 +522,11 @@ namespace gui {
     }
 
     void basic_map::create (const bitmap_info& rhs) {
-      bitmap_info bmi = get_info();
-      if (bmi == rhs) {
-        return;
+      if (is_valid()) {
+        bitmap_info bmi = get_info();
+        if (bmi == rhs) {
+          return;
+        }
       }
       clear();
       set_os_bitmap(create_bitmap(rhs));

@@ -134,7 +134,7 @@ namespace gui {
 
       struct gui_init {
         gui_init ()
-          : instance(nullptr)
+          : instance(IF_JS_ELSE(emscripten::val::null(), nullptr))
 #ifdef GUIPP_X11
           , screen(0)
 #endif // GUIPP_X11
@@ -164,7 +164,7 @@ namespace gui {
 
         bool is_initialized () const {
 #ifdef GUIPP_JS
-          return (instance != emscripten::val::undefined());
+          return (instance != emscripten::val::null());
 #else
           return (instance != nullptr);
 #endif //GUIPP_JS
@@ -518,6 +518,14 @@ namespace gui {
       }
 
 #endif // GUIPP_QT
+
+#ifdef GUIPP_JS
+
+      double calc_scale_factor () {
+        return 1.0;
+      }
+
+#endif //GUIPP_JS
 
     } // global
 

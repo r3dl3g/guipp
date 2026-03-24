@@ -305,7 +305,7 @@ namespace gui {
                                              const core::rectangle& r) {
 
 #ifdef GUIPP_JS
-      if (get_os_window() != emscripten::val::undefined()) {
+      if (get_os_window() != emscripten::val::null()) {
 #else
       if (get_os_window()) {
 #endif //GUIPP_JS
@@ -435,7 +435,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     bool overlapped_window::is_valid () const {
 #ifdef GUIPP_JS
-      return (get_os_window() != emscripten::val::undefined()) && super::is_valid();
+      return (get_os_window() != emscripten::val::null()) && super::is_valid();
 #else
       return (get_os_window() != 0) && super::is_valid();
 #endif //GUIPP_JS

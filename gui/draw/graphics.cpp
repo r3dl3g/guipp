@@ -27,6 +27,9 @@
 # include <QtGui/QBitmap>
 # include <QtGui/QScreen>
 #endif // GUIPP_QT
+#ifdef GUIPP_JS
+#include <emscripten/bind.h>
+#endif // GUIPP_JS
 
 #include <util/ostreamfmt.h>
 #ifdef GUIPP_WIN
@@ -691,6 +694,142 @@ namespace gui {
     }
 
 #endif // GUIPP_QT
+
+#ifdef GUIPP_JS
+
+    using namespace emscripten;
+
+    graphics& graphics::draw_pixel (const core::native_point& pt,
+                                          os::color c) {
+      EM_ASM_({
+        let ctx = $3;
+        const imgData = ctx.createImageData(1, 1);
+        imgData.data.set(HEAPU8.subarray(($0, $0 + 4)));
+        ctx.putImageData(imgData, $1, $2);
+      }, &c, pt.x(), pt.y(), os().as_handle());
+
+
+      // Use<pen> pn(gc(), c);
+
+      // os().call<void>("beginPath");
+      // os().call<void>("moveTo", pt.x(), pt.y());
+      // os().call<void>("lineTo", pt.x(), pt.y());
+      // os().call<void>("stroke");
+
+      return *this;
+    }
+
+    os::color graphics::get_pixel (const core::native_point& pt) const {
+      os::color c = 0;
+      EM_ASM_({
+        let ctx = $3;
+        let imageData = ctx.getImageData(0, 0, $1, $2);
+        HEAPU8.subarray($0, $0 + $1 * $2 * 4).set(imageData.data);
+      }, &c, pt.x(), pt.y(), os().as_handle());
+
+      return c;
+    }
+
+    graphics& graphics::draw_lines (const std::vector<core::point>& points,
+                                    const pen& p) {
+      Use<pen> pn(gc(), p);
+
+      os().call<void>("beginPath");
+      bool first = true;
+      for (const core::point& pt : points) {
+        if (first) {
+          first = false;
+          os().call<void>("moveTo", pt.os_x(context()), pt.os_y(context()));
+        } else {
+          os().call<void>("lineTo", pt.os_x(context()), pt.os_y(context()));
+        }
+      }
+      os().call<void>("stroke");
+      return *this;
+    }
+
+    void graphics::flush () {
+    }
+
+    int graphics::depth () const {
+      return 32;
+    }
+
+    core::native_rect graphics::native_area () const {
+        val style = target().call<val>("getBoundingClientRect");
+        using ptype = core::native_rect::point_type;
+        using stype = core::native_rect::size_type;
+        auto left = style["left"].as<ptype>();
+        auto top = style["top"].as<ptype>();
+        auto width = style["width"].as<stype>();
+        auto height = style["height"].as<stype>();
+
+        return {left, top, width, height};
+    }
+
+    graphics& graphics::copy_from (graphics& src, const core::native_rect& r, const core::native_point& pt) {
+      return copy_from(src.os(), r, pt, copy_mode::bit_copy);
+    }
+
+    graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) {
+      core::native_size sz = bmp.image.native_size();
+
+      EM_ASM_({
+        let src = $4;
+        let tgt = $5;
+        let imageData = src.getImageData(0, 0, $2, $3);
+        tgt.putImageData(imageData, $0, $1);
+      }, pt.x(), pt.y(), sz.width(), sz.height(), os().as_handle(), bmp.image.get_os_bitmap().as_handle());
+
+      // auto imageData = bmp.image.get_os_bitmap().call<val>("getImageData", 0, 0, sz.width(), sz.height());
+      // os().call<void>("putImageData", imageData, pt.x(), pt.y());
+      return *this;
+    }
+
+    graphics& graphics::copy_from (os::drawable src,
+                                   const core::native_rect& r,
+                                   const core::native_point& pt,
+                                   const copy_mode) {
+      auto imageData = src.call<val>("getImageData", r.x(), r.y(), r.width(), r.height());
+      os().call<void>("putImageData", imageData, pt.x(), pt.y());
+      return *this;
+    }
+
+    graphics& graphics::draw_streched (const draw::pixmap& pixmap,
+                                       const core::native_rect& dst,
+                                       const core::native_point& src,
+                                       const std::string& filter) {
+      if (pixmap) {
+        auto sz = pixmap.native_size();
+        os().call<void>("drawImage", pixmap.get_os_bitmap(),
+          src.x(), src.y(), sz.width(), sz.height(),
+          dst.x(), dst.y(), dst.width(), dst.height());
+
+        // EM_ASM_({
+        //   let src = $0;
+        //   let tgt = $1;
+        //   tgt.drawImage(src, $2, $3, $4, $5, $6, $7, $8, $9)
+
+        //   let imageData = src.getImageData(0, 0, );
+        //   tgt.putImageData(imageData, $0, $1);
+        // }, pixmap.get_os_bitmap().as_handle(), os().as_handle(),
+        //   src.x(), src.y(), sz.width(), sz.height(),
+        //   dst.x(), dst.y(), dst.width(), dst.height());
+      }
+      return *this;
+    }
+
+    void graphics::invert (const core::rectangle& r) {
+      // auto rect = core::global::scale_to_native(r);
+    }
+
+    std::vector<std::string> graphics::get_filter_list(os::drawable d) {
+      static std::vector<std::string> list = {"STRETCH"};
+      return list;
+    }
+
+#endif
+
     // --------------------------------------------------------------------------
 
     const core::native_rect& graphics::get_invalid_area () const {

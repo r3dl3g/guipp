@@ -138,20 +138,20 @@ namespace gui {
       }
 
       void destroy (os::window id) {
-        if (id != val::undefined()) {
+        if (id != val::null()) {
           id.call<void>("remove");
-          id = val::undefined();
+          id = val::null();
         }
       }
 
       void notify_close (window& w) {
-        w.notify_event(os::event_type::Close);
+        w.notify_event(os::js::event_type::Close);
       }
 
       void prepare_win_for_event (const overlapped_window&) {}
 
       bool is_visible (os::window id) {
-        if (id != val::undefined()) {
+        if (id != val::null()) {
           auto visibility = id["visibility"].as<std::string>();
           return visibility != "hidden";
         }
@@ -159,7 +159,7 @@ namespace gui {
       }
 
       void set_visible (os::window id, bool s) {
-        if (id != val::undefined()) {
+        if (id != val::null()) {
           id.set("visibility", std::string(s ? "visible" : "hidden"));
         }
       }
@@ -168,13 +168,13 @@ namespace gui {
       }
 
       void to_front (os::window id) {
-        if (id != val::undefined()) {
+        if (id != val::null()) {
           id.set("z-index", 10);
         }
       }
 
       void to_back (os::window id) {
-        if (id != val::undefined()) {
+        if (id != val::null()) {
           id.set("z-index", 0);
         }
       }
@@ -183,7 +183,7 @@ namespace gui {
       }
 
       void set_cursor (os::window id, const os::cursor& c) {
-        if (id != val::undefined()) {
+        if (id != val::null()) {
           id.set("cursor", c);
         }
       }
@@ -203,8 +203,8 @@ namespace gui {
       }
 
       core::size screen_size () {
-        val page = val::global("window");
-        return core::global::scale_from_native(core::native_size(page["width"].as<int>(), page["height"].as<int>()));
+        val win = val::global("window");
+        return core::global::scale_from_native(core::native_size(win["innerWidth"].as<int>(), win["innerHeight"].as<int>()));
       }
 
       core::rectangle screen_area () {
@@ -231,13 +231,13 @@ namespace gui {
       }
 
       void set_title (os::window id, const std::string& title) {
-        if (id != val::undefined()) {
+        if (id != val::null()) {
           core::global::get_instance().set("title", title);
         }
       }
 
       std::string get_title (os::window id) {
-        if (id != val::undefined()) {
+        if (id != val::null()) {
           return core::global::get_instance()["title"].as<std::string>();
         }
         return {};
@@ -252,7 +252,7 @@ namespace gui {
       }
 
       bool is_top_most (os::window id) {
-        if (id != val::undefined()) {
+        if (id != val::null()) {
           return id["z-index"].as<int>() > 0;
         }
         return false;

@@ -350,7 +350,7 @@ namespace gui {
 
     namespace filter {
 
-      auto by_extension (const std::string& ext) {
+      inline auto by_extension (const std::string& ext) {
         return [=] (const sys_fs::directory_entry& e) {
           return !util::string::ends_with(e.path().string(), ext);
         };

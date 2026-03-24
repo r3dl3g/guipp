@@ -75,7 +75,8 @@ namespace gui {
     using button_clicked_event = core::event_handler<detail::BN_CLICKED_MESSAGE>;
     using button_pushed_event = core::event_handler<detail::BN_PUSHED_MESSAGE>;
     using button_released_event = core::event_handler<detail::BN_UNPUSHED_MESSAGE>;
-    using button_state_event = core::event_handler<detail::BN_STATE_MESSAGE, 0,
+    using button_state_event = core::event_handler<detail::BN_STATE_MESSAGE,
+                                                   static_cast<gui::os::event_id>(0),
                                                    core::params<bool>::
                                                    getter<get_button_state>>;
 #endif // GUIPP_QT || GUIPP_JS

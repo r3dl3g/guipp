@@ -108,7 +108,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<gui::os::event_id E,
-             gui::os::event_id Mask = 0,
+             gui::os::event_id Mask = static_cast<gui::os::event_id>(0),
              typename C = params<>::getter<>,
              gui::os::event_result R = 0,
              typename M = event_id_matcher<E>>

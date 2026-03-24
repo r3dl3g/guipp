@@ -70,8 +70,6 @@ namespace gui {
       GUIPP_WIN_EXPORT void set_os_window (overlapped_window* win, os::window id);
       GUIPP_WIN_EXPORT void unset_os_window (os::window id);
 
-      GUIPP_WIN_EXPORT bool check_expose (const core::event& e);
-
       typedef bool (filter_fn)(const core::event&);
       typedef std::function<filter_fn> filter_call;
 

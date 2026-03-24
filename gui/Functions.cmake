@@ -206,7 +206,14 @@ function(guipp_app TARGET)
                         )
   if (EMSCRIPTEN)
     set_target_properties(${TARGET} PROPERTIES
-                          LINK_FLAGS "-s USE_PTHREADS=1")
+                          LINK_FLAGS "-s USE_PTHREADS=1"
+                                     "-s MODULARIZE=1"
+                                     "-s EXPORT_NAME='createModule'"
+                                     "-s ALLOW_MEMORY_GROWTH=1"
+                                     "-sEXPORTED_FUNCTIONS=['_main']"
+                                     "-DEXPORTED_RUNTIME_METHODS=[cwrap,ccall,HEAPU8]"
+                                     "--bind"
+                          )
   endif()
   if (ANDROID)
     add_qt_android_apk(${TARGET}_apk ${TARGET}

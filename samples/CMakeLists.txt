@@ -54,11 +54,7 @@ if (EMSCRIPTEN)
   set(CMAKE_EXECUTABLE_SUFFIX ".wasm.js")
 endif (EMSCRIPTEN)
 
-if (${CMAKE_VERSION} VERSION_LESS "3.13.0")
-  set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${GUIPP_EXE_LINKER_FLAGS})
-else ()
-  add_link_options(${GUIPP_EXE_LINKER_FLAGS})
-endif ()
+add_link_options(${GUIPP_EXE_LINKER_FLAGS})
 
 function(guipp_sample PROJECT_NAME)
 
@@ -76,10 +72,6 @@ function(guipp_sample PROJECT_NAME)
                         FOLDER apps
                         CXX_STANDARD ${GUIPP_CXX_STANDARD}
                         )
-  if (EMSCRIPTEN)
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-                          LINK_FLAGS "-s USE_PTHREADS=1")
-  endif ()
   if (ANDROID)
     add_qt_android_apk(${PROJECT_NAME}_apk ${PROJECT_NAME}
                          PACKAGE_NAME "de.redspace.${PROJECT_NAME}"

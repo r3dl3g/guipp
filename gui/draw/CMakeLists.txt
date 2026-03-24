@@ -18,10 +18,14 @@ if(NOT TARGET ${PROJECT_NAME})
       drawers_qt.cpp
       drawers_win32.cpp
       drawers_x11.cpp
+      drawers_js.cpp
       brush.cpp
       diagram.cpp
       bitmap.cpp
-      font.cpp
+      font_win32.cpp
+      font_x11.cpp
+      font_qt.cpp
+      font_js.cpp
       graphics.cpp
       pen.cpp
       text_origin.cpp

@@ -203,6 +203,13 @@ if(NOT TARGET guipp)
   elseif(EMSCRIPTEN)
     DebugPrint("GUIPP: build for emscripten!")
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_JS -Wno-unknown-pragmas)
+    set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} --bind
+      -sUSE_PTHREADS=1 -sALLOW_MEMORY_GROWTH=1 -Wno-limited-postlink-optimizations --Wno-pthreads-mem-growth
+      -sOFFSCREEN_FRAMEBUFFER=1 -sNO_DISABLE_EXCEPTION_CATCHING
+    )
+#    set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} -sMODULARIZE=1
+#      -sEXPORT_NAME='createModule' -sEXPORTED_FUNCTIONS=['_main']
+#      -DEXPORTED_RUNTIME_METHODS=[cwrap,ccall,HEAPU8])
 
   elseif(UNIX)
     DebugPrint("GUIPP: build for Unix!")
@@ -400,6 +407,7 @@ if(NOT TARGET guipp)
   DebugPrint("gui GUIPP_APP_LIBRARIES: ${GUIPP_APP_LIBRARIES}")
   DebugPrint("gui GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
   DebugPrint("gui GUIPP_BUILD_FOR_MOBILE: ${GUIPP_BUILD_FOR_MOBILE}")
+  DebugPrint("gui CMAKE_TOOLCHAIN_FILE: ${CMAKE_TOOLCHAIN_FILE}")
 
   get_directory_property(HAS_PARENT PARENT_DIRECTORY)
   if(HAS_PARENT)

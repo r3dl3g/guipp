@@ -204,11 +204,15 @@ if(NOT TARGET guipp)
     DebugPrint("GUIPP: build for emscripten!")
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_JS -Wno-unknown-pragmas)
     set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} --bind
-      -sUSE_PTHREADS=1 -sALLOW_MEMORY_GROWTH=1 -Wno-limited-postlink-optimizations --Wno-pthreads-mem-growth
-      -sOFFSCREEN_FRAMEBUFFER=1 -sNO_DISABLE_EXCEPTION_CATCHING
+      -sUSE_PTHREADS=1
+      -sALLOW_MEMORY_GROWTH=1
+      -Wno-limited-postlink-optimizations -Wno-pthreads-mem-growth
+      -sOFFSCREEN_FRAMEBUFFER=1
+      -sNO_DISABLE_EXCEPTION_CATCHING
+      -sMODULARIZE=1
+      -sEXPORT_NAME='createModule'
+      -sEXPORTED_FUNCTIONS=['_main']
     )
-#    set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} -sMODULARIZE=1
-#      -sEXPORT_NAME='createModule' -sEXPORTED_FUNCTIONS=['_main']
 #      -DEXPORTED_RUNTIME_METHODS=[cwrap,ccall,HEAPU8])
 
   elseif(UNIX)

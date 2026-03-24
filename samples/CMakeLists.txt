@@ -72,6 +72,11 @@ function(guipp_sample PROJECT_NAME)
                         FOLDER apps
                         CXX_STANDARD ${GUIPP_CXX_STANDARD}
                         )
+  if (EMSCRIPTEN)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+                          LINK_FLAGS ${GUIPP_EXE_LINKER_FLAGS}
+                          )
+  endif()
   if (ANDROID)
     add_qt_android_apk(${PROJECT_NAME}_apk ${PROJECT_NAME}
                          PACKAGE_NAME "de.redspace.${PROJECT_NAME}"

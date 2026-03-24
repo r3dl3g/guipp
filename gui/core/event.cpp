@@ -84,6 +84,10 @@ namespace std {
 
 #define DEFINE_MESSAGE(a) {a, # a}
 
+#ifdef GUIPP_JS
+    using namespace gui::os::js;
+#endif
+
     message_map_t& get_message_map () {
       static message_map_t message_map = {
 #ifdef GUIPP_WIN
@@ -712,6 +716,38 @@ namespace std {
         DEFINE_MESSAGE(QEvent::TabletTrackingChange)
 #endif // GUIPP_QT
 
+#ifdef GUIPP_JS
+        DEFINE_MESSAGE(event_type::None         ),
+        DEFINE_MESSAGE(event_type::Create       ),
+        DEFINE_MESSAGE(event_type::Close        ),
+        DEFINE_MESSAGE(event_type::Destroy      ),
+        DEFINE_MESSAGE(event_type::Show         ),
+        DEFINE_MESSAGE(event_type::Hide         ),
+        DEFINE_MESSAGE(event_type::Layout       ),
+        DEFINE_MESSAGE(event_type::Paint        ),
+        DEFINE_MESSAGE(event_type::SetFocus     ),
+        DEFINE_MESSAGE(event_type::KillFocus    ),
+        DEFINE_MESSAGE(event_type::Move         ),
+        DEFINE_MESSAGE(event_type::Size         ),
+        DEFINE_MESSAGE(event_type::KeyDown      ),
+        DEFINE_MESSAGE(event_type::KeyUp        ),
+        DEFINE_MESSAGE(event_type::LButtonDown  ),
+        DEFINE_MESSAGE(event_type::LButtonUp    ),
+        DEFINE_MESSAGE(event_type::LButtonDblClk),
+        DEFINE_MESSAGE(event_type::RButtonDown  ),
+        DEFINE_MESSAGE(event_type::RButtonUp    ),
+        DEFINE_MESSAGE(event_type::RButtonDblClk),
+        DEFINE_MESSAGE(event_type::MButtonDown  ),
+        DEFINE_MESSAGE(event_type::MButtonUp    ),
+        DEFINE_MESSAGE(event_type::MButtonDblClk),
+        DEFINE_MESSAGE(event_type::MouseMove    ),
+        DEFINE_MESSAGE(event_type::MouseEnter   ),
+        DEFINE_MESSAGE(event_type::MouseLeave   ),
+        DEFINE_MESSAGE(event_type::WheelH       ),
+        DEFINE_MESSAGE(event_type::WheelV       ),
+        DEFINE_MESSAGE(event_type::User         )
+#endif //GUIPP_JS
+
       };
       return message_map;
       }
@@ -894,5 +930,17 @@ namespace std {
     return out;
   }
 #endif // GUIPP_QT
+
+#ifdef GUIPP_JS
+  std::ostream& operator<< (std::ostream& out, const gui::core::event& e) {
+    const char* msg = detail::get_message_map()[e.type];
+    if (msg) {
+      out << msg << " [" << e.id.as_handle() << "]";
+    } else {
+      out << "0x" << std::hex << static_cast<int>(e.type) << " [" << e.id.as_handle() << "]";
+    }
+    return out;
+  }
+#endif //GUIPP_JS
 
 }

@@ -233,11 +233,13 @@ namespace gui {
 
     os::event_id container::collect_event_mask () const {
       os::event_id mask = get_event_mask();
+#ifndef GUIPP_JS
       for (auto w : children) {
         if (!w->get_state().overlapped()) {
           mask |= w->collect_event_mask();
         }
       }
+#endif //GUIPP_JS
       return mask;
     }
 

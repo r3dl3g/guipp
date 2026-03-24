@@ -28,7 +28,11 @@ namespace gui {
   namespace win {
 
     receiver::receiver ()
+#ifdef GUIPP_JS
+      : event_mask(gui::os::js::event_type::None)
+#else
       : event_mask(0)
+#endif //GUIPP_JS
     {}
 
     receiver::~receiver ()
@@ -45,7 +49,9 @@ namespace gui {
     }
 
     void receiver::add_event_mask (os::event_id mask) {
+#ifndef GUIPP_JS
       event_mask |= mask;
+#endif //GUIPP_JS
     }
 
     void receiver::on_create (create_event::function&& f) {

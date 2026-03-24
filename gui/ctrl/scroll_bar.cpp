@@ -239,7 +239,7 @@ namespace gui {
         }
         return false;
       }),
-      static_cast<os::event_id>(left_btn_down_event::mask | left_btn_up_event::mask | wheel_x_event::mask | mouse_move_event::mask | any_key_up_event::mask));
+      static_cast<os::event_id>(IF_JS_ELSE(0, left_btn_down_event::mask | left_btn_up_event::mask | wheel_x_event::mask | mouse_move_event::mask | any_key_up_event::mask)));
       super::on_paint(draw::paint(this, &basic_scroll_bar::handle_paint));
     }
 
@@ -258,7 +258,7 @@ namespace gui {
         }
         return false;
       }),
-      static_cast<os::event_id>(left_btn_down_event::mask | left_btn_up_event::mask | wheel_y_event::mask | mouse_move_event::mask | any_key_up_event::mask));
+      static_cast<os::event_id>(IF_JS_ELSE(0, left_btn_down_event::mask | left_btn_up_event::mask | wheel_y_event::mask | mouse_move_event::mask | any_key_up_event::mask)));
       super::on_paint(draw::paint(this, &basic_scroll_bar::handle_paint));
     }
 

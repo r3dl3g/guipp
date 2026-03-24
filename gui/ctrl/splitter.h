@@ -41,7 +41,7 @@ namespace gui {
     using slider_event = core::event_handler<detail::SLIDER_MESSAGE, 0,
                                              core::params<int>::getter<win::get_param<0>>>;
 #elif GUIPP_JS
-    using slider_event = core::event_handler<detail::SLIDER_MESSAGE, 0,
+    using slider_event = core::event_handler<detail::SLIDER_MESSAGE, gui::os::js::event_type::None,
                                              core::params<int>::getter<win::get<0, int>::param>>;
 #else
 # error Undefined system: slider_event

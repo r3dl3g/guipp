@@ -86,13 +86,13 @@ namespace gui {
 
       void notify_move (window& w, const core::point& pt, const core::point& ) {
         gui::os::event_result result = 0;
-        gui::core::event e{{}, os::event_type::Move, pt};
+        gui::core::event e{{}, os::js::event_type::Move, pt};
         w.handle_event(e, result);
       }
 
       void notify_resize (window& w, const core::size& sz, const core::size& old) {
         gui::os::event_result result = 0;
-        gui::core::event e{{}, os::event_type::Size, sz};
+        gui::core::event e{{}, os::js::event_type::Size, sz};
         w.handle_event(e, result);
       }
 
@@ -341,7 +341,7 @@ namespace gui {
       void send_mouse_event (window* win, bool enter) {
         if (win && win->is_valid()) {
           gui::os::event_result result = 0;
-          gui::core::event e{{}, enter ? os::event_type::MouseEnter : os::event_type::MouseLeave};
+          gui::core::event e{{}, enter ? os::js::event_type::MouseEnter : os::js::event_type::MouseLeave};
           win->handle_event(e, result);
         }
       }
@@ -349,7 +349,7 @@ namespace gui {
       void send_notify_visibility (window* win, bool visible) {
         if (win && win->is_valid()) {
           gui::os::event_result result = 0;
-          gui::core::event e{{}, visible ? os::event_type::Show : os::event_type::Hide};
+          gui::core::event e{{}, visible ? os::js::event_type::Show : os::js::event_type::Hide};
           win->handle_event(e, result);
         }
       }

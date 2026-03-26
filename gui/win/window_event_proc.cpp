@@ -32,6 +32,10 @@
 # include <QtCore/QEventLoop>
 # include <QtCore/QTimer>
 #endif
+#ifdef GUIPP_JS
+#include <emscripten.h>
+#include <emscripten/val.h>
+#endif //GUIPP_JS
 #include <logging/logger.h>
 #include <util/robbery.h>
 #include <util/blocking_queue.h>
@@ -43,6 +47,8 @@
 #include "gui/win/overlapped_window.h"
 #include "gui/win/window_event_proc.h"
 #include "gui/win/dbg_win_message.h"
+#include "gui/win/native.h"
+
 
 namespace util {
 
@@ -306,9 +312,6 @@ namespace gui {
 
 #elif GUIPP_JS
     namespace detail {
-
-      typedef util::blocking_queue<core::event> event_queue_t;
-      event_queue_t event_queue;
 
       typedef std::map<os::window, win::overlapped_window*> window_map;
       window_map global_window_map;
@@ -849,9 +852,59 @@ namespace gui {
       return event_loop.exec(QEventLoop::AllEvents);
 #elif GUIPP_JS
       gui::os::event_result resultValue = 0;
+
+      auto self = emscripten::val::global("self");
+      auto queue = self["eventQueue"];
+      auto id = self["canvas"];
+
       while (running) {
-        core::event e = detail::event_queue.dequeue(std::chrono::milliseconds(20));
-        if (e.id != emscripten::val::null()) {
+        while (queue["length"].as<int>() > 0) {
+
+          auto event = queue.call<emscripten::val>("shift");
+          auto type = static_cast<gui::os::event_id>(event["type"].as<int>());
+
+          core::event e;
+          if ((type == os::js::event_type::KeyDown) || (type == os::js::event_type::KeyUp)) {
+            os::key_state state = event["state"].as<os::key_state>();
+            os::key_symbol key = event["key"].as<os::key_symbol>();
+            e = {id, type, state, key};
+            logging::trace() << "Received event " << e;
+
+          } else if ((type == os::js::event_type::MouseMove) ||
+                     ((static_cast<int>(type) >= static_cast<int>(os::js::event_type::ButtonDown)) && 
+                      (static_cast<int>(type) <= static_cast<int>(os::js::event_type::RButtonDblClk)))) {
+
+            os::key_state state = event["state"].as<os::key_state>();
+            auto x = event["x"].as<core::native_point::type>();
+            auto y = event["y"].as<core::native_point::type>();
+            e = {id, type, state, core::native_point(x, y)};
+            logging::trace() << "Received event " << e << " at " << x << ", " << y << " state " << state;
+
+          } else if ((type == os::js::event_type::WheelH) ||
+                     (type == os::js::event_type::WheelV)) {
+
+            int state = event["state"].as<int>();
+            core::native_point::type x = event["x"].as<int>();
+            core::native_point::type y = event["y"].as<int>();
+            e = {id, type, state, core::native_point(x, y)};
+            logging::trace() << "Received event " << e;
+
+          } else if ((type == os::js::event_type::MouseEnter) || (type == os::js::event_type::MouseLeave)) {
+
+            e = {id, type, 0, 0};
+            logging::trace() << "Received event " << e;
+
+          } else if (type == os::js::event_type::Layout) {
+
+            int x = event["x"].as<int>();
+            int y = event["y"].as<int>();
+
+            e = {id, type, core::rectangle(0, 0, x, y), 0};
+            logging::trace() << "Received event " << e;
+
+          } else {
+            logging::trace() << "Received unknown " << static_cast<int>(type) << " event";
+          }
 
           if (check_message_filter(e) || (filter && filter(e))) {
             continue;
@@ -867,6 +920,14 @@ namespace gui {
         // }
   
         // x11::draw_invalidated_windows();
+
+        win::overlapped_window* win = detail::get_window(id);
+        if (win && win->is_visible()) {
+          win->redraw({});
+        }
+        
+        emscripten_sleep(50);
+
       }
 
       return resultValue;

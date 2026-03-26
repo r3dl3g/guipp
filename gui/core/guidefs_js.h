@@ -115,22 +115,34 @@ namespace gui {
         KillFocus     =  9,
         Move          = 10,
         Size          = 11,
+
         KeyDown       = 12,
         KeyUp         = 13,
-        LButtonDown   = 14,
-        LButtonUp     = 15,
-        LButtonDblClk = 16,
-        RButtonDown   = 17,
-        RButtonUp     = 18,
-        RButtonDblClk = 19,
-        MButtonDown   = 20,
-        MButtonUp     = 21,
-        MButtonDblClk = 22,
-        MouseMove     = 23,
-        MouseEnter    = 24,
-        MouseLeave    = 25,
-        WheelH        = 26,
-        WheelV        = 27,
+
+        MouseEnter    = 14,
+        MouseLeave    = 15,
+
+        WheelH        = 16,
+        WheelV        = 17,
+        WheelZ        = 18,
+
+        MouseMin      = 19,
+        MouseMove     = 19,
+
+        ButtonDown    = 20,
+        LButtonDown   = 20,
+        MButtonDown   = 21,
+        RButtonDown   = 22,
+        ButtonUp      = 30,
+        LButtonUp     = 30,
+        MButtonUp     = 31,
+        RButtonUp     = 32,
+        ButtonDblClk  = 40,
+        LButtonDblClk = 40,
+        MButtonDblClk = 41,
+        RButtonDblClk = 42,
+        MouseMax      = 42,
+
         User          = 100
       };
 

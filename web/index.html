@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Gui++ @PROJECT_NAME@</title>
+    <style>
+        body { 
+            margin: 0; 
+            background: #111; 
+            color: white; 
+            font-family: sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        canvas { 
+            border: 1px solid #444; 
+            margin-top: 20px; 
+            cursor: crosshair;
+            background: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Gui++ @PROJECT_NAME@</h1>
+
+    <canvas id="canvas2d" width="1600" height="800"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas2d');
+        const b = canvas.getBoundingClientRect();
+        const rect = {x: b.x, y: b.y, width: b.width, height: b.height};
+
+        // 1. Offscreen-Kontrolle übernehmen
+        const offscreen = canvas.transferControlToOffscreen();
+
+        // 2. Worker erstellen
+        const worker = new Worker('@PROJECT_NAME@.js');
+
+        function calc_state (e) {
+            return (e.ctrlKey ? 0x10 : 0) |(e.shiftKey ? 0x20 : 0) | (e.altKey ? 0x40 : 0) | (e.metaKey ? 0x80 : 0);
+        };
+
+        // 3. Initialisierung an den Worker senden
+        worker.postMessage({
+            type: 'init',
+            canvas: offscreen,
+            rect: rect
+        }, [offscreen]);
+
+        // Event-Listener für Klicks auf dem Canvas
+        canvas.addEventListener('mousedown', (e) => {
+            const b = canvas.getBoundingClientRect();
+            worker.postMessage({
+                type: 20 + e.button,
+                x: e.clientX - b.x,
+                y: e.clientY - b.y,
+                state: calc_state(e)
+            });
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            const b = canvas.getBoundingClientRect();
+            worker.postMessage({
+                type: 30 + e.button,
+                x: e.clientX - b.x,
+                y: e.clientY - b.y,
+                state: calc_state(e)
+            });
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const b = canvas.getBoundingClientRect();
+            worker.postMessage({
+                type: 19,
+                x: e.clientX - b.x,
+                y: e.clientY - b.y,
+                state: calc_state(e)
+            });
+        });
+
+        canvas.addEventListener('dblclick', (e) => {
+            const b = canvas.getBoundingClientRect();
+            worker.postMessage({
+                type: 40 + e.button,
+                x: e.clientX - b.x,
+                y: e.clientY - b.y,
+                state: calc_state(e)
+            });
+        });
+
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const b = canvas.getBoundingClientRect();
+            if (e.deltaX) {
+                worker.postMessage({
+                    type: 16,
+                    x: e.clientX - b.x,
+                    y: e.clientY - b.y,
+                    state: e.deltaX
+                });
+            }
+            if (e.deltaY) {
+                worker.postMessage({
+                    type: 17,
+                    x: e.clientX - b.x,
+                    y: e.clientY - b.y,
+                    state: e.deltaY
+                });
+            }
+            if (e.deltaZ) {
+                worker.postMessage({
+                    type: 18,
+                    x: e.clientX - b.x,
+                    y: e.clientY - b.y,
+                    state: e.deltaZ
+                });
+            }
+        });
+
+        canvas.addEventListener('mouseenter', (e) => {
+            worker.postMessage({ type: 14 });
+        });
+
+        canvas.addEventListener('mouseleave', (e) => {
+            worker.postMessage({ type: 15 });
+        });
+
+        // Optional: Auch Tastatur-Events weiterleiten
+        window.addEventListener('keydown', (e) => {
+            e.preventDefault();
+            worker.postMessage({
+                type: 12,
+                key: e.keyCode,
+                state: calc_state(e)
+            });
+        });
+
+        window.addEventListener('keyup', (e) => {
+            e.preventDefault();
+            worker.postMessage({
+                type: 13,
+                key: e.keyCode,
+                state: calc_state(e)
+            });
+        });
+</script>
+</body>
+</html>

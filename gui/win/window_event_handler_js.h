@@ -33,26 +33,48 @@ namespace gui {
     template<typename T>
     struct get<0, T> {
       static T param (const core::event& e) {
+#ifndef NDEBUG
+        try {
+          return std::get<T>(e.param_0);
+        } catch (std::exception& ex) {
+          logging::fatal() << "exception " << ex << " when access param 0 of type " << typeid(T).name();
+          throw ex;
+        }
+#else
         return std::get<T>(e.param_0);
+#endif
       }
     };
 
     template<typename T>
     struct get<1, T> {
       static T param (const core::event& e) {
+#ifndef NDEBUG
+        try {
+          return std::get<T>(e.param_1);
+        } catch (std::exception& ex) {
+          logging::fatal() << "exception " << ex << " when access param 1 of type " << typeid(T).name();
+          throw ex;
+        }
+#else
         return std::get<T>(e.param_1);
+#endif
       }
     };
 
     // --------------------------------------------------------------------------
     template<os::key_symbol sym, os::key_state state>
     bool key_down_matcher (const core::event& e) {
-      return (e.type == gui::os::js::event_type::KeyDown) && (std::get<os::key_symbol>(e.param_0) == sym);
+      return (e.type == gui::os::js::event_type::KeyDown)
+        && (std::get<os::key_state>(e.param_0) == state)
+        && (std::get<os::key_symbol>(e.param_1) == sym);
     }
 
     template<os::key_symbol sym, os::key_state state>
     bool key_up_matcher (const core::event& e) {
-      return (e.type == gui::os::js::event_type::KeyUp) && (std::get<os::key_symbol>(e.param_0) == sym);
+      return (e.type == gui::os::js::event_type::KeyUp)
+        && (std::get<os::key_state>(e.param_0) == state)
+        && (std::get<os::key_symbol>(e.param_1) == sym);
     }
 
 
@@ -86,11 +108,11 @@ namespace gui {
 
     using move_event = core::event_handler<gui::os::js::event_type::Move, gui::os::js::event_type::None,
                                            core::params<core::point>::
-                                           getter<get<1, core::point>::param>>;
+                                           getter<get<0, core::point>::param>>;
 
     using size_event = core::event_handler<gui::os::js::event_type::Size, gui::os::js::event_type::None,
                                            core::params<core::size>::
-                                           getter<get<1, core::size>::param>>;
+                                           getter<get<0, core::size>::param>>;
 
     using left_btn_down_event = core::event_handler<gui::os::js::event_type::LButtonDown, gui::os::js::event_type::None,
                                                     core::params<os::key_state, core::native_point>::
@@ -156,7 +178,7 @@ namespace gui {
 
     using layout_event = core::event_handler<gui::os::js::event_type::Layout, gui::os::js::event_type::None,
                                              core::params<core::rectangle>::
-                                             getter<get<1, core::rectangle>::param>>;
+                                             getter<get<0, core::rectangle>::param>>;
 
     using paint_event = core::event_handler<gui::os::js::event_type::Paint, gui::os::js::event_type::None,
                                             core::params<core::context*, core::native_rect*>::

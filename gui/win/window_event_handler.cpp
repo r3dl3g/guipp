@@ -573,7 +573,7 @@ namespace gui {
     }
 
     bool is_mouse_event (const core::event& e) {
-      return (e.type >= os::js::event_type::LButtonDown) && (e.type <= os::js::event_type::MouseLeave);
+      return (e.type >= os::js::event_type::MouseMin) && (e.type <= os::js::event_type::MouseMax);
     }
 
     bool is_key_event (const core::event& e) {
@@ -581,15 +581,15 @@ namespace gui {
     }
 
     os::key_state get_key_state (const core::event& e) {
-      return std::get<unsigned int>(e.param_1);
+      return std::get<os::key_state>(e.param_0);
     }
 
     os::key_symbol get_key_symbol (const core::event& e) {
-      return std::get<unsigned int>(e.param_0);
+      return std::get<os::key_symbol>(e.param_1);
     }
 
     std::string get_key_chars (const core::event& e) {
-      return std::string(1, static_cast<char>(std::get<unsigned int>(e.param_0)));
+      return std::string(1, static_cast<char>(get_key_symbol(e)));
     }
 
 #endif //GUIPP_JS

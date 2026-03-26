@@ -112,7 +112,7 @@ namespace gui {
       gui::os::window   id;
       gui::os::event_id type;
 
-      typedef std::variant<bool, int, unsigned int, 
+      typedef std::variant<bool, int, unsigned int,
                            //gui::os::key_symbol, gui::os::graphics, gui::os::window,
                            core::context*,
                            core::point, core::size, core::rectangle, core::native_point,

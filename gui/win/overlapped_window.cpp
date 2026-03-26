@@ -189,14 +189,14 @@ namespace gui {
     // --------------------------------------------------------------------------
     // --------------------------------------------------------------------------
     overlapped_window::overlapped_window ()
-      : id(0)
+      : id(IF_JS_ELSE(emscripten::val::undefined(), 0))
     {
       init();
     }
     // --------------------------------------------------------------------------
     overlapped_window::overlapped_window (const overlapped_window& rhs)
       : super(rhs)
-      , id(0)
+      , id(IF_JS_ELSE(emscripten::val::undefined(), 0))
     {
       init();
     }
@@ -226,7 +226,7 @@ namespace gui {
       auto s = set_state();
       s.visible(false);
       s.created(false);
-      id = {};
+      id = IF_JS_ELSE(emscripten::val::undefined(), 0);
     }
    // --------------------------------------------------------------------------
     overlapped_window::operator os::drawable() const {
@@ -305,7 +305,7 @@ namespace gui {
                                              const core::rectangle& r) {
 
 #ifdef GUIPP_JS
-      if (get_os_window() != emscripten::val::null()) {
+      if (native::is_valid(get_os_window())) {
 #else
       if (get_os_window()) {
 #endif //GUIPP_JS
@@ -319,6 +319,7 @@ namespace gui {
       super::set_window_class(type);
       super::create_internal(type, r);
       native::prepare_overlapped(get_os_window(), parent_id);
+      invalidate();
 #ifdef GUIPP_BUILD_FOR_MOBILE
       if (get_parent() == nullptr) {
         native::maximize(id);
@@ -435,7 +436,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     bool overlapped_window::is_valid () const {
 #ifdef GUIPP_JS
-      return (get_os_window() != emscripten::val::null()) && super::is_valid();
+      return native::is_valid(get_os_window()) && super::is_valid();
 #else
       return (get_os_window() != 0) && super::is_valid();
 #endif //GUIPP_JS
@@ -452,10 +453,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     void overlapped_window::resize_native (const core::size& sz) {
       native::resize(get_os_window(), sz);
+      invalidate();
     }
     // --------------------------------------------------------------------------
     void overlapped_window::geometry_native (const core::rectangle& r) {
       native::geometry(get_os_window(), r);
+      invalidate();
     }
     // --------------------------------------------------------------------------
     void overlapped_window::set_visible (bool s) {
@@ -575,7 +578,15 @@ namespace gui {
 
         core::clip clp(cntxt, invalid_rect);
         native::erase(cntxt.drawable(), cntxt.graphics(), invalid_rect, get_background());
+        logging::debug() << "notify_event(paint_event)";
+
+#ifdef GUIPP_JS
+        gui::os::event_result result = 0;
+        gui::core::event e{get_os_window(), IF_X11_ELSE(core::WM_PAINT_WINDOW, paint_event::get_event_id()), &cntxt, &invalid_rect};
+        handle_event(e, result);
+#else
         notify_event(IF_X11_ELSE(core::WM_PAINT_WINDOW, paint_event::get_event_id()), &cntxt, &invalid_rect);
+#endif
         auto wctxt = surface.end(get_os_window());
 
 #if defined(SHOW_FOCUS) || defined(SHOW_MOUSE_WIN) || defined(SHOW_CAPTURE) || defined(SHOW_CLIP_RECT)

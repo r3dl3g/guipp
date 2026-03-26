@@ -40,6 +40,8 @@ namespace gui {
 
     namespace native {
 
+      GUIPP_WIN_EXPORT bool is_valid (const os::window& w);
+
       GUIPP_WIN_EXPORT const class_info& get_window_class (const char* class_name);
       GUIPP_WIN_EXPORT void register_window_class (const class_info& type);
 

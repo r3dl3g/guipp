@@ -47,13 +47,13 @@ void draw_text_box (text_origin_t t, graphics& graph, const core::rectangle& are
 }
 // --------------------------------------------------------------------------
 void draw_standard_text (text_origin_t t, graphics& graph, const core::rectangle& area) {
-  const std::string text = ostreamfmt("Single Text:" << t);
+  const std::string text = ostreamfmt("Standard Text:" << t);
   draw_text(t, graph, area, text);
 }
 // --------------------------------------------------------------------------
 void draw_singleline_text (text_origin_t t_, graphics& graph, const core::rectangle& area) {
   text_origin_t t = t_ | line_handling_t::singleline;
-  const std::string text = ostreamfmt("Double Text:\n" << t);
+  const std::string text = ostreamfmt("Single Text:" << t);
   draw_text(t, graph, area, text);
 }
 // --------------------------------------------------------------------------
@@ -68,13 +68,13 @@ void draw_multiline_text (text_origin_t t, graphics& graph, const core::rectangl
 }
 // --------------------------------------------------------------------------
 void draw_standard_text_box (text_origin_t t, graphics& graph, const core::rectangle& area) {
-  const std::string text = ostreamfmt("Single Box:" << t);
+  const std::string text = ostreamfmt("Standard Box:" << t);
   draw_text_box(t, graph, area, text);
 }
 // --------------------------------------------------------------------------
 void draw_singleline_text_box (text_origin_t t_, graphics& graph, const core::rectangle& area) {
   text_origin_t t = t_ | line_handling_t::singleline;
-  const std::string text = ostreamfmt("Double Box:\n" << t);
+  const std::string text = ostreamfmt("Single Box:" << t);
   draw_text_box(t, graph, area, text);
 }
 // --------------------------------------------------------------------------
@@ -132,6 +132,9 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
     logging::trace() << "on_paint finished";
   }));
+  main.on_left_btn_down([&] (os::key_state st, const core::native_point& pt) {
+    main.invalidate();
+  });
 
   main.create({50, 50, 800, 600});
   main.on_destroy(&quit_main_loop);

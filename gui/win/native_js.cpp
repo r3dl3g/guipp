@@ -58,30 +58,28 @@ namespace gui {
       }
 
       void move (os::window w, const core::point& pt) {
-        const auto npt = core::global::scale_to_native(pt);
+        // const auto npt = core::global::scale_to_native(pt);
 
-        val style = w["style"];
-        style.set("cssText", ostreamfmt("position:absolute; top:" 
-            << npt.y() << "px;left:" << npt.x() << "px;"));
-
+        // val style = w["style"];
+        // style.set("cssText", ostreamfmt("position:absolute; top:" 
+        //     << npt.y() << "px;left:" << npt.x() << "px;"));
       }
 
       void resize (os::window w, const core::size& sz) {
-        w.set("width", sz.os_width());
-        w.set("height", sz.os_height());
+        // w.set("width", sz.os_width());
+        // w.set("height", sz.os_height());
       }
 
       void geometry (os::window w, const core::rectangle& r) {
-        const auto nr = core::global::scale_to_native(r);
+        // const auto nr = core::global::scale_to_native(r);
 
-        w.set("width", nr.width());
-        w.set("height", nr.height());
+        // w.set("width", nr.width());
+        // w.set("height", nr.height());
 
-        val style = w["style"];
-        style.set("cssText", ostreamfmt("position:absolute; top:" 
-            << nr.y() << "px;left:" << nr.x() << "px;" << "width:" 
-            << nr.width() << "px;height:" << nr.height() << "px;"));
-
+        // val style = w["style"];
+        // style.set("cssText", ostreamfmt("position:absolute; top:" 
+        //     << nr.y() << "px;left:" << nr.x() << "px;" << "width:" 
+        //     << nr.width() << "px;height:" << nr.height() << "px;"));
       }
 
       void notify_move (window& w, const core::point& pt, const core::point& ) {
@@ -97,17 +95,18 @@ namespace gui {
       }
 
       core::native_point get_position (os::window w) {
-        val style = w.call<val>("getBoundingClientRect");
-        int left = style["left"].as<int>();
-        int top = style["top"].as<int>();
-
-        return {left, top};
+        auto self = emscripten::val::global("self");
+        auto rect = self["rect"];
+        int x = rect["x"].as<int>();
+        int y = rect["y"].as<int>();
+        return {x, y};
       }
 
       core::size client_size (os::window id, const core::size&) {
-        val style = id.call<val>("getBoundingClientRect");
-        int width = style["width"].as<int>();
-        int height = style["height"].as<int>();
+        auto self = emscripten::val::global("self");
+        auto rect = self["rect"];
+        int width = rect["width"].as<int>();
+        int height = rect["height"].as<int>();
 
         return core::global::scale_from_native(core::native_size(width, height));
       }
@@ -119,28 +118,46 @@ namespace gui {
                          os::window parent_id,
                          overlapped_window& data) {
 
-        const auto nr = core::global::scale_to_native(r);
+        // const auto nr = core::global::scale_to_native(r);
 
-        auto canvas = core::global::get_instance().call<val>("createElement", std::string("canvas"));
-        auto ctx = canvas.call<val>("getContext", std::string("2d"));
+        auto canvas = core::global::get_instance();//.call<val>("createElement", std::string("canvas"));
 
-        val body = core::global::get_instance()["body"];
-        body.call<void>("appendChild", canvas);
-        canvas.set("width", nr.width());
-        canvas.set("height", nr.height());
-        val style = canvas["style"];
+        auto self = emscripten::val::global("self");
+        auto rect = self["rect"];
+        int x = rect["x"].as<int>();
+        int y = rect["y"].as<int>();
+        int width = rect["width"].as<int>();
+        int height = rect["height"].as<int>();
 
-        style.set("cssText", ostreamfmt("position:absolute; top:" 
-            << nr.y() << "px;left:" << nr.x() << "px;" << "width:" 
-            << nr.width() << "px;height:" << nr.height() << "px;"));
+        data.geometry(core::rectangle(x, y, width, height), false, false);
+
+        // auto ctx = canvas.call<val>("getContext", std::string("2d"));
+
+        // val body = core::global::get_instance()["body"];
+        // body.call<void>("appendChild", canvas);
+        // canvas.set("width", nr.width());
+        // canvas.set("height", nr.height());
+        // val style = canvas["style"];
+
+        // style.set("cssText", ostreamfmt("position:absolute; top:" 
+        //     << nr.y() << "px;left:" << nr.x() << "px;" << "width:" 
+        //     << nr.width() << "px;height:" << nr.height() << "px;"));
+
+        detail::set_os_window(&data, canvas);
 
         return canvas;
       }
 
+      bool is_valid (const os::window& id) {
+        return !(id.isUndefined() || id.isNull());
+      }
+
       void destroy (os::window id) {
-        if (id != val::null()) {
-          id.call<void>("remove");
-          id = val::null();
+        if (is_valid(id)) {
+          // logging::debug() << "Call remove";
+          // id.call<void>("remove");
+          // logging::debug() << "id = val::undefined()";
+          // id = val::undefined();
         }
       }
 
@@ -151,41 +168,42 @@ namespace gui {
       void prepare_win_for_event (const overlapped_window&) {}
 
       bool is_visible (os::window id) {
-        if (id != val::null()) {
-          auto visibility = id["visibility"].as<std::string>();
-          return visibility != "hidden";
-        }
-        return false;
+        return is_valid(id);
+        // if (is_valid(id)) {
+        //   auto visibility = id["visibility"].as<std::string>();
+        //   return visibility != "hidden";
+        // }
+        // return false;
       }
 
       void set_visible (os::window id, bool s) {
-        if (id != val::null()) {
-          id.set("visibility", std::string(s ? "visible" : "hidden"));
-        }
+        // if (is_valid(id)) {
+        //   id.set("visibility", std::string(s ? "visible" : "hidden"));
+        // }
       }
 
       void enable (overlapped_window&, bool) {
       }
 
       void to_front (os::window id) {
-        if (id != val::null()) {
-          id.set("z-index", 10);
-        }
+        // if (is_valid(id)) {
+        //   id.set("z-index", 10);
+        // }
       }
 
       void to_back (os::window id) {
-        if (id != val::null()) {
-          id.set("z-index", 0);
-        }
+        // if (is_valid(id)) {
+        //   id.set("z-index", 0);
+        // }
       }
 
       void take_focus (os::window) {
       }
 
       void set_cursor (os::window id, const os::cursor& c) {
-        if (id != val::null()) {
-          id.set("cursor", c);
-        }
+        // if (is_valid(id)) {
+        //   id.set("cursor", c);
+        // }
       }
 
       void invalidate (os::window id, const core::native_rect&) {}
@@ -203,8 +221,9 @@ namespace gui {
       }
 
       core::size screen_size () {
-        val win = val::global("window");
-        return core::global::scale_from_native(core::native_size(win["innerWidth"].as<int>(), win["innerHeight"].as<int>()));
+        // val win = val::global("window");
+        // return core::global::scale_from_native(core::native_size(win["innerWidth"].as<int>(), win["innerHeight"].as<int>()));
+        return {1920, 1080};
       }
 
       core::rectangle screen_area () {
@@ -231,15 +250,15 @@ namespace gui {
       }
 
       void set_title (os::window id, const std::string& title) {
-        if (id != val::null()) {
-          core::global::get_instance().set("title", title);
-        }
+        // if (is_valid(id)) {
+        //   core::global::get_instance().set("title", title);
+        // }
       }
 
       std::string get_title (os::window id) {
-        if (id != val::null()) {
-          return core::global::get_instance()["title"].as<std::string>();
-        }
+        // if (is_valid(id)) {
+        //   return core::global::get_instance()["title"].as<std::string>();
+        // }
         return {};
       }
 
@@ -252,9 +271,9 @@ namespace gui {
       }
 
       bool is_top_most (os::window id) {
-        if (id != val::null()) {
-          return id["z-index"].as<int>() > 0;
-        }
+        // if (is_valid(id)) {
+        //   return id["z-index"].as<int>() > 0;
+        // }
         return false;
       }
 
@@ -279,7 +298,9 @@ namespace gui {
       void set_fullscreen (os::window id, bool on) {
       }
 
-      void prepare_main_window (os::window) {}
+      void prepare_main_window (os::window) {
+        logging::debug() << "prepare_main_window";
+      }
       void prepare_popup_window (os::window) {}
       void prepare_tooltip_window (os::window) {}
       void prepare_dialog_window (os::window, os::window) {}

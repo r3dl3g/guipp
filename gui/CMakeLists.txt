@@ -117,12 +117,6 @@ if(NOT TARGET guipp)
     set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} log)
   endif()
 
-  if(EMSCRIPTEN)
-    set(GUIPP_BUILD_STATIC_MODULE_LIBS ON)
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -pthread -matomics)
-    set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} -Wl --shared-memory --no-check-features)
-  endif()
-
   if(GUIPP_USE_BOOST)
     find_package(Boost 1.65 REQUIRED COMPONENTS filesystem)
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DUSE_BOOST)
@@ -178,7 +172,7 @@ if(NOT TARGET guipp)
 
   elseif(GUIPP_USE_QT5)
     DebugPrint("GUIPP: build with Qt5!")
-#    find_package(Qt5Gui REQUIRED)
+    # find_package(Qt5Gui REQUIRED)
 
     set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${Qt5Gui_LIBRARIES})
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_QT ${Qt5Gui_DEFINITIONS})
@@ -202,18 +196,30 @@ if(NOT TARGET guipp)
   
   elseif(EMSCRIPTEN)
     DebugPrint("GUIPP: build for emscripten!")
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_JS -Wno-unknown-pragmas)
+    set(GUIPP_BUILD_STATIC_MODULE_LIBS ON)
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS}
+      -DGUIPP_JS
+      -DGUIPP_LOOK_AND_FEEL_W95
+      -sENVIRONMENT=worker
+      -matomics
+      -Wno-unknown-pragmas)
+    
     set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} --bind
-      -sUSE_PTHREADS=1
-      -sALLOW_MEMORY_GROWTH=1
-      -Wno-limited-postlink-optimizations -Wno-pthreads-mem-growth
-      -sOFFSCREEN_FRAMEBUFFER=1
-      -sNO_DISABLE_EXCEPTION_CATCHING
+      -sENVIRONMENT=worker
       -sMODULARIZE=1
+      -sASYNCIFY=1
       -sEXPORT_NAME='createModule'
-      -sEXPORTED_FUNCTIONS=['_main']
-    )
-#      -DEXPORTED_RUNTIME_METHODS=[cwrap,ccall,HEAPU8])
+      -sASYNCIFY_STACK_SIZE=65536
+      -sALLOW_MEMORY_GROWTH=1
+      -sNO_DISABLE_EXCEPTION_CATCHING
+      -Wno-limited-postlink-optimizations
+      -Wno-pthreads-mem-growth
+      )
+      #
+      #-sEXPORTED_FUNCTIONS=['_main']
+      #-sPROXY_TO_PTHREAD
+      #-sUSE_PTHREADS=1
+      #      -DEXPORTED_RUNTIME_METHODS='[cwrap,ccall,HEAPU8]'
 
   elseif(UNIX)
     DebugPrint("GUIPP: build for Unix!")
@@ -451,7 +457,7 @@ if(NOT TARGET guipp)
       gui.cpp
       )
 
-    target_link_options(guipp PRIVATE ${GUIPP_EXE_LINKER_FLAGS})
+    target_link_options(guipp PRIVATE "${GUIPP_EXE_LINKER_FLAGS}")
     target_link_libraries(guipp PRIVATE ${LOGGING_LIBRARIES} ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
 
   elseif(GUIPP_BUILD_SHARED_MODULE_LIBS)
@@ -461,7 +467,7 @@ if(NOT TARGET guipp)
 
     add_library(guipp SHARED gui.cpp)
 
-    target_link_options(guipp PRIVATE ${GUIPP_EXE_LINKER_FLAGS})
+    target_link_options(guipp PRIVATE "${GUIPP_EXE_LINKER_FLAGS}")
     target_link_libraries(guipp PRIVATE ${GUIPP_SYS_LIBRARIES})
 
     if(UTIL_BUILD_STATIC_MODULE_LIB)

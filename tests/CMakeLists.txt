@@ -76,9 +76,9 @@ foreach(test ${tests})
     set_target_properties(${test} PROPERTIES
                           FOLDER tests
                           CXX_STANDARD ${GUIPP_CXX_STANDARD})
-  if (EMSCRIPTEN)
-    set_target_properties(${test} PROPERTIES
-                          LINK_FLAGS ${GUIPP_EXE_LINKER_FLAGS}
-                          )
-  endif()
+  # if (EMSCRIPTEN)
+  #   set_target_properties(${test} PROPERTIES
+  #                         LINK_FLAGS ${GUIPP_EXE_LINKER_FLAGS}
+  #                         )
+  # endif()
 endforeach(test)

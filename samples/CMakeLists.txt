@@ -66,17 +66,31 @@ function(guipp_sample PROJECT_NAME)
     add_executable(${PROJECT_NAME} WIN32 ${PROJECT_NAME}.cpp)
   endif ()
 
-  target_link_libraries(${PROJECT_NAME} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
-  #install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-  set_target_properties(${PROJECT_NAME} PROPERTIES
-                        FOLDER apps
-                        CXX_STANDARD ${GUIPP_CXX_STANDARD}
-                        )
+  # install(TARGETS app DESTINATION bin/${PROJECT_NAME})
+
   if (EMSCRIPTEN)
+    target_link_libraries(${PROJECT_NAME} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
     set_target_properties(${PROJECT_NAME} PROPERTIES
-                          LINK_FLAGS ${GUIPP_EXE_LINKER_FLAGS}
+                          FOLDER apps
+                          CXX_STANDARD ${GUIPP_CXX_STANDARD}
                           )
-  endif()
+  #                        LINK_FLAGS ${GUIPP_EXE_LINKER_FLAGS}
+    configure_file (
+      "${CMAKE_SOURCE_DIR}/web/index.html"
+      "${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}.html"
+    )
+    configure_file (
+      "${CMAKE_SOURCE_DIR}/web/worker.js"
+      "${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}.js"
+    )
+  else ()
+    target_link_libraries(${PROJECT_NAME} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+                          FOLDER apps
+                          CXX_STANDARD ${GUIPP_CXX_STANDARD}
+                          )
+  endif ()
+
   if (ANDROID)
     add_qt_android_apk(${PROJECT_NAME}_apk ${PROJECT_NAME}
                          PACKAGE_NAME "de.redspace.${PROJECT_NAME}"

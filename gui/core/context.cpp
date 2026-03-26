@@ -107,7 +107,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     context::~context () {
 #ifdef GUIPP_JS
-      if (g != emscripten::val::null()) {
+      if (!(g.isUndefined() || g.isNull())) {
 #else
       if (g) {
 #endif //GUIPP_JS

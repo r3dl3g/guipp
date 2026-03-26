@@ -756,15 +756,14 @@ namespace gui {
     }
 
     core::native_rect graphics::native_area () const {
-        val style = target().call<val>("getBoundingClientRect");
-        using ptype = core::native_rect::point_type;
-        using stype = core::native_rect::size_type;
-        auto left = style["left"].as<ptype>();
-        auto top = style["top"].as<ptype>();
-        auto width = style["width"].as<stype>();
-        auto height = style["height"].as<stype>();
+        auto self = emscripten::val::global("self");
+        auto rect = self["rect"];
+        int x = rect["x"].as<int>();
+        int y = rect["y"].as<int>();
+        core::native_rect::size_type width = rect["width"].as<int>();
+        core::native_rect::size_type height = rect["height"].as<int>();
 
-        return {left, top, width, height};
+        return {x, y, width, height};
     }
 
     graphics& graphics::copy_from (graphics& src, const core::native_rect& r, const core::native_point& pt) {
@@ -773,13 +772,14 @@ namespace gui {
 
     graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) {
       core::native_size sz = bmp.image.native_size();
+      copy_from(bmp.image.get_os_bitmap(), core::native_rect(sz), pt, copy_mode::bit_copy);
 
-      EM_ASM_({
-        let src = $4;
-        let tgt = $5;
-        let imageData = src.getImageData(0, 0, $2, $3);
-        tgt.putImageData(imageData, $0, $1);
-      }, pt.x(), pt.y(), sz.width(), sz.height(), os().as_handle(), bmp.image.get_os_bitmap().as_handle());
+      // EM_ASM_({
+      //   let src = $4;
+      //   let tgt = $5;
+      //   let imageData = src.getImageData(0, 0, $2, $3);
+      //   tgt.putImageData(imageData, $0, $1);
+      // }, pt.x(), pt.y(), sz.width(), sz.height(), os().as_handle(), bmp.image.get_os_bitmap().as_handle());
 
       // auto imageData = bmp.image.get_os_bitmap().call<val>("getImageData", 0, 0, sz.width(), sz.height());
       // os().call<void>("putImageData", imageData, pt.x(), pt.y());
@@ -790,8 +790,30 @@ namespace gui {
                                    const core::native_rect& r,
                                    const core::native_point& pt,
                                    const copy_mode) {
-      auto imageData = src.call<val>("getImageData", r.x(), r.y(), r.width(), r.height());
-      os().call<void>("putImageData", imageData, pt.x(), pt.y());
+      logging::trace() << "copy_from(drawable)";
+      os().call<void>("drawImage", src,
+        r.x(), r.y(), r.width(), r.height(),
+        pt.x(), pt.y(), r.width(), r.height());
+
+      // auto imageData = src.call<val>("getImageData", r.x(), r.y(), r.width(), r.height());
+      // os().call<void>("putImageData", imageData, pt.x(), pt.y());
+      return *this;
+    }
+
+    graphics& graphics::copy_from (const draw::pixmap& pixmap, const core::rectangle& src, const core::point& pt) {
+      return copy_from(pixmap, core::global::scale_to_native(src), core::native_point(pt.os(context()), context()));
+    }
+
+    graphics& graphics::copy_from (const draw::pixmap& pixmap,
+                                   const core::native_rect& src,
+                                   const core::native_point& dst) {
+      if (pixmap) {
+        logging::trace() << "copy_from(pixmap))";
+        copy_from(pixmap.get_os_bitmap(), src, dst, copy_mode::bit_copy);
+        // os().call<void>("drawImage", pixmap.get_os_bitmap(),
+        //   src.x(), src.y(), src.width(), src.height(),
+        //   dst.x(), dst.y(), src.width(), src.height());
+      }
       return *this;
     }
 
@@ -800,21 +822,11 @@ namespace gui {
                                        const core::native_point& src,
                                        const std::string& filter) {
       if (pixmap) {
+        logging::trace() << "draw_streched(pixmap))";
         auto sz = pixmap.native_size();
         os().call<void>("drawImage", pixmap.get_os_bitmap(),
           src.x(), src.y(), sz.width(), sz.height(),
           dst.x(), dst.y(), dst.width(), dst.height());
-
-        // EM_ASM_({
-        //   let src = $0;
-        //   let tgt = $1;
-        //   tgt.drawImage(src, $2, $3, $4, $5, $6, $7, $8, $9)
-
-        //   let imageData = src.getImageData(0, 0, );
-        //   tgt.putImageData(imageData, $0, $1);
-        // }, pixmap.get_os_bitmap().as_handle(), os().as_handle(),
-        //   src.x(), src.y(), sz.width(), sz.height(),
-        //   dst.x(), dst.y(), dst.width(), dst.height());
       }
       return *this;
     }
@@ -918,7 +930,7 @@ namespace gui {
       return draw_streched(bmp, core::native_rect(r.os(context()), context()), core::global::scale_to_native(pt), filter);
     }
 
-#ifndef GUIPP_QT
+#if !GUIPP_QT && !GUIPP_JS
     graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) {
       if (bmp) {
         if (bmp.get_info().bits_per_pixel() == depth()) {

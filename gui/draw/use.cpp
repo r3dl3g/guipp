@@ -113,7 +113,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void Use<pen>::set (const pen& p) {
-      g.set("strokeStyle", ostreamfmt("#" << std::hex << std::setfill('0') << std::setw(6) << p.color()));
+      g.set("strokeStyle", ostreamfmt("#" << std::hex << std::setfill('0') << std::setw(6) << (p.color() & 0xffffff)));
       g.set("lineWidth", p.os_size());
 
       switch (p.cap()) {
@@ -132,7 +132,7 @@ namespace gui {
 
     template<>
     void Use<brush>::set (const brush& b) {
-      g.set("fillStyle", ostreamfmt("#" << std::hex << std::setfill('0') << std::setw(6) << b.color()));
+      g.set("fillStyle", ostreamfmt("#" << std::hex << std::setfill('0') << std::setw(6) << (b.color() & 0xffffff)));
     }
 
     template<>

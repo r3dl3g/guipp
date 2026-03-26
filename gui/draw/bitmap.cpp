@@ -55,6 +55,13 @@
 
 #ifdef GUIPP_JS
 #include <emscripten/bind.h>
+
+namespace std {
+  ostream& operator<< (ostream& os, const emscripten::val& v) {
+    return os << (v.isUndefined() ? "undefined": "defined")  << " and " << (v.isNull() ? "null" : "not null");
+  }
+}
+
 #endif // GUIPP_JS
 
 
@@ -384,9 +391,16 @@ namespace gui {
 #endif // GUIPP_QT
 
 #ifdef GUIPP_JS
+
+    using namespace emscripten;
+
+
     os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data) {
-      auto img = emscripten::val::global("OffscreenCanvas").new_(bmi.width, bmi.height);
-      bitmap_put_data(img, data, bmi);
+      auto img = val::global("OffscreenCanvas").new_(bmi.width, bmi.height);
+      logging::debug() << "OffscreenCanvas is " << img;
+      if (data) {
+        bitmap_put_data(img, data, bmi);
+      }
       return img;
     }
 
@@ -395,49 +409,58 @@ namespace gui {
     
     void bitmap_put_data (os::bitmap& id, cbyteptr dataptr, const draw::bitmap_info& bmi) {
       auto ctx = core::native::create_graphics_context(id);
-      EM_ASM_({
-        let ctx = $3;
-        const imgData = ctx.createImageData($1, $2);
-        imgData.data.set(HEAPU8.subarray(($0, $0 + $1 * $2 * 4)));
-        ctx.putImageData(imgData, 0, 0);
-      }, dataptr, bmi.width, bmi.height, ctx.as_handle());
 
-      // auto imgData = ctx.call<emscripten::val>("createImageData", bmi.width, bmi.height);
-      // auto data = imgData["data"];
-      // auto length = data["length"].as<int>();
+      logging::trace() << "2D-Context is " << ctx;
 
-      // auto heapup8 = emscripten::val::global("HEAPU8");
-      //   auto data0 = emscripten::val(dataptr, emscripten::allow_raw_pointers());
-      //   auto data1 = emscripten::val(dataptr + length, emscripten::allow_raw_pointers());
-      // auto sub = heapup8.call<emscripten::val>("subarray", data0, data1);
-      // data.call<void>("set", sub);
+      val memoryView = val(typed_memory_view(bmi.mem_size(), dataptr));
+
+      logging::trace() << "memoryView is " << memoryView;
+
+      val uint8ClampedArray = val::global("Uint8ClampedArray").new_(memoryView);
+
+      logging::trace() << "Uint8ClampedArray is " << uint8ClampedArray;
+
+      val imageData = val::global("ImageData").new_(uint8ClampedArray, bmi.width, bmi.height);
+
+      logging::debug() << "ImageData is " << imageData;
+      
+      ctx.call<void>("putImageData", imageData, 0, 0);
     }
     
     void bitmap_get_data (const os::bitmap& id, blob& dataptr, draw::bitmap_info& bmi) {
       auto ctx = core::native::create_graphics_context(id);
-      dataptr.resize(bmi.width * bmi.height * 4);
-      EM_ASM_({
-        let ctx = $3;
-        let imageData = ctx.getImageData(0, 0, $1, $2);
-        HEAPU8.subarray($0, $0 + $1 * $2 * 4).set(imageData.data);
-      }, dataptr.data(), bmi.width, bmi.height, ctx.as_handle());
 
-      // auto imgData = id.call<emscripten::val>("getImageData", 0, 0, bmi.width, bmi.height);
-      // auto data = imgData["data"];
-      // auto length = data["length"].as<int>();
-      // dataptr.resize(length);
-      
-      // //HEAPU8.subarray(outPtr, outPtr + imageData.data.length).set(imageData.data);
-      // auto heapup8 = emscripten::val::global("HEAPU8");
-      // auto data0 = emscripten::val(dataptr.data(), emscripten::allow_raw_pointers());
-      // auto data1 = emscripten::val(dataptr.data() + length, emscripten::allow_raw_pointers());
-      // auto sub = heapup8.call<emscripten::val>("subarray", data0, data1);
-      // sub.call<void>("set", data);
+      logging::trace() << "2D-Context is " << ctx;
+
+      dataptr.resize(bmi.mem_size());
+
+      val imageData = ctx.call<val>("getImageData", 0, 0, bmi.width, bmi.height);
+
+      logging::trace() << "ImageData is " << imageData;
+
+      val dataArray = imageData["data"];
+
+      logging::trace() << "dataArray is " << dataArray;
+
+      // Effizientes Kopieren von JS-TypedArray in C++ Vektor
+      val memoryView = val(typed_memory_view(dataptr.size(), dataptr.data()));
+
+      logging::debug() << "memoryView is " << memoryView;
+
+      memoryView.call<void>("set", dataArray);
     }
     
     draw::bitmap_info bitmap_get_info (const os::bitmap& id) {
-      auto w = id["width"].as<uint32_t>();
-      auto h = id["height"].as<uint32_t>();
+      logging::trace() << "bitmap_get_info is " << id;
+
+      val width = id["width"];
+      logging::trace() << "width is " << width;
+
+      val height = id["height"];
+      logging::trace() << "height is " << height;
+
+      uint32_t w = width.as<int>();
+      uint32_t h = height.as<int>();
       return {w, h, pixel_format_t::RGBA};
     }
 #endif // GUIPP_JS
@@ -469,7 +492,9 @@ namespace gui {
 #ifdef GUIPP_QT
           *get_os_bitmap() = *rhs.get_os_bitmap();
 #elif GUIPP_JS
-          auto imageData = rhs.get_os_bitmap().call<emscripten::val>("getImageData", 0, 0, bmi.width, bmi.height);
+          logging::debug() << "rhs.get_os_bitmap() is " << rhs.get_os_bitmap();
+          auto imageData = rhs.get_os_bitmap().call<val>("getImageData", 0, 0, bmi.width, bmi.height);
+          logging::debug() << "ImageData is " << imageData;
           id.call<void>("putImageData", imageData, 0, 0);
 #else
           graphics(*this).copy_from((os::drawable)rhs, core::native_rect(bmi.size()));
@@ -484,7 +509,7 @@ namespace gui {
 #ifdef GUIPP_QT
       return id && !id->isNull();
 #elif GUIPP_JS
-      return (id != emscripten::val::null());
+      return !(id.isUndefined() || id.isNull());
 #else
       return id != 0;
 #endif
@@ -501,7 +526,7 @@ namespace gui {
     void basic_map::clear () {
       if (is_valid()) {
         free_bitmap(get_os_bitmap());
-        set_os_bitmap(IF_JS_ELSE(emscripten::val::null(), 0));
+        set_os_bitmap(IF_JS_ELSE(emscripten::val::undefined(), 0));
       }
     }
 
@@ -610,7 +635,7 @@ namespace gui {
       HDC dc = GetDC(NULL);
       set_os_bitmap(CreateCompatibleBitmap(dc, w, h));
       ReleaseDC(NULL, dc);
-#elif GUIPP_X11
+#elif GUIPP_X11 || GUIPP_JS
       pixel_format_t px_fmt = core::global::get_device_pixel_format();
       super::create({w, h, px_fmt});
 #elif GUIPP_QT

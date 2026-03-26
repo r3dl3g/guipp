@@ -106,7 +106,7 @@ namespace gui {
       int wy = (r.y2 - r.y) / 2;
 
       g.os().call<void>("beginPath");
-      g.os().call<void>("ellipse", cx, cy, wx, wy, 0, 2 * M_PI);
+      g.os().call<void>("ellipse", cx, cy, wx, wy, 0, 0, 2 * M_PI);
       g.os().call<void>("stroke");
     }
 
@@ -120,7 +120,7 @@ namespace gui {
       int wy = (r.y2 - r.y) / 2;
 
       g.os().call<void>("beginPath");
-      g.os().call<void>("ellipse", cx, cy, wx, wy, 0, 2 * M_PI);
+      g.os().call<void>("ellipse", cx, cy, wx, wy, 0, 0, 2 * M_PI);
       g.os().call<void>("fill");
     }
 
@@ -166,7 +166,7 @@ namespace gui {
 
       g.os().call<void>("beginPath");
       g.os().call<void>("moveTo", cx, cy);
-      g.os().call<void>("ellipse", cx, cy, rx, ry, c.start.rad(), c.end.rad());
+      g.os().call<void>("ellipse", cx, cy, rx, ry, 0, 2 * M_PI - c.end.rad(), 2 * M_PI - c.start.rad());
       g.os().call<void>("lineTo", cx, cy);
       g.os().call<void>("stroke");
     }
@@ -181,7 +181,7 @@ namespace gui {
       int cy = c.y + ry;
 
       g.os().call<void>("beginPath");
-      g.os().call<void>("ellipse", cx, cy, rx, ry, c.start.rad(), c.end.rad());
+      g.os().call<void>("ellipse", cx, cy, rx, ry, 0, 2 * M_PI - c.end.rad(), 2 * M_PI - c.start.rad());
       g.os().call<void>("stroke");
     }
 
@@ -196,7 +196,7 @@ namespace gui {
 
       g.os().call<void>("beginPath");
       g.os().call<void>("moveTo", cx, cy);
-      g.os().call<void>("ellipse", cx, cy, rx, ry, c.start.rad(), c.end.rad());
+      g.os().call<void>("ellipse", cx, cy, rx, ry, 0, 2 * M_PI - c.end.rad(), 2 * M_PI - c.start.rad());
       g.os().call<void>("lineTo", cx, cy);
       g.os().call<void>("fill");
     }
@@ -211,7 +211,7 @@ namespace gui {
       int cy = c.y + ry;
 
       g.os().call<void>("beginPath");
-      g.os().call<void>("ellipse", cx, cy, rx, ry, c.start.rad(), c.end.rad());
+      g.os().call<void>("ellipse", cx, cy, rx, ry, 0, 2 * M_PI - c.end.rad(), 2 * M_PI - c.start.rad());
       g.os().call<void>("fill");
     }
 
@@ -313,7 +313,7 @@ namespace gui {
       g.os().call<void>("fill");
     }
 
-    void set_alignment (graphics& g, const text_origin_t origin) {
+    void set_h_alignment (graphics& g, const text_origin_t origin) {
       if (origin_is_left(origin)) {
         g.os().set("textAlign", "left");
       } else if (origin_is_right(origin)) {
@@ -321,6 +321,9 @@ namespace gui {
       } else if (origin_is_h_center(origin)) {
         g.os().set("textAlign", "center");
       }
+    }
+
+    void set_v_alignment (graphics& g, const text_origin_t origin) {
       if (origin_is_top(origin)) {
         g.os().set("textBaseline", "top");
       } else if (origin_is_bottom(origin)) {
@@ -330,6 +333,11 @@ namespace gui {
       }
     }
 
+    void set_alignment (graphics& g, const text_origin_t origin) {
+      set_h_alignment(g, origin);
+      set_v_alignment(g, origin);
+    }
+
     // --------------------------------------------------------------------------
     void text_box::operator() (graphics& g,
                                const font& f,
@@ -337,21 +345,38 @@ namespace gui {
       Use<font> fn(g, f);
       Use<pen> pn(g, c);
 
-      set_alignment(g, origin);
-
       core::rectangle r = rect;
       bounding_box(str, r, origin)(g, f, c);
       
       std::vector<std::string> lines = util::string::split<'\n'>(str);
-      auto x = r.os_x(g.context());
-      auto y = r.os_y(g.context());
+
+      int x = r.os_x(g.context());
+      int y = r.os_y(g.context());
       auto line_height = r.os_height() / lines.size();
 
-      for (const auto& line : lines) {
-        g.os().call<void>("fillText", str, x, y);
+      if (origin_is_right(origin)) {
+        x = r.os_x2(g.context());
+      } else if (origin_is_h_center(origin)) {
+        x += r.os_width() / 2;
+      }
+
+      set_h_alignment(g, origin);
+      g.os().set("textBaseline", "top");
+      ++y;
+
+      for (const auto& l : lines) {
+        g.os().call<void>("strokeText", l, x, y);
         y += line_height;
       }
 
+    }
+
+    std::pair<double, double> measure_text (emscripten::val id, const std::string& t) {
+        auto metric = id.call<val>("measureText", t);
+        double width = metric["width"].as<double>();
+        double height = metric["fontBoundingBoxAscent"].as<double>()
+                      + metric["fontBoundingBoxDescent"].as<double>();
+        return {width, height};
     }
 
     // --------------------------------------------------------------------------
@@ -360,16 +385,19 @@ namespace gui {
                                    os::color) const {
       Use<font> fn(g, f);
 
-      std::vector<std::string> lines = util::string::split<'\n'>(str);
       double h = 0;
       double w = 0;
-      for (const auto& line : lines) {
-        auto metric = g.os().call<val>("measureText", line);
-        double width = metric["width"].as<double>();
-        double ascent = metric["fontBoundingBoxAscent"].as<double>();
-        double descent = metric["fontBoundingBoxDescent"].as<double>();
-        w = std::max(w, width);
-        h += (ascent + descent);
+      // double line_height = 0;
+      if (line_handling_is_singleline(origin)) {
+        std::tie(w, h) = measure_text(g.os(), str);
+        // line_height = h;
+      } else {
+        std::vector<std::string> lines = util::string::split<'\n'>(str);
+        for (const std::string& l : lines) {
+          auto metric = measure_text(g.os(), l);
+          w = std::max(w, metric.first);
+          h += metric.second;
+        }
       }
 
       if (origin_is_right(origin)) {
@@ -397,7 +425,32 @@ namespace gui {
       Use<pen> pn(g, c);
 
       set_alignment(g, origin);
-      g.os().call<void>("fillText", str, pos.os_x(g.context()), pos.os_y(g.context()));
+
+      int x = pos.os_x(g.context());
+      int y = pos.os_y(g.context());
+
+      if (line_handling_is_singleline(origin)) {
+        g.os().call<void>("strokeText", str, x, y);
+      } else {
+        core::rectangle r = {pos, core::size::zero};
+        bounding_box(str, r, origin)(g, f, c);
+
+        std::vector<std::string> lines = util::string::split<'\n'>(str);
+        auto line_height = r.os_height() / lines.size();
+
+        if (origin_is_bottom(origin)) {
+          y -= r.os_height() - line_height;
+        } else if (origin_is_v_center(origin)) {
+          y -= (r.os_height() - line_height) / 2;
+        }
+
+        for (const std::string& l : lines) {
+          g.os().call<void>("strokeText", l, x, y);
+          y += line_height;
+        }
+
+      }
+
 
     }
 

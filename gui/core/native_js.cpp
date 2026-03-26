@@ -51,7 +51,9 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       gui::os::graphics create_graphics_context (gui::os::drawable id) {
-        return id.call<val>("getContext", std::string("2d"));
+        val options = val::object();
+        options.set("willReadFrequently", true);
+        return id.call<val>("getContext", val("2d"), options);
       }
 
       // --------------------------------------------------------------------------

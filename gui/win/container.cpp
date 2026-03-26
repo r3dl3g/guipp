@@ -198,6 +198,7 @@ namespace gui {
 
     bool container::handle_event (const core::event& e, gui::os::event_result& r) {
       if (paint_event::match(e)) {
+        logging::trace() << "container::handle_event:paint_event";
         core::context* cntxt = paint_event::Caller::get_param<0>(e);
         const core::native_rect* clip_rect = paint_event::Caller::get_param<1>(e);
 

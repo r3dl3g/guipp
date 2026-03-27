@@ -57,6 +57,7 @@ namespace gui {
       void start (action_t action);
       void stop ();
       void wait_for_finish ();
+      void do_action ();
 
       bool is_active () const;
 
@@ -65,11 +66,20 @@ namespace gui {
       std::chrono::milliseconds get_delay () const;
 
     private:
-      window& win;
-      std::thread task;
+
       action_t action;
       std::chrono::milliseconds delay;
       volatile bool active;
+
+#if GUIPP_JS
+      static void background_call (void* userData);
+
+      void schedule_next ();
+
+      volatile long task;
+#else
+      std::thread task;
+#endif //GUIPP_JS
     };
 
   } // win

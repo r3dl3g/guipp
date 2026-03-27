@@ -39,19 +39,19 @@ namespace gui {
   namespace ctrl {
 
     //-----------------------------------------------------------------------------
-    typedef void (dialog_action) (win::overlapped_window&, int); // Button no. pressed
+    typedef void (dialog_action) (win::container&, int); // Button no. pressed
 
     //-----------------------------------------------------------------------------
-    typedef void (yes_no_action) (win::overlapped_window&, bool);
+    typedef void (yes_no_action) (win::container&, bool);
 
     //-----------------------------------------------------------------------------
-    typedef void (input_action) (win::overlapped_window&, const std::string&);
+    typedef void (input_action) (win::container&, const std::string&);
 
     //-----------------------------------------------------------------------------
-    typedef void (file_selected) (win::overlapped_window&, const sys_fs::path&);
+    typedef void (file_selected) (win::container&, const sys_fs::path&);
 
     //-----------------------------------------------------------------------------
-    typedef bool (create_subdirectory) (win::overlapped_window&, const sys_fs::path&);
+    typedef bool (create_subdirectory) (win::container&, const sys_fs::path&);
 
     namespace detail {
 
@@ -86,13 +86,13 @@ namespace gui {
 
       standard_dialog_base ();
 
-      void create (win::overlapped_window& parent,
+      void create (win::container& parent,
                    const std::string& title,
                    const core::rectangle& rect,
                    const std::vector<std::string>& button_labels,
                    std::function<dialog_action> action);
 
-      void show (win::overlapped_window& parent);
+      void show (win::container& parent);
 
       button_layout_type button_layout;
       std::vector<text_button> buttons;
@@ -109,7 +109,7 @@ namespace gui {
       standard_dialog (content_view_type&&);
       standard_dialog (std::vector<std::reference_wrapper<win::window>> list);
 
-      void create (win::overlapped_window& parent,
+      void create (win::container& parent,
                    const std::string& title,
                    const core::rectangle& rect,
                    const std::vector<std::string>& button_labels,
@@ -129,13 +129,13 @@ namespace gui {
 
       message_dialog ();
 
-      void create (win::overlapped_window& parent,
+      void create (win::container& parent,
                    const std::string& title,
                    const std::string& message,
                    const std::string& ok_label,
                    const core::rectangle& rect);
 
-      static void show (win::overlapped_window& parent,
+      static void show (win::container& parent,
                        const std::string& title,
                        const std::string& message,
                        const std::string& ok_label);
@@ -155,7 +155,7 @@ namespace gui {
       yes_no_dialog_t (content_view_type&&);
       yes_no_dialog_t (std::vector<std::reference_wrapper<win::window>> list);
 
-      void create (win::overlapped_window& parent,
+      void create (win::container& parent,
                    const std::string& title,
                    const std::string& yes_label,
                    const std::string& no_label,
@@ -176,7 +176,7 @@ namespace gui {
 
       yes_no_dialog ();
 
-      void create (win::overlapped_window& parent,
+      void create (win::container& parent,
                    const std::string& title,
                    const std::string& message,
                    const std::string& yes_label,
@@ -184,9 +184,9 @@ namespace gui {
                    const core::rectangle& rect,
                    std::function<yes_no_action> action);
 
-      void show (win::overlapped_window& parent);
+      void show (win::container& parent);
 
-      static void ask (win::overlapped_window& parent,
+      static void ask (win::container& parent,
                        const std::string& title,
                        const std::string& message,
                        const std::string& yes_label,
@@ -206,7 +206,7 @@ namespace gui {
 
       input_dialog ();
 
-      void create (win::overlapped_window& parent,
+      void create (win::container& parent,
                    const std::string& title,
                    const std::string& message,
                    const std::string& initial,
@@ -215,7 +215,7 @@ namespace gui {
                    const core::rectangle& rect,
                    std::function<input_action> action);
 
-      static void ask (win::overlapped_window& parent,
+      static void ask (win::container& parent,
                        const std::string& title,
                        const std::string& message,
                        const std::string& initial,
@@ -234,11 +234,11 @@ namespace gui {
     public:
       typedef win::group_window<layout::border::center_layout<15, 15, 15, 15>> content_view_type;
       typedef standard_dialog<content_view_type> super;
-      typedef void (select_action) (win::overlapped_window&, int, T);
+      typedef void (select_action) (win::container&, int, T);
 
       select_dialog ();
 
-      void create (win::overlapped_window& parent,
+      void create (win::container& parent,
                    const std::string& title,
                    const std::vector<T>& data,
                    const T initial,
@@ -247,7 +247,7 @@ namespace gui {
                    const core::rectangle& rect,
                    std::function<select_action> action);
 
-      static void ask (win::overlapped_window& parent,
+      static void ask (win::container& parent,
                        const std::string& title,
                        const std::vector<T>& data,
                        const T initial,
@@ -269,11 +269,11 @@ namespace gui {
       typedef ctrl::column_list_t<layout_t, core::selector::single, Arguments ...> list_t;
       typedef column_list_data_t<Arguments...> data_t;
       typedef typename data_t::row_type row_type;
-      typedef void (select_action) (win::overlapped_window&, int, row_type);
+      typedef void (select_action) (win::container&, int, row_type);
 
       select_from_columnlist_dialog ();
 
-      void create (win::overlapped_window& parent,
+      void create (win::container& parent,
                    const std::string& title,
                    data_t& data,
                    const int initial,
@@ -283,7 +283,7 @@ namespace gui {
                    const core::rectangle& rect,
                    std::function<select_action> action);
 
-      static void ask (win::overlapped_window& parent,
+      static void ask (win::container& parent,
                        const std::string& title,
                        data_t& data,
                        const int initial,
@@ -296,7 +296,7 @@ namespace gui {
     };
 
     GUIPP_CTRL_EXPORT
-    bool show_create_subdirectory_dialog (win::overlapped_window& parent,
+    bool show_create_subdirectory_dialog (win::container& parent,
                                           const sys_fs::path& parent_dir,
                                           const std::string& title,
                                           const std::string& message,
@@ -305,7 +305,7 @@ namespace gui {
                                           const std::string& cancel_label);
 
     GUIPP_CTRL_EXPORT
-    bool show_default_create_subdirectory_dialog (win::overlapped_window& parent,
+    bool show_default_create_subdirectory_dialog (win::container& parent,
                                                   const sys_fs::path& parent_dir);
     
     //-----------------------------------------------------------------------------
@@ -384,7 +384,7 @@ namespace gui {
 
       path_open_dialog_base (create_subdirectory_fn fn = nullptr);
 
-      void create (win::overlapped_window& parent,
+      void create (win::container& parent,
                    const std::string& title,
                    const std::string& ok_label,
                    const std::string& cancel_label,
@@ -393,7 +393,7 @@ namespace gui {
                    std::function<fs::filter_fn> file_filter = nullptr,
                    std::function<fs::filter_fn> dir_filter = nullptr);
 
-      static void show (win::overlapped_window& parent,
+      static void show (win::container& parent,
                         const std::string& title,
                         const std::string& ok_label,
                         const std::string& cancel_label,
@@ -417,7 +417,7 @@ namespace gui {
 
       file_save_dialog (create_subdirectory_fn fn = nullptr);
 
-      void create (win::overlapped_window& parent,
+      void create (win::container& parent,
                    const std::string& title,
                    const std::string& default_name,
                    const std::string& name_label,
@@ -428,7 +428,7 @@ namespace gui {
                    std::function<fs::filter_fn> file_filter = nullptr,
                    std::function<fs::filter_fn> dir_filter = nullptr);
 
-      static void show (win::overlapped_window& parent,
+      static void show (win::container& parent,
                         const std::string& title,
                         const std::string& default_name,
                         const std::string& name_label,

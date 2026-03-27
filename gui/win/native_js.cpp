@@ -153,12 +153,12 @@ namespace gui {
       }
 
       void destroy (os::window id) {
-        if (is_valid(id)) {
+        //if (is_valid(id)) {
           // logging::debug() << "Call remove";
           // id.call<void>("remove");
           // logging::debug() << "id = val::undefined()";
           // id = val::undefined();
-        }
+        //}
       }
 
       void notify_close (window& w) {
@@ -217,7 +217,7 @@ namespace gui {
       void uncapture_pointer (os::window id) {}
 
       os::window get_desktop_window () {
-        return core::global::get_instance();
+        return val::undefined();
       }
 
       core::size screen_size () {

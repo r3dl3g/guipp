@@ -237,53 +237,6 @@ namespace gui {
 #endif
     }
     // --------------------------------------------------------------------------
-    template<typename iterator>
-    iterator focus_next (iterator i, iterator end) {
-      while (i != end) {
-        window* win = *i;
-        if (win->can_accept_focus()) {
-          win->take_focus();
-          return i;
-        }
-        ++i;
-      }
-      return end;
-    }
-
-    template<typename iterator>
-    iterator iterate_focus (iterator begin, iterator end, window* current_focus) {
-      auto current = std::find(begin, end, current_focus);
-      auto found = end;
-      if (current != end) {
-        found = focus_next(current + 1, end);
-      }
-      if (found == end) {
-        found = focus_next(begin, current);
-      }
-
-      if (found != end) {
-        if (current_focus) {
-          current_focus->focus_lost();
-        }
-      }
-      return found;
-    }
-    // --------------------------------------------------------------------------
-    void overlapped_window::shift_focus (bool backward) {
-      window_list_t children;
-      collect_children(children, [] (const window* w) {
-        auto state = w->get_state();
-        return state.created() && state.visible() && state.enabled() && !state.overlapped();
-      });
-      if (!children.empty()) {
-        if (backward) {
-          iterate_focus(std::rbegin(children), std::rend(children), get_current_focus_window());
-        } else {
-          iterate_focus(std::begin(children), std::end(children), get_current_focus_window());
-        }
-      }
-    }
-    // --------------------------------------------------------------------------
     void overlapped_window::create (const class_info& cls,
                                     const core::rectangle& r,
                                     bool adjust_size) {
@@ -311,11 +264,13 @@ namespace gui {
 #endif //GUIPP_JS
         destroy();
       }
-      set_state().overlapped(true);
-
+      
       collect_event_mask();
       set_state().created(true);
-      id = native::create(type, r, parent_id, *this);
+      if (parent_id == native::get_desktop_window()) {
+        set_state().overlapped(true);
+        id = native::create(type, r, parent_id, *this);
+      }
       super::set_window_class(type);
       super::create_internal(type, r);
       native::prepare_overlapped(get_os_window(), parent_id);
@@ -578,7 +533,7 @@ namespace gui {
 
         core::clip clp(cntxt, invalid_rect);
         native::erase(cntxt.drawable(), cntxt.graphics(), invalid_rect, get_background());
-        logging::debug() << "notify_event(paint_event)";
+        logging::trace() << "notify_event(paint_event)";
 
 #ifdef GUIPP_JS
         gui::os::event_result result = 0;
@@ -758,11 +713,11 @@ namespace gui {
 #endif // GUIPP_QT
     }
 
-    void modal_window::run_modal (overlapped_window& parent) {
+    void modal_window::run_modal (container& parent) {
       run_modal(parent, {});
     }
 
-    void modal_window::run_modal (overlapped_window& parent, const std::vector<hot_key_action>& hot_keys) {
+    void modal_window::run_modal (container& parent, const std::vector<hot_key_action>& hot_keys) {
       logging::debug() << *this << " Enter modal loop with hot keys";
 
 #ifdef GUIPP_QT
@@ -835,33 +790,78 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    void container_window::create (const class_info& cls,
+                                   overlapped_window& parent,
+                                   const core::rectangle& r,
+                                   bool adjust_size) {
+#if GUIPP_JS
+        super::create(cls, parent, r);
+#else
+        super::create(cls, parent, r, adjust_size);
+#endif
+    }
+
+    void container_window::destroy() {
+    }
+
+    // --------------------------------------------------------------------------
+    void container_window::set_title (const std::string& t) {
+      title = t;
+    }
+
+    // --------------------------------------------------------------------------
+    const std::string& container_window::get_title () const {
+      return title;
+    }
+
+    // --------------------------------------------------------------------------
     void main_window::create (const class_info& cls, const core::rectangle& r, bool adjust_size) {
       super::create(cls, r, adjust_size);
       native::prepare_main_window(get_os_window());
     }
 
     // --------------------------------------------------------------------------
-    void popup_window::create (const class_info& cls, overlapped_window& parent, const core::rectangle& r, bool adjust_size) {
+    void popup_window::create (const class_info& cls,
+                               overlapped_window& parent,
+                               const core::rectangle& r,
+                               bool adjust_size) {
       super::create(cls, parent, r, adjust_size);
+#ifndef GUIPP_JS
       native::prepare_popup_window(get_os_window());
+#endif
     }
 
     // --------------------------------------------------------------------------
-    void tooltip_window::create (const class_info& cls, overlapped_window& parent, const core::rectangle& r, bool adjust_size) {
+    void tooltip_window::create (const class_info& cls,
+                                 overlapped_window& parent,
+                                 const core::rectangle& r,
+                                 bool adjust_size) {
       super::create(cls, parent, r, adjust_size);
+#ifndef GUIPP_JS
       native::prepare_tooltip_window(get_os_window());
+#endif
     }
 
     // --------------------------------------------------------------------------
-    void dialog_window::create (const class_info& cls, overlapped_window& parent, const core::rectangle& r, bool adjust_size) {
+    void dialog_window::create (const class_info& cls,
+                                overlapped_window& parent,
+                                const core::rectangle& r,
+                                bool adjust_size) {
       super::create(cls, parent, r, adjust_size);
+#ifndef GUIPP_JS
       native::prepare_dialog_window(get_os_window(), parent.get_os_window());
+#endif
     }
 
     // --------------------------------------------------------------------------
-    void palette_window::create (const class_info& cls, overlapped_window& parent, const core::rectangle& r, bool adjust_size) {
+    void palette_window::create (const class_info& cls,
+                                 overlapped_window& parent,
+                                 const core::rectangle& r,
+                                 bool adjust_size) {
       super::create(cls, parent, r, adjust_size);
+#ifndef GUIPP_JS
       native::prepare_palette_window(get_os_window());
+#endif
     }
 
     // --------------------------------------------------------------------------

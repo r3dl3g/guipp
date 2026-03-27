@@ -74,7 +74,7 @@ namespace gui {
 
     void background_repeater::schedule_next () {
       if (is_active()) {
-        logging::debug() << "Schedule background_call in " << delay.count() << " ms";
+        logging::trace() << "Schedule background_call in " << delay.count() << " ms";
         task = emscripten_set_timeout(background_call, delay.count(), this);
       }
     }

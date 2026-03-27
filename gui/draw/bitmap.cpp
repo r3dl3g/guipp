@@ -397,7 +397,7 @@ namespace gui {
 
     os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data) {
       auto img = val::global("OffscreenCanvas").new_(bmi.width, bmi.height);
-      logging::debug() << "OffscreenCanvas is " << img;
+      logging::trace() << "OffscreenCanvas is " << img;
       if (data) {
         bitmap_put_data(img, data, bmi);
       }
@@ -422,7 +422,7 @@ namespace gui {
 
       val imageData = val::global("ImageData").new_(uint8ClampedArray, bmi.width, bmi.height);
 
-      logging::debug() << "ImageData is " << imageData;
+      logging::trace() << "ImageData is " << imageData;
       
       ctx.call<void>("putImageData", imageData, 0, 0);
     }
@@ -445,7 +445,7 @@ namespace gui {
       // Effizientes Kopieren von JS-TypedArray in C++ Vektor
       val memoryView = val(typed_memory_view(dataptr.size(), dataptr.data()));
 
-      logging::debug() << "memoryView is " << memoryView;
+      logging::trace() << "memoryView is " << memoryView;
 
       memoryView.call<void>("set", dataArray);
     }
@@ -492,9 +492,9 @@ namespace gui {
 #ifdef GUIPP_QT
           *get_os_bitmap() = *rhs.get_os_bitmap();
 #elif GUIPP_JS
-          logging::debug() << "rhs.get_os_bitmap() is " << rhs.get_os_bitmap();
+          logging::trace() << "rhs.get_os_bitmap() is " << rhs.get_os_bitmap();
           auto imageData = rhs.get_os_bitmap().call<val>("getImageData", 0, 0, bmi.width, bmi.height);
-          logging::debug() << "ImageData is " << imageData;
+          logging::trace() << "ImageData is " << imageData;
           id.call<void>("putImageData", imageData, 0, 0);
 #else
           graphics(*this).copy_from((os::drawable)rhs, core::native_rect(bmi.size()));

@@ -24,7 +24,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   mainview_t main;
   main.get_layout().set_header(lay(buttons));
 
-  logging::debug() << "Create draw::rgbmap";
+  logging::trace() << "Create draw::rgbmap";
   draw::bgramap img(core::native_size(512, 256));
 
   auto data = img.get_data();
@@ -39,7 +39,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     }
   }
 
-  logging::debug() << "Create draw::pixmap";
+  logging::trace() << "Create draw::pixmap";
   draw::pixmap pixmap(img);
 
   buttons.add_button("1:1");
@@ -57,7 +57,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.create({50, 50, 800, float(600 + main.get_layout().size)});
 
   main.on_paint(draw::paint([&](graphics& g){
-    // logging::debug() << "Call main.on_paint";
+    // logging::trace() << "Call main.on_paint";
     int i = buttons.get_selection_index();
     if (i == 0) {
       g.copy_from(pixmap, point::zero);

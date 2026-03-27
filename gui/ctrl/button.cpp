@@ -152,7 +152,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     basic_animated_button_traits::basic_animated_button_traits (button_base& btn)
-      : repeater(btn, std::chrono::milliseconds(20), [&] () {
+      : repeater(std::chrono::milliseconds(20), [&] () {
         animation_step += 0.2F;
         btn.invalidate();
         if (animation_step >= 1.0F) {

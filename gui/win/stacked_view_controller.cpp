@@ -28,7 +28,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     stacked_view_controller::stacked_view_controller (container& main)
       : main(main)
-      , animator(main, std::chrono::milliseconds(250))
+      , animator(std::chrono::milliseconds(250))
     {}
     // --------------------------------------------------------------------------
     std::size_t stacked_view_controller::count () const {

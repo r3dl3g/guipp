@@ -493,12 +493,10 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::win;
 
   main_window main;
-#ifndef GUIPP_JS
-  background_repeater refresher(main, std::chrono::seconds(1), [&] {
+  background_repeater refresher(std::chrono::seconds(1), [&] {
     core::grid<4, 3, core::native_rect> g(main.surface_geometry());
      main.invalidate(g(1, 2)); 
   });
-#endif
 
   main.on_size([&] (const core::size& sz) {
     logging::trace() << "Resized to " << sz << " -> initiate redraw";
@@ -534,9 +532,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     main.invalidate();
   });
   main.on_close([&] {
-#ifndef GUIPP_JS
     refresher.stop();
-#endif
     quit_main_loop();
   });
 
@@ -556,9 +552,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.set_title("Diagrams");
   main.set_visible();
 
-#ifndef GUIPP_JS
   refresher.start();
-#endif
 
   return run_main_loop();
 }

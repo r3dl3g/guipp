@@ -86,7 +86,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     main.invalidate();
   };
 
-  background_repeater task(main, std::chrono::milliseconds(ms_delay), [&] () {
+  background_repeater task(std::chrono::milliseconds(ms_delay), [&] () {
     if (buttons.get_selection_index()) {
       draw_gray();
     } else {

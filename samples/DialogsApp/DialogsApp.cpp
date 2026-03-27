@@ -11,7 +11,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main_window main;
   main.create();
  
-  yes_no_dialog::ask(main, "Question", "This is a Yes/No dialog", "Yes", "no", [&] (overlapped_window& dlg, bool y) {
+  yes_no_dialog::ask(main, "Question", "This is a Yes/No dialog", "Yes", "no", [&] (container& dlg, bool y) {
     message_dialog::show(dlg, "Message", ostreamfmt("This is a message dialog\nYou choose: " << (y ? "Yes" : "No")), "ok");
   });
 

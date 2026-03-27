@@ -38,10 +38,13 @@ namespace gui {
     namespace native {
 
       // --------------------------------------------------------------------------
+      GUIPP_CORE_EXPORT void init_clipping (context&);
+
+      // --------------------------------------------------------------------------
       GUIPP_CORE_EXPORT void set_clip_rect (context&, const gui::os::rectangle&);
 
       // --------------------------------------------------------------------------
-      GUIPP_CORE_EXPORT void clear_clip_rect (context&);
+      GUIPP_CORE_EXPORT void clear_clipping (context&);
 
       // --------------------------------------------------------------------------
       GUIPP_CORE_EXPORT gui::os::graphics create_graphics_context (gui::os::drawable);

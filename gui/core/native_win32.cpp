@@ -37,13 +37,17 @@ namespace gui {
     namespace native {
 
       // --------------------------------------------------------------------------
+      void init_clipping (context& {
+      }
+
+      // --------------------------------------------------------------------------
       void set_clip_rect (core::context& ctx, const gui::os::rectangle& r) {
         SelectClipRgn(ctx, NULL);
         IntersectClipRect(ctx, r.left, r.top, r.right, r.bottom);
       }
 
       // --------------------------------------------------------------------------
-      void clear_clip_rect (core::context& ctx) {
+      void clear_clipping (core::context& ctx) {
         SelectClipRgn(ctx, NULL);
       }
 

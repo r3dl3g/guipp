@@ -66,6 +66,10 @@ namespace gui {
 #endif // GUIPP_USE_XFT
 
       // --------------------------------------------------------------------------
+      void init_clipping (context& {
+      }
+
+      // --------------------------------------------------------------------------
       void set_clip_rect (context& ctx, const gui::os::rectangle& r) {
         XSetClipRectangles(global::get_instance(), ctx.graphics(), 0, 0, const_cast<gui::os::rectangle*>(&r), 1, Unsorted);
 #ifdef GUIPP_USE_XFT
@@ -74,7 +78,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void clear_clip_rect (context& ctx) {
+      void clear_clipping (context& ctx) {
         XSetClipMask(global::get_instance(), ctx.graphics(), None);
 #ifdef GUIPP_USE_XFT
         XftDrawSetClip(x11::get_xft_draw(ctx), None);

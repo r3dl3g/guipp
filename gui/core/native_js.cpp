@@ -37,16 +37,28 @@ namespace gui {
 
     namespace native {
 
-      // --------------------------------------------------------------------------
-      void set_clip_rect (core::context& ctx, const gui::os::rectangle& r) {
-        ctx.drawable().call<val>("save");
-        ctx.drawable().call<val>("rect", gui::os::get_x(r), gui::os::get_y(r), gui::os::get_width(r), gui::os::get_height(r));
-        ctx.drawable().call<val>("clip");
+      void init_clipping (context& ctx) {
+        logging::trace() << "Save clipping";
+        ctx.graphics().call<void>("save");
       }
 
       // --------------------------------------------------------------------------
-      void clear_clip_rect (core::context& ctx) {
-        ctx.drawable().call<val>("restore");
+      void set_clip_rect (context& ctx, const gui::os::rectangle& r) {
+        const auto x = gui::os::get_x(r);
+        const auto y = gui::os::get_y(r);
+        const auto w = gui::os::get_width(r);
+        const auto h = gui::os::get_height(r);
+        ctx.graphics().call<void>("rect", x, y, w, h);
+        ctx.graphics().call<void>("clip");
+        logging::trace() << "Set clip to (" << x << " ," << y << ", " << w << " ," << h << ")";
+        // ctx.graphics().set("strokeStyle", "#FF0000");
+        // ctx.graphics().call<void>("strokeRect", x, y, w, h);
+      }
+
+      // --------------------------------------------------------------------------
+      void clear_clipping (core::context& ctx) {
+        logging::trace() << "Restore clipping";
+        ctx.graphics().call<void>("restore");
       }
 
       // --------------------------------------------------------------------------

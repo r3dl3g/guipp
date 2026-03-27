@@ -42,9 +42,6 @@ namespace gui {
 
       void push (core::context&, const gui::os::rectangle&);
       void pop (core::context&);
-
-      void set (core::context&, const gui::os::rectangle&);
-      void restore (core::context&);
       void clear (core::context&);
 
       bool empty () const;
@@ -73,7 +70,6 @@ namespace gui {
 
       void push_clipping (const gui::os::rectangle&);
       void pop_clipping ();
-      void restore_clipping ();
 
       const clipping_stack& clipping () const;
 

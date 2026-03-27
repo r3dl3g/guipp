@@ -347,7 +347,7 @@ namespace gui {
       }
 
       Use<font> fn(g, f);
-      Use<pen> pn(g, c);
+      Use<brush> pn(g, c);
 
       core::rectangle r = rect;
       bounding_box(str, r, origin)(g, f, c);
@@ -372,7 +372,7 @@ namespace gui {
       ++y;
 
       for (const auto& l : lines) {
-        g.os().call<void>("strokeText", l, x, y);
+        g.os().call<void>("fillText", l, x, y);
         y += line_height;
       }
 
@@ -438,7 +438,7 @@ namespace gui {
       }
 
       Use<font> fn(g, f);
-      Use<pen> pn(g, c);
+      Use<brush> pn(g, c);
 
       set_alignment(g, origin);
 
@@ -446,7 +446,7 @@ namespace gui {
       int y = pos.os_y(g.context());
 
       if (line_handling_is_singleline(origin)) {
-        g.os().call<void>("strokeText", str, x, y);
+        g.os().call<void>("fillText", str, x, y);
       } else {
         core::rectangle r = {pos, core::size::zero};
         bounding_box(str, r, origin)(g, f, c);
@@ -464,7 +464,7 @@ namespace gui {
         }
 
         for (const std::string& l : lines) {
-          g.os().call<void>("strokeText", l, x, y);
+          g.os().call<void>("fillText", l, x, y);
           y += line_height;
         }
 

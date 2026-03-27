@@ -48,8 +48,8 @@ namespace gui {
     struct GUIPP_WIN_EXPORT background_repeater {
       typedef std::function<void()> action_t;
 
-      background_repeater (window& win, std::chrono::milliseconds delay_ms, action_t action);
-      background_repeater (window& win, std::chrono::milliseconds delay_ms);
+      background_repeater (std::chrono::milliseconds delay_ms, action_t action);
+      background_repeater (std::chrono::milliseconds delay_ms);
 
       ~background_repeater ();
 

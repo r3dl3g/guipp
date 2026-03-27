@@ -26,9 +26,8 @@ namespace gui {
 
   namespace win {
 
-    background_repeater::background_repeater (window& win, std::chrono::milliseconds delay_ms, action_t action)
-      : win(win)
-      , action(action)
+    background_repeater::background_repeater (std::chrono::milliseconds delay_ms, action_t action)
+      : action(action)
       , delay(delay_ms)
       , active(false)
     {
@@ -37,9 +36,8 @@ namespace gui {
       }
     }
 
-    background_repeater::background_repeater (window& win, std::chrono::milliseconds delay_ms)
-      : win(win)
-      , delay(delay_ms)
+    background_repeater::background_repeater (std::chrono::milliseconds delay_ms)
+      : delay(delay_ms)
       , active(false)
     {
       if (delay_ms < std::chrono::milliseconds(1)) {

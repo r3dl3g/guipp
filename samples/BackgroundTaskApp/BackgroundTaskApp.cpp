@@ -46,7 +46,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 #else
   int ms_delay = 500;
   int frame_step = 10;
-  draw::rgbmap img(core::size(800, 600));
+  draw::bgramap img(core::size(800, 600));
 #endif
   draw::datamap<pixel_format_t::GRAY> gray(img.native_size());
 
@@ -64,6 +64,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
         pixel.red = (x * 255) / data.width();
         pixel.green = (y * 255) / data.height();
         pixel.blue = step;
+        pixel.alpha = 255;
       }
     }
     fps();

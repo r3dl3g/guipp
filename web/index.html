@@ -25,7 +25,7 @@
 
     <h1>Gui++ @PROJECT_NAME@</h1>
 
-    <canvas id="canvas2d" width="1600" height="800"></canvas>
+    <canvas id="canvas2d" width="1000" height="600"></canvas>
 
     <script>
         const canvas = document.getElementById('canvas2d');
@@ -76,7 +76,7 @@
                 type: 19,
                 x: e.clientX - b.x,
                 y: e.clientY - b.y,
-                state: calc_state(e)
+                state: e.button ? 0x01 << e.button : 0
             });
         });
 
@@ -133,7 +133,7 @@
 
         // Optional: Auch Tastatur-Events weiterleiten
         window.addEventListener('keydown', (e) => {
-            e.preventDefault();
+            //e.preventDefault();
             worker.postMessage({
                 type: 12,
                 key: e.keyCode,
@@ -142,7 +142,7 @@
         });
 
         window.addEventListener('keyup', (e) => {
-            e.preventDefault();
+            //e.preventDefault();
             worker.postMessage({
                 type: 13,
                 key: e.keyCode,

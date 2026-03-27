@@ -342,6 +342,10 @@ namespace gui {
     void text_box::operator() (graphics& g,
                                const font& f,
                                os::color c) const {
+      if (str.empty()) {
+        return;
+      }
+
       Use<font> fn(g, f);
       Use<pen> pn(g, c);
 
@@ -349,6 +353,9 @@ namespace gui {
       bounding_box(str, r, origin)(g, f, c);
       
       std::vector<std::string> lines = util::string::split<'\n'>(str);
+      if (lines.empty()) {
+        return;
+      }
 
       int x = r.os_x(g.context());
       int y = r.os_y(g.context());
@@ -383,6 +390,11 @@ namespace gui {
     void bounding_box::operator() (graphics& g,
                                    const font& f,
                                    os::color) const {
+      if (str.empty()) {
+        rect.set_size(core::size::zero);
+        return;
+      }
+
       Use<font> fn(g, f);
 
       double h = 0;
@@ -421,6 +433,10 @@ namespace gui {
     void text::operator() (graphics& g,
                            const font& f,
                            os::color c) const {
+      if (str.empty()) {
+        return;
+      }
+
       Use<font> fn(g, f);
       Use<pen> pn(g, c);
 
@@ -436,6 +452,9 @@ namespace gui {
         bounding_box(str, r, origin)(g, f, c);
 
         std::vector<std::string> lines = util::string::split<'\n'>(str);
+        if (lines.empty()) {
+          return;
+        }
         auto line_height = r.os_height() / lines.size();
 
         if (origin_is_bottom(origin)) {

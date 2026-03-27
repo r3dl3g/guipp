@@ -27,11 +27,11 @@ namespace gui {
 
     namespace animation {
       // --------------------------------------------------------------------------
-      engine::engine (window& win, std::chrono::milliseconds duration, int fps, float f0, float f1)
+      engine::engine (std::chrono::milliseconds duration, int fps, float f0, float f1)
         : f0(f0)
         , delta(f1 - f0)
         , duration(duration)
-        , repeater(win, std::max(std::chrono::milliseconds(1000) / fps, std::chrono::milliseconds(1)))
+        , repeater(std::max(std::chrono::milliseconds(1000) / fps, std::chrono::milliseconds(1)))
         , animation_disabled(false)
       {}
 

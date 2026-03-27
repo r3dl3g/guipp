@@ -44,7 +44,7 @@ namespace gui {
         typedef std::function<void(float)> animation_t;
         typedef std::function<void()> finish_t;
 
-        engine (window& win, std::chrono::milliseconds duration, int fps = 50, float f0 = 0, float f1 = 1);
+        engine (std::chrono::milliseconds duration, int fps = 50, float f0 = 0, float f1 = 1);
 
         void start (finish_t fin);
         void stop ();

@@ -441,7 +441,7 @@ namespace gui {
       }
 
       if (bmp.mask) {
-        ctx->restore_clipping();
+        XSetClipMask(display, gc(), None);
       }
       return *this;
     }
@@ -645,7 +645,7 @@ namespace gui {
         clip.translate(pt.x(), pt.y());
         gc()->setClipRegion(clip);
         gc()->drawPixmap(pt.x(), pt.y(), *bmp.image.get_os_bitmap());
-        context().restore_clipping();
+        gc()->setClipping(false);
       } else if (bmp.image) {
         gc()->drawPixmap(pt.x(), pt.y(), *bmp.image.get_os_bitmap());
       } else if (bmp.mask) {

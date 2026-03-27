@@ -95,11 +95,12 @@ namespace gui {
       }
 
       core::native_point get_position (os::window w) {
-        auto self = emscripten::val::global("self");
-        auto rect = self["rect"];
-        int x = rect["x"].as<int>();
-        int y = rect["y"].as<int>();
-        return {x, y};
+        // auto self = emscripten::val::global("self");
+        // auto rect = self["rect"];
+        // int x = rect["x"].as<int>();
+        // int y = rect["y"].as<int>();
+        // return {x, y};
+        return {0, 0};
       }
 
       core::size client_size (os::window id, const core::size&) {

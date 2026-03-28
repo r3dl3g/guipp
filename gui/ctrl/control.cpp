@@ -107,7 +107,7 @@ namespace gui {
     }
 
     core::point::type get_scroll_value (const core::event& e) {
-      return static_cast<core::point::type>(std::get<int>(e.param_0));
+      return std::get<core::point::type>(e.param_0);
     }    
 #endif // GUIPP_JS
 

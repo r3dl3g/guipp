@@ -789,7 +789,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void send_client_message (window* win, os::message_type message, long l1, long l2) {
+      void send_client_message (window* win, os::message_type message, int l1, int l2) {
         send_client_message_(win, message, l1, l2);
       }
 
@@ -797,9 +797,12 @@ namespace gui {
         send_client_message_(win, message, reinterpret_cast<std::uintptr_t>(v1), reinterpret_cast<std::uintptr_t>(v2));
       }
 
+      void send_client_message (window* win, os::message_type message, core::context& ctx, const core::native_rect& r) {
+        send_client_message(win, message, reinterpret_cast<void*>(&ctx), reinterpret_cast<void*>(&r));
+      }
+
       void send_client_message (window* win, os::message_type message, const core::size& sz) {
-        os::size s = sz.os();
-        send_client_message_(win, message, s.cx, s.cy);
+        send_client_message(window* win, os::message_type message, static_cast<void*>(&f), nullptr);
       }
 
       void send_client_message (window* win, os::message_type message, const core::rectangle& wr) {

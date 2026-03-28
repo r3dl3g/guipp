@@ -132,9 +132,9 @@ namespace gui {
                                           const core::native_point& to,
                                           const core::native_size& size);
 
-      GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, long l1 = 0, long l2 = 0);
-      GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, void* v1, void* v2);
-      GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const core::size& sz);
+      GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, int l1 = 0, int l2 = 0);
+      GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, core::context& ctx, const core::native_rect& r);
+      GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const float f);
       GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const core::rectangle& wr);
 
       GUIPP_WIN_EXPORT void send_mouse_event (window* win, bool enter);

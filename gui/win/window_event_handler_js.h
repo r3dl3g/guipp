@@ -181,8 +181,8 @@ namespace gui {
                                              getter<get<0, core::rectangle>::param>>;
 
     using paint_event = core::event_handler<gui::os::js::event_type::Paint, gui::os::js::event_type::None,
-                                            core::params<core::context*, core::native_rect*>::
-                                            getter<get_context, get<1, core::native_rect*>::param>>;
+                                            core::params<core::context*, const core::native_rect*>::
+                                            getter<get_context, get<1, const core::native_rect*>::param>>;
 
     // --------------------------------------------------------------------------
 

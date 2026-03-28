@@ -340,15 +340,15 @@ namespace gui {
         }
       }
 
-      void send_client_message (window* win, os::message_type message, const core::size& sz) {
+      void send_client_message (window* win, os::message_type message, const float f) {
         if (win && win->is_valid()) {
           gui::os::event_result result = 0;
-          gui::core::event e{{}, message, sz};
+          gui::core::event e{{}, message, f};
           win->handle_event(e, result);
         }
       }
 
-      void send_client_message (window* win, os::message_type message, long l1, long l2) {
+      void send_client_message (window* win, os::message_type message, int l1, int l2) {
         if (win && win->is_valid()) {
           gui::os::event_result result = 0;
           gui::core::event e{{}, message, l1, l2};
@@ -356,8 +356,12 @@ namespace gui {
         }
       }
 
-      void send_client_message (window* win, os::message_type message, void* v1, void* v2) {
-        send_client_message(win, message, reinterpret_cast<std::uintptr_t>(v1), reinterpret_cast<std::uintptr_t>(v2));
+      void send_client_message (window* win, os::message_type message, core::context& ctx, const core::native_rect& r) {
+        if (win && win->is_valid()) {
+          gui::os::event_result result = 0;
+          gui::core::event e{{}, message, &ctx, &r};
+          win->handle_event(e, result);
+        }
       }
 
       void send_mouse_event (window* win, bool enter) {

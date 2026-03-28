@@ -42,7 +42,7 @@ namespace gui {
     template<> GUIPP_WIN_EXPORT core::native_point get_param<1>(const core::event& e);
     template<> GUIPP_WIN_EXPORT core::native_size get_param<1>(const core::event& e);
     template<> GUIPP_WIN_EXPORT core::native_rect get_param<1>(const core::event& e);
-    template<> GUIPP_WIN_EXPORT core::native_rect* get_param<1>(const core::event& e);
+    template<> GUIPP_WIN_EXPORT const core::native_rect* get_param<1>(const core::event& e);
     // --------------------------------------------------------------------------
     template<typename T>
     core::native_rect get_rect (const core::event& e) {
@@ -285,8 +285,8 @@ namespace gui {
                                              getter<get_param<1, core::rectangle>>>;
 
     using paint_event = core::event_handler<core::WM_PAINT_WINDOW, 0,
-                                            core::params<core::context*, core::native_rect*>::
-                                            getter<get_context, get_param<1, core::native_rect*>>>;
+                                            core::params<core::context*, const core::native_rect*>::
+                                            getter<get_context, get_param<1, const core::native_rect*>>>;
     namespace win32 {
 
       using window_pos_changed_event = core::event_handler<WM_WINDOWPOSCHANGED, 0,

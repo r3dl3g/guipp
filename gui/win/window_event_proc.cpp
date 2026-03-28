@@ -865,8 +865,8 @@ namespace gui {
 
           core::event e;
           if ((type == os::js::event_type::KeyDown) || (type == os::js::event_type::KeyUp)) {
-            os::key_state state = event["state"].as<os::key_state>();
-            os::key_symbol key = event["key"].as<os::key_symbol>();
+            auto state = event["state"].as<os::key_state>();
+            auto key = event["key"].as<os::key_symbol>();
             e = {id, type, state, key};
             logging::trace() << "Received event " << e;
 
@@ -874,7 +874,7 @@ namespace gui {
                      ((static_cast<int>(type) >= static_cast<int>(os::js::event_type::ButtonDown)) && 
                       (static_cast<int>(type) <= static_cast<int>(os::js::event_type::RButtonDblClk)))) {
 
-            os::key_state state = event["state"].as<os::key_state>();
+            auto state = event["state"].as<os::key_state>();
             auto x = event["x"].as<core::native_point::type>();
             auto y = event["y"].as<core::native_point::type>();
             e = {id, type, state, core::native_point(x, y)};
@@ -883,10 +883,10 @@ namespace gui {
           } else if ((type == os::js::event_type::WheelH) ||
                      (type == os::js::event_type::WheelV)) {
 
-            int state = event["state"].as<int>();
-            core::native_point::type x = event["x"].as<int>();
-            core::native_point::type y = event["y"].as<int>();
-            e = {id, type, state, core::native_point(x, y)};
+            auto state = event["state"].as<os::key_state>();
+            auto x = event["x"].as<core::native_point::type>();
+            auto y = event["y"].as<core::native_point::type>();
+            e = {id, type, state > 0 ? 1 : -1, core::native_point(x, y)};
             logging::trace() << "Received event " << e;
 
           } else if ((type == os::js::event_type::MouseEnter) || (type == os::js::event_type::MouseLeave)) {

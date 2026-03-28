@@ -207,7 +207,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    GUIPP_WIN_EXPORT core::native_rect* get_paint_rect (const core::event& e);
+    GUIPP_WIN_EXPORT const core::native_rect* get_paint_rect (const core::event& e);
 
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT core::rectangle get_client_data_rect (const core::event& e);
@@ -446,7 +446,7 @@ namespace gui {
                                              event::functor<client_message_matcher<core::WM_LAYOUT_WINDOW>>>;
 
     using paint_event = core::event_handler<ClientMessage, 0,
-                                            core::params<core::context*, core::native_rect*>::
+                                            core::params<core::context*, const core::native_rect*>::
                                             getter<get_context, get_paint_rect>,
                                             0,
                                             event::functor<client_message_matcher<core::WM_PAINT_WINDOW>>>;

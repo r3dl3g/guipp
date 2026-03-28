@@ -421,7 +421,7 @@ namespace gui {
         ReleaseDC(NULL, dc);
       }
 
-      void send_client_message (window* win, os::message_type message, long l1, long l2) {
+      void send_client_message (window* win, os::message_type message, int l1, int l2) {
         if (win && win->is_valid()) {
           core::event e{ NULL, message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2) };
           gui::os::event_result result;
@@ -437,14 +437,12 @@ namespace gui {
         }
       }
 
-      void send_client_message (window* win, os::message_type message, const core::size& sz) {
-        if (win && win->is_valid()) {
-          os::size s = sz.os();
-          long l2 = (long)s.cy << 16 | (long)s.cx;
-          core::event e{ NULL, message, 0, static_cast<LPARAM>(l2)};
-          gui::os::event_result result;
-          win->handle_event(e, result);
-        }
+      void send_client_message (window* win, os::message_type message, core::context& ctx, const core::native_rect& r) {
+        send_client_message(win, message, reinterpret_cast<void*>(&ctx), reinterpret_cast<void*>(&r));
+      }
+
+      void send_client_message (window* win, os::message_type message, const float f) {
+        send_client_message(window* win, os::message_type message, static_cast<void*>(&f), nullptr);
       }
 
       void send_client_message (window* win, os::message_type message, const core::rectangle& wr) {

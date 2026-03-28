@@ -535,13 +535,7 @@ namespace gui {
         native::erase(cntxt.drawable(), cntxt.graphics(), invalid_rect, get_background());
         logging::trace() << "notify_event(paint_event)";
 
-#ifdef GUIPP_JS
-        gui::os::event_result result = 0;
-        gui::core::event e{get_os_window(), IF_X11_ELSE(core::WM_PAINT_WINDOW, paint_event::get_event_id()), &cntxt, &invalid_rect};
-        handle_event(e, result);
-#else
-        notify_event(IF_X11_ELSE(core::WM_PAINT_WINDOW, paint_event::get_event_id()), &cntxt, &invalid_rect);
-#endif
+        notify_paint_event(cntxt, invalid_rect);
         auto wctxt = surface.end(get_os_window());
 
 #if defined(SHOW_FOCUS) || defined(SHOW_MOUSE_WIN) || defined(SHOW_CAPTURE) || defined(SHOW_CLIP_RECT)

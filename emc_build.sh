@@ -2,7 +2,7 @@
 
 BUILD_PREFIX=~/.cache/build/emc
 INSTALL_PREFIX=~/.local/emc
-PARALLEL=1
+#PARALLEL=1
 
 build Debug $@
-#build Release $@
+build Release $@

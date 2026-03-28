@@ -206,16 +206,15 @@ if(NOT TARGET guipp)
     
     set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} --bind
       -sENVIRONMENT=worker
-      -sMODULARIZE=1
       -sASYNCIFY=1
-      -sEXPORT_NAME='createModule'
       -sASYNCIFY_STACK_SIZE=65536
       -sALLOW_MEMORY_GROWTH=1
       -sNO_DISABLE_EXCEPTION_CATCHING
+      -sMODULARIZE=1
+      -sEXPORT_NAME='createModule'
       -Wno-limited-postlink-optimizations
       -Wno-pthreads-mem-growth
       )
-      #
       #-sEXPORTED_FUNCTIONS=['_main']
       #-sPROXY_TO_PTHREAD
       #-sUSE_PTHREADS=1

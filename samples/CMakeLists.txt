@@ -74,7 +74,7 @@ function(guipp_sample PROJECT_NAME)
                           FOLDER apps
                           CXX_STANDARD ${GUIPP_CXX_STANDARD}
                           )
-  #                        LINK_FLAGS ${GUIPP_EXE_LINKER_FLAGS}
+
     configure_file (
       "${CMAKE_SOURCE_DIR}/web/index.html"
       "${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}.html"

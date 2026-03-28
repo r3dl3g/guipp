@@ -94,22 +94,12 @@ namespace gui {
         w.handle_event(e, result);
       }
 
-      core::native_point get_position (os::window w) {
-        // auto self = emscripten::val::global("self");
-        // auto rect = self["rect"];
-        // int x = rect["x"].as<int>();
-        // int y = rect["y"].as<int>();
-        // return {x, y};
-        return {0, 0};
+      core::native_point get_position (os::window) {
+        return core::native_point::zero;
       }
 
       core::size client_size (os::window id, const core::size&) {
-        auto self = emscripten::val::global("self");
-        auto rect = self["rect"];
-        int width = rect["width"].as<int>();
-        int height = rect["height"].as<int>();
-
-        return core::global::scale_from_native(core::native_size(width, height));
+        return screen_size();
       }
 
       void prepare(overlapped_window&) {}
@@ -202,9 +192,9 @@ namespace gui {
       }
 
       void set_cursor (os::window id, const os::cursor& c) {
-        // if (is_valid(id)) {
-        //   id.set("cursor", c);
-        // }
+        if (is_valid(id)) {
+          id.set("cursor", c);
+        }
       }
 
       void invalidate (os::window id, const core::native_rect&) {}
@@ -222,9 +212,11 @@ namespace gui {
       }
 
       core::size screen_size () {
-        // val win = val::global("window");
-        // return core::global::scale_from_native(core::native_size(win["innerWidth"].as<int>(), win["innerHeight"].as<int>()));
-        return {1920, 1080};
+        auto self = emscripten::val::global("self");
+        auto rect = self["rect"];
+        int width = rect["width"].as<int>();
+        int height = rect["height"].as<int>();
+        return core::global::scale_from_native(core::native_size(width, height));
       }
 
       core::rectangle screen_area () {

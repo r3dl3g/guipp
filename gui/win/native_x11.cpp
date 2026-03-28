@@ -798,11 +798,11 @@ namespace gui {
       }
 
       void send_client_message (window* win, os::message_type message, core::context& ctx, const core::native_rect& r) {
-        send_client_message(win, message, reinterpret_cast<void*>(&ctx), reinterpret_cast<void*>(&r));
+        send_client_message(win, message, const_cast<void*>(reinterpret_cast<const void*>(&ctx)), const_cast<void*>(reinterpret_cast<const void*>(&r)));
       }
 
-      void send_client_message (window* win, os::message_type message, const core::size& sz) {
-        send_client_message(window* win, os::message_type message, static_cast<void*>(&f), nullptr);
+      void send_client_message (window* win, os::message_type message, const float f) {
+        send_client_message(win, message, const_cast<void*>(static_cast<const void*>(&f)), nullptr);
       }
 
       void send_client_message (window* win, os::message_type message, const core::rectangle& wr) {

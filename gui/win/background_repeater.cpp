@@ -16,6 +16,7 @@
 
 #if GUIPP_JS
 #include <emscripten/eventloop.h>
+#include <emscripten/eventloop.h>
 #endif
 
 // --------------------------------------------------------------------------
@@ -25,7 +26,6 @@
 #include "gui/win/background_repeater.h"
 #include "gui/win/window_event_proc.h"
 
-#include <emscripten/eventloop.h>
 
 namespace gui {
 
@@ -66,6 +66,7 @@ namespace gui {
       start();
     }
 
+#if GUIPP_JS
     void background_repeater::background_call (void* userData) {
         auto* instance = static_cast<background_repeater*>(userData);
         instance->do_action();
@@ -78,6 +79,7 @@ namespace gui {
         task = emscripten_set_timeout(background_call, delay.count(), this);
       }
     }
+#endif //GUIPP_JS
 
     void background_repeater::start () {
       if (active) {

@@ -556,6 +556,8 @@ namespace gui {
     template<orientation_t O, typename S>
     void linear_list<O, S>::paint (draw::graphics& graph) {
       const core::rectangle area = super::client_geometry();
+      logging::trace() << "linear_list<O, S>::paint " << area;
+      //draw::clip clp(graph, area);
       core::rectangle place = area;
 
       draw::brush back_brush(super::get_background());

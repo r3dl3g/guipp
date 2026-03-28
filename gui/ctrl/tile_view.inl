@@ -240,6 +240,8 @@ namespace gui {
     template<orientation_t O, typename S>
     void basic_tile_view<O, S>::paint (draw::graphics& graph) {
       const core::rectangle area = super::client_geometry();
+      logging::trace() << "basic_tile_view<O, S>::paint " << area;
+      //draw::clip clp(graph, area);
 
       draw::brush back_brush(super::get_background());
 

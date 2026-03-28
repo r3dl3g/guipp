@@ -48,10 +48,11 @@ namespace gui {
         const auto y = gui::os::get_y(r);
         const auto w = gui::os::get_width(r);
         const auto h = gui::os::get_height(r);
+        ctx.graphics().call<void>("beginPath");
         ctx.graphics().call<void>("rect", x, y, w, h);
         ctx.graphics().call<void>("clip");
         logging::trace() << "Set clip to (" << x << " ," << y << ", " << w << " ," << h << ")";
-        // ctx.graphics().set("strokeStyle", "#FF0000");
+        // ctx.graphics().set("strokeStyle", "#FF00FF");
         // ctx.graphics().call<void>("strokeRect", x, y, w, h);
       }
 

@@ -142,36 +142,37 @@ namespace gui {
 
     template<orientation_t O, typename S>
     void uneven_list<O, S>::paint (draw::graphics& graph) {
-        const core::rectangle area = super::client_geometry();
-        core::rectangle place = area;
+      const core::rectangle area = super::client_geometry();
+      logging::trace() << "uneven_list<O, S>::paint " << area;
+      core::rectangle place = area;
 
-        draw::brush back_brush(super::get_background());
+      draw::brush back_brush(super::get_background());
 
-        const auto list_sz = super::otraits::get_1(area.x2y2());
-        const auto last = super::get_count();
-        const auto sp1 = super::otraits::get_1(super::get_scroll_pos());
-        const auto sp2 = super::otraits::get_2(super::get_scroll_pos());
+      const auto list_sz = super::otraits::get_1(area.x2y2());
+      const auto last = super::get_count();
+      const auto sp1 = super::otraits::get_1(super::get_scroll_pos());
+      const auto sp2 = super::otraits::get_2(super::get_scroll_pos());
 
-        super::otraits::set_2(place, -sp2, super::otraits::get_2(area.size()) + sp2);
+      super::otraits::set_2(place, -sp2, super::otraits::get_2(area.size()) + sp2);
 
-        dim_type pos = -sp1;
-        for (int idx = 0; (idx < last) && (pos < list_sz); ++idx) {
-          const dim_type isz = super::traits.get_item_dimension(idx, area.size());
-          super::otraits::set_1(place, pos, isz);
-          pos += isz;
-          if (pos > 0) {
-            super::draw_item(idx, graph, place, back_brush, super::get_item_state(static_cast<int>(idx)));
-          }
+      dim_type pos = -sp1;
+      for (int idx = 0; (idx < last) && (pos < list_sz); ++idx) {
+        const dim_type isz = super::traits.get_item_dimension(idx, area.size());
+        super::otraits::set_1(place, pos, isz);
+        pos += isz;
+        if (pos > 0) {
+          super::draw_item(idx, graph, place, back_brush, super::get_item_state(static_cast<int>(idx)));
         }
+      }
 
-        if (pos < list_sz) {
-          super::otraits::set_1(place, pos, list_sz - pos);
-          graph.fill(draw::rectangle(place), back_brush);
-        }
+      if (pos < list_sz) {
+        super::otraits::set_1(place, pos, list_sz - pos);
+        graph.fill(draw::rectangle(place), back_brush);
+      }
 
-        if (super::is_focused()) {
-          draw::frame::dots(graph, area);
-        }
+      if (super::is_focused()) {
+        draw::frame::dots(graph, area);
+      }
     }
 
     template<orientation_t O, typename S>

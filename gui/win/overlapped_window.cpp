@@ -508,10 +508,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     void overlapped_window::redraw (const core::native_rect& r) {
       if (is_visible() && !get_state().redraw_disabled()) {
-        if (invalid_rect.empty()) {
-          invalid_rect = r;
-        } else {
-          invalid_rect |= r;
+        if (!r.empty()) {
+          if (invalid_rect.empty()) {
+            invalid_rect = r;
+          } else {
+            invalid_rect |= r;
+          }
         }
         if (invalid_rect.empty()) {
           logging::trace() << "skip redraw, invalid_rect is empty " << this;
@@ -531,6 +533,7 @@ namespace gui {
         surface.begin(*this, invalid_rect);
         auto cntxt = surface.get_context();
 
+        logging::trace() << "overlapped_window clip " << invalid_rect;
         core::clip clp(cntxt, invalid_rect);
         native::erase(cntxt.drawable(), cntxt.graphics(), invalid_rect, get_background());
         logging::trace() << "notify_event(paint_event)";

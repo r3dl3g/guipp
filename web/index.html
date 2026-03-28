@@ -75,7 +75,7 @@
                 type: 19,
                 x: e.clientX - b.x,
                 y: e.clientY - b.y,
-                state: e.button ? 0x01 << e.button : 0
+                state: calc_state(e) | (e.buttons ? 0x01 << (e.buttons - 1) : 0)
             });
         });
 

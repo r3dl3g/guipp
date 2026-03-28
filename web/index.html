@@ -148,6 +148,18 @@
                 state: calc_state(e)
             });
         });
+
+        // Die Rückleitung empfangen
+        worker.onmessage = function(e) {
+            const data = e.data;
+
+            //console.log("Main-Thread hat Post vom C++ Worker:", data);
+
+            if (data.type === "cursor") {
+                canvas.style.cursor = data.payload;
+            }
+        };
+
 </script>
 </body>
 </html>

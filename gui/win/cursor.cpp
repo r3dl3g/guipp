@@ -101,7 +101,7 @@ namespace gui {
       switch (t) {
         default:
         case cursor_type::none:       return IF_WIN32_X11_QT_JS_ELSE(0,            0,                      Qt::CursorShape::CustomCursor,    "none",        0);
-        case cursor_type::arrow:      return IF_WIN32_X11_QT_JS_ELSE(IDC_ARROW,    XC_arrow,               Qt::CursorShape::ArrowCursor,     "pointer",     1);
+        case cursor_type::arrow:      return IF_WIN32_X11_QT_JS_ELSE(IDC_ARROW,    XC_arrow,               Qt::CursorShape::ArrowCursor,     "default",     1);
         case cursor_type::size_h:     return IF_WIN32_X11_QT_JS_ELSE(IDC_SIZEWE,   XC_sb_h_double_arrow,   Qt::CursorShape::SizeHorCursor,   "ew-resize",   2);
         case cursor_type::size_v:     return IF_WIN32_X11_QT_JS_ELSE(IDC_SIZENS,   XC_sb_v_double_arrow,   Qt::CursorShape::SizeVerCursor,   "ns-resize",   3);
         case cursor_type::size_ne_sw: return IF_WIN32_X11_QT_JS_ELSE(IDC_SIZENESW, XC_bottom_left_corner,  Qt::CursorShape::SizeBDiagCursor, "nesw-resize", 4);
@@ -123,7 +123,7 @@ namespace gui {
 
     cursor::cursor (cursor_type t)
       : type(t)
-      , id(IF_QT_ELSE(convert(type), 0))
+      , id(IF_QT_ELSE(convert(type), IF_JS_ELSE(convert(type), 0)))
     {}
 
     cursor::operator os::cursor () const {

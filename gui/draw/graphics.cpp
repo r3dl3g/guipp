@@ -895,7 +895,11 @@ namespace gui {
     graphics& graphics::copy_from(const draw::basic_datamap& bmp, const core::native_rect& src, const core::native_point& pt) {
       if (bmp.is_valid()) {
         pixmap buffer;
+#ifdef GUIPP_JS
+        buffer = bmp.convert<gui::pixel_format_t::BGRA>();
+#else
         buffer = bmp.convert<gui::pixel_format_t::RGB>();
+#endif
         copy_from(buffer, src, pt);
       }
       return *this;

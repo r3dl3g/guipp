@@ -44,8 +44,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   int frame_step = 1;
   draw::shared_datamap img(core::size(800, 600));
 #else
-  int ms_delay = 500;
-  int frame_step = 10;
+  int ms_delay = IF_DEBUG_ELSE(1000, 40);
+  int frame_step = IF_DEBUG_ELSE(25, 2);
   draw::bgramap img(core::size(800, 600));
 #endif
   draw::datamap<pixel_format_t::GRAY> gray(img.native_size());

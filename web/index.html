@@ -133,19 +133,23 @@
         // Optional: Auch Tastatur-Events weiterleiten
         window.addEventListener('keydown', (e) => {
             //e.preventDefault();
+            let chars = e.key.length > 1 ? "" : e.key;
             worker.postMessage({
                 type: 12,
-                key: e.keyCode,
-                state: calc_state(e)
+                key: e.code,
+                state: calc_state(e),
+                chars: chars
             });
         });
 
         window.addEventListener('keyup', (e) => {
             //e.preventDefault();
+            let chars = e.key.length > 1 ? "" : e.key;
             worker.postMessage({
                 type: 13,
-                key: e.keyCode,
-                state: calc_state(e)
+                key: e.code,
+                state: calc_state(e),
+                chars: chars
             });
         });
 

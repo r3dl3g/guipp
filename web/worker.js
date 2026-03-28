@@ -24,7 +24,8 @@ self.onmessage = function(e) {
                 state:  0,
                 x:      e.data.rect.width,
                 y:      e.data.rect.height,
-                key:    ""
+                key:    "",
+                chars:  ""
             };
             self.eventQueue.push(eventData);
             console.log("Worker: Wasm Instanz läuft.");
@@ -37,7 +38,8 @@ self.onmessage = function(e) {
             state:  e.data.state !== undefined ? e.data.state : 0,
             x:      e.data.x !== undefined ? e.data.x : 0,
             y:      e.data.y !== undefined ? e.data.y : 0,
-            key:    e.data.key || ""
+            key:    e.data.key || "",
+            chars:  e.data.chars || ""
         };
 
         self.eventQueue.push(eventData);

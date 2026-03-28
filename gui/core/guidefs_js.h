@@ -39,20 +39,6 @@ namespace gui {
 
   namespace os {
 
-    template<typename T>
-    struct handle {
-      T id;
-
-      handle (T t = {})
-        : id(t)
-      {}
-
-      operator T () const {
-        return id;
-      }
-
-    };
-
     using instance = emscripten::val; // document
     using window = emscripten::val;   // canvas
     using drawable = emscripten::val;
@@ -71,10 +57,11 @@ namespace gui {
     typedef int size_type;
     typedef std::string cursor_type;
 
-    typedef unsigned int key_state;
+    typedef int key_state;
     typedef unsigned int key_symbol;
 
     namespace js {
+
       struct point {
         int x;
         int y;
@@ -126,25 +113,26 @@ namespace gui {
         WheelV        = 17,
         WheelZ        = 18,
 
-        MouseMin      = 19,
         MouseMove     = 19,
 
-        ButtonDown    = 20,
         LButtonDown   = 20,
+        ButtonDown    = 20,
         MButtonDown   = 21,
         RButtonDown   = 22,
-        ButtonUp      = 30,
         LButtonUp     = 30,
+        ButtonUp      = 30,
         MButtonUp     = 31,
         RButtonUp     = 32,
-        ButtonDblClk  = 40,
         LButtonDblClk = 40,
+        ButtonDblClk  = 40,
         MButtonDblClk = 41,
         RButtonDblClk = 42,
-        MouseMax      = 42,
 
         User          = 100
       };
+
+      constexpr int MouseMin = 16;
+      constexpr int MouseMax = 42;
 
     } // namespace js
 

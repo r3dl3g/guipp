@@ -31,29 +31,29 @@
 //
 #include "gui/draw/font.h"
 
-# define STD_FONT_SIZE 10
+# define STD_FONT_SIZE 12
 
 namespace gui {
 
   namespace draw {
 
     const font& font::system () {
-      static font f("Verdana", STD_FONT_SIZE);
+      static font f("Arial", STD_FONT_SIZE);
       return f;
     }
 
     const font& font::menu () {
-      static font f("Verdana", STD_FONT_SIZE);
+      static font f("Arial", STD_FONT_SIZE);
       return f;
     }
 
     const font& font::system_bold () {
-      static font f("Verdana", STD_FONT_SIZE, font::bold);
+      static font f("Arial", STD_FONT_SIZE, font::bold);
       return f;
     }
 
     const font& font::system_small () {
-      static font f("Verdana", STD_FONT_SIZE * 4 / 5);
+      static font f("Arial", STD_FONT_SIZE * 4 / 5);
       return f;
     }
 

@@ -43,74 +43,72 @@ namespace gui {
     }
 
     namespace keys {
-      const gui::os::key_symbol left = 0x51;
-      const gui::os::key_symbol right = 0x53;
-      const gui::os::key_symbol up = 0x52;
-      const gui::os::key_symbol down = 0x54;
+      const gui::os::key_symbol home =        0xff50;
+      const gui::os::key_symbol left =        0xff51;
+      const gui::os::key_symbol up =          0xff52;
+      const gui::os::key_symbol right =       0xff53;
+      const gui::os::key_symbol down =        0xff54;
+      const gui::os::key_symbol page_up =     0xff55;
+      const gui::os::key_symbol page_down =   0xff56;
+      const gui::os::key_symbol end =         0xff57;
 
-      const gui::os::key_symbol page_up = 0x55;
-      const gui::os::key_symbol page_down = 0x56;
-      const gui::os::key_symbol home = 0x50;
-      const gui::os::key_symbol end = 0x57;
+      namespace numpad {  
+        const gui::os::key_symbol home =      0xff95;
+        const gui::os::key_symbol left =      0xff96;
+        const gui::os::key_symbol up =        0xff97;
+        const gui::os::key_symbol right =     0xff98;
+        const gui::os::key_symbol down =      0xff99;
+        const gui::os::key_symbol page_up =   0xff9a;
+        const gui::os::key_symbol page_down = 0xff9b;
+        const gui::os::key_symbol end =       0xff9c;
 
-      namespace numpad {
-        const gui::os::key_symbol left = 0xFF51;
-        const gui::os::key_symbol right = 0xFF53;
-        const gui::os::key_symbol up = 0xFF52;
-        const gui::os::key_symbol down = 0xFF54;
-
-        const gui::os::key_symbol page_up = 0xFF55;
-        const gui::os::key_symbol page_down = 0xFF65;
-        const gui::os::key_symbol home = 0xFF50;
-        const gui::os::key_symbol end = 0xFF57;
-
-        const gui::os::key_symbol del = 0xFF9F;
+        const gui::os::key_symbol del =       0xff9f;
       }
 
-      const gui::os::key_symbol del = 0xff;
-      const gui::os::key_symbol insert = 0x63;
-      const gui::os::key_symbol escape = 0x1b;
-      const gui::os::key_symbol enter = 0x0d;
-      const gui::os::key_symbol space = 0x20;
-      const gui::os::key_symbol clear = 0x0b;
+      const gui::os::key_symbol del =         0xffff;
+      const gui::os::key_symbol insert =      0xff63;
+      const gui::os::key_symbol escape =      0x1b;
+      const gui::os::key_symbol enter =       0x0d;
+      const gui::os::key_symbol space =       0x20;
+      const gui::os::key_symbol clear =       0x0b;
 
-      const gui::os::key_symbol back_space = 0x08;
-      const gui::os::key_symbol tab = 0x09;
-      const gui::os::key_symbol print = 0x61;
+      const gui::os::key_symbol back_space =  0x08;
+      const gui::os::key_symbol tab =         0x09;
+      const gui::os::key_symbol print =       0xff61;
 
-      const gui::os::key_symbol f1 = 0xbe;
-      const gui::os::key_symbol f2 = 0xbf;
-      const gui::os::key_symbol f3 = 0xc0;
-      const gui::os::key_symbol f4 = 0xc1;
-      const gui::os::key_symbol f5 = 0xc2;
-      const gui::os::key_symbol f6 = 0xc3;
-      const gui::os::key_symbol f7 = 0xc4;
-      const gui::os::key_symbol f8 = 0xc5;
-      const gui::os::key_symbol f9 = 0xc6;
-      const gui::os::key_symbol f10 = 0xc7;
-      const gui::os::key_symbol f11 = 0xc8;
-      const gui::os::key_symbol f12 = 0xc9;
-      const gui::os::key_symbol f13 = 0xca;
-      const gui::os::key_symbol f14 = 0xcb;
-      const gui::os::key_symbol f15 = 0xcc;
-      const gui::os::key_symbol f16 = 0xcd;
-      const gui::os::key_symbol f17 = 0xce;
-      const gui::os::key_symbol f18 = 0xcf;
-      const gui::os::key_symbol f19 = 0xd0;
-      const gui::os::key_symbol f20 = 0xd1;
-      const gui::os::key_symbol f21 = 0xd2;
-      const gui::os::key_symbol f22 = 0xd3;
-      const gui::os::key_symbol f23 = 0xd4;
-      const gui::os::key_symbol f24 = 0xd5;
+      const gui::os::key_symbol f1 =          0xffbe;
+      const gui::os::key_symbol f2 =          0xffbf;
+      const gui::os::key_symbol f3 =          0xffc0;
+      const gui::os::key_symbol f4 =          0xffc1;
+      const gui::os::key_symbol f5 =          0xffc2;
+      const gui::os::key_symbol f6 =          0xffc3;
+      const gui::os::key_symbol f7 =          0xffc4;
+      const gui::os::key_symbol f8 =          0xffc5;
+      const gui::os::key_symbol f9 =          0xffc6;
+      const gui::os::key_symbol f10 =         0xffc7;
+      const gui::os::key_symbol f11 =         0xffc8;
+      const gui::os::key_symbol f12 =         0xffc9;
+      const gui::os::key_symbol f13 =         0xffca;
+      const gui::os::key_symbol f14 =         0xffcb;
+      const gui::os::key_symbol f15 =         0xffcc;
+      const gui::os::key_symbol f16 =         0xffcd;
+      const gui::os::key_symbol f17 =         0xffce;
+      const gui::os::key_symbol f18 =         0xffcf;
+      const gui::os::key_symbol f19 =         0xffd0;
+      const gui::os::key_symbol f20 =         0xffd1;
+      const gui::os::key_symbol f21 =         0xffd2;
+      const gui::os::key_symbol f22 =         0xffd3;
+      const gui::os::key_symbol f23 =         0xffd4;
+      const gui::os::key_symbol f24 =         0xffd5;
 
-      const gui::os::key_symbol control = 0xe3;
-      const gui::os::key_symbol alt = 0xe9;
-      const gui::os::key_symbol shift = 0xe1;
-      const gui::os::key_symbol system = 0xeb;
+      const gui::os::key_symbol control =     0xffe3;
+      const gui::os::key_symbol alt =         0xffe9;
+      const gui::os::key_symbol shift =       0xffe1;
+      const gui::os::key_symbol system =      0xffe7;
 
-      const gui::os::key_symbol num_lock = 0x7f;
-      const gui::os::key_symbol scroll_lock = 0x14;
-      const gui::os::key_symbol caps_lock = 0xe5;
+      const gui::os::key_symbol num_lock =    0xff7f;
+      const gui::os::key_symbol scroll_lock = 0xffe6;
+      const gui::os::key_symbol caps_lock =   0xffe5;
 
       const gui::os::key_symbol a = 'A';
       const gui::os::key_symbol b = 'B';

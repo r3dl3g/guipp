@@ -589,7 +589,7 @@ namespace gui {
     }
 
     std::string get_key_chars (const core::event& e) {
-      return std::string(1, static_cast<char>(get_key_symbol(e)));
+      return e.chars;
     }
 
 #endif //GUIPP_JS

@@ -120,6 +120,7 @@ namespace gui {
 
       variant_t param_0;
       variant_t param_1;
+      std::string chars;
     };
 
 #endif // GUIPP_JS

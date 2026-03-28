@@ -857,6 +857,101 @@ namespace gui {
       auto queue = self["eventQueue"];
       auto id = self["canvas"];
 
+      static std::unordered_map<std::string, os::key_symbol> s_key_mapping = {
+        {"ArrowLeft",   core::keys::left},
+        {"ArrowRight",  core::keys::right},
+        {"ArrowUp",     core::keys::up},
+        {"ArrowDown",   core::keys::down},
+        {"PageUp",      core::keys::page_up},
+        {"PageDown",    core::keys::page_down},
+        {"Home",        core::keys::home},
+        {"End",         core::keys::end},
+        {"Delete",      core::keys::del},
+        {"Insert",      core::keys::insert},
+        {"Escape",      core::keys::escape},
+        {"Enter",       core::keys::enter},
+        {"Space",       core::keys::space},
+        {"NumpadClear", core::keys::clear},
+        {"Backspace",   core::keys::back_space},
+        {"Tab",         core::keys::tab},
+        {"PrintScreen", core::keys::print},
+        {"F1",          core::keys::f1},
+        {"F2",          core::keys::f2},
+        {"F3",          core::keys::f3},
+        {"F4",          core::keys::f4},
+        {"F5",          core::keys::f5},
+        {"F6",          core::keys::f6},
+        {"F7",          core::keys::f7},
+        {"F8",          core::keys::f8},
+        {"F9",          core::keys::f9},
+        {"F10",         core::keys::f10},
+        {"F11",         core::keys::f11},
+        {"F12",         core::keys::f12},
+        {"F13",         core::keys::f13},
+        {"F14",         core::keys::f14},
+        {"F15",         core::keys::f15},
+        {"F16",         core::keys::f16},
+        {"F17",         core::keys::f17},
+        {"F18",         core::keys::f18},
+        {"F19",         core::keys::f19},
+        {"F20",         core::keys::f20},
+        {"F21",         core::keys::f21},
+        {"F22",         core::keys::f22},
+        {"F23",         core::keys::f23},
+        {"F24",         core::keys::f24},
+        {"ControlLeft", core::keys::control},
+        {"AltLeft",     core::keys::alt},
+        {"ShiftLeft",   core::keys::shift},
+        {"MetaLeft",    core::keys::system},
+        {"ControlRight",core::keys::control},
+        {"AltRight",    core::keys::alt},
+        {"ShiftRight",  core::keys::shift},
+        {"MetaRight",   core::keys::system},
+        {"NumLock",     core::keys::num_lock},
+        {"ScrollLock",  core::keys::scroll_lock},
+        {"CapsLock",    core::keys::caps_lock},
+        {"KeyA",        core::keys::a},
+        {"KeyB",        core::keys::b},
+        {"KeyC",        core::keys::c},
+        {"KeyD",        core::keys::d},
+        {"KeyE",        core::keys::e},
+        {"KeyF",        core::keys::f},
+        {"KeyG",        core::keys::g},
+        {"KeyH",        core::keys::h},
+        {"KeyI",        core::keys::i},
+        {"KeyJ",        core::keys::j},
+        {"KeyK",        core::keys::k},
+        {"KeyL",        core::keys::l},
+        {"KeyM",        core::keys::m},
+        {"KeyN",        core::keys::n},
+        {"KeyO",        core::keys::o},
+        {"KeyP",        core::keys::p},
+        {"KeyQ",        core::keys::q},
+        {"KeyR",        core::keys::r},
+        {"KeyS",        core::keys::s},
+        {"KeyT",        core::keys::t},
+        {"KeyU",        core::keys::u},
+        {"KeyV",        core::keys::v},
+        {"KeyW",        core::keys::w},
+        {"KeyX",        core::keys::x},
+        {"KeyY",        core::keys::y},
+        {"KeyZ",        core::keys::z},
+        {"Plus",        core::keys::plus},
+        {"Minus",       core::keys::minus},
+        {"Asterisk",    core::keys::asterisk},
+        {"Comma",       core::keys::comma},
+        {"Period",      core::keys::period},
+        {"Slash",       core::keys::slash},
+        {"Colon",       core::keys::colon},
+        {"Semicolon",   core::keys::semicolon},
+        {"Less",        core::keys::less},
+        {"Equal",       core::keys::equal},
+        {"Greater",     core::keys::greater},
+        {"Question",    core::keys::question},
+        {"At",          core::keys::at},
+
+      };
+
       while (running) {
         while (queue["length"].as<int>() > 0) {
 
@@ -866,8 +961,18 @@ namespace gui {
           core::event e;
           if ((type == os::js::event_type::KeyDown) || (type == os::js::event_type::KeyUp)) {
             auto state = event["state"].as<os::key_state>();
-            auto key = event["key"].as<os::key_symbol>();
-            e = {id, type, state, key};
+            auto keyname = event["key"].as<std::string>();
+            auto chars = event["chars"].as<std::string>();
+
+            os::key_symbol key = 0;
+            auto it = s_key_mapping.find(keyname);
+            if (it != s_key_mapping.end()) {
+              key = it->second;
+            // } else if (keyname.substr(0, 3) != "Key") {
+            //   chars = keyname;
+            }
+
+            e = {id, type, state, key, chars};
             logging::trace() << "Received event " << e;
 
           } else if ((type == os::js::event_type::MouseMove) ||

@@ -30,7 +30,6 @@ struct icon_drawer : public list_data {
   void draw_at (std::size_t idx, graphics& graph, const core::rectangle& r, const brush& b, item_state state) const override {
     look::button_frame_t<look::look_and_feel_t::w95>(graph, r, state.button_state());
     if (idx < size()) {
-      draw::clip clp(graph, r);
       const auto radius =  r.width() / 2 - 10;
       const auto center = r.center().dy(-radius/3);
       const auto i = (icon_type)idx;
@@ -49,7 +48,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::win;
 
   constexpr int COLUMNS = 11;
-  constexpr int ROWS = 5;
 
   layout_main_window<footer_layout> main;
   horizontal_scroll_bar scrollbar;

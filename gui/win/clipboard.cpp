@@ -206,9 +206,10 @@ namespace gui {
 
 #ifdef GUIPP_JS
 
-    struct ClipboardReceiver {
-        std::function<clipboard::text_callback> cb;
-    };
+    using clipboard_receiver = std::function<clipboard::text_callback>;
+
+    static std::unordered_map<int, clipboard_receiver> s_clipboard_receiver;
+    static int s_next_id = 0;
 
     clipboard::clipboard ()
     {}
@@ -220,13 +221,19 @@ namespace gui {
     }
 
     void clipboard::get_text (window& win, std::function<clipboard::text_callback>&& cb) {
-      native::js::send_to_main("paste", static_cast<void*>(new ClipboardReceiver{cb}));
+      int id = ++s_next_id;
+      s_clipboard_receiver[id] = std::move(cb);
+      native::js::send_to_main("paste", id);
     }
 
-    void clipboard::handle_paste (const std::string& t, uintptr_t ptr) {
-      ClipboardReceiver* cbr = reinterpret_cast<ClipboardReceiver*>(ptr);
-      cbr->cb(t);
-      delete cbr;
+    void clipboard::handle_paste (const std::string& str, int id) {
+      auto i = s_clipboard_receiver.find(id);
+      if (i != s_clipboard_receiver.end()) {
+        logging::trace() << "Call clipboard receiver " << id << " with text: '" << str << "'";
+        i->second(str);
+        s_clipboard_receiver.erase(i);
+      }
+
     }
 
 #endif // GUIPP_JS

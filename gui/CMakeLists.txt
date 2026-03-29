@@ -201,6 +201,7 @@ if(NOT TARGET guipp)
       -DGUIPP_JS
       -DGUIPP_LOOK_AND_FEEL_W95
       -sENVIRONMENT=worker
+      -sDYNAMIC_EXECUTION=0
       -matomics
       -Wno-unknown-pragmas)
     
@@ -212,6 +213,7 @@ if(NOT TARGET guipp)
       -sNO_DISABLE_EXCEPTION_CATCHING
       -sMODULARIZE=1
       -sEXPORT_NAME='createModule'
+      -sDYNAMIC_EXECUTION=0
       -Wno-limited-postlink-optimizations
       -Wno-pthreads-mem-growth
       )

@@ -145,7 +145,7 @@ namespace gui {
 #ifdef GUIPP_JS
       namespace js {
         void send_to_main (const std::string& type, const std::string& message);
-        void send_to_main (const std::string& type, void* ptr);
+        void send_to_main (const std::string& type, int id);
       } // namespace js
 #endif
 

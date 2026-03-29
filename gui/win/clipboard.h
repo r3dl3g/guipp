@@ -42,7 +42,7 @@ namespace gui {
       void get_text (window&, std::function<text_callback>&&);
 
 #ifdef GUIPP_JS
-      static void handle_paste (const std::string&, uintptr_t);
+      static void handle_paste (const std::string& str, int id);
 #endif
 
     private:

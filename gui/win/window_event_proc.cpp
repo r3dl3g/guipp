@@ -1010,11 +1010,15 @@ namespace gui {
 
           } else if (static_cast<int>(type) == 50) {
 
-            auto chars = event["chars"].as<std::string>();
-            auto ptr = event["ptr"].as<uintptr_t>();
+            logging::debug() << "Received paste event";
 
-            logging::trace() << "Received paste event " << e;
-            clipboard::handle_paste(chars, ptr);
+            auto chars = event["chars"].as<std::string>();
+            logging::debug() << "Received chars: '" << chars << "'";
+
+            int id = event["state"].as<int>();
+            logging::debug() << "Received id: " << id;
+
+            clipboard::handle_paste(chars, id);
 
             continue;
 

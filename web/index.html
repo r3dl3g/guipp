@@ -164,11 +164,12 @@
             } else if (data.type === "copy") {
                 navigator.clipboard.writeText(data.payload);
             } else if (data.type === "paste") {
+                const id = data.payload;
                 navigator.clipboard.readText().then((clipText) => {
                     worker.postMessage({
                         type: 50,
                         chars: clipText,
-                        ptr: data.payload
+                        state: id
                     });
                 });
             }

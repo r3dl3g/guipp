@@ -61,14 +61,16 @@ namespace gui {
               self.call<void>("postMessage", data);
           }
 
-          void send_to_main (const std::string& type, void* ptr) {
+          void send_to_main (const std::string& type, int id) {
               val self = val::global("self");
 
               // Wir erstellen ein leeres JS-Objekt
               val data = val::object();
               data.set("type", type);
-              data.set("payload", reinterpret_cast<uintptr_t>(ptr));
+              data.set("payload",  id);
               data.set("timestamp", val::global("Date").call<val>("now"));
+
+            logging::trace() << "send to main: " << type << " id: " << id;
 
               // Nachricht an den Main-Thread senden
               self.call<void>("postMessage", data);

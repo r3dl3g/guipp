@@ -286,7 +286,7 @@ void draw_graph_5 (graphics& graph, const core::rectangle& area) {
 
   typedef util::time::duration xtype;
   // const xtype now = std::chrono::system_clock::now();
-  const auto min_time = util::time::mkduration();
+  // const auto min_time = util::time::mkduration();
   const auto max_time = util::time::mkduration(0, 1, 40);
   const auto main_scale = util::time::mkduration(0, 0, 30);
   const auto sub_scale = util::time::mkduration(0, 0, 5);
@@ -493,7 +493,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::win;
 
   main_window main;
-  background_repeater refresher(main, std::chrono::seconds(1), [&] {
+  background_repeater refresher(std::chrono::seconds(1), [&] {
     core::grid<4, 3, core::native_rect> g(main.surface_geometry());
      main.invalidate(g(1, 2)); 
   });
@@ -540,7 +540,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     gui::ctrl::yes_no_dialog::ask(main, "Fatal Error",
                                   ostreamfmt("A fatal error occured inside this application:\n" <<
                                             ex.what() << "\nDo you wan't to exit this application?"), 
-                                  "Yes", "no", [&] (overlapped_window& dlg, bool y) {
+                                  "Yes", "no", [&] (container& dlg, bool y) {
       if (y) {
         exit(1);
       }

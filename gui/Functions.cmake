@@ -189,6 +189,7 @@ function(guipp_app TARGET)
 
   include_directories(${GUIPP_INCLUDE_DIRS} ${ARG_INCLUDES})
   add_definitions(${GUIPP_CXX_FLAGS})
+  add_link_options(${GUIPP_EXE_LINKER_FLAGS})
 
   if (ANDROID)
     add_library(${TARGET} SHARED ${ARG_MAIN_SRC} ${ARG_SOURCES})
@@ -204,10 +205,11 @@ function(guipp_app TARGET)
                         FOLDER apps
                         CXX_STANDARD ${GUIPP_CXX_STANDARD}
                         )
-  if (EMSCRIPTEN)
-    set_target_properties(${TARGET} PROPERTIES
-                          LINK_FLAGS "-s USE_PTHREADS=1")
-  endif()
+  # if (EMSCRIPTEN)
+  #   set_target_properties(${TARGET} PROPERTIES
+  #                         LINK_FLAGS "${GUIPP_EXE_LINKER_FLAGS}"
+  #                         )
+  # endif()
   if (ANDROID)
     add_qt_android_apk(${TARGET}_apk ${TARGET}
                          PACKAGE_NAME ${ARG_PACKAGE_NAME}

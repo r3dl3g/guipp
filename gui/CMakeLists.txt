@@ -8,10 +8,6 @@ message("Building gui version: ${project_version}")
 
 project("gui" LANGUAGES CXX VERSION ${project_version})
 
-set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/obj)
-set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
 include (Functions.cmake)
@@ -102,6 +98,8 @@ if(GUIPP_BUILD_DEPENDENT_LIBS)
   add_subdirectory(${GUIPP_LIBS_DIR}/logging logging)
   add_subdirectory(${GUIPP_LIBS_DIR}/util util)
 else ()
+  set(logging_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/logging)
+  set(util_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/util)
   find_package(logging REQUIRED)
   find_package(util REQUIRED)
 endif()
@@ -118,11 +116,6 @@ if(NOT TARGET guipp)
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DANDROID)
     set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} log)
   endif()
-
-#  if(EMSCRIPTEN)
-#    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -pthread -matomics)
-#    set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} -Wl --shared-memory --no-check-features)
-#  endif()
 
   if(GUIPP_USE_BOOST)
     find_package(Boost 1.65 REQUIRED COMPONENTS filesystem)
@@ -179,7 +172,7 @@ if(NOT TARGET guipp)
 
   elseif(GUIPP_USE_QT5)
     DebugPrint("GUIPP: build with Qt5!")
-#    find_package(Qt5Gui REQUIRED)
+    # find_package(Qt5Gui REQUIRED)
 
     set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${Qt5Gui_LIBRARIES})
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_QT ${Qt5Gui_DEFINITIONS})
@@ -200,6 +193,34 @@ if(NOT TARGET guipp)
   elseif(APPLE)
     DebugPrint("GUIPP: build for Apple!")
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DCOCOA)
+  
+  elseif(EMSCRIPTEN)
+    DebugPrint("GUIPP: build for emscripten!")
+    set(GUIPP_BUILD_STATIC_MODULE_LIBS ON)
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS}
+      -DGUIPP_JS
+      -DGUIPP_LOOK_AND_FEEL_W95
+      -sENVIRONMENT=worker
+      -sDYNAMIC_EXECUTION=0
+      -matomics
+      -Wno-unknown-pragmas)
+    
+    set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} --bind
+      -sENVIRONMENT=worker
+      -sASYNCIFY=1
+      -sASYNCIFY_STACK_SIZE=65536
+      -sALLOW_MEMORY_GROWTH=1
+      -sNO_DISABLE_EXCEPTION_CATCHING
+      -sMODULARIZE=1
+      -sEXPORT_NAME='createModule'
+      -sDYNAMIC_EXECUTION=0
+      -Wno-limited-postlink-optimizations
+      -Wno-pthreads-mem-growth
+      )
+      #-sEXPORTED_FUNCTIONS=['_main']
+      #-sPROXY_TO_PTHREAD
+      #-sUSE_PTHREADS=1
+      #      -DEXPORTED_RUNTIME_METHODS='[cwrap,ccall,HEAPU8]'
 
   elseif(UNIX)
     DebugPrint("GUIPP: build for Unix!")
@@ -397,6 +418,7 @@ if(NOT TARGET guipp)
   DebugPrint("gui GUIPP_APP_LIBRARIES: ${GUIPP_APP_LIBRARIES}")
   DebugPrint("gui GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
   DebugPrint("gui GUIPP_BUILD_FOR_MOBILE: ${GUIPP_BUILD_FOR_MOBILE}")
+  DebugPrint("gui CMAKE_TOOLCHAIN_FILE: ${CMAKE_TOOLCHAIN_FILE}")
 
   get_directory_property(HAS_PARENT PARENT_DIRECTORY)
   if(HAS_PARENT)
@@ -436,7 +458,7 @@ if(NOT TARGET guipp)
       gui.cpp
       )
 
-    target_link_options(guipp PRIVATE ${GUIPP_EXE_LINKER_FLAGS})
+    target_link_options(guipp PRIVATE "${GUIPP_EXE_LINKER_FLAGS}")
     target_link_libraries(guipp PRIVATE ${LOGGING_LIBRARIES} ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
 
   elseif(GUIPP_BUILD_SHARED_MODULE_LIBS)
@@ -446,7 +468,7 @@ if(NOT TARGET guipp)
 
     add_library(guipp SHARED gui.cpp)
 
-    target_link_options(guipp PRIVATE ${GUIPP_EXE_LINKER_FLAGS})
+    target_link_options(guipp PRIVATE "${GUIPP_EXE_LINKER_FLAGS}")
     target_link_libraries(guipp PRIVATE ${GUIPP_SYS_LIBRARIES})
 
     if(UTIL_BUILD_STATIC_MODULE_LIB)

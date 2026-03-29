@@ -87,8 +87,9 @@ endif()
 
 add_subdirectory(gui)
 
-if(NOT ANDROID AND NOT EMSCRIPTEN)
+if(NOT ANDROID)
   if(GUIPP_TESTS)
+    set(testing_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/testing)
     add_subdirectory(tests)
   endif()
   if(GUIPP_TOOLS)

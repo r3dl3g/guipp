@@ -108,7 +108,11 @@ namespace gui {
       }
       auto s = set_state();
       s.created(true);
+#ifdef GUIPP_JS
+      s.accept_focus(true);
+#else
       s.accept_focus(type.get_style() & WS_TABSTOP);
+#endif
       notify_event(IF_X11_ELSE(core::WM_CREATE_WINDOW, create_event::get_event_id()));
     }
 
@@ -271,16 +275,16 @@ namespace gui {
       }
     }
 
-    void window::notify_event_float (os::message_type message, float d1) {
-      notify_event(message, &d1, nullptr);
+    void window::notify_event_float (os::message_type message, float f) {
+      native::send_client_message(this, message, f);
     }
 
-    void window::notify_event (os::message_type message, long l1, long l2) {
+    void window::notify_event (os::message_type message, int l1, int l2) {
       native::send_client_message(this, message, l1, l2);
     }
 
-    void window::notify_event (os::message_type message, void* v1, void* v2) {
-      native::send_client_message(this, message, v1, v2);
+    void window::notify_paint_event (core::context& ctx, const core::native_rect& r) {
+      native::send_client_message(this, IF_X11_ELSE(core::WM_PAINT_WINDOW, paint_event::get_event_id()), ctx, r);
     }
 
     void window::notify_event (os::message_type message, const core::rectangle& r) {

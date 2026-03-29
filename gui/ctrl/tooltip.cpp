@@ -36,8 +36,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     tooltip::tooltip ()
-      : win(nullptr)
-      , delay(std::chrono::seconds(1)) {
+      : delay(std::chrono::seconds(1)) 
+      , win(nullptr) {
       on_paint(draw::paint([&](draw::graphics& graph) {
         graph.clear(color::dark_gray);
         graph.text(draw::text_box(text(), client_geometry(), text_origin_t::center),

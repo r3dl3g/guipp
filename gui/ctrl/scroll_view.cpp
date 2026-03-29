@@ -131,7 +131,7 @@ namespace gui {
         edge->set_visible(show_h && show_v);
       }
 
-      core::rectangle available(new_size);
+      // core::rectangle available(new_size);
 
       if (edge && show_h && show_v) {
         edge->geometry(get_edge_area(new_size), true, true);
@@ -142,17 +142,17 @@ namespace gui {
         auto area = get_vscroll_area(new_size, show_h);
         vscroll->geometry(area, true, false);
         vscroll->to_front();
-        available.x2(area.x());
+        // available.x2(area.x());
       }
 
       if (show_h) {
         auto area = get_hscroll_area(new_size, show_v);
         hscroll->geometry(area, true, false);
         hscroll->to_front();
-        available.y2(area.y());
+        // available.y2(area.y());
       }
 
-      return available;
+      return space;
     }
 
     // --------------------------------------------------------------------------

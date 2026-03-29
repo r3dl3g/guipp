@@ -19,6 +19,11 @@
 #include <QtGui/QClipboard>
 #include <QtGui/QGuiApplication>
 #endif // GUIPP_QT
+#ifdef GUIPP_JS
+#include <emscripten.h>
+#endif // GUIPP_JS
+
+
 #include <util/string_util.h>
 
 // --------------------------------------------------------------------------
@@ -27,6 +32,7 @@
 //
 #include "gui/win/clipboard.h"
 #include "gui/win/overlapped_window.h"
+#include "gui/win/native.h"
 
 namespace gui {
 
@@ -197,6 +203,40 @@ namespace gui {
     }
 
 #endif // GUIPP_QT
+
+#ifdef GUIPP_JS
+
+    using clipboard_receiver = std::function<clipboard::text_callback>;
+
+    static std::unordered_map<int, clipboard_receiver> s_clipboard_receiver;
+    static int s_next_id = 0;
+
+    clipboard::clipboard ()
+    {}
+
+    using namespace emscripten;
+
+    void clipboard::set_text (window& win, const std::string& t) {
+      native::js::send_to_main("copy", t);
+    }
+
+    void clipboard::get_text (window& win, std::function<clipboard::text_callback>&& cb) {
+      int id = ++s_next_id;
+      s_clipboard_receiver[id] = std::move(cb);
+      native::js::send_to_main("paste", id);
+    }
+
+    void clipboard::handle_paste (const std::string& str, int id) {
+      auto i = s_clipboard_receiver.find(id);
+      if (i != s_clipboard_receiver.end()) {
+        logging::trace() << "Call clipboard receiver " << id << " with text: '" << str << "'";
+        i->second(str);
+        s_clipboard_receiver.erase(i);
+      }
+
+    }
+
+#endif // GUIPP_JS
 
   } // win
 

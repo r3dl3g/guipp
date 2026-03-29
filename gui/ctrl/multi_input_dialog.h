@@ -174,7 +174,7 @@ namespace gui {
 
       multi_input_dialog ();
 
-      void create (win::overlapped_window& parent,
+      void create (win::container& parent,
                    const std::string& title,
                    const std::array<std::string, N>& message,
                    const init_types& initial,
@@ -183,7 +183,7 @@ namespace gui {
                    const core::rectangle& rect,
                    std::function<action> action);
 
-      static void ask (win::overlapped_window& parent,
+      static void ask (win::container& parent,
                        const std::string& title,
                        const std::array<std::string, N>& message,
                        const init_types& initial,
@@ -191,7 +191,7 @@ namespace gui {
                        const std::string& cancel_label,
                        std::function<action> action);
 
-      static core::rectangle get_standard_size (win::overlapped_window& parent);
+      static core::rectangle get_standard_size (win::container& parent);
 
       controls_types edits;
     };

@@ -41,6 +41,10 @@ namespace gui {
       void set_text (window&, const std::string&);
       void get_text (window&, std::function<text_callback>&&);
 
+#ifdef GUIPP_JS
+      static void handle_paste (const std::string& str, int id);
+#endif
+
     private:
       clipboard ();
 

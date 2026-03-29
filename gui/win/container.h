@@ -54,11 +54,16 @@ namespace gui {
 
       window* window_at_point (const core::native_point&);
 
+      using super::to_front;
+      using super::to_back;
+
       void to_front (window*);
       void to_back (window*);
 
       virtual void invalidate (const core::native_rect&);
-      using window::invalidate;
+      using super::invalidate;
+
+      void shift_focus (bool backward = false);
 
       bool handle_event (const core::event&, gui::os::event_result&) override;
       os::event_id collect_event_mask () const override;
@@ -67,7 +72,7 @@ namespace gui {
 
     protected:
 
-      using window::create;
+      using super::create;
 
       container (const container&);
       container (container&&) noexcept ;

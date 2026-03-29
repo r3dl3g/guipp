@@ -35,6 +35,10 @@
 #elif GUIPP_QT
 # include <gui/win/container_class_qt.h>
 # include <QtCore/QEventLoop>
+#elif GUIPP_JS
+# include <gui/win/container_class_js.h>
+#else
+#error Unknown target system in overlapped_window.h
 #endif // GUIPP_QT
 
 
@@ -101,8 +105,6 @@ namespace gui {
 
       core::point get_current_pointer_pos () const;
 
-      void shift_focus (bool backward = false);
-
       void set_focus_window (window* w);
       window* get_current_focus_window () const override;
 
@@ -166,18 +168,38 @@ namespace gui {
       core::hot_key::call fn;
     };
 
-    // --------------------------------------------------------------------------
-    class GUIPP_WIN_EXPORT modal_window : public overlapped_window {
+    class GUIPP_WIN_EXPORT container_window : public IF_JS_ELSE(container, overlapped_window) {
     public:
-      typedef overlapped_window super;
+      typedef IF_JS_ELSE(container, overlapped_window) super;
+
+      void destroy();
+      void set_title (const std::string&);
+      const std::string& get_title () const;
+
+    protected:
+
+      using super::create;
+
+      void create (const class_info&,
+                   overlapped_window&,
+                   const core::rectangle& = core::rectangle::def,
+                   bool adjust_size = true);
+
+      std::string title;
+    };
+
+    // --------------------------------------------------------------------------
+    class GUIPP_WIN_EXPORT modal_window : public container_window {
+    public:
+      typedef container_window super;
 
       modal_window ();
       modal_window (const modal_window&);
       modal_window (modal_window&&) noexcept ;
 
       void end_modal ();
-      void run_modal (overlapped_window&);
-      void run_modal (overlapped_window&, const std::vector<hot_key_action>& hot_keys);
+      void run_modal (container&);
+      void run_modal (container&, const std::vector<hot_key_action>& hot_keys);
 
     private:
       void init ();
@@ -205,9 +227,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_WIN_EXPORT popup_window : public overlapped_window {
+    class GUIPP_WIN_EXPORT popup_window : public container_window {
     public:
-      typedef overlapped_window super;
+      typedef container_window super;
       using clazz = cls::popup_window_class<popup_window>;
 
       void create (overlapped_window& parent,
@@ -215,6 +237,8 @@ namespace gui {
                    bool adjust_size = true);
 
     protected:
+      using super::create;
+
       void create (const class_info& cls,
                    overlapped_window& parent,
                    const core::rectangle& r = core::rectangle::def,
@@ -223,9 +247,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_WIN_EXPORT tooltip_window : public overlapped_window {
+    class GUIPP_WIN_EXPORT tooltip_window : public container_window {
     public:
-      typedef overlapped_window super;
+      typedef container_window super;
       using clazz = cls::tooltip_window_class<tooltip_window>;
 
       void create (overlapped_window& parent,
@@ -233,6 +257,8 @@ namespace gui {
                    bool adjust_size = true);
 
     protected:
+      using super::create;
+
       void create (const class_info& cls,
                    overlapped_window& parent,
                    const core::rectangle& r = core::rectangle::def,
@@ -251,6 +277,8 @@ namespace gui {
                    bool adjust_size = true);
 
     protected:
+      using super::create;
+
       void create (const class_info& cls,
                    overlapped_window& parent,
                    const core::rectangle& r = core::rectangle::def,
@@ -259,9 +287,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_WIN_EXPORT palette_window : public overlapped_window {
+    class GUIPP_WIN_EXPORT palette_window : public container_window {
     public:
-      typedef overlapped_window super;
+      typedef container_window super;
       using clazz = cls::palette_window_class<palette_window>;
 
       void create (overlapped_window& parent,
@@ -269,6 +297,8 @@ namespace gui {
                    bool adjust_size = true);
 
     protected:
+      using super::create;
+
       void create (const class_info& cls,
                    overlapped_window& parent,
                    const core::rectangle& r = core::rectangle::def,

@@ -14,6 +14,11 @@
  * @license   MIT license. See accompanying file LICENSE.
  */
 
+#if GUIPP_JS
+#include <emscripten/eventloop.h>
+#include <emscripten/eventloop.h>
+#endif
+
 // --------------------------------------------------------------------------
 //
 // Library includes
@@ -26,21 +31,25 @@ namespace gui {
 
   namespace win {
 
-    background_repeater::background_repeater (window& win, std::chrono::milliseconds delay_ms, action_t action)
-      : win(win)
-      , action(action)
+    background_repeater::background_repeater (std::chrono::milliseconds delay_ms, action_t action)
+      : action(action)
       , delay(delay_ms)
       , active(false)
+#if GUIPP_JS
+      , task(0)
+#endif //GUIPP_JS
     {
       if (delay_ms < std::chrono::milliseconds(1)) {
         throw std::runtime_error("Delay can not be smaller than 1 ms");
       }
     }
 
-    background_repeater::background_repeater (window& win, std::chrono::milliseconds delay_ms)
-      : win(win)
-      , delay(delay_ms)
+    background_repeater::background_repeater (std::chrono::milliseconds delay_ms)
+      : delay(delay_ms)
       , active(false)
+#if GUIPP_JS
+      , task(0)
+#endif //GUIPP_JS
     {
       if (delay_ms < std::chrono::milliseconds(1)) {
         throw std::runtime_error("Delay can not be smaller than 1 ms");
@@ -57,22 +66,57 @@ namespace gui {
       start();
     }
 
+#if GUIPP_JS
+    void background_repeater::background_call (void* userData) {
+        auto* instance = static_cast<background_repeater*>(userData);
+        instance->do_action();
+        instance->schedule_next();
+    }
+
+    void background_repeater::schedule_next () {
+      if (is_active()) {
+        logging::trace() << "Schedule background_call in " << delay.count() << " ms";
+        task = emscripten_set_timeout(background_call, delay.count(), this);
+      }
+    }
+#endif //GUIPP_JS
+
     void background_repeater::start () {
+      if (active) {
+        return;
+      }
+#if GUIPP_JS
+      active = true;
+      background_call(this);
+#else
       wait_for_finish();
       task = std::thread([&] () {
         active = true;
         while (active) {
           const auto end_time = std::chrono::system_clock::now() + delay;
-          action();
-          //win::run_on_main(win, action);
+          do_action();
           if (active) {
             std::this_thread::sleep_until(end_time);
           }
         }
       });
+#endif //GUIPP_JS
+    }
+
+    void background_repeater::do_action () {
+#if GUIPP_JS
+      task = 0;
+#endif //GUIPP_JS
+      action();
     }
 
     void background_repeater::stop () {
+#if GUIPP_JS
+      if (task > 0) {
+        emscripten_clear_timeout(task);
+        task = 0;
+      }
+#endif //GUIPP_JS
       active = false;
     }
 
@@ -89,10 +133,12 @@ namespace gui {
     }
 
     void background_repeater::wait_for_finish () {
+#ifndef GUIPP_JS
       active = false;
       if (task.joinable()) {
         task.join();
       }
+#endif //GUIPP_JS
     }
 
   } // win

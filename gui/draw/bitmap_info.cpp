@@ -131,6 +131,13 @@ namespace gui {
 
 #endif // GUIPP_QT
 
+#if GUIPP_JS
+    uint32_t bitmap_calc_bytes_per_line (uint32_t w, pixel_format_t) {
+      return w * 4;
+    }
+#endif // GUIPP_JS
+
+
     // --------------------------------------------------------------------------
     bitmap_info::bitmap_info ()
       : width(0)

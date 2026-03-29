@@ -32,6 +32,10 @@
 # include <QtCore/QEventLoop>
 # include <QtCore/QTimer>
 #endif
+#ifdef GUIPP_JS
+#include <emscripten.h>
+#include <emscripten/val.h>
+#endif //GUIPP_JS
 #include <logging/logger.h>
 #include <util/robbery.h>
 #include <util/blocking_queue.h>
@@ -43,6 +47,9 @@
 #include "gui/win/overlapped_window.h"
 #include "gui/win/window_event_proc.h"
 #include "gui/win/dbg_win_message.h"
+#include "gui/win/native.h"
+#include "gui/win/clipboard.h"
+
 
 namespace util {
 
@@ -217,30 +224,8 @@ namespace gui {
       }
 
     } // namespace x11
-
+    
     namespace detail {
-#define USE_WINDOW_MAPx
-#ifdef USE_WINDOW_MAP
-      typedef std::map<os::window, win::window*> window_map;
-      window_map global_window_map;
-
-      window* get_window (os::window id) {
-        return global_window_map[id];
-      }
-
-      void set_os_window (window* win, os::window id) {
-        global_window_map[id] = win;
-        if (win) {
-          win->set_os_window(id);
-        }
-      }
-
-      void unset_os_window (os::window id) {
-        clear_last_geometry(id);
-        global_window_map.erase(id);
-      }
-
-#else
       overlapped_window* get_window (os::window id) {
         Atom     actual_type = 0;
         int      actual_format = -1;
@@ -289,8 +274,6 @@ namespace gui {
         clear_last_geometry(id);
       }
 
-#endif // USE_WINDOW_MAP
-
       bool check_expose (const core::event& e) {
         return (e.type == Expose) && (e.xexpose.count > 0);
       }
@@ -328,7 +311,30 @@ namespace gui {
 
     } // namespace detail
 
-#endif
+#elif GUIPP_JS
+    namespace detail {
+
+      typedef std::map<os::window, win::overlapped_window*> window_map;
+      window_map global_window_map;
+
+      overlapped_window* get_window (os::window id) {
+        return global_window_map[id];
+      }
+
+      void set_os_window (overlapped_window* win, os::window id) {
+        global_window_map[id] = win;
+        if (win) {
+          win->set_os_window(id);
+        }
+      }
+
+      void unset_os_window (os::window id) {
+        global_window_map.erase(id);
+      }
+
+    } // namespace detail
+
+#endif // GUIPP_JS
 
     bool check_message_filter (const core::event& ev);
     bool check_hot_key (const core::event& e);
@@ -424,11 +430,13 @@ namespace gui {
         }
         detail::install_message_filter();
 #endif
+#ifndef GUIPP_JS
         if (root) {
           detail::hot_keys.emplace(hk, std::make_pair(root, fn));
         } else {
           logging::warn() << "Root Windows is not yet created. Hotkey could not be registered!";
         }
+#endif //GUIPP_JS
       }
 
       void unregister_hot_key (const core::hot_key& hk) {
@@ -437,12 +445,13 @@ namespace gui {
           return;
         }
 
-        os::window root = i->second.first;
-
+        
 #ifdef GUIPP_WIN
+        os::window root = i->second.first;
         UnregisterHotKey(root, hk.get_key());
 #endif // GUIPP_WIN
 #ifdef GUIPP_X11
+        os::window root = i->second.first;
         auto dpy = core::global::get_instance();
         XUngrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root);
 #endif // GUIPP_X11
@@ -602,6 +611,12 @@ namespace gui {
 
 #endif // GUIPP_X11
 
+#ifdef GUIPP_JS
+    void register_utf8_window (const window&) {}
+
+    void unregister_utf8_window (const window&) {}
+#endif //GUIPP_JS
+
     } // global
 
     // --------------------------------------------------------------------------
@@ -623,6 +638,8 @@ namespace gui {
       if (e.type == KeyPress) {
 #elif GUIPP_QT
       if (e.type() == QEvent::KeyPress) {
+#elif GUIPP_JS
+      if (e.type == os::js::event_type::KeyDown) {
 #endif
         core::hot_key hk(get_key_symbol(e), get_key_state(e));
         auto i = detail::hot_keys.find(hk);
@@ -733,6 +750,31 @@ namespace gui {
       return false;
     }
 
+#elif GUIPP_JS
+    bool is_button_event_outside (const window& w, const core::event& e) {
+      if ((e.type >= os::js::event_type::LButtonDown) && (e.type <= os::js::event_type::MButtonDblClk)) {
+        auto pt = std::get<core::native_point>(e.param_1);
+        return !w.absolute_geometry().is_inside(core::global::scale_from_native(pt));
+      }
+      return false;
+    }
+
+    void process_event (const core::event& e, gui::os::event_result& resultValue) {
+      win::overlapped_window* win = win::detail::get_window(e.id);
+
+      if (win && win->is_valid()) {
+
+        resultValue = 0;
+
+        try {
+          win->handle_event(e, resultValue);
+        } catch (std::exception& ex) {
+          logging::fatal() << "exception in run_main_loop: " << ex;
+        } catch (...) {
+          logging::fatal() << "Unknown exception in run_main_loop()";
+        }
+      }
+    }
 #endif
 
     // --------------------------------------------------------------------------
@@ -809,6 +851,206 @@ namespace gui {
 #elif GUIPP_QT
       QEventLoop event_loop;
       return event_loop.exec(QEventLoop::AllEvents);
+#elif GUIPP_JS
+      gui::os::event_result resultValue = 0;
+
+      auto self = emscripten::val::global("self");
+      auto queue = self["eventQueue"];
+      auto id = self["canvas"];
+
+      static std::unordered_map<std::string, os::key_symbol> s_key_mapping = {
+        {"ArrowLeft",   core::keys::left},
+        {"ArrowRight",  core::keys::right},
+        {"ArrowUp",     core::keys::up},
+        {"ArrowDown",   core::keys::down},
+        {"PageUp",      core::keys::page_up},
+        {"PageDown",    core::keys::page_down},
+        {"Home",        core::keys::home},
+        {"End",         core::keys::end},
+        {"Delete",      core::keys::del},
+        {"Insert",      core::keys::insert},
+        {"Escape",      core::keys::escape},
+        {"Enter",       core::keys::enter},
+        {"Space",       core::keys::space},
+        {"NumpadClear", core::keys::clear},
+        {"Backspace",   core::keys::back_space},
+        {"Tab",         core::keys::tab},
+        {"PrintScreen", core::keys::print},
+        {"F1",          core::keys::f1},
+        {"F2",          core::keys::f2},
+        {"F3",          core::keys::f3},
+        {"F4",          core::keys::f4},
+        {"F5",          core::keys::f5},
+        {"F6",          core::keys::f6},
+        {"F7",          core::keys::f7},
+        {"F8",          core::keys::f8},
+        {"F9",          core::keys::f9},
+        {"F10",         core::keys::f10},
+        {"F11",         core::keys::f11},
+        {"F12",         core::keys::f12},
+        {"F13",         core::keys::f13},
+        {"F14",         core::keys::f14},
+        {"F15",         core::keys::f15},
+        {"F16",         core::keys::f16},
+        {"F17",         core::keys::f17},
+        {"F18",         core::keys::f18},
+        {"F19",         core::keys::f19},
+        {"F20",         core::keys::f20},
+        {"F21",         core::keys::f21},
+        {"F22",         core::keys::f22},
+        {"F23",         core::keys::f23},
+        {"F24",         core::keys::f24},
+        {"ControlLeft", core::keys::control},
+        {"AltLeft",     core::keys::alt},
+        {"ShiftLeft",   core::keys::shift},
+        {"MetaLeft",    core::keys::system},
+        {"ControlRight",core::keys::control},
+        {"AltRight",    core::keys::alt},
+        {"ShiftRight",  core::keys::shift},
+        {"MetaRight",   core::keys::system},
+        {"NumLock",     core::keys::num_lock},
+        {"ScrollLock",  core::keys::scroll_lock},
+        {"CapsLock",    core::keys::caps_lock},
+        {"KeyA",        core::keys::a},
+        {"KeyB",        core::keys::b},
+        {"KeyC",        core::keys::c},
+        {"KeyD",        core::keys::d},
+        {"KeyE",        core::keys::e},
+        {"KeyF",        core::keys::f},
+        {"KeyG",        core::keys::g},
+        {"KeyH",        core::keys::h},
+        {"KeyI",        core::keys::i},
+        {"KeyJ",        core::keys::j},
+        {"KeyK",        core::keys::k},
+        {"KeyL",        core::keys::l},
+        {"KeyM",        core::keys::m},
+        {"KeyN",        core::keys::n},
+        {"KeyO",        core::keys::o},
+        {"KeyP",        core::keys::p},
+        {"KeyQ",        core::keys::q},
+        {"KeyR",        core::keys::r},
+        {"KeyS",        core::keys::s},
+        {"KeyT",        core::keys::t},
+        {"KeyU",        core::keys::u},
+        {"KeyV",        core::keys::v},
+        {"KeyW",        core::keys::w},
+        {"KeyX",        core::keys::x},
+        {"KeyY",        core::keys::y},
+        {"KeyZ",        core::keys::z},
+        {"Plus",        core::keys::plus},
+        {"Minus",       core::keys::minus},
+        {"Asterisk",    core::keys::asterisk},
+        {"Comma",       core::keys::comma},
+        {"Period",      core::keys::period},
+        {"Slash",       core::keys::slash},
+        {"Colon",       core::keys::colon},
+        {"Semicolon",   core::keys::semicolon},
+        {"Less",        core::keys::less},
+        {"Equal",       core::keys::equal},
+        {"Greater",     core::keys::greater},
+        {"Question",    core::keys::question},
+        {"At",          core::keys::at},
+
+      };
+
+      while (running) {
+        while (queue["length"].as<int>() > 0) {
+
+          auto event = queue.call<emscripten::val>("shift");
+          auto type = static_cast<gui::os::event_id>(event["type"].as<int>());
+
+          core::event e;
+          if ((type == os::js::event_type::KeyDown) || (type == os::js::event_type::KeyUp)) {
+            auto state = event["state"].as<os::key_state>();
+            auto keyname = event["key"].as<std::string>();
+            auto chars = event["chars"].as<std::string>();
+
+            os::key_symbol key = 0;
+            auto it = s_key_mapping.find(keyname);
+            if (it != s_key_mapping.end()) {
+              key = it->second;
+            // } else if (keyname.substr(0, 3) != "Key") {
+            //   chars = keyname;
+            }
+
+            e = {id, type, state, key, chars};
+            logging::trace() << "Received event " << e;
+
+          } else if ((type == os::js::event_type::MouseMove) ||
+                     ((static_cast<int>(type) >= static_cast<int>(os::js::event_type::ButtonDown)) && 
+                      (static_cast<int>(type) <= static_cast<int>(os::js::event_type::RButtonDblClk)))) {
+
+            auto state = event["state"].as<os::key_state>();
+            auto x = event["x"].as<core::native_point::type>();
+            auto y = event["y"].as<core::native_point::type>();
+            e = {id, type, state, core::native_point(x, y)};
+            logging::trace() << "Received event " << e << " at " << x << ", " << y << " state " << state;
+
+          } else if ((type == os::js::event_type::WheelH) ||
+                     (type == os::js::event_type::WheelV)) {
+
+            auto state = event["state"].as<os::key_state>();
+            auto x = event["x"].as<core::native_point::type>();
+            auto y = event["y"].as<core::native_point::type>();
+            e = {id, type, state > 0 ? 1 : -1, core::native_point(x, y)};
+            logging::trace() << "Received event " << e;
+
+          } else if ((type == os::js::event_type::MouseEnter) || (type == os::js::event_type::MouseLeave)) {
+
+            e = {id, type, 0, 0};
+            logging::trace() << "Received event " << e;
+
+          } else if (type == os::js::event_type::Layout) {
+
+            int x = event["x"].as<int>();
+            int y = event["y"].as<int>();
+
+            e = {id, type, core::rectangle(0, 0, x, y), 0};
+            logging::trace() << "Received event " << e;
+
+          } else if (static_cast<int>(type) == 50) {
+
+            logging::debug() << "Received paste event";
+
+            auto chars = event["chars"].as<std::string>();
+            logging::debug() << "Received chars: '" << chars << "'";
+
+            int id = event["state"].as<int>();
+            logging::debug() << "Received id: " << id;
+
+            clipboard::handle_paste(chars, id);
+
+            continue;
+
+          } else {
+            logging::trace() << "Received unknown " << static_cast<int>(type) << " event";
+          }
+
+          if (check_message_filter(e) || (filter && filter(e))) {
+            continue;
+          }
+
+          process_event(e, resultValue);
+        }
+
+        // if (x11::queued_actions.try_dequeue(action)) {
+        //   action();
+        // } else {
+        //   wait_for_event(fd);
+        // }
+
+        // x11::draw_invalidated_windows();
+
+        win::overlapped_window* win = detail::get_window(id);
+        if (win && win->is_visible()) {
+          win->redraw({});
+        }
+
+        emscripten_sleep(50);
+
+      }
+
+      return resultValue;
 #endif // GUIPP_QT
     }
 

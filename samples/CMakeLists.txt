@@ -38,6 +38,8 @@ if(GUIPP_BUILD_DEPENDENT_LIBS)
   add_subdirectory(${GUIPP_LIBS_DIR}/logging logging)
   add_subdirectory(${GUIPP_LIBS_DIR}/util util)
 else ()
+  set(logging_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/logging)
+  set(util_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/util)
   find_package(logging REQUIRED)
   find_package(util REQUIRED)
 endif()
@@ -52,11 +54,7 @@ if (EMSCRIPTEN)
   set(CMAKE_EXECUTABLE_SUFFIX ".wasm.js")
 endif (EMSCRIPTEN)
 
-if (${CMAKE_VERSION} VERSION_LESS "3.13.0")
-  set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${GUIPP_EXE_LINKER_FLAGS})
-else ()
-  add_link_options(${GUIPP_EXE_LINKER_FLAGS})
-endif ()
+add_link_options(${GUIPP_EXE_LINKER_FLAGS})
 
 function(guipp_sample PROJECT_NAME)
 
@@ -68,16 +66,31 @@ function(guipp_sample PROJECT_NAME)
     add_executable(${PROJECT_NAME} WIN32 ${PROJECT_NAME}.cpp)
   endif ()
 
-  target_link_libraries(${PROJECT_NAME} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
-  #install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-  set_target_properties(${PROJECT_NAME} PROPERTIES
-                        FOLDER apps
-                        CXX_STANDARD ${GUIPP_CXX_STANDARD}
-                        )
+  # install(TARGETS app DESTINATION bin/${PROJECT_NAME})
+
   if (EMSCRIPTEN)
+    target_link_libraries(${PROJECT_NAME} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
     set_target_properties(${PROJECT_NAME} PROPERTIES
-                          LINK_FLAGS "-s USE_PTHREADS=1")
+                          FOLDER apps
+                          CXX_STANDARD ${GUIPP_CXX_STANDARD}
+                          )
+
+    configure_file (
+      "${CMAKE_SOURCE_DIR}/web/index.html"
+      "${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}.html"
+    )
+    configure_file (
+      "${CMAKE_SOURCE_DIR}/web/worker.js"
+      "${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}.js"
+    )
+  else ()
+    target_link_libraries(${PROJECT_NAME} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+                          FOLDER apps
+                          CXX_STANDARD ${GUIPP_CXX_STANDARD}
+                          )
   endif ()
+
   if (ANDROID)
     add_qt_android_apk(${PROJECT_NAME}_apk ${PROJECT_NAME}
                          PACKAGE_NAME "de.redspace.${PROJECT_NAME}"

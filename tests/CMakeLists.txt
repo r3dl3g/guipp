@@ -33,6 +33,9 @@ if(GUIPP_BUILD_DEPENDENT_LIBS)
   add_subdirectory(${GUIPP_LIBS_DIR}/util util)
   add_subdirectory(./../libs/testing testing)
 else ()
+  set(logging_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/logging)
+  set(util_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/util)
+  set(testing_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/testing)
   find_package(logging REQUIRED)
   find_package(util REQUIRED)
   find_package(testing REQUIRED)
@@ -64,11 +67,7 @@ set(tests
 DebugPrint("GUIPP_LIBRARIES: ${GUIPP_LIBRARIES}")
 
 add_definitions(${GUIPP_CXX_FLAGS})
-if (${CMAKE_VERSION} VERSION_LESS "3.13.0")
-  set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${GUIPP_EXE_LINKER_FLAGS})
-else ()
-  add_link_options(${GUIPP_EXE_LINKER_FLAGS})
-endif ()
+add_link_options(${GUIPP_EXE_LINKER_FLAGS})
 
 foreach(test ${tests})
     add_executable(${test} WIN32 ${test}.cpp)
@@ -77,4 +76,9 @@ foreach(test ${tests})
     set_target_properties(${test} PROPERTIES
                           FOLDER tests
                           CXX_STANDARD ${GUIPP_CXX_STANDARD})
+  # if (EMSCRIPTEN)
+  #   set_target_properties(${test} PROPERTIES
+  #                         LINK_FLAGS ${GUIPP_EXE_LINKER_FLAGS}
+  #                         )
+  # endif()
 endforeach(test)

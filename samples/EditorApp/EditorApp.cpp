@@ -71,7 +71,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   auto quit = [&] () {
     if (content_changed) {
       yes_no_dialog::ask(main, "Content has", "Content has changed\nDo you realy want to quit without save?", "Yes", "No",
-                         [&] (win::overlapped_window&, bool yes) {
+                         [&] (win::container&, bool yes) {
         if (yes) {
           gui::win::quit_main_loop();
         }

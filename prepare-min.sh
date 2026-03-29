@@ -1,0 +1,1 @@
+./prepare.sh -DGUIPP_SAMPLES=OFF -DGUIPP_TESTS=OFF

@@ -40,6 +40,8 @@ namespace gui {
 
     namespace native {
 
+      GUIPP_WIN_EXPORT bool is_valid (const os::window& w);
+
       GUIPP_WIN_EXPORT const class_info& get_window_class (const char* class_name);
       GUIPP_WIN_EXPORT void register_window_class (const class_info& type);
 
@@ -130,15 +132,22 @@ namespace gui {
                                           const core::native_point& to,
                                           const core::native_size& size);
 
-      GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, long l1 = 0, long l2 = 0);
-      GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, void* v1, void* v2);
-      GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const core::size& sz);
+      GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, int l1 = 0, int l2 = 0);
+      GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, core::context& ctx, const core::native_rect& r);
+      GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const float f);
       GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const core::rectangle& wr);
 
       GUIPP_WIN_EXPORT void send_mouse_event (window* win, bool enter);
       GUIPP_WIN_EXPORT void send_notify_visibility (window* win, bool visible);
 
       GUIPP_WIN_EXPORT core::native_point get_current_pointer_pos (os::window id);
+
+#ifdef GUIPP_JS
+      namespace js {
+        void send_to_main (const std::string& type, const std::string& message);
+        void send_to_main (const std::string& type, int id);
+      } // namespace js
+#endif
 
     } // namespace native
 

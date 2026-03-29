@@ -38,12 +38,16 @@ namespace gui {
     namespace native {
 
       // --------------------------------------------------------------------------
+      void init_clipping (context& {
+      }
+
+      // --------------------------------------------------------------------------
       void set_clip_rect (core::context& ctx, const gui::os::rectangle& r) {
         ctx.graphics()->setClipRect(r);
       }
 
       // --------------------------------------------------------------------------
-      void clear_clip_rect (core::context& ctx) {
+      void clear_clipping (core::context& ctx) {
         if (ctx.graphics()->isActive()) {
           ctx.graphics()->setClipping(false);
         }

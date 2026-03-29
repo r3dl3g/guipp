@@ -150,14 +150,15 @@ void test_raw_ellipse () {
   XSetArcMode(core::global::get_instance(), g, ArcChord);
   XDrawArc(core::global::get_instance(), img, g, 1, 1, 2, 2, 0, degree_360);
   constexpr gui::os::color Q = R;
-#endif
-#ifdef GUIPP_WIN
+#elif GUIPP_WIN
   SelectObject(g, GetStockObject(NULL_BRUSH));
   Ellipse(g, r.os_x(g.context()), r.os_y(g.context()), r.os_x2(g.context()), r.os_y2(g.context()));
   constexpr gui::os::color Q = _;
-#endif
-#ifdef GUIPP_QT
+#elif GUIPP_QT
   g.os()->drawEllipse(1, 1, 2, 2);
+  constexpr gui::os::color Q = _;
+#elif GUIPP_JS
+  //g.os()->drawEllipse(1, 1, 2, 2);
   constexpr gui::os::color Q = _;
 #endif
 
@@ -182,13 +183,13 @@ void test_raw_ellipse2 () {
 #ifdef GUIPP_X11
   XSetArcMode(core::global::get_instance(), g, ArcChord);
   XDrawArc(core::global::get_instance(), img, g, r.os_x(g.context()), r.os_y(g.context()), r.os_width() - 1, r.os_height() - 1, 0, degree_360);
-#endif
-#ifdef GUIPP_WIN
+#elif GUIPP_WIN
   SelectObject(g, GetStockObject(NULL_BRUSH));
   Ellipse(g, r.os_x(g.context()), r.os_y(g.context()), r.os_x2(g.context()), r.os_y2(g.context()));
-#endif
-#ifdef GUIPP_QT
+#elif GUIPP_QT
   g.os()->drawEllipse(r.os_x(g.context()), r.os_y(g.context()), r.os_width() - 1, r.os_height() - 1);
+#elif GUIPP_JS
+  //g.os()->drawEllipse(r.os_x(g.context()), r.os_y(g.context()), r.os_width() - 1, r.os_height() - 1);
 #endif
 
   auto buffer = pixmap2colormap(img);
@@ -218,16 +219,16 @@ void test_raw_ellipse3 () {
   XDrawArc(core::global::get_instance(), img, g, 5, 5, 4, 4, 0, degree_360);
 
   constexpr gui::os::color r = R;
-#endif
-#ifdef GUIPP_WIN
+#elif GUIPP_WIN
   SelectObject(g, GetStockObject(NULL_BRUSH));
   Ellipse(g, 3, 3, 12, 12);
   Ellipse(g, 4, 4, 11, 11);
   Ellipse(g, 5, 5, 10, 10);
 
   constexpr gui::os::color r = _;
-#endif
-#ifdef GUIPP_QT
+#elif GUIPP_QT
+  constexpr gui::os::color r = R;
+#elif GUIPP_JS
   constexpr gui::os::color r = R;
 #endif
 
@@ -265,8 +266,7 @@ void test_raw_ellipse4 () {
 
   constexpr gui::os::color r = R;
   constexpr gui::os::color x = _;
-#endif
-#ifdef GUIPP_WIN
+#elif GUIPP_WIN
   auto hPen = CreatePen(PS_SOLID, 3, color::red);
   auto hOldPen = SelectObject(g, hPen);
   auto hBrush = CreateSolidBrush(color::black);
@@ -283,8 +283,10 @@ void test_raw_ellipse4 () {
 
   constexpr gui::os::color r = _;
   constexpr gui::os::color x = R;
-#endif
-#ifdef GUIPP_QT
+#elif GUIPP_QT
+  constexpr gui::os::color r = R;
+  constexpr gui::os::color x = _;
+#elif GUIPP_JS
   constexpr gui::os::color r = R;
   constexpr gui::os::color x = _;
 #endif

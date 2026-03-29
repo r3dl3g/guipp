@@ -451,6 +451,9 @@ void test_pixmap_draw () {
 #elif GUIPP_QT
 # define EMPTY "000000ff"
 # define BLUE  "ff0000ff"
+#elif GUIPP_JS
+# define EMPTY "000000ff"
+# define BLUE  "ff0000ff"
 #endif
 
   const pixel_format_t expected_pixelformat = pixmap::default_pixel_format();
@@ -496,6 +499,11 @@ void test_pixmap_draw () {
   auto data = pic.constBits();
   const int height = pic.height();
   const int bytes_per_line = pic.bytesPerLine();
+#elif GUIPP_JS
+  //auto pic = img.get_os_bitmap()->toImage();
+  unsigned char* data = nullptr;// pic.constBits();
+  const int height = 0;//pic.height();
+  const int bytes_per_line = 0;//pic.bytesPerLine();
 #endif
 
   std::ostringstream buffer;
@@ -624,6 +632,8 @@ void test_pixmap2bitmap () {
 #elif GUIPP_QT
   auto pic = img.get_os_bitmap()->toImage();
   auto data = pic.constBits();
+#elif GUIPP_JS
+  const char* data = nullptr;// pic.constBits();
 #endif
 
   auto buffer = data2hex(data, IF_WIN32_ELSE(4, 8));

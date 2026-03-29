@@ -23,7 +23,7 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     template<int T, int L, int R>
-    void standard_dialog_base<T, L, R>::create (win::overlapped_window& parent,
+    void standard_dialog_base<T, L, R>::create (win::container& parent,
                                                 const std::string& title,
                                                 const core::rectangle& rect,
                                                 const std::vector<std::string>& labels,
@@ -55,7 +55,7 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     template<int T, int L, int R>
-    void standard_dialog_base<T, L, R>::show (win::overlapped_window& parent) {
+    void standard_dialog_base<T, L, R>::show (win::container& parent) {
       super::run_modal(parent, {
         win::hot_key_action{
           core::hot_key(core::keys::escape, core::state::none),
@@ -92,7 +92,7 @@ namespace gui {
     }
 
     template<typename C, int T, int L, int R>
-    void standard_dialog<C, T, L, R>::create (win::overlapped_window& parent,
+    void standard_dialog<C, T, L, R>::create (win::container& parent,
                                               const std::string& title,
                                               const core::rectangle& rect,
                                               const std::vector<std::string>& labels,
@@ -118,7 +118,7 @@ namespace gui {
     {}
 
     template<typename T>
-    void yes_no_dialog_t<T>::create (win::overlapped_window& parent,
+    void yes_no_dialog_t<T>::create (win::container& parent,
                                      const std::string& title,
                                      const std::string& yes_label,
                                      const std::string& no_label,
@@ -126,7 +126,7 @@ namespace gui {
                                      std::function<yes_no_action> act) {
       action = act;
       super::create(parent, title, rect, {no_label, yes_label},
-                    [&] (win::overlapped_window& dlg, int i) {
+                    [&] (win::container& dlg, int i) {
         action(dlg, i == 1);
       });
     }
@@ -138,7 +138,7 @@ namespace gui {
     }
 
     template<typename T>
-    void select_dialog<T>::create (win::overlapped_window& parent,
+    void select_dialog<T>::create (win::container& parent,
                                    const std::string& title,
                                    const std::vector<T>& data,
                                    const T initial,
@@ -147,7 +147,7 @@ namespace gui {
                                    const core::rectangle& rect,
                                    std::function<select_action> action) {
       super::create(parent, title, rect, {cancel_label, ok_label},
-                    [&, action] (win::overlapped_window& dlg, int i) {
+                    [&, action] (win::container& dlg, int i) {
         if ((i == 1) && (vlist->has_selection())) {
           const int sel = vlist->get_selection().get_first_index();
           action(dlg, sel, data[sel]);
@@ -170,7 +170,7 @@ namespace gui {
     }
 
     template<typename T>
-    void select_dialog<T>::ask (win::overlapped_window& parent,
+    void select_dialog<T>::ask (win::container& parent,
                                 const std::string& title,
                                 const std::vector<T>& list,
                                 const T initial,
@@ -192,7 +192,7 @@ namespace gui {
 
     template<typename ... Arguments>
     void select_from_columnlist_dialog<Arguments...>::
-      create (win::overlapped_window& parent,
+      create (win::container& parent,
               const std::string& title,
               data_t& data,
               const int initial,
@@ -202,7 +202,7 @@ namespace gui {
               const core::rectangle& rect,
               std::function<select_action> action) {
       super::create(parent, title, rect, {cancel_label, ok_label},
-                    [&, action] (win::overlapped_window& dlg, int i) {
+                    [&, action] (win::container& dlg, int i) {
         if ((i == 1) && (vlist.list->has_selection())) {
           const int sel = vlist.list->get_selection().get_first_index();
           action(dlg, sel, data.at(sel));
@@ -224,7 +224,7 @@ namespace gui {
 
     template<typename ... Arguments>
     void select_from_columnlist_dialog<Arguments...>::
-      ask (win::overlapped_window& parent,
+      ask (win::container& parent,
            const std::string& title,
            data_t& data,
            const int initial,
@@ -285,7 +285,7 @@ namespace gui {
     {}
 
     template<typename T, bool O>
-    void path_open_dialog_base<T, O>::create (win::overlapped_window& parent,
+    void path_open_dialog_base<T, O>::create (win::container& parent,
                                            const std::string& title,
                                            const std::string& ok_label,
                                            const std::string& cancel_label,
@@ -296,14 +296,14 @@ namespace gui {
       auto& dir_tree = std::get<0>(super::content_view.views).view.view;
       auto& file_list = std::get<1>(super::content_view.views);
 
-      super::content_view.init([&, action] (win::overlapped_window& dlg, const sys_fs::path& path) {
+      super::content_view.init([&, action] (win::container& dlg, const sys_fs::path& path) {
         super::set_visible(false);
         super::end_modal();
         action(dlg, path);
       }, file_filter, dir_filter);
 
       super::create(parent, title, rect, {cancel_label, ok_label},
-                    [&, action] (win::overlapped_window& dlg, int btn) {
+                    [&, action] (win::container& dlg, int btn) {
         if (1 == btn) {
           if (std::get<1>(super::content_view.views).list->has_selection()) {
             action(dlg, std::get<1>(super::content_view.views).get_selected_path());
@@ -330,7 +330,7 @@ namespace gui {
     }
 
     template<typename T, bool O>
-    void path_open_dialog_base<T, O>::show (win::overlapped_window& parent,
+    void path_open_dialog_base<T, O>::show (win::container& parent,
                                          const std::string& title,
                                          const std::string& ok_label,
                                          const std::string& cancel_label,

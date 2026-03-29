@@ -195,9 +195,57 @@ namespace gui {
       }
     }
 
+    // --------------------------------------------------------------------------
+    template<typename iterator>
+    iterator focus_next (iterator i, iterator end) {
+      while (i != end) {
+        window* win = *i;
+        if (win->can_accept_focus()) {
+          win->take_focus();
+          return i;
+        }
+        ++i;
+      }
+      return end;
+    }
+
+    template<typename iterator>
+    iterator iterate_focus (iterator begin, iterator end, window* current_focus) {
+      auto current = std::find(begin, end, current_focus);
+      auto found = end;
+      if (current != end) {
+        found = focus_next(current + 1, end);
+      }
+      if (found == end) {
+        found = focus_next(begin, current);
+      }
+
+      if (found != end) {
+        if (current_focus) {
+          current_focus->focus_lost();
+        }
+      }
+      return found;
+    }
+    // --------------------------------------------------------------------------
+    void container::shift_focus (bool backward) {
+      window_list_t children;
+      collect_children(children, [] (const window* w) {
+        auto state = w->get_state();
+        return state.created() && state.visible() && state.enabled() && !state.overlapped();
+      });
+      if (!children.empty()) {
+        if (backward) {
+          iterate_focus(std::rbegin(children), std::rend(children), get_current_focus_window());
+        } else {
+          iterate_focus(std::begin(children), std::end(children), get_current_focus_window());
+        }
+      }
+    }
 
     bool container::handle_event (const core::event& e, gui::os::event_result& r) {
       if (paint_event::match(e)) {
+        logging::trace() << "container::handle_event:paint_event";
         core::context* cntxt = paint_event::Caller::get_param<0>(e);
         const core::native_rect* clip_rect = paint_event::Caller::get_param<1>(e);
 
@@ -217,6 +265,7 @@ namespace gui {
 
                 if (state.created() && state.visible() && !state.overlapped()) {
                   const auto crc = rect & *clip_rect;
+                  logging::trace() << "container clip " << crc;
                   core::clip clp(*cntxt, crc);
                   native::erase(cntxt->drawable(), cntxt->graphics(), crc, w->get_background());
                   cntxt->set_offset(rect.x(), rect.y());
@@ -233,11 +282,13 @@ namespace gui {
 
     os::event_id container::collect_event_mask () const {
       os::event_id mask = get_event_mask();
+#ifndef GUIPP_JS
       for (auto w : children) {
         if (!w->get_state().overlapped()) {
           mask |= w->collect_event_mask();
         }
       }
+#endif //GUIPP_JS
       return mask;
     }
 

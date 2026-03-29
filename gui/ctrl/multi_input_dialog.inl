@@ -181,7 +181,7 @@ namespace gui {
     }
 
     template<typename ... Arguments>
-    void multi_input_dialog<Arguments...>::create (win::overlapped_window& parent,
+    void multi_input_dialog<Arguments...>::create (win::container& parent,
                                                    const std::string& title,
                                                    const std::array<std::string, N>& message,
                                                    const init_types& initial,
@@ -190,7 +190,7 @@ namespace gui {
                                                    const core::rectangle& rect,
                                                    std::function<action> action) {
       super::create(parent, title, rect, {cancel_label, ok_label},
-                    [&, action] (win::overlapped_window&, int i) {
+                    [&, action] (win::container&, int i) {
         if (i == 1) {
           action(detail::get_values<controls_types, typename input::value_type<Arguments>::type ...>(edits));
         }
@@ -199,12 +199,12 @@ namespace gui {
     }
 
     template<typename ... Arguments>
-    core::rectangle multi_input_dialog<Arguments...>::get_standard_size (win::overlapped_window& parent) {
+    core::rectangle multi_input_dialog<Arguments...>::get_standard_size (win::container& parent) {
       return detail::std_multi_input_dialog_size<>(parent.geometry(), N * 2, 22);
     }
 
     template<typename ... Arguments>
-    void multi_input_dialog<Arguments...>::ask (win::overlapped_window& parent,
+    void multi_input_dialog<Arguments...>::ask (win::container& parent,
                                                 const std::string& title,
                                                 const std::array<std::string, N>& message,
                                                 const init_types& initial,

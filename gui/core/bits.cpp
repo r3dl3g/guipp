@@ -47,7 +47,8 @@ namespace std {
       "win32",
       "x11",
       "cocoa",
-      "qt"
+      "qt",
+      "js"
     };
 
     const char* ui_t_names[] = {

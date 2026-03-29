@@ -134,7 +134,7 @@ namespace gui {
 
       struct gui_init {
         gui_init ()
-          : instance(nullptr)
+          : instance(IF_JS_ELSE(emscripten::val::undefined(), nullptr))
 #ifdef GUIPP_X11
           , screen(0)
 #endif // GUIPP_X11
@@ -145,6 +145,9 @@ namespace gui {
         }
 
         void init (gui::os::instance i) {
+#ifdef GUIPP_JS
+          logging::debug() << "Call gui_init::init(is_undef:" << i.isUndefined() << ", is_null:" << i.isNull() << ")";
+#endif //GUIPP_JS
           instance = i;
 #ifdef GUIPP_X11
           if (instance != nullptr) {
@@ -163,7 +166,11 @@ namespace gui {
         }
 
         bool is_initialized () const {
+#ifdef GUIPP_JS
+          return !(instance.isUndefined() || instance.isNull());
+#else
           return (instance != nullptr);
+#endif //GUIPP_JS
         }
 
         ~gui_init () {
@@ -268,6 +275,8 @@ namespace gui {
           DefaultDepth(get_instance(), x11::get_screen());
 #elif GUIPP_QT
           QGuiApplication::primaryScreen()->depth();
+#elif GUIPP_JS
+          32;
 #else
 #error  Undefined System: int get_device_depth ()
 #endif
@@ -512,6 +521,14 @@ namespace gui {
       }
 
 #endif // GUIPP_QT
+
+#ifdef GUIPP_JS
+
+      double calc_scale_factor () {
+        return 1.0;
+      }
+
+#endif //GUIPP_JS
 
     } // global
 

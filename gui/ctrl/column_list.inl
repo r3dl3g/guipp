@@ -205,7 +205,7 @@ namespace gui {
           }
         }
         return false;
-      }), static_cast<os::event_id>(mouse_move_event::mask | left_btn_down_event::mask | left_btn_up_event::mask));
+      }), static_cast<os::event_id>(IF_JS_ELSE(0, mouse_move_event::mask | left_btn_down_event::mask | left_btn_up_event::mask)));
       super::on_paint(draw::paint(this, &column_list_header::paint));
       super::on_layout([&] (const core::rectangle& r) {
         layout(r);

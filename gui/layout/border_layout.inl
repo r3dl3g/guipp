@@ -419,7 +419,7 @@ namespace gui {
 
       template<int TO, int BO, int LE, int RI, type_t T>
       inline core::rectangle layouter<TO, BO, LE, RI, T>::get_center_geometry (const core::rectangle& r) const {
-        return r.shrinked(get_top_height(), BO, get_left_width(), get_right_width());
+        return r.shrinked(get_top_height(), get_bottom_height(), get_left_width(), get_right_width());
       }
 
       template<int TO, int BO, int LE, int RI, type_t T>

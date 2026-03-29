@@ -11,6 +11,9 @@
 #ifdef GUIPP_QT
 #include <QtWidgets/qapplication.h>
 #endif // GUIPP_QT
+#ifdef GUIPP_JS
+#include <emscripten/val.h>
+#endif //GUIPP_JS
 
 
 namespace testing {
@@ -29,6 +32,9 @@ namespace testing {
     static QGuiApplication qapplication(argc, argv);
     gui::core::global::init(&qapplication);
 #endif // GUIPP_QT
+#ifdef GUIPP_JS
+  gui::core::global::init(emscripten::val::global("document"));
+#endif //GUIPP_JS
   }
 
 }

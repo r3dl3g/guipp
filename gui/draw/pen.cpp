@@ -134,7 +134,7 @@ namespace gui {
       return pen(color(), size(), style(), cap(), j);
     }
 
-#if defined(GUIPP_X11) || defined(GUIPP_QT)
+#if defined(GUIPP_X11) || defined(GUIPP_QT) || defined(GUIPP_JS)
     const pen pen::invisible(color::black, 1, pen::Style::invisible);
     const pen pen::standard;
 

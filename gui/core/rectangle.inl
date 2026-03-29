@@ -29,6 +29,9 @@ namespace gui {
 #elif GUIPP_QT
     template<typename T, typename S, coordinate_system C>
     const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def(0, 0, -1, -1);
+#elif GUIPP_JS
+    template<typename T, typename S, coordinate_system C>
+    const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def(0, 0, 1, 1);
 #else
 #error Unknown target system: const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def
 #endif // GUIPP_QT
@@ -544,7 +547,7 @@ namespace gui {
     template<typename T, typename S, coordinate_system C>
     gui::os::rectangle basic_rectangle<T, S, C>::os (const context& ctx) const {
       return {
-#ifdef GUIPP_WIN
+#if defined(GUIPP_WIN) || defined(GUIPP_JS)
         os_x(ctx), os_y(ctx),
         os_x2(ctx), os_y2(ctx)
 #elif GUIPP_X11

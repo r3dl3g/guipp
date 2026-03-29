@@ -35,11 +35,14 @@ namespace gui {
                                        core::params<int>::getter<win::get_param<0, int> > >;
 #elif GUIPP_X11
     using slider_event = core::event_handler<ClientMessage, 0,
-                                       core::params<int>::getter<win::get_client_data<0, int> >,
-                                       0, win::event::functor<win::client_message_matcher<detail::SLIDER_MESSAGE>>>;
+                                             core::params<int>::getter<win::get_client_data<0, int> >, 0,
+                                             win::event::functor<win::client_message_matcher<detail::SLIDER_MESSAGE>>>;
 #elif GUIPP_QT
     using slider_event = core::event_handler<detail::SLIDER_MESSAGE, 0,
-                                       core::params<long>::getter<win::get_param<0>>>;
+                                             core::params<int>::getter<win::get_param<0>>>;
+#elif GUIPP_JS
+    using slider_event = core::event_handler<detail::SLIDER_MESSAGE, gui::os::js::event_type::None,
+                                             core::params<int>::getter<win::get<0, int>::param>>;
 #else
 # error Undefined system: slider_event
 #endif // GUIPP_QT

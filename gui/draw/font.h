@@ -73,10 +73,12 @@ namespace gui {
 
       font& operator= (const font& rhs);
 
+#if defined(GUIPP_WIN) || defined(GUIPP_X11) || defined(GUIPP_QT)
       explicit font (os::font id);
-      explicit font (os::font_type id);
-
       operator os::font () const;
+#endif // GUIPP_WIN
+
+      explicit font (os::font_type id);
       os::font_type font_type () const;
 
       std::string name () const;
@@ -110,7 +112,7 @@ namespace gui {
 # endif // GUIPP_USE_XFT
 #endif // GUIPP_X11
 
-#if defined(GUIPP_WIN) || defined(GUIPP_QT)
+#if defined(GUIPP_WIN) || defined(GUIPP_X11) || defined(GUIPP_QT)
       os::font id;
 #endif // GUIPP_WIN
       os::font_type info;

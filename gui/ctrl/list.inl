@@ -155,7 +155,7 @@ namespace gui {
       template<typename T, orientation_t O>
       void oriented_list<T, O>::handle_mouse_move (os::key_state keys,
                                                const core::native_point& pt) {
-        const auto r = super::surface_geometry();
+        //const auto r = super::surface_geometry();
         if (core::left_button_bit_mask::is_set(keys)/*  && r.is_inside(pt) */) {
           if ((super::get_last_mouse_point() != core::native_point::undefined) &&
               (super::get_last_mouse_point() != pt)) {
@@ -556,6 +556,8 @@ namespace gui {
     template<orientation_t O, typename S>
     void linear_list<O, S>::paint (draw::graphics& graph) {
       const core::rectangle area = super::client_geometry();
+      logging::trace() << "linear_list<O, S>::paint " << area;
+      //draw::clip clp(graph, area);
       core::rectangle place = area;
 
       draw::brush back_brush(super::get_background());

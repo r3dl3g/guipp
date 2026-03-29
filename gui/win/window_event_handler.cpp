@@ -119,8 +119,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    core::native_rect* get_param<1>(const core::event& e) {
-      return (core::native_rect*)(e.lParam);
+    const core::native_rect* get_param<1>(const core::event& e) {
+      return (const core::native_rect*)(e.lParam);
     }
 
     // --------------------------------------------------------------------------
@@ -335,8 +335,8 @@ namespace gui {
       return get_client_data<0, core::context*>(e);
     }
     // --------------------------------------------------------------------------
-    core::native_rect* get_paint_rect (const core::event& e) {
-      return get_client_data<1, core::native_rect*>(e);
+    const core::native_rect* get_paint_rect (const core::event& e) {
+      return get_client_data<1, const core::native_rect*>(e);
     }
     // --------------------------------------------------------------------------
     core::rectangle get_client_data_rect (const core::event& e) {
@@ -530,8 +530,8 @@ namespace gui {
       return (core::context*)e.cast<QClientEvent>().l1();
     }
 
-    core::native_rect* get_paint_rect (const core::event& e) {
-      return (core::native_rect*)(e.cast<QClientEvent>().l2());
+    const core::native_rect* get_paint_rect (const core::event& e) {
+      return (const core::native_rect*)(e.cast<QClientEvent>().l2());
     }
 
     bool is_mouse_event (const core::event& e) {
@@ -565,6 +565,34 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 #endif // GUIPP_QT
+
+#ifdef GUIPP_JS
+
+    core::context* get_context (const core::event& e) {
+      return std::get<core::context*>(e.param_0);
+    }
+
+    bool is_mouse_event (const core::event& e) {
+      return (static_cast<int>(e.type) >= os::js::MouseMin) && (static_cast<int>(e.type) <= os::js::MouseMax);
+    }
+
+    bool is_key_event (const core::event& e) {
+      return (e.type == os::js::event_type::KeyDown) || (e.type == os::js::event_type::KeyUp);
+    }
+
+    os::key_state get_key_state (const core::event& e) {
+      return std::get<os::key_state>(e.param_0);
+    }
+
+    os::key_symbol get_key_symbol (const core::event& e) {
+      return std::get<os::key_symbol>(e.param_1);
+    }
+
+    std::string get_key_chars (const core::event& e) {
+      return e.chars;
+    }
+
+#endif //GUIPP_JS
 
   } // win
 

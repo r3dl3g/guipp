@@ -43,10 +43,6 @@ namespace gui {
       clippings.pop(*this);
     }
     // --------------------------------------------------------------------------
-    inline void context::restore_clipping () {
-      clippings.restore(*this);
-    }
-    // --------------------------------------------------------------------------
     inline const clipping_stack& context::clipping () const {
       return clippings;
     }

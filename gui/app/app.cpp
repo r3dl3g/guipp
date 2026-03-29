@@ -31,6 +31,11 @@
 #include <logging/redirect_stream.h>
 #endif // ANDROID
 
+#ifdef GUIPP_JS
+#include <emscripten.h>
+#include <emscripten/val.h>
+#endif //GUIPP_JS
+
 #include <logging/dbgstream.h>
 #include <logging/file_logger.h>
 #include <logging/logger.h>
@@ -90,6 +95,26 @@ struct android_log_stream : public logging::basic_redirect_stream<android_log, c
 
 #endif // ANDROID
 
+int run_gui_main (const std::vector<std::string>& args) {
+  int ret = 0;
+  try {
+    ret = gui_main(args);
+    logging::debug() << "gui_main finished width: " << ret;
+  } catch (const std::exception& ex) {
+    logging::fatal() << "Excception: " << ex.what();
+    ret = 1;
+  } catch (const std::string& s) {
+    logging::fatal() << "Excception: " << s;
+    ret = 1;
+  } catch (...) {
+    logging::fatal() << "Unknown Excception";
+    ret = 1;
+  }
+
+  logging::core::instance().finish();
+
+  return ret;
+}
 
 #ifdef GUIPP_WIN
 int APIENTRY WinMain (_In_ HINSTANCE hInstance,
@@ -113,7 +138,10 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
 #if defined(GUIPP_X11) || defined(GUIPP_QT)
 int main (int argc, char* argv[]) {
   std::vector<std::string> args(argv, argv + argc);
-#endif // GUIPP_X11 || GUIPP_QT
+#elif defined(GUIPP_JS)
+int main () {
+  std::vector<std::string> args;
+#endif // GUIPP_X11 || GUIPP_QT || GUIPP_JS
 
 #ifndef NDEBUG
   logging::core::instance().set_log_level(logging::level::trace);
@@ -177,24 +205,17 @@ int main (int argc, char* argv[]) {
   logging::debug() << "Qt app platform name: '" << qapplication.platformName().toStdString() << "'";
   logging::debug() << "Qt version: '" QT_VERSION_STR << "', runtime: '" << qVersion() << "'";
 #endif // GUIPP_QT
+#ifdef GUIPP_JS
+  auto self = emscripten::val::global("self");
 
-  int ret = 0;
-  try {
-    ret = gui_main(args);
-    logging::debug() << "gui_main finished width: " << ret;
-  } catch (const std::exception& ex) {
-    logging::fatal() << "Excception: " << ex.what();
-    ret = 1;
-  } catch (const std::string& s) {
-    logging::fatal() << "Excception: " << s;
-    ret = 1;
-  } catch (...) {
-    logging::fatal() << "Unknown Excception";
-    ret = 1;
+  while (self["canvas"].isUndefined()) {
+      emscripten_sleep(100);
   }
 
-  logging::core::instance().finish();
+  gui::core::global::init(self["canvas"]);
 
-  return ret;
+#endif //GUIPP_JS
+  return run_gui_main(args);
+
 }
 

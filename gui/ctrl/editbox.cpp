@@ -107,6 +107,20 @@ namespace gui {
             set_cursor_pos({data.cursor_pos.x(), data.cursor_pos.y() + 1}, shift);
           }
           break;
+        case core::keys::page_up:
+        case core::keys::numpad::page_up:
+          if (ctrl) {} else if (data.cursor_pos.y() > 0) {
+            const int visible_lines = size().height() / data.font.line_height();
+            set_cursor_pos({data.cursor_pos.x(), std::max(data.cursor_pos.y() - visible_lines, 0)}, shift);
+          }
+          break;
+        case core::keys::page_down:
+        case core::keys::numpad::page_down:
+          if (ctrl) {} else if (data.cursor_pos.y() < (row_count() - 1)) {
+            const int visible_lines = size().height() / data.font.line_height();
+            set_cursor_pos({data.cursor_pos.x(), std::min(data.cursor_pos.y() + visible_lines, (int)row_count() - 1)}, shift);
+          }
+          break;
         case core::keys::home:
         case core::keys::numpad::home:
           if (ctrl) {

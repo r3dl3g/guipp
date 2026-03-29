@@ -82,6 +82,19 @@ namespace gui {
       const os::event_id SELECTION_CANCEL_MESSAGE = QEvent::User + 10;
       const os::event_id CONTENT_CHANGED_MESSAGE = QEvent::User + 11;
 #endif // GUIPP_QT
+#ifdef GUIPP_JS
+      const os::event_id SLIDER_MESSAGE =           static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 1);
+      const os::event_id SELECTION_CHANGE_MESSAGE = static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 2);
+      const os::event_id SELECTION_COMMIT_MESSAGE = static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 3);
+      const os::event_id HILITE_CHANGE_MESSAGE =    static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 4);
+      const os::event_id BN_CLICKED_MESSAGE =       static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 5);
+      const os::event_id BN_PUSHED_MESSAGE =        static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 6);
+      const os::event_id BN_UNPUSHED_MESSAGE =      static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 7);
+      const os::event_id BN_STATE_MESSAGE =         static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 8);
+      const os::event_id SCROLLBAR_MESSAGE =        static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 9);
+      const os::event_id SELECTION_CANCEL_MESSAGE = static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 10);
+      const os::event_id CONTENT_CHANGED_MESSAGE =  static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 11);
+#endif //GUIPP_JS
     } // detail
 
     // --------------------------------------------------------------------------
@@ -170,7 +183,8 @@ namespace gui {
                                              win::event::functor<win::client_message_matcher<detail::SCROLLBAR_MESSAGE>>>;
 #endif // GUIPP_X11
        // --------------------------------------------------------------------------
-#ifdef GUIPP_QT
+#if defined(GUIPP_QT) || defined(GUIPP_JS)
+
     GUIPP_CTRL_EXPORT event_source get_event_source (const core::event&);
     GUIPP_CTRL_EXPORT bool get_hilite_changed (const core::event&);
     GUIPP_CTRL_EXPORT core::point::type get_scroll_value (const core::event&);
@@ -179,18 +193,21 @@ namespace gui {
     using selection_cancel_event = core::event_handler<detail::SELECTION_CANCEL_MESSAGE>;
     using content_changed_event = core::event_handler<detail::CONTENT_CHANGED_MESSAGE>;
 
-    using selection_changed_event = core::event_handler<detail::SELECTION_CHANGE_MESSAGE, 0,
+    using selection_changed_event = core::event_handler<detail::SELECTION_CHANGE_MESSAGE,
+                                                        static_cast<gui::os::event_id>(0),
                                                         core::params<event_source>::
                                                         getter<get_event_source>>;
 
-    using hilite_changed_event = core::event_handler<detail::HILITE_CHANGE_MESSAGE, 0,
+    using hilite_changed_event = core::event_handler<detail::HILITE_CHANGE_MESSAGE,
+                                                     static_cast<gui::os::event_id>(0),
                                                      core::params<bool>::
                                                      getter<get_hilite_changed>>;
 
-    using scroll_event = core::event_handler<detail::SCROLLBAR_MESSAGE, 0,
+    using scroll_event = core::event_handler<detail::SCROLLBAR_MESSAGE,
+                                             static_cast<gui::os::event_id>(0),
                                              core::params<core::point::type>::
                                              getter<get_scroll_value>>;
-#endif // GUIPP_QT
+#endif // GUIPP_QT || GUIPP_JS
 
     // --------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT control : public win::window {

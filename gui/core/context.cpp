@@ -49,34 +49,27 @@ namespace gui {
       } else {
         stack.push_back(intersection(stack.back(), r));
       }
-      set(ctx, stack.back());
+      native::init_clipping(ctx);
+      native::set_clip_rect(ctx, stack.back());
     }
 
     // --------------------------------------------------------------------------
     void clipping_stack::pop (core::context& ctx) {
       if (!stack.empty()) {
         stack.pop_back();
-      }
-      restore(ctx);
-    }
-
-    // --------------------------------------------------------------------------
-    void clipping_stack::restore (core::context& ctx) {
-      if (stack.empty()) {
-        clear(ctx);
-      } else {
-        set(ctx, stack.back());
+        native::clear_clipping(ctx);
+        if (stack.empty()) {
+        } else {
+          native::set_clip_rect(ctx, stack.back());
+        }
       }
     }
 
-    // --------------------------------------------------------------------------
-    void clipping_stack::set (core::context& ctx, const gui::os::rectangle& r) {
-      native::set_clip_rect(ctx, r);
-    }
-
-    // --------------------------------------------------------------------------
     void clipping_stack::clear (core::context& ctx) {
-      native::clear_clip_rect(ctx);
+      if (!stack.empty()) {
+        stack.clear();
+        native::clear_clipping(ctx);
+      }
     }
 
     // --------------------------------------------------------------------------
@@ -86,25 +79,28 @@ namespace gui {
       , offs_x(0)
       , offs_y(0)
       , own_gc(false)
-    {
-      clippings.clear(*this);
-    }
+    {}
 
     // --------------------------------------------------------------------------
     context::context (gui::os::drawable id)
       : id(id)
+#ifndef GUIPP_JS
       , g(0)
+#endif //GUIPP_JS
       , offs_x(0)
       , offs_y(0)
       , own_gc(true)
     {
       g = core::native::create_graphics_context(id);
-      clippings.clear(*this);
     }
 
     // --------------------------------------------------------------------------
     context::~context () {
+#ifdef GUIPP_JS
+      if (!(g.isUndefined() || g.isNull())) {
+#else
       if (g) {
+#endif //GUIPP_JS
         clippings.clear(*this);
       }
       detach();
@@ -116,7 +112,7 @@ namespace gui {
         core::native::delete_graphics_context(g);
         own_gc = false;
       }
-      g = 0;
+      g = {};
     }
 
     // --------------------------------------------------------------------------

@@ -108,7 +108,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<gui::os::event_id E,
-             gui::os::event_id Mask = 0,
+             gui::os::event_id Mask = static_cast<gui::os::event_id>(0),
              typename C = params<>::getter<>,
              gui::os::event_result R = 0,
              typename M = event_id_matcher<E>>
@@ -167,13 +167,15 @@ namespace gui {
         if (matcher(e) && caller) {
 #ifdef GUIPP_WIN
           if (e.type != WM_MOUSEMOVE) {
-#endif // GUIPP_WIN
-#ifdef GUIPP_X11
+#elif GUIPP_X11
           if (e.type != MotionNotify) {
-#endif // GUIPP_X11
-#ifdef GUIPP_QT
+#elif GUIPP_QT
           if (e.type() != QEvent::Type::MouseMove) {
-#endif // GUIPP_QT
+#elif GUIPP_JS
+          if (true) {
+#else
+#error  Undefined System: event_handler::operator ()
+#endif
             logging::trace() << "Call " << e;
           }
           caller(e);

@@ -56,7 +56,7 @@ namespace gui {
 
 #endif // GUIPP_WIN
 
-#ifdef GUIPP_X11
+#if defined(GUIPP_X11) || defined(GUIPP_QT) || defined(GUIPP_JS)
     // --------------------------------------------------------------------------
     template<typename T>
     struct GUIPP_DRAW_EXPORT Use {
@@ -82,33 +82,7 @@ namespace gui {
     GUIPP_DRAW_EXPORT void Use<font>::set(const font&);
 #endif // GUIPP_USE_XFT
 
-#endif // GUIPP_X11
-
-#ifdef GUIPP_QT
-    // --------------------------------------------------------------------------
-    template<typename T>
-    struct GUIPP_DRAW_EXPORT Use {
-      Use (os::graphics g, const T& t)
-        : g(g) {
-        set(t);
-      }
-
-      void set (const T& t);
-
-      os::graphics g;
-    };
-
-    // --------------------------------------------------------------------------
-    template<>
-    GUIPP_DRAW_EXPORT void Use<pen>::set (const pen&);
-
-    template<>
-    GUIPP_DRAW_EXPORT void Use<brush>::set (const brush&);
-
-    template<>
-    GUIPP_DRAW_EXPORT void Use<font>::set(const font&);
-
-#endif // GUIPP_QT
+#endif // GUIPP_X11 || GUIPP_QT || GUIPP_JS
 
   } // namespace draw
 

@@ -125,13 +125,11 @@ namespace gui {
       using super::create;
 
       void create (const class_info&,
-                   overlapped_window&,
-                   const core::rectangle& = core::rectangle::def,
-                   bool adjust_size = true);
+                   container&,
+                   const core::rectangle& = core::rectangle::def);
 
       void create (const class_info&,
-                   const core::rectangle& = core::rectangle::def,
-                   bool adjust_size = true);
+                   const core::rectangle& = core::rectangle::def);
 
       void create_internal (const class_info&,
                             os::window parent,
@@ -181,9 +179,8 @@ namespace gui {
       using super::create;
 
       void create (const class_info&,
-                   overlapped_window&,
-                   const core::rectangle& = core::rectangle::def,
-                   bool adjust_size = true);
+                   container&,
+                   const core::rectangle& = core::rectangle::def);
 
       std::string title;
     };
@@ -216,13 +213,11 @@ namespace gui {
       typedef overlapped_window super;
       using clazz = cls::main_window_class<main_window>;
 
-      void create (const core::rectangle& r = core::rectangle::def,
-                   bool adjust_size = true);
+      void create (const core::rectangle& r = core::rectangle::def);
 
     protected:
       void create (const class_info& cls,
-                   const core::rectangle& r = core::rectangle::def,
-                   bool adjust_size = true);
+                   const core::rectangle& r = core::rectangle::def);
 
     };
 
@@ -232,17 +227,15 @@ namespace gui {
       typedef container_window super;
       using clazz = cls::popup_window_class<popup_window>;
 
-      void create (overlapped_window& parent,
-                   const core::rectangle& r = core::rectangle::def,
-                   bool adjust_size = true);
+      void create (container& parent,
+                   const core::rectangle& r = core::rectangle::def) override;
 
     protected:
       using super::create;
 
       void create (const class_info& cls,
-                   overlapped_window& parent,
-                   const core::rectangle& r = core::rectangle::def,
-                   bool adjust_size = true);
+                   container& parent,
+                   const core::rectangle& r = core::rectangle::def);
 
     };
 
@@ -252,17 +245,15 @@ namespace gui {
       typedef container_window super;
       using clazz = cls::tooltip_window_class<tooltip_window>;
 
-      void create (overlapped_window& parent,
-                   const core::rectangle& r = core::rectangle::def,
-                   bool adjust_size = true);
+      void create (container& parent,
+                   const core::rectangle& r = core::rectangle::def) override;
 
     protected:
       using super::create;
 
       void create (const class_info& cls,
-                   overlapped_window& parent,
-                   const core::rectangle& r = core::rectangle::def,
-                   bool adjust_size = true);
+                   container& parent,
+                   const core::rectangle& r = core::rectangle::def);
 
     };
 
@@ -272,17 +263,15 @@ namespace gui {
       typedef modal_window super;
       using clazz = cls::dialog_window_class<dialog_window>;
 
-      void create (overlapped_window& parent,
-                   const core::rectangle& r = core::rectangle::def,
-                   bool adjust_size = true);
+      void create (container& parent,
+                   const core::rectangle& r = core::rectangle::def) override;
 
     protected:
       using super::create;
 
       void create (const class_info& cls,
-                   overlapped_window& parent,
-                   const core::rectangle& r = core::rectangle::def,
-                   bool adjust_size = true);
+                   container& parent,
+                   const core::rectangle& r = core::rectangle::def);
 
     };
 
@@ -292,17 +281,15 @@ namespace gui {
       typedef container_window super;
       using clazz = cls::palette_window_class<palette_window>;
 
-      void create (overlapped_window& parent,
-                   const core::rectangle& r = core::rectangle::def,
-                   bool adjust_size = true);
+      void create (container& parent,
+                   const core::rectangle& r = core::rectangle::def) override;
 
     protected:
       using super::create;
 
       void create (const class_info& cls,
-                   overlapped_window& parent,
-                   const core::rectangle& r = core::rectangle::def,
-                   bool adjust_size = true);
+                   container& parent,
+                   const core::rectangle& r = core::rectangle::def);
 
     };
 

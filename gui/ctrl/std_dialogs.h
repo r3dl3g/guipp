@@ -96,6 +96,9 @@ namespace gui {
 
       button_layout_type button_layout;
       std::vector<text_button> buttons;
+
+    private:
+      using super::create;
     };
 
     //-----------------------------------------------------------------------------
@@ -336,7 +339,7 @@ namespace gui {
       void set_create_subdirectory_fn (create_subdirectory_fn fn);
 
       void create (win::container& parent,
-                   const core::rectangle& place = core::rectangle::def);
+                   const core::rectangle& place = core::rectangle::def) override;
 
       heaader_type header;
       view_type view;

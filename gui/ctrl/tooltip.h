@@ -54,6 +54,7 @@ namespace gui {
       tooltip ();
       ~tooltip ();
 
+      using super::create;
       void create (win::window& p);
 
       void start ();

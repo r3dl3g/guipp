@@ -193,7 +193,7 @@ if(NOT TARGET guipp)
   elseif(APPLE)
     DebugPrint("GUIPP: build for Apple!")
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DCOCOA)
-  
+
   elseif(EMSCRIPTEN)
     DebugPrint("GUIPP: build for emscripten!")
     set(GUIPP_BUILD_STATIC_MODULE_LIBS ON)
@@ -204,7 +204,7 @@ if(NOT TARGET guipp)
       -sDYNAMIC_EXECUTION=0
       -matomics
       -Wno-unknown-pragmas)
-    
+
     set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} --bind
       -sENVIRONMENT=worker
       -sASYNCIFY=1

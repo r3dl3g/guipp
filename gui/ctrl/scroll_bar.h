@@ -173,7 +173,7 @@ namespace gui {
       basic_scroll_bar (basic_scroll_bar&& rhs) noexcept ;
 
       void create (win::container& parent,
-                   const core::rectangle& place = core::rectangle::def);
+                   const core::rectangle& place = core::rectangle::def) override;
 
       void handle_left_btn_down (os::key_state, const core::native_point&);
       void handle_left_btn_up (os::key_state, const core::native_point&);

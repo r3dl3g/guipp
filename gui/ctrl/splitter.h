@@ -106,7 +106,7 @@ namespace gui {
         basic_splitter (basic_splitter&& rhs) noexcept ;
 
         void create (win::container& parent,
-                     const core::rectangle& place = core::rectangle::def);
+                     const core::rectangle& place = core::rectangle::def) override;
 
         void set_value (core::point::type v);
         core::point::type get_value () const;

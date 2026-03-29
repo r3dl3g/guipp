@@ -134,7 +134,7 @@ namespace gui {
       typedef win::window_class<scroll_view, B> clazz;
 
       void create (win::container& parent,
-                   const core::rectangle& place = core::rectangle::def);
+                   const core::rectangle& place = core::rectangle::def) override;
 
     };
 

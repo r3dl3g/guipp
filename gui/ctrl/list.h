@@ -244,7 +244,7 @@ namespace gui {
         list_base (list_base&&) noexcept;
 
         void create (win::container& parent,
-                    const core::rectangle& place = core::rectangle::def);
+                    const core::rectangle& place = core::rectangle::def) override;
 
         // template<typename U,
         //         list_item_drawer<U> F = default_list_item_drawer<U> >

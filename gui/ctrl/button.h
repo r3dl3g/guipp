@@ -106,7 +106,7 @@ namespace gui {
       button_base (button_base&&) noexcept ;
 
       void create (win::container& parent,
-                   const core::rectangle& place = core::rectangle::def);
+                   const core::rectangle& place = core::rectangle::def) override;
 
       core::button_state::is get_state () const;
       core::button_state::set set_state ();
@@ -166,7 +166,7 @@ namespace gui {
       basic_text_button (basic_text_button&& rhs) noexcept ;
 
       void create (win::container& parent,
-                   const core::rectangle& place = core::rectangle::def);
+                   const core::rectangle& place = core::rectangle::def) override;
       void create (win::container& parent,
                    const std::string& txt,
                    const core::rectangle& place = core::rectangle::def);

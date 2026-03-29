@@ -252,7 +252,7 @@ namespace gui {
       client_control (os::color bg = color::very_light_gray);
 
       void create (win::container& parent,
-                   const core::rectangle& r = core::rectangle::def);
+                   const core::rectangle& r = core::rectangle::def) override;
     };
 
     // --------------------------------------------------------------------------

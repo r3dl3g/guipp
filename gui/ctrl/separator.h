@@ -39,7 +39,7 @@ namespace gui {
         separator_base () = default;
 
         void create (win::container& parent,
-                     const core::rectangle& place = core::rectangle::def);
+                     const core::rectangle& place = core::rectangle::def) override;
 
       };
 

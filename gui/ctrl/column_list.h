@@ -221,7 +221,7 @@ namespace gui {
       void paint (draw::graphics& g);
 
       void create (win::container& parent,
-                   const core::rectangle& place = core::rectangle::def);
+                   const core::rectangle& place = core::rectangle::def) override;
 
       void set_cell_drawer (std::function<cell_draw> cd);
       void set_labels (const std::vector<std::string>& args);

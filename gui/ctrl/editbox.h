@@ -39,9 +39,8 @@ namespace gui {
         editbox_base ();
         ~editbox_base ();
 
-        using control::create;
         void create (win::container& parent,
-                     const core::rectangle& r = core::rectangle::def);
+                     const core::rectangle& r = core::rectangle::def) override;
 
         void handle_key (os::key_state, os::key_symbol, const std::string&);
 

@@ -76,7 +76,7 @@ namespace gui {
                      const core::rectangle& place = core::rectangle::def);
 
         void create (win::container& parent,
-                     const core::rectangle& place = core::rectangle::def);
+                     const core::rectangle& place = core::rectangle::def) override;
 
         void init ();
 

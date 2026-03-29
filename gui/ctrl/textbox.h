@@ -48,7 +48,7 @@ namespace gui {
 
         using control::create;
         void create (win::container& parent,
-                     const core::rectangle& r = core::rectangle::def);
+                     const core::rectangle& r = core::rectangle::def) override;
 
         void create (win::container& parent,
                      const std::string& txt,

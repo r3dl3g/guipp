@@ -52,7 +52,7 @@ namespace gui {
         label_base (label_base&& rhs) = default;
 
         void create (win::container& parent,
-                     const core::rectangle& place = core::rectangle::def);
+                     const core::rectangle& place = core::rectangle::def) override;
 
         void create (win::container& parent,
                      const core::text_source& txt,

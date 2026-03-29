@@ -270,7 +270,7 @@ namespace gui {
 
         using win::container::create;
         void create (win::container& parent,
-                     const core::rectangle& place = core::rectangle::def);
+                     const core::rectangle& place = core::rectangle::def) override;
 
         void set_drawer (const std::function<cell_drawer>& drawer);
         void set_drawer (std::function<cell_drawer>&& drawer);

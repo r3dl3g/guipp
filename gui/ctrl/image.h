@@ -37,7 +37,7 @@ namespace gui {
       image ();
 
       void create (win::container& parent,
-                   const core::rectangle& place = core::rectangle::def);
+                   const core::rectangle& place = core::rectangle::def) override;
 
       void paint (draw::graphics& graph);
       void set_image (const draw::pixmap& source);

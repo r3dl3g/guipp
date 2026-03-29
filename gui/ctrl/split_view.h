@@ -105,7 +105,7 @@ namespace gui {
       split_view (Ts&&... views);
 
       void create (win::container& parent,
-                   const core::rectangle& place = core::rectangle::def);
+                   const core::rectangle& place = core::rectangle::def) override;
 
       double get_split_pos (std::size_t i = 0) const;
 
@@ -163,7 +163,7 @@ namespace gui {
       fix_split_view (Header&& header, Body&& body);
 
       void create (win::container& parent,
-                   const core::rectangle& place = core::rectangle::def);
+                   const core::rectangle& place = core::rectangle::def) override;
 
       Header header;
       Body body;

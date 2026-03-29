@@ -9,7 +9,7 @@
 
 stdenv.mkDerivation rec {
   pname = "guipp";
-  version = "1.7.2";
+  version = "1.8.0";
 
   src = ./.;
 

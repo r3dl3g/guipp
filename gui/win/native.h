@@ -142,6 +142,13 @@ namespace gui {
 
       GUIPP_WIN_EXPORT core::native_point get_current_pointer_pos (os::window id);
 
+#ifdef GUIPP_JS
+      namespace js {
+        void send_to_main (const std::string& type, const std::string& message);
+        void send_to_main (const std::string& type, void* ptr);
+      } // namespace js
+#endif
+
     } // namespace native
 
   } // namespace win

@@ -132,7 +132,7 @@
 
         // Optional: Auch Tastatur-Events weiterleiten
         window.addEventListener('keydown', (e) => {
-            //e.preventDefault();
+            e.preventDefault();
             let chars = e.key.length > 1 ? "" : e.key;
             worker.postMessage({
                 type: 12,
@@ -143,7 +143,7 @@
         });
 
         window.addEventListener('keyup', (e) => {
-            //e.preventDefault();
+            e.preventDefault();
             let chars = e.key.length > 1 ? "" : e.key;
             worker.postMessage({
                 type: 13,
@@ -161,6 +161,16 @@
 
             if (data.type === "cursor") {
                 canvas.style.cursor = data.payload;
+            } else if (data.type === "copy") {
+                navigator.clipboard.writeText(data.payload);
+            } else if (data.type === "paste") {
+                navigator.clipboard.readText().then((clipText) => {
+                    worker.postMessage({
+                        type: 50,
+                        chars: clipText,
+                        ptr: data.payload
+                    });
+                });
             }
         };
 

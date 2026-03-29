@@ -20,7 +20,7 @@
 #include <QtGui/QGuiApplication>
 #endif // GUIPP_QT
 #ifdef GUIPP_JS
-#include <emscripten/val.h>
+#include <emscripten.h>
 #endif // GUIPP_JS
 
 
@@ -32,6 +32,7 @@
 //
 #include "gui/win/clipboard.h"
 #include "gui/win/overlapped_window.h"
+#include "gui/win/native.h"
 
 namespace gui {
 
@@ -205,22 +206,27 @@ namespace gui {
 
 #ifdef GUIPP_JS
 
+    struct ClipboardReceiver {
+        std::function<clipboard::text_callback> cb;
+    };
+
     clipboard::clipboard ()
     {}
 
     using namespace emscripten;
-    
+
     void clipboard::set_text (window& win, const std::string& t) {
-      val navigator = emscripten::val::global("navigator");
-      val clipboard = navigator["clipboard"];
-      clipboard.call<void>("writeText", t);
+      native::js::send_to_main("copy", t);
     }
 
     void clipboard::get_text (window& win, std::function<clipboard::text_callback>&& cb) {
-      val navigator = emscripten::val::global("navigator");
-      val clipboard = navigator["clipboard"];
-      auto t = clipboard.call<std::string>("readText");
-      cb(t);
+      native::js::send_to_main("paste", static_cast<void*>(new ClipboardReceiver{cb}));
+    }
+
+    void clipboard::handle_paste (const std::string& t, uintptr_t ptr) {
+      ClipboardReceiver* cbr = reinterpret_cast<ClipboardReceiver*>(ptr);
+      cbr->cb(t);
+      delete cbr;
     }
 
 #endif // GUIPP_JS

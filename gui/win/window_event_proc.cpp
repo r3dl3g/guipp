@@ -48,6 +48,7 @@
 #include "gui/win/window_event_proc.h"
 #include "gui/win/dbg_win_message.h"
 #include "gui/win/native.h"
+#include "gui/win/clipboard.h"
 
 
 namespace util {
@@ -1007,6 +1008,16 @@ namespace gui {
             e = {id, type, core::rectangle(0, 0, x, y), 0};
             logging::trace() << "Received event " << e;
 
+          } else if (static_cast<int>(type) == 50) {
+
+            auto chars = event["chars"].as<std::string>();
+            auto ptr = event["ptr"].as<uintptr_t>();
+
+            logging::trace() << "Received paste event " << e;
+            clipboard::handle_paste(chars, ptr);
+
+            continue;
+
           } else {
             logging::trace() << "Received unknown " << static_cast<int>(type) << " event";
           }
@@ -1023,14 +1034,14 @@ namespace gui {
         // } else {
         //   wait_for_event(fd);
         // }
-  
+
         // x11::draw_invalidated_windows();
 
         win::overlapped_window* win = detail::get_window(id);
         if (win && win->is_visible()) {
           win->redraw({});
         }
-        
+
         emscripten_sleep(50);
 
       }

@@ -47,17 +47,32 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace native {
 
-      void send_to_main(std::string type, std::string message) {
-          val self = val::global("self");
+      namespace js {
+          void send_to_main (const std::string& type, const std::string& message) {
+              val self = val::global("self");
 
-          // Wir erstellen ein leeres JS-Objekt
-          val data = val::object();
-          data.set("type", type);
-          data.set("payload", message);
-          data.set("timestamp", val::global("Date").call<val>("now"));
+              // Wir erstellen ein leeres JS-Objekt
+              val data = val::object();
+              data.set("type", type);
+              data.set("payload", message);
+              data.set("timestamp", val::global("Date").call<val>("now"));
 
-          // Nachricht an den Main-Thread senden
-          self.call<void>("postMessage", data);
+              // Nachricht an den Main-Thread senden
+              self.call<void>("postMessage", data);
+          }
+
+          void send_to_main (const std::string& type, void* ptr) {
+              val self = val::global("self");
+
+              // Wir erstellen ein leeres JS-Objekt
+              val data = val::object();
+              data.set("type", type);
+              data.set("payload", reinterpret_cast<uintptr_t>(ptr));
+              data.set("timestamp", val::global("Date").call<val>("now"));
+
+              // Nachricht an den Main-Thread senden
+              self.call<void>("postMessage", data);
+          }
       }
 
       const class_info& get_window_class (const char* class_name) {
@@ -205,7 +220,7 @@ namespace gui {
       }
 
       void set_cursor (os::window id, const os::cursor& c) {
-        send_to_main("cursor", c);
+        js::send_to_main("cursor", c);
       }
 
       void invalidate (os::window id, const core::native_rect&) {}

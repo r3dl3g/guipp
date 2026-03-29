@@ -701,31 +701,27 @@ namespace gui {
 
     graphics& graphics::draw_pixel (const core::native_point& pt,
                                           os::color c) {
+      auto self = emscripten::val::global("self");
+      self.set("ctx", os());
       EM_ASM_({
-        let ctx = $3;
-        const imgData = ctx.createImageData(1, 1);
-        imgData.data.set(HEAPU8.subarray(($0, $0 + 4)));
-        ctx.putImageData(imgData, $1, $2);
-      }, &c, pt.x(), pt.y(), os().as_handle());
-
-
-      // Use<pen> pn(gc(), c);
-
-      // os().call<void>("beginPath");
-      // os().call<void>("moveTo", pt.x(), pt.y());
-      // os().call<void>("lineTo", pt.x(), pt.y());
-      // os().call<void>("stroke");
+        const imgData = self.ctx.createImageData(1, 1);
+        imgData.data.set(HEAPU8.subarray($0, $0 + 4));
+        self.ctx.putImageData(imgData, $1, $2);
+      }, &c, pt.x(), pt.y());
+      self.set("ctx", emscripten::val::undefined());
 
       return *this;
     }
 
     os::color graphics::get_pixel (const core::native_point& pt) const {
+      auto self = emscripten::val::global("self");
+      self.set("ctx", os());
       os::color c = 0;
       EM_ASM_({
-        let ctx = $3;
-        let imageData = ctx.getImageData(0, 0, $1, $2);
-        HEAPU8.subarray($0, $0 + $1 * $2 * 4).set(imageData.data);
-      }, &c, pt.x(), pt.y(), os().as_handle());
+        let imageData = self.ctx.getImageData($1, $2, 1, 1);
+        HEAPU8.subarray($0, $0 + 4).set(imageData.data);
+      }, &c, pt.x(), pt.y());
+      self.set("ctx", emscripten::val::undefined());
 
       return c;
     }

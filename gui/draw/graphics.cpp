@@ -754,12 +754,12 @@ namespace gui {
     core::native_rect graphics::native_area () const {
         auto self = emscripten::val::global("self");
         auto rect = self["rect"];
-        int x = rect["x"].as<int>();
-        int y = rect["y"].as<int>();
+        // int x = rect["x"].as<int>();
+        // int y = rect["y"].as<int>();
         core::native_rect::size_type width = rect["width"].as<int>();
         core::native_rect::size_type height = rect["height"].as<int>();
 
-        return {x, y, width, height};
+        return {0, 0, width, height};
     }
 
     graphics& graphics::copy_from (graphics& src, const core::native_rect& r, const core::native_point& pt) {
@@ -768,7 +768,11 @@ namespace gui {
 
     graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) {
       core::native_size sz = bmp.image.native_size();
+      os().call<void>("save");
+      copy_from(bmp.mask.get_os_bitmap(), core::native_rect(sz), pt, copy_mode::bit_copy);
+      os().call<void>("globalCompositeOperation", std::string("source-in"));
       copy_from(bmp.image.get_os_bitmap(), core::native_rect(sz), pt, copy_mode::bit_copy);
+      os().call<void>("restore");
 
       // EM_ASM_({
       //   let src = $4;

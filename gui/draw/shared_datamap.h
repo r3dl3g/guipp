@@ -30,7 +30,7 @@ namespace gui {
 #ifdef GUIPP_USE_XSHM
     class GUIPP_DRAW_EXPORT shared_datamap {
     public:
-      typedef pixel::rgba pixel_type;
+      typedef pixel::bgra pixel_type;
       typedef image_data<pixel_format_t::BGRA> image_data_type;
       static constexpr pixel_format_t px_fmt = pixel_format_t::BGRA;
 

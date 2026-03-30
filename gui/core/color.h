@@ -164,16 +164,16 @@ namespace gui {
     struct rgb {
       static constexpr os::color value = build_primary<part::red, R>::value |
                                          build_primary<part::green, G>::value |
-                                         build_primary<part::blue, B>::value |
-                                         build_primary<part::alpha, transparency<>::off>::value;
+                                         build_primary<part::blue, B>::value;// |
+                                         //build_primary<part::alpha, transparency<>::off>::value;
     };
 
     template<type V>
     struct rgb_gray {
       static constexpr os::color value = build_primary<part::red, V>::value |
                                          build_primary<part::green, V>::value |
-                                         build_primary<part::blue, V>::value |
-                                         build_primary<part::alpha, transparency<>::off>::value;
+                                         build_primary<part::blue, V>::value;// |
+                                         //build_primary<part::alpha, transparency<>::off>::value;
     };
 
     template<type R, type G, type B, type A = transparency<>::off>

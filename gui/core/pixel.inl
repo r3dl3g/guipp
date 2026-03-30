@@ -149,11 +149,11 @@ namespace gui {
     }
 
     inline byte get_alpha (mono p) {
-      return IF_WIN32_ELSE(0, 255);
+      return gui::color::transparency<>::off;
     }
 
     inline byte get_alpha (gray p) {
-      return IF_WIN32_ELSE(0, 255);
+      return gui::color::transparency<>::off;
     }
 
     inline byte get_alpha (os::color c) {
@@ -161,7 +161,7 @@ namespace gui {
     }
 
     inline byte get_alpha (core::bit_wrapper<const mono>) {
-      return IF_WIN32_ELSE(0, 255);
+      return gui::color::transparency<>::off;
     }
 
     // --------------------------------------------------------------------------

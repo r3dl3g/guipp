@@ -311,7 +311,7 @@ namespace gui {
 
     template<typename T>
     inline argb& argb::operator= (T rhs) {
-      put_rgb(*this, rhs);
+      put_rgba(*this, rhs);
       return *this;
     }
 

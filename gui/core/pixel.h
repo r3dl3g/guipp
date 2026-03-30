@@ -292,43 +292,43 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T, typename std::enable_if<is_rgb_type<T>::value && !is_alpha_type<T>::value>::type* = nullptr>
     inline T make_pixel_from_rgb (byte r, byte g, byte b) {
-      return T{r, g, b};
+      return T{.red = r, .green = g, .blue = b};
     }
 
     template<typename T, typename std::enable_if<is_alpha_type<T>::value>::type* = nullptr>
     inline T make_pixel_from_rgba (byte r, byte g, byte b, byte a) {
-      return T{r, g, b, a};
+      return T{.red = r, .green = g, .blue = b, .alpha = a};
     }
 
     // --------------------------------------------------------------------------
     template<>
     inline rgb make_pixel_from_rgb<rgb> (byte r, byte g, byte b) {
-      return rgb{b, g, r};
+      return rgb{ .red = r, .green = g, .blue = b };
     }
 
     template<>
     inline bgr make_pixel_from_rgb<bgr> (byte r, byte g, byte b) {
-      return bgr{r, g, b};
+      return bgr{.blue = b, .green = g, .red = r};
     }
 
     template<>
     inline bgra make_pixel_from_rgba<bgra> (byte r, byte g, byte b, byte a) {
-      return bgra{r, g, b, a};
+      return bgra{.blue = b, .green = g, .red = r, .alpha = a};
     }
 
     template<>
     inline rgba make_pixel_from_rgba<rgba> (byte r, byte g, byte b, byte a) {
-      return rgba{b, g, r, a};
+      return rgba{.red = r, .green = g, .blue = b, .alpha = a};
     }
 
     template<>
     inline argb make_pixel_from_rgba<argb> (byte r, byte g, byte b, byte a) {
-      return argb{a, b, g, r};
+      return argb{.alpha = a, .red = r, .green = g, .blue = b};
     }
 
     template<>
     inline abgr make_pixel_from_rgba<abgr> (byte r, byte g, byte b, byte a) {
-      return abgr{a, r, g, b};
+      return abgr{.alpha = a, .blue = b, .green = g, .red = r};
     }
 
     // --------------------------------------------------------------------------

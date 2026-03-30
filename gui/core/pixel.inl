@@ -149,19 +149,19 @@ namespace gui {
     }
 
     inline byte get_alpha (mono p) {
-      return gui::color::transparency<>::off;
+      return gui::color::transparency<>::opaque;
     }
 
     inline byte get_alpha (gray p) {
-      return gui::color::transparency<>::off;
+      return gui::color::transparency<>::opaque;
     }
 
     inline byte get_alpha (os::color c) {
-      return gui::color::transparency<>::off;
+      return gui::color::get_alpha(c);
     }
 
     inline byte get_alpha (core::bit_wrapper<const mono>) {
-      return gui::color::transparency<>::off;
+      return gui::color::transparency<>::opaque;
     }
 
     // --------------------------------------------------------------------------

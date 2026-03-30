@@ -143,19 +143,34 @@ namespace gui {
     // ------------------------------------------------------------------------
     template<core::os::platform_t P = core::os::system_platform>
     struct transparency {
-      static constexpr type full = 0;
-      static constexpr type off = 0xff;
+      static constexpr type transparent = 0;
+      static constexpr type opaque      = 0xff;
+      static constexpr type undefined   = 0xff;
+
       static constexpr type calc (float faktor) {
         return static_cast<type>(faktor * 0xff);
       }
     };
 
     template<>
-    struct transparency<core::os::platform_t::x11> {
-      static constexpr type full = 0xff;
-      static constexpr type off = 0;
+    struct transparency<core::os::platform_t::win32> {
+      static constexpr type transparent = 0xff;
+      static constexpr type opaque      = 0;
+      static constexpr type undefined   = 0;
+
       static constexpr type calc (float faktor) {
         return static_cast<type>((1.0F - faktor) * 0xff);
+      }
+    };
+
+    template<>
+    struct transparency<core::os::platform_t::js> {
+      static constexpr type transparent = 0;
+      static constexpr type opaque      = 0xff;
+      static constexpr type undefined   = 0xff;
+
+      static constexpr type calc (float faktor) {
+        return static_cast<type>(faktor * 0xff);
       }
     };
 
@@ -164,19 +179,19 @@ namespace gui {
     struct rgb {
       static constexpr os::color value = build_primary<part::red, R>::value |
                                          build_primary<part::green, G>::value |
-                                         build_primary<part::blue, B>::value;// |
-                                         //build_primary<part::alpha, transparency<>::off>::value;
+                                         build_primary<part::blue, B>::value |
+                                         build_primary<part::alpha, transparency<>::undefined>::value;
     };
 
     template<type V>
     struct rgb_gray {
       static constexpr os::color value = build_primary<part::red, V>::value |
                                          build_primary<part::green, V>::value |
-                                         build_primary<part::blue, V>::value;// |
-                                         //build_primary<part::alpha, transparency<>::off>::value;
+                                         build_primary<part::blue, V>::value |
+                                         build_primary<part::alpha, transparency<>::undefined>::value;
     };
 
-    template<type R, type G, type B, type A = transparency<>::off>
+    template<type R, type G, type B, type A = transparency<>::opaque>
     struct rgba {
       static constexpr os::color value = build_primary<part::red, R>::value |
                                          build_primary<part::green, G>::value |
@@ -184,7 +199,7 @@ namespace gui {
                                          build_primary<part::alpha, A>::value;
     };
 
-    template<type V, type A = transparency<>::off>
+    template<type V, type A = transparency<>::opaque>
     struct rgba_gray {
       static constexpr os::color value = build_primary<part::red, V>::value |
                                          build_primary<part::green, V>::value |
@@ -207,7 +222,7 @@ namespace gui {
       return build<part::red>(r) | build<part::green>(g) | build<part::blue>(b)/* | mask<part::alpha>::value*/;
     }
 
-    constexpr os::color calc_rgba (type r, type g, type b, type a = transparency<>::off) {
+    constexpr os::color calc_rgba (type r, type g, type b, type a = transparency<>::opaque) {
       return build<part::red>(r) | build<part::green>(g) | build<part::blue>(b) | build<part::alpha>(a);
     }
 
@@ -215,7 +230,7 @@ namespace gui {
       return calc_rgb(v, v, v);
     }
 
-    constexpr os::color calc_rgba_gray (type v, type a = transparency<>::off) {
+    constexpr os::color calc_rgba_gray (type v, type a = transparency<>::opaque) {
       return calc_rgba(v, v, v, a);
     }
 
@@ -262,7 +277,7 @@ namespace gui {
     }
 
     constexpr os::color remove_transparency (os::color c) {
-      return without_transparency(c) | build<part::alpha>(transparency<>::off);
+      return without_transparency(c) | build<part::alpha>(transparency<>::opaque);
     }
 
     constexpr os::color add_transparency (os::color c, float faktor) {
@@ -350,10 +365,10 @@ namespace gui {
     }
 
     inline bool is_transparent (os::color c) {
-      return get_alpha(c) == transparency<>::full;
+      return get_alpha(c) == transparency<>::transparent;
     }
 
-    constexpr os::color transparent = rgba_gray<0xff, transparency<>::full>::value;
+    constexpr os::color transparent = rgba_gray<0xff, transparency<>::transparent>::value;
 
     constexpr os::color black = rgb_gray<0>::value;
     constexpr os::color very_very_dark_gray = rgb_gray<0x10>::value;

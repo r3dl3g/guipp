@@ -8,6 +8,20 @@
 #include "gui/win/overlapped_window.h"
 #include "gui/ctrl/toggle_group.h"
 
+template<typename T, typename U>
+T precalc (const U& p, int alpha) {
+#if GUIPP_X11
+  const auto r = static_cast<gui::byte>(((int)(255 - gui::pixel::get_red(p)) *   alpha) / 255);
+  const auto g = static_cast<gui::byte>(((int)(255 - gui::pixel::get_green(p)) * alpha) / 255);
+  const auto b = static_cast<gui::byte>(((int)(255 - gui::pixel::get_blue(p)) *  alpha) / 255);
+#else
+  const auto r = static_cast<gui::byte>(255 - gui::pixel::get_red(p));
+  const auto b = static_cast<gui::byte>(255 - gui::pixel::get_blue(p));
+  const auto g = static_cast<gui::byte>(255 - gui::pixel::get_green(p));
+#endif
+  const auto a = static_cast<gui::byte>(alpha);
+  return gui::pixel::make_pixel_from_rgba<T>(r, g, b, a);
+}
 
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
@@ -25,49 +39,42 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   mainview_t main;
   main.get_layout().set_header(lay(buttons));
 
-  draw::bgramap bimg(core::native_size(256, 256));
-  draw::bgramap fimg(core::native_size(256, 256));
+#if GUIPP_X11
+  typedef draw::bgramap pixmap_t;
+#else
+  typedef draw::rgbamap pixmap_t;
+#endif
+  pixmap_t bimg(core::size(256, 256));
+  pixmap_t fimg(core::size(256, 256));
 
   auto bdat = bimg.get_data();
-  auto fdat = fimg.get_data();
   for (int y = 0; y < bdat.height(); ++y) {
-    auto row = bdat.row(y);
-    auto frow = fdat.row(y);
+    auto brow = bdat.row(y);
     for (int x = 0; x < bdat.width(); ++x) {
-      auto& bpix = row[x];
-      bpix.red = x;
-      bpix.green = y;
-      bpix.blue = std::abs(256 - x + y);
-      bpix.alpha = color::transparency<>::off;
-
-      auto& fpix = frow[x];
-      fpix = color::invert(bpix);
-      // fpix.red = y;
-      // fpix.green = 256 - x;
-      // fpix.blue = std::abs(256 - y + x);
-      // fpix.alpha = color::transparency<>::off;
+      auto r = x * 256 / bdat.width();
+      auto g = y * 256 / bdat.height();
+      auto b = static_cast<byte>(std::abs(255 - (int)r - (int)g));
+      auto a = color::transparency<>::opaque;
+      brow[x] = gui::pixel::make_pixel_from_rgba<pixmap_t::pixel_type>(r, g, b, a);
     }
   }
-
-  logging::trace() << "Create draw::pixmap";
-  draw::pixmap bpix(bimg);
-  draw::pixmap fpix(fimg);
 
   buttons.add_buttons({"0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"});
 
   auto calc = [&] () {
     int a = (buttons.get_selection_index() * 255) / 10;
     auto fdat = fimg.get_data();
+    auto bdat = bimg.get_data();
     for (int y = 0; y < fdat.height(); ++y) {
       auto frow = fdat.row(y);
+      auto brow = bdat.row(y);
       for (int x = 0; x < fdat.width(); ++x) {
-        auto& fpix = frow[x];
-        fpix.alpha = a;
+        frow[x] = precalc<pixmap_t::pixel_type>(brow[x], a);
       }
     }
-
-    fpix = fimg;
   };
+
+  calc();
 
   main.on_destroy(&quit_main_loop);
   main.set_title("ShowTransparencyApp");
@@ -75,7 +82,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.on_create([&] () {
     buttons.create(main);
   });
-  main.create({50, 50, 800, float(600 + main.get_layout().size)});
+  main.create({50, 50, 1000, float(400 + main.get_layout().size)});
 
   const int ty = 25;
   const int iy = 50;
@@ -88,9 +95,9 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   point p1(x1, iy);
   point p2(x2, iy);
 
-  const core::rectangle r0(x0, ty, 256 + 5, 25);
-  const core::rectangle r1(x1, ty, 256 + 5, 25);
-  const core::rectangle r2(x2, ty, 256 + 5, 25);
+  const core::rectangle r0(x0, ty, 256, 25);
+  const core::rectangle r1(x1, ty, 256, 25);
+  const core::rectangle r2(x2, ty, 256, 25);
   const core::rectangle rx( 0, iy, x2 + 256 + x0, iy + 256);
 
   const font big_font = font::system().with_size(160);
@@ -103,14 +110,14 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     graph.text(text_box("Background", rx, text_origin_t::center), big_font, color::gray);
 
     graph.text(text_box("Background", r0, text_origin_t::center), font::system(), color::black);
-    std::string info = ostreamfmt("Inverse + " << a << "% Transparency");
+    std::string info = ostreamfmt("Inverse + " << (100 - a) << "% Transparency");
     graph.text(text_box(info, r1, text_origin_t::center), font::system(), color::black);
     graph.text(text_box("Both together", r2, text_origin_t::center), font::system(), color::black);
 
-    graph.copy_from(bpix, p0);
-    graph.copy_from(fpix, p1);
-    graph.copy_from(bpix, p2);
-    graph.copy_from(fpix, p2);
+    graph.copy_from(bimg, p0);
+    graph.copy_from(fimg, p1);
+    graph.copy_from(bimg, p2);
+    graph.copy_from(fimg, p2);
   }));
   buttons.on_selection_changed([&] (event_source) {
     calc();

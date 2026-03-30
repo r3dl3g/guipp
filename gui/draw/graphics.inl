@@ -84,6 +84,37 @@ namespace gui {
       return *this;
     }
 
+    template<pixel_format_t T>
+    graphics& graphics::copy_from (const draw::datamap<T>& bmp,
+                                   const core::point& dest) {
+      return copy_from(bmp, core::native_point(dest.os(context()), context()));
+    }
+
+    template<pixel_format_t T>
+    graphics& graphics::copy_from (const draw::datamap<T>& bmp,
+                                   const core::rectangle& src,
+                                   const core::point& dest) {
+      return copy_from(bmp, core::global::scale_to_native(src),
+                        core::native_point(dest.os(context()), context()));
+    }
+
+    template<pixel_format_t T>
+    graphics& graphics::copy_from (const draw::datamap<T>&bmp,
+                                   const core::native_point& dest) {
+      return copy_from(bmp, core::native_rect(bmp.native_size()), dest);
+    }
+
+    template<pixel_format_t T>
+    graphics& graphics::copy_from (const draw::datamap<T>& bmp,
+                                   const core::native_rect& src,
+                                   const core::native_point& dest) {
+      if (bmp.is_valid()) {
+        pixmap buffer = bmp;
+        copy_from(buffer, src, dest);
+      }
+      return *this;
+    }
+
     // --------------------------------------------------------------------------
     template<typename T, typename F>
     inline paint::paint (T* t, F f)

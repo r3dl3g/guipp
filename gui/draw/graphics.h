@@ -34,6 +34,7 @@
 #include "gui/core/color.h"
 #include "gui/core/rectangle.h"
 #include "gui/draw/draw_fwd.h"
+#include "gui/draw/bitmap.h"
 #include "gui/draw/gui++-draw-export.h"
 
 
@@ -119,12 +120,18 @@ namespace gui {
                            const core::native_point& dest = core::native_point::zero,
                            const copy_mode = copy_mode::bit_copy);
 
-      graphics& copy_from (const draw::basic_datamap&, const core::point& dest);
-      graphics& copy_from (const draw::basic_datamap&, const core::rectangle& src,
+      template<pixel_format_t T>
+      graphics& copy_from (const draw::datamap<T>&, const core::point& dest);
+
+      template<pixel_format_t T>
+      graphics& copy_from (const draw::datamap<T>&, const core::rectangle& src,
                            const core::point& dest = core::point::zero);
 
-      graphics& copy_from (const draw::basic_datamap&, const core::native_point& dest = core::native_point::zero);
-      graphics& copy_from (const draw::basic_datamap&, const core::native_rect& src,
+      template<pixel_format_t T>
+      graphics& copy_from (const draw::datamap<T>&, const core::native_point& dest = core::native_point::zero);
+
+      template<pixel_format_t T>
+      graphics& copy_from (const draw::datamap<T>&, const core::native_rect& src,
                            const core::native_point& dest = core::native_point::zero);
 
 #ifdef GUIPP_USE_XSHM

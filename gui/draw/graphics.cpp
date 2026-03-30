@@ -385,10 +385,10 @@ namespace gui {
                                    const copy_mode mode) {
       const int dd = get_drawable_depth(w);
       const int md = depth();
-        auto display = core::global::get_instance();
+      auto display = core::global::get_instance();
       XGCValues values = { static_cast<int>(static_cast<uint32_t>(mode)) };
-        values.graphics_exposures = False;
-        XChangeGC(display, gc(), GCFunction|GCGraphicsExposures, &values);
+      values.graphics_exposures = False;
+      XChangeGC(display, gc(), GCFunction|GCGraphicsExposures, &values);
       if (dd == md) {
         /*int res =*/ XCopyArea(get_instance(), w, target(), gc(), r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y());
       } else if (1 == dd) {
@@ -399,6 +399,81 @@ namespace gui {
       values = { GXcopy };
       XChangeGC(display, gc(), GCFunction, &values);
       return *this;
+    }
+
+    void set_xrender_clipping (const core::context& ctx, Picture window) {
+      if (!ctx.clipping().empty()) {
+        auto cr = ctx.clipping().back();
+        XRectangle clip = { cr.x, cr.y, cr.width, cr.height };
+        XRenderSetPictureClipRectangles(core::global::get_instance(),
+                                        window, 0, 0,    // Clip-Origin Offset
+                                        &clip,   // Array von XRectangles
+                                        1);      // Anzahl
+
+      }
+    }
+
+    void clear_xrender_clipping (const core::context& ctx, Picture window) {
+      if (!ctx.clipping().empty()) {
+        XRenderPictureAttributes pa = { 0 };
+        pa.clip_mask = None;
+        XRenderChangePicture(core::global::get_instance(), window, CPClipMask, &pa);        
+      }
+    }
+
+    graphics& graphics::copy_from (const draw::pixmap& pixmap,
+                                   const core::native_rect& src,
+                                   const core::native_point& dest) {
+      if (pixmap.get_info().bits_per_pixel() == depth()) {
+        return copy_from(pixmap.get_os_bitmap(), src, dest, copy_mode::bit_copy);
+      }
+
+      auto display = core::global::get_instance();
+
+      int format = PictStandardARGB32;
+      int op = PictOpSrc;
+      switch (pixmap.pixel_format()) {
+        case pixel_format_t::BW:
+          format = PictStandardA1;
+          break;
+        case pixel_format_t::GRAY:
+          format = PictStandardA8;
+          break;
+        case pixel_format_t::RGB:
+        case pixel_format_t::BGR:
+          format = PictStandardRGB24;
+          break;
+        case pixel_format_t::RGBA:
+        case pixel_format_t::BGRA:
+        case pixel_format_t::ARGB:
+        case pixel_format_t::ABGR:
+          op = PictOpOver;
+          // format = PictStandardARGB32;
+          break;
+      }
+
+      XRenderPictFormat *pixmap_format = XRenderFindStandardFormat(display, format);
+      XRenderPictFormat *win_format = XRenderFindVisualFormat(display, core::global::x11::get_visual());
+
+      XRenderPictureAttributes pa = { 0 };
+      pa.subwindow_mode = IncludeInferiors;
+
+      Picture picture = XRenderCreatePicture(display, pixmap.get_os_bitmap(), pixmap_format, 0, NULL);
+      Picture window = XRenderCreatePicture(display, target(), win_format, 0, &pa);
+
+      set_xrender_clipping(context(), window);
+
+      XRenderComposite(display, op, picture, 0, window, src.x(), src.y(), 0, 0, dest.x(), dest.y(), src.width(), src.height());
+
+      clear_xrender_clipping(context(), window);
+
+      XRenderFreePicture(display, window);
+      XRenderFreePicture(display, picture);
+      return *this;
+    }
+
+    graphics& graphics::copy_from (const draw::pixmap& pixmap, const core::rectangle& src, const core::point& pt) {
+      return copy_from(pixmap, core::global::scale_to_native(src), core::native_point(pt.os(context()), context()));
     }
 
     graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) {
@@ -472,27 +547,58 @@ namespace gui {
       if (pixmap) {
         auto display = core::global::get_instance();
 
-        XRenderPictureAttributes pa;
-        pa.subwindow_mode = IncludeInferiors;
-
-        Picture picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
-        Picture window = XRenderCreatePicture(display, target(), XRenderFindVisualFormat(display, core::global::x11::get_visual()), 0, &pa);
-
-        auto sz = pixmap.native_size();
-
-        double sx = double(sz.width())  / double(dest.os_width());
-        double sy = double(sz.height()) / double(dest.os_height());
-        XTransform xf = {{
-            { fx(sx),  fx(0),  fx(0) },
-            { fx(0),   fx(sy), fx(0) },
-            { fx(0),   fx(0),  fx(1) }
-        }};
-        XRenderSetPictureTransform(display, picture, &xf);
-        if (!filter.empty()) {
-          XRenderSetPictureFilter(display, picture, const_cast<char*>(filter.c_str()), nullptr, 0);
+        int format = PictStandardARGB32;
+        int op = PictOpSrc;
+        switch (pixmap.pixel_format()) {
+          case pixel_format_t::BW:
+            format = PictStandardA1;
+            break;
+          case pixel_format_t::GRAY:
+            format = PictStandardA8;
+            break;
+          case pixel_format_t::RGB:
+          case pixel_format_t::BGR:
+            format = PictStandardRGB24;
+            break;
+          case pixel_format_t::RGBA:
+          case pixel_format_t::BGRA:
+          case pixel_format_t::ARGB:
+          case pixel_format_t::ABGR:
+            op = PictOpOver;
+            // format = PictStandardARGB32;
+            break;
         }
 
-        XRenderComposite(display, PictOpSrc, picture, 0, window, src.x(), src.y(), 0, 0, dest.x(), dest.y(), dest.width(), dest.height());
+        XRenderPictFormat *pixmap_format = XRenderFindStandardFormat(display, format);
+        XRenderPictFormat *win_format = XRenderFindVisualFormat(display, core::global::x11::get_visual());
+
+        XRenderPictureAttributes pa = { 0 };
+        pa.subwindow_mode = IncludeInferiors;
+
+        Picture picture = XRenderCreatePicture(display, pixmap.get_os_bitmap(), pixmap_format, 0, NULL);
+        Picture window = XRenderCreatePicture(display, target(), win_format, 0, &pa);
+
+        auto psz = pixmap.native_size();
+        auto dsz = dest.size();
+
+        if (psz != dsz) {
+          double sx = double(psz.width())  / double(dsz.os_width());
+          double sy = double(psz.height()) / double(dsz.os_height());
+          XTransform xf = {{
+              { fx(sx),  fx(0),  fx(0) },
+              { fx(0),   fx(sy), fx(0) },
+              { fx(0),   fx(0),  fx(1) }
+          }};
+          XRenderSetPictureTransform(display, picture, &xf);
+          if (!filter.empty()) {
+            XRenderSetPictureFilter(display, picture, const_cast<char*>(filter.c_str()), nullptr, 0);
+          }
+        }
+
+        set_xrender_clipping(context(), window);
+        XRenderComposite(display, op, picture, 0, window, src.x(), src.y(), 0, 0, dest.x(), dest.y(), dest.width(), dest.height());
+        clear_xrender_clipping(context(), window);
+
         XRenderFreePicture(display, window);
         XRenderFreePicture(display, picture);
       }
@@ -886,31 +992,6 @@ namespace gui {
       return copy_from(bmp, core::native_point(pt.os(context()), context()));
     }
 
-    graphics& graphics::copy_from(const draw::basic_datamap& bmp, const core::native_rect& src, const core::native_point& pt) {
-      if (bmp.is_valid()) {
-        pixmap buffer;
-#ifdef GUIPP_JS
-        buffer = bmp.convert<gui::pixel_format_t::BGRA>();
-#else
-        buffer = bmp.convert<gui::pixel_format_t::RGB>();
-#endif
-        copy_from(buffer, src, pt);
-      }
-      return *this;
-    }
-
-    graphics& graphics::copy_from (const draw::basic_datamap& bmp, const core::native_point& pt) {
-      return copy_from(bmp, core::native_rect(bmp.native_size()), pt);
-    }
-
-    graphics& graphics::copy_from (const draw::basic_datamap& bmp, const core::point& pt) {
-      return copy_from(bmp, core::native_point(pt.os(context()), context()));
-    }
-
-    graphics& graphics::copy_from (const draw::basic_datamap& bmp, const core::rectangle& r, const core::point& pt) {
-      return copy_from(bmp, core::global::scale_to_native(r), core::native_point(pt.os(context()), context()));
-    }
-
 #ifdef GUIPP_USE_XSHM
     graphics& graphics::copy_from (const draw::shared_datamap& bmp, const core::point& pt) {
       return copy_from(bmp, core::native_point(pt.os(context()), context()));
@@ -928,7 +1009,7 @@ namespace gui {
       return draw_streched(bmp, core::native_rect(r.os(context()), context()), core::global::scale_to_native(pt), filter);
     }
 
-#if !GUIPP_QT && !GUIPP_JS
+#if !GUIPP_QT && !GUIPP_JS && !GUIPP_X11
     graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) {
       if (bmp) {
         if (bmp.get_info().bits_per_pixel() == depth()) {

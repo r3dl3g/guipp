@@ -154,7 +154,7 @@ namespace gui {
     os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data) {
       auto display = core::global::get_instance();
       auto visual = DefaultRootWindow(display);
-      const auto depth = bmi.depth();
+      const auto depth = bmi.bits_per_pixel();
       os::bitmap id = XCreatePixmap(display, visual, bmi.width, bmi.height, depth);
       switch (id) {
         case BadValue:
@@ -253,13 +253,13 @@ namespace gui {
       core::byte_order_t byte_order = get_pixel_format_byte_order(bmi.pixel_format);
       const int bpl = static_cast<int>(bmi.bytes_per_line);
       const int width = static_cast<int>(bmi.width);
+      const int height = static_cast<int>(bmi.height);
       const int bpp = bmi.bits_per_pixel();
       const int pad = calc_padding(bpl, width, bpp);
       char *idata = const_cast<char*>(reinterpret_cast<const char*>(data));
 
       XImage im {
-        width,
-        static_cast<int>(bmi.height),   /* size of image */
+        width, height,                  /* size of image */
         0,                              /* number of pixels offset in X direction */
         ZPixmap,                        /* XYBitmap, XYPixmap, ZPixmap */
         idata,                          /* pointer to image data */
@@ -267,7 +267,7 @@ namespace gui {
         BitmapUnit(display),            /* quant. of scanline 8, 16, 32 */
         BitmapBitOrder(display),        /* LSBFirst, MSBFirst */
         pad, //BitmapPad(display),      /* 8, 16, 32 either XY or ZPixmap */
-        bmi.depth(),                    /* depth of image */
+        bpp,                            /* depth of image */
         bpl,                            /* accelarator to next line */
         bpp                             /* bits per pixel (ZPixmap) */
       };

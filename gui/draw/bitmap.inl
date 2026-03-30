@@ -122,22 +122,8 @@ namespace gui {
     template<pixel_format_t T>
     void pixmap::put (const image_data<T>& rhs) {
       const auto& bmi = rhs.get_info();
-      create(bmi.size());
-      if (pixel_format() == T) {
-        put_raw(rhs.raw_data().data(0, bmi.mem_size()), bmi);
-      } else {
-        switch (pixel_format()) {
-          case pixel_format_t::BW:   put(datamap<pixel_format_t::BW>  (rhs)); break;
-          case pixel_format_t::GRAY: put(datamap<pixel_format_t::GRAY>(rhs)); break;
-          case pixel_format_t::RGB:  put(datamap<pixel_format_t::RGB >(rhs)); break;
-          case pixel_format_t::RGBA: put(datamap<pixel_format_t::RGBA>(rhs)); break;
-          case pixel_format_t::BGR:  put(datamap<pixel_format_t::BGR >(rhs)); break;
-          case pixel_format_t::BGRA: put(datamap<pixel_format_t::BGRA>(rhs)); break;
-          case pixel_format_t::ARGB: put(datamap<pixel_format_t::ARGB>(rhs)); break;
-          case pixel_format_t::ABGR: put(datamap<pixel_format_t::ABGR>(rhs)); break;
-          default: break;
-        }
-      }
+      super::create(bmi);
+      put_raw(rhs.raw_data().data(0, bmi.mem_size()), bmi);
     }
 
     template<pixel_format_t T>

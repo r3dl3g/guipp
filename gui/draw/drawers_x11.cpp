@@ -55,7 +55,7 @@ namespace gui {
                          (unsigned short)(color::extract<color::part::red>(c) << 8),
                          (unsigned short)(color::extract<color::part::green>(c) << 8),
                          (unsigned short)(color::extract<color::part::blue>(c) << 8),
-                         (unsigned short)((color::extract<color::part::alpha>(c) << 8) ^ 0xffff)
+                         (unsigned short)((color::extract<color::part::alpha>(c) << 8)/*  ^ 0xffff */)
                        })
       {}
     };

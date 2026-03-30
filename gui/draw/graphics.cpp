@@ -385,25 +385,19 @@ namespace gui {
                                    const copy_mode mode) {
       const int dd = get_drawable_depth(w);
       const int md = depth();
+        auto display = core::global::get_instance();
+      XGCValues values = { static_cast<int>(static_cast<uint32_t>(mode)) };
+        values.graphics_exposures = False;
+        XChangeGC(display, gc(), GCFunction|GCGraphicsExposures, &values);
       if (dd == md) {
-        auto display = core::global::get_instance();
-        XGCValues values = { static_cast<int>(static_cast<uint32_t>(mode)) }; // .function =
-        values.graphics_exposures = False;
-        XChangeGC(display, gc(), GCFunction|GCGraphicsExposures, &values);
         /*int res =*/ XCopyArea(get_instance(), w, target(), gc(), r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y());
-        values = { GXcopy }; // .function =
-        XChangeGC(display, gc(), GCFunction, &values);
       } else if (1 == dd) {
-        auto display = core::global::get_instance();
-        XGCValues values = { static_cast<int>(static_cast<uint32_t>(mode)) }; // .function =
-        values.graphics_exposures = False;
-        XChangeGC(display, gc(), GCFunction|GCGraphicsExposures, &values);
         /*int res =*/ XCopyPlane(get_instance(), w, target(), gc(), r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y(), 1);
-        values = { GXcopy }; // .function =
-        XChangeGC(display, gc(), GCFunction, &values);
       } else {
         throw std::runtime_error(ostreamfmt("incompatible drawable (" << dd << ") in graphics::copy_from (" << md << " expected)"));
       }
+      values = { GXcopy };
+      XChangeGC(display, gc(), GCFunction, &values);
       return *this;
     }
 

@@ -322,7 +322,7 @@ namespace gui {
       }
 
       void prepare_main_window (os::window) {
-        logging::debug() << "prepare_main_window";
+        logging::trace() << "prepare_main_window";
       }
       void prepare_popup_window (os::window) {}
       void prepare_tooltip_window (os::window) {}

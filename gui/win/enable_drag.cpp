@@ -57,20 +57,20 @@ namespace gui {
       at_drag = true;
       mouse_offset = gui::core::global::scale_from_native(pt);
       win.capture_pointer();
-      logging::debug() << "Mouse down at " << pt << " mouse offset: " << mouse_offset;
+      logging::trace() << "Mouse down at " << pt << " mouse offset: " << mouse_offset;
     }
 
     void enable_drag::up (gui::os::key_state, const gui::core::native_point& pt) {
       win.uncapture_pointer();
       at_drag = false;
-      logging::debug() << "Mouse up at " << pt;
+      logging::trace() << "Mouse up at " << pt;
     }
 
     void enable_drag::move (gui::os::key_state, const gui::core::native_point& pt) {
       if (at_drag) {
         auto current = drag_win.get_overlapped_window().surface_to_screen(pt);
         auto window_pos = current - mouse_offset;
-        logging::debug() << "Mouse move to " << pt << " screen pos: " << current << " window: " << window_pos;
+        logging::trace() << "Mouse move to " << pt << " screen pos: " << current << " window: " << window_pos;
         drag_win.position(window_pos);
       }
     }

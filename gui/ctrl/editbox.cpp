@@ -226,7 +226,6 @@ namespace gui {
               break;
             }
             default:
-              logging::debug() << "Key Ctrl + 0x" << std::hex << keycode;
               break;
             }
           } else if (!chars.empty()) {

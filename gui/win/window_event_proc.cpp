@@ -392,6 +392,9 @@ namespace gui {
       // --------------------------------------------------------------------------
       void register_hot_key (const core::hot_key& hk, const core::hot_key::call& fn, window* win) {
         os::window root = {};
+#if KEY_DEBUG
+        logging::debug() << "Register hot key '" << hk.get_key_string() << "'";
+#endif
 #ifdef GUIPP_WIN
         UINT modifiers = MOD_NOREPEAT;
         if (core::control_key_bit_mask::is_set(hk.get_modifiers())) {
@@ -645,6 +648,9 @@ namespace gui {
       if (e.type == os::js::event_type::KeyDown) {
 #endif
         core::hot_key hk(get_key_symbol(e), get_key_state(e));
+#if KEY_DEBUG
+        logging::debug() << "Check hot key '" << hk.get_key_string() << "'";
+#endif
         auto i = detail::hot_keys.find(hk);
         if (i != detail::hot_keys.end()) {
           i->second.second();
@@ -876,7 +882,7 @@ namespace gui {
             os::key_symbol key = gui::core::native::js::key_name_to_symbol(keyname);
 
             e = {id, type, state, key, chars};
-            logging::trace() << "Received event " << e;
+            logging::trace() << "Received key event " << e << " state: " << state << " keyname: '" << keyname << "' chars: '" << chars << "'";
 
           } else if ((type == os::js::event_type::MouseMove) ||
                      ((static_cast<int>(type) >= static_cast<int>(os::js::event_type::ButtonDown)) && 
@@ -912,13 +918,13 @@ namespace gui {
 
           } else if (static_cast<int>(type) == 50) {
 
-            logging::debug() << "Received paste event";
+            logging::trace() << "Received paste event";
 
             auto chars = event["chars"].as<std::string>();
-            logging::debug() << "Received chars: '" << chars << "'";
+            logging::trace() << "Received chars: '" << chars << "'";
 
             int id = event["state"].as<int>();
-            logging::debug() << "Received id: " << id;
+            logging::trace() << "Received id: " << id;
 
             clipboard::handle_paste(chars, id);
 
@@ -971,7 +977,7 @@ namespace gui {
     }
 
     void quit_main_loop () {
-      logging::debug() << "Received quit_main_loop()";
+      logging::trace() << "Received quit_main_loop()";
       main_loop_is_running = false;
       core::global::fini();
 #ifdef GUIPP_QT

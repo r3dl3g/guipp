@@ -48,34 +48,36 @@ namespace gui {
     namespace native {
 
       namespace js {
-          void send_to_main (const std::string& type, const std::string& message) {
-              val self = val::global("self");
 
-              // Wir erstellen ein leeres JS-Objekt
-              val data = val::object();
-              data.set("type", type);
-              data.set("payload", message);
-              data.set("timestamp", val::global("Date").call<val>("now"));
+        void send_to_main (const std::string& type, const std::string& message) {
+            val self = val::global("self");
 
-              // Nachricht an den Main-Thread senden
-              self.call<void>("postMessage", data);
-          }
+            // Wir erstellen ein leeres JS-Objekt
+            val data = val::object();
+            data.set("type", type);
+            data.set("payload", message);
+            data.set("timestamp", val::global("Date").call<val>("now"));
 
-          void send_to_main (const std::string& type, int id) {
-              val self = val::global("self");
+            // Nachricht an den Main-Thread senden
+            self.call<void>("postMessage", data);
+        }
 
-              // Wir erstellen ein leeres JS-Objekt
-              val data = val::object();
-              data.set("type", type);
-              data.set("payload",  id);
-              data.set("timestamp", val::global("Date").call<val>("now"));
+        void send_to_main (const std::string& type, int id) {
+            val self = val::global("self");
 
-            logging::trace() << "send to main: " << type << " id: " << id;
+            // Wir erstellen ein leeres JS-Objekt
+            val data = val::object();
+            data.set("type", type);
+            data.set("payload",  id);
+            data.set("timestamp", val::global("Date").call<val>("now"));
 
-              // Nachricht an den Main-Thread senden
-              self.call<void>("postMessage", data);
-          }
-      }
+          logging::trace() << "send to main: " << type << " id: " << id;
+
+            // Nachricht an den Main-Thread senden
+            self.call<void>("postMessage", data);
+        }
+
+      } // namespace js
 
       const class_info& get_window_class (const char* class_name) {
         return window_class_info_map[class_name];

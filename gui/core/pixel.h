@@ -303,7 +303,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     inline rgb make_pixel_from_rgb<rgb> (byte r, byte g, byte b) {
-      return rgb{ .red = r, .green = g, .blue = b };
+      return rgb{.red = r, .green = g, .blue = b};
     }
 
     template<>

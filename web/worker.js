@@ -1,5 +1,5 @@
 // worker.js
-importScripts('@PROJECT_NAME@.wasm.js');
+importScripts('@PROJECT_NAME@.js');
 
 // 1. Global deklarieren
 self.canvas = null;

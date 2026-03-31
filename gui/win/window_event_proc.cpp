@@ -433,7 +433,9 @@ namespace gui {
 #endif
 #ifndef GUIPP_JS
         if (root) {
+#endif //GUIPP_JS
           detail::hot_keys.emplace(hk, std::make_pair(root, fn));
+#ifndef GUIPP_JS
         } else {
           logging::warn() << "Root Windows is not yet created. Hotkey could not be registered!";
         }

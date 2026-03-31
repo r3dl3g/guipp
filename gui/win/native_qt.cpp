@@ -332,8 +332,12 @@ namespace gui {
         }
       }
 
+      void send_client_message (window* win, os::message_type message, void* v1, void* v2) {
+        send_client_message(win, message, reinterpret_cast<std::uintptr_t>(v1), reinterpret_cast<std::uintptr_t>(v2));
+      }
+
       void send_client_message (window* win, os::message_type message, const float f) {
-        send_client_message(win, message, static_vast<void*>(&f), nullptr);
+        send_client_message(win, message, const_cast<void*>(static_cast<const void*>(&f)), nullptr);
       }
 
       void send_client_message (window* win, os::message_type message, int l1, int l2) {
@@ -342,10 +346,6 @@ namespace gui {
           QClientEvent e(static_cast<QEvent::Type>(message), l1, l2);
           win->handle_event(gui::core::event{nullptr, &e}, result);
         }
-      }
-
-      void send_client_message (window* win, os::message_type message, void* v1, void* v2) {
-        send_client_message(win, message, reinterpret_cast<std::uintptr_t>(v1), reinterpret_cast<std::uintptr_t>(v2));
       }
 
       void send_client_message (window* win, os::message_type message, core::context& ctx, const core::native_rect& r) {

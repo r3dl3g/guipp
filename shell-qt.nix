@@ -1,6 +1,13 @@
 { pkgs ? import <nixpkgs> {} }:
 
 pkgs.mkShell {
+  hardeningDisable = [ "fortify" ];
+
+  buildInputs = with pkgs; [
+    libsForQt5.qt5.wrapQtAppsHook
+    libsForQt5.qt5.qtwayland
+    libsForQt5.qt5.qtbase
+  ];
 
   nativeBuildInputs = with pkgs; [
     cmake
@@ -9,27 +16,12 @@ pkgs.mkShell {
     gcc
     gdb
     git
+    tig
   ];
 
-  buildInputs = with pkgs; [
-    libsForQt515.qt5.wrapQtAppsHook
-    libsForQt515.qt5.qtwayland
-    libsForQt515.qt5.qtbase
-  ];
-
-  cmakeFlags = [
-    "-DGUIPP_TESTS=OFF"
-    "-DGUIPP_SAMPLES=ON"
-    "-DGUIPP_USE_QT5=ON"
-    "-DGUIPP_CONFIG_INSTALL=OFF"
-    "-DLOGGING_CONFIG_INSTALL=OFF"
-    "-DUTIL_CONFIG_INSTALL=OFF"
-    "-DTESTING_CONFIG_INSTALL=OFF"
-    "-DGUIPP_BUILD_DEPENDENT_LIBS=ON"
-    "-DGUIPP_BUILD_STATIC_MODULE_LIBS=OFF"
-    "-DGUIPP_BUILD_SHARED_MODULE_LIBS=ON"
-    "-DLOGGING_BUILD_STATIC_MODULE_LIB=OFF"
-    "-DUTIL_BUILD_STATIC_MODULE_LIB=OFF"
-  ];
+  shellHook = ''
+    export MYPS1='\n\[\033[1;35m\](Qt)[\[\e]0;\u@\h: \w\a\]\u@\h:\w]\$\[\033[0m\] '
+    export PS1=$MYPS1
+  '';
 
 }

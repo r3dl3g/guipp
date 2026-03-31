@@ -116,7 +116,7 @@ namespace gui {
     GUIPP_WIN_EXPORT core::rectangle get_client_data_rect (const core::event& e);
 
     // --------------------------------------------------------------------------
-    GUIPP_WIN_EXPORT const const core::native_rect* get_paint_rect (const core::event& e);
+    GUIPP_WIN_EXPORT const core::native_rect* get_paint_rect (const core::event& e);
     // --------------------------------------------------------------------------
 //    GUIPP_WIN_EXPORT os::graphics get_graphics (const core::event&);
     // --------------------------------------------------------------------------

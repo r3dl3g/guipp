@@ -38,8 +38,10 @@ namespace gui {
                                              core::params<int>::getter<win::get_client_data<0, int> >, 0,
                                              win::event::functor<win::client_message_matcher<detail::SLIDER_MESSAGE>>>;
 #elif GUIPP_QT
+    GUIPP_CTRL_EXPORT int get_slider_value (const core::event&);
+
     using slider_event = core::event_handler<detail::SLIDER_MESSAGE, 0,
-                                             core::params<int>::getter<win::get_param<0>>>;
+                                             core::params<int>::getter<get_slider_value>>;
 #elif GUIPP_JS
     using slider_event = core::event_handler<detail::SLIDER_MESSAGE, gui::os::js::event_type::None,
                                              core::params<int>::getter<win::get<0, int>::param>>;

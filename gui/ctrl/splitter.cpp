@@ -35,6 +35,12 @@ namespace gui {
 
   namespace ctrl {
 
+#if GUIPP_QT
+    int get_slider_value (const core::event& e) {
+      return e.cast<win::QClientEvent>().l1();
+    }
+#endif
+
     namespace detail {
 
       // --------------------------------------------------------------------------

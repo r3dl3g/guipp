@@ -771,6 +771,24 @@ namespace gui {
       return *this;
     }
 
+    graphics& graphics::draw_streched (const draw::pixmap& bmp,
+                                       const core::native_rect& dst,
+                                       const core::native_point& src,
+                                       const std::string& filter) {
+      if (bmp) {
+        auto sz = bmp.native_size();
+        gc()->drawPixmap(dst.x(), dst.y(), dst.width(), dst.height(),
+                         *bmp.get_os_bitmap(),
+                         src.x(), src.y(), sz.width(), sz.height());
+      }
+      return *this;
+    }
+
+    std::vector<std::string> graphics::get_filter_list(os::drawable d) {
+      static std::vector<std::string> list = {"STRETCH"};
+      return list;
+    }
+
     void graphics::invert (const core::rectangle& r) {
       const QPainter::CompositionMode oldMode = gc()->compositionMode();
       gc()->setCompositionMode(QPainter::RasterOp_NotDestination);

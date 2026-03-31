@@ -22,9 +22,9 @@
 </head>
 <body>
 
-    <h1>Gui++ @PROJECT_NAME@</h1>
+    <h2>Gui++ @PROJECT_NAME@</h2>
 
-    <canvas id="canvas2d" width="1000" height="600"></canvas>
+    <canvas id="canvas2d" width="1600" height="720"></canvas>
 
     <script>
         const canvas = document.getElementById('canvas2d');
@@ -35,10 +35,10 @@
         const offscreen = canvas.transferControlToOffscreen();
 
         // 2. Worker erstellen
-        const worker = new Worker('@PROJECT_NAME@.js');
+        const worker = new Worker('@PROJECT_NAME@-worker.js');
 
         function calc_state (e) {
-            return (e.ctrlKey ? 0x10 : 0) |(e.shiftKey ? 0x20 : 0) | (e.altKey ? 0x40 : 0) | (e.metaKey ? 0x80 : 0);
+            return (e.ctrlKey ? 0x10 : 0) | (e.shiftKey ? 0x20 : 0) | (e.altKey ? 0x40 : 0) | (e.metaKey ? 0x80 : 0);
         };
 
         // 3. Initialisierung an den Worker senden
@@ -133,22 +133,30 @@
         // Optional: Auch Tastatur-Events weiterleiten
         window.addEventListener('keydown', (e) => {
             e.preventDefault();
-            let chars = e.key.length > 1 ? "" : e.key;
+            let chars = e.key.length > 1 ? e.chars : e.key;
+            let state = calc_state(e);
+            if (e.key == "+" && e.code == "Equal") {
+                state = state & 0xD0;
+            }
             worker.postMessage({
                 type: 12,
-                key: e.code,
-                state: calc_state(e),
+                key: e.key,
+                state: state,
                 chars: chars
             });
         });
 
         window.addEventListener('keyup', (e) => {
             e.preventDefault();
-            let chars = e.key.length > 1 ? "" : e.key;
+            let chars = e.key.length > 1 ? e.chars : e.key;
+            let state = calc_state(e);
+            if (e.key == "+" && e.code == "Equal") {
+                state = state & 0xD0;
+            }
             worker.postMessage({
                 type: 13,
-                key: e.code,
-                state: calc_state(e),
+                key: e.key,
+                state: state,
                 chars: chars
             });
         });

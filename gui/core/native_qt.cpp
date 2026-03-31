@@ -67,6 +67,16 @@ namespace gui {
         delete id;
       }
 
+      // --------------------------------------------------------------------------
+      std::string key_symbol_to_string (gui::os::key_symbol key) {
+        return QKeySequence(key).toString().toStdString();
+      }
+      
+      // --------------------------------------------------------------------------
+      std::string key_state_to_string (gui::os::key_state m) {
+        return key_symbol_to_string(m);
+      }
+
     } // namespace native
 
   } // namespace core

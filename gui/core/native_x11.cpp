@@ -95,6 +95,39 @@ namespace gui {
         XFreeGC(core::global::get_instance(), id);
       }
 
+      // --------------------------------------------------------------------------
+      std::string key_symbol_to_string (gui::os::key_symbol key) {
+        switch (key) {
+          case XK_Control_L:
+          case XK_Control_R:
+          case XK_Alt_L:
+          case XK_Alt_R:
+          case XK_Shift_L:
+          case XK_Shift_R:
+          case XK_Super_L:
+          case XK_Super_R: {
+            std::string str = XKeysymToString(key);
+            auto i = str.find_last_of('_');
+            if (i != std::string::npos) {
+              str = str.substr(0, i);
+            }
+            return str;
+          }
+          break;
+          case ControlMask: return key_symbol_to_string(XK_Control_L);
+          case ShiftMask:   return key_symbol_to_string(XK_Shift_L);
+          case Mod1Mask:    return key_symbol_to_string(XK_Alt_L);
+          case Mod4Mask:    return key_symbol_to_string(XK_Super_L);
+
+          default:
+            return XKeysymToString(key);
+        }
+      }
+      
+      // --------------------------------------------------------------------------
+      std::string key_state_to_string (gui::os::key_state m) {
+        return native::key_symbol_to_string(m);
+      }
 
     } // namespace native
 

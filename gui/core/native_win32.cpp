@@ -65,6 +65,47 @@ namespace gui {
         DeleteDC(id);
       }
 
+      // --------------------------------------------------------------------------
+      std::string key_symbol_to_string (gui::os::key_symbol key) {
+
+        UINT nScanCode = MapVirtualKey(key, MAPVK_VK_TO_VSC);
+        switch (key) {
+        // Keys which are "extended" (except for Return which is Numeric Enter as extended)
+          case VK_INSERT:
+          case VK_DELETE:
+          case VK_HOME:
+          case VK_END:
+          case VK_NEXT:  // Page down
+          case VK_PRIOR: // Page up
+          case VK_LEFT:
+          case VK_RIGHT:
+          case VK_UP:
+          case VK_DOWN:
+            nScanCode |= 0x100; // Add extended bit
+        }
+
+        std::vector<char> buffer(32);
+        int ret = GetKeyNameText(nScanCode << 16, buffer.data(), static_cast<int>(buffer.capacity()));
+        std::string str;
+        if (ret) {
+          str = buffer.data();
+        } else {
+          switch (key) {
+          case core::keys::system:
+            str = "Win";
+            break;
+          default:
+            str = (char)key;
+          }
+        }
+        return str;
+      }
+      
+      // --------------------------------------------------------------------------
+      std::string key_state_to_string (gui::os::key_state m) {
+        return native::key_symbol_to_string(m);
+      }
+
     } // namespace native
 
   } // namespace core

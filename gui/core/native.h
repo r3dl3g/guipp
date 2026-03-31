@@ -53,11 +53,22 @@ namespace gui {
       GUIPP_CORE_EXPORT void delete_graphics_context (gui::os::graphics);
 
       // --------------------------------------------------------------------------
+      GUIPP_CORE_EXPORT std::string key_symbol_to_string (gui::os::key_symbol);
+
+      // --------------------------------------------------------------------------
+      GUIPP_CORE_EXPORT std::string key_state_to_string (gui::os::key_state);
+
+      // --------------------------------------------------------------------------
 #ifdef GUIPP_USE_XFT
       namespace x11 {
         GUIPP_CORE_EXPORT XftDraw* get_xft_draw (context&);
       } // namespace x11
 #endif // GUIPP_USE_XFT
+#ifdef GUIPP_JS
+      namespace js {
+        GUIPP_CORE_EXPORT gui::os::key_symbol key_name_to_symbol (const std::string& name);
+      } // namespace js
+#endif
 
       // --------------------------------------------------------------------------
     } // namespace native

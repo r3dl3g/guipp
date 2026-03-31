@@ -328,12 +328,12 @@ namespace gui {
       void prepare_palette_window (os::window) {}
 
       void erase (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
-        gc.set("fillStyle", ostreamfmt("#" << std::hex << std::setfill('0') << std::setw(6) << c));
+        gc.set("fillStyle", ostreamfmt("#" << std::hex << std::setfill('0') << std::setw(6) << (c & 0xffffff)));
         gc.call<void>("fillRect", r.x(), r.y(), r.width(), r.height());
       }
 
       void frame (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {
-        gc.set("strokeStyle", ostreamfmt("#" << std::hex << std::setfill('0') << std::setw(6) << c));
+        gc.set("strokeStyle", ostreamfmt("#" << std::hex << std::setfill('0') << std::setw(6) << (c & 0xffffff)));
         gc.call<void>("strokeRect", r.x(), r.y(), r.width(), r.height());
       }
 

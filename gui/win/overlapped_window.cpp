@@ -794,11 +794,7 @@ namespace gui {
     void container_window::create (const class_info& cls,
                                    container& parent,
                                    const core::rectangle& r) {
-#if GUIPP_JS
         super::create(cls, parent, r);
-#else
-        super::create(cls, parent, r);
-#endif
     }
 
     void container_window::destroy() {

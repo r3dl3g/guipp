@@ -68,7 +68,6 @@ namespace gui {
         on_mouse_move([&](os::key_state keys,
                           const core::native_point& p) {
           if ((start_mouse_point != core::native_point::undefined) && is_enabled() && core::left_button_bit_mask::is_set(keys)) {
-//            logging::debug() << "splitter::mouse_move to:" << p;
             set_value(start_window_point.x() + core::global::scale_from_native<core::size::type>(p.x() - start_mouse_point.x()));
           }
         });
@@ -95,7 +94,6 @@ namespace gui {
         const auto new_x = std::min<core::point::type>(max, std::max<core::point::type>(min, v));
         const auto pt = position();
         if (new_x != pt.x()) {
-//          logging::debug() << "splitter::set_value old:" << pt.x() << " new:" << new_x;
           position(core::point(new_x, pt.y()), true);
           super::notify_event(detail::SLIDER_MESSAGE, static_cast<int>(new_x - pt.x()));
         }
@@ -132,7 +130,6 @@ namespace gui {
         on_mouse_move([&](os::key_state keys,
                               const core::native_point& p) {
           if ((start_mouse_point != core::native_point::undefined) && is_enabled() && core::left_button_bit_mask::is_set(keys)) {
-//            logging::debug() << "splitter::mouse_move to:" << p;
             set_value(start_window_point.y() + core::global::scale_from_native<core::size::type>(p.y() - start_mouse_point.y()));
           }
         });
@@ -159,7 +156,6 @@ namespace gui {
         const auto new_y = std::min<core::point::type>(max, std::max<core::point::type>(min, v));
         const auto pt = position();
         if (new_y != pt.y()) {
-//          logging::debug() << "splitter::set_value old:" << pt.y() << " new:" << new_y;
           position(core::point(pt.x(), new_y), true);
           super::notify_event(detail::SLIDER_MESSAGE, static_cast<int>(new_y - pt.y()));
         }
@@ -207,9 +203,8 @@ namespace gui {
 
         on_left_btn_down([&] (os::key_state, const core::native_point& pt) {
           capture_pointer();
-          start_mouse_point = pt;//client_to_screen(pt);
+          start_mouse_point = pt;
           start_window_point = position();
-//          logging::debug() << "splitter::left_btn_down at:" << pt << " start_mouse_point:" << start_mouse_point << " start_window_point:" << start_window_point;
           take_focus();
         });
 

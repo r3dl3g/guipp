@@ -1,6 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
 
 pkgs.mkShell {
+  hardeningDisable = [ "fortify" ];
 
   nativeBuildInputs = with pkgs; [
     cmake
@@ -9,6 +10,7 @@ pkgs.mkShell {
     gcc
     gdb
     git
+    tig
   ];
 
   buildInputs = with pkgs; [
@@ -21,10 +23,12 @@ pkgs.mkShell {
     "-DGUIPP_TESTS=OFF"
     "-DGUIPP_SAMPLES=ON"
     "-DGUIPP_USE_QT6=ON"
-    "-DGUIPP_CONFIG_INSTALL=ON"
-    "-DGUIPP_BUILD_DEPENDENT_LIBS=OFF"
-    "-DGUIPP_BUILD_STATIC_MODULE_LIBS=OFF"
-    "-DGUIPP_BUILD_SHARED_MODULE_LIBS=ON"
   ];
+
+  shellHook = ''
+    export MYPS1='\n\[\033[1;35m\](Qt6)[\[\e]0;\u@\h: \w\a\]\u@\h:\w]\$\[\033[0m\] '
+    export PS1=$MYPS1
+  '';
+
 
 }

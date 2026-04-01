@@ -15,6 +15,13 @@
 	],
 	"settings": {
 		"nixEnvSelector.nixFile": "${workspaceFolder}/shell-emc.nix",
+		
+  		"cmake.buildDirectory": "${userHome}/.cache/build/${workspaceFolderBasename}.emc/${buildType}",
+		"cmake.buildArgs": [ ],
+		"cmake.configureArgs": [
+			"-DGUIPP_SAMPLES=ON",
+			"-DVERBOSE=ON"
+		],
 		"files.associations": {
 			"*.tcc": "cpp",
 			"*.inl": "cpp",

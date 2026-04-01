@@ -203,10 +203,10 @@ namespace gui {
 
       void paint (draw::graphics& g);
 
-      core::point sub_menu_position (std::size_t idx) const;
+      core::native_point sub_menu_position (std::size_t idx) const;
       int get_index_at_point (const core::point& pt) const override;
 
-      core::point get_selection_position () const;
+      core::native_point get_selection_position () const;
 
       win::window& view () override;
       bool handle_key (os::key_symbol) override;
@@ -233,17 +233,17 @@ namespace gui {
 
       void paint (draw::graphics& g);
 
-      core::point sub_menu_position (int idx) const;
+      core::native_point sub_menu_position (int idx) const;
       int get_index_at_point (const core::point& pt) const override;
 
-      core::point get_selection_position () const;
+      core::native_point get_selection_position () const;
 
       void popup (popup_menu& parent);
       void popup (main_menu& parent);
 
-      void popup_at (const core::point& pt, popup_menu& parent);
-      void popup_at (const core::point& pt, main_menu& parent);
-      void popup_at (const core::point& pt, win::window& parent);
+      void popup_at (const core::native_point& pt, popup_menu& parent);
+      void popup_at (const core::native_point& pt, main_menu& parent);
+      void popup_at (const core::native_point& pt, win::window& parent);
 
       win::window& view () override;
       bool handle_key (os::key_symbol) override;
@@ -253,7 +253,7 @@ namespace gui {
 
       void init ();
 
-      void popup_at (win::container& parent, menu_data& parent_data, const core::point& pt);
+      void popup_at (win::window& parent, menu_data& parent_data, const core::native_point& pt);
 
       void register_message_filter ();
       void unregister_message_filter ();

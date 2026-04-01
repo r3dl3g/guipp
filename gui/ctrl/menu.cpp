@@ -469,8 +469,7 @@ namespace gui {
       return -1;
     }
 
-    core::point main_menu::sub_menu_position (std::size_t idx) const {
-      auto r = window.absolute_position();
+    core::native_point main_menu::sub_menu_position (std::size_t idx) const {
       core::point::type pos = 0;
       for (auto& i : data.items) {
         if (idx < 1) {
@@ -479,7 +478,7 @@ namespace gui {
         pos += i.get_width() + 20;
         --idx;
       }
-      return (r + core::point(pos, window.size().height()));
+      return window.client_to_surface(core::point(pos, window.size().height()));
     }
 
     void main_menu::paint (draw::graphics& g) {
@@ -622,31 +621,33 @@ namespace gui {
       return false;
     }
 
-    void popup_menu::popup_at (const core::point& pt, win::window& parent) {
+    void popup_menu::popup_at (const core::native_point& pt, win::window& parent) {
       window.set_state().disable_redraw(false);
       set_hilite(0);
-      logging::trace() << "popup_menu::popup_at(" << pt << ") -> run_modal";
       auto& root = parent.get_overlapped_window();
-      window.create(root, core::rectangle(parent.client_to_screen(pt), core::size(calc_width() + 2, static_cast<core::size::type>(size() * item_height + 2))));
+      window.create(root, core::rectangle(root.surface_to_popup(pt),
+                                          core::size(calc_width() + 2,
+                                            static_cast<core::size::type>(size() * item_height + 2))));
       window.set_visible();
     }
 
-    void popup_menu::popup_at (container& parent, menu_data& parent_data, const core::point& pt) {
-      window.set_state().disable_redraw(false);
-      set_hilite(0);
-
+    void popup_menu::popup_at (win::window& parent, menu_data& parent_data, const core::native_point& pt) {
       set_parent(&parent_data);
       parent_data.set_current_child(this);
-
-      logging::trace() << "popup_menu::popup_at(" << pt << ") none-modal";
-      auto& root = parent.get_overlapped_window();
-      window.create(root, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size::type>(size() * item_height + 2))));
-      window.set_visible();
+      popup_at(pt, parent);
     }
 
-    core::point popup_menu::sub_menu_position (int idx) const {
-      auto r = window.absolute_position();
-      return (r + core::point(window.size().width(), static_cast<core::point::type>(idx * item_height)));
+    void popup_menu::popup_at (const core::native_point& pt, popup_menu& parent) {
+      popup_at(parent.view(), parent, pt);
+    }
+
+    void popup_menu::popup_at (const core::native_point& pt, main_menu& parent) {
+      popup_at(parent.view(), parent, pt);
+    }
+
+    core::native_point popup_menu::sub_menu_position (int idx) const {
+      return window.client_to_surface(core::point(window.size().width(),
+                                                  static_cast<core::point::type>(idx * item_height)));
     }
 
     int popup_menu::get_index_at_point (const core::point& pt) const {

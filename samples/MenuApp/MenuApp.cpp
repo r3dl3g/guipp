@@ -65,7 +65,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   });
 
   client.on_right_btn_down ([&] (gui::os::key_state, const core::native_point& pt) {
-    context_menu.popup_at(client.surface_to_client(pt), client);
+    edit_sub_menu.popup_at(pt, client);
   });
 
   main.get_layout().set_header_and_body(lay(menu.view()), lay(client));

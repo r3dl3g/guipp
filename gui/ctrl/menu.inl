@@ -163,7 +163,7 @@ namespace gui {
       window.create(clazz::get(), parent, place);
     }
 
-    inline core::point main_menu::get_selection_position () const {
+    inline core::native_point main_menu::get_selection_position () const {
       return sub_menu_position(get_selection());
     }
 
@@ -173,7 +173,7 @@ namespace gui {
       add_entries(entries);
     }
 
-    inline core::point popup_menu::get_selection_position () const {
+    inline core::native_point popup_menu::get_selection_position () const {
       return sub_menu_position(get_selection());
     }
 
@@ -183,14 +183,6 @@ namespace gui {
 
     inline void popup_menu::popup (main_menu& parent) {
       popup_at(parent.get_selection_position(), parent);
-    }
-
-    inline void popup_menu::popup_at (const core::point& pt, popup_menu& parent) {
-      popup_at(*parent.view().get_parent(), parent, pt);
-    }
-
-    inline void popup_menu::popup_at (const core::point& pt, main_menu& parent) {
-      popup_at(*parent.view().get_parent(), parent, pt);
     }
 
     inline popup_menu::positions::positions ()

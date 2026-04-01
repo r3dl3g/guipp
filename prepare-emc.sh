@@ -1,6 +1,6 @@
 . ./.project_defines
 
-BUILD_PREFIX=~/.cache/build/emc
+PROJECT=guipp.emc
 INSTALL_PREFIX=~/.local/emc
 CMAKE_CMD="emcmake cmake"
 DEFINES=-DGUIPP_SAMPLES=ON

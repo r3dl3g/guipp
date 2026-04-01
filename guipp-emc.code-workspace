@@ -18,7 +18,7 @@
   		"cmake.buildDirectory": "${userHome}/.cache/build/${workspaceFolderBasename}.emc/${buildType}",
 		"cmake.buildArgs": [ "--parallel 12" ],
 		"cmake.configureArgs": [
-			"--preset emc",
+			"--preset emc_debug",
 			"-DGUIPP_SAMPLES=ON",
 			"-DVERBOSE=ON"
 		],

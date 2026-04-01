@@ -41,6 +41,11 @@
 #error Unknown target system in overlapped_window.h
 #endif // GUIPP_QT
 
+#if GUIPP_POPUP_OVERLAPP
+# define IF_GUIPP_POPUP_OVERLAPP(A, B) A
+#else
+# define IF_GUIPP_POPUP_OVERLAPP(A, B) B
+#endif
 
 namespace gui {
 
@@ -102,6 +107,8 @@ namespace gui {
 
       core::point surface_to_screen (const core::native_point&) const;
       core::native_point screen_to_surface (const core::point&) const;
+
+      core::point surface_to_popup (const core::native_point&) const;
 
       core::point get_current_pointer_pos () const;
 
@@ -166,9 +173,9 @@ namespace gui {
       core::hot_key::call fn;
     };
 
-    class GUIPP_WIN_EXPORT container_window : public IF_JS_ELSE(container, overlapped_window) {
+    class GUIPP_WIN_EXPORT container_window : public IF_GUIPP_POPUP_OVERLAPP(overlapped_window, container) {
     public:
-      typedef IF_JS_ELSE(container, overlapped_window) super;
+      typedef IF_GUIPP_POPUP_OVERLAPP(overlapped_window, container) super;
 
       void destroy();
       void set_title (const std::string&);

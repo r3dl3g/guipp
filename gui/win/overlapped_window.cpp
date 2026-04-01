@@ -591,6 +591,10 @@ namespace gui {
       return native::screen_to_surface(get_os_window(), core::global::scale_to_native(pt));
     }
     // --------------------------------------------------------------------------
+    core::point overlapped_window::surface_to_popup (const core::native_point& pt) const {
+      return IF_GUIPP_POPUP_OVERLAPP(surface_to_screen(pt), surface_to_client(pt));
+    }
+    // --------------------------------------------------------------------------
     core::point overlapped_window::get_current_pointer_pos () const {
       return surface_to_client(native::get_current_pointer_pos(get_os_window()));
     }
@@ -821,7 +825,7 @@ namespace gui {
                                container& parent,
                                const core::rectangle& r) {
       super::create(cls, parent, r);
-#ifndef GUIPP_JS
+#if GUIPP_POPUP_OVERLAPP
       native::prepare_popup_window(get_os_window());
 #endif
     }
@@ -831,7 +835,7 @@ namespace gui {
                                  container& parent,
                                  const core::rectangle& r) {
       super::create(cls, parent, r);
-#ifndef GUIPP_JS
+#if GUIPP_POPUP_OVERLAPP
       native::prepare_tooltip_window(get_os_window());
 #endif
     }
@@ -841,7 +845,7 @@ namespace gui {
                                 container& parent,
                                 const core::rectangle& r) {
       super::create(cls, parent, r);
-#ifndef GUIPP_JS
+#if GUIPP_POPUP_OVERLAPP
       native::prepare_dialog_window(get_os_window(),
                                     parent.get_overlapped_window().get_os_window());
 #endif
@@ -852,7 +856,7 @@ namespace gui {
                                  container& parent,
                                  const core::rectangle& r) {
       super::create(cls, parent, r);
-#ifndef GUIPP_JS
+#if GUIPP_POPUP_OVERLAPP
       native::prepare_palette_window(get_os_window());
 #endif
     }

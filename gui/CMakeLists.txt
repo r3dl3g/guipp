@@ -52,6 +52,7 @@ option(GUIPP_LOOK_AND_FEEL_APPLE "Use Apple L&F. Default automatic" OFF)
 option(GUIPP_LOOK_AND_FEEL_WIN32 "Use Windows 10 L&F. Default automatic" OFF)
 option(GUIPP_LOOK_AND_FEEL_UNIX "Use Gnome L&F. Default automatic" OFF)
 option(GUIPP_LOOK_AND_FEEL_W95 "Use Windows 95 L&F. Default automatic" OFF)
+option(GUIPP_POPUP_OVERLAPP "Show Popupmenus and Dialogs as floating overlapped windows. Default automatic" ON)
 option(VERBOSE "Print messages during cmake run" OFF)
 set(GUIPP_CXX_STANDARD ${CMAKE_CXX_STANDARD} CACHE STRING "C++ standard to overwrite default cmake standard")
 if(NOT "${GUIPP_CXX_STANDARD}")
@@ -145,6 +146,9 @@ if(NOT TARGET guipp)
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_LOOK_AND_FEEL_W95)
   endif()
 
+  if (GUIPP_POPUP_OVERLAPP)
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_POPUP_OVERLAPP)
+  endif()
 
   set(GUIPP_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/..
@@ -203,6 +207,7 @@ if(NOT TARGET guipp)
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS}
       -DGUIPP_JS
       -DGUIPP_LOOK_AND_FEEL_WIN32
+      -DGUIPP_POPUP_OVERLAPP=0
       -sENVIRONMENT=worker
       -sDYNAMIC_EXECUTION=0
       -matomics

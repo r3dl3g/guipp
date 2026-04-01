@@ -18,6 +18,12 @@
 	],
 	"settings": {
 		"nixEnvSelector.nixFile": "${workspaceFolder}/shell.nix",
+  		"cmake.buildDirectory": "${userHome}/.cache/build/${workspaceFolderBasename}.x11/${buildType}",
+		"cmake.buildArgs": [ "--parallel 12" ],
+		"cmake.configureArgs": [
+			"-DGUIPP_SAMPLES=ON",
+			"-DVERBOSE=ON"
+		],
 		"files.associations": {
 			"*.tcc": "cpp",
 			"*.inl": "cpp",

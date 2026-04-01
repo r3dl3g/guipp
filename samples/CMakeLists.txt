@@ -51,7 +51,7 @@ include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS})
 add_definitions(${GUIPP_CXX_FLAGS})
 
 if (EMSCRIPTEN)
-  set(CMAKE_EXECUTABLE_SUFFIX ".wasm.js")
+  set(CMAKE_EXECUTABLE_SUFFIX ".js")
 endif (EMSCRIPTEN)
 
 add_link_options(${GUIPP_EXE_LINKER_FLAGS})
@@ -81,7 +81,7 @@ function(guipp_sample PROJECT_NAME)
     )
     configure_file (
       "${CMAKE_SOURCE_DIR}/web/worker.js"
-      "${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}.js"
+      "${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}-worker.js"
     )
   else ()
     target_link_libraries(${PROJECT_NAME} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})

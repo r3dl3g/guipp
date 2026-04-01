@@ -15,10 +15,10 @@
 	],
 	"settings": {
 		"nixEnvSelector.nixFile": "${workspaceFolder}/shell-emc.nix",
-		
   		"cmake.buildDirectory": "${userHome}/.cache/build/${workspaceFolderBasename}.emc/${buildType}",
-		"cmake.buildArgs": [ ],
+		"cmake.buildArgs": [ "--parallel 12" ],
 		"cmake.configureArgs": [
+			"--preset emc",
 			"-DGUIPP_SAMPLES=ON",
 			"-DVERBOSE=ON"
 		],

@@ -2,7 +2,7 @@
 
 PROJECT=guipp.emc
 INSTALL_PREFIX=~/.local/emc
-CMAKE_CMD="emcmake cmake"
+CMAKE_CMD="cmake --preset emc"
 DEFINES=-DGUIPP_SAMPLES=ON
 
 prepare Debug $@

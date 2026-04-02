@@ -177,6 +177,7 @@ if(NOT TARGET guipp)
     DebugPrint("GUIPP: build with Qt5!")
     # find_package(Qt5Gui REQUIRED)
 
+    set(GUIPP_POPUP_OVERLAPP OFF)
     set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${Qt5Gui_LIBRARIES})
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_QT ${Qt5Gui_DEFINITIONS})
     if(APPLE)
@@ -200,7 +201,7 @@ if(NOT TARGET guipp)
   elseif(EMSCRIPTEN)
     DebugPrint("GUIPP: build for emscripten!")
     set(GUIPP_BUILD_STATIC_MODULE_LIBS ON)
-    set(GUIPP_POPUP_OVERLAPP ON)
+    set(GUIPP_POPUP_OVERLAPP OFF)
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS}
       -DGUIPP_JS
       -DGUIPP_LOOK_AND_FEEL_WIN32

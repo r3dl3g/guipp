@@ -24,6 +24,12 @@
 			"-DGUIPP_SAMPLES=ON",
 			"-DVERBOSE=ON"
 		],
+		"C_Cpp.default.defines": [
+			"GUIPP_X11",
+			"GUIPP_USE_XSHM",
+			"GUIPP_USE_XCB",
+			"GUIPP_USE_XRANDR"
+		],
 		"files.associations": {
 			"*.tcc": "cpp",
 			"*.inl": "cpp",

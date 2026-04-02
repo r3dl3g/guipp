@@ -25,6 +25,9 @@
 			"-DGUIPP_SAMPLES=ON",
 			"-DVERBOSE=ON"
 		],
+		"C_Cpp.default.defines": [
+			"GUIPP_QT"
+		],
 		"files.associations": {
 			"*.tcc": "cpp",
 			"*.inl": "cpp",

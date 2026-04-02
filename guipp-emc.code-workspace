@@ -22,6 +22,9 @@
 			"-DGUIPP_SAMPLES=ON",
 			"-DVERBOSE=ON"
 		],
+		"C_Cpp.default.defines": [
+			"GUIPP_JS"
+		],
 		"files.associations": {
 			"*.tcc": "cpp",
 			"*.inl": "cpp",

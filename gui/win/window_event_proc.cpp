@@ -916,6 +916,14 @@ namespace gui {
             e = {id, type, core::rectangle(0, 0, x, y), 0};
             logging::trace() << "Received event " << e;
 
+          } else if (type == os::js::event_type::Size) {
+
+            int w = event["x"].as<int>();
+            int h = event["y"].as<int>();
+
+            e = {id, type, core::rectangle(0, 0, w, h), 0};
+            logging::trace() << "Received event " << e;
+
           } else if (static_cast<int>(type) == 50) {
 
             logging::trace() << "Received paste event";

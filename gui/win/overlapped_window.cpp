@@ -726,7 +726,7 @@ namespace gui {
       logging::debug() << *this << " Enter modal loop with hot keys";
 
 #ifdef GUIPP_QT
-# ifndef GUIPP_BUILD_FOR_MOBILE
+# if GUIPP_POPUP_OVERLAPP && !GUIPP_BUILD_FOR_MOBILE
       get_os_window()->setModality(Qt::WindowModality::ApplicationModal);
 # endif
 #else

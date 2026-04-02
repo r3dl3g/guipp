@@ -1,4 +1,4 @@
 . ./.project_defines
 
-build Debug
-build Release
+build Debug $@
+build Release $@

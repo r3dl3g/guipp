@@ -173,7 +173,7 @@ namespace gui {
         return;
       }
       if (new_selection != data.selection) {
-        logging::trace() << "menu_data::set_selection(" << new_selection << ") from " << data.selection;
+        logging::trace() << "menu_data::set_selection(" << new_selection << ") from " << data.selection << " in window " << view();
         close_current_child();
         data.selection = new_selection;
         data.hilite = new_selection;
@@ -229,7 +229,7 @@ namespace gui {
         return;
       }
       if (data.hilite != new_hilite) {
-        logging::trace() << "menu_data::set_hilite(" << new_hilite << ") from " << data.hilite;
+        logging::trace() << "menu_data::set_hilite(" << new_hilite << ") from " << data.hilite << " in window " << view();
         const bool was_open = is_open();
         close_current_child();
         data.hilite = new_hilite;
@@ -246,15 +246,17 @@ namespace gui {
     }
 
     void menu_data::clear_hilite () {
-      logging::trace() << "menu_data::clear_hilite()";
-      data.hilite = -1;
-      view().invalidate();
-      logging::trace() << "menu_data::clear_hilite notify_event HILITE_CHANGE_MESSAGE";
-      view().notify_event(detail::HILITE_CHANGE_MESSAGE, false);
+      if (!is_open()) {
+        logging::trace() << "menu_data::clear_hilite() in window " << view();
+        data.hilite = -1;
+        view().invalidate();
+        logging::trace() << "menu_data::clear_hilite notify_event HILITE_CHANGE_MESSAGE";
+        view().notify_event(detail::HILITE_CHANGE_MESSAGE, false);
+      }
     }
 
     void menu_data::close () {
-      logging::trace() << "menu_data::close()";
+      logging::trace() << "menu_data::close() in window " << view();
       data.selection = -1;
       data.hilite = -1;
       view().invalidate();
@@ -278,6 +280,7 @@ namespace gui {
     }
 
     void menu_data::init () {
+      logging::trace() << "menu_data::init()";
       data.selection = -1;
       data.hilite = -1;
 
@@ -365,7 +368,7 @@ namespace gui {
     void menu_data::handle_mouse (bool btn, const core::native_point& gpt){
       if (view().surface_geometry().is_inside(gpt)) {
         const auto idx = get_index_at_point(view().surface_to_client(gpt));
-        logging::trace() << "menu_data::handle_mouse at:" << gpt << " -> index:" << idx << " in window " << view();
+        logging::trace() << "menu_data::handle_mouse at:" << gpt << " -> btn:" << btn << " -> index:" << idx << " in window " << view();
         if (btn) {
           if (idx == get_selection()) {
             clear_selection(event_source::mouse);
@@ -401,6 +404,7 @@ namespace gui {
 
       window.on_lost_focus([&] () {
         if (get_hilite() > -1) {
+          logging::trace() << "menu_data on_lost_focus() -> clear_hilite()";
           clear_hilite();
         }
       });
@@ -625,7 +629,9 @@ namespace gui {
       window.set_state().disable_redraw(false);
       set_hilite(0);
       auto& root = parent.get_overlapped_window();
-      window.create(root, core::rectangle(root.surface_to_popup(pt),
+      auto popup_pt = root.surface_to_popup(pt);
+      logging::trace() << "popup_menu::popup_at(" << pt << " -> " << popup_pt << ") parent: " << parent.position() << " root: " << root.position();
+      window.create(root, core::rectangle(popup_pt,
                                           core::size(calc_width() + 2,
                                             static_cast<core::size::type>(size() * item_height + 2))));
       window.set_visible();

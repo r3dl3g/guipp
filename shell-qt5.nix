@@ -31,6 +31,7 @@ pkgs.mkShell {
     export QT_PLUGIN_PATH=/nix/store/w0cndkj3cpvqsg6xw3gay90xziqa0zzm-qtbase-5.15.18-bin/lib/qt-5.15.18/plugins
     export QT_QPA_PLATFORM_PLUGIN_PATH=/nix/store/w0cndkj3cpvqsg6xw3gay90xziqa0zzm-qtbase-5.15.18-bin/lib/qt-5.15.18/plugins/platforms
     export QT_QPA_PLATFORM=wayland
+    export PLATFORM=qt5
   '';
 
 }

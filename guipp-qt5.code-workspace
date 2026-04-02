@@ -18,7 +18,7 @@
 	],
 	"settings": {
 		"nixEnvSelector.nixFile": "${workspaceFolder}/shell-qt5.nix",
-  		"cmake.buildDirectory": "${userHome}/.cache/build/${workspaceFolderBasename}.qt5/${buildType}",
+  		"cmake.buildDirectory": "${userHome}/.cache/build/${workspaceFolderBasename}/qt5/${buildType}",
 		"cmake.buildArgs": [ "--parallel 12" ],
 		"cmake.configureArgs": [
 			"-DGUIPP_USE_QT5=ON",

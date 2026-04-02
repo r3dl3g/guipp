@@ -1,6 +1,6 @@
 . ./.project_defines
 
-BUILD_PREFIX=~/.cache/build/static
+PROJECT=guipp/static
 INSTALL_PREFIX=~/.local/static
 
 install Debug $@

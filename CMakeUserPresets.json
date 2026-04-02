@@ -3,7 +3,7 @@
     "configurePresets": [
         {
             "name": "gcc_x11_debug",
-            "displayName": "GCC 14.3.0 x86_64 debug",
+            "displayName": "GCC 14.3.0 x86_64 X11 debug",
             "description": "Using compilers: C = /nix/store/0j1ajvl2qwwb9n5a91hzd0j98fk9fa3k-gcc-wrapper-14.3.0/bin/gcc, CXX = /nix/store/0j1ajvl2qwwb9n5a91hzd0j98fk9fa3k-gcc-wrapper-14.3.0/bin/g++",
             "binaryDir": "$env{HOME}/.cache/build/guipp/x11/Debug",
             "generator": "Unix Makefiles",
@@ -16,9 +16,35 @@
         },
         {
             "name": "gcc_X11_release",
-            "displayName": "GCC 14.3.0 x86_64 release",
+            "displayName": "GCC 14.3.0 x86_64 X11 release",
             "description": "Using compilers: C = /nix/store/0j1ajvl2qwwb9n5a91hzd0j98fk9fa3k-gcc-wrapper-14.3.0/bin/gcc, CXX = /nix/store/0j1ajvl2qwwb9n5a91hzd0j98fk9fa3k-gcc-wrapper-14.3.0/bin/g++",
             "binaryDir": "$env{HOME}/.cache/build/guipp/x11/Release",
+            "generator": "Unix Makefiles",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
+                "CMAKE_C_COMPILER": "/nix/store/0j1ajvl2qwwb9n5a91hzd0j98fk9fa3k-gcc-wrapper-14.3.0/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/nix/store/0j1ajvl2qwwb9n5a91hzd0j98fk9fa3k-gcc-wrapper-14.3.0/bin/g++",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "gcc_qt5_debug",
+            "displayName": "GCC 14.3.0 x86_64 Qt5 debug",
+            "description": "Using compilers: C = /nix/store/0j1ajvl2qwwb9n5a91hzd0j98fk9fa3k-gcc-wrapper-14.3.0/bin/gcc, CXX = /nix/store/0j1ajvl2qwwb9n5a91hzd0j98fk9fa3k-gcc-wrapper-14.3.0/bin/g++",
+            "binaryDir": "$env{HOME}/.cache/build/guipp/qt5/Debug",
+            "generator": "Unix Makefiles",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
+                "CMAKE_C_COMPILER": "/nix/store/0j1ajvl2qwwb9n5a91hzd0j98fk9fa3k-gcc-wrapper-14.3.0/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/nix/store/0j1ajvl2qwwb9n5a91hzd0j98fk9fa3k-gcc-wrapper-14.3.0/bin/g++",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "gcc_qt5_release",
+            "displayName": "GCC 14.3.0 x86_64 Qt5 release",
+            "description": "Using compilers: C = /nix/store/0j1ajvl2qwwb9n5a91hzd0j98fk9fa3k-gcc-wrapper-14.3.0/bin/gcc, CXX = /nix/store/0j1ajvl2qwwb9n5a91hzd0j98fk9fa3k-gcc-wrapper-14.3.0/bin/g++",
+            "binaryDir": "$env{HOME}/.cache/build/guipp/qt5/Release",
             "generator": "Unix Makefiles",
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
@@ -53,14 +79,26 @@
     "buildPresets": [
         {
             "name": "gcc_x11_debug",
-            "displayName": "GCC 14.3.0 x86_64 debug",
+            "displayName": "GCC 14.3.0 x86_64 X11 debug",
             "configurePreset": "gcc_x11_debug",
             "configuration": "Debug"
         },
         {
             "name": "gcc_X11_release",
-            "displayName": "GCC 14.3.0 x86_64 release",
+            "displayName": "GCC 14.3.0 x86_64 X11 release",
             "configurePreset": "gcc_X11_release",
+            "configuration": "Release"
+        },
+        {
+            "name": "gcc_qt5_debug",
+            "displayName": "GCC 14.3.0 x86_64 Qt5 debug",
+            "configurePreset": "gcc_qt5_debug",
+            "configuration": "Debug"
+        },
+        {
+            "name": "gcc_qt5_release",
+            "displayName": "GCC 14.3.0 x86_64 Qt5 release",
+            "configurePreset": "gcc_qt5_release",
             "configuration": "Release"
         },
         {

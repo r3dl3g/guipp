@@ -22,6 +22,7 @@ pkgs.mkShell {
     gcc
     gdb
     git
+    tig
     pkg-config
   ];
 

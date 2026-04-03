@@ -37,6 +37,20 @@
         // 2. Worker erstellen
         const worker = new Worker('@PROJECT_NAME@-worker.js');
 
+        function resizeCanvas() {
+            canvas.width = window.innerWidth - 20;
+            canvas.height = window.innerHeight - 20;
+
+            console.log("Canvas resize: " + canvas.width + ", " + canvas.height);
+            
+            // Redraw content (we'll implement this next)  
+            worker.postMessage({
+                type: 11,
+                x: canvas.width,
+                y: canvas.height
+            });
+        }
+
         function calc_state (e) {
             return (e.ctrlKey ? 0x10 : 0) | (e.shiftKey ? 0x20 : 0) | (e.altKey ? 0x40 : 0) | (e.metaKey ? 0x80 : 0);
         };
@@ -129,6 +143,8 @@
         canvas.addEventListener('mouseleave', (e) => {
             worker.postMessage({ type: 15 });
         });
+
+        window.addEventListener('resize', resizeCanvas);
 
         // Optional: Auch Tastatur-Events weiterleiten
         window.addEventListener('keydown', (e) => {

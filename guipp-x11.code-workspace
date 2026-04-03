@@ -24,6 +24,9 @@
 			"-DGUIPP_SAMPLES=ON",
 			"-DVERBOSE=ON"
 		],
+                "cmake.configureEnvironment": {
+                        "preset": "gcc_x11_debug"
+                },
 		"C_Cpp.default.defines": [
 			"GUIPP_X11",
 			"GUIPP_USE_XSHM",

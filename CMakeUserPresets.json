@@ -88,6 +88,40 @@
                 "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local/emc",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
+        },
+        {
+            "name": "mingw_win64_debug",
+            "displayName": "MinGW x86_64 Debug (Nix Cross)",
+            "description": "Cross-compiling for Windows using Nix pkgsCross.mingwW64",
+            "binaryDir": "$env{HOME}/.cache/build/guipp/win32/Debug",
+            "generator": "Unix Makefiles",
+            "cacheVariables": {
+                "CMAKE_SYSTEM_NAME": "Windows",
+                "CMAKE_SYSTEM_PROCESSOR": "x86_64",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local/win32",
+                "CMAKE_FIND_ROOT_PATH_MODE_PROGRAM": "NEVER",
+                "CMAKE_FIND_ROOT_PATH_MODE_LIBRARY": "ONLY",
+                "CMAKE_FIND_ROOT_PATH_MODE_INCLUDE": "ONLY",
+                "CMAKE_FIND_ROOT_PATH_MODE_PACKAGE": "ONLY"
+            }
+        },
+        {
+            "name": "mingw_win64_release",
+            "displayName": "MinGW x86_64 Release (Nix Cross)",
+            "description": "Cross-compiling for Windows using Nix pkgsCross.mingwW64",
+            "binaryDir": "$env{HOME}/.cache/build/guipp/win32/Release",
+            "generator": "Unix Makefiles",
+            "cacheVariables": {
+                "CMAKE_SYSTEM_NAME": "Windows",
+                "CMAKE_SYSTEM_PROCESSOR": "x86_64",
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local/win32",
+                "CMAKE_FIND_ROOT_PATH_MODE_PROGRAM": "NEVER",
+                "CMAKE_FIND_ROOT_PATH_MODE_LIBRARY": "ONLY",
+                "CMAKE_FIND_ROOT_PATH_MODE_INCLUDE": "ONLY",
+                "CMAKE_FIND_ROOT_PATH_MODE_PACKAGE": "ONLY"
+            }
         }
     ],
     "buildPresets": [
@@ -137,6 +171,18 @@
             "name": "emc_release",
             "displayName": "Emscripten release",
             "configurePreset": "emc_release",
+            "configuration": "Release"
+        },
+        {
+            "name": "mingw_win64_debug",
+            "displayName": "Mingw Win64 debug",
+            "configurePreset": "mingw_win64_debug",
+            "configuration": "Debug"
+        },
+        {
+            "name": "mingw_win64_release",
+            "displayName": "Mingw Win64 release",
+            "configurePreset": "mingw_win64_release",
             "configuration": "Release"
         }
     ]

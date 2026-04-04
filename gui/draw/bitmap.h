@@ -26,6 +26,14 @@
 namespace gui {
 
   namespace draw {
+    class GUIPP_DRAW_EXPORT basic_map;
+  }
+
+  namespace native {
+    void copy_bitmap (draw::basic_map& lhs, const draw::basic_map& rhs);
+  }
+
+  namespace draw {
 
     // --------------------------------------------------------------------------
     class GUIPP_DRAW_EXPORT basic_map {
@@ -65,6 +73,7 @@ namespace gui {
 
       void create (const bitmap_info& bmi);
 
+      friend void gui::native::copy_bitmap(basic_map& lhs, const basic_map& rhs);
       void set_os_bitmap (os::bitmap);
 
     private:

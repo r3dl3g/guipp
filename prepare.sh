@@ -14,4 +14,4 @@ elif [ "$PLATFORM" == "win32" ]; then
 fi
 
 prepare Debug $@
-#prepare Release $@
+prepare Release $@

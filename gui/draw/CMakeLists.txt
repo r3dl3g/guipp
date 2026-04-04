@@ -22,6 +22,10 @@ if(NOT TARGET ${PROJECT_NAME})
       brush.cpp
       diagram.cpp
       bitmap.cpp
+      bitmap_js.cpp
+      bitmap_qt.cpp
+      bitmap_win32.cpp
+      bitmap_x11.cpp
       font_win32.cpp
       font_x11.cpp
       font_qt.cpp

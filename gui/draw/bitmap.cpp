@@ -34,438 +34,18 @@
 #include "gui/draw/use.h"
 
 
-#ifdef GUIPP_X11
-
-//# define USE_XSHM
-
-# ifdef USE_XSHM
-#  include <X11/Xlib.h>
-#  include <sys/ipc.h>
-#  include <sys/shm.h>
-#  include <X11/extensions/XShm.h>
-# endif // USE_XSHM
-
-#endif // GUIPP_X11
-
-#ifdef GUIPP_QT
-
-#include <QtGui/QBitmap>
-
-#endif // GUIPP_QT
-
-#ifdef GUIPP_JS
-#include <emscripten/bind.h>
-
-namespace std {
-  ostream& operator<< (ostream& os, const emscripten::val& v) {
-    return os << (v.isUndefined() ? "undefined": "defined")  << " and " << (v.isNull() ? "null" : "not null");
-  }
-}
-
-#endif // GUIPP_JS
-
-
 namespace gui {
 
-  namespace {
+  namespace native {
 
     os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data = nullptr);
     void free_bitmap (os::bitmap& id);
     void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi);
     void bitmap_get_data (const os::bitmap& id, blob& data, draw::bitmap_info& bmi);
     draw::bitmap_info bitmap_get_info (const os::bitmap& id);
+    void copy_bitmap (draw::basic_map& lhs, const draw::basic_map& rhs);
 
-#ifdef GUIPP_X11
-//    void pixmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi);
-//    void pixmap_get_data (os::bitmap id, blob& data, draw::bitmap_info& bmi);
-
-# ifdef USE_XSHM
-    std::map<os::bitmap, std::pair<XShmSegmentInfo, draw::bitmap_info>> pixmaps;
-
-    os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data) {
-      auto dpy = core::global::get_instance();
-      auto drawable = DefaultRootWindow(dpy);
-
-      XShmSegmentInfo shminfo = {0};
-
-      size_t sz = bmi.mem_size();
-      shminfo.shmid = shmget(IPC_PRIVATE, sz, IPC_CREAT | 0777);
-      shminfo.readOnly = False;
-      shminfo.shmaddr = reinterpret_cast<char*>(shmat(shminfo.shmid, 0, 0));
-
-      if (data) {
-        memcpy(shminfo.shmaddr, data, sz);
-      }
-
-      Pixmap id = XShmCreatePixmap(dpy, drawable, shminfo.shmaddr, &shminfo, bmi.width, bmi.height, bmi.depth());
-
-      int res = XShmAttach(dpy, &shminfo);
-
-      pixmaps[id] = std::make_pair(shminfo, bmi);
-
-      return id;
-    }
-
-    void free_bitmap (os::bitmap& id) {
-      auto display = core::global::get_instance();
-
-      XFreePixmap(display, id);
-
-      auto i = pixmaps.find(id);
-      if (i != pixmaps.end()) {
-        XShmSegmentInfo& shminfo = i->second.first;
-        int res = XShmDetach(display, &shminfo);
-        pixmaps.erase(i);
-      }
-    }
-
-    draw::bitmap_info bitmap_get_info (const os::bitmap& id) {
-      if (id) {
-        auto i = pixmaps.find(id);
-        if (i != pixmaps.end()) {
-          return i->second.second;
-        }
-      }
-      return {0, 0, 0, pixel_format_t::Undefined};
-    }
-
-    void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi) {
-      auto i = pixmaps.find(id);
-      if (i != pixmaps.end()) {
-        XShmSegmentInfo& shminfo = i->second.first;
-        memcpy(shminfo.shmaddr, data, bmi.mem_size());
-        i->second.second = bmi;
-      }
-    }
-
-    void bitmap_get_data (const os::bitmap& id, blob& data, draw::bitmap_info& bmi) {
-      auto i = pixmaps.find(id);
-      if (i != pixmaps.end()) {
-        XShmSegmentInfo& shminfo = i->second.first;
-        bmi = i->second.second;
-        byteptr d = reinterpret_cast<byteptr>(shminfo.shmaddr);
-        data.assign(d, d + bmi.mem_size());
-      }
-    }
-
-
-# else // !USE_XSHM
-
-    os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data) {
-      auto display = core::global::get_instance();
-      auto visual = DefaultRootWindow(display);
-      const auto depth = bmi.bits_per_pixel();
-      os::bitmap id = XCreatePixmap(display, visual, bmi.width, bmi.height, depth);
-      switch (id) {
-        case BadValue:
-        case BadDrawable:
-        case BadAlloc:
-          throw std::runtime_error(ostreamfmt("XCreatePixmap failed with " << id));
-        return 0;
-      
-        default:
-          if (data) {
-            bitmap_put_data(id, data, bmi);
-          }
-        return id;
-      }
-    }
-
-    void free_bitmap (os::bitmap& id) {
-      auto display = core::global::get_instance();
-      int result = XFreePixmap(display, id);
-      if (result == BadPixmap) {
-          throw std::runtime_error(ostreamfmt("XCreatePixmap XFreePixmap with " << result));
-      }
-    }
-
-    draw::bitmap_info bitmap_get_info (const os::bitmap& id) {
-      draw::bitmap_info bmi;
-      if (id) {
-        Window root = 0;
-        int x, y;
-        unsigned int w, h, b, d;
-        auto display = core::global::get_instance();
-        Status st = XGetGeometry(display, id, &root, &x, &y, &w, &h, &b, &d);
-        switch (st) {
-          case BadDrawable:
-          case BadWindow:
-            throw std::runtime_error(ostreamfmt("XGetGeometry failed with " << st));
-          break;
-          
-          default:
-            bmi = {
-              static_cast<uint32_t>(w),
-              static_cast<uint32_t>(h),
-              get_pixel_format(d, core::byte_order_t(ImageByteOrder(display)))
-            };
-          break;
-        }
-      }
-      return bmi;
-    }
-
-    void bitmap_get_data (const os::bitmap& id, blob& data, draw::bitmap_info& bmi) {
-      if (id) {
-        Window root = 0;
-        int x, y;
-        unsigned int w, h, b, d;
-        auto display = core::global::get_instance();
-        Status st = XGetGeometry(display, id, &root, &x, &y, &w, &h, &b, &d);
-        switch (st) {
-          case BadDrawable:
-          case BadWindow:
-            throw std::runtime_error(ostreamfmt("XGetGeometry failed with " << st));
-          break;
-          
-          default:
-          break;
-        }
-        XImage* im = XGetImage(display, id, 0, 0, w, h, AllPlanes, ZPixmap);
-        if (im) {
-          bmi = {
-            static_cast<uint32_t>(im->width),
-            static_cast<uint32_t>(im->height),
-            static_cast<uint32_t>(im->bytes_per_line),
-            get_pixel_format(im->bits_per_pixel, core::byte_order_t(im->byte_order))
-          };
-          data.assign((const byte*)im->data, (const byte*)(im->data + bmi.mem_size()));
-          XDestroyImage(im);
-        } else {
-          throw std::runtime_error("get image failed");
-        }
-      }
-    }
-
-    int calc_padding (int bytes_per_line, int width, int bits_per_pixel) {
-      int rest = bytes_per_line - width * (bits_per_pixel / 8);
-      switch (rest) {
-        case 0: return 8;
-        case 1: return 16;
-        default: return 32;
-      }
-    }
-
-    void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi) {
-      auto display = core::global::get_instance();
-      auto gc = core::native::create_graphics_context(id);
-
-      core::byte_order_t byte_order = get_pixel_format_byte_order(bmi.pixel_format);
-      const int bpl = static_cast<int>(bmi.bytes_per_line);
-      const int width = static_cast<int>(bmi.width);
-      const int height = static_cast<int>(bmi.height);
-      const int bpp = bmi.bits_per_pixel();
-      const int pad = calc_padding(bpl, width, bpp);
-      char *idata = const_cast<char*>(reinterpret_cast<const char*>(data));
-
-      XImage im {
-        width, height,                  /* size of image */
-        0,                              /* number of pixels offset in X direction */
-        ZPixmap,                        /* XYBitmap, XYPixmap, ZPixmap */
-        idata,                          /* pointer to image data */
-        static_cast<bool>(byte_order),  /* data byte order, LSBFirst, MSBFirst */
-        BitmapUnit(display),            /* quant. of scanline 8, 16, 32 */
-        BitmapBitOrder(display),        /* LSBFirst, MSBFirst */
-        pad, //BitmapPad(display),      /* 8, 16, 32 either XY or ZPixmap */
-        bpp,                            /* depth of image */
-        bpl,                            /* accelarator to next line */
-        bpp                             /* bits per pixel (ZPixmap) */
-      };
-
-      Status st = XInitImage(&im);
-      if (st) {
-        int res = XPutImage(display, id, gc, &im, 0, 0, 0, 0, bmi.width, bmi.height);
-        core::native::delete_graphics_context(gc);
-      } else {
-        throw std::runtime_error("XInitImage failed");
-      }
-    }
-
-# endif // !USE_XSHM
-
-#endif // !GUIPP_X11
-
-#if GUIPP_WIN
-
-    os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data) {
-      return CreateBitmap(bmi.width, bmi.height, 1, bmi.bits_per_pixel(), data);
-    }
-
-    void free_bitmap (os::bitmap& id) {
-      DeleteObject(id);
-    }
-
-    draw::bitmap_info bitmap_get_info (const os::bitmap& id) {
-      if (id) {
-        BITMAP bmp;
-        GetObject(id, sizeof (BITMAP), &bmp);
-        return {
-          static_cast<uint32_t>(bmp.bmWidth),
-          static_cast<uint32_t>(bmp.bmHeight),
-          static_cast<uint32_t>(bmp.bmWidthBytes),
-          get_pixel_format(bmp.bmBitsPixel, core::os::bitmap_byte_order)
-        };
-      }
-      return {};
-    }
-
-    void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi) {
-      SetBitmapBits(id, (DWORD)bmi.mem_size(), data);
-    }
-
-    void bitmap_get_data (const os::bitmap& id, blob& data, draw::bitmap_info& bmi) {
-      bmi = bitmap_get_info(id);
-      data.resize(bmi.height * bmi.bytes_per_line);
-      int ret = GetBitmapBits(id, (LONG)data.size(), data.data());
-      if (ret != data.size()) {
-        throw std::runtime_error("get image data failed");
-      }
-    }
-
-#endif // GUIPP_WIN
-
-#ifdef GUIPP_QT
-    os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr) {
-      if (bmi.bits_per_pixel() == 1) {
-        return new QBitmap(bmi.width, bmi.height);
-      } else {
-        return new QPixmap(bmi.width, bmi.height);
-      }
-    }
-
-    void free_bitmap (os::bitmap& id) {
-      if (id) {
-        delete id;
-        id = nullptr;
-      }
-    }
-
-    draw::bitmap_info bitmap_get_info (const os::bitmap& id) {
-      if (id) {
-        pixel_format_t fmt = pixel_format_t::RGBA;
-        const auto depth = id->depth();
-        fmt = gui::get_pixel_format(depth, core::os::bitmap_byte_order);
-        return draw::bitmap_info(id->width(), id->height(), fmt);
-      }
-      return {};
-    }
-
-    void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi) {
-      if (id) {
-        const auto fmt = draw::bitmap_info::convert(bmi.pixel_format);
-        if (bmi.pixel_format == pixel_format_t::BW) {
-          QImage img((const uchar *)data, bmi.width, bmi.height, bmi.bytes_per_line, fmt);
-          img.setColorTable({ QColor(Qt::white).rgb(), QColor(Qt::black).rgb() });
-//          img.setColorTable({ QColor(Qt::black).rgb(), QColor(Qt::white).rgb() });
-          *id = QBitmap::fromImage(img);
-        } else {
-          *id = QPixmap::fromImage(QImage((const uchar *)data, bmi.width, bmi.height, bmi.bytes_per_line, fmt));
-        }
-      }
-    }
-
-    void bitmap_get_data (const os::bitmap& id, blob& data, draw::bitmap_info& bmi) {
-      if (id) {
-        QImage img = id->toImage();
-        const auto sz = img.size();
-        auto fmt = draw::bitmap_info::convert(img.format());
-        bmi = draw::bitmap_info(sz.width(), sz.height(), img.bytesPerLine(), fmt);
-
-        const uchar* bits = img.constBits();
-        data.assign(bits, bits +
-#if QT_VERSION > QT_VERSION_CHECK(5, 13, 0)
-                    img.sizeInBytes());
-#else
-                    img.byteCount());
-#endif
-//        if (fmt == pixel_format_t::BW) {
-//          for (byte& b : data) {
-//            b = ~b;
-//          }
-//        }
-      } else {
-        bmi = {};
-        data.clear();
-      }
-    }
-#endif // GUIPP_QT
-
-#ifdef GUIPP_JS
-
-    using namespace emscripten;
-
-
-    os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data) {
-      auto img = val::global("OffscreenCanvas").new_(bmi.width, bmi.height);
-      logging::trace() << "OffscreenCanvas is " << img;
-      if (data) {
-        bitmap_put_data(img, data, bmi);
-      }
-      return img;
-    }
-
-    void free_bitmap (os::bitmap& id) {
-    }
-    
-    void bitmap_put_data (os::bitmap& id, cbyteptr dataptr, const draw::bitmap_info& bmi) {
-      auto ctx = core::native::create_graphics_context(id);
-
-      logging::trace() << "2D-Context is " << ctx;
-
-      val memoryView = val(typed_memory_view(bmi.mem_size(), dataptr));
-
-      logging::trace() << "memoryView is " << memoryView;
-
-      val uint8ClampedArray = val::global("Uint8ClampedArray").new_(memoryView);
-
-      logging::trace() << "Uint8ClampedArray is " << uint8ClampedArray;
-
-      val imageData = val::global("ImageData").new_(uint8ClampedArray, bmi.width, bmi.height);
-
-      logging::trace() << "ImageData is " << imageData;
-      
-      ctx.call<void>("putImageData", imageData, 0, 0);
-    }
-    
-    void bitmap_get_data (const os::bitmap& id, blob& dataptr, draw::bitmap_info& bmi) {
-      auto ctx = core::native::create_graphics_context(id);
-
-      logging::trace() << "2D-Context is " << ctx;
-
-      dataptr.resize(bmi.mem_size());
-
-      val imageData = ctx.call<val>("getImageData", 0, 0, bmi.width, bmi.height);
-
-      logging::trace() << "ImageData is " << imageData;
-
-      val dataArray = imageData["data"];
-
-      logging::trace() << "dataArray is " << dataArray;
-
-      // Effizientes Kopieren von JS-TypedArray in C++ Vektor
-      val memoryView = val(typed_memory_view(dataptr.size(), dataptr.data()));
-
-      logging::trace() << "memoryView is " << memoryView;
-
-      memoryView.call<void>("set", dataArray);
-    }
-    
-    draw::bitmap_info bitmap_get_info (const os::bitmap& id) {
-      logging::trace() << "bitmap_get_info is " << id;
-
-      val width = id["width"];
-      logging::trace() << "width is " << width;
-
-      val height = id["height"];
-      logging::trace() << "height is " << height;
-
-      uint32_t w = width.as<int>();
-      uint32_t h = height.as<int>();
-      return {w, h, pixel_format_t::RGBA};
-    }
-#endif // GUIPP_JS
-
-  }
+  } // namespace native
 
   namespace draw {
 
@@ -478,28 +58,13 @@ namespace gui {
         }
       }
       return *this;
-    }
+    }    
 
     basic_map& basic_map::operator= (const basic_map& rhs) {
       if (&rhs != this) {
         clear();
         if (rhs) {
-#ifdef GUIPP_WIN
-          set_os_bitmap((os::bitmap)CopyImage(rhs.get_os_bitmap(), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE));
-#else
-          bitmap_info bmi = rhs.get_info();
-          create(bmi);
-#ifdef GUIPP_QT
-          *get_os_bitmap() = *rhs.get_os_bitmap();
-#elif GUIPP_JS
-          logging::trace() << "rhs.get_os_bitmap() is " << rhs.get_os_bitmap();
-          auto imageData = rhs.get_os_bitmap().call<val>("getImageData", 0, 0, bmi.width, bmi.height);
-          logging::trace() << "ImageData is " << imageData;
-          id.call<void>("putImageData", imageData, 0, 0);
-#else
-          graphics(*this).copy_from((os::drawable)rhs, core::native_rect(bmi.size()));
-#endif
-#endif
+          native::copy_bitmap(*this, rhs);
         }
       }
       return *this;
@@ -525,13 +90,13 @@ namespace gui {
 
     void basic_map::clear () {
       if (is_valid()) {
-        free_bitmap(get_os_bitmap());
+        native::free_bitmap(get_os_bitmap());
         set_os_bitmap(IF_JS_ELSE(emscripten::val::undefined(), 0));
       }
     }
 
     bitmap_info basic_map::get_info () const {
-      return bitmap_get_info(get_os_bitmap());
+      return native::bitmap_get_info(get_os_bitmap());
     }
 
     core::native_size basic_map::native_size () const {
@@ -554,7 +119,7 @@ namespace gui {
         }
       }
       clear();
-      set_os_bitmap(create_bitmap(rhs));
+      set_os_bitmap(native::create_bitmap(rhs));
       if (!is_valid()) {
         throw std::runtime_error("create image failed");
       }
@@ -600,12 +165,12 @@ namespace gui {
         create(bmi.size());
         if (core::os::bitmap_bit_white) {
           const auto raw = rhs.get_data();
-          bitmap_put_data(get_os_bitmap(), raw.raw_data().data(0, bmi.mem_size()), bmi);
+          native::bitmap_put_data(get_os_bitmap(), raw.raw_data().data(0, bmi.mem_size()), bmi);
         } else {
           bwmap data = rhs;
           data.invert();
           const auto raw = data.get_data();
-          bitmap_put_data(get_os_bitmap(), raw.raw_data().data(0, bmi.mem_size()), bmi);
+          native::bitmap_put_data(get_os_bitmap(), raw.raw_data().data(0, bmi.mem_size()), bmi);
         }
       } else {
         clear();
@@ -615,7 +180,7 @@ namespace gui {
     bwmap bitmap::get () const {
       blob data;
       bitmap_info bmi;
-      bitmap_get_data(get_os_bitmap(), data, bmi);
+      native::bitmap_get_data(get_os_bitmap(), data, bmi);
       bwmap bmp(std::move(data), std::move(bmi));
       if (!core::os::bitmap_bit_white) {
         bmp.invert();
@@ -683,13 +248,13 @@ namespace gui {
 
     void pixmap::put_raw (cbyteptr data, const draw::bitmap_info& bmi) {
       if (is_valid()) {
-        bitmap_put_data(get_os_bitmap(), data, bmi);
+        native::bitmap_put_data(get_os_bitmap(), data, bmi);
       }
     }
 
     void pixmap::get_raw (blob& data, draw::bitmap_info& bmi) const {
       if (is_valid()) {
-        bitmap_get_data(get_os_bitmap(), data, bmi);
+        native::bitmap_get_data(get_os_bitmap(), data, bmi);
       }
     }
 

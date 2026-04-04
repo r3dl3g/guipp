@@ -39,7 +39,7 @@ namespace gui {
       gui::os::point_type y0 = std::max(gui::os::get_y(lhs),  gui::os::get_y(rhs));
       gui::os::point_type x1 = std::min(gui::os::get_x2(lhs), gui::os::get_x2(rhs));
       gui::os::point_type y1 = std::min(gui::os::get_y2(lhs), gui::os::get_y2(rhs));
-      return (x1 > x0) && (y1 > y0)? gui::os::mk_rectangle(x0, y0, x1, y1) : gui::os::rectangle();
+      return (x1 > x0) && (y1 > y0)? gui::os::mk_rectangle(x0, y0, x1 - x0, y1 - y0) : gui::os::rectangle();
     }
 
     // --------------------------------------------------------------------------

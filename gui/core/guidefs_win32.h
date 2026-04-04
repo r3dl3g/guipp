@@ -96,8 +96,8 @@ namespace gui {
     inline size_type get_width (const rectangle& r) { return r.right - r.left; }
     inline size_type get_height (const rectangle& r) { return r.bottom - r.top; }
 
-    inline rectangle mk_rectangle (point_type x, point_type y, point_type x2, point_type y2) {
-      return rectangle{x, y, x2, y2};
+    inline rectangle mk_rectangle (point_type x, point_type y, size_type w, size_type h) {
+      return rectangle{x, y, x + w, y + h};
     }
 
     typedef UINT event_id;

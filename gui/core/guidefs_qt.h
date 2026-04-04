@@ -114,8 +114,8 @@ namespace gui {
     inline size_type get_width (const rectangle& r) { return r.width(); }
     inline size_type get_height (const rectangle& r) { return r.height(); }
 
-    inline rectangle mk_rectangle (point_type x, point_type y, point_type x2, point_type y2) {
-      return rectangle{point{x, y}, point{x2, y2}};
+    inline rectangle mk_rectangle (point_type x, point_type y, size_type w, size_type h) {
+      return rectangle{point{x, y}, size{w, h}};
     }
 
 

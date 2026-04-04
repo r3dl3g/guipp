@@ -546,20 +546,7 @@ namespace gui {
 
     template<typename T, typename S, coordinate_system C>
     gui::os::rectangle basic_rectangle<T, S, C>::os (const context& ctx) const {
-      return {
-#if defined(GUIPP_WIN) || defined(GUIPP_JS)
-        os_x(ctx), os_y(ctx),
-        os_x2(ctx), os_y2(ctx)
-#elif GUIPP_X11
-        os_x(ctx), os_y(ctx),
-        os_width(), os_height()
-#elif GUIPP_QT
-        top_left().os(ctx), size().os()
-#else
-# error Unknown target system: gui::os::rectangle basic_rectangle<T, S, C>::os () const
-#endif // GUIPP_QT
-
-      };
+      return gui::os::mk_rectangle(os_x(ctx), os_y(ctx), os_width(), os_height());
     }
 
     template<typename T, typename S, coordinate_system C>
@@ -663,7 +650,7 @@ namespace gui {
       point_type y0 = std::max(y(), rhs.y());
       point_type x1 = std::min(x2(), rhs.x2());
       point_type y1 = std::min(y2(), rhs.y2());
-      return {point_t{x0, y0}, point_t{x1, y1}};
+      return (x1 > x0) && (y1 > y0) ? {point_t{x0, y0}, point_t{x1, y1}} : zero;
     }
 
     template<typename T, typename S, coordinate_system C>

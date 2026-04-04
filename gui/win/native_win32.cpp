@@ -234,12 +234,12 @@ namespace gui {
       }
 
       void invalidate (os::window id, const core::native_rect& r) {
-        RECT rect = gui::os::mk_rectangle(r.x(), r.y(), r.x2(), r.y2());
+        RECT rect = r.os();
         InvalidateRect(id, &rect, FALSE);
       }
 
       void redraw (window&, os::window id, const core::native_rect& r) {
-        RECT rect = gui::os::mk_rectangle(r.x(), r.y(), r.x2(), r.y2());
+        RECT rect = r.os();
         RedrawWindow(id, &rect, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
       }
 
@@ -270,7 +270,7 @@ namespace gui {
 
       core::rectangle adjust_overlapped_area (const core::rectangle& r, const class_info& type) {
         const auto nr = core::global::scale_to_native(r);
-        RECT rect = gui::os::mk_rectangle(nr.x(), nr.y(), nr.x2(), nr.y2());
+        RECT rect = nr.os();
         AdjustWindowRectEx(&rect, type.get_style(), FALSE, type.get_ex_style());
         return core::global::scale_from_native(core::native_rect(os::get_x(rect), os::get_y(rect),
                                                                  os::get_width(rect), os::get_height(rect)));

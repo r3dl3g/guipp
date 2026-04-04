@@ -106,8 +106,8 @@ namespace gui {
     inline size_type get_width (const rectangle& r) { return r.width; }
     inline size_type get_height (const rectangle& r) { return r.height; }
 
-    inline rectangle mk_rectangle (point_type x, point_type y, point_type x2, point_type y2) {
-      return rectangle{x, y, static_cast<size_type>(x2 - x), static_cast<size_type>(y2 - y)};
+    inline rectangle mk_rectangle (point_type x, point_type y, size_type w, size_type h) {
+      return rectangle{x, y, w, h};
     }
 
     typedef int event_id;

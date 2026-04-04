@@ -958,7 +958,7 @@ namespace gui {
       return list;
     }
 
-#endif
+#endif // GUIPP_JS
 
     // --------------------------------------------------------------------------
 
@@ -1027,7 +1027,7 @@ namespace gui {
       return draw_streched(bmp, core::native_rect(r.os(context()), context()), core::global::scale_to_native(pt), filter);
     }
 
-#if !GUIPP_QT && !GUIPP_JS && !GUIPP_X11
+#if GUIPP_WIN
     graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) {
       if (bmp) {
         if (bmp.get_info().bits_per_pixel() == depth()) {
@@ -1067,7 +1067,7 @@ namespace gui {
       }
       return *this;
     }
-#endif // GUIPP_QT
+#endif // GUIPP_WIN
 
     // --------------------------------------------------------------------------
     paint::paint (const painter& f)

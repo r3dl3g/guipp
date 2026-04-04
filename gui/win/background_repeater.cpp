@@ -16,7 +16,6 @@
 
 #if GUIPP_JS
 #include <emscripten/eventloop.h>
-#include <emscripten/eventloop.h>
 #endif
 
 // --------------------------------------------------------------------------

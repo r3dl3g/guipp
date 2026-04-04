@@ -7,6 +7,7 @@ set(project_version ${CMAKE_MATCH_1})
 message("Building gui version: ${project_version}")
 
 project("gui" LANGUAGES CXX VERSION ${project_version})
+enable_language(CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
@@ -227,6 +228,15 @@ if(NOT TARGET guipp)
       #-sUSE_PTHREADS=1
       #      -DEXPORTED_RUNTIME_METHODS='[cwrap,ccall,HEAPU8]'
 
+  elseif(CMAKE_CXX_PLATFORM_ID STREQUAL MinGW)
+    DebugPrint("GUIPP: build with MinGW for Win32!")
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_WIN -DUSE_MINGW -D_WIN32_WINNT=0x0601)
+    set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++ -static)
+    set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} mingw32)
+  elseif(WIN32)
+    DebugPrint("GUIPP: build for Win32!")
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_WIN)
+    set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} Shcore)
   elseif(UNIX)
     DebugPrint("GUIPP: build for Unix!")
     find_package(X11 REQUIRED)
@@ -317,15 +327,6 @@ if(NOT TARGET guipp)
     endif(X11_FOUND)
     #        set(GUIPP_SYS_LIBRARIES X11 Xft fontconfig xcb Xdmcp bsd dl freetype Xrender expat Xau z png16)
 
-  elseif(CMAKE_CXX_PLATFORM_ID STREQUAL MinGW)
-    DebugPrint("GUIPP: build with MinGW for Win32!")
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_WIN -DUSE_MINGW -D_WIN32_WINNT=0x0601)
-    set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++ -static)
-    set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} mingw32)
-  elseif(WIN32)
-    DebugPrint("GUIPP: build for Win32!")
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_WIN)
-    set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} Shcore)
   endif()
 
   if (GUIPP_POPUP_OVERLAPP)

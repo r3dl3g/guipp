@@ -7,6 +7,9 @@ if [ -n "$PLATFORM" ]; then
   PROJECT=$PROJECT/$PLATFORM
 fi
 INSTALL_PREFIX=~/.local
+if [ -n "$PLATFORM" ]; then
+  INSTALL_PREFIX=~/.local/$PLATFORM
+fi
 BUILD_PREFIX=~/.cache/build
 PARALLEL=$(nproc)
 DEFINES=

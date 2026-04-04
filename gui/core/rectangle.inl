@@ -650,7 +650,7 @@ namespace gui {
       point_type y0 = std::max(y(), rhs.y());
       point_type x1 = std::min(x2(), rhs.x2());
       point_type y1 = std::min(y2(), rhs.y2());
-      return (x1 > x0) && (y1 > y0) ? {point_t{x0, y0}, point_t{x1, y1}} : zero;
+      return (x1 > x0) && (y1 > y0) ? basic_rectangle<T, S, C>(point_t{x0, y0}, point_t{x1, y1}) : zero;
     }
 
     template<typename T, typename S, coordinate_system C>

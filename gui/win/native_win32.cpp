@@ -234,12 +234,12 @@ namespace gui {
       }
 
       void invalidate (os::window id, const core::native_rect& r) {
-        RECT rect = r.os();
+        RECT rect = gui::os::mk_rectangle(r.x(), r.y(), r.width(), r.height());
         InvalidateRect(id, &rect, FALSE);
       }
 
       void redraw (window&, os::window id, const core::native_rect& r) {
-        RECT rect = r.os();
+        RECT rect = gui::os::mk_rectangle(r.x(), r.y(), r.width(), r.height());
         RedrawWindow(id, &rect, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
       }
 
@@ -270,7 +270,7 @@ namespace gui {
 
       core::rectangle adjust_overlapped_area (const core::rectangle& r, const class_info& type) {
         const auto nr = core::global::scale_to_native(r);
-        RECT rect = nr.os();
+        RECT rect = gui::os::mk_rectangle(nr.x(), nr.y(), nr.width(), nr.height());
         AdjustWindowRectEx(&rect, type.get_style(), FALSE, type.get_ex_style());
         return core::global::scale_from_native(core::native_rect(os::get_x(rect), os::get_y(rect),
                                                                  os::get_width(rect), os::get_height(rect)));
@@ -438,11 +438,11 @@ namespace gui {
       }
 
       void send_client_message (window* win, os::message_type message, core::context& ctx, const core::native_rect& r) {
-        send_client_message(win, message, reinterpret_cast<void*>(&ctx), reinterpret_cast<void*>(&r));
+        send_client_message(win, message, reinterpret_cast<void*>(&ctx), const_cast<void*>(reinterpret_cast<const void*>(&r)));
       }
 
       void send_client_message (window* win, os::message_type message, const float f) {
-        send_client_message(window* win, os::message_type message, static_cast<void*>(&f), nullptr);
+        send_client_message(win,message, const_cast<void*>(static_cast<const void*>(&f)), nullptr);
       }
 
       void send_client_message (window* win, os::message_type message, const core::rectangle& wr) {

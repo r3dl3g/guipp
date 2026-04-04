@@ -41,12 +41,8 @@ namespace gui {
         return SelectObject(g, o);
       }
 
-      void unset (HGDIOBJ o) {
-        SelectObject(g, o);
-      }
-
       inline ~Use () {
-        unset(old);
+        SelectObject(g, old);
       }
 
       os::graphics g;

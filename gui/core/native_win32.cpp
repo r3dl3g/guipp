@@ -28,6 +28,7 @@
 //
 #include "gui/core/native.h"
 #include "gui/core/context.h"
+#include "gui/core/keys.h"
 
 
 namespace gui {
@@ -42,13 +43,13 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void set_clip_rect (core::context& ctx, const gui::os::rectangle& r) {
-        SelectClipRgn(ctx, NULL);
-        IntersectClipRect(ctx, r.left, r.top, r.right, r.bottom);
+        SelectClipRgn(ctx.graphics(), NULL);
+        IntersectClipRect(ctx.graphics(), r.left, r.top, r.right, r.bottom);
       }
 
       // --------------------------------------------------------------------------
       void clear_clipping (core::context& ctx) {
-        SelectClipRgn(ctx, NULL);
+        SelectClipRgn(ctx.graphics(), NULL);
       }
 
       // --------------------------------------------------------------------------

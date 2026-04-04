@@ -348,7 +348,11 @@ namespace gui {
       hot_key_map hot_keys;
 
       static int g_next_filter_id = 1;
+#if MINGW
+      static std::thread::_M_id main_thread_id;
+#else
       static std::thread::id main_thread_id;
+#endif
 
       typedef std::pair<int, filter_call> filter_call_entry;
       typedef std::vector<filter_call_entry> filter_list;
@@ -494,7 +498,7 @@ namespace gui {
         GUITHREADINFO info;
         memset(&info, 0, sizeof(info));
         info.cbSize = sizeof(GUITHREADINFO);
-        if (GetGUIThreadInfo(util::robbery::get_native_thread_id(detail::main_thread_id), &info)) {
+        if (GetGUIThreadInfo(GetCurrentThreadId(), &info)) {
           HWND win = info.hwndActive;
           if (win) {
             HWND parent = GetParent(win);
@@ -1011,7 +1015,8 @@ namespace gui {
 
 #endif // GUIPP_X11
 #ifdef GUIPP_WIN
-      PostThreadMessage(util::robbery::get_native_thread_id(detail::main_thread_id),
+      DWORD thread_id = GetWindowThreadProcessId(GetForegroundWindow(), NULL);
+      PostThreadMessage(thread_id,
                         detail::ACTION_MESSAGE,
                         0,
                         (ULONG_PTR)new std::function<void()>(action));

@@ -29,7 +29,9 @@ if(NOT TARGET ${PROJECT_NAME})
       graphics.cpp
       pen.cpp
       text_origin.cpp
-      use.cpp
+      use_js.cpp
+      use_qt.cpp
+      use_x11.cpp
       icons.cpp
       clock.cpp
       shared_datamap.cpp

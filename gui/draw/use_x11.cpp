@@ -14,14 +14,7 @@
  * @license   MIT license. See accompanying file LICENSE.
  */
 
-#ifdef GUIPP_QT
-#include <QtGui/QPainter>
-#endif // GUIPP_QT
-#ifdef GUIPP_JS
-#include <util/ostreamfmt.h>
-#include <iomanip>
-#endif // GUIPP_JS
-
+#if GUIPP_X11
 
 // --------------------------------------------------------------------------
 //
@@ -36,7 +29,6 @@ namespace gui {
 
   namespace draw {
 
-#ifdef GUIPP_X11
     using namespace core::global;
 
     // --------------------------------------------------------------------------
@@ -85,70 +77,8 @@ namespace gui {
     }
 #endif // GUIPP_USE_XFT
 
-#endif // GUIPP_X11
-
-#ifdef GUIPP_QT
-    // --------------------------------------------------------------------------
-    template<>
-    void Use<pen>::set (const pen& p) {
-      g->setPen(QPen(QBrush(p.color()), p.os_size(),
-                     static_cast<Qt::PenStyle>(p.style()),
-                     static_cast<Qt::PenCapStyle>(p.cap()),
-                     static_cast<Qt::PenJoinStyle>(p.join())));
-    }
-
-    template<>
-    void Use<brush>::set (const brush& b) {
-      g->setBrush(QBrush(b.color(), static_cast<Qt::BrushStyle>(b.style())));
-    }
-
-    template<>
-    void Use<font>::set (const font& f) {
-      g->setFont(QFont(QString::fromStdString(f.name()), f.size(), f.thickness(), f.italic()));
-    }
-
-#endif // GUIPP_QT
-
-#if defined(GUIPP_JS)
-    // --------------------------------------------------------------------------
-    template<>
-    void Use<pen>::set (const pen& p) {
-      g.set("strokeStyle", ostreamfmt("#" << std::hex << std::setfill('0') << std::setw(6) << (p.color() & 0xffffff)));
-      g.set("lineWidth", p.os_size());
-
-      switch (p.cap()) {
-        case pen::Cap::flat:   g.set("lineCap", "butt"); break;
-        case pen::Cap::round:  g.set("lineCap", "round"); break;
-        case pen::Cap::square: g.set("lineCap", "square"); break;
-      }
-      switch (p.join()) {
-        case pen::Join::miter: g.set("lineJoin", "miter"); break;
-        case pen::Join::round: g.set("lineJoin", "round"); break;
-        case pen::Join::bevel: g.set("lineJoin", "bevel"); break;
-      }
-
-      // TBD: style
-    }
-
-    template<>
-    void Use<brush>::set (const brush& b) {
-      g.set("fillStyle", ostreamfmt("#" << std::hex << std::setfill('0') << std::setw(6) << (b.color() & 0xffffff)));
-    }
-
-    template<>
-    void Use<font>::set (const font& f) {
-      std::ostringstream str;
-      if (f.italic()) {
-        str << "itailc ";
-      }
-      if (f.thickness() != font::Thickness::regular) {
-        str << (static_cast<int>(f.thickness()) * 100) << " ";
-      }
-      str << f.size() << "px " << f.name();
-      g.set("font", str.str());
-    }
-#endif // GUIPP_JS
-
-  } // namespace draw
+} // namespace draw
 
 } // namespace gui
+
+#endif // GUIPP_X11

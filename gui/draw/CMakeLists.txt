@@ -31,6 +31,10 @@ if(NOT TARGET ${PROJECT_NAME})
       font_qt.cpp
       font_js.cpp
       graphics.cpp
+      graphics_js.cpp
+      graphics_qt.cpp
+      graphics_win32.cpp
+      graphics_x11.cpp
       pen.cpp
       text_origin.cpp
       use_js.cpp

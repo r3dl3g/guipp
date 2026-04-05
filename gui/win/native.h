@@ -147,10 +147,22 @@ namespace gui {
 
 #ifdef GUIPP_JS
       namespace js {
+
         void send_to_main (const std::string& type, const std::string& message);
         void send_to_main (const std::string& type, int id);
+
       } // namespace js
 #endif
+#ifdef GUIPP_X11
+      namespace x11 {
+
+        GUIPP_WIN_EXPORT XIC get_window_ic (os::window);
+        GUIPP_WIN_EXPORT void invalidate_window (os::window id, const core::native_rect&);
+        GUIPP_WIN_EXPORT void validate_window (os::window id);
+        GUIPP_WIN_EXPORT void draw_invalidated_windows ();
+
+      } // namespace x11
+#endif // GUIPP_X11
 
     } // namespace native
 

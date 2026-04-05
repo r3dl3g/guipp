@@ -28,6 +28,7 @@
 //
 #include "gui/win/window_event_handler.h"
 #include "gui/win/overlapped_window.h"
+#include "gui/win/native.h"
 
 #ifdef GUIPP_WIN
 # include <util/string_util.h>
@@ -313,7 +314,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     std::string get_key_chars (const core::event& e) {
-      XIC ic = x11::get_window_ic(e.xany.window);
+      XIC ic = native::x11::get_window_ic(e.xany.window);
       if (ic) {
         Status status;
         char text[8] = {0};

@@ -173,52 +173,8 @@ namespace gui {
 
     namespace x11 {
 
-      typedef std::map<os::window, XIC> window_ic_map;
-      window_ic_map s_window_ic_map;
-
-      XIC get_window_ic (os::window id) {
-        auto i = s_window_ic_map.find(id);
-        if (i != s_window_ic_map.end()) {
-          return i->second;
-        }
-        return nullptr;
-      }
-
-      XIM s_im = nullptr;
-      XIMStyle s_best_style = 0x0F1F;
-
       typedef util::blocking_queue<std::function<simple_action>> simple_action_queue;
       simple_action_queue queued_actions;
-
-      typedef std::map<os::window, core::native_rect> window_rectangle_map;
-      window_rectangle_map s_invalidated_windows;
-
-      void invalidate_window (os::window id, const core::native_rect& r) {
-        logging::trace() << "invalidate_window: " << id;
-        if (!r.empty()) {
-          auto& old = s_invalidated_windows[id];
-          if (old.empty()) {
-            old = r;
-          } else {
-            old |= r;
-          }
-        }
-      }
-
-      void validate_window (os::window id) {
-        logging::trace() << "validate_window: " << id;
-        s_invalidated_windows.erase(id);
-      }
-
-      void draw_invalidated_windows () {
-        for (auto& w : s_invalidated_windows) {
-          win::overlapped_window* win = detail::get_window(w.first);
-          if (win && win->is_visible()) {
-            win->redraw(w.second);
-          }
-        }
-        s_invalidated_windows.clear();
-      }
 
       core::native_rect get_expose_rect (core::event& e) {
         return get<core::native_rect, XExposeEvent>::param(e);
@@ -779,7 +735,7 @@ namespace gui {
           }
 
           if (is_expose_event(e)) {
-            x11::invalidate_window(e.xany.window, x11::get_expose_rect(e));
+            native::x11::invalidate_window(e.xany.window, x11::get_expose_rect(e));
           } else {
             process_event(e, resultValue);
           }
@@ -798,7 +754,7 @@ namespace gui {
           wait_for_event(fd);
         }
 
-        x11::draw_invalidated_windows();
+        native::x11::draw_invalidated_windows();
 
         XFlush(display);
 

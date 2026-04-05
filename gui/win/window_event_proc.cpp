@@ -515,10 +515,6 @@ namespace gui {
         throw std::runtime_error("application_main_window could not be found!");
       }
 
-      void register_utf8_window (const window&) {}
-
-      void unregister_utf8_window (const window&) {}
-
 #endif // GUIPP_WIN
 
 #ifdef GUIPP_QT
@@ -537,10 +533,6 @@ namespace gui {
         }
         throw std::runtime_error("application_main_window could not be found!");
       }
-
-      void register_utf8_window (const window&) {}
-
-      void unregister_utf8_window (const window&) {}
 
 #endif // GUIPP_QT
 
@@ -577,55 +569,7 @@ namespace gui {
         throw std::runtime_error("application_main_window could not be found!");
       }
       
-      void register_utf8_window (const window& win) {
-        os::window id = win.get_overlapped_window().get_os_window();
-
-        if (!id) {
-          return;
-        }
-
-        if (!x11::s_im) {
-          x11::s_im = XOpenIM(core::global::get_instance(), nullptr, nullptr, nullptr);
-          XIMStyle app_supported_styles = XIMPreeditNone | XIMPreeditNothing | XIMPreeditArea |
-                                          XIMStatusNone | XIMStatusNothing | XIMStatusArea;
-
-          XIMStyles *im_supported_styles;
-          /* figure out which styles the IM can support */
-          XGetIMValues(x11::s_im, XNQueryInputStyle, &im_supported_styles, NULL);
-          auto count = im_supported_styles->count_styles;
-          for (decltype(count) i = 0; i < count; ++i) {
-            XIMStyle style = im_supported_styles->supported_styles[i];
-            if ((style & app_supported_styles) == style) { /* if we can handle it */
-              x11::s_best_style = std::min(style, x11::s_best_style);
-            }
-          }
-          XFree(im_supported_styles);
-        }
-
-        XIC ic = XCreateIC(x11::s_im, XNInputStyle, x11::s_best_style, XNClientWindow, id, NULL);
-        x11::s_window_ic_map[id] = ic;
-      }
-
-      void unregister_utf8_window (const window& win) {
-        os::window id = win.get_overlapped_window().get_os_window();
-
-        auto i = x11::s_window_ic_map.find(id);
-        if (i != x11::s_window_ic_map.end()) {
-          XIC ic = i->second;
-          if (ic) {
-            XDestroyIC(ic);
-          }
-          x11::s_window_ic_map.erase(id);
-        }
-      }
-
 #endif // GUIPP_X11
-
-#ifdef GUIPP_JS
-    void register_utf8_window (const window&) {}
-
-    void unregister_utf8_window (const window&) {}
-#endif //GUIPP_JS
 
     } // global
 

@@ -89,7 +89,11 @@ namespace gui {
         }
       }
 
-      void move (os::window w, const core::point& pt) {
+    void register_utf8_window (const window&) {}
+
+    void unregister_utf8_window (const window&) {}
+
+    void move (os::window w, const core::point& pt) {
         // const auto npt = core::global::scale_to_native(pt);
 
         // val style = w["style"];

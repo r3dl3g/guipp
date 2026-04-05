@@ -88,9 +88,6 @@ namespace gui {
 
       GUIPP_WIN_EXPORT std::thread::id get_current_thread_id ();
 
-      GUIPP_WIN_EXPORT void register_utf8_window (const window&);
-      GUIPP_WIN_EXPORT void unregister_utf8_window (const window&);
-      
     } // namespace global
 
     GUIPP_WIN_EXPORT bool is_button_event_outside (const window& w, const core::event& e);

@@ -27,6 +27,7 @@
 #include "gui/ctrl/editbox.h"
 #include "gui/ctrl/edit.h"
 #include "gui/win/clipboard.h"
+#include "gui/win/native.h"
 
 
 namespace gui {
@@ -41,7 +42,7 @@ namespace gui {
       }
 
       editbox_base::~editbox_base () {
-        win::global::unregister_utf8_window(*this);
+        win::native::unregister_utf8_window(*this);
       }
 
       void editbox_base::init () {
@@ -57,7 +58,7 @@ namespace gui {
       }
 
       void editbox_base::handle_create () {
-        win::global::register_utf8_window(*this);
+        win::native::register_utf8_window(*this);
       }
 
       std::string& editbox_base::current_line () {

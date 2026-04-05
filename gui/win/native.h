@@ -45,6 +45,9 @@ namespace gui {
       GUIPP_WIN_EXPORT const class_info& get_window_class (const char* class_name);
       GUIPP_WIN_EXPORT void register_window_class (const class_info& type);
 
+      GUIPP_WIN_EXPORT void register_utf8_window (const window&);
+      GUIPP_WIN_EXPORT void unregister_utf8_window (const window&);
+
       GUIPP_WIN_EXPORT void move (os::window id, const core::point& pt);
       GUIPP_WIN_EXPORT void resize (os::window id, const core::size& sz);
       GUIPP_WIN_EXPORT void geometry (os::window id, const core::rectangle& r);

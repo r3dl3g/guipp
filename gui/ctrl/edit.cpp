@@ -33,6 +33,7 @@
 //
 #include "gui/ctrl/edit.h"
 #include "gui/win/clipboard.h"
+#include "gui/win/native.h"
 
 
 //#define SHOW_TEXT_AREA
@@ -163,7 +164,7 @@ namespace gui {
 
       edit_base::~edit_base () {
         if (is_valid()) {
-          win::global::unregister_utf8_window(*this);
+          win::native::unregister_utf8_window(*this);
         }
       }
 
@@ -206,7 +207,7 @@ namespace gui {
       }
 
       void edit_base::prepare_input () {
-        win::global::register_utf8_window(*this);
+        win::native::register_utf8_window(*this);
       }
 
       void edit_base::set_selection (const edit_base::range& sel, event_source src) {

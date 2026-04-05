@@ -26,7 +26,6 @@
 //
 // Library includes
 //
-#include "gui/win/window_event_proc.h"
 #include "gui/core/event_container.h"
 
 namespace gui {

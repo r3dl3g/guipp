@@ -91,12 +91,7 @@ namespace gui {
     }
 
     graphics& graphics::clear (os::color color) {
-#ifdef GUIPP_QT
-      gc()->fillRect(native_area().os(context()), color);
-      return *this;
-#else
       return draw(rectangle(area()), color, color);
-#endif // GUIPP_QT
     }
 
     graphics& graphics::erase (const core::rectangle& r, os::color color) {

@@ -241,7 +241,7 @@ namespace gui {
 
         void draw_invalidated_windows () {
           for (auto& w : s_invalidated_windows) {
-            win::overlapped_window* win = detail::get_window(w.first);
+            win::overlapped_window* win = get_window(w.first);
             if (win && win->is_visible()) {
               win->redraw(w.second);
             }
@@ -313,6 +313,54 @@ namespace gui {
           }
           x11::s_window_ic_map.erase(id);
         }
+      }
+
+      overlapped_window* get_window (os::window id) {
+        Atom     actual_type = 0;
+        int      actual_format = -1;
+        unsigned long nitems = 0;
+        unsigned long bytes = 0;
+        unsigned char* data = nullptr;
+        overlapped_window* win = nullptr;
+
+        const int status = XGetWindowProperty(core::global::get_instance(), id,
+                                              core::x11::GUI_LIB_WIN_PTR,
+                                              0, sizeof(overlapped_window*),
+                                              False, AnyPropertyType,
+                                              &actual_type, &actual_format,
+                                              &nitems, &bytes, &data);
+        if ((Success == status) && (nitems == sizeof(overlapped_window*))) {
+#ifdef LOG_GET_WINDOW_PROPERTY
+          logging::debug() << "get window " << id << ": "
+                   << (int)data[0] << ' ' << (int)data[1] << ' ' << (int)data[2] << ' ' << (int)data[3] << ' '
+                   << (int)data[4] << ' ' << (int)data[5] << ' ' << (int)data[6] << ' ' << (int)data[7];
+#endif //LOG_GET_WINDOW_PROPERTY
+          win = *(overlapped_window**)data;
+        }
+        if (data) {
+          XFree(data);
+        }
+        return win;
+      }
+
+      void set_os_window (overlapped_window* win, os::window id) {
+        const auto* data = (const unsigned char*)&win;
+#ifdef LOG_GET_WINDOW_PROPERTY
+        logging::debug() << "set window " << id << ": "
+                 << (int)data[0] << ' ' << (int)data[1] << ' ' << (int)data[2] << ' ' << (int)data[3] << ' '
+                 << (int)data[4] << ' ' << (int)data[5] << ' ' << (int)data[6] << ' ' << (int)data[7];
+#endif //LOG_GET_WINDOW_PROPERTY
+        /*int status =*/ XChangeProperty(core::global::get_instance(), id,
+                        core::x11::GUI_LIB_WIN_PTR,
+                        XA_CARDINAL, 8, PropModeReplace,
+                        data, sizeof(win));
+        if (win) {
+          win->set_os_window(id);
+        }
+      }
+
+      void unset_os_window (os::window id) {
+        clear_last_geometry(id);
       }
 
       void move (os::window w, const core::point& pt) {
@@ -460,7 +508,7 @@ namespace gui {
                                       mask,
                                       &wa);
 
-        detail::set_os_window(&data, id);
+        set_os_window(&data, id);
 
         return id;
       }
@@ -469,7 +517,7 @@ namespace gui {
         if (w) {
           x11::validate_window(w);
           x11::check_return(XDestroyWindow(core::global::get_instance(), w));
-          detail::unset_os_window(w);
+          unset_os_window(w);
         }
       }
 

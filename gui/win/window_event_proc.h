@@ -56,10 +56,6 @@ namespace gui {
 
     namespace detail {
 
-      GUIPP_WIN_EXPORT overlapped_window* get_window (os::window id);
-      GUIPP_WIN_EXPORT void set_os_window (overlapped_window* win, os::window id);
-      GUIPP_WIN_EXPORT void unset_os_window (os::window id);
-
       typedef bool (filter_fn)(const core::event&);
       typedef std::function<filter_fn> filter_call;
 

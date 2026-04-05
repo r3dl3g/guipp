@@ -63,6 +63,19 @@ namespace gui {
 
       void unregister_utf8_window (const window&) {}
 
+      void set_os_window (overlapped_window* win, os::window id) {
+        if (win) {
+          win->set_os_window(id);
+        }
+      }
+
+      void unset_os_window (os::window id) {
+      }
+
+      overlapped_window* get_window (os::window id) {
+        return id ? id->get_window() : nullptr;
+      }
+
       void move (os::window w, const core::point& pt) {
         const auto npt = core::global::scale_to_native(pt);
         w->setPosition(npt.x(), npt.y());
@@ -406,7 +419,7 @@ namespace gui {
 
       window::~window () {
         if (win) {
-          win::detail::set_os_window(win, nullptr);
+          win::native::set_os_window(win, nullptr);
         }
       }
 

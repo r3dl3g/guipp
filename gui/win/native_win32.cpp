@@ -96,6 +96,21 @@ namespace gui {
 
       void unregister_utf8_window (const window&) {}
 
+      overlapped_window* get_window (os::window id) {
+        return reinterpret_cast<overlapped_window*>(GetWindowLongPtr(id, GWLP_USERDATA));
+      }
+
+      void set_os_window (overlapped_window* win, os::window id) {
+        SetWindowLongPtr(id, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(win));
+        if (win) {
+          win->set_os_window(id);
+        }
+      }
+
+      void unset_os_window (os::window id) {
+        SetWindowLongPtr(id, GWLP_USERDATA, 0);
+      }
+
       void move (os::window w, const core::point& pt) {
         const auto npt = core::global::scale_to_native(pt);
         SetWindowPos(w, nullptr, npt.x(), npt.y(), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);

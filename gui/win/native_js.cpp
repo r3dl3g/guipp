@@ -93,7 +93,25 @@ namespace gui {
 
     void unregister_utf8_window (const window&) {}
 
-    void move (os::window w, const core::point& pt) {
+      typedef std::map<os::window, win::overlapped_window*> window_map;
+      window_map global_window_map;
+
+      overlapped_window* get_window (os::window id) {
+        return global_window_map[id];
+      }
+
+      void set_os_window (overlapped_window* win, os::window id) {
+        global_window_map[id] = win;
+        if (win) {
+          win->set_os_window(id);
+        }
+      }
+
+      void unset_os_window (os::window id) {
+        global_window_map.erase(id);
+      }
+
+      void move (os::window w, const core::point& pt) {
         // const auto npt = core::global::scale_to_native(pt);
 
         // val style = w["style"];
@@ -170,7 +188,7 @@ namespace gui {
         //     << nr.y() << "px;left:" << nr.x() << "px;" << "width:" 
         //     << nr.width() << "px;height:" << nr.height() << "px;"));
 
-        detail::set_os_window(&data, canvas);
+        set_os_window(&data, canvas);
 
         return canvas;
       }

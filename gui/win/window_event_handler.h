@@ -31,6 +31,7 @@
 #include "gui/core/event_handler.h"
 #include "gui/core/context.h"
 #include "gui/win/window_event_proc.h"
+#include "gui/win/native.h"
 
 
 namespace gui {

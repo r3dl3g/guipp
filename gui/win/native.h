@@ -48,6 +48,10 @@ namespace gui {
       GUIPP_WIN_EXPORT void register_utf8_window (const window&);
       GUIPP_WIN_EXPORT void unregister_utf8_window (const window&);
 
+      GUIPP_WIN_EXPORT overlapped_window* get_window (os::window id);
+      GUIPP_WIN_EXPORT void set_os_window (overlapped_window* win, os::window id);
+      GUIPP_WIN_EXPORT void unset_os_window (os::window id);
+
       GUIPP_WIN_EXPORT void move (os::window id, const core::point& pt);
       GUIPP_WIN_EXPORT void resize (os::window id, const core::size& sz);
       GUIPP_WIN_EXPORT void geometry (os::window id, const core::rectangle& r);

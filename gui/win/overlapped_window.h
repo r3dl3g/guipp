@@ -53,7 +53,7 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-    namespace detail {
+    namespace native {
       void GUIPP_WIN_EXPORT set_os_window (overlapped_window* w, os::window id);
     }
 
@@ -152,7 +152,7 @@ namespace gui {
       overlapped_context& get_context () const;
 
     private:
-      friend void detail::set_os_window (overlapped_window*, os::window);
+      friend void native::set_os_window (overlapped_window*, os::window);
       void set_os_window (os::window);
 
     private:

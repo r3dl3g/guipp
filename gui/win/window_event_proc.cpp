@@ -92,36 +92,9 @@ namespace gui {
 
       const os::event_id ACTION_MESSAGE = WM_USER + 0x101;
 
-      overlapped_window* get_window (os::window id) {
-        return reinterpret_cast<overlapped_window*>(GetWindowLongPtr(id, GWLP_USERDATA));
-      }
-
-      void set_os_window (overlapped_window* win, os::window id) {
-        SetWindowLongPtr(id, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(win));
-        if (win) {
-          win->set_os_window(id);
-        }
-      }
-
-      void unset_os_window (os::window id) {
-        SetWindowLongPtr(id, GWLP_USERDATA, 0);
-      }
-
-      bool check_expose (const core::event&) {
-        return false;
-      }
-
-      bool handle_by_window (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, gui::os::event_result& resultValue) {
-        overlapped_window* w = get_window(hwnd);
-        if (w && w->is_valid()) {
-          return w->handle_event(core::event(hwnd, msg, wParam, lParam), resultValue);
-        }
-        return false;
-      }
-
       void set_window_id (LONG_PTR lParam, os::window id) {
         overlapped_window* w = reinterpret_cast<overlapped_window*>(lParam);
-        set_os_window(w, id);
+        native::set_os_window(w, id);
       }
 
     } // namespace detail
@@ -154,7 +127,7 @@ namespace gui {
         }
 
         gui::os::event_result result = 0;
-        overlapped_window* w = detail::get_window(hwnd);
+        overlapped_window* w = native::get_window(hwnd);
         if (w) {
 //          logging::trace() << "window state:" << w->get_state();
           if (w->is_valid()) {
@@ -183,54 +156,6 @@ namespace gui {
     } // namespace x11
     
     namespace detail {
-      overlapped_window* get_window (os::window id) {
-        Atom     actual_type = 0;
-        int      actual_format = -1;
-        unsigned long nitems = 0;
-        unsigned long bytes = 0;
-        unsigned char* data = nullptr;
-        overlapped_window* win = nullptr;
-
-        const int status = XGetWindowProperty(core::global::get_instance(), id,
-                                              core::x11::GUI_LIB_WIN_PTR,
-                                              0, sizeof(overlapped_window*),
-                                              False, AnyPropertyType,
-                                              &actual_type, &actual_format,
-                                              &nitems, &bytes, &data);
-        if ((Success == status) && (nitems == sizeof(overlapped_window*))) {
-#ifdef LOG_GET_WINDOW_PROPERTY
-          logging::debug() << "get window " << id << ": "
-                   << (int)data[0] << ' ' << (int)data[1] << ' ' << (int)data[2] << ' ' << (int)data[3] << ' '
-                   << (int)data[4] << ' ' << (int)data[5] << ' ' << (int)data[6] << ' ' << (int)data[7];
-#endif //LOG_GET_WINDOW_PROPERTY
-          win = *(overlapped_window**)data;
-        }
-        if (data) {
-          XFree(data);
-        }
-        return win;
-      }
-
-      void set_os_window (overlapped_window* win, os::window id) {
-        const auto* data = (const unsigned char*)&win;
-#ifdef LOG_GET_WINDOW_PROPERTY
-        logging::debug() << "set window " << id << ": "
-                 << (int)data[0] << ' ' << (int)data[1] << ' ' << (int)data[2] << ' ' << (int)data[3] << ' '
-                 << (int)data[4] << ' ' << (int)data[5] << ' ' << (int)data[6] << ' ' << (int)data[7];
-#endif //LOG_GET_WINDOW_PROPERTY
-        /*int status =*/ XChangeProperty(core::global::get_instance(), id,
-                        core::x11::GUI_LIB_WIN_PTR,
-                        XA_CARDINAL, 8, PropModeReplace,
-                        data, sizeof(win));
-        if (win) {
-          win->set_os_window(id);
-        }
-      }
-
-      void unset_os_window (os::window id) {
-        clear_last_geometry(id);
-      }
-
       bool check_expose (const core::event& e) {
         return (e.type == Expose) && (e.xexpose.count > 0);
       }
@@ -238,60 +163,17 @@ namespace gui {
       inline win::window* get_event_window (const core::event& e) {
         switch (e.type) {
           case ConfigureNotify:
-            return get_window(e.xconfigure.window);
+            return native::get_window(e.xconfigure.window);
           case NoExpose:
             return nullptr;
           default:
-            return get_window(e.xany.window);
+            return native::get_window(e.xany.window);
         }
       }
 
     } // namespace detail
 
-#elif GUIPP_QT
-
-    namespace detail {
-
-      void set_os_window (overlapped_window* win, os::window id) {
-        if (win) {
-          win->set_os_window(id);
-        }
-      }
-
-      overlapped_window* get_window (os::window id) {
-        return id ? id->get_window() : nullptr;
-      }
-
-      bool check_expose (const core::event& e) {
-        return (e.type() == QEvent::Type::Paint);
-      }
-
-    } // namespace detail
-
-#elif GUIPP_JS
-    namespace detail {
-
-      typedef std::map<os::window, win::overlapped_window*> window_map;
-      window_map global_window_map;
-
-      overlapped_window* get_window (os::window id) {
-        return global_window_map[id];
-      }
-
-      void set_os_window (overlapped_window* win, os::window id) {
-        global_window_map[id] = win;
-        if (win) {
-          win->set_os_window(id);
-        }
-      }
-
-      void unset_os_window (os::window id) {
-        global_window_map.erase(id);
-      }
-
-    } // namespace detail
-
-#endif // GUIPP_JS
+#endif // GUIPP_X11
 
     bool check_message_filter (const core::event& ev);
     bool check_hot_key (const core::event& e);
@@ -447,7 +329,7 @@ namespace gui {
 
 #ifdef GUIPP_WIN
       window* get_current_focus_window () {
-        return detail::get_window(GetFocus());
+        return native::get_window(GetFocus());
       }
 
       overlapped_window& get_application_main_window () {
@@ -463,7 +345,7 @@ namespace gui {
               parent = parent = GetParent(win);
             }
           }
-          auto* w = detail::get_window(win);
+          auto* w = native::get_window(win);
           if (w) {
             return w->get_overlapped_window();
           }
@@ -476,13 +358,13 @@ namespace gui {
 #ifdef GUIPP_QT
 
       window* get_current_focus_window () {
-        return detail::get_window(static_cast<os::window>(QGuiApplication::focusWindow()));
+        return native::get_window(static_cast<os::window>(QGuiApplication::focusWindow()));
       }
 
       overlapped_window& get_application_main_window() {
         auto list = QGuiApplication::topLevelWindows();
         if (list.size() > 0) {
-          auto* win = detail::get_window(static_cast<os::window>(list.first()));
+          auto* win = native::get_window(static_cast<os::window>(list.first()));
           if (win) {
             return win->get_overlapped_window();
           }
@@ -501,7 +383,7 @@ namespace gui {
         Window focus = 0;
         int revert_to = 0;
         if (XGetInputFocus(core::global::get_instance(), &focus, &revert_to) < BadValue) {
-          return detail::get_window(focus);
+          return native::get_window(focus);
         }
         return nullptr;
       }
@@ -516,7 +398,7 @@ namespace gui {
 
         if (XQueryTree(display, DefaultRootWindow(display), &root, &parent, &children, &nchildren)) {
           for (unsigned int i = 0; i < nchildren; ++i) {
-            auto win = detail::get_window(children[i]);
+            auto win = native::get_window(children[i]);
             if (win) {
               return win->get_overlapped_window();
             }
@@ -673,7 +555,7 @@ namespace gui {
     }
 
     void process_event (const core::event& e, gui::os::event_result& resultValue) {
-      win::overlapped_window* win = win::detail::get_window(e.id);
+      win::overlapped_window* win = win::native::get_window(e.id);
 
       if (win && win->is_valid()) {
 
@@ -861,7 +743,7 @@ namespace gui {
 
         // x11::draw_invalidated_windows();
 
-        win::overlapped_window* win = detail::get_window(id);
+        win::overlapped_window* win = native::get_window(id);
         if (win && win->is_visible()) {
           win->redraw({});
         }

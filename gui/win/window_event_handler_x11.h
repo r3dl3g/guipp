@@ -221,7 +221,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T>
     inline window* get_window (const core::event& e) {
-      return detail::get_window(event_type_cast<T>(e).window);
+      return native::get_window(event_type_cast<T>(e).window);
     }
 
     // --------------------------------------------------------------------------

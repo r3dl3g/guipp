@@ -61,7 +61,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     window* get_param<0, window*>(const core::event& e) {
-      return detail::get_window((os::window)e.wParam);
+      return native::get_window((os::window)e.wParam);
     }
 
     // --------------------------------------------------------------------------
@@ -79,7 +79,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     window* get_param<1, window*>(const core::event& e) {
-      return detail::get_window((os::window)e.lParam);
+      return native::get_window((os::window)e.lParam);
     }
 
     // --------------------------------------------------------------------------
@@ -134,12 +134,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     window* get_window_from_cs (const core::event& e) {
       CREATESTRUCT* cs = reinterpret_cast<CREATESTRUCT*>(e.lParam);
-      return detail::get_window(cs->hwndParent);
+      return native::get_window(cs->hwndParent);
     }
 
     // --------------------------------------------------------------------------
     window* get_window_from_id (const core::event& e) {
-      return detail::get_window(e.id);
+      return native::get_window(e.id);
     }
 
     // --------------------------------------------------------------------------
@@ -354,7 +354,7 @@ namespace gui {
     template<>
     window* get_client_data<0, window*>(const core::event& e) {
       os::window id = e.xclient.data.l[0];
-      return detail::get_window(id);
+      return native::get_window(id);
     }
     // --------------------------------------------------------------------------
     template<>

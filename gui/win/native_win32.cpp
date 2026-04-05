@@ -498,6 +498,54 @@ namespace gui {
         return {os::get_x(pt) /*- os::get_x(r)*/, os::get_y(pt) /*- os::get_y(r)*/};
       }
 
+      namespace win32 {
+
+        void set_window_id (LONG_PTR lParam, os::window id) {
+          overlapped_window* w = reinterpret_cast<overlapped_window*>(lParam);
+          native::set_os_window(w, id);
+        }
+        
+        LRESULT CALLBACK WindowEventProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+          switch (msg) {
+          case WM_INITDIALOG:
+  //          SetWindowLongPtr(hwnd, GWLP_USERDATA, lParam);
+            set_window_id(lParam, hwnd);
+            break;
+          case WM_CREATE: {
+            CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
+  //          logging::trace() << "WM_CREATE: " << " (" << std::hex << wParam << ", " << lParam << ") CreateParams: " << cs->lpCreateParams;
+            set_window_id((LONG_PTR)cs->lpCreateParams, hwnd);
+            break;
+          }
+  # ifdef KEY_DEBUG
+          case WM_KEYDOWN:
+            logging::debug() << "Key down 0x" << std::hex << wParam << " received (0x" << lParam << ")";
+            break;
+          case WM_KEYUP:
+            logging::debug() << "Key up 0x" << std::hex << wParam << " received (0x" << lParam << ")";
+            break;
+          case WM_CHAR:
+            logging::debug() << "Char 0x" << std::hex << wParam << " received (0x" << lParam << ")";
+            break;
+  # endif // KEY_DEBUG
+          }
+
+          gui::os::event_result result = 0;
+          overlapped_window* w = native::get_window(hwnd);
+          if (w) {
+  //          logging::trace() << "window state:" << w->get_state();
+            if (w->is_valid()) {
+              w->handle_event(core::event(hwnd, msg, wParam, lParam), result);
+              if (result) {
+                return result;
+              }
+            }
+          }
+          return DefWindowProc(hwnd, msg, wParam, lParam);
+        }
+
+      } // namespace win32
+
     } // namespace native
 
     // --------------------------------------------------------------------------

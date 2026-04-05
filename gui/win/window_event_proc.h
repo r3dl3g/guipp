@@ -45,15 +45,6 @@ namespace gui {
     class window;
     class overlapped_window;
 
-#ifdef GUIPP_WIN
-    namespace win32 {
-
-      GUIPP_WIN_EXPORT LRESULT CALLBACK WindowEventProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-    } // namespace win32
-#endif // GUIPP_WIN
-
-
     namespace detail {
 
       typedef bool (filter_fn)(const core::event&);

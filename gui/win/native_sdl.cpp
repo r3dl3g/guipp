@@ -351,14 +351,6 @@ namespace gui {
       void delete_surface (os::backstore id) {
       }
 
-      void copy_surface (os::bitmap src, os::drawable target, os::graphics gc,
-                         const core::native_point& from, const core::native_point& to,
-                         const core::native_size& size) {
-        auto srcrect = os::mk_rectangle(from.x(), from.y(), size.width(), size.height());
-        auto dstrect = os::mk_rectangle(to.x(), to.y(), size.width(), size.height());
-        SDL_RenderCopy(gc, src, &srcrect, &dstrect);
-      }
-
       void send_client_message (window* win, os::message_type message, void* v1, void* v2) {
         if (win) {
           core::event e;

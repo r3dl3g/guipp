@@ -133,12 +133,6 @@ namespace gui {
       GUIPP_WIN_EXPORT os::backstore create_surface (const core::native_size& size, os::window id);
       GUIPP_WIN_EXPORT void delete_surface (os::backstore);
 
-      GUIPP_WIN_EXPORT void copy_surface (os::bitmap src, os::drawable target,
-                                          os::graphics context,
-                                          const core::native_point& from,
-                                          const core::native_point& to,
-                                          const core::native_size& size);
-
       GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, int l1 = 0, int l2 = 0);
       GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, core::context& ctx, const core::native_rect& r);
       GUIPP_WIN_EXPORT void send_client_message (window* win, os::message_type message, const float f);

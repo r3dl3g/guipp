@@ -904,13 +904,6 @@ namespace gui {
         XFreePixmap(core::global::get_instance(), id);
       }
 
-      void copy_surface (os::bitmap src, os::drawable target, os::graphics context,
-                         const core::native_point& from, const core::native_point& to,
-                         const core::native_size& size) {
-        XCopyArea(core::global::get_instance(), src, target, context, from.x(), from.y(),
-                  size.width(), size.height(), to.x(), to.y());
-      }
-
       // --------------------------------------------------------------------------
       void send_client_message_ (window* win, Atom message, long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0) {
         if (win && win->is_valid()) {

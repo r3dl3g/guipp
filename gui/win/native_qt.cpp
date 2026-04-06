@@ -338,13 +338,6 @@ namespace gui {
         delete id;
       }
 
-      void copy_surface (os::bitmap src, os::drawable target, os::graphics,
-                         const core::native_point& from, const core::native_point& to,
-                         const core::native_size& size) {
-        QPainter p(target);
-        p.drawPixmap(to.x(), to.y(), *src, from.x(), from.y(), size.width(), size.height());
-      }
-
       void send_client_message (window* win, os::message_type message, const core::rectangle& r) {
         if (win && win->is_valid()) {
           gui::os::event_result result;

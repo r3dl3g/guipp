@@ -431,19 +431,6 @@ namespace gui {
         DeleteObject(id);
       }
 
-      void copy_surface (os::bitmap src, os::drawable target, os::graphics context,
-                         const core::native_point& from, const core::native_point& to,
-                         const core::native_size& size) {
-        auto dc = GetDC(NULL);
-        auto sdc = CreateCompatibleDC(dc);
-        auto old = SelectObject(sdc, src);
-        SelectObject(context, target);
-        BitBlt(context, to.x(), to.y(), size.width(), size.height(), sdc, from.x(), from.y(), SRCCOPY);
-        SelectObject(sdc, old);
-        DeleteDC(sdc);
-        ReleaseDC(NULL, dc);
-      }
-
       void send_client_message (window* win, os::message_type message, int l1, int l2) {
         if (win && win->is_valid()) {
           core::event e{ NULL, message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2) };

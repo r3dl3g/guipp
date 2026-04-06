@@ -368,14 +368,6 @@ namespace gui {
       void delete_surface (os::backstore id) {
       }
 
-      void copy_surface (os::bitmap src, os::drawable target, os::graphics,
-                         const core::native_point& from, const core::native_point& to,
-                         const core::native_size& size) {
-        auto imageData = src.call<val>("getImageData", 
-                          from.x(), from.y(), size.width(), size.height());
-        target.call<void>("putImageData", imageData, to.x(), to.y());
-      }
-
       void send_client_message (window* win, os::message_type message, const core::rectangle& r) {
         if (win && win->is_valid()) {
           gui::os::event_result result = 0;

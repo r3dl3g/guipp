@@ -11,38 +11,39 @@ if(NOT TARGET ${PROJECT_NAME})
   set(SOURCE_FILES
       arc_coords.cpp
       bitmap_info.cpp
-      datamap.cpp
+      bitmap.cpp
+      bitmap_js.cpp
+      bitmap_qt.cpp
+      bitmap_sdl.cpp
+      bitmap_win32.cpp
+      bitmap_x11.cpp
+      brush.cpp
+      clock.cpp
       converter.cpp
-      frames.cpp
+      datamap.cpp
+      diagram.cpp
       drawers.cpp
       drawers_qt.cpp
       drawers_win32.cpp
       drawers_x11.cpp
       drawers_js.cpp
-      brush.cpp
-      diagram.cpp
-      bitmap.cpp
-      bitmap_js.cpp
-      bitmap_qt.cpp
-      bitmap_win32.cpp
-      bitmap_x11.cpp
       font_win32.cpp
       font_x11.cpp
       font_qt.cpp
       font_js.cpp
+      frames.cpp
       graphics.cpp
       graphics_js.cpp
       graphics_qt.cpp
       graphics_win32.cpp
       graphics_x11.cpp
+      icons.cpp
       pen.cpp
+      shared_datamap.cpp
       text_origin.cpp
       use_js.cpp
       use_qt.cpp
       use_x11.cpp
-      icons.cpp
-      clock.cpp
-      shared_datamap.cpp
   )
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 

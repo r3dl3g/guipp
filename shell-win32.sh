@@ -1,3 +1,3 @@
-nix-shell shell-win32.nix
+nix-shell --pure shell-win32.nix
 
 

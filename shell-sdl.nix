@@ -17,6 +17,7 @@ pkgs.mkShell {
   buildInputs = with pkgs; [
     SDL2
     SDL2_ttf
+    SDL2_gfx
     harfbuzz
   ];
 

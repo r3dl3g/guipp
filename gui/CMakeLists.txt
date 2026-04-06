@@ -81,6 +81,7 @@ if (GUIPP_USE_SDL)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(SDL2 REQUIRED sdl2)
     pkg_check_modules(SDL2_TTF REQUIRED SDL2_ttf)
+    pkg_check_modules(SDL2_GFX REQUIRED SDL2_gfx)
 elseif(GUIPP_USE_QT6)
     message(STATUS "GUIPP: build with Qt6!")
     find_package(Qt6Core)
@@ -168,10 +169,12 @@ if(NOT TARGET guipp)
     set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} 
       ${SDL2_INCLUDE_DIRS} 
       ${SDL2_TTF_INCLUDE_DIRS}
+      ${SDL2_GFX_INCLUDE_DIRS}
     )
     set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES}
       ${SDL2_LIBRARIES} 
       ${SDL2_TTF_LIBRARIES}
+      ${SDL2_GFX_LIBRARIES}
     )
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_SDL ${SDL2_LDFLAGS} ${SDL2_TTF_LDFLAGS})
 

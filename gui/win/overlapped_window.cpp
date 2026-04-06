@@ -61,9 +61,6 @@ namespace gui {
       overlapped_context ()
         : pixel_store(0)
         , gc(0)
-#ifdef GUIPP_SDL
-        , drawable(NULL)
-#endif
       {}
 
       ~overlapped_context () {
@@ -89,7 +86,7 @@ namespace gui {
         pixel_store->beginPaint(QRegion(r.x(), r.y(), r.width(), r.height()));
         gc->begin(get_drawable());
 #elif GUIPP_SDL
-        drawable =id;
+        drawable = id;
 #endif
         if (create_new) {
           native::erase(get_drawable(), gc, core::native_rect(sz), w.get_background());

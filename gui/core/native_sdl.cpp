@@ -52,7 +52,12 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       gui::os::graphics create_graphics_context (gui::os::drawable id) {
-        return SDL_CreateRenderer(id, -1, 0);
+        if (std::holds_alternative<gui::os::window>(id)) {
+          return SDL_CreateRenderer(std::get<gui::os::window>(id), -1, 0);
+        } if (std::holds_alternative<gui::os::bitmap>(id)) {
+          return SDL_CreateSoftwareRenderer(std::get<gui::os::bitmap>(id));
+        }
+        return nullptr;
       }
 
       // --------------------------------------------------------------------------

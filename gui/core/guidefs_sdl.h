@@ -26,6 +26,7 @@
 //
 #include <vector>
 #include <string>
+#include <variant>
 #include <SDL_render.h>
 #include <SDL_mouse.h>
 #include <SDL_keyboard.h>
@@ -44,14 +45,14 @@ namespace gui {
 
     using instance = int;
     using window = SDL_Window*;
-    using drawable = SDL_Window*;
+    using backstore = SDL_Texture*;
+    using bitmap = SDL_Surface*;
     using graphics = SDL_Renderer*;
+    using drawable = std::variant<window, bitmap>;
 
     typedef Uint32 /* SDL_Color */ color;
     typedef Uint32 style;
 
-    using backstore = SDL_Texture*;
-    using bitmap = SDL_Surface*;
     typedef SDL_Surface* icon;
     typedef SDL_Cursor* cursor;
     typedef SDL_Color brush;

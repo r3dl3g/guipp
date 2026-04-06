@@ -135,7 +135,7 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
   gui::core::global::init(hInstance);
 #endif // GUIPP_WIN
 
-#if defined(GUIPP_X11) || defined(GUIPP_QT)
+#if defined(GUIPP_X11) || defined(GUIPP_QT) || defined(GUIPP_SDL)
 int main (int argc, char* argv[]) {
   std::vector<std::string> args(argv, argv + argc);
 #elif defined(GUIPP_JS)
@@ -215,6 +215,10 @@ int main () {
   gui::core::global::init(self["canvas"]);
 
 #endif //GUIPP_JS
+#ifdef GUIPP_SDL
+  SDL_Init(SDL_INIT_VIDEO);
+  gui::core::global::init(SDL_GetNumVideoDisplays() > -1 ? 0 : -1);
+#endif //GUIPP_SDL
   return run_gui_main(args);
 
 }

@@ -67,15 +67,15 @@ namespace gui {
 
   // --------------------------------------------------------------------------
   enum class pixel_format_t : int {
-    Undefined = 0,
-    BW,
-    GRAY,
-    RGB,
-    BGR,
-    RGBA,
-    BGRA,
-    ARGB,
-    ABGR
+    Undefined = IF_SDL_ELSE(SDL_PIXELFORMAT_UNKNOWN,    0),
+    BW        = IF_SDL_ELSE(SDL_PIXELFORMAT_INDEX1LSB,  1),
+    GRAY      = IF_SDL_ELSE(SDL_PIXELFORMAT_INDEX8,     2),
+    RGB       = IF_SDL_ELSE(SDL_PIXELFORMAT_RGB24,      3),
+    BGR       = IF_SDL_ELSE(SDL_PIXELFORMAT_BGR24,      4),
+    RGBA      = IF_SDL_ELSE(SDL_PIXELFORMAT_RGBA8888,   5),
+    BGRA      = IF_SDL_ELSE(SDL_PIXELFORMAT_BGRA8888,   6),
+    ARGB      = IF_SDL_ELSE(SDL_PIXELFORMAT_ARGB8888,   7),
+    ABGR      = IF_SDL_ELSE(SDL_PIXELFORMAT_ABGR8888,   8)
   };
 
   constexpr byte color_depths[] = {0, 1, 8, 24, 24, 24, 24, 24, 24};

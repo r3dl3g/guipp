@@ -61,6 +61,9 @@ namespace gui {
       overlapped_context ()
         : pixel_store(0)
         , gc(0)
+#ifdef GUIPP_SDL
+        , drawable(NULL)
+#endif
       {}
 
       ~overlapped_context () {
@@ -85,6 +88,8 @@ namespace gui {
 #ifdef GUIPP_QT
         pixel_store->beginPaint(QRegion(r.x(), r.y(), r.width(), r.height()));
         gc->begin(get_drawable());
+#elif GUIPP_SDL
+        drawable =id;
 #endif
         if (create_new) {
           native::erase(get_drawable(), gc, core::native_rect(sz), w.get_background());
@@ -123,6 +128,10 @@ namespace gui {
         return true;
 # endif
 #elif GUIPP_JS
+        return true;
+#elif GUIPP_SDL
+        //SDL_UpdateWindowSurface(id);
+        SDL_RenderPresent(gc);
         return true;
 #endif
       }
@@ -163,6 +172,7 @@ namespace gui {
       void create (const core::native_size& sz, os::window id) {
         destroy();
         size = sz;
+        drawable = id;
         pixel_store = native::create_surface(size, id);
         gc = core::native::create_graphics_context(IF_QT_ELSE(nullptr, get_drawable()));
       }
@@ -170,6 +180,8 @@ namespace gui {
       gui::os::drawable get_drawable () {
 #ifdef GUIPP_QT
         return pixel_store->paintDevice();
+#elif GUIPP_SDL
+        return drawable;
 #else
         return pixel_store;
 #endif
@@ -180,6 +192,8 @@ namespace gui {
       os::graphics gc;
 #ifdef GUIPP_WIN
       PAINTSTRUCT ps;
+#elif GUIPP_SDL
+      gui::os::drawable drawable;
 #endif
     };
     // --------------------------------------------------------------------------

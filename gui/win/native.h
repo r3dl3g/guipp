@@ -167,6 +167,16 @@ namespace gui {
 
       } // namespace x11
 #endif // GUIPP_X11
+
+#ifdef GUIPP_SDL
+      namespace sdl {
+
+        GUIPP_WIN_EXPORT void invalidate_window (os::window id, const core::native_rect&);
+        GUIPP_WIN_EXPORT void validate_window (os::window id);
+        GUIPP_WIN_EXPORT void draw_invalidated_windows ();
+
+      } // namespace sdl
+#endif // GUIPP_X11
 #ifdef GUIPP_WIN
     namespace win32 {
 

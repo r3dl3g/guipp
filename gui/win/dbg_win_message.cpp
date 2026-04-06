@@ -62,6 +62,9 @@ namespace gui {
 #elif GUIPP_JS
       switch (e.type) {
         case os::js::event_type::MouseMove:
+#elif GUIPP_SDL
+      switch (e.type) {
+        case SDL_MOUSEMOTION:
 #endif
           return true;
         default:

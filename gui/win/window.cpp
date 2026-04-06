@@ -110,6 +110,8 @@ namespace gui {
       s.created(true);
 #ifdef GUIPP_JS
       s.accept_focus(true);
+#elif GUIPP_SDL
+      s.accept_focus(true);
 #else
       s.accept_focus(type.get_style() & WS_TABSTOP);
 #endif

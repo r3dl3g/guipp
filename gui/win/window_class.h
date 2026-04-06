@@ -80,6 +80,15 @@ namespace gui {
       static constexpr os::style class_style = IF_X11_ELSE(InputOutput, static_cast<os::style>(0));
     };
 
+    template<>
+    struct window_class_defaults<core::os::platform_t::sdl> {
+      static constexpr win::cursor_type cursor = win::cursor_type::arrow;
+      static constexpr os::style style = static_cast<os::style>(0);
+      static constexpr os::style style_no_focus = static_cast<os::style>(0);
+      static constexpr os::style ex_style = static_cast<os::style>(0);
+      static constexpr os::style class_style = static_cast<os::style>(0);
+    };
+
     // --------------------------------------------------------------------------
     class GUIPP_WIN_EXPORT class_info {
     public:

@@ -13,6 +13,7 @@ if(NOT TARGET ${PROJECT_NAME})
       background_repeater.cpp
       clipboard_js.cpp
       clipboard_qt.cpp
+      clipboard_sdl.cpp
       clipboard_win32.cpp
       clipboard_x11.cpp
       container.cpp
@@ -21,6 +22,7 @@ if(NOT TARGET ${PROJECT_NAME})
       enable_drag.cpp
       native_js.cpp
       native_qt.cpp
+      native_sdl.cpp
       native_win32.cpp
       native_x11.cpp
       overlapped_window.cpp
@@ -30,10 +32,12 @@ if(NOT TARGET ${PROJECT_NAME})
       window_class.cpp
       window_event_handler_js.cpp
       window_event_handler_qt.cpp
+      window_event_handler_sdl.cpp
       window_event_handler_win32.cpp
       window_event_handler_x11.cpp
       window_event_proc_js.cpp
       window_event_proc_qt.cpp
+      window_event_proc_sdl.cpp
       window_event_proc_win32.cpp
       window_event_proc_x11.cpp
       window_event_proc.cpp

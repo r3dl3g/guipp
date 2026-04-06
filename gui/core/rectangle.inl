@@ -32,6 +32,9 @@ namespace gui {
 #elif GUIPP_JS
     template<typename T, typename S, coordinate_system C>
     const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def(0, 0, 1, 1);
+#elif GUIPP_SDL
+    template<typename T, typename S, coordinate_system C>
+    const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def(0, 0, -1, -1);
 #else
 #error Unknown target system: const basic_rectangle<T, S, C> basic_rectangle<T, S, C>::def
 #endif // GUIPP_QT

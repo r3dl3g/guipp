@@ -28,6 +28,8 @@
 # include <gui/core/guidefs_qt.h>
 #elif GUIPP_JS
 # include <gui/core/guidefs_js.h>
+#elif GUIPP_SDL
+# include <gui/core/guidefs_sdl.h>
 #elif GUIPP_COCOA
 # include <gui/core/guidefs_cocoa.h>
 #else

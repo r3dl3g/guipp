@@ -37,41 +37,55 @@
 # define IF_X11_ELSE(A, B) B
 # define IF_QT_ELSE(A, B) B
 # define IF_JS_ELSE(A, B) B
+# define IF_SDL_ELSE(A, B) B
 # define IF_COCOA_ELSE(A, B) B
 # define IF_WIN32_X11_QT_ELSE(A, B, C, D) A
-# define IF_WIN32_X11_QT_JS_ELSE(A, B, C, D, E) A
+# define IF_WIN32_X11_QT_JS_SDL_ELSE(A, B, C, D, E, F) A
 #elif defined(GUIPP_X11)
 # define IF_WIN32_ELSE(A, B) B
 # define IF_X11_ELSE(A, B) A
 # define IF_QT_ELSE(A, B) B
 # define IF_JS_ELSE(A, B) B
+# define IF_SDL_ELSE(A, B) B
 # define IF_COCOA_ELSE(A, B) B
 # define IF_WIN32_X11_QT_ELSE(A, B, C, D) B
-# define IF_WIN32_X11_QT_JS_ELSE(A, B, C, D, E) B
+# define IF_WIN32_X11_QT_JS_SDL_ELSE(A, B, C, D, E, F) B
 #elif defined(GUIPP_QT)
 # define IF_WIN32_ELSE(A, B) B
 # define IF_X11_ELSE(A, B) B
 # define IF_QT_ELSE(A, B) A
 # define IF_JS_ELSE(A, B) B
+# define IF_SDL_ELSE(A, B) B
 # define IF_COCOA_ELSE(A, B) B
 # define IF_WIN32_X11_QT_ELSE(A, B, C, D) C
-# define IF_WIN32_X11_QT_JS_ELSE(A, B, C, D, E) C
+# define IF_WIN32_X11_QT_JS_SDL_ELSE(A, B, C, D, E, F) C
 #elif defined(GUIPP_JS)
 # define IF_WIN32_ELSE(A, B) B
 # define IF_X11_ELSE(A, B) B
 # define IF_QT_ELSE(A, B) B
 # define IF_JS_ELSE(A, B) A
+# define IF_SDL_ELSE(A, B) B
 # define IF_COCOA_ELSE(A, B) B
 # define IF_WIN32_X11_QT_ELSE(A, B, C, D) D
-# define IF_WIN32_X11_QT_JS_ELSE(A, B, C, D, E) D
+# define IF_WIN32_X11_QT_JS_SDL_ELSE(A, B, C, D, E, F) D
+#elif defined(GUIPP_SDL)
+# define IF_WIN32_ELSE(A, B) B
+# define IF_X11_ELSE(A, B) B
+# define IF_QT_ELSE(A, B) B
+# define IF_JS_ELSE(A, B) B
+# define IF_SDL_ELSE(A, B) A
+# define IF_COCOA_ELSE(A, B) B
+# define IF_WIN32_X11_QT_ELSE(A, B, C, D) D
+# define IF_WIN32_X11_QT_JS_SDL_ELSE(A, B, C, D, E, F) E
 #elif defined(GUIPP_COCOA)
 # define IF_WIN32_ELSE(A, B) B
 # define IF_X11_ELSE(A, B) B
 # define IF_QT_ELSE(A, B) B
 # define IF_JS_ELSE(A, B) B
+# define IF_SDL_ELSE(A, B) B
 # define IF_COCOA_ELSE(A, B) A
 # define IF_WIN32_X11_QT_ELSE(A, B, C, D) D
-# define IF_WIN32_X11_QT_JS_ELSE(A, B, C, D, E) E
+# define IF_WIN32_X11_QT_JS_SDL_ELSE(A, B, C, D, E, F) F
 #else
 # pragma error "Unknown target system"
 #endif
@@ -149,24 +163,27 @@ namespace gui {
       enum class platform_t : byte {
         win32,
         x11,
-        cocoa,
         qt,
-        js
+        js,
+        sdl,
+        cocoa
       };
 
-      const platform_t system_platform = IF_WIN32_X11_QT_JS_ELSE(platform_t::win32,
-                                                                 platform_t::x11,
-                                                                 platform_t::qt,
-                                                                 platform_t::js,
-                                                                 platform_t::cocoa);
+      const platform_t system_platform = IF_WIN32_X11_QT_JS_SDL_ELSE(platform_t::win32,
+                                                                     platform_t::x11,
+                                                                     platform_t::qt,
+                                                                     platform_t::js,
+                                                                     platform_t::sdl,
+                                                                     platform_t::cocoa);
 
-      const bit_order_t bitmap_bit_order = IF_WIN32_X11_QT_JS_ELSE(bit_order_t::msb_first,
-                                                                   bit_order_t::lsb_first,
-                                                                   bit_order_t::lsb_first,
-                                                                   bit_order_t::lsb_first,
-                                                                   bit_order_t::msb_first);
+      const bit_order_t bitmap_bit_order = IF_WIN32_X11_QT_JS_SDL_ELSE(bit_order_t::msb_first,
+                                                                       bit_order_t::lsb_first,
+                                                                       bit_order_t::lsb_first,
+                                                                       bit_order_t::lsb_first,
+                                                                       bit_order_t::lsb_first,
+                                                                       bit_order_t::msb_first);
 
-      const bool bitmap_bit_white = IF_WIN32_X11_QT_JS_ELSE(false, true, true, true, false);
+      const bool bitmap_bit_white = IF_WIN32_X11_QT_JS_SDL_ELSE(false, true, true, true, true, false);
 
       const byte_order_t bitmap_byte_order =
 #if defined(__i386__) || defined(__x86_64__) || defined(__arm__)

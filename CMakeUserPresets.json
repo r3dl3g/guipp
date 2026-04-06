@@ -122,7 +122,30 @@
                 "CMAKE_FIND_ROOT_PATH_MODE_INCLUDE": "ONLY",
                 "CMAKE_FIND_ROOT_PATH_MODE_PACKAGE": "ONLY"
             }
+        },
+        {
+            "name": "gcc_sdl_debug",
+            "displayName": "GCC 14.3.0 x86_64 SDL debug",
+            "description": "Using compilers: C = gcc, CXX = g++",
+            "binaryDir": "$env{HOME}/.cache/build/guipp/sdl/Debug",
+            "generator": "Unix Makefiles",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "gcc_sdl_release",
+            "displayName": "GCC 14.3.0 x86_64 SDL release",
+            "description": "Using compilers: C = gcc, CXX = g++",
+            "binaryDir": "$env{HOME}/.cache/build/guipp/sdl/Release",
+            "generator": "Unix Makefiles",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
         }
+
     ],
     "buildPresets": [
         {
@@ -183,6 +206,18 @@
             "name": "mingw_win64_release",
             "displayName": "Mingw Win64 release",
             "configurePreset": "mingw_win64_release",
+            "configuration": "Release"
+        },
+        {
+            "name": "gcc_sdl_debug",
+            "displayName": "GCC 14.3.0 x86_64 SDL debug",
+            "configurePreset": "gcc_sdl_debug",
+            "configuration": "Debug"
+        },
+        {
+            "name": "gcc_sdl_release",
+            "displayName": "GCC 14.3.0 x86_64 SDL release",
+            "configurePreset": "gcc_sdl_release",
             "configuration": "Release"
         }
     ]

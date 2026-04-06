@@ -100,17 +100,17 @@ namespace gui {
     os::cursor_type cursor::convert (cursor_type t) {
       switch (t) {
         default:
-        case cursor_type::none:       return IF_WIN32_X11_QT_JS_ELSE(0,            0,                      Qt::CursorShape::CustomCursor,    "none",        0);
-        case cursor_type::arrow:      return IF_WIN32_X11_QT_JS_ELSE(IDC_ARROW,    XC_arrow,               Qt::CursorShape::ArrowCursor,     "default",     1);
-        case cursor_type::size_h:     return IF_WIN32_X11_QT_JS_ELSE(IDC_SIZEWE,   XC_sb_h_double_arrow,   Qt::CursorShape::SizeHorCursor,   "ew-resize",   2);
-        case cursor_type::size_v:     return IF_WIN32_X11_QT_JS_ELSE(IDC_SIZENS,   XC_sb_v_double_arrow,   Qt::CursorShape::SizeVerCursor,   "ns-resize",   3);
-        case cursor_type::size_ne_sw: return IF_WIN32_X11_QT_JS_ELSE(IDC_SIZENESW, XC_bottom_left_corner,  Qt::CursorShape::SizeBDiagCursor, "nesw-resize", 4);
-        case cursor_type::size_nw_se: return IF_WIN32_X11_QT_JS_ELSE(IDC_SIZENWSE, XC_bottom_right_corner, Qt::CursorShape::SizeFDiagCursor, "nwse-resize", 5);
-        case cursor_type::move:       return IF_WIN32_X11_QT_JS_ELSE(IDC_SIZEALL,  XC_fleur,               Qt::CursorShape::DragMoveCursor,  "move ",       6);
-        case cursor_type::ibeam:      return IF_WIN32_X11_QT_JS_ELSE(IDC_IBEAM,    XC_xterm,               Qt::CursorShape::IBeamCursor,     "text",        7);
-        case cursor_type::cross:      return IF_WIN32_X11_QT_JS_ELSE(IDC_CROSS,    XC_crosshair,           Qt::CursorShape::CrossCursor,     "crosshair",   8);
-        case cursor_type::wait:       return IF_WIN32_X11_QT_JS_ELSE(IDC_WAIT,     XC_watch,               Qt::CursorShape::WaitCursor,      "wait",        9);
-        case cursor_type::no:         return IF_WIN32_X11_QT_JS_ELSE(IDC_NO,       XC_pirate,              Qt::CursorShape::ForbiddenCursor, "not-allowed", 10);
+        case cursor_type::none:       return IF_WIN32_X11_QT_JS_SDL_ELSE(0,            0,                      Qt::CursorShape::CustomCursor,    "none",        SDL_SystemCursor::SDL_SYSTEM_CURSOR_ARROW,    0);
+        case cursor_type::arrow:      return IF_WIN32_X11_QT_JS_SDL_ELSE(IDC_ARROW,    XC_arrow,               Qt::CursorShape::ArrowCursor,     "default",     SDL_SystemCursor::SDL_SYSTEM_CURSOR_ARROW,    1);
+        case cursor_type::size_h:     return IF_WIN32_X11_QT_JS_SDL_ELSE(IDC_SIZEWE,   XC_sb_h_double_arrow,   Qt::CursorShape::SizeHorCursor,   "ew-resize",   SDL_SystemCursor::SDL_SYSTEM_CURSOR_SIZEWE,   2);
+        case cursor_type::size_v:     return IF_WIN32_X11_QT_JS_SDL_ELSE(IDC_SIZENS,   XC_sb_v_double_arrow,   Qt::CursorShape::SizeVerCursor,   "ns-resize",   SDL_SystemCursor::SDL_SYSTEM_CURSOR_SIZENS,   3);
+        case cursor_type::size_ne_sw: return IF_WIN32_X11_QT_JS_SDL_ELSE(IDC_SIZENESW, XC_bottom_left_corner,  Qt::CursorShape::SizeBDiagCursor, "nesw-resize", SDL_SystemCursor::SDL_SYSTEM_CURSOR_SIZENESW, 4);
+        case cursor_type::size_nw_se: return IF_WIN32_X11_QT_JS_SDL_ELSE(IDC_SIZENWSE, XC_bottom_right_corner, Qt::CursorShape::SizeFDiagCursor, "nwse-resize", SDL_SystemCursor::SDL_SYSTEM_CURSOR_SIZENWSE, 5);
+        case cursor_type::move:       return IF_WIN32_X11_QT_JS_SDL_ELSE(IDC_SIZEALL,  XC_fleur,               Qt::CursorShape::DragMoveCursor,  "move ",       SDL_SystemCursor::SDL_SYSTEM_CURSOR_HAND,     6);
+        case cursor_type::ibeam:      return IF_WIN32_X11_QT_JS_SDL_ELSE(IDC_IBEAM,    XC_xterm,               Qt::CursorShape::IBeamCursor,     "text",        SDL_SystemCursor::SDL_SYSTEM_CURSOR_IBEAM,    7);
+        case cursor_type::cross:      return IF_WIN32_X11_QT_JS_SDL_ELSE(IDC_CROSS,    XC_crosshair,           Qt::CursorShape::CrossCursor,     "crosshair",   SDL_SystemCursor::SDL_SYSTEM_CURSOR_CROSSHAIR,8);
+        case cursor_type::wait:       return IF_WIN32_X11_QT_JS_SDL_ELSE(IDC_WAIT,     XC_watch,               Qt::CursorShape::WaitCursor,      "wait",        SDL_SystemCursor::SDL_SYSTEM_CURSOR_WAIT,     9);
+        case cursor_type::no:         return IF_WIN32_X11_QT_JS_SDL_ELSE(IDC_NO,       XC_pirate,              Qt::CursorShape::ForbiddenCursor, "not-allowed", SDL_SystemCursor::SDL_SYSTEM_CURSOR_NO,       10);
       }
     }
 

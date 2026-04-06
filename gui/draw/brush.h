@@ -32,8 +32,8 @@ namespace gui {
     struct GUIPP_DRAW_EXPORT /*immutable*/ brush {
 
       enum class Style {
-        solid =     IF_WIN32_X11_QT_JS_ELSE(BS_SOLID, FillSolid, Qt::BrushStyle::SolidPattern, 1, 0),
-        invisible = IF_WIN32_X11_QT_JS_ELSE(BS_NULL,  -1,        Qt::BrushStyle::NoBrush,      0, 0)
+        solid =     IF_WIN32_X11_QT_ELSE(BS_SOLID, FillSolid, Qt::BrushStyle::SolidPattern, 1),
+        invisible = IF_WIN32_X11_QT_ELSE(BS_NULL,  -1,        Qt::BrushStyle::NoBrush,      0)
       };
 
       static const brush invisible;

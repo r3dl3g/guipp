@@ -17,10 +17,11 @@ if(NOT TARGET ${PROJECT_NAME})
       guidefs.cpp
       keys.cpp
       list_state.cpp
+      native_js.cpp
       native_qt.cpp
+      native_sdl.cpp
       native_win32.cpp
       native_x11.cpp
-      native_js.cpp
       pixel.cpp
       selection_adjustment.cpp
       window_state.cpp

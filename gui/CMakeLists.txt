@@ -48,6 +48,7 @@ option(GUIPP_USE_XSHM "On to make use of the xshm library. Default On" ON)
 option(GUIPP_DONT_USE_XSHM "On to NOT use of the xshm library. Default Off" OFF)
 option(GUIPP_USE_QT5 "On to make use of the Qt5 library. Default Off" OFF)
 option(GUIPP_USE_QT6 "On to make use of the Qt6 library. Default Off" OFF)
+option(GUIPP_USE_SDL "On to make use of the SDL library. Default Off" OFF)
 option(GUIPP_DONT_USE_XFT "On to NOT use of the xft library. Default Off" OFF)
 option(GUIPP_LOOK_AND_FEEL_APPLE "Use Apple L&F. Default automatic" OFF)
 option(GUIPP_LOOK_AND_FEEL_WIN32 "Use Windows 10 L&F. Default automatic" OFF)
@@ -75,7 +76,12 @@ if(CMAKE_CXX_COMPILER MATCHES "/em\\+\\+(-[a-zA-Z0-9.])?$")
   set(EMSCRIPTEN 1)
 endif()
 
-if(GUIPP_USE_QT6)
+if (GUIPP_USE_SDL)
+    message(STATUS "GUIPP: build with SDL!")
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(SDL2 REQUIRED sdl2)
+    pkg_check_modules(SDL2_TTF REQUIRED SDL2_ttf)
+elseif(GUIPP_USE_QT6)
     message(STATUS "GUIPP: build with Qt6!")
     find_package(Qt6Core)
     find_package(Qt6Gui)
@@ -157,7 +163,19 @@ if(NOT TARGET guipp)
     ${UTIL_INCLUDE_DIRS}
     )
 
-  if(GUIPP_USE_QT6)
+  if (GUIPP_USE_SDL)
+    DebugPrint("GUIPP: build with SDL!")
+    set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} 
+      ${SDL2_INCLUDE_DIRS} 
+      ${SDL2_TTF_INCLUDE_DIRS}
+    )
+    set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES}
+      ${SDL2_LIBRARIES} 
+      ${SDL2_TTF_LIBRARIES}
+    )
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_SDL ${SDL2_LDFLAGS} ${SDL2_TTF_LDFLAGS})
+
+  elseif(GUIPP_USE_QT6)
     DebugPrint("GUIPP: build with Qt6!")
 
     set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${Qt6Gui_LIBRARIES})
@@ -334,7 +352,6 @@ if(NOT TARGET guipp)
   if (GUIPP_POPUP_OVERLAPP)
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_POPUP_OVERLAPP)
   endif()
-
 
   if(CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
     set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} /Y- /bigobj)

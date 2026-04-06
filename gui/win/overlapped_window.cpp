@@ -43,9 +43,6 @@
 #include "gui/win/native.h"
 #include "gui/win/dbg_win_message.h"
 
-// #if !defined(GUIPP_BUILD_FOR_MOBILE)
-// # define USE_INPUT_EATER
-// #endif
 
 #define DEBUG_RECTANGLESx
 #ifdef DEBUG_RECTANGLES
@@ -102,7 +99,6 @@ namespace gui {
 
       end_return end (os::window id) {
 #ifdef GUIPP_X11
-//        native::copy_surface(pixel_store, id, gc, core::native_point::zero, core::native_point::zero, size);
         auto display = core::global::get_instance();
         XSetWindowBackgroundPixmap(display, id, pixel_store);
         XClearWindow(display, id);
@@ -257,11 +253,7 @@ namespace gui {
                                              os::window parent_id,
                                              const core::rectangle& r) {
 
-#ifdef GUIPP_JS
       if (native::is_valid(get_os_window())) {
-#else
-      if (get_os_window()) {
-#endif //GUIPP_JS
         destroy();
       }
       
@@ -288,11 +280,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     void overlapped_window::add_event_mask (os::event_id mask) {
       receiver::add_event_mask(mask);
-#ifdef GUIPP_X11
       if (is_valid()) {
         native::prepare_win_for_event(*this);
       }
-#endif
     }
     // --------------------------------------------------------------------------
     void overlapped_window::remove (window* w) {
@@ -394,11 +384,7 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     bool overlapped_window::is_valid () const {
-#ifdef GUIPP_JS
       return native::is_valid(get_os_window()) && super::is_valid();
-#else
-      return (get_os_window() != 0) && super::is_valid();
-#endif //GUIPP_JS
     }
     // --------------------------------------------------------------------------
     void overlapped_window::set_accept_focus (bool a) {
@@ -661,7 +647,7 @@ namespace gui {
       }
     }
 
-#ifdef GUIPP_X11
+#if GUIPP_X11 && USE_INPUT_EATER
     // --------------------------------------------------------------------------
     class input_only_window : public window {
       using clazz = window_class<input_only_window,
@@ -679,7 +665,7 @@ namespace gui {
       }
     };
 
-#endif // GUIPP_X11
+#endif // GUIPP_X11 && USE_INPUT_EATER
 
     // --------------------------------------------------------------------------
     modal_window::modal_window ()
@@ -729,8 +715,6 @@ namespace gui {
 # if GUIPP_POPUP_OVERLAPP && !GUIPP_BUILD_FOR_MOBILE
       get_os_window()->setModality(Qt::WindowModality::ApplicationModal);
 # endif
-#else
-      //parent.disable();
 #endif
       set_visible();
       to_front();
@@ -738,13 +722,10 @@ namespace gui {
 
       is_modal = true;
 
-#ifdef GUIPP_X11
-#if defined(USE_INPUT_EATER)
+#if GUIPP_X11 && USE_INPUT_EATER
       input_only_window input_eater(parent.get_overlapped_window());
       input_eater.set_visible();
-#endif // USE_INPUT_EATER
-
-#endif // GUIPP_X11
+#endif // GUIPP_X11 && USE_INPUT_EATER
 
 #ifdef GUIPP_QT
       for (auto& hk : hot_keys) {
@@ -759,16 +740,7 @@ namespace gui {
         run_loop(is_modal);
       } else {
         run_loop(is_modal, [&](const core::event & e)->bool {
-
-#ifdef GUIPP_WIN
-          if (e.type == WM_KEYDOWN) {
-#elif GUIPP_X11
-          if (e.type == KeyPress) {
-#elif GUIPP_QT
-          if (e.type() == QEvent::KeyPress) {
-#elif GUIPP_JS
-          if (e.type == os::js::event_type::KeyDown) {
-#endif // GUIPP_QT
+          if (is_hotkey_event(e)) {
             core::hot_key hk(get_key_symbol(e), get_key_state(e));
             for (hot_key_action k : hot_keys) {
               if (hk == k.hk) {
@@ -782,11 +754,9 @@ namespace gui {
       }
 #endif // GUIPP_QT
 
-#ifdef GUIPP_X11
-#if defined(USE_INPUT_EATER)
+#if GUIPP_X11 && USE_INPUT_EATER
       input_eater.set_visible(false);
-#endif // USE_INPUT_EATER
-#endif // GUIPP_X11
+#endif // GUIPP_X11 && USE_INPUT_EATER
 
       //parent.enable();
       parent.take_focus();
@@ -809,6 +779,10 @@ namespace gui {
       title = t;
     }
 
+    os::window container_window::get_os_window () const {
+      return get_overlapped_window().get_os_window();
+    }
+
     // --------------------------------------------------------------------------
     const std::string& container_window::get_title () const {
       return title;
@@ -825,9 +799,7 @@ namespace gui {
                                container& parent,
                                const core::rectangle& r) {
       super::create(cls, parent, r);
-#if GUIPP_POPUP_OVERLAPP
       native::prepare_popup_window(get_os_window());
-#endif
     }
 
     // --------------------------------------------------------------------------
@@ -835,9 +807,7 @@ namespace gui {
                                  container& parent,
                                  const core::rectangle& r) {
       super::create(cls, parent, r);
-#if GUIPP_POPUP_OVERLAPP
       native::prepare_tooltip_window(get_os_window());
-#endif
     }
 
     // --------------------------------------------------------------------------
@@ -845,10 +815,8 @@ namespace gui {
                                 container& parent,
                                 const core::rectangle& r) {
       super::create(cls, parent, r);
-#if GUIPP_POPUP_OVERLAPP
       native::prepare_dialog_window(get_os_window(),
                                     parent.get_overlapped_window().get_os_window());
-#endif
     }
 
     // --------------------------------------------------------------------------
@@ -856,9 +824,7 @@ namespace gui {
                                  container& parent,
                                  const core::rectangle& r) {
       super::create(cls, parent, r);
-#if GUIPP_POPUP_OVERLAPP
       native::prepare_palette_window(get_os_window());
-#endif
     }
 
     // --------------------------------------------------------------------------

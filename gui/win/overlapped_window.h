@@ -181,6 +181,8 @@ namespace gui {
       void set_title (const std::string&);
       const std::string& get_title () const;
 
+      os::window get_os_window () const;
+
     protected:
 
       using super::create;

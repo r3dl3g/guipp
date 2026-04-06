@@ -44,6 +44,8 @@
 //
 // Library includes
 //
+#include "gui/core/bits.h"
+
 
 #ifdef GUIPP_WIN
 #pragma warning (disable: 4251)
@@ -245,6 +247,7 @@ namespace gui {
     namespace global {
 
       GUIPP_CORE_EXPORT void init (gui::os::instance instance);
+      GUIPP_CORE_EXPORT void info (gui::os::instance instance);
       GUIPP_CORE_EXPORT void fini ();
 
       GUIPP_CORE_EXPORT void sync ();

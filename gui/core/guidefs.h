@@ -21,17 +21,17 @@
 // Common includes
 //
 #ifdef GUIPP_WIN
-# include <gui/core/guidefs_win32.h>
+# include "gui/core/guidefs_win32.h"
 #elif GUIPP_X11
-# include <gui/core/guidefs_x11.h>
+# include "gui/core/guidefs_x11.h"
 #elif GUIPP_QT
-# include <gui/core/guidefs_qt.h>
+# include "gui/core/guidefs_qt.h"
 #elif GUIPP_JS
-# include <gui/core/guidefs_js.h>
+# include "gui/core/guidefs_js.h"
 #elif GUIPP_SDL
-# include <gui/core/guidefs_sdl.h>
+# include "gui/core/guidefs_sdl.h"
 #elif GUIPP_COCOA
-# include <gui/core/guidefs_cocoa.h>
+# include "gui/core/guidefs_cocoa.h"
 #else
 #error Unknown target system in guidefs.h
 #endif // GUIPP_QT

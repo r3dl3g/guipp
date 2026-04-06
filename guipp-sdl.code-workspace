@@ -1,0 +1,119 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../util"
+		},
+		{
+			"path": "../logging"
+		},
+		{
+			"path": "../persistent"
+		},
+		{
+			"path": "../testing"
+		}
+	],
+	"settings": {
+		"nixEnvSelector.nixFile": "${workspaceFolder}/shell-sdl.nix",
+		"cmake.buildDirectory": "${userHome}/.cache/build/${workspaceFolderBasename}/sdl/${buildType}",
+		"cmake.buildArgs": [ "--parallel 12" ],
+		"cmake.configureArgs": [
+			"-DGUIPP_USE_SDL=ON",
+			"-DGUIPP_SAMPLES=ON",
+			"-DVERBOSE=ON"
+		],
+		"C_Cpp.default.defines": [
+			"GUIPP_QT"
+		],
+		"files.associations": {
+			"*.tcc": "cpp",
+			"*.inl": "cpp",
+			"algorithm": "cpp",
+			"array": "cpp",
+			"atomic": "cpp",
+			"bit": "cpp",
+			"bitset": "cpp",
+			"cctype": "cpp",
+			"chrono": "cpp",
+			"cinttypes": "cpp",
+			"clocale": "cpp",
+			"cmath": "cpp",
+			"codecvt": "cpp",
+			"compare": "cpp",
+			"complex": "cpp",
+			"concepts": "cpp",
+			"condition_variable": "cpp",
+			"cstdarg": "cpp",
+			"cstddef": "cpp",
+			"cstdint": "cpp",
+			"cstdio": "cpp",
+			"cstdlib": "cpp",
+			"cstring": "cpp",
+			"ctime": "cpp",
+			"cwchar": "cpp",
+			"cwctype": "cpp",
+			"deque": "cpp",
+			"map": "cpp",
+			"exception": "cpp",
+			"functional": "cpp",
+			"future": "cpp",
+			"fstream": "cpp",
+			"initializer_list": "cpp",
+			"iomanip": "cpp",
+			"iosfwd": "cpp",
+			"iostream": "cpp",
+			"istream": "cpp",
+			"iterator": "cpp",
+			"limits": "cpp",
+			"memory": "cpp",
+			"memory_resource": "cpp",
+			"mutex": "cpp",
+			"new": "cpp",
+			"numbers": "cpp",
+			"numeric": "cpp",
+			"ostream": "cpp",
+			"random": "cpp",
+			"ratio": "cpp",
+			"regex": "cpp",
+			"semaphore": "cpp",
+			"set": "cpp",
+			"shared_mutex": "cpp",
+			"sstream": "cpp",
+			"stdexcept": "cpp",
+			"stop_token": "cpp",
+			"streambuf": "cpp",
+			"string": "cpp",
+			"string_view": "cpp",
+			"system_error": "cpp",
+			"thread": "cpp",
+			"tuple": "cpp",
+			"typeinfo": "cpp",
+			"type_traits": "cpp",
+			"unordered_map": "cpp",
+			"utility": "cpp",
+			"vector": "cpp",
+			"list": "cpp",
+			"variant": "cpp",
+			"charconv": "cpp",
+			"optional": "cpp",
+			"format": "cpp",
+			"span": "cpp",
+			"text_encoding": "cpp",
+			"unordered_set": "cpp",
+			"stdfloat": "cpp",
+			"typeindex": "cpp",
+			"any": "cpp",
+			"hash_map": "cpp",
+			"strstream": "cpp",
+			"coroutine": "cpp",
+			"csignal": "cpp",
+			"forward_list": "cpp",
+			"source_location": "cpp",
+			"valarray": "cpp",
+			"filesystem": "cpp"
+		}
+	}
+}

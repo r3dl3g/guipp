@@ -1,1 +1,2 @@
-./prepare.sh -DGUIPP_SAMPLES=ON
+./prepare.sh -DGUIPP_SAMPLES=ON $@
+

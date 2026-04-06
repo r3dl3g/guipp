@@ -23,7 +23,9 @@ if(NOT TARGET ${PROJECT_NAME})
       datamap.cpp
       diagram.cpp
       drawers.cpp
+      drawers_js.cpp
       drawers_qt.cpp
+      drawers_sdl.cpp
       drawers_win32.cpp
       drawers_x11.cpp
       font_js.cpp

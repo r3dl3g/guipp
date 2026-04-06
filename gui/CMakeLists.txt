@@ -170,6 +170,7 @@ if(NOT TARGET guipp)
       ${SDL2_INCLUDE_DIRS} 
       ${SDL2_TTF_INCLUDE_DIRS}
       ${SDL2_GFX_INCLUDE_DIRS}
+      "../libs/sdl_font_cache"
     )
     set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES}
       ${SDL2_LIBRARIES} 

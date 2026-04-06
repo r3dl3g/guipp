@@ -69,6 +69,11 @@ namespace gui {
         GUIPP_CORE_EXPORT gui::os::key_symbol key_name_to_symbol (const std::string& name);
       } // namespace js
 #endif
+#ifdef GUIPP_SDL
+      namespace sdl {
+        GUIPP_CORE_EXPORT gui::os::graphics get_font_renderer ();
+      } // namespace js
+#endif
 
       // --------------------------------------------------------------------------
     } // namespace native

@@ -50,20 +50,36 @@ namespace gui {
         SDL_RenderSetClipRect(ctx.graphics(), NULL);
       }
 
+      namespace {
+        gui::os::graphics s_font_renderer = nullptr;
+      }
+
       // --------------------------------------------------------------------------
       gui::os::graphics create_graphics_context (gui::os::drawable id) {
         if (std::holds_alternative<gui::os::window>(id)) {
-          return SDL_CreateRenderer(std::get<gui::os::window>(id), -1, 0);
+          s_font_renderer = SDL_CreateRenderer(std::get<gui::os::window>(id), -1, 0);
+          return s_font_renderer;
         } if (std::holds_alternative<gui::os::bitmap>(id)) {
-          return SDL_CreateSoftwareRenderer(std::get<gui::os::bitmap>(id));
+          s_font_renderer = SDL_CreateSoftwareRenderer(std::get<gui::os::bitmap>(id));
+          return s_font_renderer;
         }
         return nullptr;
       }
 
       // --------------------------------------------------------------------------
       void delete_graphics_context (gui::os::graphics id) {
+        if (id == s_font_renderer) {
+          s_font_renderer = nullptr;
+        }
         SDL_DestroyRenderer(id);
       }
+
+      namespace sdl {
+        gui::os::graphics get_font_renderer () {
+          // TDB: Search a better solution!
+          return s_font_renderer;
+        }
+      } // namespace js
 
       // --------------------------------------------------------------------------
       std::string key_symbol_to_string (gui::os::key_symbol key) {

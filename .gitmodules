@@ -10,3 +10,6 @@
 	path = libs/testing
 	url = ../testing.git
 	branch = main
+[submodule "libs/sdl_font_cache"]
+	path = libs/sdl_font_cache
+	url = https://github.com/grimfang4/SDL_FontCache.git

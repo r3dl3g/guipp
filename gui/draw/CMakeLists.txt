@@ -26,11 +26,11 @@ if(NOT TARGET ${PROJECT_NAME})
       drawers_qt.cpp
       drawers_win32.cpp
       drawers_x11.cpp
-      drawers_js.cpp
+      font_js.cpp
+      font_qt.cpp
+      font_sdl.cpp
       font_win32.cpp
       font_x11.cpp
-      font_qt.cpp
-      font_js.cpp
       frames.cpp
       graphics.cpp
       graphics_js.cpp
@@ -43,9 +43,21 @@ if(NOT TARGET ${PROJECT_NAME})
       text_origin.cpp
       use_js.cpp
       use_qt.cpp
+      use_sdl.cpp
       use_x11.cpp
   )
+
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
+
+  if (GUIPP_USE_SDL)
+    set(SOURCE_FILES ${SOURCE_FILES}
+      ${CMAKE_SOURCE_DIR}/libs/sdl_font_cache/SDL_FontCache.c
+    )
+    set(INCLUDE_FILES ${INCLUDE_FILES}
+      ${CMAKE_SOURCE_DIR}/libs/sdl_font_cache/SDL_FontCache.h
+    )
+  endif()
+
 
   define_guipp_subpackage(${PROJECT_NAME}
                           BASE GUIPP_DRAW

@@ -30,7 +30,10 @@
 #include <SDL_render.h>
 #include <SDL_mouse.h>
 #include <SDL_keyboard.h>
-#include <SDL_ttf.h>
+extern "C" {
+  #include "SDL_FontCache.h"
+}
+
 
 // --------------------------------------------------------------------------
 //
@@ -76,7 +79,7 @@ namespace gui {
     typedef SDL_Point point;
     typedef sdl::size size;
     typedef SDL_Rect rectangle;
-    typedef TTF_Font* font_type;
+    typedef FC_Font* font_type;
 
     inline point_type get_x (const point& p) { return p.x; }
     inline point_type get_y (const point& p) { return p.y; }

@@ -60,7 +60,7 @@ namespace gui {
 
 #endif // GUIPP_WIN
 
-#if defined(GUIPP_X11) || defined(GUIPP_COCOA) || defined(GUIPP_QT) || defined(GUIPP_JS) && !defined(GUIPP_WIN)
+#if defined(GUIPP_X11) || defined(GUIPP_COCOA) || defined(GUIPP_QT) || defined(GUIPP_JS) || defined(GUIPP_SDL) && !defined(GUIPP_WIN)
 
     enum SystemColor {
       COLOR_SCROLLBAR,

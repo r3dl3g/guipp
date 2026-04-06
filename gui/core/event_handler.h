@@ -173,6 +173,8 @@ namespace gui {
           if (e.type() != QEvent::Type::MouseMove) {
 #elif GUIPP_JS
           if (true) {
+#elif GUIPP_SDL
+          if (e.type != SDL_MOUSEMOTION) {
 #else
 #error  Undefined System: event_handler::operator ()
 #endif

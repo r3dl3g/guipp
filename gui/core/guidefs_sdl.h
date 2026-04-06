@@ -47,12 +47,12 @@ namespace gui {
     using drawable = SDL_Window*;
     using graphics = SDL_Renderer*;
 
-    typedef SDL_Color color;
+    typedef Uint32 /* SDL_Color */ color;
     typedef Uint32 style;
 
     using backstore = SDL_Surface*;
     using bitmap = SDL_Texture*;
-    typedef int icon;
+    typedef SDL_Surface* icon;
     typedef SDL_Cursor* cursor;
     typedef SDL_Color brush;
 
@@ -94,8 +94,8 @@ namespace gui {
       return rectangle{x, y, w, h};
     }
 
-    typedef SDL_Event event_id;
-    typedef SDL_Event message_type;
+    typedef Uint32 event_id;
+    typedef Uint32 message_type;
     typedef int event_result;
 
   } // os

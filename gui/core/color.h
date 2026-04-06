@@ -118,6 +118,9 @@ namespace gui {
     template<>
     struct part_defaults<core::os::platform_t::js> : public bgra_parts {};
 
+    template<>
+    struct part_defaults<core::os::platform_t::sdl> : public bgra_parts {};
+
     // ------------------------------------------------------------------------
     enum struct part : type {
       red = part_defaults<>::red,

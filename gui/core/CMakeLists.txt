@@ -17,6 +17,7 @@ if(NOT TARGET ${PROJECT_NAME})
       guidefs.cpp
       guidefs_js.cpp
       guidefs_qt.cpp
+      guidefs_sdl.cpp
       guidefs_win32.cpp
       guidefs_x11.cpp
       keys.cpp

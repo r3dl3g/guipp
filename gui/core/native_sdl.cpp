@@ -52,7 +52,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       gui::os::graphics create_graphics_context (gui::os::drawable id) {
-        auto* render = SDL_CreateRenderer(id, -1, 0);
+        return SDL_CreateRenderer(id, -1, 0);
       }
 
       // --------------------------------------------------------------------------
@@ -99,4 +99,4 @@ namespace gui {
 
 } // namespace gui
 
-#endif // GUIPP_QT
+#endif // GUIPP_SDL

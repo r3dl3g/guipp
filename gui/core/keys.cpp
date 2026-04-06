@@ -89,7 +89,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     bool hot_key::operator< (const hot_key& rhs) const {
       if (key == rhs.key) {
-        gui::os::key_state m = rhs.modifiers & ~(state::num_lock | state::scroll_lock | state::caps_lock);
+        int m = rhs.modifiers & ~(state::num_lock | state::scroll_lock | state::caps_lock);
         return (modifiers < m);
       }
       return key < rhs.key;

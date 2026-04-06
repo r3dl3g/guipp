@@ -31,11 +31,14 @@
 #include "gui/core/guidefs.h"
 #ifdef GUIPP_WIN
 #include "gui/core/win32_event.h"
-#endif // Win32
+#endif // GUIPP_WIN
 #ifdef GUIPP_JS
 #include "gui/core/rectangle.h"
 #include "gui/core/keys.h"
-#endif
+#endif // GUIPP_JS
+#ifdef GUIPP_SDL
+#include <SDL_events.h>
+#endif // GUIPP_SDL
 
 
 namespace gui {
@@ -124,6 +127,15 @@ namespace gui {
     };
 
 #endif // GUIPP_JS
+
+#ifdef GUIPP_SDL
+    using event = SDL_Event;
+
+    const gui::os::event_id WM_CREATE_WINDOW = SDL_USEREVENT + 0x01;
+    const gui::os::event_id WM_LAYOUT_WINDOW = SDL_USEREVENT + 0x02;
+    const gui::os::event_id WM_PAINT_WINDOW  = SDL_USEREVENT + 0x03;
+
+#endif // GUIPP_SDL
 
 typedef bool (event_handler_callback)(const event&, gui::os::event_result&);
 

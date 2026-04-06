@@ -31,13 +31,15 @@
 
 
 #ifdef GUIPP_WIN
-# include <gui/core/keys_win32.h>
+# include "gui/core/keys_win32.h"
 #elif GUIPP_X11
-# include <gui/core/keys_x11.h>
+# include "gui/core/keys_x11.h"
 #elif GUIPP_QT
-# include <gui/core/keys_qt.h>
+# include "gui/core/keys_qt.h"
 #elif GUIPP_JS
-# include <gui/core/keys_js.h>
+# include "gui/core/keys_js.h"
+#elif GUIPP_SDL
+# include "gui/core/keys_sdl.h"
 #else
 # error Unknown target system
 #endif
@@ -66,7 +68,7 @@ namespace gui {
       typedef std::function<fn> call;
 
       explicit hot_key (gui::os::key_symbol key = 0,
-                        gui::os::key_state modifiers = 0);
+                        gui::os::key_state modifiers = {});
 
       std::string get_key_string () const;
       bool match (gui::os::key_state, gui::os::key_symbol) const;

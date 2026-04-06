@@ -68,7 +68,8 @@ namespace gui {
 
     void bitmap_get_data (const os::bitmap& id, blob& data, draw::bitmap_info& bmi) {
       if (id) {
-        data.assign(id->pixels, id->pixels + bmi.mem_size());
+        auto bits = static_cast<const blob::value_type*>(id->pixels);
+        data.assign(bits, bits + bmi.mem_size());
       } else {
         bmi = {};
         data.clear();

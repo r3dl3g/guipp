@@ -513,6 +513,10 @@ namespace gui {
         return id;
       }
 
+      bool is_valid (const os::window& id) {
+        return static_cast<bool>(id);
+      }
+
       void destroy (os::window w) {
         if (w) {
           x11::validate_window(w);
@@ -785,6 +789,7 @@ namespace gui {
       }
 
       void prepare_popup_window (os::window id) {
+#if GUIPP_POPUP_OVERLAPP
         gui::os::instance display = core::global::get_instance();
 
         x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU");
@@ -792,9 +797,11 @@ namespace gui {
         XSetWindowAttributes swa;
         swa.override_redirect = 1;
         XChangeWindowAttributes(display, id, CWOverrideRedirect, &swa);
+#endif
       }
 
       void prepare_tooltip_window (os::window id) {
+#if GUIPP_POPUP_OVERLAPP
         gui::os::instance display = core::global::get_instance();
 
         x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_TOOLTIP");
@@ -802,9 +809,11 @@ namespace gui {
         XSetWindowAttributes swa;
         swa.override_redirect = 1;
         XChangeWindowAttributes(display, id, CWOverrideRedirect, &swa);
+#endif
       }
 
       void prepare_dialog_window (os::window id, os::window pid) {
+#if GUIPP_POPUP_OVERLAPP
         gui::os::instance display = core::global::get_instance();
         x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DIALOG");
         x11::change_property(display, id, "_NET_WM_STATE", "_NET_WM_STATE_MODAL");
@@ -813,6 +822,7 @@ namespace gui {
         
         x11::set_wm_protocols(display, id);
         enable_input(display, id);
+#endif
       }
 
       typedef struct {
@@ -847,6 +857,7 @@ namespace gui {
 #define MWM_DECOR_MAXIMIZE      (1L << 6)
 
       void prepare_palette_window (os::window id) {
+#if GUIPP_POPUP_OVERLAPP
         gui::os::instance display = core::global::get_instance();
 
         x11::change_property(display, id, "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_UTILITY");
@@ -861,6 +872,7 @@ namespace gui {
 
         XChangeProperty(display, id, motif_hints_atom, XA_ATOM, 32, PropModeReplace, 
                         reinterpret_cast<unsigned char*>(&hints), 5);
+#endif
       }
 
       void erase (os::drawable id, os::graphics gc, const core::native_rect& r, os::color c) {

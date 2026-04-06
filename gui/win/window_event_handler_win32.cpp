@@ -14,13 +14,13 @@
  * @license   MIT license. See accompanying file LICENSE.
  */
 
+ #ifdef GUIPP_WIN
+
 // --------------------------------------------------------------------------
 //
 // Common includes
 //
-#ifdef GUIPP_WIN
 # include <windowsx.h>
-#endif // GUIPP_WIN
 
 // --------------------------------------------------------------------------
 //
@@ -29,17 +29,13 @@
 #include "gui/win/window_event_handler.h"
 #include "gui/win/overlapped_window.h"
 #include "gui/win/native.h"
-
-#ifdef GUIPP_WIN
-# include <util/string_util.h>
-#endif // GUIPP_WIN
+#include <util/string_util.h>
 
 
 namespace gui {
 
   namespace win {
 
-#ifdef GUIPP_WIN
     // --------------------------------------------------------------------------
     template<>
     bool get_param<0, bool>(const core::event& e) {
@@ -299,302 +295,12 @@ namespace gui {
       }
     }
 
-
-#endif // Win32
-#ifdef GUIPP_X11
-    // --------------------------------------------------------------------------
-    os::key_state get_key_state (const core::event& e) {
-      return static_cast<os::key_state>(get_event_state<XKeyEvent>(e));
+    bool is_hotkey_event (const core::event& e) {
+      return (e.type == WM_KEYDOWN);
     }
-
-    // --------------------------------------------------------------------------
-    os::key_symbol get_key_symbol (const core::event& e) {
-      return XLookupKeysym(const_cast<XKeyEvent*>(&e.xkey), 0);
-    }
-
-    // --------------------------------------------------------------------------
-    std::string get_key_chars (const core::event& e) {
-      XIC ic = native::x11::get_window_ic(e.xany.window);
-      if (ic) {
-        Status status;
-        char text[8] = {0};
-        KeySym keySym = 0;
-        int len = Xutf8LookupString(ic, const_cast<XKeyEvent*>(&e.xkey), text, 8, &keySym, &status);
-        if ((status == XLookupChars) || (status == XLookupBoth)) {
-          return std::string(text, len);
-        }
-      } else {
-        char text[8] = {0};
-        KeySym keySym = 0;
-        int len = XLookupString(const_cast<XKeyEvent*>(&e.xkey), text, 8, &keySym, 0);
-        return std::string(text, len);
-      }
-      return std::string();
-    }
-    // --------------------------------------------------------------------------
-    core::context* get_context (const core::event& e) {
-      return get_client_data<0, core::context*>(e);
-    }
-    // --------------------------------------------------------------------------
-    const core::native_rect* get_paint_rect (const core::event& e) {
-      return get_client_data<1, const core::native_rect*>(e);
-    }
-    // --------------------------------------------------------------------------
-    core::rectangle get_client_data_rect (const core::event& e) {
-      auto& l = e.xclient.data.l;
-      return core::global::scale_from_native(core::native_rect{static_cast<short>(l[0]), static_cast<short>(l[1]),
-                                                               static_cast<unsigned short>(l[2]), static_cast<unsigned short>(l[3])});
-    }
-    // --------------------------------------------------------------------------
-    core::size get_client_data_size (const core::event& e) {
-      auto& l = e.xclient.data.l;
-      return core::size(os::size{static_cast<unsigned short>(l[0]), static_cast<unsigned short>(l[1])});
-    }
-    // --------------------------------------------------------------------------
-    template<>
-    window* get_client_data<0, window*>(const core::event& e) {
-      os::window id = e.xclient.data.l[0];
-      return native::get_window(id);
-    }
-    // --------------------------------------------------------------------------
-    template<>
-    core::point::type get_client_data<0, core::point::type>(const core::event& e) {
-      return *get_client_data<0, core::point::type*>(e);
-    }
-    // --------------------------------------------------------------------------
-    window* get_current_focus_window (const core::event&) {
-      return global::get_current_focus_window();
-    }
-    // --------------------------------------------------------------------------
-    core::native_point get_root_mouse_pos (const core::event& e) {
-      auto me = (event_type_cast<XMotionEvent>(e));
-      return core::native_point{me.x_root, me.y_root};
-    }
-    // --------------------------------------------------------------------------
-    std::map<Window, core::rectangle> s_last_place;
-    // --------------------------------------------------------------------------
-    template<>
-    const core::size& get_last_geometry<core::size>(os::window w) {
-      return s_last_place[w].size();
-    }
-    // --------------------------------------------------------------------------
-    template<>
-    const core::point& get_last_geometry<core::point>(os::window w) {
-      return s_last_place[w].position();
-    }
-    // --------------------------------------------------------------------------
-    template<>
-    const core::rectangle& get_last_geometry<core::rectangle>(os::window w) {
-      return s_last_place[w];
-    }
-    // --------------------------------------------------------------------------
-    void update_last_geometry (os::window w, const core::rectangle& r) {
-      s_last_place[w] = r;
-    }
-    // --------------------------------------------------------------------------
-    void clear_last_geometry (os::window w) {
-      s_last_place.erase(w);
-    }
-    // --------------------------------------------------------------------------
-    bool is_mouse_event (const core::event& e) {
-      switch (e.type) {
-        case MotionNotify:
-        case ButtonPress:
-        case ButtonRelease:
-        case EnterNotify:
-        case LeaveNotify:
-          return true;
-        default:
-          return false;
-      }
-    }
-
-    bool is_key_event (const core::event& e) {
-      switch (e.type) {
-        case KeyPress:
-        case KeyRelease:
-          return true;
-        default:
-          return false;
-      }
-    }
-
-
-#endif // GUIPP_X11
-
-#ifdef GUIPP_QT
-    // --------------------------------------------------------------------------
-    os::key_state get_key_state (const core::event& e) {
-      return e.cast<QKeyEvent>().modifiers();
-    }
-
-    os::key_symbol get_key_symbol (const core::event& e) {
-      return e.cast<QKeyEvent>().key();
-    }
-
-    std::string get_key_chars (const core::event& e) {
-      return e.cast<QKeyEvent>().text().toStdString();
-    }
-
-    // --------------------------------------------------------------------------
-    QClientEvent::QClientEvent (Type type, const core::rectangle& rect)
-      : QEvent(type)
-      , m_rect(rect)
-      , m_l1(0)
-      , m_l2(0)
-    {}
-
-    QClientEvent::QClientEvent (Type type, long l1, long l2)
-      : QEvent(type)
-      , m_l1(l1)
-      , m_l2(l2)
-    {}
-
-    QClientEvent::QClientEvent (Type type)
-      : QEvent(type)
-      , m_l1(0)
-      , m_l2(0)
-    {}
-
-    QClientEvent::~QClientEvent ()
-    {}
-
-    const core::rectangle &QClientEvent::rect() const {
-      return m_rect;
-    }
-
-    long QClientEvent::l1 () const {
-      return m_l1;
-    }
-
-    long QClientEvent::l2 () const {
-      return m_l2;
-    }
-
-    // --------------------------------------------------------------------------
-    template<>
-    long get_param<0> (const core::event& e) {
-      return e.cast<QClientEvent>().l1();
-    }
-
-    template<>
-    long get_param<1> (const core::event& e) {
-      return e.cast<QClientEvent>().l2();
-    }
-
-    core::native_point::type get_wheel_delta_x (const core::event& e) {
-      auto& we = e.cast<QWheelEvent>();
-      os::point numPixels = we.pixelDelta();
-      if (numPixels.isNull()) {
-        return we.angleDelta().x() / 15;
-      }
-      return numPixels.x();
-    }
-
-    core::native_point::type get_wheel_delta_y (const core::event& e) {
-      auto& we = e.cast<QWheelEvent>();
-      os::point numPixels = we.pixelDelta();
-      if (numPixels.isNull()) {
-        return we.angleDelta().y() / 15;
-      }
-      return numPixels.y();
-    }
-
-    core::point get_move_point (const core::event& e) {
-      const auto p = e.cast<QMoveEvent>().pos();
-      return core::global::scale_from_native(core::native_point(p.x(), p.y()));
-    }
-
-    core::native_point get_wheel_point (const core::event& e) {
-#if QT_VERSION > QT_VERSION_CHECK(5, 13, 0)
-      const auto pt = e.cast<QWheelEvent>().position();
-      return core::native_point(pt.x(), pt.y());
-#else
-      return core::native_point(e.cast<QWheelEvent>().x(), e.cast<QWheelEvent>().y());
-#endif
-    }
-
-    // --------------------------------------------------------------------------
-    core::rectangle get_client_data_rect (const core::event& e) {
-      return e.cast<QClientEvent>().rect();
-    }
-
-//    os::graphics get_graphics (const core::event& e) {
-//      return nullptr;//get_draw_window(e)->painter();
-//    }
-
-//    os::window get_draw_window (const core::event& e) {
-//      return e.id;
-//    }
-
-    core::context* get_context (const core::event& e) {
-      return (core::context*)e.cast<QClientEvent>().l1();
-    }
-
-    const core::native_rect* get_paint_rect (const core::event& e) {
-      return (const core::native_rect*)(e.cast<QClientEvent>().l2());
-    }
-
-    bool is_mouse_event (const core::event& e) {
-      switch (e.type()) {
-        case QEvent::MouseMove:
-        case QEvent::MouseButtonPress:
-        case QEvent::MouseButtonRelease:
-        case QEvent::MouseButtonDblClick:
-        case QEvent::DragEnter:
-        case QEvent::DragMove:
-        case QEvent::DragLeave:
-//        case QEvent::Enter:
-//        case QEvent::Leave:
-        case QEvent::MouseTrackingChange:
-        case QEvent::Wheel:
-          return true;
-        default:
-          return false;
-      }
-    }
-
-    bool is_key_event (const core::event& e) {
-      switch (e.type()) {
-        case QEvent::KeyPress:
-        case QEvent::KeyRelease:
-          return true;
-        default:
-          return false;
-      }
-    }
-
-    // --------------------------------------------------------------------------
-#endif // GUIPP_QT
-
-#ifdef GUIPP_JS
-
-    core::context* get_context (const core::event& e) {
-      return std::get<core::context*>(e.param_0);
-    }
-
-    bool is_mouse_event (const core::event& e) {
-      return (static_cast<int>(e.type) >= os::js::MouseMin) && (static_cast<int>(e.type) <= os::js::MouseMax);
-    }
-
-    bool is_key_event (const core::event& e) {
-      return (e.type == os::js::event_type::KeyDown) || (e.type == os::js::event_type::KeyUp);
-    }
-
-    os::key_state get_key_state (const core::event& e) {
-      return std::get<os::key_state>(e.param_0);
-    }
-
-    os::key_symbol get_key_symbol (const core::event& e) {
-      return std::get<os::key_symbol>(e.param_1);
-    }
-
-    std::string get_key_chars (const core::event& e) {
-      return e.chars;
-    }
-
-#endif //GUIPP_JS
 
   } // win
 
 } // gui
+
+#endif // Win32

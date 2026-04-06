@@ -202,6 +202,10 @@ namespace gui {
         return id;
       }
 
+      bool is_valid (const os::window& id) {
+        return static_cast<bool>(id);
+      }
+
       void destroy (os::window w) {
         if (w) {
           DestroyWindow(w);

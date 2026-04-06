@@ -132,6 +132,10 @@ namespace gui {
         return id;
       }
 
+      bool is_valid (const os::window& id) {
+        return static_cast<bool>(id);
+      }
+
       void destroy (os::window id) {
         if (id) {
           // notify_event(core::qt::WM_DESTROY_WINDOW);

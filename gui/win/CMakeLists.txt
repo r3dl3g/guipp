@@ -28,7 +28,10 @@ if(NOT TARGET ${PROJECT_NAME})
       stacked_view_controller.cpp
       window.cpp
       window_class.cpp
-      window_event_handler.cpp
+      window_event_handler_js.cpp
+      window_event_handler_qt.cpp
+      window_event_handler_win32.cpp
+      window_event_handler_x11.cpp
       window_event_proc_js.cpp
       window_event_proc_qt.cpp
       window_event_proc_win32.cpp

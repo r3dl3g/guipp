@@ -11,7 +11,10 @@ if(NOT TARGET ${PROJECT_NAME})
   set(SOURCE_FILES
       animation.cpp
       background_repeater.cpp
-      clipboard.cpp
+      clipboard_js.cpp
+      clipboard_qt.cpp
+      clipboard_win32.cpp
+      clipboard_x11.cpp
       container.cpp
       cursor.cpp
       dbg_win_message.cpp

@@ -14,16 +14,9 @@
  * @license   MIT license. See accompanying file LICENSE.
  */
 
+ #ifdef GUIPP_X11
+
 #include <limits>
-#ifdef GUIPP_QT
-#include <QtGui/QClipboard>
-#include <QtGui/QGuiApplication>
-#endif // GUIPP_QT
-#ifdef GUIPP_JS
-#include <emscripten.h>
-#endif // GUIPP_JS
-
-
 #include <util/string_util.h>
 
 // --------------------------------------------------------------------------
@@ -42,52 +35,6 @@ namespace gui {
       static clipboard c;
       return c;
     }
-
-#ifdef GUIPP_WIN
-
-    clipboard::clipboard ()
-    {}
-
-    void clipboard::set_text (window& win, const std::string& t) {
-      text = t;
-      auto id = win.get_overlapped_window().get_os_window();
-      if (OpenClipboard(id)) {
-        const std::size_t len = text.size() + 1;
-        HGLOBAL hmem = GlobalAlloc(GMEM_DDESHARE, len);
-        if (hmem) {
-          EmptyClipboard();
-          char* data = static_cast<char*>(GlobalLock(hmem));
-          memcpy(data, text.c_str(), len);
-          GlobalUnlock(hmem);
-          SetClipboardData(CF_TEXT, hmem);
-        }
-        CloseClipboard();
-      }
-    }
-
-    void clipboard::get_text (window& win, std::function<clipboard::text_callback>&& cb) {
-      auto id = win.get_overlapped_window().get_os_window();
-      if (OpenClipboard(id)) {
-        HANDLE hmem = GetClipboardData(CF_UNICODETEXT);
-        if (hmem) {
-          const wchar_t* data = static_cast<wchar_t*>(GlobalLock(hmem));
-          cb(util::string::utf16_to_utf8(std::wstring(data)));
-          GlobalUnlock(hmem);
-        } else {
-          hmem = GetClipboardData(CF_TEXT);
-          if (hmem) {
-            const char* data = static_cast<char*>(GlobalLock(hmem));
-            cb(std::string(data));
-            GlobalUnlock(hmem);
-          }
-        }
-        CloseClipboard();
-      }
-    }
-
-#endif // GUIPP_WIN
-
-#ifdef GUIPP_X11
 
     namespace detail {
 
@@ -187,57 +134,8 @@ namespace gui {
                         win.get_overlapped_window().get_os_window(), CurrentTime);
     }
 
-#endif // GUIPP_X11
-
-#ifdef GUIPP_QT
-
-    clipboard::clipboard ()
-    {}
-
-    void clipboard::set_text (window& win, const std::string& t) {
-      QGuiApplication::clipboard()->setText(QString::fromStdString(t));
-    }
-
-    void clipboard::get_text (window& win, std::function<clipboard::text_callback>&& cb) {
-      cb(QGuiApplication::clipboard()->text().toStdString());
-    }
-
-#endif // GUIPP_QT
-
-#ifdef GUIPP_JS
-
-    using clipboard_receiver = std::function<clipboard::text_callback>;
-
-    static std::unordered_map<int, clipboard_receiver> s_clipboard_receiver;
-    static int s_next_id = 0;
-
-    clipboard::clipboard ()
-    {}
-
-    using namespace emscripten;
-
-    void clipboard::set_text (window& win, const std::string& t) {
-      native::js::send_to_main("copy", t);
-    }
-
-    void clipboard::get_text (window& win, std::function<clipboard::text_callback>&& cb) {
-      int id = ++s_next_id;
-      s_clipboard_receiver[id] = std::move(cb);
-      native::js::send_to_main("paste", id);
-    }
-
-    void clipboard::handle_paste (const std::string& str, int id) {
-      auto i = s_clipboard_receiver.find(id);
-      if (i != s_clipboard_receiver.end()) {
-        logging::trace() << "Call clipboard receiver " << id << " with text: '" << str << "'";
-        i->second(str);
-        s_clipboard_receiver.erase(i);
-      }
-
-    }
-
-#endif // GUIPP_JS
-
   } // win
 
 } // gui
+
+#endif // GUIPP_X11

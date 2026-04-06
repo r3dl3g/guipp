@@ -15,6 +15,10 @@ if(NOT TARGET ${PROJECT_NAME})
       event.cpp
       event_container.cpp
       guidefs.cpp
+      guidefs_js.cpp
+      guidefs_qt.cpp
+      guidefs_win32.cpp
+      guidefs_x11.cpp
       keys.cpp
       list_state.cpp
       native_qt.cpp

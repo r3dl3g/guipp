@@ -50,6 +50,11 @@ namespace gui {
       typedef bool (filter_fn)(const core::event&);
       typedef std::function<filter_fn> filter_call;
 
+      GUIPP_WIN_EXPORT void install_message_filter ();
+      GUIPP_WIN_EXPORT bool check_message_filter (const core::event& ev);
+
+      GUIPP_WIN_EXPORT bool check_hot_key (const core::event& e);
+
     } // namespace detail
 
     namespace global {
@@ -68,7 +73,6 @@ namespace gui {
     } // namespace global
 
     GUIPP_WIN_EXPORT bool is_button_event_outside (const window& w, const core::event& e);
-    GUIPP_WIN_EXPORT bool check_hot_key (const core::event& e);
 
     GUIPP_WIN_EXPORT int run_loop (volatile bool& running, const detail::filter_call& filter = nullptr);
 

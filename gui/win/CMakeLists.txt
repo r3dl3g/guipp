@@ -16,16 +16,20 @@ if(NOT TARGET ${PROJECT_NAME})
       cursor.cpp
       dbg_win_message.cpp
       enable_drag.cpp
+      native_js.cpp
       native_qt.cpp
       native_win32.cpp
       native_x11.cpp
-      native_js.cpp
       overlapped_window.cpp
       receiver.cpp
       stacked_view_controller.cpp
       window.cpp
       window_class.cpp
       window_event_handler.cpp
+      window_event_proc_js.cpp
+      window_event_proc_qt.cpp
+      window_event_proc_win32.cpp
+      window_event_proc_x11.cpp
       window_event_proc.cpp
   )
 

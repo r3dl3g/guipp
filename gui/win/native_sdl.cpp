@@ -344,11 +344,14 @@ namespace gui {
         SDL_RenderDrawRect(gc, &nr);
       }
 
-      os::backstore create_surface (const core::native_size& size, os::window id) {
-        return SDL_GetWindowSurface(id);
+      os::backstore create_surface (const core::native_size& sz, os::window id) {
+        auto renderer = SDL_GetRenderer(id);
+        auto fmt = SDL_GetWindowPixelFormat(id);
+        return SDL_CreateTexture(renderer, fmt,  SDL_TEXTUREACCESS_TARGET, sz.width(), sz.height());
       }
 
       void delete_surface (os::backstore id) {
+        SDL_DestroyTexture(id);
       }
 
       void send_client_message (window* win, os::message_type message, void* v1, void* v2) {

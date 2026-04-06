@@ -50,8 +50,8 @@ namespace gui {
     typedef Uint32 /* SDL_Color */ color;
     typedef Uint32 style;
 
-    using backstore = SDL_Surface*;
-    using bitmap = SDL_Texture*;
+    using backstore = SDL_Texture*;
+    using bitmap = SDL_Surface*;
     typedef SDL_Surface* icon;
     typedef SDL_Cursor* cursor;
     typedef SDL_Color brush;

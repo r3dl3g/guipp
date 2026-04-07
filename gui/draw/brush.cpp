@@ -113,7 +113,7 @@ namespace gui {
 
 #endif // GUIPP_WIN
 
-#if defined(GUIPP_X11) || defined(GUIPP_QT) || defined(GUIPP_JS)
+#if defined(GUIPP_X11) || defined(GUIPP_QT) || defined(GUIPP_JS) || defined(GUIPP_SDL)
     const brush brush::invisible(color::black, brush::Style::invisible);
     const brush brush::standard;
 

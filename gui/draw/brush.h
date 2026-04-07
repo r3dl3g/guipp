@@ -64,7 +64,7 @@ namespace gui {
       mutable os::brush id;
       os::win32::brush_type info;
 #endif // GUIPP_WIN
-#if defined(GUIPP_X11) || defined(GUIPP_QT) || defined(GUIPP_JS) 
+#if defined(GUIPP_X11) || defined(GUIPP_QT) || defined(GUIPP_JS) || defined(GUIPP_SDL)
       const os::color m_color;
       const Style m_style;
 #endif // GUIPP_X11 || GUIPP_QT

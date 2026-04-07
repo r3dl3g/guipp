@@ -95,7 +95,7 @@ namespace gui {
       os::win32::pen id;
       os::win32::pen_type info;
 #endif // GUIPP_WIN
-#if defined(GUIPP_X11) || defined(GUIPP_QT) || defined(GUIPP_JS)
+#if defined(GUIPP_X11) || defined(GUIPP_QT) || defined(GUIPP_JS) || defined(GUIPP_SDL)
       const os::color m_color;
       const size_type m_size;
       const Style m_style;

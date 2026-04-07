@@ -131,7 +131,7 @@ namespace gui {
 
 #endif // GUIPP_QT
 
-#if GUIPP_JS
+#if GUIPP_JS || GUIPP_SDL
     uint32_t bitmap_calc_bytes_per_line (uint32_t w, pixel_format_t) {
       return w * 4;
     }

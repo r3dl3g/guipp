@@ -149,6 +149,11 @@ namespace gui {
       static constexpr os::style style = win::window_class_defaults<>::style;
     };
 
+    template<orientation_t H>
+    struct scroll_bar_traits<H, core::os::platform_t::sdl> {
+      static constexpr os::style style = win::window_class_defaults<>::style;
+    };
+
     template<>
     struct scroll_bar_traits<orientation_t::horizontal, core::os::platform_t::x11> {
       static constexpr os::style style = IF_X11_ELSE(SouthWestGravity, static_cast<os::style>(0));

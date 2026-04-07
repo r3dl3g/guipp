@@ -58,12 +58,13 @@ namespace gui {
       gui::os::graphics create_graphics_context (gui::os::drawable id) {
         if (std::holds_alternative<gui::os::window>(id)) {
           s_font_renderer = SDL_CreateRenderer(std::get<gui::os::window>(id), -1, SDL_RENDERER_ACCELERATED);
-          return s_font_renderer;
         } if (std::holds_alternative<gui::os::bitmap>(id)) {
           s_font_renderer = SDL_CreateSoftwareRenderer(std::get<gui::os::bitmap>(id));
-          return s_font_renderer;
         }
-        return nullptr;
+        SDL_RendererInfo info;
+        SDL_GetRendererInfo(s_font_renderer, &info);
+        logging::debug() << "SDL_Renderer driver: " << info.name;
+        return s_font_renderer;
       }
 
       // --------------------------------------------------------------------------

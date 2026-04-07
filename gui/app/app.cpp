@@ -216,10 +216,14 @@ int main () {
 
 #endif //GUIPP_JS
 #ifdef GUIPP_SDL
-  SDL_Init(SDL_INIT_VIDEO);
+  SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
   gui::core::global::init(SDL_GetNumVideoDisplays() > -1 ? 0 : -1);
 #endif //GUIPP_SDL
-  return run_gui_main(args);
+  int ret = run_gui_main(args);
+#ifdef GUIPP_SDL
+  SDL_Quit();
+#endif //GUIPP_SDL
+  return ret;
 
 }
 

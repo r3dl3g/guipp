@@ -1010,6 +1010,24 @@ namespace std {
     const char* msg = detail::get_message_map()[e.type];
     if (msg) {
       out << msg << " [" << e.window.windowID << "]";
+      if (e.type == SDL_EventType::SDL_USEREVENT) {
+        switch (e.user.code) {
+          case gui::core::WM_CREATE_WINDOW: out << " WM_CREATE_WINDOW"; break;
+          case gui::core::WM_LAYOUT_WINDOW: out << " WM_LAYOUT_WINDOW"; break;
+          case gui::core::WM_PAINT_WINDOW:  out << " WM_PAINT_WINDOW"; break;
+          case (SDL_USEREVENT + 0x201):  out << " SLIDER_MESSAGE"; break;
+          case (SDL_USEREVENT + 0x202):  out << " SELECTION_CHANGE_MESSAGE"; break;
+          case (SDL_USEREVENT + 0x203):  out << " SELECTION_COMMIT_MESSAGE"; break;
+          case (SDL_USEREVENT + 0x204):  out << " HILITE_CHANGE_MESSAGE"; break;
+          case (SDL_USEREVENT + 0x205):  out << " BN_CLICKED_MESSAGE"; break;
+          case (SDL_USEREVENT + 0x206):  out << " BN_PUSHED_MESSAGE"; break;
+          case (SDL_USEREVENT + 0x207):  out << " BN_UNPUSHED_MESSAGE"; break;
+          case (SDL_USEREVENT + 0x208):  out << " BN_STATE_MESSAGE"; break;
+          case (SDL_USEREVENT + 0x209):  out << " SCROLLBAR_MESSAGE"; break;
+          case (SDL_USEREVENT + 0x210):  out << " SELECTION_CANCEL_MESSAGE"; break;
+          case (SDL_USEREVENT + 0x211):  out << " CONTENT_CHANGED_MESSAGE"; break;
+        }
+      }
     } else {
       out << "0x" << std::hex << static_cast<int>(e.type) << " [" << e.window.windowID << "]";
     }

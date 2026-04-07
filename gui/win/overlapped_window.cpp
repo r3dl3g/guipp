@@ -64,6 +64,10 @@ namespace gui {
       {}
 
       ~overlapped_context () {
+        if (gc) {
+          core::native::delete_graphics_context(gc);
+          gc = nullptr;
+        }
       }
 
       core::context get_context () {

@@ -177,7 +177,11 @@ if(NOT TARGET guipp)
       ${SDL2_TTF_LIBRARIES}
       ${SDL2_GFX_LIBRARIES}
     )
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_SDL ${SDL2_LDFLAGS} ${SDL2_TTF_LDFLAGS})
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} 
+        -DGUIPP_SDL
+        -DGUIPP_LOOK_AND_FEEL_WIN32
+        ${SDL2_LDFLAGS}
+        ${SDL2_TTF_LDFLAGS})
 
   elseif(GUIPP_USE_QT6)
     DebugPrint("GUIPP: build with Qt6!")

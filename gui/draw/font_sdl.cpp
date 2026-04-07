@@ -127,7 +127,7 @@ namespace gui {
     {}
 
     font::~font () {
-      logging::debug() << "FC_FreeFont(" << name_ << ")";
+      logging::trace() << "FC_FreeFont(" << name_ << ")";
       FC_FreeFont(info);
       info = nullptr;
     }

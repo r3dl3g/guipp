@@ -40,7 +40,7 @@ namespace gui {
       }
     }
 
-#ifdef GUIPP_X11
+#if GUIPP_X11 || GUIPP_SDL
 
     uint32_t bitmap_calc_bytes_per_line (uint32_t w, pixel_format_t px_fmt) {
       switch (px_fmt) {
@@ -131,7 +131,7 @@ namespace gui {
 
 #endif // GUIPP_QT
 
-#if GUIPP_JS || GUIPP_SDL
+#if GUIPP_JS
     uint32_t bitmap_calc_bytes_per_line (uint32_t w, pixel_format_t) {
       return w * 4;
     }

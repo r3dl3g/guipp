@@ -58,8 +58,10 @@ namespace gui {
       gui::os::graphics create_graphics_context (gui::os::drawable id) {
         if (std::holds_alternative<gui::os::window>(id)) {
           s_font_renderer = SDL_CreateRenderer(std::get<gui::os::window>(id), -1, SDL_RENDERER_ACCELERATED);
-        } if (std::holds_alternative<gui::os::bitmap>(id)) {
-          s_font_renderer = SDL_CreateSoftwareRenderer(std::get<gui::os::bitmap>(id));
+        } else if (std::holds_alternative<gui::os::icon>(id)) {
+          s_font_renderer = SDL_CreateSoftwareRenderer(std::get<gui::os::icon>(id));
+        } else {
+          return nullptr;
         }
         SDL_RendererInfo info;
         SDL_GetRendererInfo(s_font_renderer, &info);
@@ -72,7 +74,7 @@ namespace gui {
         if (id == s_font_renderer) {
           s_font_renderer = nullptr;
         }
-        logging::debug() << "delete_graphics_context->SDL_DestroyRenderer";
+        logging::trace() << "delete_graphics_context->SDL_DestroyRenderer";
         SDL_DestroyRenderer(id);
       }
 

@@ -41,36 +41,53 @@ namespace gui {
 
   namespace native {
 
-    os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr) {
-      return SDL_CreateRGBSurfaceWithFormat(0, bmi.width, bmi.height,
-        bmi.depth(), static_cast<Uint32>(bmi.pixel_format));
+    os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr ptr) {
+      auto texture = SDL_CreateTexture(core::native::sdl::get_font_renderer(), 
+                                       static_cast<Uint32>(bmi.pixel_format),
+                                       SDL_TEXTUREACCESS_TARGET, bmi.width, bmi.height);
+      if (ptr) {
+        SDL_UpdateTexture(texture, NULL, ptr, bmi.bytes_per_line);
+      }
+
+      return texture;
     }
 
     void free_bitmap (os::bitmap& id) {
       if (id) {
-        logging::debug() << "SDL_FreeSurface";
-        SDL_FreeSurface(id);
+        logging::trace() << "free_bitmap->SDL_DestroyTexture";
+        SDL_DestroyTexture(id);
         id = nullptr;
       }
     }
 
     draw::bitmap_info bitmap_get_info (const os::bitmap& id) {
       if (id) {
-        return draw::bitmap_info(id->w, id->h, static_cast<pixel_format_t>(id->format->format));
+        Uint32 format;
+        int access, w, h;
+        SDL_QueryTexture(id, &format, &access, &w, &h);
+        return draw::bitmap_info(w, h, static_cast<pixel_format_t>(format));
       }
       return {};
     }
 
     void bitmap_put_data (os::bitmap& id, cbyteptr data, const draw::bitmap_info& bmi) {
       if (id) {
-        memcpy(id->pixels, data, bmi.mem_size());
+        draw::bitmap_info ti = bitmap_get_info(id);
+        if (ti == bmi) {
+          SDL_UpdateTexture(id, NULL, data, bmi.bytes_per_line);
+        }
       }
     }
 
     void bitmap_get_data (const os::bitmap& id, blob& data, draw::bitmap_info& bmi) {
       if (id) {
-        auto bits = static_cast<const blob::value_type*>(id->pixels);
-        data.assign(bits, bits + bmi.mem_size());
+        bmi = bitmap_get_info(id);
+        void *pixels;
+        int pitch;
+        SDL_LockTexture(id, NULL, &pixels, &pitch);
+        bmi.bytes_per_line = pitch;
+        auto bits = static_cast<const blob::value_type*>(pixels);
+        data.assign(bits, bits + pitch * bmi.height);
       } else {
         bmi = {};
         data.clear();
@@ -78,7 +95,10 @@ namespace gui {
     }
 
     void copy_bitmap (draw::basic_map& lhs, const draw::basic_map& rhs) {
-      SDL_BlitSurface(rhs.get_os_bitmap(), NULL, lhs.get_os_bitmap(), NULL);
+      auto renderer = core::native::sdl::get_font_renderer();
+      SDL_SetRenderTarget(renderer, rhs.get_os_bitmap());
+      SDL_RenderCopy(renderer, lhs.get_os_bitmap(), NULL, NULL);
+      SDL_SetRenderTarget(renderer, NULL);
     }
 
   } // namespace native

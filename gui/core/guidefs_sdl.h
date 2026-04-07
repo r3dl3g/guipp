@@ -49,14 +49,14 @@ namespace gui {
     using instance = int;
     using window = SDL_Window*;
     using backstore = SDL_Texture*;
-    using bitmap = SDL_Surface*;
+    using bitmap = SDL_Texture*;
+    using icon = SDL_Surface*;
     using graphics = SDL_Renderer*;
-    using drawable = std::variant<window, bitmap>;
+    using drawable = std::variant<SDL_Window*, SDL_Texture*, SDL_Surface*>;
 
     typedef Uint32 /* SDL_Color */ color;
     typedef Uint32 style;
 
-    typedef SDL_Surface* icon;
     typedef SDL_Cursor* cursor;
     typedef SDL_Color brush;
 

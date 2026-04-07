@@ -99,17 +99,21 @@ namespace gui {
       SDL_Rect destrect = { pt.x(), pt.y(), static_cast<int>(r.width()), static_cast<int>(r.height()) };
       SDL_Surface* surface = nullptr;
 
-      if (std::holds_alternative<gui::os::window>(src)) {
-        auto win = std::get<gui::os::window>(src);
+      if (std::holds_alternative<SDL_Window*>(src)) {
+        auto win = std::get<SDL_Window*>(src);
         surface = SDL_GetWindowSurface(win);
-      } if (std::holds_alternative<gui::os::bitmap>(src)) {
-        surface = std::get<gui::os::bitmap>(src);
+      } else if (std::holds_alternative<SDL_Surface*>(src)) {
+        surface = std::get<SDL_Surface*>(src);
+      } else if (std::holds_alternative<SDL_Texture*>(src)) {
+        auto texture = std::get<SDL_Texture*>(src);
+        SDL_RenderCopy(gc(), texture, &srcrect, &destrect);
+        return *this;
       }
 
       if (surface) {
         auto texture = SDL_CreateTextureFromSurface(gc(), surface);
         SDL_RenderCopy(gc(), texture, &srcrect, &destrect);
-        logging::debug() << "graphics::copy_from(drawable)->SDL_DestroyTexture";
+        logging::trace() << "graphics::copy_from(drawable)->SDL_DestroyTexture";
         SDL_DestroyTexture(texture);
       }
       return *this;
@@ -124,11 +128,8 @@ namespace gui {
                                    const core::native_point& pt) {
       SDL_Rect srcrect = { r.x(), r.y(), static_cast<int>(r.width()), static_cast<int>(r.height()) };
       SDL_Rect destrect = { pt.x(), pt.y(), static_cast<int>(r.width()), static_cast<int>(r.height()) };
-      SDL_Surface* surface = pixmap.get_os_bitmap();
-      auto texture = SDL_CreateTextureFromSurface(gc(), surface);
+      auto texture = pixmap.get_os_bitmap();
       SDL_RenderCopy(gc(), texture, &srcrect, &destrect);
-        logging::debug() << "graphics::copy_from(pixmap)->SDL_DestroyTexture";
-      SDL_DestroyTexture(texture);
       return *this;
     }
 
@@ -139,8 +140,8 @@ namespace gui {
       const auto sz = pixmap.native_size();
       SDL_Rect srcrect = { 0, 0, static_cast<int>(sz.width()), static_cast<int>(sz.height()) };
       SDL_Rect destrect = { dst.x(), dst.y(), static_cast<int>(dst.width()), static_cast<int>(dst.height()) };
-      SDL_Surface* surface = pixmap.get_os_bitmap();
-      auto texture = SDL_CreateTextureFromSurface(gc(), surface);
+
+      auto texture = pixmap.get_os_bitmap();
       SDL_SetTextureBlendMode(texture, SDL_BlendMode::SDL_BLENDMODE_BLEND);
       if (filter == "Nearest") {
         SDL_SetTextureScaleMode(texture, SDL_ScaleMode::SDL_ScaleModeNearest);
@@ -150,8 +151,7 @@ namespace gui {
         SDL_SetTextureScaleMode(texture, SDL_ScaleMode::SDL_ScaleModeBest);
       }
       SDL_RenderCopy(gc(), texture, &srcrect, &destrect);
-        logging::debug() << "graphics::draw_streched()->SDL_DestroyTexture";
-      SDL_DestroyTexture(texture);
+
       return *this;
     }
 

@@ -134,7 +134,7 @@ namespace gui {
 
                         
         const auto nr = core::global::scale_to_native(r);
-        os::window id = SDL_CreateWindow("", nr.x(), nr.y(), nr.width(), nr.height(), type.get_style());
+        os::window id = SDL_CreateWindow("Gui++", nr.x(), nr.y(), nr.width(), nr.height(), type.get_style());
         set_os_window(&data, id);
         return id;
       }
@@ -359,7 +359,6 @@ namespace gui {
           core::event e;
           e.type = SDL_USEREVENT;
           e.user.timestamp = SDL_GetTicks();
-          e.user.type = SDL_WINDOWEVENT_CLOSE;
           e.user.code = message;
           e.user.windowID = SDL_GetWindowID(win->get_overlapped_window().get_os_window());
           e.user.data1 = v1;

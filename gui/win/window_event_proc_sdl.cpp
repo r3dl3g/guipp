@@ -115,25 +115,18 @@ namespace gui {
       Uint32 id = 0;
       switch (e.type) {
         case SDL_WINDOWEVENT:
-          id = e.window.windowID;
-        break;
         case SDL_MOUSEMOTION:
-          id = e.motion.windowID;
-        break;
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
-          id = e.button.windowID;
-        break;
         case SDL_MOUSEWHEEL:
-          id = e.wheel.windowID;
-        break;
         case SDL_KEYDOWN:
         case SDL_KEYUP:
-          id = e.key.windowID;
-        break;
         case SDL_USEREVENT:
-          id = e.user.windowID;
+          // windowID sahres the same position of all structs above
+          id = e.window.windowID;
         break;
+        default:
+          return;
       }
 
       win::overlapped_window* win = win::native::get_window(SDL_GetWindowFromID(id));
@@ -159,8 +152,8 @@ namespace gui {
 
       gui::os::event_result resultValue = 0;
 
+      SDL_Event event;
       while (running) {
-        SDL_Event event;
         while (SDL_PollEvent(&event)) {
           if (event.type == SDL_QUIT) {
             running = false;

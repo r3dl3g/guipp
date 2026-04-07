@@ -38,19 +38,20 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace {
-      std::map<const char*, class_info> window_class_info_map;
+      std::map<const char*, class_info> s_window_class_info_map;
+      const char* s_guipp_identifier = "GUIPP";
     }
 
     // --------------------------------------------------------------------------
     namespace native {
 
       const class_info& get_window_class (const char* class_name) {
-        return window_class_info_map[class_name];
+        return s_window_class_info_map[class_name];
       }
 
       void register_window_class (const class_info& type) {
-        if (0 == window_class_info_map.count(type.get_class_name())) {
-          window_class_info_map[type.get_class_name()] = type;
+        if (0 == s_window_class_info_map.count(type.get_class_name())) {
+          s_window_class_info_map[type.get_class_name()] = type;
         }
       }
 
@@ -60,16 +61,16 @@ namespace gui {
 
       void set_os_window (overlapped_window* win, os::window id) {
         if (win) {
-          SDL_SetWindowData(id, "GUIPP", win);
+          SDL_SetWindowData(id, s_guipp_identifier, win);
         }
       }
 
       void unset_os_window (os::window id) {
-          SDL_SetWindowData(id, "GUIPP", NULL);
+          SDL_SetWindowData(id, s_guipp_identifier, NULL);
       }
 
       overlapped_window* get_window (os::window id) {
-        return static_cast<overlapped_window*>(SDL_GetWindowData(id, "GUIPP"));
+        return static_cast<overlapped_window*>(SDL_GetWindowData(id, s_guipp_identifier));
       }
 
       void move (os::window w, const core::point& pt) {

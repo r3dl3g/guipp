@@ -37,6 +37,7 @@ if(NOT TARGET ${PROJECT_NAME})
       graphics.cpp
       graphics_js.cpp
       graphics_qt.cpp
+      graphics_sdl.cpp
       graphics_win32.cpp
       graphics_x11.cpp
       icons.cpp

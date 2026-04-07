@@ -307,8 +307,11 @@ namespace gui {
         return;
       }
 
+      core::rectangle r = rect;
+      bounding_box(str, r, origin)(g, f, c);
+
       FC_AlignEnum align = get_h_alignment(origin);
-      FC_Rect box = rect.os(g.context());
+      FC_Rect box = r.os(g.context());
       FC_DrawBoxAlign(f.font_type(), g.gc(), box, align, str.c_str());
 
     }
@@ -324,7 +327,8 @@ namespace gui {
 
       FC_AlignEnum align = get_h_alignment(origin);
       FC_Rect box = rect.os(g.context());
-      box = FC_GetBounds(f.font_type(), box.x, box.y, align, {1, 1}, str.c_str());
+      float scale = static_cast<float>(1.0 / core::global::get_scale_factor());
+      box = FC_GetBounds(f.font_type(), box.x, box.y, align, {scale, scale}, str.c_str());
 
       if (origin_is_right(origin)) {
         rect.set_horizontal(rect.x2() - box.w, box.w);
@@ -351,9 +355,18 @@ namespace gui {
         return;
       }
 
-      auto p = pos.os(g.context());
+      core::rectangle r = {pos, core::size::zero};
+      bounding_box(str, r, origin)(g, f, c);
+
+      float px = pos.os_x(g.context());
+      float py = pos.os_y(g.context());
+      if (origin_is_bottom(origin)) {
+        py = r.os_y(g.context());
+      } else if (origin_is_v_center(origin)) {
+        py = r.os_y(g.context());
+      }
       FC_AlignEnum align = get_h_alignment(origin);
-      FC_DrawAlign(f.font_type(), g.gc(), p.x, p.y, align, str.c_str());
+      FC_DrawAlign(f.font_type(), g.gc(), px, py, align, str.c_str());
     }
 
   } // namespace draw

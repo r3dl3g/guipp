@@ -116,7 +116,8 @@ namespace gui {
       , thickness_(thickness)
     {
       info = FC_CreateFont();
-      FC_LoadFont(info, core::native::sdl::get_font_renderer(), getSystemFontPath(name_).c_str(), size_, FC_MakeColor(0,0,0,255), TTF_STYLE_NORMAL);
+      auto sz = static_cast<Uint32>(size_ * core::global::get_scale_factor());
+      FC_LoadFont(info, core::native::sdl::get_font_renderer(), getSystemFontPath(name_).c_str(), sz, FC_MakeColor(0,0,0,255), TTF_STYLE_NORMAL);
     }
 
     font::font (const font& rhs)

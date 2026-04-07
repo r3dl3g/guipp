@@ -21,6 +21,7 @@
 // Common includes
 //
 #include <ostream>
+#include <fontconfig/fontconfig.h>
 
 #include <logging/logger.h>
 #include <util/string_util.h>
@@ -31,6 +32,30 @@
 //
 #include "gui/draw/font.h"
 #include "gui/core/native.h"
+
+#include <string>
+
+std::string getSystemFontPath (const std::string& fontName) {
+    FcConfig* config = FcInitLoadConfigAndFonts();
+    FcPattern* pat = FcNameParse((const FcChar8*)fontName.c_str());
+    FcConfigSubstitute(config, pat, FcMatchPattern);
+    FcDefaultSubstitute(pat);
+
+    std::string result = "";
+    FcResult res;
+    FcPattern* font = FcFontMatch(config, pat, &res);
+
+    if (font) {
+        FcChar8* file = NULL;
+        if (FcPatternGetString(font, FC_FILE, 0, &file) == FcResultMatch) {
+            result = (char*)file;
+        }
+        FcPatternDestroy(font);
+    }
+    FcPatternDestroy(pat);
+    FcConfigDestroy(config);
+    return result;
+}
 
 # define STD_FONT_SIZE 12
 
@@ -91,7 +116,7 @@ namespace gui {
       , thickness_(thickness)
     {
       info = FC_CreateFont();
-      FC_LoadFont(info, core::native::sdl::get_font_renderer(), name_.c_str(), size_, FC_MakeColor(0,0,0,255), TTF_STYLE_NORMAL);
+      FC_LoadFont(info, core::native::sdl::get_font_renderer(), getSystemFontPath(name_).c_str(), size_, FC_MakeColor(0,0,0,255), TTF_STYLE_NORMAL);
     }
 
     font::font (const font& rhs)

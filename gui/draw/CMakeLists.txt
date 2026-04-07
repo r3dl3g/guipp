@@ -53,6 +53,9 @@ if(NOT TARGET ${PROJECT_NAME})
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
   if (GUIPP_USE_SDL)
+    pkg_check_modules(FONTCONFIG REQUIRED fontconfig)
+    include_directories(${FONTCONFIG_INCLUDE_DIRS})
+
     set(SOURCE_FILES ${SOURCE_FILES}
       ${CMAKE_SOURCE_DIR}/libs/sdl_font_cache/SDL_FontCache.c
     )
@@ -65,7 +68,7 @@ if(NOT TARGET ${PROJECT_NAME})
   define_guipp_subpackage(${PROJECT_NAME}
                           BASE GUIPP_DRAW
                           SOURCES ${SOURCE_FILES} ${INCLUDE_FILES}
-                          LIBS guipp::core ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
+                          LIBS guipp::core ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES} ${FONTCONFIG_LIBRARIES})
 
   install_guipp_subpackage(${PROJECT_NAME}
                            PREFIX guipp

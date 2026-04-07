@@ -20,6 +20,8 @@ pkgs.mkShell {
     SDL2_gfx
     harfbuzz
     freetype
+    fontconfig
+    expat
   ];
 
   cmakeFlags = [

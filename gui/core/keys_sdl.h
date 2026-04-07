@@ -157,4 +157,8 @@ namespace gui {
 
   } // namespace core
 
+  inline constexpr os::key_state operator| (os::key_state lhs, os::key_state rhs) {
+    return os::key_state(static_cast<unsigned int>(lhs) | static_cast<unsigned int>(rhs));
+  }
+
 } // namespace gui

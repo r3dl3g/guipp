@@ -19,6 +19,7 @@ pkgs.mkShell {
     SDL2_ttf
     SDL2_gfx
     harfbuzz
+    freetype
   ];
 
   cmakeFlags = [

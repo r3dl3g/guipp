@@ -115,7 +115,7 @@ namespace gui {
 #else
       s.accept_focus(type.get_style() & WS_TABSTOP);
 #endif
-      notify_event(IF_X11_ELSE(core::WM_CREATE_WINDOW, create_event::get_event_id()));
+      notify_event(IF_X11_ELSE(core::WM_CREATE_WINDOW, IF_SDL_ELSE(core::WM_CREATE_WINDOW, create_event::get_event_id())));
     }
 
     void window::close () {
@@ -303,7 +303,8 @@ namespace gui {
     }
 
     void window::notify_layout () {
-      notify_event(IF_X11_ELSE(core::WM_LAYOUT_WINDOW, layout_event::get_event_id()), client_geometry());
+      auto id = IF_X11_ELSE(core::WM_LAYOUT_WINDOW, IF_SDL_ELSE(core::WM_LAYOUT_WINDOW, layout_event::get_event_id()));
+      notify_event(id, client_geometry());
     }
 
     void window::set_parent (container& p) {

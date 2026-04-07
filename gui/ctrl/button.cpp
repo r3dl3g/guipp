@@ -42,6 +42,12 @@ namespace gui {
     }
 #endif // GUIPP_QT
 
+#ifdef GUIPP_SDL
+    bool get_button_state (const core::event& e) {
+      return static_cast<bool>(*static_cast<const int*>(win::event_type_cast<SDL_UserEvent>(e).data1));
+    }
+#endif // GUIPP_SDL
+
     // --------------------------------------------------------------------------
     button_base::button_base (os::color f)
       : super(f)

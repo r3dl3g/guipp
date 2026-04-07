@@ -111,6 +111,20 @@ namespace gui {
     }    
 #endif // GUIPP_JS
 
+#ifdef GUIPP_SDL
+    event_source get_event_source (const core::event& e) {
+      return static_cast<event_source>(*static_cast<const int*>(win::event_type_cast<SDL_UserEvent>(e).data1));
+    }
+
+    bool get_hilite_changed (const core::event& e) {
+      return static_cast<bool>(*static_cast<const int*>(win::event_type_cast<SDL_UserEvent>(e).data1));
+    }
+
+    core::point::type get_scroll_value (const core::event& e) {
+      return static_cast<core::point::type>(*static_cast<const float*>(win::event_type_cast<SDL_UserEvent>(e).data1));
+    }    
+#endif // GUIPP_SDL
+
     // --------------------------------------------------------------------------
     void control::on_selection_changed (selection_changed_event::function&& f) {
       on<selection_changed_event>(std::move(f));

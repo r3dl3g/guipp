@@ -53,8 +53,7 @@ namespace gui {
       const os::event_id SCROLLBAR_MESSAGE = WM_USER + 9;
       const os::event_id SELECTION_CANCEL_MESSAGE = WM_USER + 10;
       const os::event_id CONTENT_CHANGED_MESSAGE = WM_USER + 11;
-#endif //GUIPP_WIN
-#ifdef GUIPP_X11
+#elif GUIPP_X11
       GUIPP_CTRL_EXPORT extern Atom SCROLLBAR_MESSAGE;
       GUIPP_CTRL_EXPORT extern Atom SELECTION_CHANGE_MESSAGE;
       GUIPP_CTRL_EXPORT extern Atom SELECTION_COMMIT_MESSAGE;
@@ -68,8 +67,7 @@ namespace gui {
       GUIPP_CTRL_EXPORT extern Atom CONTENT_CHANGED_MESSAGE;
 
       GUIPP_CTRL_EXPORT int init_control_messages ();
-#endif // GUIPP_X11
-#ifdef GUIPP_QT
+#elif GUIPP_QT
       const os::event_id SLIDER_MESSAGE = QEvent::User + 1;
       const os::event_id SELECTION_CHANGE_MESSAGE = QEvent::User + 2;
       const os::event_id SELECTION_COMMIT_MESSAGE = QEvent::User + 3;
@@ -81,8 +79,7 @@ namespace gui {
       const os::event_id SCROLLBAR_MESSAGE = QEvent::User + 9;
       const os::event_id SELECTION_CANCEL_MESSAGE = QEvent::User + 10;
       const os::event_id CONTENT_CHANGED_MESSAGE = QEvent::User + 11;
-#endif // GUIPP_QT
-#ifdef GUIPP_JS
+#elif GUIPP_JS
       const os::event_id SLIDER_MESSAGE =           static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 1);
       const os::event_id SELECTION_CHANGE_MESSAGE = static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 2);
       const os::event_id SELECTION_COMMIT_MESSAGE = static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 3);
@@ -94,7 +91,21 @@ namespace gui {
       const os::event_id SCROLLBAR_MESSAGE =        static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 9);
       const os::event_id SELECTION_CANCEL_MESSAGE = static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 10);
       const os::event_id CONTENT_CHANGED_MESSAGE =  static_cast<os::js::event_type>(static_cast<int>(os::js::event_type::User) + 11);
-#endif //GUIPP_JS
+#elif GUIPP_SDL
+      const os::event_id SLIDER_MESSAGE =           (SDL_USEREVENT + 0x201);
+      const os::event_id SELECTION_CHANGE_MESSAGE = (SDL_USEREVENT + 0x202);
+      const os::event_id SELECTION_COMMIT_MESSAGE = (SDL_USEREVENT + 0x203);
+      const os::event_id HILITE_CHANGE_MESSAGE =    (SDL_USEREVENT + 0x204);
+      const os::event_id BN_CLICKED_MESSAGE =       (SDL_USEREVENT + 0x205);
+      const os::event_id BN_PUSHED_MESSAGE =        (SDL_USEREVENT + 0x206);
+      const os::event_id BN_UNPUSHED_MESSAGE =      (SDL_USEREVENT + 0x207);
+      const os::event_id BN_STATE_MESSAGE =         (SDL_USEREVENT + 0x208);
+      const os::event_id SCROLLBAR_MESSAGE =        (SDL_USEREVENT + 0x209);
+      const os::event_id SELECTION_CANCEL_MESSAGE = (SDL_USEREVENT + 0x210);
+      const os::event_id CONTENT_CHANGED_MESSAGE =  (SDL_USEREVENT + 0x211);
+#else
+#error Undefined system: std::vector<sys_fs::path> get_all_root_paths()
+#endif // GUIPP_SDL
     } // detail
 
     // --------------------------------------------------------------------------
@@ -183,7 +194,7 @@ namespace gui {
                                              win::event::functor<win::client_message_matcher<detail::SCROLLBAR_MESSAGE>>>;
 #endif // GUIPP_X11
        // --------------------------------------------------------------------------
-#if defined(GUIPP_QT) || defined(GUIPP_JS)
+#if defined(GUIPP_QT) || defined(GUIPP_JS) || defined(GUIPP_SDL)
 
     GUIPP_CTRL_EXPORT event_source get_event_source (const core::event&);
     GUIPP_CTRL_EXPORT bool get_hilite_changed (const core::event&);
@@ -207,7 +218,7 @@ namespace gui {
                                              static_cast<gui::os::event_id>(0),
                                              core::params<core::point::type>::
                                              getter<get_scroll_value>>;
-#endif // GUIPP_QT || GUIPP_JS
+#endif // GUIPP_QT || GUIPP_JS || GUIPP_SDL
 
     // --------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT control : public win::window {

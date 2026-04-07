@@ -37,7 +37,7 @@ namespace gui {
     using slider_event = core::event_handler<ClientMessage, 0,
                                              core::params<int>::getter<win::get_client_data<0, int> >, 0,
                                              win::event::functor<win::client_message_matcher<detail::SLIDER_MESSAGE>>>;
-#elif GUIPP_QT
+#elif GUIPP_QT || GUIPP_SDL
     GUIPP_CTRL_EXPORT int get_slider_value (const core::event&);
 
     using slider_event = core::event_handler<detail::SLIDER_MESSAGE, 0,

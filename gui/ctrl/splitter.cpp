@@ -39,6 +39,10 @@ namespace gui {
     int get_slider_value (const core::event& e) {
       return e.cast<win::QClientEvent>().l1();
     }
+#elif GUIPP_SDL
+    int get_slider_value (const core::event& e) {
+      return *static_cast<const int*>(win::event_type_cast<SDL_UserEvent>(e).data1);
+    }
 #endif
 
     namespace detail {

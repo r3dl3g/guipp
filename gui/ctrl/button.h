@@ -69,7 +69,7 @@ namespace gui {
                                                    win::event::functor<win::client_message_matcher<detail::BN_STATE_MESSAGE>>>;
 #endif // GUIPP_X11
 
-#if defined(GUIPP_QT) || defined(GUIPP_JS)
+#if defined(GUIPP_QT) || defined(GUIPP_JS) || defined(GUIPP_SDL)
     GUIPP_CTRL_EXPORT bool get_button_state (const core::event&);
 
     using button_clicked_event = core::event_handler<detail::BN_CLICKED_MESSAGE>;
@@ -79,7 +79,7 @@ namespace gui {
                                                    static_cast<gui::os::event_id>(0),
                                                    core::params<bool>::
                                                    getter<get_button_state>>;
-#endif // GUIPP_QT || GUIPP_JS
+#endif // GUIPP_QT || GUIPP_JS || GUIPP_SDL
 
     // --------------------------------------------------------------------------
     typedef void (button_drawer) (draw::graphics&,

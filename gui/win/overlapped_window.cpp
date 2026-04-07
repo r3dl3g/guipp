@@ -107,14 +107,6 @@ namespace gui {
       }
 
     private:
-      void destroy () {
-        if (gc) {
-          core::native::delete_graphics_context(gc);
-          gc = 0;
-        }
-      }
-
-    private:
       os::drawable pixel_store;
       os::graphics gc;
     };
@@ -579,6 +571,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     void overlapped_window::redraw (const core::native_rect& r) {
       if (is_visible() && !get_state().redraw_disabled()) {
+#ifdef GUIPP_SDL
+        invalid_rect = surface_geometry();
+#else
         if (!r.empty()) {
           if (invalid_rect.empty()) {
             invalid_rect = r;
@@ -590,7 +585,7 @@ namespace gui {
           logging::trace() << "skip redraw, invalid_rect is empty " << this;
           return;
         }
-
+#endif
         util::time::chronometer chrono;
 #ifdef GUIPP_QT
         if (!get_os_window()->isExposed()) {
@@ -603,6 +598,9 @@ namespace gui {
         overlapped_context& surface = get_context();
         surface.begin(*this, invalid_rect);
         auto cntxt = surface.get_context();
+#ifdef GUIPP_SDL
+        SDL_RenderClear(cntxt.graphics());
+#endif
 
         logging::trace() << "overlapped_window clip " << invalid_rect;
         core::clip clp(cntxt, invalid_rect);

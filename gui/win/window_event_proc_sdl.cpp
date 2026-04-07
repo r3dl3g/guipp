@@ -163,9 +163,12 @@ namespace gui {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
           if (event.type == SDL_QUIT) {
-              running = false;
-          // } else if (event.type == SDL_RENDER_TARGETS_RESET) {
-          //   native::x11::invalidate_window(e.window, get_expose_rect(event));
+            running = false;
+          } else if ((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_EXPOSED)) {
+            auto id = SDL_GetWindowFromID(event.window.windowID);
+            int w = 0, h = 0;
+            SDL_GetWindowSize(id, &w, &h);
+            native::sdl::invalidate_window(id, {0, 0, static_cast<unsigned>(w), static_cast<unsigned>(h)});
           } else {
             if (detail::check_message_filter(event) || (filter && filter(event))) {
               continue;
@@ -174,9 +177,9 @@ namespace gui {
             }
           }
         }
-
         native::sdl::draw_invalidated_windows();
 
+        SDL_Delay(20);
       }
 
       return resultValue;

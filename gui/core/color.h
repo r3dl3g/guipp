@@ -119,7 +119,7 @@ namespace gui {
     struct part_defaults<core::os::platform_t::js> : public bgra_parts {};
 
     template<>
-    struct part_defaults<core::os::platform_t::sdl> : public bgra_parts {};
+    struct part_defaults<core::os::platform_t::sdl> : public rgba_parts {};
 
     // ------------------------------------------------------------------------
     enum struct part : type {

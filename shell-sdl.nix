@@ -18,10 +18,12 @@ pkgs.mkShell {
     SDL2
     SDL2_ttf
     SDL2_gfx
-    harfbuzz
     freetype
     fontconfig
     expat
+    harfbuzz
+    glib
+    libsysprof-capture
   ];
 
   cmakeFlags = [

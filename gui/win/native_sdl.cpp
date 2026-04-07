@@ -94,7 +94,7 @@ namespace gui {
         e.type = SDL_WINDOWEVENT;
         e.window.timestamp = SDL_GetTicks();
         e.window.type = SDL_WINDOWEVENT_MOVED;
-        e.window.windowID = SDL_GetWindowID(w.get_overlapped_window().get_os_window());
+        // e.window.windowID = SDL_GetWindowID(w.get_overlapped_window().get_os_window());
         e.window.data1 = npt.x();
         e.window.data2 = npt.y();
         gui::os::event_result result = 0;
@@ -107,7 +107,7 @@ namespace gui {
         e.type = SDL_WINDOWEVENT;
         e.window.timestamp = SDL_GetTicks();
         e.window.type = SDL_WINDOWEVENT_RESIZED;
-        e.window.windowID = SDL_GetWindowID(w.get_overlapped_window().get_os_window());
+        // e.window.windowID = SDL_GetWindowID(w.get_overlapped_window().get_os_window());
         e.window.data1 = nsz.width();
         e.window.data2 = nsz.height();
         gui::os::event_result result = 0;
@@ -157,7 +157,7 @@ namespace gui {
         e.type = SDL_WINDOWEVENT;
         e.window.timestamp = SDL_GetTicks();
         e.window.type = SDL_WINDOWEVENT_CLOSE;
-        e.window.windowID = SDL_GetWindowID(w.get_overlapped_window().get_os_window());
+        // e.window.windowID = SDL_GetWindowID(w.get_overlapped_window().get_os_window());
         gui::os::event_result result = 0;
         w.handle_event(e, result);
       }
@@ -361,7 +361,7 @@ namespace gui {
           e.type = SDL_USEREVENT;
           e.user.timestamp = SDL_GetTicks();
           e.user.code = message;
-          e.user.windowID = SDL_GetWindowID(win->get_overlapped_window().get_os_window());
+          // e.user.windowID = SDL_GetWindowID(win->get_overlapped_window().get_os_window());
           e.user.data1 = v1;
           e.user.data2 = v2;
           gui::os::event_result result = 0;
@@ -392,7 +392,7 @@ namespace gui {
           e.type = SDL_WINDOWEVENT;
           e.window.type = enter ? SDL_WINDOWEVENT_ENTER : SDL_WINDOWEVENT_LEAVE;
           e.window.timestamp = SDL_GetTicks();
-          e.window.windowID = SDL_GetWindowID(win->get_overlapped_window().get_os_window());
+          // e.window.windowID = SDL_GetWindowID(win->get_overlapped_window().get_os_window());
           gui::os::event_result result = 0;
           win->handle_event(e, result);
         }
@@ -404,7 +404,7 @@ namespace gui {
           e.type = SDL_WINDOWEVENT;
           e.window.type = visible ? SDL_WINDOWEVENT_SHOWN : SDL_WINDOWEVENT_HIDDEN;
           e.window.timestamp = SDL_GetTicks();
-          e.window.windowID = SDL_GetWindowID(win->get_overlapped_window().get_os_window());
+          // e.window.windowID = SDL_GetWindowID(win->get_overlapped_window().get_os_window());
           gui::os::event_result result = 0;
           win->handle_event(e, result);
         }

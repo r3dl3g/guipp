@@ -46,9 +46,10 @@ namespace std {
     const char* platform_t_names[] = {
       "win32",
       "x11",
-      "cocoa",
       "qt",
-      "js"
+      "js",
+      "sdl",
+      "cocoa"
     };
 
     const char* ui_t_names[] = {

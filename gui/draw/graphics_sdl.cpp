@@ -109,6 +109,7 @@ namespace gui {
       if (surface) {
         auto texture = SDL_CreateTextureFromSurface(gc(), surface);
         SDL_RenderCopy(gc(), texture, &srcrect, &destrect);
+        logging::debug() << "graphics::copy_from(drawable)->SDL_DestroyTexture";
         SDL_DestroyTexture(texture);
       }
       return *this;
@@ -126,6 +127,7 @@ namespace gui {
       SDL_Surface* surface = pixmap.get_os_bitmap();
       auto texture = SDL_CreateTextureFromSurface(gc(), surface);
       SDL_RenderCopy(gc(), texture, &srcrect, &destrect);
+        logging::debug() << "graphics::copy_from(pixmap)->SDL_DestroyTexture";
       SDL_DestroyTexture(texture);
       return *this;
     }
@@ -148,6 +150,7 @@ namespace gui {
         SDL_SetTextureScaleMode(texture, SDL_ScaleMode::SDL_ScaleModeBest);
       }
       SDL_RenderCopy(gc(), texture, &srcrect, &destrect);
+        logging::debug() << "graphics::draw_streched()->SDL_DestroyTexture";
       SDL_DestroyTexture(texture);
       return *this;
     }

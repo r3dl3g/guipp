@@ -117,7 +117,9 @@ namespace gui {
     {
       info = FC_CreateFont();
       auto sz = static_cast<Uint32>(size_ * core::global::get_scale_factor());
-      FC_LoadFont(info, core::native::sdl::get_font_renderer(), getSystemFontPath(name_).c_str(), sz, FC_MakeColor(0,0,0,255), TTF_STYLE_NORMAL);
+      auto path = getSystemFontPath(name_);
+      logging::debug() << "FC_LoadFont(" << name_ << ") from \"" << path << "\"";
+      FC_LoadFont(info, core::native::sdl::get_font_renderer(), path.c_str(), sz, FC_MakeColor(0,0,0,255), TTF_STYLE_NORMAL);
     }
 
     font::font (const font& rhs)
@@ -125,6 +127,7 @@ namespace gui {
     {}
 
     font::~font () {
+      logging::debug() << "FC_FreeFont(" << name_ << ")";
       FC_FreeFont(info);
       info = nullptr;
     }

@@ -71,6 +71,7 @@ namespace gui {
         if (id == s_font_renderer) {
           s_font_renderer = nullptr;
         }
+        logging::debug() << "delete_graphics_context->SDL_DestroyRenderer";
         SDL_DestroyRenderer(id);
       }
 

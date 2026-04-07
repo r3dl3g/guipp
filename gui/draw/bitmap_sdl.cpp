@@ -48,6 +48,7 @@ namespace gui {
 
     void free_bitmap (os::bitmap& id) {
       if (id) {
+        logging::debug() << "SDL_FreeSurface";
         SDL_FreeSurface(id);
         id = nullptr;
       }

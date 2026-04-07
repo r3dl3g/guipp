@@ -148,6 +148,7 @@ namespace gui {
         if (id) {
           sdl::validate_window(id);
           unset_os_window(id);
+          logging::debug() << "SDL_DestroyWindow";
           SDL_DestroyWindow(id);
         }
       }
@@ -352,6 +353,7 @@ namespace gui {
       }
 
       void delete_surface (os::backstore id) {
+        logging::debug() << "SDL_DestroyTexture";
         SDL_DestroyTexture(id);
       }
 

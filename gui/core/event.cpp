@@ -748,8 +748,70 @@ namespace std {
         DEFINE_MESSAGE(event_type::User         )
 #endif //GUIPP_JS
 
-      };
-      return message_map;
+#ifdef GUIPP_SDL
+        DEFINE_MESSAGE(SDL_EventType::SDL_QUIT         ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_APP_TERMINATING  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_APP_LOWMEMORY  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_APP_WILLENTERBACKGROUND  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_APP_DIDENTERBACKGROUND  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_APP_WILLENTERFOREGROUND  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_APP_DIDENTERFOREGROUND  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_LOCALECHANGED  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_DISPLAYEVENT  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_WINDOWEVENT  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_SYSWMEVENT  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_KEYDOWN  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_KEYUP  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_TEXTEDITING  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_TEXTINPUT  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_KEYMAPCHANGED  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_TEXTEDITING_EXT  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_MOUSEMOTION  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_MOUSEBUTTONDOWN  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_MOUSEBUTTONUP  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_MOUSEWHEEL  ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_JOYAXISMOTION ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_JOYBALLMOTION ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_JOYHATMOTION ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_JOYBUTTONDOWN ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_JOYBUTTONUP ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_JOYDEVICEADDED ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_JOYDEVICEREMOVED ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_JOYBATTERYUPDATED ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_CONTROLLERAXISMOTION ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_CONTROLLERBUTTONDOWN ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_CONTROLLERBUTTONUP ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_CONTROLLERDEVICEADDED ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_CONTROLLERDEVICEREMOVED ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_CONTROLLERDEVICEREMAPPED ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_CONTROLLERTOUCHPADDOWN ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_CONTROLLERTOUCHPADMOTION ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_CONTROLLERTOUCHPADUP ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_CONTROLLERSENSORUPDATE ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_CONTROLLERUPDATECOMPLETE_RESERVED_FOR_SDL3 ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_CONTROLLERSTEAMHANDLEUPDATED ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_FINGERDOWN ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_FINGERUP ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_FINGERMOTION ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_DOLLARGESTURE ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_DOLLARRECORD ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_MULTIGESTURE ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_CLIPBOARDUPDATE ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_DROPFILE ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_DROPTEXT ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_DROPBEGIN ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_DROPCOMPLETE ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_AUDIODEVICEADDED ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_AUDIODEVICEREMOVED ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_SENSORUPDATE ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_RENDER_TARGETS_RESET ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_RENDER_DEVICE_RESET ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_POLLSENTINEL ),
+        DEFINE_MESSAGE(SDL_EventType::SDL_USEREVENT )
+
+#endif //GUIPP_SDL
+        };
+        return message_map;
       }
 
     } // detail
@@ -931,13 +993,25 @@ namespace std {
   }
 #endif // GUIPP_QT
 
-#ifdef GUIPP_JS
+#if GUIPP_JS
   std::ostream& operator<< (std::ostream& out, const gui::core::event& e) {
     const char* msg = detail::get_message_map()[e.type];
     if (msg) {
       out << msg << " [" << e.id.as_handle() << "]";
     } else {
       out << "0x" << std::hex << static_cast<int>(e.type) << " [" << e.id.as_handle() << "]";
+    }
+    return out;
+  }
+#endif //GUIPP_JS
+
+#if GUIPP_SDL
+  std::ostream& operator<< (std::ostream& out, const gui::core::event& e) {
+    const char* msg = detail::get_message_map()[e.type];
+    if (msg) {
+      out << msg << " [" << e.window.windowID << "]";
+    } else {
+      out << "0x" << std::hex << static_cast<int>(e.type) << " [" << e.window.windowID << "]";
     }
     return out;
   }

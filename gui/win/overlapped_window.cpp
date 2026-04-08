@@ -56,7 +56,326 @@ namespace gui {
 
   namespace win {
     // --------------------------------------------------------------------------
-#ifdef GUIPP_SDL
+#if GUIPP_X11
+    class overlapped_context {
+    public:
+      overlapped_context ()
+        : pixel_store(0)
+        , gc(0)
+      {}
+
+      ~overlapped_context () {
+        destroy();
+      }
+
+      core::context get_context () {
+        return {get_drawable(), gc};
+      }
+
+      const core::native_size& get_size () const {
+        return size;
+      }
+
+      void begin (const win::overlapped_window& w, const core::native_rect& r) {
+        auto id = w.get_os_window();
+        auto sz = core::global::scale_to_native(w.client_size());
+        bool create_new = sz != size;
+        if (create_new) {
+          create(sz, id);
+          native::erase(get_drawable(), gc, core::native_rect(sz), w.get_background());
+        }
+      }
+
+# ifdef DEBUG_RECTANGLES
+      typedef core::context end_return;
+# else
+      typedef bool end_return;
+# endif
+
+      end_return end (os::window id) {
+        auto display = core::global::get_instance();
+        XSetWindowBackgroundPixmap(display, id, pixel_store);
+        XClearWindow(display, id);
+# ifdef DEBUG_RECTANGLES
+        return {id};
+# else
+        return true;
+# endif
+      }
+
+      void finish (end_return& ctx) {
+        XFlushGC(core::global::get_instance(), gc);
+      }
+
+    private:
+      friend class overlapped_window;
+      void destroy () {
+        if (gc) {
+          core::native::delete_graphics_context(gc);
+          gc = 0;
+        }
+        if (pixel_store) {
+          native::delete_surface(pixel_store);
+          pixel_store = 0;
+        }
+      }
+
+    private:
+      void create (const core::native_size& sz, os::window id) {
+        destroy();
+        size = sz;
+        gc = core::native::create_graphics_context(IF_QT_ELSE(nullptr, get_drawable()));
+        pixel_store = native::create_surface(size, id);
+      }
+
+      gui::os::drawable get_drawable () {
+        return pixel_store;
+      }
+
+      core::native_size size;
+      os::backstore pixel_store;
+      os::graphics gc;
+    };
+#elif GUIPP_QT
+    class overlapped_context {
+    public:
+      overlapped_context ()
+        : pixel_store(0)
+        , gc(0)
+      {}
+
+      ~overlapped_context () {
+        destroy();
+      }
+
+      core::context get_context () {
+        return {get_drawable(), gc};
+      }
+
+      const core::native_size& get_size () const {
+        return size;
+      }
+
+      void begin (const win::overlapped_window& w, const core::native_rect& r) {
+        auto id = w.get_os_window();
+        auto sz = core::global::scale_to_native(w.client_size());
+        bool create_new = sz != size;
+        if (create_new) {
+          create(sz, id);
+        }
+        pixel_store->beginPaint(QRegion(r.x(), r.y(), r.width(), r.height()));
+        gc->begin(get_drawable());
+        if (create_new) {
+          native::erase(get_drawable(), gc, core::native_rect(sz), w.get_background());
+        }
+      }
+
+# ifdef DEBUG_RECTANGLES
+      typedef core::context end_return;
+# else
+      typedef bool end_return;
+# endif
+
+      end_return end (os::window id) {
+# ifdef DEBUG_RECTANGLES
+        return {get_drawable(), gc};
+# else
+        return true;
+# endif
+      }
+
+      void finish (end_return& ctx) {
+        gc->end();
+        pixel_store->endPaint();
+        pixel_store->flush(QRegion(0, 0, size.width(), size.height()));
+      }
+
+    private:
+      friend class overlapped_window;
+      void destroy () {
+        if (gc) {
+          core::native::delete_graphics_context(gc);
+          gc = 0;
+        }
+        if (pixel_store) {
+          native::delete_surface(pixel_store);
+          pixel_store = 0;
+        }
+      }
+
+    private:
+      void create (const core::native_size& sz, os::window id) {
+        destroy();
+        size = sz;
+        gc = core::native::create_graphics_context(IF_QT_ELSE(nullptr, get_drawable()));
+        pixel_store = native::create_surface(size, id);
+      }
+
+      gui::os::drawable get_drawable () {
+        return pixel_store->paintDevice();
+      }
+
+      core::native_size size;
+      os::backstore pixel_store;
+      os::graphics gc;
+    };
+#elif GUIPP_WIN
+    class overlapped_context {
+    public:
+      overlapped_context ()
+        : pixel_store(0)
+        , gc(0)
+      {}
+
+      ~overlapped_context () {
+        destroy();
+      }
+
+      core::context get_context () {
+        return {get_drawable(), gc};
+      }
+
+      const core::native_size& get_size () const {
+        return size;
+      }
+
+      void begin (const win::overlapped_window& w, const core::native_rect& r) {
+        auto id = w.get_os_window();
+        auto sz = core::global::scale_to_native(w.client_size());
+        bool create_new = sz != size;
+        if (create_new) {
+          create(sz, id);
+          native::erase(get_drawable(), gc, core::native_rect(sz), w.get_background());
+        }
+      }
+
+# ifdef DEBUG_RECTANGLES
+      typedef core::context end_return;
+# else
+      typedef bool end_return;
+# endif
+
+      end_return end (os::window id) {
+        os::graphics pgc = BeginPaint(id, &ps);
+        BitBlt(pgc, 0, 0, size.width(), size.height(), gc, 0, 0, SRCCOPY);
+# ifdef DEBUG_RECTANGLES
+        return {id, pgc};
+# else
+        EndPaint(id, &ps);
+        return true;
+# endif
+      }
+
+      void finish (end_return& ctx) {
+# ifdef DEBUG_RECTANGLES
+        EndPaint((os::window)ctx.drawable(), &ps);
+# endif
+      }
+
+    private:
+      friend class overlapped_window;
+      void destroy () {
+        if (gc) {
+          core::native::delete_graphics_context(gc);
+          gc = 0;
+        }
+        if (pixel_store) {
+          native::delete_surface(pixel_store);
+          pixel_store = 0;
+        }
+      }
+
+    private:
+      void create (const core::native_size& sz, os::window id) {
+        destroy();
+        size = sz;
+        gc = core::native::create_graphics_context(IF_QT_ELSE(nullptr, get_drawable()));
+        pixel_store = native::create_surface(size, id);
+      }
+
+      gui::os::drawable get_drawable () {
+        return pixel_store;
+      }
+
+      core::native_size size;
+      IF_SDL_ELSE(os::drawable, os::backstore) pixel_store;
+      os::graphics gc;
+      PAINTSTRUCT ps;
+    };
+#elif GUIPP_JS
+    class overlapped_context {
+    public:
+      overlapped_context ()
+        : pixel_store(0)
+        , gc(0)
+      {}
+
+      ~overlapped_context () {
+        destroy();
+      }
+
+      core::context get_context () {
+        return {get_drawable(), gc};
+      }
+
+      const core::native_size& get_size () const {
+        return size;
+      }
+
+      void begin (const win::overlapped_window& w, const core::native_rect& r) {
+        auto id = w.get_os_window();
+        auto sz = core::global::scale_to_native(w.client_size());
+        bool create_new = sz != size;
+        if (create_new) {
+          create(sz, id);
+        }
+        if (create_new) {
+          native::erase(get_drawable(), gc, core::native_rect(sz), w.get_background());
+        }
+      }
+
+# ifdef DEBUG_RECTANGLES
+      typedef core::context end_return;
+# else
+      typedef bool end_return;
+# endif
+
+      end_return end (os::window id) {
+# ifdef DEBUG_RECTANGLES
+        return {id, gc};
+# else
+        return true;
+# endif
+      }
+
+      void finish (end_return& ctx) {
+        SDL_RenderPresent(gc);
+      }
+
+    private:
+      friend class overlapped_window;
+      void destroy () {
+        gc = {};
+        pixel_store = {};
+      }
+
+    private:
+      void create (const core::native_size& sz, os::window id) {
+        destroy();
+        size = sz;
+        gc = core::native::create_graphics_context(IF_QT_ELSE(nullptr, get_drawable()));
+        pixel_store = native::create_surface(size, id);
+      }
+
+      gui::os::drawable get_drawable () {
+        return pixel_store;
+      }
+
+      core::native_size size;
+      IF_SDL_ELSE(os::drawable, os::backstore) pixel_store;
+      os::graphics gc;
+    };
+#elif GUIPP_SDL
     class overlapped_context {
     public:
       overlapped_context ()
@@ -84,18 +403,18 @@ namespace gui {
         }
       }
 
-#ifdef DEBUG_RECTANGLES
+# ifdef DEBUG_RECTANGLES
       typedef core::context end_return;
-#else
+# else
       typedef bool end_return;
-#endif
+# endif
 
       end_return end (os::window id) {
 # ifdef DEBUG_RECTANGLES
         return {id, gc};
 # else
         return true;
-#endif
+# endif
       }
 
       void finish (end_return& ctx) {
@@ -112,145 +431,7 @@ namespace gui {
     };
 
 #else
-    class overlapped_context {
-    public:
-      overlapped_context ()
-        : pixel_store({})
-        , gc(0)
-      {}
-
-      ~overlapped_context () {
-        destroy();
-      }
-
-      core::context get_context () {
-        return {get_drawable(), gc};
-      }
-
-      const core::native_size& get_size () const {
-        return size;
-      }
-
-      void begin (const win::overlapped_window& w, const core::native_rect& r) {
-        auto id = w.get_os_window();
-        auto sz = core::global::scale_to_native(w.client_size());
-        bool create_new = sz != size;
-        if (create_new) {
-          create(sz, id);
-        }
-#ifdef GUIPP_QT
-        pixel_store->beginPaint(QRegion(r.x(), r.y(), r.width(), r.height()));
-        gc->begin(get_drawable());
-#elif GUIPP_SDL
-        pixel_store = id;
-#endif
-        if (create_new) {
-          native::erase(get_drawable(), gc, core::native_rect(sz), w.get_background());
-        }
-      }
-
-#ifdef DEBUG_RECTANGLES
-      typedef core::context end_return;
-#else
-      typedef bool end_return;
-#endif
-
-      end_return end (os::window id) {
-#ifdef GUIPP_X11
-        auto display = core::global::get_instance();
-        XSetWindowBackgroundPixmap(display, id, pixel_store);
-        XClearWindow(display, id);
-# ifdef DEBUG_RECTANGLES
-        return {id};
-# else
-        return true;
-# endif
-#elif GUIPP_QT
-# ifdef DEBUG_RECTANGLES
-        return {get_drawable(), gc};
-# else
-        return true;
-# endif
-#elif GUIPP_WIN
-        os::graphics pgc = BeginPaint(id, &ps);
-        BitBlt(pgc, 0, 0, size.width(), size.height(), gc, 0, 0, SRCCOPY);
-# ifdef DEBUG_RECTANGLES
-        return {id, pgc};
-# else
-        EndPaint(id, &ps);
-        return true;
-# endif
-#elif GUIPP_JS
-        return true;
-#elif GUIPP_SDL
-        //SDL_UpdateWindowSurface(id);
-        return true;
-#endif
-      }
-
-      void finish (end_return& ctx) {
-#ifdef GUIPP_QT
-        gc->end();
-        pixel_store->endPaint();
-        pixel_store->flush(QRegion(0, 0, size.width(), size.height()));
-#elif GUIPP_WIN
-# ifdef DEBUG_RECTANGLES
-        EndPaint((os::window)ctx.drawable(), &ps);
-# endif
-#elif GUIPP_X11
-        XFlushGC(core::global::get_instance(), gc);
-#elif GUIPP_SDL
-        SDL_RenderPresent(gc);
-#endif
-      }
-
-    private:
-      friend class overlapped_window;
-      void destroy () {
-#ifdef GUIPP_JS
-          gc = {};
-          pixel_store = {};
-#else
-        if (gc) {
-          core::native::delete_graphics_context(gc);
-          gc = 0;
-        }
-# ifndef GUIPP_SDL
-        if (pixel_store) {
-          native::delete_surface(pixel_store);
-          pixel_store = 0;
-        }
-# endif //GUIPP_SDL
-#endif //GUIPP_JS
-      }
-
-    private:
-      void create (const core::native_size& sz, os::window id) {
-        destroy();
-        size = sz;
-        gc = core::native::create_graphics_context(IF_QT_ELSE(nullptr, get_drawable()));
-#ifdef GUIPP_SDL
-        pixel_store = id;
-#else
-        pixel_store = native::create_surface(size, id);
-#endif
-      }
-
-      gui::os::drawable get_drawable () {
-#ifdef GUIPP_QT
-        return pixel_store->paintDevice();
-#else
-        return pixel_store;
-#endif
-      }
-
-      core::native_size size;
-      IF_SDL_ELSE(os::drawable, os::backstore) pixel_store;
-      os::graphics gc;
-#ifdef GUIPP_WIN
-      PAINTSTRUCT ps;
-#endif
-    };
+#error Unknown target system in overlapped_window.cpp
 #endif
     // --------------------------------------------------------------------------
     // --------------------------------------------------------------------------

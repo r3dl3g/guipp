@@ -194,11 +194,13 @@ namespace gui {
                                              win::event::functor<win::client_message_matcher<detail::SCROLLBAR_MESSAGE>>>;
 #endif // GUIPP_X11
        // --------------------------------------------------------------------------
-#if defined(GUIPP_QT) || defined(GUIPP_JS) || defined(GUIPP_SDL)
+#if GUIPP_QT || GUIPP_JS || GUIPP_SDL
 
     GUIPP_CTRL_EXPORT event_source get_event_source (const core::event&);
     GUIPP_CTRL_EXPORT bool get_hilite_changed (const core::event&);
     GUIPP_CTRL_EXPORT core::point::type get_scroll_value (const core::event&);
+#endif
+#if GUIPP_QT || GUIPP_JS
 
     using selection_commit_event = core::event_handler<detail::SELECTION_COMMIT_MESSAGE>;
     using selection_cancel_event = core::event_handler<detail::SELECTION_CANCEL_MESSAGE>;
@@ -218,7 +220,21 @@ namespace gui {
                                              static_cast<gui::os::event_id>(0),
                                              core::params<core::point::type>::
                                              getter<get_scroll_value>>;
-#endif // GUIPP_QT || GUIPP_JS || GUIPP_SDL
+#endif // GUIPP_QT || GUIPP_JS
+#if GUIPP_SDL
+    using selection_commit_event = win::detail::user_event<detail::SELECTION_COMMIT_MESSAGE>;
+    using selection_cancel_event = win::detail::user_event<detail::SELECTION_CANCEL_MESSAGE>;
+    using content_changed_event = win::detail::user_event<detail::CONTENT_CHANGED_MESSAGE>;
+
+    using selection_changed_event = win::detail::user_event<detail::SELECTION_CHANGE_MESSAGE,
+                                                            core::params<event_source>::getter<get_event_source> >;
+
+    using hilite_changed_event = win::detail::user_event<detail::HILITE_CHANGE_MESSAGE,
+                                                         core::params<bool>::getter<get_hilite_changed> >;
+
+    using scroll_event = win::detail::user_event<detail::SCROLLBAR_MESSAGE,
+                                                 core::params<core::point::type>::getter<get_scroll_value> >;
+#endif // GUIPP_SDL
 
     // --------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT control : public win::window {

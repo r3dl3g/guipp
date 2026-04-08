@@ -199,11 +199,11 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     inline bool wheel_matcher_x (const core::event& e) {
-      return e.wheel.x != 0;
+      return (e.type == SDL_MOUSEWHEEL) && (e.wheel.x != 0);
     }
 
     inline bool wheel_matcher_y (const core::event& e) {
-      return e.wheel.y != 0;
+      return (e.type == SDL_MOUSEWHEEL) && (e.wheel.y != 0);
     }
 
     // --------------------------------------------------------------------------
@@ -228,11 +228,14 @@ namespace gui {
                                                             get<core::native_point, SDL_MouseButtonEvent>::param>,
                                                      0,
                                                      double_click_matcher<B>>;
+
+    template<int B, typename G = core::params<>::getter<> >
+    using user_event = core::event_handler<SDL_USEREVENT, 0, G, 0,
+                                           event::functor<user_message_matcher<B>>>;
     }
 
     // --------------------------------------------------------------------------
-    using create_event = core::event_handler<SDL_USEREVENT, 0, core::params<>::getter<>, 0,
-                                             event::functor<user_message_matcher<core::WM_CREATE_WINDOW>>>;
+    using create_event = detail::user_event<core::WM_CREATE_WINDOW>;
 
     using close_event = detail::window_event<SDL_WINDOWEVENT_CLOSE>;
 
@@ -326,17 +329,12 @@ namespace gui {
                                            0,
                                            event::functor<window_message_matcher<SDL_WINDOWEVENT_RESIZED>>>;
 
-    using layout_event = core::event_handler<SDL_USEREVENT, 0,
-                                             core::params<core::rectangle>::
-                                             getter<get_client_data_rect>,
-                                             0,
-                                             event::functor<user_message_matcher<core::WM_LAYOUT_WINDOW>>>;
+    using layout_event = detail::user_event<core::WM_LAYOUT_WINDOW,
+                                            core::params<core::rectangle>::getter<get_client_data_rect>>;
 
-    using paint_event = core::event_handler<SDL_USEREVENT, 0,
-                                            core::params<core::context*, const core::native_rect*>::
-                                            getter<get_context, get_paint_rect>,
-                                            0,
-                                            event::functor<user_message_matcher<core::WM_PAINT_WINDOW>>>;
+    using paint_event = detail::user_event<core::WM_PAINT_WINDOW,
+                                           core::params<core::context*, const core::native_rect*>::
+                                           getter<get_context, get_paint_rect> >;
 
     // --------------------------------------------------------------------------
 

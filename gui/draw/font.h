@@ -115,11 +115,13 @@ namespace gui {
 #if defined(GUIPP_WIN) || defined(GUIPP_X11) || defined(GUIPP_QT)
       os::font id;
 #endif // GUIPP_WIN
-      os::font_type info;
+      os::font_type info_;
 #ifdef GUIPP_SDL
       std::string name_;
       size_type size_;
       Thickness thickness_;
+
+      static void delete_font (FC_Font*);
 #endif
     };
 

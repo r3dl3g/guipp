@@ -99,7 +99,7 @@ namespace gui {
     }
   
     font::font (os::font_type i)
-      : info(i)
+      : info_(i)
     {
     }
 
@@ -110,30 +110,39 @@ namespace gui {
                 bool italic,
                 bool underline,
                 bool strikeout)
-      : info{nullptr}
+      : info_{}
       , name_(name)
       , size_(size)
       , thickness_(thickness)
     {
-      info = FC_CreateFont();
+      info_ = os::font_type(FC_CreateFont(), font::delete_font);
       auto sz = static_cast<Uint32>(size_ * core::global::get_scale_factor());
       auto path = getSystemFontPath(name_);
-      logging::debug() << "FC_LoadFont(" << name_ << ") from \"" << path << "\"";
-      FC_LoadFont(info, core::native::sdl::get_font_renderer(), path.c_str(), sz, FC_MakeColor(0,0,0,255), TTF_STYLE_NORMAL);
+      logging::debug() << "FC_LoadFont(" << name_ << ") with size " << sz << " from \"" << path << "\"";
+      FC_LoadFont(info_.get(), core::native::sdl::get_font_renderer(), path.c_str(), sz, FC_MakeColor(0,0,0,255), TTF_STYLE_NORMAL);
     }
 
     font::font (const font& rhs)
-      : info(rhs.info)
+      : info_(rhs.info_)
+      , name_(rhs.name_)
+      , size_(rhs.size_)
+      , thickness_(rhs.thickness_)
     {}
 
-    font::~font () {
-      logging::trace() << "FC_FreeFont(" << name_ << ")";
+    font::~font () 
+    {}
+
+    void font::delete_font (FC_Font* info) {
+      logging::trace() << "FC_FreeFont";
       FC_FreeFont(info);
       info = nullptr;
     }
 
+    void font::destroy () 
+    {}
+
     os::font_type font::font_type () const {
-      return info;
+      return info_;
     }
 
     std::string font::name () const {
@@ -200,22 +209,25 @@ namespace gui {
       if (this == &rhs) {
         return *this;
       }
-      info = rhs.info;
+      info_ = rhs.info_;
+      name_ = rhs.name_;
+      size_ = rhs.size_;
+      thickness_ = rhs.thickness_;
       return *this;
     }
 
     bool font::operator== (const font& rhs) const {
       return (name() == rhs.name()) 
         && (size() == rhs.size()) 
-        && (thickness() == rhs.thickness())
-        && (rotation() == rhs.rotation())
-        && (italic() == rhs.italic())
-        && (underline() == rhs.underline())
-        && (strikeout() == rhs.strikeout());
+        && (thickness() == rhs.thickness());
+        // && (rotation() == rhs.rotation())
+        // && (italic() == rhs.italic())
+        // && (underline() == rhs.underline())
+        // && (strikeout() == rhs.strikeout());
     }
 
     std::ostream& operator<< (std::ostream& out, const font& f) {
-      out << f.name() << ", " << f.size() << ", " << f.thickness() << ", " << f.italic();
+      out << f.name() << ", " << f.size() << ", " << f.thickness();
       return out;
     }
 

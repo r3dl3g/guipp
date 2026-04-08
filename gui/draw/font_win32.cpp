@@ -80,12 +80,12 @@ namespace gui {
 
     font::font (os::font id)
       : id(id) {
-      GetObject(id, sizeof (os::font_type), &info);
+      GetObject(id, sizeof (os::font_type), &info_);
     }
 
-    font::font (os::font_type info)
-      : id(CreateFontIndirect(&info))
-      , info(info)
+    font::font (os::font_type info_)
+      : id(CreateFontIndirect(&info_))
+      , info_(info_)
     {}
 
     font::font (const std::string& name,
@@ -99,12 +99,12 @@ namespace gui {
                       DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
                       name.c_str()))
     {
-      GetObject(id, sizeof (os::font_type), &info);
+      GetObject(id, sizeof (os::font_type), &info_);
     }
 
     font::font (const font& rhs)
-      : id(CreateFontIndirect(&rhs.info))
-      , info(rhs.info)
+      : id(CreateFontIndirect(&rhs.info_))
+      , info_(rhs.info_)
     {}
 
     font::~font () {
@@ -119,31 +119,31 @@ namespace gui {
     }
 
     std::string font::name () const {
-      return info.lfFaceName;
+      return info_.lfFaceName;
     }
 
     font::size_type font::size () const {
-      return info.lfHeight;
+      return info_.lfHeight;
     }
 
     font::Thickness font::thickness () const {
-      return (Thickness)info.lfWeight;
+      return (Thickness)info_.lfWeight;
     }
 
     int font::rotation () const {
-      return info.lfOrientation;
+      return info_.lfOrientation;
     }
 
     bool font::italic () const {
-      return info.lfItalic != 0;
+      return info_.lfItalic != 0;
     }
 
     bool font::underline () const {
-      return info.lfUnderline != 0;
+      return info_.lfUnderline != 0;
     }
 
     bool font::strikeout () const {
-      return info.lfStrikeOut != 0;
+      return info_.lfStrikeOut != 0;
     }
 
     core::size::type font::line_height () const {
@@ -151,55 +151,55 @@ namespace gui {
     }
 
     font::size_type font::native_line_height () const {
-      return info.lfHeight;
+      return info_.lfHeight;
     }
 
     font font::with_size (size_type sz) const {
-      os::font_type newType = info;
+      os::font_type newType = info_;
       newType.lfHeight = sz;
       return font(CreateFontIndirect(&newType));
     }
 
     font font::with_thickness (Thickness t) const {
-      os::font_type newType = info;
+      os::font_type newType = info_;
       newType.lfWeight = t;
       return font(CreateFontIndirect(&newType));
     }
 
     font font::with_rotation (int r) const {
-      os::font_type newType = info;
+      os::font_type newType = info_;
       newType.lfOrientation = r;
       newType.lfEscapement = r;
       return font(CreateFontIndirect(&newType));
     }
 
     font font::with_italic (bool i) const {
-      os::font_type newType = info;
+      os::font_type newType = info_;
       newType.lfItalic = i;
       return font(CreateFontIndirect(&newType));
     }
 
     font font::with_underline (bool u) const {
-      os::font_type newType = info;
+      os::font_type newType = info_;
       newType.lfUnderline = u;
       return font(CreateFontIndirect(&newType));
     }
 
     font font::with_strikeout (bool s) const {
-      os::font_type newType = info;
+      os::font_type newType = info_;
       newType.lfStrikeOut = s;
       return font(CreateFontIndirect(&newType));
     }
 
     bool font::operator== (const font& rhs) const {
-      return ((info.lfHeight == rhs.info.lfHeight) &&
-              (info.lfEscapement == rhs.info.lfEscapement) &&
-              (info.lfOrientation == rhs.info.lfOrientation) &&
-              (info.lfWeight == rhs.info.lfWeight) &&
-              (info.lfItalic == rhs.info.lfItalic) &&
-              (info.lfUnderline == rhs.info.lfUnderline) &&
-              (info.lfStrikeOut == rhs.info.lfStrikeOut) &&
-              (strcmp(info.lfFaceName, rhs.info.lfFaceName) == 0));
+      return ((info_.lfHeight == rhs.info_.lfHeight) &&
+              (info_.lfEscapement == rhs.info_.lfEscapement) &&
+              (info_.lfOrientation == rhs.info_.lfOrientation) &&
+              (info_.lfWeight == rhs.info_.lfWeight) &&
+              (info_.lfItalic == rhs.info_.lfItalic) &&
+              (info_.lfUnderline == rhs.info_.lfUnderline) &&
+              (info_.lfStrikeOut == rhs.info_.lfStrikeOut) &&
+              (strcmp(info_.lfFaceName, rhs.info_.lfFaceName) == 0));
     }
 
     font& font::operator= (const font& rhs) {
@@ -207,8 +207,8 @@ namespace gui {
         if (id) {
           DeleteObject(id);
         }
-        info = rhs.info;
-        id = CreateFontIndirect(&info);
+        info_ = rhs.info_;
+        id = CreateFontIndirect(&info_);
       }
       return *this;
     }

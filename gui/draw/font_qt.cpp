@@ -83,12 +83,12 @@ namespace gui {
 
     font::font (os::font id)
       : id(id)
-      , info(id)
+      , info_(id)
     {}
 
     font::font (os::font_type i)
       : id(i.family(), i.pointSize(), i.weight(), i.italic())
-      , info(i)
+      , info_(i)
     {}
 
     font::font (const std::string& name,
@@ -99,12 +99,12 @@ namespace gui {
                 bool underline,
                 bool strikeout)
       : id(QString::fromStdString(name), size, thickness, italic)
-      , info(id)
+      , info_(id)
     {}
 
     font::font (const font& rhs)
       : id(rhs.id)
-      , info(rhs.info)
+      , info_(rhs.info_)
     {}
 
     font::~font ()
@@ -115,15 +115,15 @@ namespace gui {
     }
 
     std::string font::name () const {
-      return info.family().toStdString();
+      return info_.family().toStdString();
     }
 
     font::size_type font::size () const {
-      return info.pointSize();
+      return info_.pointSize();
     }
 
     font::Thickness font::thickness () const {
-      return static_cast<Thickness>(info.weight());
+      return static_cast<Thickness>(info_.weight());
     }
 
     int font::rotation () const {
@@ -131,15 +131,15 @@ namespace gui {
     }
 
     bool font::italic () const {
-      return info.italic();
+      return info_.italic();
     }
 
     bool font::underline () const {
-      return info.underline();
+      return info_.underline();
     }
 
     bool font::strikeout () const {
-      return info.strikeOut();
+      return info_.strikeOut();
     }
 
     core::size::type font::line_height () const {
@@ -189,17 +189,17 @@ namespace gui {
         return *this;
       }
       id = rhs.id;
-      info = rhs.info;
+      info_ = rhs.info_;
       return *this;
     }
 
     bool font::operator== (const font& rhs) const {
-      return ((info.family() == rhs.info.family()) &&
-              (info.pointSize() == rhs.info.pointSize()) &&
-              (info.weight() == rhs.info.weight()) &&
-              (info.italic() == rhs.info.italic()) &&
-              (info.underline() == rhs.info.underline()) &&
-              (info.strikeOut() == rhs.info.strikeOut()));
+      return ((info_.family() == rhs.info_.family()) &&
+              (info_.pointSize() == rhs.info_.pointSize()) &&
+              (info_.weight() == rhs.info_.weight()) &&
+              (info_.italic() == rhs.info_.italic()) &&
+              (info_.underline() == rhs.info_.underline()) &&
+              (info_.strikeOut() == rhs.info_.strikeOut()));
     }
 
     std::ostream& operator<< (std::ostream& out, const font& f) {

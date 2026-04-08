@@ -27,6 +27,7 @@
 #include <vector>
 #include <string>
 #include <variant>
+#include <memory>
 #include <SDL_render.h>
 #include <SDL_mouse.h>
 #include <SDL_keyboard.h>
@@ -79,7 +80,7 @@ namespace gui {
     typedef SDL_Point point;
     typedef sdl::size size;
     typedef SDL_Rect rectangle;
-    typedef FC_Font* font_type;
+    typedef std::shared_ptr<FC_Font> font_type;
 
     inline point_type get_x (const point& p) { return p.x; }
     inline point_type get_y (const point& p) { return p.y; }

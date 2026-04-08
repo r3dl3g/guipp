@@ -73,7 +73,7 @@ namespace gui {
     }
   
     font::font (os::font_type i)
-      : info(i)
+      : info_(i)
     {}
 
     font::font (const std::string& name,
@@ -83,46 +83,46 @@ namespace gui {
                 bool italic,
                 bool underline,
                 bool strikeout)
-      : info{name, size, thickness, rotation, italic, underline, strikeout}
+      : info_{name, size, thickness, rotation, italic, underline, strikeout}
     {}
 
     font::font (const font& rhs)
-      : info(rhs.info)
+      : info_(rhs.info_)
     {}
 
     font::~font ()
     {}
 
     os::font_type font::font_type () const {
-      return info;
+      return info_;
     }
 
     std::string font::name () const {
-      return info.name;
+      return info_.name;
     }
 
     font::size_type font::size () const {
-      return info.size;
+      return info_.size;
     }
 
     font::Thickness font::thickness () const {
-      return static_cast<font::Thickness>(info.thickness);
+      return static_cast<font::Thickness>(info_.thickness);
     }
 
     int font::rotation () const {
-      return info.rotation;
+      return info_.rotation;
     }
 
     bool font::italic () const {
-      return info.italic;
+      return info_.italic;
     }
 
     bool font::underline () const {
-      return info.underline;
+      return info_.underline;
     }
 
     bool font::strikeout () const {
-      return info.strikeout;
+      return info_.strikeout;
     }
 
     core::size::type font::line_height () const {
@@ -161,7 +161,7 @@ namespace gui {
       if (this == &rhs) {
         return *this;
       }
-      info = rhs.info;
+      info_ = rhs.info_;
       return *this;
     }
 

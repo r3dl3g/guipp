@@ -93,7 +93,7 @@ namespace gui {
       }
 
       core::rectangle lines (draw::graphics& g, const core::rectangle& r) {
-        g.draw_lines({r.bottom_left(), r.bottom_right(), r.top_right()}, line_pen());
+        g.frame(draw::polyline({r.bottom_left(), r.bottom_right(), r.top_right()}), line_pen());
         return r - core::size::one;
       }
 
@@ -132,14 +132,14 @@ namespace gui {
       }
 
       core::rectangle raised_relief (draw::graphics& g, const core::rectangle& r, const pen& high, const pen& low) {
-        g.draw_lines({r.bottom_left(), r.top_left(), r.top_right()}, high);
-        g.draw_lines({r.bottom_left(), r.bottom_right(), r.top_right()}, low);
+        g.frame(draw::polyline({r.bottom_left(), r.top_left(), r.top_right()}), high);
+        g.frame(draw::polyline({r.bottom_left(), r.bottom_right(), r.top_right()}), low);
         return r.shrinked(core::size::one);
       }
 
       core::rectangle sunken_relief (draw::graphics& g, const core::rectangle& r, const pen& high, const pen& low) {
-        g.draw_lines({r.bottom_left(), r.top_left(), r.top_right()}, low);
-        g.draw_lines({r.bottom_left(), r.bottom_right(), r.top_right()}, high);
+        g.frame(draw::polyline({r.bottom_left(), r.top_left(), r.top_right()}), low);
+        g.frame(draw::polyline({r.bottom_left(), r.bottom_right(), r.top_right()}), high);
         return r.shrinked(core::size::one);
       }
 

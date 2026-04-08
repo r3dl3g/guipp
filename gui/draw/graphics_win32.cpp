@@ -54,22 +54,6 @@ namespace gui {
       return GetPixel(gc(), pt.x(), pt.y());
     }
 
-    graphics& graphics::draw_lines (const std::vector<core::point>& points,
-                                    const pen& p) {
-      Use<pen> pn(gc(), p);
-      const auto off = p.os_size() / 2;
-      bool first = true;
-      for (const core::point& pt : points) {
-        if (first) {
-          first = false;
-          MoveToEx(gc(), pt.os_x(context()) + off, pt.os_y(context()) + off, nullptr);
-        } else {
-          LineTo(gc(), pt.os_x(context()) + off, pt.os_y(context()) + off);
-        }
-      }
-      return *this;
-    }
-
     graphics& graphics::copy_from (graphics& src,
                                    const core::native_rect& r,
                                    const core::native_point& pt) {

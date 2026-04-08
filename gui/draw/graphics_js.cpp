@@ -72,24 +72,6 @@ namespace gui {
       return c;
     }
 
-    graphics& graphics::draw_lines (const std::vector<core::point>& points,
-                                    const pen& p) {
-      Use<pen> pn(gc(), p);
-
-      os().call<void>("beginPath");
-      bool first = true;
-      for (const core::point& pt : points) {
-        if (first) {
-          first = false;
-          os().call<void>("moveTo", pt.os_x(context()), pt.os_y(context()));
-        } else {
-          os().call<void>("lineTo", pt.os_x(context()), pt.os_y(context()));
-        }
-      }
-      os().call<void>("stroke");
-      return *this;
-    }
-
     void graphics::flush () {
     }
 

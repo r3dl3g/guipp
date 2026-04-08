@@ -80,27 +80,6 @@ namespace gui {
       return { (pt.x() + i), (pt.y() + i) };
     }
 
-    graphics& graphics::draw_lines (const std::vector<core::point>& points,
-                                          const pen& p) {
-      Use<pen> pn(gc(), p);
-      QVector<os::point> pointPairs;
-      const auto off = p.os_size() / 2;
-      bool first = true;
-      os::point last;
-      for (const core::point& pt : points) {
-        if (first) {
-          first = false;
-          last = pt.os(context()) + off;
-        } else {
-          pointPairs.push_back(last);
-          last = pt.os(context()) + off;
-          pointPairs.push_back(last);
-        }
-      }
-      gc()->drawLines(pointPairs);
-      return *this;
-    }
-
     graphics& graphics::copy_from (graphics& src, const core::native_rect& r, const core::native_point& pt) {
       return copy_from(src.target(), r, pt);
     }

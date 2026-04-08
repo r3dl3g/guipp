@@ -122,23 +122,6 @@ namespace gui {
       return { (short)(pt.x + i), (short)(pt.y + i) };
     }
 
-    graphics& graphics::draw_lines (const std::vector<core::point>& pts,
-                                          const pen& p) {
-
-      Use<pen> pn(gc(), p);
-      const short off = p.os_size() / 2;
-
-      std::vector<os::point> points;
-      points.reserve(pts.size());
-      for (const core::point& pt : pts) {
-        points.push_back(pt.os(context()) + off);
-      }
-      XDrawLines(get_instance(), target(), gc(),
-                 points.data(), (int)points.size(),
-                 CoordModeOrigin);
-      return *this;
-    }
-
     graphics& graphics::copy_from (graphics& src, const core::native_rect& r, const core::native_point& pt) {
       int res = XCopyArea(get_instance(), src.target(), target(), gc(), r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y());
       if (!res) {

@@ -64,11 +64,6 @@ namespace gui {
       return pixel;
     }
 
-    graphics& graphics::draw_lines (const std::vector<core::point>& points,
-                                    const pen& p) {
-      return frame(polyline(points), p);
-    }
-
     void graphics::flush () {
       SDL_RenderPresent(gc());
     }

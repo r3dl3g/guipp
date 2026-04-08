@@ -54,7 +54,7 @@ namespace gui {
             g.text(draw::bounding_box(l.substr(0, i), r0, text_origin_t::vcenter_left), f, c);
             x1 = r0.x2();
           }
-          g.draw_lines({core::point(x1, y), core::point(x2, y)}, c);
+          g.frame(draw::polyline({core::point(x1, y), core::point(x2, y)}), c);
         }
       }
     }
@@ -145,9 +145,9 @@ namespace gui {
       } else if (is_checked) {
         core::point::type y = r.center_y();
         core::point::type x = r.x() + 8;
-        g.draw_lines({core::point(x - 4, y),
-                      core::point(x - 2, y + 4),
-                      core::point(x + 4, y - 4)}, color::black);
+        g.frame(draw::polyline({core::point(x - 4, y),
+                                core::point(x - 2, y + 4),
+                                core::point(x + 4, y - 4)}), color::black);
       }
     }
 

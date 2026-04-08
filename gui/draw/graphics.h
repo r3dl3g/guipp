@@ -78,9 +78,6 @@ namespace gui {
 
       os::color get_pixel (const core::native_point&) const;
 
-      graphics& draw_lines (const std::vector<core::point>& points,
-                                  const pen& pen);
-
       template<typename F> //frameable
       graphics& frame (F, const pen& pen);
 

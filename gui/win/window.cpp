@@ -170,12 +170,23 @@ namespace gui {
     os::event_id get_event_sub_id (const core::event& e) {
       return (e.type == ClientMessage) ? e.xclient.message_type : 0;
     }
+#elif GUIPP_SDL
+    os::event_id get_event_sub_id (const core::event& e) {
+      switch (e.type) {
+        case SDL_USEREVENT:       return e.user.code;
+        case SDL_WINDOWEVENT:     return e.window.event;
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:   return e.button.button;
+        case SDL_MOUSEWHEEL:      return e.wheel.which;
+      }
+      return 0;
+    }
 #endif //GUIPP_X11
 
     struct GUIPP_WIN_EXPORT event_type {
       inline event_type (const core::event& e)
         : id(get_event_id(e))
-#ifdef GUIPP_X11
+#if GUIPP_X11 || GUIPP_SDL
         , sub_id(get_event_sub_id(e))
 #endif
       {}
@@ -184,13 +195,15 @@ namespace gui {
         return (id < rhs.id)
 #ifdef GUIPP_X11
           || ((id == rhs.id) && (sub_id < rhs.sub_id))
+#elif GUIPP_SDL
+          || ((id == rhs.id) && (sub_id < rhs.sub_id))
 #endif
         ;
       }
 
     private:
       const os::event_id id;
-#ifdef GUIPP_X11
+#if GUIPP_X11 || GUIPP_SDL
       const os::event_id sub_id;
 #endif
 

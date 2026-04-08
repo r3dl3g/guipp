@@ -395,6 +395,11 @@ namespace gui {
         if (!gc) {
           gc = core::native::create_graphics_context(id);
         }
+        auto c = w.get_background();
+        SDL_SetRenderDrawColor(gc, 
+                               static_cast<int>(color::extract<color::part::red>(c)),
+                               static_cast<int>(color::extract<color::part::green>(c)),
+                               static_cast<int>(color::extract<color::part::blue>(c)), 255);
         SDL_RenderClear(gc);
       }
 

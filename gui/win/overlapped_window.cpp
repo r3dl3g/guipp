@@ -294,7 +294,7 @@ namespace gui {
       }
 
       core::native_size size;
-      IF_SDL_ELSE(os::drawable, os::backstore) pixel_store;
+      os::backstore pixel_store;
       os::graphics gc;
       PAINTSTRUCT ps;
     };
@@ -368,7 +368,7 @@ namespace gui {
       }
 
       core::native_size size;
-      IF_SDL_ELSE(os::drawable, os::backstore) pixel_store;
+      os::backstore pixel_store;
       os::graphics gc;
     };
 #elif GUIPP_SDL
@@ -395,8 +395,8 @@ namespace gui {
         pixel_store = id;
         if (!gc) {
           gc = core::native::create_graphics_context(id);
-          native::erase(pixel_store, gc, core::native_rect(sz), w.get_background());
         }
+        SDL_RenderClear(gc);
       }
 
 # ifdef DEBUG_RECTANGLES
@@ -771,9 +771,6 @@ namespace gui {
         overlapped_context& surface = get_context();
         surface.begin(*this, invalid_rect);
         auto cntxt = surface.get_context();
-#ifdef GUIPP_SDL
-        SDL_RenderClear(cntxt.graphics());
-#endif
 
         logging::trace() << "overlapped_window clip " << invalid_rect;
         core::clip clp(cntxt, invalid_rect);

@@ -65,7 +65,6 @@ namespace gui {
     }
 
     void graphics::flush () {
-      SDL_RenderPresent(gc());
     }
 
     int graphics::depth () const {

@@ -69,6 +69,8 @@ namespace gui {
             bool strikeout = false);
 
       font (const font&);
+      font (font&&) = default;
+      font ();
       ~font ();
 
       font& operator= (const font& rhs);

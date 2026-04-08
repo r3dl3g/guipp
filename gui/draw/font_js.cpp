@@ -71,7 +71,10 @@ namespace gui {
       static font f("Verdana", STD_FONT_SIZE);
       return f;
     }
-  
+
+    font::font ()
+    {}
+
     font::font (os::font_type i)
       : info_(i)
     {}

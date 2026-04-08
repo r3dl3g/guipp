@@ -137,6 +137,10 @@ namespace gui {
       return f;
     }
 
+    font::font ()
+      : info_(nullptr)
+    {}
+
     font::font (os::font id) {
 #ifdef GUIPP_USE_XFT
       info_ = XftFontOpenPattern(core::global::get_instance(), id);

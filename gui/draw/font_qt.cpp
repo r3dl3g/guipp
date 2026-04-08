@@ -81,6 +81,9 @@ namespace gui {
       return f;
     };
 
+    font::font ()
+    {}
+
     font::font (os::font id)
       : id(id)
       , info_(id)

@@ -98,10 +98,12 @@ namespace gui {
       return f;
     }
   
+    font::font ()
+    {}
+
     font::font (os::font_type i)
       : info_(i)
-    {
-    }
+    {}
 
     font::font (const std::string& name,
                 font::size_type size,

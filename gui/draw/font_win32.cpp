@@ -78,6 +78,10 @@ namespace gui {
       return f;
     };
 
+    font::font ()
+      : id(0) 
+    {}
+
     font::font (os::font id)
       : id(id) {
       GetObject(id, sizeof (os::font_type), &info_);

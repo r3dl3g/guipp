@@ -190,33 +190,30 @@ namespace gui {
     void polyline::operator() (graphics& g,
                                const brush& b,
                                const pen& p) const {
-      auto pts = convert(g);
-      const int cnt = pts.size();
-      std::vector<Sint16> vx(cnt);
-      std::vector<Sint16> vy(cnt);
 
-      for (int i = 0; i < cnt; ++i) {
-        vx[i] = pts[i].x;
-        vy[i] = pts[i].y;
-      }
-
-      filledPolygonColor(g, vx.data(), vy.data(), cnt, b.color());
-      polygonColor(g, vx.data(), vy.data(), cnt, p.color());
+      operator()(g, b);
+      operator()(g, p);
     }
 
     void polyline::operator() (graphics& g,
                                const pen& p) const {
       auto pts = convert(g);
-      const int cnt = pts.size();
-      std::vector<Sint16> vx(cnt);
-      std::vector<Sint16> vy(cnt);
-
-      for (int i = 0; i < cnt; ++i) {
-        vx[i] = pts[i].x;
-        vy[i] = pts[i].y;
+      
+      bool first = true;
+      os::point p0;
+      for (const auto& pt : pts) {
+        if (first) {
+          first = false;
+        } else {
+          if (p.size() > 1) {
+            thickLineColor(g, p0.x, p0.y, pt.x, pt.y, p.size(), p.color());
+          } else {
+            lineColor(g, p0.x, p0.y, pt.x, pt.y, p.color());
+          }
+        }
+        p0 = pt;
       }
 
-      polygonColor(g, vx.data(), vy.data(), cnt, p.color());
     }
 
     void polyline::operator() (graphics& g,

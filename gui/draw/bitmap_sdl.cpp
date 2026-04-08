@@ -88,6 +88,7 @@ namespace gui {
         bmi.bytes_per_line = pitch;
         auto bits = static_cast<const blob::value_type*>(pixels);
         data.assign(bits, bits + pitch * bmi.height);
+        SDL_UnlockTexture(id);
       } else {
         bmi = {};
         data.clear();

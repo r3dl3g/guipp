@@ -69,7 +69,7 @@ namespace gui {
       }
 
       core::context get_context () {
-        return {get_drawable(), gc};
+        return {pixel_store, gc};
       }
 
       const core::native_size& get_size () const {
@@ -82,7 +82,7 @@ namespace gui {
         bool create_new = sz != size;
         if (create_new) {
           create(sz, id);
-          native::erase(get_drawable(), gc, core::native_rect(sz), w.get_background());
+          native::erase(pixel_store, gc, core::native_rect(sz), w.get_background());
         }
       }
 
@@ -124,12 +124,8 @@ namespace gui {
       void create (const core::native_size& sz, os::window id) {
         destroy();
         size = sz;
-        gc = core::native::create_graphics_context(IF_QT_ELSE(nullptr, get_drawable()));
         pixel_store = native::create_surface(size, id);
-      }
-
-      gui::os::drawable get_drawable () {
-        return pixel_store;
+        gc = core::native::create_graphics_context(IF_QT_ELSE(nullptr, pixel_store));
       }
 
       core::native_size size;
@@ -477,11 +473,7 @@ namespace gui {
     }
    // --------------------------------------------------------------------------
     overlapped_window::operator os::drawable() const {
-#ifdef GUIPP_QT
       return get_context().get_context().drawable();
-#else
-      return get_context().get_drawable();
-#endif
     }
     // --------------------------------------------------------------------------
     void overlapped_window::create (const class_info& cls,

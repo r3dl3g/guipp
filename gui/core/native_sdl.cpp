@@ -51,15 +51,15 @@ namespace gui {
       }
 
       namespace {
-        gui::os::graphics s_font_renderer = nullptr;
+        SDL_Renderer* s_font_renderer = nullptr;
       }
 
       // --------------------------------------------------------------------------
       gui::os::graphics create_graphics_context (gui::os::drawable id) {
-        if (std::holds_alternative<gui::os::window>(id)) {
-          s_font_renderer = SDL_CreateRenderer(std::get<gui::os::window>(id), -1, SDL_RENDERER_ACCELERATED);
-        } else if (std::holds_alternative<gui::os::icon>(id)) {
-          s_font_renderer = SDL_CreateSoftwareRenderer(std::get<gui::os::icon>(id));
+        if (std::holds_alternative<SDL_Window*>(id)) {
+          s_font_renderer = SDL_CreateRenderer(std::get<SDL_Window*>(id), -1, SDL_RENDERER_ACCELERATED);
+        } else if (std::holds_alternative<SDL_Surface*>(id)) {
+          s_font_renderer = SDL_CreateSoftwareRenderer(std::get<SDL_Surface*>(id));
         } else {
           return nullptr;
         }

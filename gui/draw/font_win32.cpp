@@ -111,6 +111,10 @@ namespace gui {
       , info_(rhs.info_)
     {}
 
+    bool font::is_valid () const {
+      return id != 0;
+    }
+
     font::~font () {
       if (id) {
         DeleteObject(id);

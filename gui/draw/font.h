@@ -83,6 +83,8 @@ namespace gui {
       explicit font (os::font_type id);
       os::font_type font_type () const;
 
+      bool is_valid () const;
+
       std::string name () const;
       size_type size () const;
       Thickness thickness () const;

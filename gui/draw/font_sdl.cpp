@@ -131,6 +131,10 @@ namespace gui {
       , thickness_(rhs.thickness_)
     {}
 
+    bool font::is_valid () const {
+      return true;
+    }
+
     font::~font () 
     {}
 

@@ -287,6 +287,10 @@ namespace gui {
       return *this;
     }
 
+    bool font::is_valid () const {
+      return info_ != nullptr;
+    }
+
     font::~font () {
       destroy();
     }

@@ -82,6 +82,7 @@ namespace gui {
     };
 
     font::font ()
+      : info_(id)
     {}
 
     font::font (os::font id)
@@ -109,6 +110,10 @@ namespace gui {
       : id(rhs.id)
       , info_(rhs.info_)
     {}
+
+    bool font::is_valid () const {
+      return true;
+    }
 
     font::~font ()
     {}

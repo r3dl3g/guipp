@@ -93,6 +93,10 @@ namespace gui {
       : info_(rhs.info_)
     {}
 
+    bool font::is_valid () const {
+      return true;
+    }
+
     font::~font ()
     {}
 

@@ -25,6 +25,10 @@ using namespace gui::core;
 
 struct icon_drawer : public list_data {
 
+  icon_drawer () {
+    logging::debug() << "icon_drawer created";
+  }
+
   std::size_t size () const override { return static_cast<std::size_t>(icon_type::MAX); }
 
   void draw_at (std::size_t idx, graphics& graph, const core::rectangle& r, const brush& b, item_state state) const override {
@@ -38,9 +42,19 @@ struct icon_drawer : public list_data {
       graph.frame(icon_t<icon_type::background>(center, radius), icon_pen);
       graph.frame(icon(i, center, radius), icon_pen);
       graph.text(text_box(icon_name(i), r.dy(-radius/3), text_origin_t::bottom_hcenter),
-                 font::system().with_size(static_cast<font::size_type>(radius/2)), color::black);
+                 get_font(static_cast<font::size_type>(radius/2)), color::black);
     }
   }
+
+  font& get_font (font::size_type requested_size) const {
+    if (!icon_font.font_type() || icon_font.size() != requested_size) {
+      logging::debug() << "created font with size " << requested_size;
+      icon_font = font::system().with_size(requested_size);
+    }
+    return icon_font;
+  }
+
+  mutable font icon_font;
 };
 
 // --------------------------------------------------------------------------

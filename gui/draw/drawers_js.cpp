@@ -99,28 +99,22 @@ namespace gui {
                               const pen& p) const {
       Use<pen> pn(g, p);
 
-      const os::rectangle r = rect.os(g.context());
-      int cx = (r.x + r.x2) / 2;
-      int cy = (r.y + r.y2) / 2;
-      int wx = (r.x2 - r.x) / 2;
-      int wy = (r.y2 - r.y) / 2;
+      const auto c = rect.center().os(g.context());
+      const auto r = (rect.size() / 2).os();
 
       g.os().call<void>("beginPath");
-      g.os().call<void>("ellipse", cx, cy, wx, wy, 0, 0, 2 * M_PI);
+      g.os().call<void>("ellipse", c.x, c.y, r.cx, r.cy, 0, 0, 2 * M_PI);
       g.os().call<void>("stroke");
     }
 
     void ellipse::operator() (graphics& g,
                               const brush& b) const {
       Use<brush> ubr(g, b);
-      const os::rectangle r = rect.os(g.context());
-      int cx = (r.x + r.x2) / 2;
-      int cy = (r.y + r.y2) / 2;
-      int wx = (r.x2 - r.x) / 2;
-      int wy = (r.y2 - r.y) / 2;
+      const auto c = rect.center().os(g.context());
+      const auto r = (rect.size() / 2).os();
 
       g.os().call<void>("beginPath");
-      g.os().call<void>("ellipse", cx, cy, wx, wy, 0, 0, 2 * M_PI);
+      g.os().call<void>("ellipse", c.x, c.y, r.cx, r.cy, 0, 0, 2 * M_PI);
       g.os().call<void>("fill");
     }
 
@@ -156,62 +150,54 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void draw_arc<arc_type::pie> (graphics& g, const arc_coords& c, const pen& p) {
+    void draw_arc<arc_type::pie> (graphics& g, const arc_coords& coord, const pen& p) {
       Use<pen> pn(g, p);
 
-      int rx = c.w / 2;
-      int ry = c.h / 2;
-      int cx = c.x + rx;
-      int cy = c.y + ry;
+      auto c = coord.center.os(g.context());
+      auto r = coord.radius.os();
 
       g.os().call<void>("beginPath");
-      g.os().call<void>("moveTo", cx, cy);
-      g.os().call<void>("ellipse", cx, cy, rx, ry, 0, 2 * M_PI - c.end.rad(), 2 * M_PI - c.start.rad());
-      g.os().call<void>("lineTo", cx, cy);
+      g.os().call<void>("moveTo", c.x, c.y);
+      g.os().call<void>("ellipse", c.x, c.y, r.cx, r.cy, 0, 2 * M_PI - coord.end.rad(), 2 * M_PI - coord.start.rad());
+      g.os().call<void>("lineTo", c.x, c.y);
       g.os().call<void>("stroke");
     }
 
     template<>
-    void draw_arc<arc_type::arc> (graphics& g, const arc_coords& c, const pen& p) {
+    void draw_arc<arc_type::arc> (graphics& g, const arc_coords& coord, const pen& p) {
       Use<pen> pn(g, p);
 
-      int rx = c.w / 2;
-      int ry = c.h / 2;
-      int cx = c.x + rx;
-      int cy = c.y + ry;
+      auto c = coord.center.os(g.context());
+      auto r = coord.radius.os();
 
       g.os().call<void>("beginPath");
-      g.os().call<void>("ellipse", cx, cy, rx, ry, 0, 2 * M_PI - c.end.rad(), 2 * M_PI - c.start.rad());
+      g.os().call<void>("ellipse", c.x, c.y, r.cx, r.cy, 0, 2 * M_PI - coord.end.rad(), 2 * M_PI - coord.start.rad());
       g.os().call<void>("stroke");
     }
 
     template<>
-    void fill_arc<arc_type::pie> (graphics& g, const arc_coords& c, const brush& b) {
+    void fill_arc<arc_type::pie> (graphics& g, const arc_coords& coord, const brush& b) {
       Use<brush> br(g, b);
 
-      int rx = c.w / 2;
-      int ry = c.h / 2;
-      int cx = c.x + rx;
-      int cy = c.y + ry;
+      auto c = coord.center.os(g.context());
+      auto r = coord.radius.os();
 
       g.os().call<void>("beginPath");
-      g.os().call<void>("moveTo", cx, cy);
-      g.os().call<void>("ellipse", cx, cy, rx, ry, 0, 2 * M_PI - c.end.rad(), 2 * M_PI - c.start.rad());
-      g.os().call<void>("lineTo", cx, cy);
+      g.os().call<void>("moveTo", c.x, c.y);
+      g.os().call<void>("ellipse", c.x, c.y, r.cx, r.cy, 0, 2 * M_PI - coord.end.rad(), 2 * M_PI - coord.start.rad());
+      g.os().call<void>("lineTo", c.x, c.y);
       g.os().call<void>("fill");
     }
 
     template<>
-    void fill_arc<arc_type::arc> (graphics& g, const arc_coords& c, const brush& b) {
+    void fill_arc<arc_type::arc> (graphics& g, const arc_coords& coord, const brush& b) {
       Use<brush> br(g, b);
 
-      int rx = c.w / 2;
-      int ry = c.h / 2;
-      int cx = c.x + rx;
-      int cy = c.y + ry;
+      auto c = coord.center.os(g.context());
+      auto r = coord.radius.os();
 
       g.os().call<void>("beginPath");
-      g.os().call<void>("ellipse", cx, cy, rx, ry, 0, 2 * M_PI - c.end.rad(), 2 * M_PI - c.start.rad());
+      g.os().call<void>("ellipse", c.x, c.y, r.cx, r.cy, 0, 2 * M_PI - coord.end.rad(), 2 * M_PI - coord.start.rad());
       g.os().call<void>("fill");
     }
 

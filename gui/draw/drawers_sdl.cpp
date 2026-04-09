@@ -86,7 +86,7 @@ namespace gui {
       } else {
         auto irx = (float)(rx - width / 2);
         auto iry = (float)(ry - width / 2);
-        if ((irx > 1) && (iry > 1)) {
+        if ((irx > 0) && (iry > 0)) {
           auto inner = arc_coords({(float)x, (float)y}, {irx, iry}, 0, 360).calc_arc_os_points(g.context());
           outer.insert(outer.end(), inner.rbegin(), inner.rend());
         }

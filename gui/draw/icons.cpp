@@ -977,7 +977,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_type::background> (graphics& g, const pen&, const core::point& center, core::size::type radius) {
-      pen pn{color::gray, 0.333F};
+      pen pn{color::gray, static_cast<pen::size_type>(1.0 / core::global::get_scale_factor())};
       core::size sz{radius, radius};
       g.frame(draw::arc(center, radius, 0, 360), pn);
       g.frame(draw::arc(center, radius/2, 0, 360), pn);

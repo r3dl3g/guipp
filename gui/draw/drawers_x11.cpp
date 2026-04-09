@@ -79,23 +79,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     void line::operator() (graphics& g, const pen& p) const {
       gui::os::instance display = get_instance();
-     const short pw = p.os_size();
-     const short off = pw / 2;
       Use<pen> pn(g, p);
-
-      const auto x0 = from.os_x(g.context()) + off;
-      const auto y0 = from.os_y(g.context()) + off;
-      const auto x1 = to.os_x(g.context()) + off;
-      const auto y1 = to.os_y(g.context()) + off;
+      const auto x0 = from.os_x(g.context());
+      const auto y0 = from.os_y(g.context());
+      const auto x1 = to.os_x(g.context());
+      const auto y1 = to.os_y(g.context());
 
       XDrawLine(display, g.target(), g, x0, y0, x1, y1);
-//      XDrawLine(display, g.target(), g, x0 + off, y0 + off, x1 + off, y1 + off);
-//      if ((pw > 1) && (pw % 2 == 0)) {
-//        XDrawPoint(display, g.target(), g, x0, y0);
-//        if ((x1 < x0) || (y1 < y0)) {
-//          XDrawPoint(display, g.target(), g, x1, y1);
-//        }
-//      }
     }
 
     // --------------------------------------------------------------------------
@@ -175,7 +165,7 @@ namespace gui {
                               const pen& p) const {
       gui::os::instance display = get_instance();
       const auto pw = p.os_size();
-      const auto off = pw/*(pw - 1)*/ / 2;
+      const auto off = pw / 2;//pw/*(pw - 1)*/ / 2;
       const os::rectangle r = rect.os(g.context());
       if ((r.width == 0) && (r.height == 0)) {
         if (!is_transparent(p)) {

@@ -17,4 +17,4 @@ elif [ "$PLATFORM" == "sdl" ]; then
 fi
 
 prepare Debug $@
-#prepare Release $@
+prepare Release $@

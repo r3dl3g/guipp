@@ -23,6 +23,7 @@ targetPkgs.mkShell {
     # Falls du weitere Libs brauchst, z.B. openssl oder zlib,
     # würden diese hier durch 'isStatic = true' automatisch als .a statt .dll geladen.
     windows.pthreads # Häufige Abhängigkeit für C++11 Threads unter MinGW
+    windows.mingw_w64
   ];
 
   # Das ist der entscheidende Teil für deine Linker-Flags

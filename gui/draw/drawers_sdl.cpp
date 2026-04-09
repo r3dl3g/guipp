@@ -46,34 +46,81 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace draw {
 
-    void line::operator() (graphics& g, const pen& p) const {
-      const auto x1 = from.os_x(g.context());
-      const auto y1 = from.os_y(g.context());
-      const auto x2 = to.os_x(g.context());
-      const auto y2 = to.os_y(g.context());
-
-      if (p.size() > 1) {
-        thickLineColor(g, x1, y1, x2, y2, p.size(), p.color());
-      } else {
-        lineColor(g, x1, y1, x2, y2, p.color());
+    void thickEllipseColor (SDL_Renderer* renderer, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 width, Uint32 color) {
+      for (Uint8 i = 0; i < width; ++i) {
+        auto delta = (i >> 1) ^ -(i & 1);
+        ellipseColor(renderer, x, y, rx + delta, ry + delta, color);
       }
+    }
+
+    void myThickLineColor(SDL_Renderer* renderer, const os::point& p0, const os::point& p1, Uint8 width, Uint32 color) {
+      thickLineColor(renderer, p0.x, p0.y, p1.x, p1.y, width, color);
+    }
+
+    void thickPolylineColor (SDL_Renderer* renderer, const std::vector<os::point>& pts, Uint8 width, Uint32 color) {
+      bool first = true;
+      os::point p0;
+      for (const auto& pt : pts) {
+        if (first) {
+          first = false;
+        } else {
+          myThickLineColor(renderer, p0, pt, width, color);
+        }
+        p0 = pt;
+      }
+    }
+
+    void thickPolygoneColor (SDL_Renderer* renderer, const std::vector<os::point>& pts, Uint8 width, Uint32 color) {
+      bool first = true;
+      os::point p0, p1;
+      for (const auto& pt : pts) {
+        if (first) {
+          p0 = pt;
+          first = false;
+        } else {
+          myThickLineColor(renderer, p1, pt, width, color);
+        }
+        p1 = pt;
+      }
+      myThickLineColor(renderer, p1, p0, width, color);
+    }
+
+    int filledPolygonColor (SDL_Renderer* renderer, const std::vector<os::point>& pts, Uint32 color) {
+        const int cnt = pts.size();
+        std::vector<Sint16> vx(cnt);
+        std::vector<Sint16> vy(cnt);
+
+        for (int i = 0; i < cnt - 1; ++i) {
+          vx[i] = pts[i].x;
+          vy[i] = pts[i].y;
+        }
+        return filledPolygonColor(renderer, vx.data(), vy.data(), cnt, color);
+    }
+
+    // --------------------------------------------------------------------------
+    void line::operator() (graphics& g, const pen& p) const {
+      const auto p1 = from.os(g.context());
+      const auto p2 = to.os(g.context());
+
+      myThickLineColor(g, p1, p2, p.os_size(), p.color());
     }
 
     // --------------------------------------------------------------------------
     void rectangle::operator() (graphics& g,
                                 const brush& b,
                                 const pen& p) const {
-      const auto r = rect.os(g.context());
-
-      boxColor(g, r.x, r.y, r.x + r.w, r.y + r.h, b.color());
-      rectangleColor(g, r.x, r.y, r.x + r.w, r.y + r.h, p.color());
+      operator()(g, b);
+      operator()(g, p);
     }
 
     void rectangle::operator() (graphics& g,
                                 const pen& p) const {
       const auto r = rect.os(g.context());
 
-      rectangleColor(g, r.x, r.y, r.x + r.w, r.y + r.h, p.color());
+      thickLineColor(g, r.x, r.y, r.x + r.w, r.y, p.os_size(), p.color());
+      thickLineColor(g, r.x, r.y + r.h, r.x + r.w, r.y + r.h, p.os_size(), p.color());
+      thickLineColor(g, r.x, r.y, r.x, r.y + r.h, p.os_size(), p.color());
+      thickLineColor(g, r.x + r.w, r.y, r.x + r.w, r.y + r.h, p.os_size(), p.color());
     }
 
     void rectangle::operator() (graphics& g,
@@ -87,24 +134,25 @@ namespace gui {
     void ellipse::operator() (graphics& g,
                               const brush& b,
                               const pen& p) const {
-      const auto r = rect.os(g.context());
-
-      filledEllipseColor(g, r.x, r.y, r.x + r.w, r.y + r.h, b.color());
-      ellipseColor(g, r.x, r.y, r.x + r.w, r.y + r.h, p.color());
+      operator()(g, b);
+      operator()(g, p);
     }
 
     void ellipse::operator() (graphics& g,
                               const pen& p) const {
-      const auto r = rect.os(g.context());
+      const auto c = rect.center().os(g.context());
+      const auto r = (rect.size() / 2).os();
 
-      ellipseColor(g, r.x, r.y, r.x + r.w, r.y + r.h, p.color());
+      thickEllipseColor(g, c.x, c.y, r.w, r.h, p.os_size(), p.color());
     }
 
     void ellipse::operator() (graphics& g,
                               const brush& b) const {
       const auto r = rect.os(g.context());
 
-      filledEllipseColor(g, r.x, r.y, r.x + r.w, r.y + r.h, b.color());
+      auto w = r.w / 2;
+      auto h = r.h / 2;
+      filledEllipseColor(g, r.x + w, r.y + h, w, h, b.color());
     }
 
     // --------------------------------------------------------------------------
@@ -139,51 +187,54 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void draw_arc<arc_type::pie> (graphics& g, const arc_coords& c, const pen& p) {
-      int rx = c.w / 2;
-      int ry = c.h / 2;
-      int cx = c.x + rx;
-      int cy = c.y + ry;
-
-      int rad = (rx + ry) / 2;
-
-      pieColor(g, cx, cy, rad, c.end.deg(), c.start.deg(), p.color());
+    void draw_arc<arc_type::pie> (graphics& g, const arc_coords& coord, const pen& p) {
+      auto c = coord.center.os(g.context());
+      
+      if (coord.full()) {
+        auto r = coord.radius.os();
+        thickEllipseColor(g, c.x, c.y, r.w, r.h, p.os_size(), p.color());
+      } else {
+        auto pts = coord.calc_arc_os_points(g.context());
+        pts.push_back(c);
+        thickPolygoneColor(g, pts, p.os_size(), p.color());
+      }
     }
 
     template<>
-    void draw_arc<arc_type::arc> (graphics& g, const arc_coords& c, const pen& p) {
-      int rx = c.w / 2;
-      int ry = c.h / 2;
-      int cx = c.x + rx;
-      int cy = c.y + ry;
-
-      int rad = (rx + ry) / 2;
-
-      arcColor(g, cx, cy, rad, c.end.deg(), c.start.deg(), p.color());
+    void draw_arc<arc_type::arc> (graphics& g, const arc_coords& coord, const pen& p) {
+      
+      if (coord.full()) {
+        auto c = coord.center.os(g.context());
+        auto r = coord.radius.os();
+        thickEllipseColor(g, c.x, c.y, r.w, r.h, p.os_size(), p.color());
+      } else {
+        thickPolylineColor(g, coord.calc_arc_os_points(g.context()), p.os_size(), p.color());
+      }
     }
 
     template<>
-    void fill_arc<arc_type::pie> (graphics& g, const arc_coords& c, const brush& b) {
-      int rx = c.w / 2;
-      int ry = c.h / 2;
-      int cx = c.x + rx;
-      int cy = c.y + ry;
+    void fill_arc<arc_type::pie> (graphics& g, const arc_coords& coord, const brush& b) {
 
-      int rad = (rx + ry) / 2;
-
-      filledPieColor(g, cx, cy, rad, c.end.deg(), c.start.deg(), b.color());
+      if (coord.full()) {
+        auto r = coord.get_area().os(g.context());
+        filledEllipseColor(g, r.x, r.y, r.w, r.h, b.color());
+      } else {
+        auto pts = coord.calc_arc_os_points(g.context());
+        pts.push_back(coord.center.os(g.context()));
+        filledPolygonColor(g, pts, b.color());
+      }
     }
 
     template<>
-    void fill_arc<arc_type::arc> (graphics& g, const arc_coords& c, const brush& b) {
-      int rx = c.w / 2;
-      int ry = c.h / 2;
-      int cx = c.x + rx;
-      int cy = c.y + ry;
+    void fill_arc<arc_type::arc> (graphics& g, const arc_coords& coord, const brush& b) {
 
-      int rad = (rx + ry) / 2;
-
-      arcColor(g, cx, cy, rad, c.end.deg(), c.start.deg(), b.color());
+      if (coord.full()) {
+        auto r = coord.get_area().os(g.context());
+        filledEllipseColor(g, r.x, r.y, r.w, r.h, b.color());
+      } else {
+        auto pts = coord.calc_arc_os_points(g.context());
+        filledPolygonColor(g, pts, b.color());
+      }
     }
 
     // --------------------------------------------------------------------------
@@ -197,92 +248,30 @@ namespace gui {
 
     void polyline::operator() (graphics& g,
                                const pen& p) const {
-      auto pts = convert(g);
-      
-      bool first = true;
-      os::point p0;
-      for (const auto& pt : pts) {
-        if (first) {
-          first = false;
-        } else {
-          if (p.size() > 1) {
-            thickLineColor(g, p0.x, p0.y, pt.x, pt.y, p.size(), p.color());
-          } else {
-            lineColor(g, p0.x, p0.y, pt.x, pt.y, p.color());
-          }
-        }
-        p0 = pt;
-      }
-
+      thickPolylineColor(g, convert(g), p.os_size(), p.color());
     }
 
     void polyline::operator() (graphics& g,
                                const brush& b) const {
-      auto pts = convert(g);
-      const int cnt = pts.size();
-      std::vector<Sint16> vx(cnt);
-      std::vector<Sint16> vy(cnt);
-
-      for (int i = 0; i < cnt; ++i) {
-        vx[i] = pts[i].x;
-        vy[i] = pts[i].y;
-      }
-
-      filledPolygonColor(g, vx.data(), vy.data(), cnt, b.color());
+      filledPolygonColor(g, convert(g), b.color());
     }
 
     // --------------------------------------------------------------------------
     void polygon::operator() (graphics& g,
                               const brush& b,
                               const pen& p) const {
-      auto pts = convert(g);
-      const int cnt = pts.size() + 1;
-      std::vector<Sint16> vx(cnt);
-      std::vector<Sint16> vy(cnt);
-
-      for (int i = 0; i < cnt - 1; ++i) {
-        vx[i] = pts[i].x;
-        vy[i] = pts[i].y;
-      }
-      vx[cnt - 1] = pts[0].x;
-      vy[cnt - 1] = pts[0].y;
-
-      filledPolygonColor(g, vx.data(), vy.data(), cnt, b.color());
-      polygonColor(g, vx.data(), vy.data(), cnt, p.color());
+      operator()(g, b);
+      operator()(g, p);
     }
 
     void polygon::operator() (graphics& g,
                               const pen& p) const {
-      auto pts = convert(g);
-      const int cnt = pts.size() + 1;
-      std::vector<Sint16> vx(cnt);
-      std::vector<Sint16> vy(cnt);
-
-      for (int i = 0; i < cnt - 1; ++i) {
-        vx[i] = pts[i].x;
-        vy[i] = pts[i].y;
-      }
-      vx[cnt - 1] = pts[0].x;
-      vy[cnt - 1] = pts[0].y;
-
-      polygonColor(g, vx.data(), vy.data(), cnt, p.color());
+      thickPolygoneColor(g, convert(g), p.os_size(), p.color());
     }
 
     void polygon::operator() (graphics& g,
                               const brush& b) const {
-      auto pts = convert(g);
-      const int cnt = pts.size() + 1;
-      std::vector<Sint16> vx(cnt);
-      std::vector<Sint16> vy(cnt);
-
-      for (int i = 0; i < cnt - 1; ++i) {
-        vx[i] = pts[i].x;
-        vy[i] = pts[i].y;
-      }
-      vx[cnt - 1] = pts[0].x;
-      vy[cnt - 1] = pts[0].y;
-
-      filledPolygonColor(g, vx.data(), vy.data(), cnt, b.color());
+      filledPolygonColor(g, convert(g), b.color());
     }
 
     FC_AlignEnum get_h_alignment (const text_origin_t origin) {

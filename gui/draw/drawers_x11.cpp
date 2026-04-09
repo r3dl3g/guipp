@@ -353,8 +353,9 @@ namespace gui {
 
       gui::os::instance display = get_instance();
 
+      auto r = c.get_area().os(g.context());
       XSetArcMode(get_instance(), g, ArcPieSlice);
-      XDrawArc(display, g.target(), g, c.x, c.y, c.w, c.h, c.start.os(), (c.end - c.start).os());
+      XDrawArc(display, g.target(), g, r.x, r.y, r.width, r.height, c.start.os(), (c.end - c.start).os());
     }
 
     template<>
@@ -363,11 +364,12 @@ namespace gui {
 
       gui::os::instance display = get_instance();
 
+      auto r = c.get_area().os(g.context());
       XSetArcMode(get_instance(), g, ArcPieSlice);
-      XDrawArc(display, g.target(), g, c.x, c.y, c.w, c.h, c.start.os(), (c.end - c.start).os());
+      XDrawArc(display, g.target(), g, r.x, r.y, r.width, r.height, c.start.os(), (c.end - c.start).os());
 
       if (!c.full()) {
-        auto pt = c.calc_points();
+        auto pt = c.calc_os_points(g.context());
         XDrawLines(display, g.target(), g, pt.data(), pt.size(), CoordModeOrigin);
         XDrawPoint(display, g.target(), g, pt[0].x, pt[0].y);
         XDrawPoint(display, g.target(), g, pt[2].x, pt[2].y);
@@ -377,15 +379,17 @@ namespace gui {
     template<>
     void fill_arc<arc_type::arc> (graphics& g, const arc_coords& c, const brush& b) {
       Use<brush> br(g, b);
+      auto r = c.get_area().os(g.context());
       XSetArcMode(get_instance(), g, ArcChord);
-      XFillArc(get_instance(), g.target(), g, c.x, c.y, c.w, c.h, c.start.os(), (c.end - c.start).os());
+      XFillArc(get_instance(), g.target(), g, r.x, r.y, r.width, r.height, c.start.os(), (c.end - c.start).os());
     }
 
     template<>
     void fill_arc<arc_type::pie> (graphics& g, const arc_coords& c, const brush& b) {
       Use<brush> br(g, b);
+      auto r = c.get_area().os(g.context());
       XSetArcMode(get_instance(), g, ArcPieSlice);
-      XFillArc(get_instance(), g.target(), g, c.x, c.y, c.w, c.h, c.start.os(), (c.end - c.start).os());
+      XFillArc(get_instance(), g.target(), g, r.x, r.y, r.width, r.height, c.start.os(), (c.end - c.start).os());
     }
 
     // --------------------------------------------------------------------------

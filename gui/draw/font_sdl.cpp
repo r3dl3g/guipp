@@ -99,6 +99,8 @@ namespace gui {
     }
   
     font::font ()
+      : size_(-1)
+      , thickness_(font::Thickness::regular)
     {}
 
     font::font (os::font_type i)

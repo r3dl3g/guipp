@@ -131,6 +131,9 @@ namespace gui {
       
 
       void init (gui::os::instance instance) {
+#ifdef SYNCHRONIZE_X11
+        XSynchronize(instance, True);
+#endif
         gui_static.init(instance);
         info(instance);
 

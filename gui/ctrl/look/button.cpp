@@ -78,11 +78,11 @@ namespace gui {
       return std::string((const char*)t, N);
     }
 
-    draw::graymap build_gray_image (const std::string& data) {
+    draw::rgbmap build_gray_image (const std::string& data) {
       draw::graymap bmp;
       std::istringstream in(data);
       io::load_pnm(in, bmp);
-      return bmp;
+      return bmp.convert<pixel_format_t::RGB>();
     }
 
     draw::rgbmap build_rgb_image (const std::string& data) {

@@ -264,9 +264,12 @@ namespace gui {
     }
 
     font::font (const font& rhs)
-      : info_(nullptr) {
+      : info_(nullptr) 
+    {
 #ifdef GUIPP_USE_XFT
-      info_ = XftFontCopy(core::global::get_instance(), rhs.info_);
+      if (rhs.is_valid()) {
+        info_ = XftFontCopy(core::global::get_instance(), rhs.info_);
+      }
 #else
       info_ = XLoadQueryFont(core::global::get_instance(), rhs.get_full_name().c_str());
 #endif // GUIPP_USE_XFT

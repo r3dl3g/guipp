@@ -75,10 +75,13 @@ namespace gui {
     }
 
     int arc_coords::count_of_arc_segments () const {
-        return static_cast<int>(radius.width() + radius.height()) / 2.0 * (end.deg() - start.deg()) / 360;
+        return std::min<int>((radius.width() + radius.height()) / 2.0 * (end.deg() - start.deg()) / 360, 300);
     }
 
     std::vector<core::point> arc_coords::calc_arc_points (int count) const {
+      if (count < 1) {
+        return {};
+      }
       std::vector<core::point> pts(count);
       const auto step = (end.rad() - start.rad()) / count;
       for (int i = 0; i < count; ++i) {
@@ -92,6 +95,9 @@ namespace gui {
     }
 
     std::vector<os::point> arc_coords::calc_arc_os_points (int count, const core::context& ctx) const {
+      if (count < 1) {
+        return {};
+      }
       std::vector<os::point> pts(count);
       const auto step = (end.rad() - start.rad()) / count;
       for (int i = 0; i < count; ++i) {

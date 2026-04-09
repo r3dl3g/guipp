@@ -347,7 +347,13 @@ namespace gui {
       }
 
       void send_client_message (window* win, os::message_type message, void* v1, void* v2) {
-        send_client_message(win, message, reinterpret_cast<std::uintptr_t>(v1), reinterpret_cast<std::uintptr_t>(v2));
+        if (win && win->is_valid()) {
+          gui::os::event_result result;
+          QClientEvent e(static_cast<QEvent::Type>(message), 
+                        reinterpret_cast<std::uintptr_t>(v1),
+                        reinterpret_cast<std::uintptr_t>(v2));
+          win->handle_event(gui::core::event{nullptr, &e}, result);
+        }
       }
 
       void send_client_message (window* win, os::message_type message, const float f) {

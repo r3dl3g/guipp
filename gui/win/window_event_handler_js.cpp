@@ -40,6 +40,10 @@ namespace gui {
       return (static_cast<int>(e.type) >= os::js::MouseMin) && (static_cast<int>(e.type) <= os::js::MouseMax);
     }
 
+    core::native_point get_mouse_event_point (const core::event& e) {
+      return mouse_move_event::Caller::get_param<1>(e);
+    }
+
     bool is_key_event (const core::event& e) {
       return (e.type == os::js::event_type::KeyDown) || (e.type == os::js::event_type::KeyUp);
     }

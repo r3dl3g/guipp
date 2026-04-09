@@ -114,6 +114,14 @@ namespace gui {
       }
     };
     // --------------------------------------------------------------------------
+    template<>
+    struct get<core::native_point, SDL_MouseWheelEvent> {
+      static core::native_point param (const core::event& e) {
+        return core::native_point(static_cast<core::native_point::type>(event_type_cast<SDL_MouseWheelEvent>(e).mouseX),
+                                  static_cast<core::native_point::type>(event_type_cast<SDL_MouseWheelEvent>(e).mouseY));
+      }
+    };
+    // --------------------------------------------------------------------------
     template<os::event_id id, os::event_id btn>
     bool event_button_matcher (const core::event& e) {
       return (e.type == id) && (event_type_cast<SDL_MouseButtonEvent>(e).button == btn);
@@ -191,11 +199,11 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     inline core::native_point::type get_wheel_delta_x (const core::event& e) {
-      return e.wheel.x > 0 ? 1 : -1;
+      return e.wheel.x;
     }
 
     inline core::native_point::type get_wheel_delta_y (const core::event& e) {
-      return e.wheel.y > 0 ? 1 : -1;
+      return e.wheel.y;
     }
     // --------------------------------------------------------------------------
     inline bool wheel_matcher_x (const core::event& e) {
@@ -293,13 +301,13 @@ namespace gui {
     using wheel_x_event = core::event_handler<SDL_MOUSEWHEEL, 0,
                                               core::params<core::native_point::type, core::native_point>::
                                               getter<get_wheel_delta_x,
-                                              get<core::native_point, SDL_MouseButtonEvent>::param>,
+                                              get<core::native_point, SDL_MouseWheelEvent>::param>,
                                               0, event::functor<wheel_matcher_x>>;
 
     using wheel_y_event = core::event_handler<SDL_MOUSEWHEEL, 0,
                                               core::params<core::native_point::type, core::native_point>::
                                               getter<get_wheel_delta_y,
-                                                     get<core::native_point, SDL_MouseButtonEvent>::param>,
+                                                     get<core::native_point, SDL_MouseWheelEvent>::param>,
                                               0, event::functor<wheel_matcher_y>>;
 
     template<orientation_t O>

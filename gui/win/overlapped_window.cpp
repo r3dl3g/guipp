@@ -572,8 +572,7 @@ namespace gui {
           if (capture_window && (capture_window != this)) {
             return capture_window->handle_event(e, r);
           } else {
-            core::native_point pt = mouse_move_event::Caller::get_param<1>(e);
-            window* win = window_at_point(pt);
+            window* win = window_at_point(get_mouse_event_point(e));
             if (win == this) {
               win = nullptr;
             }

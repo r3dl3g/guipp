@@ -70,6 +70,20 @@ namespace gui {
       }
     }
 
+    core::native_point get_mouse_event_point (const core::event& e) {
+      switch (e.type) {
+        case SDL_MOUSEMOTION:
+          return mouse_move_event::Caller::get_param<1>(e);
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+          return btn_down_event::Caller::get_param<1>(e);
+        case SDL_MOUSEWHEEL:
+          return wheel_x_event::Caller::get_param<1>(e);
+        default:
+        return core::native_point::undefined;
+      }
+    }
+
     bool is_key_event (const core::event& e) {
       switch (e.type) {
         case SDL_KEYDOWN:

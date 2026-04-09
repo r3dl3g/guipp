@@ -63,6 +63,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT bool is_mouse_event (const core::event&);
+    GUIPP_WIN_EXPORT core::native_point get_mouse_event_point (const core::event&);
     GUIPP_WIN_EXPORT bool is_key_event (const core::event&);
     GUIPP_WIN_EXPORT bool is_hotkey_event (const core::event&);
 

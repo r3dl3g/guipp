@@ -285,6 +285,10 @@ namespace gui {
       }
     }
 
+    core::native_point get_mouse_event_point (const core::event& e) {
+      return mouse_move_event::Caller::get_param<1>(e);
+    }
+
     bool is_key_event (const core::event& e) {
       switch (e.type) {
         case WM_KEYDOWN:

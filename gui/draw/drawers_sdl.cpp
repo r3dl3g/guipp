@@ -90,7 +90,7 @@ namespace gui {
         std::vector<Sint16> vx(cnt);
         std::vector<Sint16> vy(cnt);
 
-        for (int i = 0; i < cnt - 1; ++i) {
+        for (int i = 0; i < cnt; ++i) {
           vx[i] = pts[i].x;
           vy[i] = pts[i].y;
         }
@@ -217,7 +217,9 @@ namespace gui {
 
       if (coord.full()) {
         auto r = coord.get_area().os(g.context());
-        filledEllipseColor(g, r.x, r.y, r.w, r.h, b.color());
+        auto w = r.w / 2;
+        auto h = r.h / 2;
+        filledEllipseColor(g, r.x + w, r.y + h, w, h, b.color());
       } else {
         auto pts = coord.calc_arc_os_points(g.context());
         pts.push_back(coord.center.os(g.context()));
@@ -230,7 +232,9 @@ namespace gui {
 
       if (coord.full()) {
         auto r = coord.get_area().os(g.context());
-        filledEllipseColor(g, r.x, r.y, r.w, r.h, b.color());
+        auto w = r.w / 2;
+        auto h = r.h / 2;
+        filledEllipseColor(g, r.x + w, r.y + h, w, h, b.color());
       } else {
         auto pts = coord.calc_arc_os_points(g.context());
         filledPolygonColor(g, pts, b.color());

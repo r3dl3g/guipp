@@ -81,21 +81,23 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<arc_type T>
-    arc_or_pie<T>::arc_or_pie (const core::point& center,
-                               core::size::type radius,
+    arc_or_pie<T>::arc_or_pie (const core::point& c,
+                               core::size::type r,
                                const core::angle& start,
                                const core::angle& end)
-      : rect(center - core::size(radius), center + core::size(radius))
+      : center(c)
+      , radius(r, r)
       , start_angle(start)
       , end_angle(end)
     {}
 
     template<arc_type T>
-    arc_or_pie<T>::arc_or_pie (const core::point& center,
-                               const core::size& radius,
+    arc_or_pie<T>::arc_or_pie (const core::point& c,
+                               const core::size& r,
                                const core::angle& start,
                                const core::angle& end)
-      : rect(center - radius, radius * 2.0)
+      : center(c)
+      , radius(r)
       , start_angle(start)
       , end_angle(end)
     {}
@@ -104,7 +106,8 @@ namespace gui {
     arc_or_pie<T>::arc_or_pie (const core::rectangle& rect,
                                const core::angle& start,
                                const core::angle& end)
-      : rect(rect)
+      : center(rect.center())
+      , radius(rect.size() / 2)
       , start_angle(start)
       , end_angle(end)
     {}

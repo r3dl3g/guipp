@@ -124,7 +124,8 @@ namespace gui {
       void operator() (graphics&, const brush&) const;
 
     private:
-      const core::rectangle rect;
+      const core::point center;
+      const core::size radius;
       const core::angle start_angle;
       const core::angle end_angle;
 

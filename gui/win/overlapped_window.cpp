@@ -285,8 +285,8 @@ namespace gui {
       void create (const core::native_size& sz, os::window id) {
         destroy();
         size = sz;
-        gc = core::native::create_graphics_context(IF_QT_ELSE(nullptr, get_drawable()));
         pixel_store = native::create_surface(size, id);
+        gc = core::native::create_graphics_context(IF_QT_ELSE(nullptr, get_drawable()));
       }
 
       gui::os::drawable get_drawable () {

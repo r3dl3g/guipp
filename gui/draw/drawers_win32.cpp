@@ -235,27 +235,28 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void draw_full_arc (graphics& g, const arc_coords& c) {
-      if ((c.w < 3) || (c.h < 3)) {
-        Rectangle(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1);
+    void draw_full_arc (graphics& g, const arc_coords& coord) {
+      auto c = coord.get_area().os(g.context());
+      if ((os::get_width(c) < 3) || (os::get_height(c) < 3)) {
+        Rectangle(g, os::get_x(c), os::get_y(c), os::get_x2(c), os::get_y2(c));
       } else {
-        Ellipse(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1);
+        Ellipse(g, os::get_x(c), os::get_y(c), os::get_x2(c), os::get_y2(c));
       }
     }
 
     template<arc_type T>
-    void draw_empty_arc (graphics& g, const arc_coords&, os::color);
+    void draw_empty_arc (graphics&, const arc_coords&, os::color);
 
     template<>
-    void draw_empty_arc<arc_type::pie> (graphics& g, const arc_coords& c, os::color) {
-      auto pt = c.calc_points0();
+    void draw_empty_arc<arc_type::pie> (graphics& g, const arc_coords& coord, os::color) {
+      auto pt = coord.calc_os_points0(g.context());
       MoveToEx(g, os::get_x(pt[1]), os::get_y(pt[1]), nullptr);
       LineTo(g, os::get_x(pt[0]), os::get_y(pt[0]));
     }
 
     template<>
-    void draw_empty_arc<arc_type::arc> (graphics& g, const arc_coords& c, os::color col) {
-      auto pt = c.calc_points0();
+    void draw_empty_arc<arc_type::arc> (graphics& g, const arc_coords& coord, os::color col) {
+      auto pt = coord.calc_os_points0(g.context());
       SetPixel(g, os::get_x(pt[1]), os::get_y(pt[1]), col);
     }
 
@@ -263,15 +264,17 @@ namespace gui {
     void draw_angle_arc (graphics& g, const arc_coords&);
 
     template<>
-    void draw_angle_arc<arc_type::pie> (graphics& g, const arc_coords& c) {
-      auto pt = c.calc_points();
-      Pie(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1, pt[0].x, pt[0].y, pt[2].x, pt[2].y);
+    void draw_angle_arc<arc_type::pie> (graphics& g, const arc_coords& coord) {
+      auto c = coord.get_area().os(g.context());
+      auto pt = coord.calc_os_points(g.context());
+      Pie(g, os::get_x(c), os::get_y(c), os::get_x2(c), os::get_y2(c), pt[0].x, pt[0].y, pt[2].x, pt[2].y);
     }
 
     template<>
-    void draw_angle_arc<arc_type::arc> (graphics& g, const arc_coords& c) {
-      auto pt = c.calc_points();
-      Arc(g, c.x, c.y, c.x + c.w + 1, c.y + c.h + 1, pt[0].x, pt[0].y, pt[2].x, pt[2].y);
+    void draw_angle_arc<arc_type::arc> (graphics& g, const arc_coords& coord) {
+      auto c = coord.get_area().os(g.context());
+      auto pt = coord.calc_os_points(g.context());
+      Arc(g, os::get_x(c), os::get_y(c), os::get_x2(c), os::get_y2(c), pt[0].x, pt[0].y, pt[2].x, pt[2].y);
     }
 
     template<arc_type T>

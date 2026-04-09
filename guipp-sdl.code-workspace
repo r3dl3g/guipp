@@ -17,6 +17,11 @@
 		}
 	],
 	"settings": {
+		"cmake.preset": "gcc_sdl_debug",
+		"cmake.configureEnvironment": {
+			"preset": "gcc_sdl_debug"
+		},
+		"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
 		"nixEnvSelector.nixFile": "${workspaceFolder}/shell-sdl.nix",
 		"cmake.buildDirectory": "${userHome}/.cache/build/${workspaceFolderBasename}/sdl/${buildType}",
 		"cmake.buildArgs": [ "--parallel 12" ],

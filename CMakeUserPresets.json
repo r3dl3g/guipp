@@ -130,7 +130,7 @@
             "binaryDir": "$env{HOME}/.cache/build/guipp/sdl/Debug",
             "generator": "Unix Makefiles",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
+                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local/sdl",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         },
@@ -141,7 +141,7 @@
             "binaryDir": "$env{HOME}/.cache/build/guipp/sdl/Release",
             "generator": "Unix Makefiles",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
+                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local/sdl",
                 "CMAKE_BUILD_TYPE": "Release"
             }
         }

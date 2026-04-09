@@ -1,72 +1,8 @@
 {
     "configurations": [
         {
-            "name": "Emscripten",
-            "includePath": [
-                "${workspaceFolder}/**"
-            ],
-            "defines": [
-                "GUIPP_JS"
-            ],
-            "compilerPath": "/nix/store/f2hizi63xa20qzrblcb3axim5ix6q1wb-emscripten-4.0.12/bin/em++",
-            "cStandard": "c17",
-            "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-clang-x64",
-            "configurationProvider": "ms-vscode.cmake-tools"
-        },
-        {
-            "name": "X11",
-            "includePath": [
-                "${workspaceFolder}/**"
-            ],
-            "defines": [
-                "GUIPP_X11",
-                "GUIPP_USE_XSHM",
-                "GUIPP_USE_XCB",
-                "GUIPP_USE_XRANDR"
-            ],
-            "cStandard": "c17",
-            "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-x64",
-            "configurationProvider": "ms-vscode.cmake-tools"
-        },
-        {
-            "name": "Qt5",
-            "includePath": [
-                "${workspaceFolder}/**"
-            ],
-            "defines": [
-                "GUIPP_QT"
-            ],
-            "cStandard": "c17",
-            "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-x64",
-            "configurationProvider": "ms-vscode.cmake-tools"
-        },
-        {
-            "name": "Win32",
-            "includePath": [
-                "${workspaceFolder}/**"
-            ],
-            "defines": [
-                "GUIPP_WIN"
-            ],
-            "cStandard": "c17",
-            "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-x64",
-            "configurationProvider": "ms-vscode.cmake-tools"
-        },
-        {
-            "name": "SDL",
-            "includePath": [
-                "${workspaceFolder}/**"
-            ],
-            "defines": [
-                "GUIPP_SDL"
-            ],
-            "cStandard": "c17",
-            "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-x64",
+            "name": "CMake",
+            "includePath": ["${workspaceFolder}/**"],
             "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],

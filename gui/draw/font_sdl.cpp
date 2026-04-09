@@ -120,7 +120,7 @@ namespace gui {
       info_ = os::font_type(FC_CreateFont(), font::delete_font);
       auto sz = static_cast<Uint32>(size_ * core::global::get_scale_factor());
       auto path = getSystemFontPath(name_);
-      logging::debug() << "FC_LoadFont(" << name_ << ") with size " << sz << " from \"" << path << "\"";
+      logging::trace() << "FC_LoadFont(" << name_ << ") with size " << sz << " from \"" << path << "\"";
       FC_LoadFont(info_.get(), core::native::sdl::get_font_renderer(), path.c_str(), sz, FC_MakeColor(0,0,0,255), TTF_STYLE_NORMAL);
     }
 

@@ -221,7 +221,7 @@ namespace gui {
     void draw_arrow_head (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       const auto p = calc_clock_point<I>(center, radius);
       const auto l = calc_centerline<O>(center, radius * 0.8F, radius * 1.2F);
-      g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
+      g.fill(draw::polygon({l.p0(), p, l.p1()}), pn.color());
     }
     // --------------------------------------------------------------------------
     template<>
@@ -366,7 +366,7 @@ namespace gui {
       const auto p = calc_clock_point<55>(center, radius);
       const auto l = calc_centerline<35>(center, radius * 0.8F, radius * 1.2F);
       g.frame(draw::arc(center, radius, 45, 330), pn);
-      g.draw(draw::polygon({l.p0(), p, l.p1()}), pn.color(), pn);
+      g.fill(draw::polygon({l.p0(), p, l.p1()}), pn.color());
     }
     // --------------------------------------------------------------------------
     template<>

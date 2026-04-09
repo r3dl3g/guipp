@@ -48,7 +48,7 @@ struct icon_drawer : public list_data {
 
   font& get_font (font::size_type requested_size) const {
     if (!icon_font.is_valid() || icon_font.size() != requested_size) {
-      logging::debug() << "created font with size " << requested_size;
+      logging::debug() << "created font with size " << requested_size << " old size " << icon_font.size();
       icon_font = font::system().with_size(requested_size);
     }
     return icon_font;

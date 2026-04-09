@@ -81,12 +81,12 @@ namespace gui {
                                            NULL);
           double dpi;
           XftPatternGetDouble(info_->pattern, XFT_DPI, 0, &dpi);
-          s_font_scale = 96 / dpi * core::global::get_scale_factor();
+          s_font_scale = std::round(96 / dpi * core::global::get_scale_factor() * 10.0) / 10.0;
           XftFontClose(core::global::get_instance(), info_);
 #else
           s_font_scale = core::global::get_scale_factor();
 #endif // GUIPP_USE_XFT
-          logging::debug() << "Font scale = " << s_font_scale;
+          logging::trace() << "Font scale = " << s_font_scale;
         }
       }
     }
@@ -179,7 +179,7 @@ namespace gui {
       s << "-" << (italic ? "i" : "r") << "-*--" << size << "-*";
 
       std::string str = s.str();
-      logging::debug() << "Font name:" << str;
+      logging::trace() << "Font name:" << str;
       //std::transform(str.begin(), str.end(), str.begin(), tolower);
       return str;
     }
@@ -199,7 +199,7 @@ namespace gui {
                        bool* italic = nullptr) {
 
       std::vector<std::string> strs = tokenize(full_name);
-      logging::debug() << "Font:'" << full_name << "' parts:" << strs;
+      logging::trace() << "Font:'" << full_name << "' parts:" << strs;
       if (name && strs.size() > 2) {
         *name = strs[2];
       }
@@ -221,10 +221,10 @@ namespace gui {
         *italic = (strs[4] == "i") || (strs[4] == "I");
       }
       if (size && (strs.size() > 8) && (!strs[8].empty())) {
-        logging::debug() << "Font size:" << strs[8];
+        logging::trace() << "Font size:" << strs[8];
         *size = std::stoi(strs[8]) / 10;
       } else if (size && (strs.size() > 7) && (!strs[7].empty())) {
-        logging::debug() << "Font size:" << strs[7];
+        logging::trace() << "Font size:" << strs[7];
         *size = std::stoi(strs[7]);
       }
     }
@@ -239,16 +239,17 @@ namespace gui {
       : info_(nullptr)
     {
       init_font_scale();
+      auto fs = static_cast<double>(font_scale(size));
 #ifdef GUIPP_USE_XFT
       info_ = XftFontOpen(core::global::get_instance(),
-                         core::global::x11::get_screen(),
-                         XFT_FAMILY, XftTypeString, name.c_str(),
-                         XFT_SIZE, XftTypeDouble, (double)font_scale(size),
-                         XFT_WEIGHT, XftTypeInteger, (int)thickness,
-                         XFT_SLANT, XftTypeInteger, (italic ? FC_SLANT_ITALIC : 0),
-                         NULL);
+                          core::global::x11::get_screen(),
+                          XFT_FAMILY, XftTypeString, name.c_str(),
+                          XFT_SIZE, XftTypeDouble, fs,
+                          XFT_WEIGHT, XftTypeInteger, (int)thickness,
+                          XFT_SLANT, XftTypeInteger, (italic ? FC_SLANT_ITALIC : 0),
+                          NULL);
+      logging::trace() << "Load Xft font:" << name << " of size " << size << " scaled " << fs;
 #else
-      auto fs = static_cast<double>(font_scale(size));
       std::string full_name = buildFontName(name, fs, thickness, italic);
       os::font_type f = XLoadQueryFont(core::global::get_instance(), full_name.c_str());
       if (!f) {
@@ -259,7 +260,7 @@ namespace gui {
         }
       }
       info_ = f;
-      logging::debug() << "Load font:" << get_full_name();
+      logging::trace() << "Load font:" << get_full_name();
 #endif // GUIPP_USE_XFT
     }
 
@@ -362,7 +363,9 @@ namespace gui {
         double sz;
 #ifdef GUIPP_USE_XFT
         if (XftResultMatch == XftPatternGetDouble(info_->pattern, XFT_SIZE, 0, &sz)) {
-          return static_cast<font::size_type>(sz);
+          auto fs = font_unscale(sz);
+          logging::trace() << "Query Xft font size " << sz << " unscaled " << fs;
+          return static_cast<font::size_type>(fs);
         }
 #else
       font::size_type size = -1;

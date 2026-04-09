@@ -46,15 +46,24 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace draw {
 
-    void thickEllipseColor (SDL_Renderer* renderer, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 width, Uint32 color) {
-      for (Uint8 i = 0; i < width; ++i) {
-        auto delta = (i >> 1) ^ -(i & 1);
-        ellipseColor(renderer, x, y, rx + delta, ry + delta, color);
-      }
+    void myThickLineColor (SDL_Renderer* renderer, const os::point& p0, const os::point& p1, Uint8 width, Uint32 color) {
+      thickLineColor(renderer, p0.x, p0.y, p1.x, p1.y, width, color);
     }
 
-    void myThickLineColor(SDL_Renderer* renderer, const os::point& p0, const os::point& p1, Uint8 width, Uint32 color) {
-      thickLineColor(renderer, p0.x, p0.y, p1.x, p1.y, width, color);
+    void myLineColor (SDL_Renderer* renderer, const os::point& p0, const os::point& p1, Uint8, Uint32 color) {
+      lineColor(renderer, p0.x, p0.y, p1.x, p1.y, color);
+    }
+
+    int filledPolygonColor (SDL_Renderer* renderer, const std::vector<os::point>& pts, Uint32 color) {
+      const int cnt = pts.size();
+      std::vector<Sint16> vx(cnt);
+      std::vector<Sint16> vy(cnt);
+
+      for (int i = 0; i < cnt; ++i) {
+        vx[i] = pts[i].x;
+        vy[i] = pts[i].y;
+      }
+      return filledPolygonColor(renderer, vx.data(), vy.data(), cnt, color);
     }
 
     void thickPolylineColor (SDL_Renderer* renderer, const std::vector<os::point>& pts, Uint8 width, Uint32 color) {
@@ -70,31 +79,32 @@ namespace gui {
       }
     }
 
-    void thickPolygoneColor (SDL_Renderer* renderer, const std::vector<os::point>& pts, Uint8 width, Uint32 color) {
-      bool first = true;
-      os::point p0, p1;
-      for (const auto& pt : pts) {
-        if (first) {
-          p0 = pt;
-          first = false;
-        } else {
-          myThickLineColor(renderer, p1, pt, width, color);
+    void thickEllipseColor (graphics& g, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 width, Uint32 color) {
+      auto outer = arc_coords({(float)x, (float)y}, {(float)(rx + width / 2), (float)(ry + width / 2)}, 0, 360).calc_arc_os_points(g.context());
+      if (width < 2) {
+        SDL_RenderDrawLines(g, outer.data(), outer.size());
+      } else {
+        auto irx = (float)(rx - width / 2);
+        auto iry = (float)(ry - width / 2);
+        if ((irx > 1) && (iry > 1)) {
+          auto inner = arc_coords({(float)x, (float)y}, {irx, iry}, 0, 360).calc_arc_os_points(g.context());
+          outer.insert(outer.end(), inner.rbegin(), inner.rend());
         }
-        p1 = pt;
+        filledPolygonColor(g, outer, color);
       }
-      myThickLineColor(renderer, p1, p0, width, color);
     }
 
-    int filledPolygonColor (SDL_Renderer* renderer, const std::vector<os::point>& pts, Uint32 color) {
-        const int cnt = pts.size();
-        std::vector<Sint16> vx(cnt);
-        std::vector<Sint16> vy(cnt);
-
-        for (int i = 0; i < cnt; ++i) {
-          vx[i] = pts[i].x;
-          vy[i] = pts[i].y;
-        }
-        return filledPolygonColor(renderer, vx.data(), vy.data(), cnt, color);
+    void thickArcColor (graphics& g, const arc_coords& c, Uint8 width, Uint32 color) {
+      if (width < 2) {
+        auto pts = c.calc_arc_os_points(g.context());
+        SDL_RenderDrawLines(g, pts.data(), pts.size());
+      } else {
+        core::size offs((width / 2), (float)(width / 2));
+        auto outer = arc_coords(c.center, c.radius + offs, c.start, c.end).calc_arc_os_points(g.context());
+        auto inner = arc_coords(c.center, c.radius - offs, c.start, c.end).calc_arc_os_points(g.context());
+        outer.insert(outer.end(), inner.rbegin(), inner.rend());
+        filledPolygonColor(g, outer, color);
+      }
     }
 
     // --------------------------------------------------------------------------
@@ -159,10 +169,22 @@ namespace gui {
     void round_rectangle::operator() (graphics& g,
                                       const pen& p) const {
       const auto r = rect.os(g.context());
+      const float w = radius.os_width();
+      const float h = radius.os_height();
 
-      int rad = (radius.os_width() + radius.os_height()) / 2;
+      thickLineColor(g, r.x + w,    r.y,       r.x + r.w - w, r.y,           p.os_size(), p.color());
+      thickLineColor(g, r.x + w,    r.y + r.h, r.x + r.w - w, r.y + r.h,     p.os_size(), p.color());
+      thickLineColor(g, r.x,        r.y + h,   r.x,           r.y + r.h - h, p.os_size(), p.color());
+      thickLineColor(g, r.x + r.w,  r.y + h,   r.x + r.w,     r.y + r.h - h, p.os_size(), p.color());
 
-      roundedRectangleColor(g, r.x, r.y, r.x + r.w, r.y + r.h, rad, p.color());
+      arc_coords tr({(float)(r.x + r.w - w), (float)(r.y + h)}, {w, h}, 0, 90);
+      thickArcColor(g, tr, p.os_size(), p.color());
+      arc_coords tl({(float)(r.x + w), (float)(r.y + h)}, {w, h}, 90, 180);
+      thickArcColor(g, tl, p.os_size(), p.color());
+      arc_coords bl({(float)(r.x + w), (float)(r.y + r.h - h)}, {w, h}, 180, 270);
+      thickArcColor(g, bl, p.os_size(), p.color());
+      arc_coords br({(float)(r.x + r.w - w), (float)(r.y + r.h - h)}, {w, h}, 270, 360);
+      thickArcColor(g, br, p.os_size(), p.color());
     }
 
     void round_rectangle::operator() (graphics& g,
@@ -177,12 +199,8 @@ namespace gui {
     void round_rectangle::operator() (graphics& g,
                                       const brush& b,
                                       const pen& p) const {
-      const auto r = rect.os(g.context());
-
-      int rad = (radius.os_width() + radius.os_height()) / 2;
-
-      roundedBoxColor(g, r.x, r.y, r.x + r.w, r.y + r.h, rad, b.color());
-      roundedRectangleColor(g, r.x, r.y, r.x + r.w, r.y + r.h, rad, p.color());
+      operator()(g, b);
+      operator()(g, p);
     }
 
     // --------------------------------------------------------------------------
@@ -194,9 +212,7 @@ namespace gui {
         auto r = coord.radius.os();
         thickEllipseColor(g, c.x, c.y, r.w, r.h, p.os_size(), p.color());
       } else {
-        auto pts = coord.calc_arc_os_points(g.context());
-        pts.push_back(c);
-        thickPolygoneColor(g, pts, p.os_size(), p.color());
+        thickArcColor(g, coord, p.os_size(), p.color());
       }
     }
 
@@ -208,7 +224,7 @@ namespace gui {
         auto r = coord.radius.os();
         thickEllipseColor(g, c.x, c.y, r.w, r.h, p.os_size(), p.color());
       } else {
-        thickPolylineColor(g, coord.calc_arc_os_points(g.context()), p.os_size(), p.color());
+        thickArcColor(g, coord, p.os_size(), p.color());
       }
     }
 
@@ -270,7 +286,7 @@ namespace gui {
 
     void polygon::operator() (graphics& g,
                               const pen& p) const {
-      thickPolygoneColor(g, convert(g), p.os_size(), p.color());
+      thickPolylineColor(g, convert(g), p.os_size(), p.color());
     }
 
     void polygon::operator() (graphics& g,

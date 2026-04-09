@@ -18,15 +18,15 @@
 	],
 	"settings": {
 		"nixEnvSelector.nixFile": "${workspaceFolder}/shell.nix",
-  		"cmake.buildDirectory": "${userHome}/.cache/build/${workspaceFolderBasename}/x11/${buildType}",
+  	"cmake.buildDirectory": "${userHome}/.cache/build/${workspaceFolderBasename}/x11/${buildType}",
 		"cmake.buildArgs": [ "--parallel 12" ],
 		"cmake.configureArgs": [
 			"-DGUIPP_SAMPLES=ON",
 			"-DVERBOSE=ON"
 		],
-                "cmake.configureEnvironment": {
-                        "preset": "gcc_x11_debug"
-                },
+		"cmake.configureEnvironment": {
+						"preset": "gcc_x11_debug"
+		},
 		"C_Cpp.default.defines": [
 			"GUIPP_X11",
 			"GUIPP_USE_XSHM",
@@ -119,7 +119,9 @@
 			"source_location": "cpp",
 			"valarray": "cpp",
 			"filesystem": "cpp",
-			"qeventloop": "cpp"
+			"qeventloop": "cpp",
+			"print": "cpp",
+			"ranges": "cpp"
 		}
 	}
 }

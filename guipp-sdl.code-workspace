@@ -25,8 +25,11 @@
 			"-DGUIPP_SAMPLES=ON",
 			"-DVERBOSE=ON"
 		],
+		"cmake.environment": {
+			"SDL_VIDEODRIVER": "x11"
+		},
 		"C_Cpp.default.defines": [
-			"GUIPP_QT"
+			"GUIPP_SDL"
 		],
 		"files.associations": {
 			"*.tcc": "cpp",
@@ -113,7 +116,8 @@
 			"forward_list": "cpp",
 			"source_location": "cpp",
 			"valarray": "cpp",
-			"filesystem": "cpp"
+			"filesystem": "cpp",
+			"ranges": "cpp"
 		}
 	}
 }

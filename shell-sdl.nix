@@ -12,6 +12,7 @@ pkgs.mkShell {
     gdb
     git
     tig
+    mc
   ];
 
   buildInputs = with pkgs; [
@@ -24,6 +25,7 @@ pkgs.mkShell {
     harfbuzz
     glib
     libsysprof-capture
+    pcre2
   ];
 
   cmakeFlags = [

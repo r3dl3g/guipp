@@ -24,6 +24,7 @@ pkgs.mkShell {
     git
     tig
     pkg-config
+    mc
   ];
 
   shellHook = ''

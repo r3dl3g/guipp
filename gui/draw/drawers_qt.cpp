@@ -181,7 +181,7 @@ namespace gui {
     void draw_arc<arc_type::pie> (graphics& g, const arc_coords& c, const pen& p) {
       Use<pen> pn(g, p);
 
-      QRectF r(c.x, c.y, c.w, c.h);
+      auto r = c.get_area().os(g.context());
       if (c.full()) {
         g.os()->drawEllipse(r);
       } else {
@@ -193,7 +193,7 @@ namespace gui {
     void draw_arc<arc_type::arc> (graphics& g, const arc_coords& c, const pen& p) {
       Use<pen> pn(g, p);
 
-      QRectF r(c.x, c.y, c.w, c.h);
+      auto r = c.get_area().os(g.context());
       if (c.full()) {
         g.os()->drawEllipse(r);
       } else {
@@ -205,7 +205,7 @@ namespace gui {
     void fill_arc<arc_type::pie> (graphics& g, const arc_coords& c, const brush& b) {
       Use<brush> br(g, b);
 
-      QRectF r(c.x, c.y, c.w, c.h);
+      auto r = c.get_area().os(g.context());
       if (c.full()) {
         g.os()->drawEllipse(r);
       } else {
@@ -217,7 +217,7 @@ namespace gui {
     void fill_arc<arc_type::arc> (graphics& g, const arc_coords& c, const brush& b) {
       Use<brush> br(g, b);
 
-      QRectF r(c.x, c.y, c.w, c.h);
+      auto r = c.get_area().os(g.context());
       if (c.full()) {
         g.os()->drawEllipse(r);
       } else {

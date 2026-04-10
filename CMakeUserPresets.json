@@ -30,6 +30,7 @@
             "binaryDir": "$env{HOME}/.cache/build/guipp/qt5/Debug",
             "generator": "Unix Makefiles",
             "cacheVariables": {
+                "GUIPP_USE_QT5": "ON",
                 "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
@@ -41,6 +42,7 @@
             "binaryDir": "$env{HOME}/.cache/build/guipp/qt5/Release",
             "generator": "Unix Makefiles",
             "cacheVariables": {
+                "GUIPP_USE_QT5": "ON",
                 "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
                 "CMAKE_BUILD_TYPE": "Release"
             }
@@ -52,6 +54,7 @@
             "binaryDir": "$env{HOME}/.cache/build/guipp/qt6/Debug",
             "generator": "Unix Makefiles",
             "cacheVariables": {
+                "GUIPP_USE_QT6": "ON",
                 "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
@@ -63,6 +66,7 @@
             "binaryDir": "$env{HOME}/.cache/build/guipp/qt6/Release",
             "generator": "Unix Makefiles",
             "cacheVariables": {
+                "GUIPP_USE_QT6": "ON",
                 "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
                 "CMAKE_BUILD_TYPE": "Release"
             }
@@ -96,6 +100,9 @@
             "binaryDir": "$env{HOME}/.cache/build/guipp/win32/Debug",
             "generator": "Unix Makefiles",
             "cacheVariables": {
+                "WIN32": "ON",
+                "GUIPP_BUILD_STATIC_MODULE_LIBS": "ON",
+                "GUIPP_BUILD_SHARED_MODULE_LIBS": "OFF",
                 "CMAKE_SYSTEM_NAME": "Windows",
                 "CMAKE_SYSTEM_PROCESSOR": "x86_64",
                 "CMAKE_BUILD_TYPE": "Debug",
@@ -113,6 +120,9 @@
             "binaryDir": "$env{HOME}/.cache/build/guipp/win32/Release",
             "generator": "Unix Makefiles",
             "cacheVariables": {
+                "WIN32": "ON",
+                "GUIPP_BUILD_STATIC_MODULE_LIBS": "ON",
+                "GUIPP_BUILD_SHARED_MODULE_LIBS": "OFF",
                 "CMAKE_SYSTEM_NAME": "Windows",
                 "CMAKE_SYSTEM_PROCESSOR": "x86_64",
                 "CMAKE_BUILD_TYPE": "Release",
@@ -130,6 +140,7 @@
             "binaryDir": "$env{HOME}/.cache/build/guipp/sdl/Debug",
             "generator": "Unix Makefiles",
             "cacheVariables": {
+                "GUIPP_USE_SDL":"ON",
                 "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local/sdl",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
@@ -141,6 +152,7 @@
             "binaryDir": "$env{HOME}/.cache/build/guipp/sdl/Release",
             "generator": "Unix Makefiles",
             "cacheVariables": {
+                "GUIPP_USE_SDL":"ON",
                 "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local/sdl",
                 "CMAKE_BUILD_TYPE": "Release"
             }

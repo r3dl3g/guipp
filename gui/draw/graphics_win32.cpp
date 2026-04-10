@@ -101,6 +101,31 @@ namespace gui {
       return 0;
     }
 
+    bool hasAlphaChannel (pixel_format_t fmt) {
+      switch (fmt) {
+        case pixel_format_t::RGBA:
+        case pixel_format_t::BGRA:
+        case pixel_format_t::ARGB:
+        case pixel_format_t::ABGR:
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    WINBOOL streched_draw (HDC hdcDEst, int xDest, int yDest, int wDest, int hDest,
+                           HDC hdcSrc, int xSrc, int ySrc, int wSrc, int hSrc,
+                           pixel_format_t fmt) {
+      if (hasAlphaChannel(fmt)) {
+        static BLENDFUNCTION blendFn = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
+        return AlphaBlend(hdcDEst, xDest, yDest, wDest, hDest,
+                          hdcSrc, xSrc, ySrc, wSrc, hSrc, blendFn);
+      } else {
+        return StretchBlt(hdcDEst, xDest, yDest, wDest, hDest,
+                          hdcSrc, xSrc, ySrc, wSrc, hSrc, SRCCOPY);
+      }
+    }
+
     graphics& graphics::draw_streched (const draw::pixmap& pixmap,
                                        const core::native_rect& dst,
                                        const core::native_point& src,
@@ -114,15 +139,17 @@ namespace gui {
         if (!source_gc) {
           source_gc = CreateCompatibleDC(dest_gc);
           HGDIOBJ old = SelectObject(source_gc, w);
-          if (!StretchBlt(dest_gc, dst.x(), dst.y(), dst.width(), dst.height(),
-            source_gc, src.x(), src.y(), sz.width(), sz.height(), SRCCOPY)) {
+          if (!streched_draw(dest_gc, dst.x(), dst.y(), dst.width(), dst.height(),
+                             source_gc, src.x(), src.y(), sz.width(), sz.height(),
+                             pixmap.pixel_format())) {
             throw std::runtime_error("graphics::stretch_from failed");
           }
           SelectObject(source_gc, old);
           DeleteDC(source_gc);
         } else {
-          if (!StretchBlt(dest_gc, dst.x(), dst.y(), dst.width(), dst.height(),
-            source_gc, src.x(), src.y(), sz.width(), sz.height(), SRCCOPY)) {
+          if (!streched_draw(dest_gc, dst.x(), dst.y(), dst.width(), dst.height(),
+                             source_gc, src.x(), src.y(), sz.width(), sz.height(),
+                             pixmap.pixel_format())) {
             throw std::runtime_error("graphics::stretch_from failed");
           }
           ReleaseDC((HWND)w, source_gc);
@@ -196,29 +223,15 @@ namespace gui {
       return r;
     }
 
-    graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) {
-      if (bmp) {
-        if (bmp.get_info().bits_per_pixel() == depth()) {
-          return copy_from(static_cast<const os::drawable&>(bmp), src, pt);
-        } else {
-          switch (depth()) {
-            case 24: {
-              return copy_from(static_cast<const os::drawable&>(pixmap(bmp.get<pixel_format_t::RGB>())), src, pt);
-              break;
-            }
-            case 32: {
-              return copy_from(static_cast<const os::drawable&>(pixmap(bmp.get<pixel_format_t::RGBA>())), src, pt);
-              break;
-            }
-          }
-        }
-      }
-      return *this;
+    graphics& graphics::copy_from (const draw::pixmap& pixmap, const core::rectangle& src, const core::point& pt) {
+      return copy_from(pixmap, core::global::scale_to_native(src), core::native_point(pt.os(context()), context()));
     }
 
     graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_rect& src, const core::native_point& pt) {
       if (bmp) {
-        if (bmp.get_info().bits_per_pixel() == depth()) {
+        if (hasAlphaChannel(bmp.pixel_format())) {
+          draw_streched(bmp, {pt, src.size()}, src.position(), "");
+        } else if (bmp.get_info().bits_per_pixel() == depth()) {
           return copy_from(static_cast<const os::drawable&>(bmp), src, pt);
         } else {
           switch (depth()) {

@@ -10,7 +10,7 @@
 
 template<typename T, typename U>
 T precalc (const U& p, int alpha) {
-#if GUIPP_X11
+#if GUIPP_X11 || GUIPP_WIN
   const auto r = static_cast<gui::byte>(((int)(255 - gui::pixel::get_red(p)) *   alpha) / 255);
   const auto g = static_cast<gui::byte>(((int)(255 - gui::pixel::get_green(p)) * alpha) / 255);
   const auto b = static_cast<gui::byte>(((int)(255 - gui::pixel::get_blue(p)) *  alpha) / 255);
@@ -39,7 +39,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   mainview_t main;
   main.get_layout().set_header(lay(buttons));
 
-#if GUIPP_X11
+#if GUIPP_X11 || GUIPP_WIN
   typedef draw::bgramap pixmap_t;
 #else
   typedef draw::rgbamap pixmap_t;

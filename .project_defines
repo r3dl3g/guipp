@@ -3,21 +3,15 @@
 SCRIPT_NAME=$(basename $0)
 ACTION=${SCRIPT_NAME/.sh/}
 PROJECT=${PWD##*/}
-if [ -n "$PLATFORM" ]; then
-  PROJECT=$PROJECT/$PLATFORM
+if [ -z "${PLATFORM}" ]; then
+  PLATFORM=linux
 fi
-INSTALL_PREFIX=~/.local
-if [ -n "$PLATFORM" -a "$PLATFORM" != "x11" -a "$PLATFORM" != "qt5" -a "$PLATFORM" != "qt6" ]; then
-  INSTALL_PREFIX=~/.local/$PLATFORM
-fi
-BUILD_PREFIX=~/.cache/build
 PARALLEL=$(nproc)
-DEFINES=
-TYPE=undefined
-ARCHIVE=./archive
-LOGDIR=./logs
-LOGFILE=$LOGDIR/$ACTION.log
 CMAKE_CMD=cmake
+TYPE=undefined
+DEFINES=
+LOGDIR=./logs
+ARCHIVE=${LOGDIR}/archive
 
 _exec() {
   echo Execute $@
@@ -25,24 +19,24 @@ _exec() {
 }
 
 _prepare() {
-  _exec ${CMAKE_CMD} -S. -B $BUILD_PREFIX/$PROJECT/$TYPE -DCMAKE_BUILD_TYPE=$TYPE -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DCMAKE_PREFIX_PATH=$INSTALL_PREFIX ${DEFINES} $@
+  _exec ${CMAKE_CMD} -S. --preset ${PLATFORM}_${TYPE} ${DEFINES} $@
 }
 
 _build() {
-  _exec ${CMAKE_CMD} --build $BUILD_PREFIX/$PROJECT/$TYPE --parallel $PARALLEL $@
+  _exec ${CMAKE_CMD} --build --preset ${PLATFORM}_${TYPE} --parallel $PARALLEL $@
 }
 
 _install() {
-  _exec ${CMAKE_CMD} --build $BUILD_PREFIX/$PROJECT/$TYPE --target install $@
+  _exec ${CMAKE_CMD} --build --preset ${PLATFORM}_${TYPE} --target install $@
 }
 
 _clean() {
-  _exec ${CMAKE_CMD} --build $BUILD_PREFIX/$PROJECT/$TYPE --target clean $@
+  _exec ${CMAKE_CMD} --build --preset ${PLATFORM}_${TYPE} --target clean $@
 }
 
 log_rename() {
-  base=$ACTION$1.log
-  next=$ACTION$2.log
+  base=$LOGFILE$1.log
+  next=$LOGFILE$2.log
   if [ -e $base ]; then
     mv -f $base $next
   fi
@@ -51,59 +45,57 @@ log_rename() {
 log_rotate() {
   mkdir -p $LOGDIR
   mkdir -p $ARCHIVE
-  for i in ${ACTION}.*.log; do
-    mv $i $ARCHIVE/$i
-  done
-  pushd $ARCHIVE
+
+  pushd $ARCHIVE > /dev/null
   next=10
   for i in {9..1}; do
     log_rename .$i .$next
     next=$i
   done
-  popd
-  mv $LOGDIR/$ACTION.log $ARCHIVE/${ACTION}.1.log
+  popd > /dev/null
+
+  if [ -f ${LOGDIR}/${LOGFILE}.log ]; then
+    mv ${LOGDIR}/${LOGFILE}.log $ARCHIVE/${LOGFILE}.1.log
+  fi
+}
+
+init() {
+  TYPE=$1
+  PRESET=${PLATFORM}_${TYPE}
+  LOGFILE=$ACTION-${TYPE}
+  log_rotate
 }
 
 do_logged() {
   command=$1
   shift
+  init $1
+  shift
 
-  echo -e "\n======= New $TYPE $ACTION at $(date) =======\n"
+  echo -e "\n======= New $TYPE $ACTION for ${PROJECT} at $(date) =======\n" | tee -a $LOGDIR/$LOGFILE.log
 
   if [ -r "$HOME/.config/project_defines" ]; then
     echo Loading user project_defines from $HOME/.config/project_defines
     . $HOME/.config/project_defines
-  else
-    echo No user project_defines found at $HOME/.config/project_defines
+  #else
+  #  echo No user project_defines found at $HOME/.config/project_defines
   fi
 
-  $command $@
+  $command $@ 2>&1 | tee -a $LOGDIR/$LOGFILE.log
 }
 
 prepare() {
-  TYPE=$1
-  shift
-  log_rotate
-  do_logged _prepare $@ 2>&1 | tee -a $LOGFILE
+  do_logged _prepare $@
 }
 
 build() {
-  TYPE=$1
-  shift
-  log_rotate
-  do_logged _build $@ 2>&1 | tee -a $LOGFILE
+  do_logged _build $@
 }
 
 install() {
-  TYPE=$1
-  shift
-  log_rotate
-  do_logged _install $@ 2>&1 | tee -a $LOGFILE
+  do_logged _install $@
 }
 
 clean() {
-  TYPE=$1
-  shift
-  log_rotate
-  do_logged _clean $@ 2>&1 | tee -a $LOGFILE
+  do_logged _clean $@
 }

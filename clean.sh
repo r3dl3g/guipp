@@ -1,4 +1,4 @@
 . ./.project_defines
 
-clean Debug
-clean Release
+clean debug
+clean release

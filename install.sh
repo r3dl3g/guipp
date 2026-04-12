@@ -1,4 +1,4 @@
 . ./.project_defines
 
-install Debug
-install Release
+install debug
+install release

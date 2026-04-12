@@ -30,6 +30,6 @@ pkgs.mkShell {
   shellHook = ''
     export MYPS1='\n\[\033[1;35m\](guipp)[\[\e]0;\u@\h: \w\a\]\u@\h:\w]\$\[\033[0m\] '
     export PS1=$MYPS1
-    export PLATFORM=x11
+    export PLATFORM=linux
   '';
 }

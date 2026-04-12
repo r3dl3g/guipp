@@ -25,11 +25,11 @@ function(install_guipp_subpackage TARGET)
     cmake_parse_arguments(
         ARG           # prefix
         "EXPORT_LIBS" # boolean arguments
-        "PREFIX;CONFIG;SUBDIR;NAMESPACE" # mono-valued arguments
+        "PREFIX;SUBDIR;NAMESPACE" # mono-valued arguments
         "FILES"       # multi-valued arguments
         ${ARGN}       # num of arguments of the function to parse
     )
-    if((NOT TARGET) OR (NOT ARG_CONFIG) OR (NOT ARG_SUBDIR))
+    if((NOT TARGET) OR (NOT ARG_SUBDIR))
         message(FATAL_ERROR "You must provide target, subdir and config")
     endif()
     if((NOT ARG_PREFIX) AND (NOT ARG_NAMESPACE))

@@ -22,7 +22,6 @@ if(NOT TARGET ${PROJECT_NAME})
                            PREFIX guipp
                            EXPORT_LIBS ON
                            SUBDIR ${PROJECT_NAME}
-                           CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/../SubConfig.cmake.in
                            FILES ${INCLUDE_FILES})
 
 endif()

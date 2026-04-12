@@ -35,7 +35,6 @@ if(NOT TARGET ${PROJECT_NAME})
   install_guipp_subpackage(${PROJECT_NAME}
                            PREFIX guipp
                            SUBDIR ctrl/${PROJECT_NAME}
-                           CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/../../SubConfig.cmake.in
                            FILES ${INCLUDE_FILES})
 
   if (GUIPP_CONFIG_INSTALL)

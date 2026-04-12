@@ -99,7 +99,7 @@ elseif(GUIPP_BUILD_SHARED_MODULE_LIBS)
     set(LOGGING_BUILD_STATIC_MODULE_LIB OFF CACHE BOOL "disable static build")
 endif()
 
-if(GUIPP_CONFIG_INSTALL AND (GUIPP_BUILD_SHARED_MODULE_LIBS OR GUIPP_BUILD_STATIC_MODULE_LIBS))
+if(GUIPP_BUILD_SHARED_MODULE_LIBS OR GUIPP_BUILD_STATIC_MODULE_LIBS)
     set(UTIL_CONFIG_INSTALL ON CACHE BOOL "enable install")
     set(LOGGING_CONFIG_INSTALL ON CACHE BOOL "enable install")
     set(TESTING_CONFIG_INSTALL ON CACHE BOOL "enable install")
@@ -540,20 +540,42 @@ if(NOT TARGET guipp)
                          STATIC_DEFINE GUIPP_BUILT_AS_STATIC)
 
   if(GUIPP_CONFIG_INSTALL)
-    write_basic_package_version_file(
-      guippConfigVersion.cmake
-      VERSION "${GUIPP_VERSION}"
-      COMPATIBILITY SameMajorVersion)
-  endif()
 
-  install_guipp_subpackage(guipp
-    NAMESPACE guipp
-    CONFIG ${PROJECT_SOURCE_DIR}/Config.cmake.in
-    SUBDIR "."
-    EXPORT_LIBS
-    FILES ${INCLUDE_FILES}
-          ${PROJECT_BINARY_DIR}/gui++-export.h
-          ${PROJECT_BINARY_DIR}/gui_version.h
-  )
+    write_basic_package_version_file(
+        ${CMAKE_CURRENT_BINARY_DIR}/guippConfigVersion.cmake
+        VERSION "${GUIPP_VERSION}"
+        COMPATIBILITY SameMajorVersion)
+
+    guipp_target_suffix(TARGET_SUFFIX)
+
+    install_guipp_subpackage(guipp
+        NAMESPACE guipp
+        SUBDIR "."
+        EXPORT_LIBS
+        FILES ${INCLUDE_FILES}
+              ${PROJECT_BINARY_DIR}/gui++-export.h
+              ${PROJECT_BINARY_DIR}/gui_version.h
+    )
+
+    configure_package_config_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/guipp${TARGET_SUFFIX}Config.cmake"
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/guipp${TARGET_SUFFIX}
+    )
+
+    install(FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/guipp${TARGET_SUFFIX}Config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/guippConfigVersion.cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/guipp${TARGET_SUFFIX}
+    )  
+
+    install(
+      EXPORT guipp${TARGET_SUFFIX}-targets
+      NAMESPACE guipp::
+      FILE guipp${TARGET_SUFFIX}Targets.cmake
+      DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/guipp${TARGET_SUFFIX}
+    )
+
+  endif()
 
 endif()

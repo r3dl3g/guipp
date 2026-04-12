@@ -7,18 +7,16 @@
             "binaryDir": "$env{HOME}/.cache/build/${sourceDirName}/${presetName}",
             "generator": "Unix Makefiles",
             "cacheVariables": {
-                "GUIPP_SAMPLES": "ON"
+                "GUIPP_SAMPLES": "ON",
+                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
+                "CMAKE_PREFIX_PATH": "$env{HOME}/.local"
             }
         },
         {
             "name": "linux",
             "hidden": true,
             "inherits": "base",
-            "description": "Build for X11",
-            "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
-                "CMAKE_PREFIX_PATH": "$env{HOME}/.local"
-            }
+            "description": "Build for X11"
         },
         {
             "name": "linux_release",
@@ -42,9 +40,7 @@
             "inherits": "base",
             "description": "Build with Qt5",
             "cacheVariables": {
-                "GUIPP_USE_QT5": "ON",
-                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
-                "CMAKE_PREFIX_PATH": "$env{HOME}/.local"
+                "GUIPP_USE_QT5": "ON"
             }
         },
         {
@@ -69,9 +65,7 @@
             "inherits": "base",
             "description": "Build with Qt6",
             "cacheVariables": {
-                "GUIPP_USE_QT6": "ON",
-                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
-                "CMAKE_PREFIX_PATH": "$env{HOME}/.local"
+                "GUIPP_USE_QT6": "ON"
             }
         },
         {
@@ -95,11 +89,7 @@
             "hidden": true,
             "inherits": "base",
             "description": "Build with emscripten",
-            "toolchainFile": "/nix/store/f2hizi63xa20qzrblcb3axim5ix6q1wb-emscripten-4.0.12/share/emscripten/cmake/Modules/Platform/Emscripten.cmake",
-            "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local/emc",
-                "CMAKE_PREFIX_PATH": "$env{HOME}/.local/emc"
-            }
+            "toolchainFile": "/nix/store/f2hizi63xa20qzrblcb3axim5ix6q1wb-emscripten-4.0.12/share/emscripten/cmake/Modules/Platform/Emscripten.cmake"
         },
         {
             "name": "emc_debug",
@@ -118,41 +108,6 @@
             }
         },
         {
-            "name": "win32",
-            "hidden": true,
-            "inherits": "base",
-            "description": "Cross-compiling for Windows using Nix pkgsCross.mingwW64",
-            "cacheVariables": {
-                "WIN32": "ON",
-                "GUIPP_BUILD_STATIC_MODULE_LIBS": "ON",
-                "GUIPP_BUILD_SHARED_MODULE_LIBS": "OFF",
-                "CMAKE_SYSTEM_NAME": "Windows",
-                "CMAKE_SYSTEM_PROCESSOR": "x86_64",
-                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local/win32",
-                "CMAKE_PREFIX_PATH": "$env{HOME}/.local/win32",
-                "CMAKE_FIND_ROOT_PATH_MODE_PROGRAM": "NEVER",
-                "CMAKE_FIND_ROOT_PATH_MODE_LIBRARY": "ONLY",
-                "CMAKE_FIND_ROOT_PATH_MODE_INCLUDE": "ONLY",
-                "CMAKE_FIND_ROOT_PATH_MODE_PACKAGE": "ONLY"
-            }
-        },
-        {
-            "name": "win32_debug",
-            "displayName": "MinGW debug (Nix Cross)",
-            "inherits": "win32",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
-            }
-        },
-        {
-            "name": "win32_release",
-            "displayName": "MinGW release (Nix Cross)",
-            "inherits": "win32",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
-        },
-        {
             "name": "mingw",
             "hidden": true,
             "inherits": "base",
@@ -163,8 +118,6 @@
                 "GUIPP_BUILD_SHARED_MODULE_LIBS": "OFF",
                 "CMAKE_SYSTEM_NAME": "Windows",
                 "CMAKE_SYSTEM_PROCESSOR": "x86_64",
-                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local/mingw",
-                "CMAKE_PREFIX_PATH": "$env{HOME}/.local/mingw",
                 "CMAKE_FIND_ROOT_PATH_MODE_PROGRAM": "NEVER",
                 "CMAKE_FIND_ROOT_PATH_MODE_LIBRARY": "ONLY",
                 "CMAKE_FIND_ROOT_PATH_MODE_INCLUDE": "ONLY",
@@ -193,9 +146,7 @@
             "inherits": "base",
             "description": "Build using SDL",
             "cacheVariables": {
-                "GUIPP_USE_SDL":"ON",
-                "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local",
-                "CMAKE_PREFIX_PATH": "$env{HOME}/.local"
+                "GUIPP_USE_SDL":"ON"
             }
         },
         {
@@ -255,16 +206,6 @@
             "name": "emc_release",
             "displayName": "Emscripten release",
             "configurePreset": "emc_release"
-        },
-        {
-            "name": "win32_debug",
-            "displayName": "Win32 debug",
-            "configurePreset": "win32_debug"
-        },
-        {
-            "name": "win32_release",
-            "displayName": "Win32 release",
-            "configurePreset": "win32_release"
         },
         {
             "name": "mingw_debug",

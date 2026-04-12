@@ -19,6 +19,29 @@ function(DebugPrint MSG)
   endif()
 endfunction(DebugPrint)
 
+function(guipp_target_suffix RESULT)
+  if (GUIPP_USE_QT6)
+    set(TARGET_SUFFIX "-qt6")
+  elseif (GUIPP_USE_QT5)
+    set(TARGET_SUFFIX "-qt5")
+  elseif (GUIPP_USE_SDL)
+    set(TARGET_SUFFIX "-sdl")
+  elseif (CMAKE_CXX_PLATFORM_ID STREQUAL MinGW)
+    set(TARGET_SUFFIX "-mingw")
+  elseif(EMSCRIPTEN)
+    set(TARGET_SUFFIX "-emc")
+  elseif(WIN32)
+    set(TARGET_SUFFIX "-w32")
+  elseif(UNIX)
+    set(TARGET_SUFFIX "-x11")
+  else()
+    set(TARGET_SUFFIX "")
+  endif()
+
+  set(${RESULT} ${TARGET_SUFFIX} PARENT_SCOPE)
+
+endfunction()
+
 function(install_guipp_subpackage TARGET)
 
   if(GUIPP_CONFIG_INSTALL)
@@ -30,50 +53,35 @@ function(install_guipp_subpackage TARGET)
         ${ARGN}       # num of arguments of the function to parse
     )
     if((NOT TARGET) OR (NOT ARG_SUBDIR))
-        message(FATAL_ERROR "You must provide target, subdir and config")
+      message(FATAL_ERROR "You must provide target, subdir and config")
     endif()
     if((NOT ARG_PREFIX) AND (NOT ARG_NAMESPACE))
-        message(FATAL_ERROR "You must provide either prefix or namespace")
+      message(FATAL_ERROR "You must provide either prefix or namespace")
     endif()
     if(NOT ARG_NAMESPACE)
       set(ARG_NAMESPACE ${ARG_PREFIX})
     endif()
 
+    guipp_target_suffix(TARGET_SUFFIX)
+    set(TARGET_NAME ${TARGET}${TARGET_SUFFIX})
+    set(TARGET_NAMESPACE ${ARG_NAMESPACE}${TARGET_SUFFIX})
+
     set(${ARG_PREFIX}${TARGET}_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/gui/${ARG_SUBDIR})
-    set(${ARG_PREFIX}${TARGET}_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/${ARG_NAMESPACE})
+    set(${ARG_PREFIX}${TARGET}_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/${TARGET_NAMESPACE})
 
     target_include_directories(${TARGET}
                                PUBLIC
                                "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
                                "$<INSTALL_INTERFACE:${${ARG_PREFIX}${TARGET}_INSTALL_INCLUDEDIR}>")
 
-    configure_package_config_file(
-        ${ARG_CONFIG}
-        ${CMAKE_CURRENT_BINARY_DIR}/${ARG_PREFIX}${TARGET}Config.cmake
-        INSTALL_DESTINATION ${${ARG_PREFIX}${TARGET}_INSTALL_CMAKEDIR}
-        PATH_VARS CMAKE_INSTALL_INCLUDEDIR
-    )
-
     if(ARG_EXPORT_LIBS OR GUIPP_BUILD_STATIC_MODULE_LIBS OR GUIPP_BUILD_SHARED_MODULE_LIBS)
-      install(
-          TARGETS ${TARGET}
-          EXPORT ${ARG_PREFIX}${TARGET}_Targets
-          OBJECTS DESTINATION ${CMAKE_INSTALL_LIBDIR}
-          INCLUDES DESTINATION ${${ARG_PREFIX}${TARGET}_INSTALL_INCLUDEDIR}
-      )
 
       install(
-          EXPORT ${ARG_PREFIX}${TARGET}_Targets
-          NAMESPACE ${ARG_NAMESPACE}::
-          FILE ${ARG_PREFIX}${TARGET}Targets.cmake
-          DESTINATION ${${ARG_PREFIX}${TARGET}_INSTALL_CMAKEDIR}
+        TARGETS ${TARGET}
+        EXPORT guipp${TARGET_SUFFIX}-targets
+        OBJECTS DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        INCLUDES DESTINATION ${${ARG_PREFIX}${TARGET}_INSTALL_INCLUDEDIR}
       )
-
-      install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${ARG_PREFIX}${TARGET}Config.cmake
-          DESTINATION ${${ARG_PREFIX}${TARGET}_INSTALL_CMAKEDIR}
-      )
-
-      export(TARGETS ${TARGET} FILE ${ARG_PREFIX}${TARGET}Targets.cmake)
 
     endif()
 
@@ -127,6 +135,9 @@ function(define_guipp_subpackage TARGET)
     set(ARG_CXX_STANDARD ${GUIPP_CXX_STANDARD})
   endif()
 
+  guipp_target_suffix(TARGET_SUFFIX)
+  set(TARGET_NAME ${TARGET}${TARGET_SUFFIX})
+
   add_definitions(${ARG_FLAGS})
 
   if(ARG_STATIC OR (NOT ARG_SHARED AND GUIPP_BUILD_STATIC_MODULE_LIBS))
@@ -147,6 +158,7 @@ function(define_guipp_subpackage TARGET)
   set_target_properties(${TARGET} PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
+                        LIBRARY_OUTPUT_NAME ${TARGET_NAME}
                         PREFIX ${ARG_PREFIX}
                         VERSION ${ARG_VERSION}
                         SOVERSION ${ARG_VERSION_MAJOR}
@@ -199,17 +211,16 @@ function(guipp_app TARGET)
     add_executable(${TARGET} WIN32 ${ARG_MAIN_SRC} ${ARG_SOURCES})
   endif ()
 
+  guipp_target_suffix(TARGET_SUFFIX)
+  set(TARGET_NAME ${TARGET}${TARGET_SUFFIX})
+
   target_link_libraries(${TARGET} ${ARG_LIBS} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
   install(TARGETS ${TARGET} DESTINATION ${ARG_BIN_DIR})
   set_target_properties(${TARGET} PROPERTIES
                         FOLDER apps
+                        LIBRARY_OUTPUT_NAME ${TARGET_NAME}
                         CXX_STANDARD ${GUIPP_CXX_STANDARD}
                         )
-  # if (EMSCRIPTEN)
-  #   set_target_properties(${TARGET} PROPERTIES
-  #                         LINK_FLAGS "${GUIPP_EXE_LINKER_FLAGS}"
-  #                         )
-  # endif()
   if (ANDROID)
     add_qt_android_apk(${TARGET}_apk ${TARGET}
                          PACKAGE_NAME ${ARG_PACKAGE_NAME}

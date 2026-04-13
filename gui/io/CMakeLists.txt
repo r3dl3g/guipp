@@ -8,10 +8,6 @@ if(NOT TARGET ${PROJECT_NAME})
 
   add_subdirectory(../draw draw)
 
-  set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
-  set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} PARENT_SCOPE)
-  include_directories(${GUIPP_INCLUDE_DIRS})
-
   set(SOURCE_FILES
       pnm.cpp
       pnm_to_src.cpp

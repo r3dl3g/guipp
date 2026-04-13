@@ -8,8 +8,6 @@ if(NOT TARGET ${PROJECT_NAME})
 
   add_subdirectory(./../core core)
 
-  include_directories(${GUIPP_INCLUDE_DIRS})
-
   set(SOURCE_FILES app.cpp)
   set(INCLUDE_FILES app.h)
 

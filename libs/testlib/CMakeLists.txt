@@ -13,7 +13,7 @@ if(NOT TARGET testlib)
   set (testlib_Include "${CMAKE_CURRENT_SOURCE_DIR}")
   set (testlib_Include ${testlib_Include} PARENT_SCOPE)
 
-  include_directories(${testlib_Include} ${GUIPP_INCLUDE_DIRS})
+  include_directories(${testlib_Include} ${GUIPP_INCLUDE_DIRS} ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 
   file(GLOB SOURCE_FILES "*.cpp")
   file(GLOB INCLUDE_FILES "*.h")

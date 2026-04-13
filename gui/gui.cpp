@@ -25,8 +25,8 @@
 //
 // Library includes
 //
-#include "gui_version.h"
-#include "gui++-export.h"
+#include "gui/gui_version.h"
+#include "gui/gui++-export.h"
 
 #if defined(LOGGING_BUILT_AS_STATIC_LIB)
 DEFINE_LOGGING_CORE(GUIPP_EXPORT)

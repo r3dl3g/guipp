@@ -37,7 +37,7 @@ DebugPrint("samples GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
 
 # add the binary tree to the search path for include files
 # so that we will find Version.h
-include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS})
+include_directories(${GUIPP_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 
 set(apps
     pnm2src

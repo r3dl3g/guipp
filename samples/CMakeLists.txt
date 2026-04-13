@@ -34,19 +34,22 @@ DebugPrint("samples GUIPP_APP_LIBRARIES: ${GUIPP_APP_LIBRARIES}")
 DebugPrint("samples GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
 DebugPrint("samples GUIPP_EXE_LINKER_FLAGS: ${GUIPP_EXE_LINKER_FLAGS}")
 
+if(EMSCRIPTEN)
+  set(logging_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/logging)
+  set(util_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/util)
+endif()
+
 if(GUIPP_BUILD_DEPENDENT_LIBS)
   add_subdirectory(${GUIPP_LIBS_DIR}/logging logging)
   add_subdirectory(${GUIPP_LIBS_DIR}/util util)
 else ()
-  set(logging_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/logging)
-  set(util_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/util)
   find_package(logging REQUIRED)
   find_package(util REQUIRED)
 endif()
 
 # add the binary tree to the search path for include files
 # so that we will find Version.h
-include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS})
+include_directories(${GUIPP_INCLUDE_DIRS} ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 
 add_definitions(${GUIPP_CXX_FLAGS})
 
@@ -86,10 +89,17 @@ function(guipp_sample PROJECT_NAME)
   else ()
     target_link_libraries(${PROJECT_NAME} ${GUIPP_APP_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
     set_target_properties(${PROJECT_NAME} PROPERTIES
+                          ${GUIPP_LINK_PROPERTIES}
                           FOLDER apps
                           CXX_STANDARD ${GUIPP_CXX_STANDARD}
                           )
+    if (GUIPP_LINK_OPTIIONS)
+      target_link_options(${PROJECT_NAME} ${GUIPP_LINK_OPTIIONS})
+    endif()
   endif ()
+
+  if(MSVC)
+  endif()
 
   if (ANDROID)
     add_qt_android_apk(${PROJECT_NAME}_apk ${PROJECT_NAME}

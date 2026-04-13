@@ -5,9 +5,15 @@ ACTION=${SCRIPT_NAME/.sh/}
 PROJECT=${PWD##*/}
 if [ -z "${PLATFORM}" ]; then
   PLATFORM=linux
+fi
+if [ "${PLATFORM}" == "mingw" ]; then
+  export MACHINE=$($CC -dumpmachine)
 elif [ "${PLATFORM}" == "emc" ]; then
   export EMROOT=$(em-config EMSCRIPTEN_ROOT)
   echo Detect PLATFORM emc, set EMROOT to $EMROOT
+  export MACHINE="wasm32-emscripten"
+else
+  export MACHINE=.
 fi
 PARALLEL=$(nproc)
 CMAKE_CMD=cmake

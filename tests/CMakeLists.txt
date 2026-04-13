@@ -33,9 +33,6 @@ if(GUIPP_BUILD_DEPENDENT_LIBS)
   add_subdirectory(${GUIPP_LIBS_DIR}/util util)
   add_subdirectory(./../libs/testing testing)
 else ()
-  set(logging_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/logging)
-  set(util_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/util)
-  set(testing_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/testing)
   find_package(logging REQUIRED)
   find_package(util REQUIRED)
   find_package(testing REQUIRED)
@@ -50,7 +47,11 @@ DebugPrint("app GUIPP_SYS_LIBRARIES: ${GUIPP_SYS_LIBRARIES}")
 
 # add the binary tree to the search path for include files
 # so that we will find Version.h
-include_directories(${PROJECT_BINARY_DIR} ${GUIPP_INCLUDE_DIRS} ${testlib_Include} ${TESTING_INCLUDE_DIRS})
+include_directories(${GUIPP_INCLUDE_DIRS}
+                    ${testlib_Include}
+                    ${TESTING_INCLUDE_DIRS}
+                    ${CMAKE_CURRENT_BINARY_DIR}
+                    ${CMAKE_SOURCE_DIR})
 
 enable_testing()
 

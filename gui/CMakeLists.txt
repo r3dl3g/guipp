@@ -65,12 +65,18 @@ set(UTIL_CXX_STANDARD "${GUIPP_CXX_STANDARD}" CACHE STRING "C++ standard")
 set(TESTING_CXX_STANDARD "${GUIPP_CXX_STANDARD}" CACHE STRING "C++ standard")
 set(GUIPP_LIBS_DIR "${PROJECT_SOURCE_DIR}/libs" CACHE STRING "Path to required libraries")
 
+guipp_target_suffix(TARGET_SUFFIX)
+
 debug_print_var(CMAKE_SOURCE_DIR)
 debug_print_var(CMAKE_CURRENT_SOURCE_DIR)
 debug_print_var(CMAKE_ROOT_SOURCE_DIR)
 debug_print_var(CMAKE_BINARY_DIR)
 debug_print_var(CMAKE_CURRENT_BINARY_DIR)
 debug_print_var(CMAKE_ROOT_BINARY_DIR)
+debug_print_var(CMAKE_PREFIX_PATH)
+debug_print_var(CMAKE_FIND_ROOT_PATH)
+debug_print_var(CMAKE_INSTALL_LIBDIR)
+debug_print_var(TARGET_SUFFIX)
 
 if(CMAKE_CXX_COMPILER MATCHES "/em\\+\\+(-[a-zA-Z0-9.])?$")
   set(EMSCRIPTEN 1)
@@ -105,16 +111,23 @@ if(GUIPP_BUILD_SHARED_MODULE_LIBS OR GUIPP_BUILD_STATIC_MODULE_LIBS)
     set(TESTING_CONFIG_INSTALL ON CACHE BOOL "enable install")
 endif()
 
+if(EMSCRIPTEN)
+  set(logging_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/logging)
+  set(util_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/util)
+endif()
 
 if(GUIPP_BUILD_DEPENDENT_LIBS)
   add_subdirectory(${GUIPP_LIBS_DIR}/logging logging)
   add_subdirectory(${GUIPP_LIBS_DIR}/util util)
 else ()
-  set(logging_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/logging)
-  set(util_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/util)
-  find_package(logging REQUIRED)
-  find_package(util REQUIRED)
+  find_package(logging REQUIRED VERSION 1.1)
+  find_package(util REQUIRED VERSION 1.5)
 endif()
+
+debug_print_var(LOGGING_INCLUDE_DIRS)
+debug_print_var(UTIL_INCLUDE_DIRS)
+
+
 
 if(NOT TARGET guipp)
 
@@ -158,12 +171,14 @@ if(NOT TARGET guipp)
   endif()
 
   set(GUIPP_INCLUDE_DIRS
-    ${CMAKE_CURRENT_SOURCE_DIR}/..
-    ${CMAKE_BINARY_DIR}
-    ${PROJECT_BINARY_DIR}
     ${LOGGING_INCLUDE_DIRS}
     ${UTIL_INCLUDE_DIRS}
-    )
+  )
+
+  set(LINKED_LIBRARIES
+    ${LOGGING_LIBRARIES}
+    ${UTIL_LIBRARIES}
+  )
 
   if (GUIPP_USE_SDL)
     DebugPrint("GUIPP: build with SDL!")
@@ -187,6 +202,8 @@ if(NOT TARGET guipp)
   elseif(GUIPP_USE_QT6)
     DebugPrint("GUIPP: build with Qt6!")
 
+    set(LINKED_LIBRARIES ${LINKED_LIBRARIES} Qt6Gui)
+
     set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${Qt6Gui_LIBRARIES})
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_QT ${Qt6Gui_DEFINITIONS})
     if(APPLE)
@@ -206,6 +223,8 @@ if(NOT TARGET guipp)
   elseif(GUIPP_USE_QT5)
     DebugPrint("GUIPP: build with Qt5!")
     # find_package(Qt5Gui REQUIRED)
+
+    set(LINKED_LIBRARIES ${LINKED_LIBRARIES} Qt5Gui)
 
     set(GUIPP_POPUP_OVERLAPP OFF)
     set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${Qt5Gui_LIBRARIES})
@@ -231,6 +250,7 @@ if(NOT TARGET guipp)
   elseif(EMSCRIPTEN)
     DebugPrint("GUIPP: build for emscripten!")
     set(GUIPP_BUILD_STATIC_MODULE_LIBS ON)
+    set(GUIPP_BUILD_SHARED_MODULE_LIBS OFF)
     set(GUIPP_POPUP_OVERLAPP OFF)
     set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS}
       -DGUIPP_JS
@@ -259,8 +279,11 @@ if(NOT TARGET guipp)
 
   elseif(CMAKE_CXX_PLATFORM_ID STREQUAL MinGW)
     DebugPrint("GUIPP: build with MinGW for Win32!")
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_WIN -DUSE_MINGW -D_WIN32_WINNT=0x0601)
+    set(GUIPP_BUILD_STATIC_MODULE_LIBS ON)
+    set(GUIPP_BUILD_SHARED_MODULE_LIBS OFF)
+    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -mwindows -DGUIPP_WIN -DUSE_MINGW -D_WIN32_WINNT=0x0601)
     set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++ -static)
+    set(GUIPP_LINK_OPTIIONS PRIVATE "-Wl,-u,WinMain")
     set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} mingw32 ${GDI32_LIB} ${USER32_LIB} ${MSIMG32_LIB})
   elseif(WIN32)
     DebugPrint("GUIPP: build for Win32!")
@@ -364,6 +387,7 @@ if(NOT TARGET guipp)
 
   if(CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
     set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} /Y- /bigobj)
+    set(GUIPP_LINK_PROPERTIES LINK_FLAGS "/INCLUDE:WinMain")
   endif()
 
   if((CMAKE_CXX_COMPILER_ID STREQUAL GNU) AND (CMAKE_BUILD_TYPE MATCHES Debug) AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 10.0))
@@ -429,17 +453,16 @@ if(NOT TARGET guipp)
       )
   endif()
 
-  set(LINKED_LIBRARIES ${LOGGING_LIBRARIES} ${UTIL_LIBRARIES})
-
   if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.5
      AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang"
-     AND NOT CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
+     AND NOT CMAKE_CXX_COMPILER_ID STREQUAL MSVC
+     AND NOT CMAKE_CXX_PLATFORM_ID STREQUAL MinGW)
     set(GUIPP_APP_LIBRARIES $<TARGET_OBJECTS:guipp::app> ${GUIPP_LIBRARIES})
   else()
     set(GUIPP_APP_LIBRARIES guipp::app ${GUIPP_LIBRARIES})
   endif()
 
-  include_directories(${GUIPP_INCLUDE_DIRS})
+  include_directories(${GUIPP_INCLUDE_DIRS} ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 
   add_subdirectory(core)
   add_subdirectory(win)
@@ -468,10 +491,10 @@ if(NOT TARGET guipp)
     set(GUIPP_APP_LIBRARIES ${GUIPP_APP_LIBRARIES} PARENT_SCOPE)
     set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} PARENT_SCOPE)
     set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} PARENT_SCOPE)
+    set(GUIPP_LINK_PROPERTIES ${GUIPP_LINK_PROPERTIES} PARENT_SCOPE)
+    set(GUIPP_LINK_OPTIIONS ${GUIPP_LINK_OPTIIONS} PARENT_SCOPE)
     set(GUIPP_CXX_STANDARD ${GUIPP_CXX_STANDARD} PARENT_SCOPE)
   endif()
-
-#  include_directories(${GUIPP_INCLUDE_DIRS})
 
   # header file to pass version settings to the source code
   configure_file (
@@ -498,7 +521,7 @@ if(NOT TARGET guipp)
       )
 
     target_link_options(guipp PRIVATE "${GUIPP_EXE_LINKER_FLAGS}")
-    target_link_libraries(guipp PRIVATE ${LOGGING_LIBRARIES} ${UTIL_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
+    target_link_libraries(guipp PRIVATE ${LINKED_LIBRARIES} ${GUIPP_SYS_LIBRARIES})
 
   elseif(GUIPP_BUILD_SHARED_MODULE_LIBS)
     DebugPrint("gui build multiple shared gui libraries")
@@ -542,11 +565,9 @@ if(NOT TARGET guipp)
   if(GUIPP_CONFIG_INSTALL)
 
     write_basic_package_version_file(
-        ${CMAKE_CURRENT_BINARY_DIR}/guippConfigVersion.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/guipp${TARGET_SUFFIX}ConfigVersion.cmake
         VERSION "${GUIPP_VERSION}"
         COMPATIBILITY SameMajorVersion)
-
-    guipp_target_suffix(TARGET_SUFFIX)
 
     install_guipp_subpackage(guipp
         NAMESPACE guipp
@@ -561,11 +582,13 @@ if(NOT TARGET guipp)
         "${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in"
         "${CMAKE_CURRENT_BINARY_DIR}/guipp${TARGET_SUFFIX}Config.cmake"
         INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/guipp${TARGET_SUFFIX}
+        PATH_VARS CMAKE_INSTALL_INCLUDEDIR
+        NO_SET_AND_CHECK_MACRO
     )
 
     install(FILES
         ${CMAKE_CURRENT_BINARY_DIR}/guipp${TARGET_SUFFIX}Config.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/guippConfigVersion.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/guipp${TARGET_SUFFIX}ConfigVersion.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/guipp${TARGET_SUFFIX}
     )  
 

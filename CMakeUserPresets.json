@@ -89,7 +89,7 @@
             "hidden": true,
             "inherits": "base",
             "description": "Build with emscripten",
-            "toolchainFile": "/nix/store/f2hizi63xa20qzrblcb3axim5ix6q1wb-emscripten-4.0.12/share/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+            "toolchainFile": "$env{EMROOT}/cmake/Modules/Platform/Emscripten.cmake"
         },
         {
             "name": "emc_debug",

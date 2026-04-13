@@ -5,6 +5,9 @@ ACTION=${SCRIPT_NAME/.sh/}
 PROJECT=${PWD##*/}
 if [ -z "${PLATFORM}" ]; then
   PLATFORM=linux
+elif [ "${PLATFORM}" == "emc" ]; then
+  export EMROOT=$(em-config EMSCRIPTEN_ROOT)
+  echo Detect PLATFORM emc, set EMROOT to $EMROOT
 fi
 PARALLEL=$(nproc)
 CMAKE_CMD=cmake
@@ -15,7 +18,7 @@ ARCHIVE=${LOGDIR}/archive
 
 _exec() {
   echo Execute $@
-  $@
+  time $@
 }
 
 _prepare() {

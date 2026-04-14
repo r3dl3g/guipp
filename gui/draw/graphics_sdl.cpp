@@ -123,6 +123,7 @@ namespace gui {
       SDL_Rect srcrect = { r.x(), r.y(), static_cast<int>(r.width()), static_cast<int>(r.height()) };
       SDL_Rect destrect = { pt.x(), pt.y(), static_cast<int>(r.width()), static_cast<int>(r.height()) };
       auto texture = pixmap.get_os_bitmap();
+      SDL_SetTextureBlendMode(texture, SDL_BlendMode::SDL_BLENDMODE_BLEND);
       SDL_RenderCopy(gc(), texture, &srcrect, &destrect);
       return *this;
     }

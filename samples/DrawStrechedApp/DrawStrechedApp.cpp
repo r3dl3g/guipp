@@ -41,6 +41,9 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   logging::trace() << "Create draw::pixmap";
   draw::pixmap pixmap;
+#ifndef GUIPP_SDL
+  pixmap = img;
+#endif
 
   buttons.add_button("1:1");
   auto filters = draw::graphics::get_filter_list(pixmap);

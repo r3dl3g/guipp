@@ -25,6 +25,7 @@
 #include <cmath>
 #include <logging/logger.h>
 #include <util/string_util.h>
+#include <util/vector_math.h>
 
 // --------------------------------------------------------------------------
 //
@@ -46,24 +47,118 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace draw {
 
-    void myThickLineColor (SDL_Renderer* renderer, const os::point& p0, const os::point& p1, Uint8 width, Uint32 color) {
-      thickLineColor(renderer, p0.x, p0.y, p1.x, p1.y, width, color);
+    SDL_Color mk_sdl_color (os::color color) {
+      return {
+        color::get_red(color),
+        color::get_green(color),
+        color::get_blue(color),
+        color::get_alpha(color)
+      };
     }
 
-    void myLineColor (SDL_Renderer* renderer, const os::point& p0, const os::point& p1, Uint8, Uint32 color) {
-      lineColor(renderer, p0.x, p0.y, p1.x, p1.y, color);
-    }
+    void draw_sdl_line (SDL_Renderer* renderer, const os::point& p0, const os::point& p1, Uint8 width, Uint32 color) {
 
-    int filledPolygonColor (SDL_Renderer* renderer, const std::vector<os::point>& pts, Uint32 color) {
-      const int cnt = pts.size();
-      std::vector<Sint16> vx(cnt);
-      std::vector<Sint16> vy(cnt);
+      SDL_Color clr = mk_sdl_color(color);
 
-      for (int i = 0; i < cnt; ++i) {
-        vx[i] = pts[i].x;
-        vy[i] = pts[i].y;
+      if (width < 2) {
+        SDL_SetRenderDrawColor(renderer, clr.r, clr.g, clr.b, clr.a);
+        SDL_RenderDrawLine(renderer, p0.x, p0.y, p1.x, p1.y);
+        return;
       }
-      return filledPolygonColor(renderer, vx.data(), vy.data(), cnt, color);
+
+      SDL_Vertex vertices[6];
+      int indices[12] = { 0, 1, 2, 1, 2, 3, 0, 2, 4, 1, 3, 5 };
+
+      util::math::fvec2 a(p0.x, p0.y), b(p1.x, p1.y);
+      auto norm = (b - a).normal(width / 2.0F);
+      auto n1 = norm.orthogonal();
+      auto a1 = a + n1;
+      auto a2 = a - n1;
+      auto a3 = a - norm;
+      auto b1 = b + n1;
+      auto b2 = b - n1;
+      auto b3 = b + norm;
+
+      vertices[0] = {{ a1.x(), a1. y() }, clr, {0, 0} };
+      vertices[1] = {{ b1.x(), b1. y() }, clr, {0, 0} };
+      vertices[2] = {{ a2.x(), a2. y() }, clr, {0, 0} };
+      vertices[3] = {{ b2.x(), b2. y() }, clr, {0, 0} };
+      vertices[4] = {{ a3.x(), a3. y() }, clr, {0, 0} };
+      vertices[5] = {{ b3.x(), b3. y() }, clr, {0, 0} };
+
+      SDL_RenderGeometry(renderer, nullptr, vertices, 6, indices, 12);
+    }
+
+    void draw_sdl_box (SDL_Renderer* renderer, const os::rectangle& r, Uint8 width, Uint32 color) {
+
+      SDL_Color clr = mk_sdl_color(color);
+
+      if (width < 2) {
+        SDL_SetRenderDrawColor(renderer, clr.r, clr.g, clr.b, clr.a);
+        SDL_RenderDrawRectF(renderer, &r);
+        return;
+      }
+
+      /* 0             1
+          +-----------+
+          |a          |
+          | +-------+ |
+          | | 4   5 | |
+          | | 7   6 | |
+          | +-------+ |
+          |          b|
+          +-----------+
+         3             2 */
+      
+      SDL_Vertex vertices[8];
+      int indices[24] = { 0, 1, 4, 1, 4, 5,
+                          0, 3, 4, 3, 4, 7,
+                          2, 3, 7, 2, 6, 7,
+                          1, 2, 5, 2, 5, 6
+                        };
+
+      float w2 = width / 2.0F;
+
+      vertices[0] = {{ r.x - w2      , r.y - w2       }, clr, {0, 0} };
+      vertices[1] = {{ r.x + r.w + w2, r.y - w2       }, clr, {0, 0} };
+      vertices[2] = {{ r.x + r.w + w2, r.y + r.h + w2 }, clr, {0, 0} };
+      vertices[3] = {{ r.x - w2      , r.y + r.h + w2 }, clr, {0, 0} };
+      vertices[4] = {{ r.x + w2      , r.y + w2       }, clr, {0, 0} };
+      vertices[5] = {{ r.x + r.w - w2, r.y + w2       }, clr, {0, 0} };
+      vertices[6] = {{ r.x + r.w - w2, r.y + r.h - w2 }, clr, {0, 0} };
+      vertices[7] = {{ r.x + w2      , r.y + r.h - w2 }, clr, {0, 0} };
+
+      SDL_RenderGeometry(renderer, nullptr, vertices, 8, indices, 24);
+    }
+
+    bool operator== (const os::point &lhs, const os::point& rhs) {
+      return (lhs.x == rhs.x) && (lhs.y == rhs.y);
+    }
+
+    int draw_sdl_filed_polygone (SDL_Renderer* renderer, const std::vector<os::point>& pts, Uint32 color) {
+      const int cnt = pts.size();
+      if ((cnt == 3) || ((cnt == 4) && (pts[0] == pts[3]))) {
+        SDL_Color clr = mk_sdl_color(color);
+        SDL_Vertex vertices[3];
+        vertices[0] = {{ pts[0].x, pts[0].y }, clr, {0, 0} };
+        vertices[1] = {{ pts[1].x, pts[1].y }, clr, {0, 0} };
+        vertices[2] = {{ pts[2].x, pts[2].y }, clr, {0, 0} };
+        int indices[3] = { 0, 1, 2 };
+        return SDL_RenderGeometry(renderer, nullptr, vertices, 3, indices, 3);
+      } else {
+        // SDL_Color clr = mk_sdl_color(color);
+        // SDL_SetRenderDrawColor(renderer, clr.r, clr.g, clr.b, clr.a);
+        // return SDL_RenderDrawLinesF(renderer, pts.data(), pts.size());
+        std::vector<Sint16> vx(cnt);
+        std::vector<Sint16> vy(cnt);
+
+        for (int i = 0; i < cnt; ++i) {
+          vx[i] = pts[i].x;
+          vy[i] = pts[i].y;
+        }
+        return filledPolygonColor(renderer, vx.data(), vy.data(), cnt, color);
+      }
+
     }
 
     void thickPolylineColor (SDL_Renderer* renderer, const std::vector<os::point>& pts, Uint8 width, Uint32 color) {
@@ -73,7 +168,7 @@ namespace gui {
         if (first) {
           first = false;
         } else {
-          myThickLineColor(renderer, p0, pt, width, color);
+          draw_sdl_line(renderer, p0, pt, width, color);
         }
         p0 = pt;
       }
@@ -82,7 +177,9 @@ namespace gui {
     void thickEllipseColor (graphics& g, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 width, Uint32 color) {
       auto outer = arc_coords({(float)x, (float)y}, {(float)(rx + width / 2), (float)(ry + width / 2)}, 0, 360).calc_arc_os_points(g.context());
       if (width < 2) {
-        SDL_RenderDrawLines(g, outer.data(), outer.size());
+        SDL_Color clr = mk_sdl_color(color);
+        SDL_SetRenderDrawColor(g, clr.r, clr.g, clr.b, clr.a);
+        SDL_RenderDrawLinesF(g, outer.data(), outer.size());
       } else {
         auto irx = (float)(rx - width / 2);
         auto iry = (float)(ry - width / 2);
@@ -90,20 +187,22 @@ namespace gui {
           auto inner = arc_coords({(float)x, (float)y}, {irx, iry}, 0, 360).calc_arc_os_points(g.context());
           outer.insert(outer.end(), inner.rbegin(), inner.rend());
         }
-        filledPolygonColor(g, outer, color);
+        draw_sdl_filed_polygone(g, outer, color);
       }
     }
 
     void thickArcColor (graphics& g, const arc_coords& c, Uint8 width, Uint32 color) {
       if (width < 2) {
         auto pts = c.calc_arc_os_points(g.context());
-        SDL_RenderDrawLines(g, pts.data(), pts.size());
+        SDL_Color clr = mk_sdl_color(color);
+        SDL_SetRenderDrawColor(g, clr.r, clr.g, clr.b, clr.a);
+        SDL_RenderDrawLinesF(g, pts.data(), pts.size());
       } else {
         core::size offs((width / 2), (float)(width / 2));
         auto outer = arc_coords(c.center, c.radius + offs, c.start, c.end).calc_arc_os_points(g.context());
         auto inner = arc_coords(c.center, c.radius - offs, c.start, c.end).calc_arc_os_points(g.context());
         outer.insert(outer.end(), inner.rbegin(), inner.rend());
-        filledPolygonColor(g, outer, color);
+        draw_sdl_filed_polygone(g, outer, color);
       }
     }
 
@@ -112,7 +211,7 @@ namespace gui {
       const auto p1 = from.os(g.context());
       const auto p2 = to.os(g.context());
 
-      myThickLineColor(g, p1, p2, p.os_size(), p.color());
+      draw_sdl_line(g, p1, p2, p.os_size(), p.color());
     }
 
     // --------------------------------------------------------------------------
@@ -127,17 +226,14 @@ namespace gui {
                                 const pen& p) const {
       const auto r = rect.os(g.context());
 
-      thickLineColor(g, r.x, r.y, r.x + r.w, r.y, p.os_size(), p.color());
-      thickLineColor(g, r.x, r.y + r.h, r.x + r.w, r.y + r.h, p.os_size(), p.color());
-      thickLineColor(g, r.x, r.y, r.x, r.y + r.h, p.os_size(), p.color());
-      thickLineColor(g, r.x + r.w, r.y, r.x + r.w, r.y + r.h, p.os_size(), p.color());
+      draw_sdl_box(g, r, p.os_size(), p.color());
     }
 
     void rectangle::operator() (graphics& g,
                                 const brush& b) const {
       const auto r = rect.os(g.context());
-
-      boxColor(g, r.x, r.y, r.x + r.w, r.y + r.h, b.color());
+      Use<brush> br(g, b);
+      SDL_RenderFillRectF(g, &r);
     }
 
     // --------------------------------------------------------------------------
@@ -239,7 +335,7 @@ namespace gui {
       } else {
         auto pts = coord.calc_arc_os_points(g.context());
         pts.push_back(coord.center.os(g.context()));
-        filledPolygonColor(g, pts, b.color());
+        draw_sdl_filed_polygone(g, pts, b.color());
       }
     }
 
@@ -253,7 +349,7 @@ namespace gui {
         filledEllipseColor(g, r.x + w, r.y + h, w, h, b.color());
       } else {
         auto pts = coord.calc_arc_os_points(g.context());
-        filledPolygonColor(g, pts, b.color());
+        draw_sdl_filed_polygone(g, pts, b.color());
       }
     }
 
@@ -273,7 +369,7 @@ namespace gui {
 
     void polyline::operator() (graphics& g,
                                const brush& b) const {
-      filledPolygonColor(g, convert(g), b.color());
+      draw_sdl_filed_polygone(g, convert(g), b.color());
     }
 
     // --------------------------------------------------------------------------
@@ -286,12 +382,12 @@ namespace gui {
 
     void polygon::operator() (graphics& g,
                               const pen& p) const {
-      thickPolylineColor(g, convert(g), p.os_size(), p.color());
+      thickPolylineColor(g, convert(g, true), p.os_size(), p.color());
     }
 
     void polygon::operator() (graphics& g,
                               const brush& b) const {
-      filledPolygonColor(g, convert(g), b.color());
+      draw_sdl_filed_polygone(g, convert(g, false), b.color());
     }
 
     FC_AlignEnum get_h_alignment (const text_origin_t origin) {
@@ -317,7 +413,9 @@ namespace gui {
       bounding_box(str, r, origin)(g, f, c);
 
       FC_AlignEnum align = get_h_alignment(origin);
-      FC_Rect box = r.os(g.context());
+      auto b = r.os(g.context());
+      FC_Rect box{ static_cast<int>(b.x), static_cast<int>(b.y),
+                   static_cast<int>(b.w), static_cast<int>(b.h) };
       FC_DrawBoxAlign(f.os().get(), g.gc(), box, align, str.c_str());
 
     }
@@ -332,9 +430,9 @@ namespace gui {
       }
 
       FC_AlignEnum align = get_h_alignment(origin);
-      FC_Rect box = rect.os(g.context());
+      auto b = rect.os(g.context());
       float scale = static_cast<float>(1.0 / core::global::get_scale_factor());
-      box = FC_GetBounds(f.os().get(), box.x, box.y, align, {scale, scale}, str.c_str());
+      FC_Rect box = FC_GetBounds(f.os().get(), b.x, b.y, align, {scale, scale}, str.c_str());
 
       if (origin_is_right(origin)) {
         rect.set_horizontal(rect.x2() - box.w, box.w);

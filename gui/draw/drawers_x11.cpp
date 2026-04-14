@@ -430,7 +430,7 @@ namespace gui {
     void polygon::operator() (graphics& g,
                               const brush& b,
                               const pen& p) const {
-      auto pts = convert(g);
+      auto pts = convert(g, true);
       if (!is_transparent(b)) {
         Use<brush> br(g, b);
         XFillPolygon(get_instance(),
@@ -449,14 +449,14 @@ namespace gui {
 
     void polygon::operator() (graphics& g,
                               const pen& p) const {
-      auto pts = convert(g);
+      auto pts = convert(g, true);
       Use<pen> pn(g, p);
       XDrawLines(get_instance(), g.target(), g, const_cast<XPoint*>(pts.data()), (int)pts.size(), CoordModeOrigin);
     }
 
     void polygon::operator() (graphics& g,
                               const brush& b) const {
-      auto pts = convert(g);
+      auto pts = convert(g, false);
       Use<brush> br(g, b);
       XFillPolygon(get_instance(),
                    g.target(),

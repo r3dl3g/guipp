@@ -247,22 +247,25 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     void polygon::operator() (graphics& g,
-                               const brush& b,
-                               const pen& p) const {
-      Use<brush> br(g, b);
+                              const brush& b,
+                              const pen& p) const {
+      operator()(g, b);
+      operator()(g, p);
+    }
+
+    void polygon::operator() (graphics& g,
+                              const pen& p) const {
+      Use<brush> br(g, brush::invisible);
       Use<pen> pn(g, p);
-      auto pts = convert(g);
+      auto pts = convert(g, true);
       g.os()->drawPolygon(pts.data(), (int)pts.size());
     }
 
     void polygon::operator() (graphics& g,
-                               const pen& p) const {
-      operator()(g, brush::invisible, p);
-    }
-
-    void polygon::operator() (graphics& g,
-                               const brush& b) const {
-      operator()(g, b, b.color());
+                              const brush& b) const {
+      Use<brush> br(g, b);
+      auto pts = convert(g, false);
+      g.os()->drawPolygon(pts.data(), (int)pts.size());
     }
 
     // --------------------------------------------------------------------------

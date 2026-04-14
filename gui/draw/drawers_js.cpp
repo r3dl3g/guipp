@@ -260,7 +260,7 @@ namespace gui {
     void polygon::operator() (graphics& g,
                               const pen& p) const {
       Use<pen> pn(g, p);
-      auto pts = convert(g);
+      auto pts = convert(g, true);
       bool first = true;
 
       g.os().call<void>("beginPath");
@@ -281,7 +281,7 @@ namespace gui {
     void polygon::operator() (graphics& g,
                               const brush& b) const {
       Use<brush> br(g, b);
-      auto pts = convert(g);
+      auto pts = convert(g, false);
       bool first = true;
 
       g.os().call<void>("beginPath");

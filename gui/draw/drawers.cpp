@@ -113,7 +113,7 @@ namespace gui {
       std::vector<os::point> pts;
       const auto sz = points.size();
       if (sz) {
-        pts.reserve(sz + close_frame ? 1 : 0);
+        pts.reserve(sz + close_frame);
         for (const core::point& pt : points) {
           pts.push_back(pt.os(g.context()));
         }

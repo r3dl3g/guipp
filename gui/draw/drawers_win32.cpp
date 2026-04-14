@@ -350,7 +350,7 @@ namespace gui {
                                const pen& p) const {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
-      auto pts = convert(g);
+      auto pts = convert(g, true);
       Polygon(g, (const POINT*)pts.data(), (int)pts.size());
     }
 
@@ -358,7 +358,7 @@ namespace gui {
                                const pen& p) const {
       Use<pen> pn(g, p);
       Use<brush> br(g, brush::invisible);
-      auto pts = convert(g);
+      auto pts = convert(g, true);
       Polygon(g, (const POINT*)pts.data(), (int)pts.size());
     }
 
@@ -367,7 +367,7 @@ namespace gui {
       Use<brush> br(g, b);
       pen p(b.color());
       Use<pen> pn(g, p);
-      auto pts = convert(g);
+      auto pts = convert(g, false);
       Polygon(g, (const POINT*)pts.data(), (int)pts.size());
     }
 

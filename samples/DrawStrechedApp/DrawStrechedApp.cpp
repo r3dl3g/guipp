@@ -25,7 +25,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.get_layout().set_header(lay(buttons));
 
   logging::trace() << "Create draw::rgbmap";
-  draw::bgramap img(core::native_size(512, 256));
+  draw::sysmap img(core::native_size(512, 256));
 
   auto data = img.get_data();
   for (int y = 0; y < data.height(); ++y) {

@@ -39,11 +39,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   mainview_t main;
   main.get_layout().set_header(lay(buttons));
 
-#if GUIPP_X11 || GUIPP_WIN
-  typedef draw::bgramap pixmap_t;
-#else
-  typedef draw::rgbamap pixmap_t;
-#endif
+  typedef draw::sysmap pixmap_t;
+
   pixmap_t bimg(core::size(256, 256));
   pixmap_t fimg(core::size(256, 256));
 

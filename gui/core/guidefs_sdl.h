@@ -75,12 +75,20 @@ namespace gui {
         int h;
       };
 
+      struct font_info {
+        std::string name;
+        size_type size = 10;
+        int thickness = 4;
+      };
+
     } // namespace js
 
     typedef SDL_Point point;
     typedef sdl::size size;
     typedef SDL_Rect rectangle;
-    typedef std::shared_ptr<FC_Font> font_type;
+    typedef sdl::font_info font_type;
+    typedef std::shared_ptr<FC_Font> font;
+
 
     inline point_type get_x (const point& p) { return p.x; }
     inline point_type get_y (const point& p) { return p.y; }

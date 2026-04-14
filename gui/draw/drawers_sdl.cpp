@@ -318,7 +318,7 @@ namespace gui {
 
       FC_AlignEnum align = get_h_alignment(origin);
       FC_Rect box = r.os(g.context());
-      FC_DrawBoxAlign(f.font_type().get(), g.gc(), box, align, str.c_str());
+      FC_DrawBoxAlign(f.os().get(), g.gc(), box, align, str.c_str());
 
     }
 
@@ -334,7 +334,7 @@ namespace gui {
       FC_AlignEnum align = get_h_alignment(origin);
       FC_Rect box = rect.os(g.context());
       float scale = static_cast<float>(1.0 / core::global::get_scale_factor());
-      box = FC_GetBounds(f.font_type().get(), box.x, box.y, align, {scale, scale}, str.c_str());
+      box = FC_GetBounds(f.os().get(), box.x, box.y, align, {scale, scale}, str.c_str());
 
       if (origin_is_right(origin)) {
         rect.set_horizontal(rect.x2() - box.w, box.w);
@@ -372,7 +372,7 @@ namespace gui {
         py = r.os_y(g.context());
       }
       FC_AlignEnum align = get_h_alignment(origin);
-      FC_DrawAlign(f.font_type().get(), g.gc(), px, py, align, str.c_str());
+      FC_DrawAlign(f.os().get(), g.gc(), px, py, align, str.c_str());
     }
 
   } // namespace draw

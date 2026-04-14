@@ -75,10 +75,13 @@ namespace gui {
 
       font& operator= (const font& rhs);
 
-#if defined(GUIPP_WIN) || defined(GUIPP_X11) || defined(GUIPP_QT)
+#if GUIPP_WIN || GUIPP_X11 || GUIPP_QT
       explicit font (os::font id);
       operator os::font () const;
-#endif // GUIPP_WIN
+#endif // GUIPP_WIN || GUIPP_X11 || GUIPP_QT
+#if GUIPP_SDL
+      os::font os () const;
+#endif // GUIPP_SDL
 
       explicit font (os::font_type id);
       os::font_type font_type () const;
@@ -116,15 +119,12 @@ namespace gui {
 # endif // GUIPP_USE_XFT
 #endif // GUIPP_X11
 
-#if defined(GUIPP_WIN) || defined(GUIPP_X11) || defined(GUIPP_QT)
-      os::font id;
-#endif // GUIPP_WIN
+#if GUIPP_WIN || GUIPP_X11 || GUIPP_QT || GUIPP_SDL
+      mutable os::font id;
+#endif // GUIPP_WIN || GUIPP_X11 || GUIPP_QT || GUIPP_SDL
       os::font_type info_;
 #ifdef GUIPP_SDL
-      std::string name_;
-      size_type size_;
-      Thickness thickness_;
-
+      void init_font () const;
       static void delete_font (FC_Font*);
 #endif
     };

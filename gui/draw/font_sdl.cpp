@@ -99,8 +99,8 @@ namespace gui {
     }
   
     font::font ()
-      : size_(-1)
-      , thickness_(font::Thickness::regular)
+      : id{}
+      , info_{}
     {}
 
     font::font (os::font_type i)
@@ -114,27 +114,32 @@ namespace gui {
                 bool italic,
                 bool underline,
                 bool strikeout)
-      : info_{}
-      , name_(name)
-      , size_(size)
-      , thickness_(thickness)
-    {
-      info_ = os::font_type(FC_CreateFont(), font::delete_font);
-      auto sz = static_cast<Uint32>(size_ * core::global::get_scale_factor());
-      auto path = getSystemFontPath(name_);
-      logging::trace() << "FC_LoadFont(" << name_ << ") with size " << sz << " from \"" << path << "\"";
-      FC_LoadFont(info_.get(), core::native::sdl::get_font_renderer(), path.c_str(), sz, FC_MakeColor(0,0,0,255), TTF_STYLE_NORMAL);
+      : id{}
+      , info_{name, size, static_cast<int>(thickness)}
+    {}
+
+    os::font font::os () const {
+      init_font();
+      return id;
+    }
+
+    void font::init_font () const {
+      if (!is_valid() && core::native::sdl::get_font_renderer() && !info_.name.empty()) {
+        id = os::font(FC_CreateFont(), font::delete_font);
+        auto sz = static_cast<Uint32>(info_.size * core::global::get_scale_factor());
+        auto path = getSystemFontPath(info_.name);
+        logging::trace() << "FC_LoadFont(" << info_.name << ") with size " << sz << " from \"" << path << "\"";
+        FC_LoadFont(id.get(), core::native::sdl::get_font_renderer(), path.c_str(), sz, FC_MakeColor(0,0,0,255), TTF_STYLE_NORMAL);
+      }
     }
 
     font::font (const font& rhs)
-      : info_(rhs.info_)
-      , name_(rhs.name_)
-      , size_(rhs.size_)
-      , thickness_(rhs.thickness_)
+      : id{rhs.id}
+      , info_(rhs.info_)
     {}
 
     bool font::is_valid () const {
-      return true;
+      return static_cast<bool>(id);
     }
 
     font::~font () 
@@ -154,15 +159,15 @@ namespace gui {
     }
 
     std::string font::name () const {
-      return name_;
+      return info_.name;
     }
 
     font::size_type font::size () const {
-      return size_;
+      return info_.size;
     }
 
     font::Thickness font::thickness () const {
-      return thickness_;
+      return static_cast<font::Thickness>(info_.thickness);
     }
 
     int font::rotation () const {
@@ -217,10 +222,8 @@ namespace gui {
       if (this == &rhs) {
         return *this;
       }
+      id = rhs.id;
       info_ = rhs.info_;
-      name_ = rhs.name_;
-      size_ = rhs.size_;
-      thickness_ = rhs.thickness_;
       return *this;
     }
 

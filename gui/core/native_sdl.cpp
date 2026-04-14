@@ -42,7 +42,11 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void set_clip_rect (core::context& ctx, const gui::os::rectangle& r) {
-        SDL_RenderSetClipRect(ctx.graphics(), &r);
+        SDL_Rect ir{
+          static_cast<int>(r.x), static_cast<int>(r.y),
+          static_cast<int>(r.w), static_cast<int>(r.h)
+        };
+        SDL_RenderSetClipRect(ctx.graphics(), &ir);
       }
 
       // --------------------------------------------------------------------------

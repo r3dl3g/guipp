@@ -61,8 +61,8 @@ namespace gui {
     typedef SDL_Cursor* cursor;
     typedef SDL_Color brush;
 
-    typedef int point_type;
-    typedef int size_type;
+    typedef float point_type;
+    typedef float size_type;
     typedef SDL_SystemCursor cursor_type;
 
     typedef SDL_Keymod key_state;
@@ -71,8 +71,8 @@ namespace gui {
     namespace sdl {
 
       struct size {
-        int w;
-        int h;
+        float w;
+        float h;
       };
 
       struct font_info {
@@ -83,9 +83,9 @@ namespace gui {
 
     } // namespace js
 
-    typedef SDL_Point point;
+    typedef SDL_FPoint point;
     typedef sdl::size size;
-    typedef SDL_Rect rectangle;
+    typedef SDL_FRect rectangle;
     typedef sdl::font_info font_type;
     typedef std::shared_ptr<FC_Font> font;
 

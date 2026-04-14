@@ -151,7 +151,7 @@ namespace gui {
     }
 
     void graphics::invert (const core::rectangle& r) {
-      SDL_Rect rect = r.os(context());
+      SDL_FRect rect = r.os(context());
       SDL_BlendMode invertMode = SDL_ComposeCustomBlendMode(
           SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR, // Source Factor
           SDL_BLENDFACTOR_ZERO,                // Dest Factor
@@ -163,7 +163,7 @@ namespace gui {
 
       SDL_SetRenderDrawBlendMode(gc(), invertMode);
       SDL_SetRenderDrawColor(gc(), 255, 255, 255, 255);
-      SDL_RenderFillRect(gc(), &rect);      // auto rect = core::global::scale_to_native(r);
+      SDL_RenderFillRectF(gc(), &rect);      // auto rect = core::global::scale_to_native(r);
     }
 
     std::vector<std::string> graphics::get_filter_list(os::drawable d) {

@@ -333,7 +333,7 @@ namespace gui {
                                static_cast<int>(color::extract<color::part::red>(c)),
                                static_cast<int>(color::extract<color::part::green>(c)),
                                static_cast<int>(color::extract<color::part::blue>(c)), 255);
-        SDL_Rect nr{r.x(), r.y(), r.width(), r.height()};
+        SDL_Rect nr{r.x(), r.y(), static_cast<int>(r.width()), static_cast<int>(r.height())};
         SDL_RenderFillRect(gc, &nr);
       }
 
@@ -342,7 +342,7 @@ namespace gui {
                                static_cast<int>(color::extract<color::part::red>(c)),
                                static_cast<int>(color::extract<color::part::green>(c)),
                                static_cast<int>(color::extract<color::part::blue>(c)), 255);
-        SDL_Rect nr{r.x(), r.y(), r.width(), r.height()};
+        SDL_Rect nr{r.x(), r.y(), static_cast<int>(r.width()), static_cast<int>(r.height())};
         SDL_RenderDrawRect(gc, &nr);
       }
 

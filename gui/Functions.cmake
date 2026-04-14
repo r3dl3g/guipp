@@ -162,10 +162,10 @@ function(define_guipp_subpackage TARGET)
                         VERSION ${ARG_VERSION}
                         SOVERSION ${ARG_VERSION_MAJOR}
                         CXX_STANDARD ${ARG_CXX_STANDARD}
-						ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/obj"
-						LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-						RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-	)
+                        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/obj"
+                        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+                        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+  )
 
   GENERATE_EXPORT_HEADER(${TARGET}
     BASE_NAME ${ARG_BASE}

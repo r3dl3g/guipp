@@ -114,11 +114,14 @@
             "name": "mingw",
             "hidden": true,
             "inherits": "base",
-            "description": "Cross-compiling for Windows using Nix pkgsCross.mingwW64",
+            "description": "Cross-compiling for Windows using mingw",
             "cacheVariables": {
                 "WIN32": "ON",
                 "CMAKE_SYSTEM_NAME": "Windows",
-                "CMAKE_SYSTEM_PROCESSOR": "x86_64"
+                "CMAKE_SYSTEM_PROCESSOR": "x86_64",
+                "CMAKE_C_COMPILER": "x86_64-w64-mingw32-gcc",
+                "CMAKE_CXX_COMPILER": "x86_64-w64-mingw32-g++",
+                "CMAKE_FIND_ROOT_PATH": "/usr/x86_64-w64-mingw32;$env{HOME}/.local/$env{MACHINE}"
             }
         },
         {

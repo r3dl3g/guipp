@@ -552,6 +552,7 @@ if(NOT TARGET guipp)
   set_target_properties(guipp PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
+                        LIBRARY_OUTPUT_NAME guipp${TARGET_SUFFIX}
                         VERSION ${GUIPP_VERSION}
                         SOVERSION ${GUIPP_VERSION_MAJOR}
                         CXX_STANDARD ${GUIPP_CXX_STANDARD})
@@ -590,7 +591,7 @@ if(NOT TARGET guipp)
         ${CMAKE_CURRENT_BINARY_DIR}/guipp${TARGET_SUFFIX}Config.cmake
         ${CMAKE_CURRENT_BINARY_DIR}/guipp${TARGET_SUFFIX}ConfigVersion.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/guipp${TARGET_SUFFIX}
-    )  
+    )
 
     install(
       EXPORT guipp${TARGET_SUFFIX}-targets

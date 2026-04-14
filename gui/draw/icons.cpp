@@ -394,7 +394,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void draw_icon<icon_type::reset> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
-      g.frame(draw::arc(center, radius, -145, 145), pn);
+      g.frame(draw::arc(center, radius, -145, 135), pn);
       draw_arrow_head<-55, -35>(g, pn, center, radius);
       g.fill(draw::pie(center, radius * 0.2F, 0, 360), pn.color());
     }
@@ -408,15 +408,12 @@ namespace gui {
     void draw_icon<icon_type::pause> (graphics& g, const pen& pn, const core::point& center, core::size::type radius) {
       const auto p00 = calc_clock_point<315>(center, radius);
       const auto p30 = calc_clock_point<45>(center, radius);
-      const auto p10 = calc_point_between(p00, p30, 0.333);
-      const auto p20 = calc_point_between(p00, p30, 0.667);
-
       const auto p03 = calc_clock_point<225>(center, radius);
       const auto p33 = calc_clock_point<135>(center, radius);
+      const auto p20 = calc_point_between(p00, p30, 0.667);
       const auto p13 = calc_point_between(p03, p33, 0.333);
-      const auto p23 = calc_point_between(p03, p33, 0.667);
-      g.frame(draw::polygon({p00, p10, p13, p03}), pn);
-      g.frame(draw::polygon({p20, p30, p33, p23}), pn);
+      g.frame(draw::rectangle(core::rectangle{p00, p13}), pn);
+      g.frame(draw::rectangle(core::rectangle{p20, p33}), pn);
     }
     // --------------------------------------------------------------------------
     template<>

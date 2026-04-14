@@ -164,6 +164,31 @@ namespace gui {
     typedef datamap<pixel_format_t::ARGB> argbmap;
     typedef datamap<pixel_format_t::ABGR> abgrmap;
 
+    namespace sys {
+      template<core::os::platform_t P = core::os::system_platform>
+      struct default_datamap {
+        using type = bgramap;
+      };
+
+      template<>
+      struct default_datamap<core::os::platform_t::win32> {
+        using type = rgbamap;
+      };
+
+      template<>
+      struct default_datamap<core::os::platform_t::cocoa> {
+        using type = rgbamap;
+      };
+
+      template<>
+      struct default_datamap<core::os::platform_t::sdl> {
+        using type = rgbamap;
+      };
+
+    }
+
+    using sysmap = sys::default_datamap<>::type;
+
     GUIPP_DRAW_EXPORT core::native_rect checked_area (const bitmap_info& bmi, const core::native_rect& area);
     GUIPP_DRAW_EXPORT core::native_rect checked_area (const bitmap_info& bmi, const core::native_point& pt, const core::native_size& sz);
 

@@ -182,6 +182,7 @@ if(NOT TARGET guipp)
 
   if (GUIPP_USE_SDL)
     DebugPrint("GUIPP: build with SDL!")
+    set(GUIPP_POPUP_OVERLAPP OFF)
     set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} 
       ${SDL2_INCLUDE_DIRS} 
       ${SDL2_TTF_INCLUDE_DIRS}

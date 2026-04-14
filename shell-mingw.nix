@@ -16,6 +16,7 @@ targetPkgs.mkShell {
     binutils
     git
     tig
+    mc
   ];
 
   buildInputs = with targetPkgs; [

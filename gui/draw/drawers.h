@@ -157,7 +157,7 @@ namespace gui {
       void operator() (graphics&, const brush&) const;
 
     protected:
-      std::vector<os::point> convert (graphics&) const;
+      std::vector<os::point> convert (graphics&, bool close_frame) const;
 
       std::vector<core::point> points;
     };

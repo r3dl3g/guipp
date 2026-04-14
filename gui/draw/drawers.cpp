@@ -109,15 +109,17 @@ namespace gui {
     {}
 
     // --------------------------------------------------------------------------
-    std::vector<os::point> polygon::convert (graphics& g) const {
+    std::vector<os::point> polygon::convert (graphics& g, bool close_frame) const {
       std::vector<os::point> pts;
       const auto sz = points.size();
       if (sz) {
-        pts.reserve(sz + 1);
+        pts.reserve(sz + close_frame ? 1 : 0);
         for (const core::point& pt : points) {
           pts.push_back(pt.os(g.context()));
         }
-        pts.push_back(points[0].os(g.context()));
+        if (close_frame) {
+          pts.push_back(points[0].os(g.context()));
+        }
       }
       return pts;
     }

@@ -40,7 +40,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   }
 
   logging::trace() << "Create draw::pixmap";
-  draw::pixmap pixmap(img);
+  draw::pixmap pixmap;
 
   buttons.add_button("1:1");
   auto filters = draw::graphics::get_filter_list(pixmap);
@@ -54,10 +54,12 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.on_create([&] () {
     buttons.create(main);
   });
-  main.create({50, 50, 800, float(600 + main.get_layout().size)});
 
   main.on_paint(draw::paint([&](graphics& g){
     // logging::trace() << "Call main.on_paint";
+    if (!pixmap.is_valid()) {
+      pixmap = img;
+    }
     int i = buttons.get_selection_index();
     if (i == 0) {
       g.copy_from(pixmap, point::zero);
@@ -68,6 +70,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   buttons.on_selection_changed([&] (event_source) {
     main.invalidate();
   });
+
+  main.create({50, 50, 800, float(600 + main.get_layout().size)});
   main.set_visible();
   buttons.set_selection_index(0);
 

@@ -39,7 +39,7 @@
 #include "gui/draw/font.h"
 #include "gui/draw/use.h"
 
-#include "SDL2/SDL2_gfxPrimitives.h"
+#include "SDL2_gfxPrimitives.h"
 
 
 namespace gui {

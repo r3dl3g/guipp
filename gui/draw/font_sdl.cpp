@@ -14,7 +14,7 @@
  * @license   MIT license. See accompanying file LICENSE.
  */
 
- #ifdef GUIPP_SDL
+#ifdef GUIPP_SDL
 
 // --------------------------------------------------------------------------
 //

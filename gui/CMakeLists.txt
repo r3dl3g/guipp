@@ -55,6 +55,9 @@ option(GUIPP_DONT_USE_XCB "On to NOT use of the xcb library. Default Off" OFF)
 option(GUIPP_USE_XSHM "On to make use of the xshm library. Default On" ON)
 option(GUIPP_DONT_USE_XSHM "On to NOT use of the xshm library. Default Off" OFF)
 option(GUIPP_DONT_USE_XFT "On to NOT use of the xft library. Default Off" OFF)
+# Filesystem specific settings
+option(GUIPP_USE_BOOST "On to use boost library for filesystem. Default Off" OFF)
+
 # Look'n Feel Settings
 option(GUIPP_BUILD_FOR_MOBILE "On to optimize for smartphone, Off to optimize for dekstop. Default Off" OFF)
 option(GUIPP_LOOK_AND_FEEL_APPLE "Use Apple L&F. Default automatic" OFF)
@@ -62,10 +65,23 @@ option(GUIPP_LOOK_AND_FEEL_WIN32 "Use Windows 10 L&F. Default automatic" OFF)
 option(GUIPP_LOOK_AND_FEEL_UNIX "Use Gnome L&F. Default automatic" OFF)
 option(GUIPP_LOOK_AND_FEEL_W95 "Use Windows 95 L&F. Default automatic" OFF)
 option(GUIPP_POPUP_OVERLAPP "Show Popupmenus and Dialogs as floating overlapped windows. Default automatic" ON)
-# Target Systems
-# Linux
-# Windows (native or mingw)
-# Emscripten
+# Target Systems (some set by cmake)
+# Linux: IF (UNIX)
+# Windows: IF (WIN32)
+
+# Windows via mingw: IF (MINGW)
+if(CMAKE_CXX_PLATFORM_ID STREQUAL MinGW)
+  # For older cmkae versions
+  set(MINGW 1)
+endif()
+
+# Emscripten: IF (EMSCRIPTEN)
+if(CMAKE_CXX_COMPILER MATCHES "/em\\+\\+(-[a-zA-Z0-9.])?$")
+  set(EMSCRIPTEN 1)
+endif()
+
+# Android: IF (ANDROID)
+# Apple: IF (APPLE)
 
 option(VERBOSE "Print messages during cmake run" OFF)
 set(GUIPP_CXX_STANDARD ${CMAKE_CXX_STANDARD} CACHE STRING "C++ standard to overwrite default cmake standard")
@@ -90,37 +106,18 @@ debug_print_var(CMAKE_FIND_ROOT_PATH)
 debug_print_var(CMAKE_INSTALL_LIBDIR)
 debug_print_var(TARGET_SUFFIX)
 
-if(CMAKE_CXX_COMPILER MATCHES "/em\\+\\+(-[a-zA-Z0-9.])?$")
-  set(EMSCRIPTEN 1)
-endif()
-
-if (GUIPP_USE_SDL)
-    message(STATUS "GUIPP: build with SDL!")
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(SDL2 REQUIRED sdl2)
-    pkg_check_modules(SDL2_TTF REQUIRED SDL2_ttf)
-    pkg_check_modules(SDL2_GFX REQUIRED SDL2_gfx)
-elseif(GUIPP_USE_QT6)
-    message(STATUS "GUIPP: build with Qt6!")
-    find_package(Qt6Core)
-    find_package(Qt6Gui)
-elseif(GUIPP_USE_QT5)
-    message(STATUS "GUIPP: build with Qt5!")
-    find_package(Qt5Gui REQUIRED)
-endif()
-
 if(GUIPP_BUILD_STATIC_MODULE_LIBS)
-    set(UTIL_BUILD_STATIC_MODULE_LIB ON CACHE BOOL "enable static build")
-    set(LOGGING_BUILD_STATIC_MODULE_LIB ON CACHE BOOL "enable static build")
+  set(UTIL_BUILD_STATIC_MODULE_LIB ON CACHE BOOL "enable static build")
+  set(LOGGING_BUILD_STATIC_MODULE_LIB ON CACHE BOOL "enable static build")
 elseif(GUIPP_BUILD_SHARED_MODULE_LIBS)
-    set(UTIL_BUILD_STATIC_MODULE_LIB OFF CACHE BOOL "disable static build")
-    set(LOGGING_BUILD_STATIC_MODULE_LIB OFF CACHE BOOL "disable static build")
+  set(UTIL_BUILD_STATIC_MODULE_LIB OFF CACHE BOOL "disable static build")
+  set(LOGGING_BUILD_STATIC_MODULE_LIB OFF CACHE BOOL "disable static build")
 endif()
 
 if(GUIPP_BUILD_SHARED_MODULE_LIBS OR GUIPP_BUILD_STATIC_MODULE_LIBS)
-    set(UTIL_CONFIG_INSTALL ON CACHE BOOL "enable install")
-    set(LOGGING_CONFIG_INSTALL ON CACHE BOOL "enable install")
-    set(TESTING_CONFIG_INSTALL ON CACHE BOOL "enable install")
+  set(UTIL_CONFIG_INSTALL ON CACHE BOOL "enable install")
+  set(LOGGING_CONFIG_INSTALL ON CACHE BOOL "enable install")
+  set(TESTING_CONFIG_INSTALL ON CACHE BOOL "enable install")
 endif()
 
 if(EMSCRIPTEN)
@@ -140,49 +137,11 @@ endif()
 debug_print_var(LOGGING_INCLUDE_DIRS)
 debug_print_var(UTIL_INCLUDE_DIRS)
 
-
-
 if(NOT TARGET guipp)
 
-  if(WIN32)
-    set(GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN -D_USE_MATH_DEFINES)
-    find_library(GDI32_LIB gdi32 REQUIRED)
-    find_library(USER32_LIB user32 REQUIRED)
-    find_library(MSIMG32_LIB msimg32 REQUIRED)
-  else ()
-    set(GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS})
-  endif()
-
-  if(ANDROID)
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DANDROID)
-    set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} log)
-  endif()
-
-  if(GUIPP_USE_BOOST)
-    find_package(Boost 1.65 REQUIRED COMPONENTS filesystem)
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DUSE_BOOST)
-    if(NOT WIN32)
-      set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} dl)
-    endif()
-  endif()
-
-  if(GUIPP_BUILD_FOR_MOBILE)
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_BUILD_FOR_MOBILE)
-  endif()
-
-  if(GUIPP_LOOK_AND_FEEL_APPLE)
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_LOOK_AND_FEEL_APPLE)
-  endif()
-  if(GUIPP_LOOK_AND_FEEL_WIN32)
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_LOOK_AND_FEEL_WIN32)
-  endif()
-  if(GUIPP_LOOK_AND_FEEL_UNIX)
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_LOOK_AND_FEEL_UNIX)
-  endif()
-  if(GUIPP_LOOK_AND_FEEL_W95)
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_LOOK_AND_FEEL_W95)
-  endif()
-
+  #
+  # SEttings inheritance
+  #
   set(GUIPP_INCLUDE_DIRS
     ${LOGGING_INCLUDE_DIRS}
     ${UTIL_INCLUDE_DIRS}
@@ -193,121 +152,242 @@ if(NOT TARGET guipp)
     ${UTIL_LIBRARIES}
   )
 
-  if (GUIPP_USE_SDL)
-    DebugPrint("GUIPP: build with SDL!")
+  set(GUIPP_CXX_FLAGS ${LOGGING_CXX_FLAGS} ${UTIL_CXX_FLAGS})
+  set(GUIPP_EXE_LINKER_FLAGS "")
+
+  #
+  # Target system general
+  #
+
+  if(MINGW)
+    MessagePrint("GUIPP: build with MinGW for Win32!")
+
+    if (GUIPP_USE_X11 OR GUIPP_USE_JS)
+      message(FATAL_ERROR "Unsupportet front-end for MinGW!")
+    elseif (NOT GUIPP_USE_QT5 AND NOT GUIPP_USE_QT6 AND NOT GUIPP_USE_SDL)
+      # Default GDI system
+      set(GUIPP_USE_GDI 1)
+    endif()
+
+    set(GUIPP_BUILD_STATIC_MODULE_LIBS ON)
+    set(GUIPP_BUILD_SHARED_MODULE_LIBS OFF)
+    set(GUIPP_LINK_OPTIIONS PRIVATE "-Wl,-u,WinMain")
+
+    list(APPEND GUIPP_CXX_FLAGS -DUSE_MINGW -D_WIN32_WINNT=0x0601 -DWIN32_LEAN_AND_MEAN -D_USE_MATH_DEFINES)
+    list(APPEND GUIPP_EXE_LINKER_FLAGS -static-libgcc -static-libstdc++ -static)
+    list(APPEND GUIPP_SYS_LIBRARIES mingw32 gdi32 user32 msimg32)
+
+  elseif(WIN32)
+    MessagePrint("GUIPP: build for Windows")
+
+    if (GUIPP_USE_X11 OR GUIPP_USE_JS)
+      message(FATAL_ERROR "Unsupportet front-end for MinGW!")
+    elseif (NOT GUIPP_USE_QT5 AND NOT GUIPP_USE_QT6 AND NOT GUIPP_USE_SDL)
+      # Default GDI system
+      set(GUIPP_USE_GDI 1)
+    endif()
+
+    find_library(GDI32_LIB gdi32 REQUIRED)
+    find_library(USER32_LIB user32 REQUIRED)
+    find_library(MSIMG32_LIB msimg32 REQUIRED)
+
+    list(APPEND GUIPP_CXX_FLAGS -DWIN32_LEAN_AND_MEAN -D_USE_MATH_DEFINES)
+    list(APPEND LINKED_LIBRARIES ${GDI32_LIB} ${USER32_LIB} ${MSIMG32_LIB})
+    list(APPEND GUIPP_SYS_LIBRARIES Shcore)
+
+
+  elseif(APPLE)
+    MessagePrint("GUIPP: build for macOS")
+
+    if (GUIPP_USE_X11 OR GUIPP_USE_JS OR GUIPP_USE_GDI)
+      message(FATAL_ERROR "Unsupportet front-end for macOS!")
+    elseif (NOT GUIPP_USE_QT5 AND NOT GUIPP_USE_QT6)
+      # Default GDI system
+      set(GUIPP_USE_SDL 1)
+    endif()
+
+    list(APPEND GUIPP_CXX_FLAGS -DCOCOA -fPIC)
+
+  elseif(ANDROID)
+    MessagePrint("GUIPP: build for Android")
+
+    if (GUIPP_USE_X11 OR GUIPP_USE_JS OR GUIPP_USE_GDI)
+      message(FATAL_ERROR "Unsupportet front-end for Android!")
+    elseif (NOT GUIPP_USE_QT5 AND NOT GUIPP_USE_QT6)
+      # Default GDI system
+      set(GUIPP_USE_SDL 1)
+    endif()
+
+    list(APPEND GUIPP_CXX_FLAGS -DANDROID)
+
+    set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} log)
+
+  elseif(EMSCRIPTEN)
+    MessagePrint("GUIPP: build for Emscripten")
+
+    if (GUIPP_USE_X11 OR GUIPP_USE_GDI OR GUIPP_USE_QT5 OR GUIPP_USE_QT6)
+      message(FATAL_ERROR "Unsupportet front-end for Android!")
+    elseif (NOT GUIPP_USE_SDL)
+      # Default GDI system
+      set(GUIPP_USE_JS 1)
+    endif()
+
+    set(GUIPP_BUILD_STATIC_MODULE_LIBS ON)
+    set(GUIPP_BUILD_SHARED_MODULE_LIBS OFF)
     set(GUIPP_POPUP_OVERLAPP OFF)
-    set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} 
+
+    list(APPEND GUIPP_CXX_FLAGS -Wno-unknown-pragmas)
+    list(APPEND GUIPP_EXE_LINKER_FLAGS --bind
+      -sNO_DISABLE_EXCEPTION_CATCHING
+      -sDYNAMIC_EXECUTION=0
+      -Wno-limited-postlink-optimizations
+      -Wno-pthreads-mem-growth
+    )
+
+  elseif(UNIX)
+    MessagePrint("GUIPP: build for Unix!")
+
+    if (GUIPP_USE_JS OR GUIPP_USE_GDI)
+      message(FATAL_ERROR "Unsupportet front-end for Unix!")
+    elseif (NOT GUIPP_USE_SDL AND NOT GUIPP_USE_QT5 AND NOT GUIPP_USE_QT6)
+      # Default GDI system
+      set(GUIPP_USE_X11 1)
+    endif()
+
+    list(APPEND GUIPP_CXX_FLAGS -fPIC)
+
+  else()
+    message(SEND_ERROR "Undefined target system!")
+  endif()
+
+  #
+  # Filesystem specific settings
+  #
+
+  if(GUIPP_USE_BOOST)
+    find_package(Boost 1.65 REQUIRED COMPONENTS filesystem)
+    list(APPEND GUIPP_CXX_FLAGS -DUSE_BOOST)
+    if(NOT WIN32)
+      list(APPEND GUIPP_SYS_LIBRARIES dl)
+    endif()
+  endif()
+
+  #
+  # Look'n Feel Settings
+  #
+
+  if(GUIPP_BUILD_FOR_MOBILE)
+    list(APPEND GUIPP_CXX_FLAGS -DGUIPP_BUILD_FOR_MOBILE)
+  endif()
+
+  if(GUIPP_LOOK_AND_FEEL_APPLE)
+    list(APPEND GUIPP_CXX_FLAGS -DGUIPP_LOOK_AND_FEEL_APPLE)
+  elseif(GUIPP_LOOK_AND_FEEL_WIN32)
+    list(APPEND GUIPP_CXX_FLAGS -DGUIPP_LOOK_AND_FEEL_WIN32)
+  elseif(GUIPP_LOOK_AND_FEEL_UNIX)
+    list(APPEND GUIPP_CXX_FLAGS -DGUIPP_LOOK_AND_FEEL_UNIX)
+  elseif(GUIPP_LOOK_AND_FEEL_W95)
+    list(APPEND GUIPP_CXX_FLAGS -DGUIPP_LOOK_AND_FEEL_W95)
+  endif()
+
+  #
+  # Front-end Settings
+  #
+
+  if (GUIPP_USE_SDL)
+    MessagePrint("GUIPP: build with SDL")
+
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(SDL2 REQUIRED sdl2)
+    pkg_check_modules(SDL2_TTF REQUIRED SDL2_ttf)
+    pkg_check_modules(SDL2_GFX REQUIRED SDL2_gfx)
+
+    set(GUIPP_POPUP_OVERLAPP OFF)
+    list(APPEND GUIPP_INCLUDE_DIRS
       ${SDL2_INCLUDE_DIRS} 
       ${SDL2_TTF_INCLUDE_DIRS}
       ${SDL2_GFX_INCLUDE_DIRS}
       "../libs/sdl_font_cache"
     )
-    set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES}
-      ${SDL2_LIBRARIES} 
-      ${SDL2_TTF_LIBRARIES}
-      ${SDL2_GFX_LIBRARIES}
-    )
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} 
+    list(APPEND GUIPP_CXX_FLAGS
         -DGUIPP_SDL
         -DGUIPP_LOOK_AND_FEEL_WIN32
         ${SDL2_LDFLAGS}
         ${SDL2_TTF_LDFLAGS})
 
-    set(LINKED_LIBRARIES ${LINKED_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2_GFX_LIBRARIES})
+    list(APPEND GUIPP_SYS_LIBRARIES ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2_GFX_LIBRARIES})
 
   elseif(GUIPP_USE_QT6)
-    DebugPrint("GUIPP: build with Qt6!")
+    MessagePrint("GUIPP: build with Qt6")
 
-    set(LINKED_LIBRARIES ${LINKED_LIBRARIES} Qt6Gui)
+    find_package(Qt6Core)
+    find_package(Qt6Gui)
 
-    set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${Qt6Gui_LIBRARIES})
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_QT ${Qt6Gui_DEFINITIONS})
-    if(APPLE)
-      set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -fPIC)
-    elseif(ANDROID)
-    elseif(EMSCRIPTEN)
-    elseif(UNIX)
-      set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -fPIC)
-      set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} stdc++fs)
+    list(APPEND LINKED_LIBRARIES Qt6Gui)
+
+    list(APPEND GUIPP_SYS_LIBRARIES ${Qt6Gui_LIBRARIES})
+    list(APPEND GUIPP_CXX_FLAGS -DGUIPP_QT ${Qt6Gui_DEFINITIONS})
+
+    if(UNIX)
+      list(APPEND GUIPP_SYS_LIBRARIES stdc++fs)
     endif()
-    set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${Qt6Gui_INCLUDE_DIRS})
+
+    list(APPEND GUIPP_INCLUDE_DIRS ${Qt6Gui_INCLUDE_DIRS})
 
     DebugPrint("GUIPP: Qt6Gui_DEFINITIONS: " ${Qt6Gui_DEFINITIONS})
     DebugPrint("GUIPP: Qt6Gui_INCLUDE_DIRS: " ${Qt6Gui_INCLUDE_DIRS})
     DebugPrint("GUIPP: Qt6Gui_LIBRARIES: " ${Qt6Gui_LIBRARIES})
 
   elseif(GUIPP_USE_QT5)
-    DebugPrint("GUIPP: build with Qt5!")
-    # find_package(Qt5Gui REQUIRED)
+    MessagePrint("GUIPP: build with Qt5")
 
-    set(LINKED_LIBRARIES ${LINKED_LIBRARIES} Qt5Gui)
+    find_package(Qt5Gui REQUIRED)
+
+    list(APPEND LINKED_LIBRARIES Qt5Gui)
 
     set(GUIPP_POPUP_OVERLAPP OFF)
-    set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${Qt5Gui_LIBRARIES})
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_QT ${Qt5Gui_DEFINITIONS})
-    if(APPLE)
-      set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -fPIC)
-    elseif(ANDROID)
-    elseif(EMSCRIPTEN)
-    elseif(UNIX)
-      set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -fPIC)
-      set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} stdc++fs)
+    list(APPEND GUIPP_SYS_LIBRARIES ${Qt5Gui_LIBRARIES})
+    list(APPEND GUIPP_CXX_FLAGS -DGUIPP_QT ${Qt5Gui_DEFINITIONS})
+
+    if(UNIX)
+      list(APPEND GUIPP_SYS_LIBRARIES stdc++fs)
     endif()
-    set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS})
+
+    list(APPEND GUIPP_INCLUDE_DIRS ${Qt5Gui_INCLUDE_DIRS})
 
     DebugPrint("GUIPP: Qt5Gui_DEFINITIONS: " ${Qt5Gui_DEFINITIONS})
     DebugPrint("GUIPP: Qt5Gui_INCLUDE_DIRS: " ${Qt5Gui_INCLUDE_DIRS})
     DebugPrint("GUIPP: Qt5Gui_LIBRARIES: " ${Qt5Gui_LIBRARIES})
 
-  elseif(APPLE)
-    DebugPrint("GUIPP: build for Apple!")
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DCOCOA)
+  elseif(GUIPP_USE_JS)
+    MessagePrint("GUIPP: build with JS")
 
-  elseif(EMSCRIPTEN)
-    DebugPrint("GUIPP: build for emscripten!")
-    set(GUIPP_BUILD_STATIC_MODULE_LIBS ON)
-    set(GUIPP_BUILD_SHARED_MODULE_LIBS OFF)
-    set(GUIPP_POPUP_OVERLAPP OFF)
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS}
+    list(APPEND GUIPP_CXX_FLAGS
       -DGUIPP_JS
       -DGUIPP_LOOK_AND_FEEL_WIN32
       -sENVIRONMENT=worker
       -sDYNAMIC_EXECUTION=0
       -matomics
-      -Wno-unknown-pragmas)
+    )
 
-    set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} --bind
+    list(APPEND GUIPP_EXE_LINKER_FLAGS 
       -sENVIRONMENT=worker
       -sASYNCIFY=1
       -sASYNCIFY_STACK_SIZE=65536
       -sALLOW_MEMORY_GROWTH=1
-      -sNO_DISABLE_EXCEPTION_CATCHING
       -sMODULARIZE=1
       -sEXPORT_NAME='createModule'
-      -sDYNAMIC_EXECUTION=0
-      -Wno-limited-postlink-optimizations
-      -Wno-pthreads-mem-growth
-      )
-      #-sEXPORTED_FUNCTIONS=['_main']
-      #-sPROXY_TO_PTHREAD
-      #-sUSE_PTHREADS=1
-      #      -DEXPORTED_RUNTIME_METHODS='[cwrap,ccall,HEAPU8]'
+    )
 
-  elseif(CMAKE_CXX_PLATFORM_ID STREQUAL MinGW)
-    DebugPrint("GUIPP: build with MinGW for Win32!")
-    set(GUIPP_BUILD_STATIC_MODULE_LIBS ON)
-    set(GUIPP_BUILD_SHARED_MODULE_LIBS OFF)
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -mwindows -DGUIPP_WIN -DUSE_MINGW -D_WIN32_WINNT=0x0601)
-    set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++ -static)
-    set(GUIPP_LINK_OPTIIONS PRIVATE "-Wl,-u,WinMain")
-    set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} mingw32 ${GDI32_LIB} ${USER32_LIB} ${MSIMG32_LIB})
-  elseif(WIN32)
-    DebugPrint("GUIPP: build for Win32!")
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_WIN)
-    set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} Shcore)
-  elseif(UNIX)
-    DebugPrint("GUIPP: build for Unix!")
+  elseif(GUIPP_USE_GDI)
+    MessagePrint("GUIPP: build with MinGW for Gdi32")
+
+    list(APPEND GUIPP_CXX_FLAGS -mwindows -DGUIPP_WIN)
+
+  elseif(GUIPP_USE_X11)
+    MessagePrint("GUIPP: build for X11!")
     find_package(X11 REQUIRED)
+
     if(X11_FOUND)
       DebugPrint("GUIPP: X11 found!")
       if(X11_Xdmcp_FOUND)
@@ -315,9 +395,9 @@ if(NOT TARGET guipp)
       else()
         message(SEND_ERROR "Xdmcp library is required!")
       endif()
-      set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${X11_LIBRARIES} ${X11_Xdmcp_LIB} stdc++fs)
-      set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_X11)
-      set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${X11_INCLUDE_DIR})
+      list(APPEND GUIPP_SYS_LIBRARIES ${X11_LIBRARIES} ${X11_Xdmcp_LIB} stdc++fs)
+      list(APPEND GUIPP_CXX_FLAGS -DGUIPP_X11)
+      list(APPEND GUIPP_INCLUDE_DIRS ${X11_INCLUDE_DIR})
 
       if(X11_Xrender_FOUND)
         DebugPrint("GUIPP: X11_Xrender found!")
@@ -346,9 +426,9 @@ if(NOT TARGET guipp)
           message(SEND_ERROR "Fontconfig library is required!")
         endif()
 
-        set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${X11_Xft_LIB} ${X11_Xrender_LIB} ${FREETYPE_LIBRARIES} ${Fontconfig_LIBRARIES})
-        set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_USE_XFT)
-        set(GUIPP_INCLUDE_DIRS ${GUIPP_INCLUDE_DIRS} ${X11_Xft_INCLUDE_PATH} ${X11_Xrender_INCLUDE_PATH} ${FREETYPE_INCLUDE_DIRS})
+        list(APPEND GUIPP_SYS_LIBRARIES ${X11_Xft_LIB} ${X11_Xrender_LIB} ${FREETYPE_LIBRARIES} ${Fontconfig_LIBRARIES})
+        list(APPEND GUIPP_CXX_FLAGS -DGUIPP_USE_XFT)
+        list(APPEND GUIPP_INCLUDE_DIRS ${X11_Xft_INCLUDE_PATH} ${X11_Xrender_INCLUDE_PATH} ${FREETYPE_INCLUDE_DIRS})
 
       else()
         DebugPrint("GUIPP: X11_Xft NOT found!")
@@ -356,8 +436,8 @@ if(NOT TARGET guipp)
 
       if(X11_Xrandr_FOUND)
         DebugPrint("GUIPP: X11_Xrandr found!")
-        set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_USE_XRANDR)
-        set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${X11_Xrandr_LIB})
+        list(APPEND GUIPP_CXX_FLAGS -DGUIPP_USE_XRANDR)
+        list(APPEND GUIPP_SYS_LIBRARIES ${X11_Xrandr_LIB})
       endif()
 
       if (GUIPP_DONT_USE_XCB)
@@ -369,8 +449,8 @@ if(NOT TARGET guipp)
         endif()
 
         if(GUIPP_USE_XCB)
-          set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} X11-xcb xcb xcb-xrm)
-          set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_USE_XCB)
+          list(APPEND GUIPP_SYS_LIBRARIES X11-xcb xcb xcb-xrm)
+          list(APPEND GUIPP_CXX_FLAGS -DGUIPP_USE_XCB)
         endif()
       endif()
 
@@ -385,8 +465,8 @@ if(NOT TARGET guipp)
         endif()
 
         if(GUIPP_USE_XSHM)
-          set(GUIPP_SYS_LIBRARIES ${GUIPP_SYS_LIBRARIES} ${XEXT_LIB})
-          set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_USE_XSHM)
+          list(APPEND GUIPP_SYS_LIBRARIES ${XEXT_LIB})
+          list(APPEND GUIPP_CXX_FLAGS -DGUIPP_USE_XSHM)
         endif()
       endif()
 
@@ -395,14 +475,20 @@ if(NOT TARGET guipp)
     endif(X11_FOUND)
     #        set(GUIPP_SYS_LIBRARIES X11 Xft fontconfig xcb Xdmcp bsd dl freetype Xrender expat Xau z png16)
 
+  else()
+    message(FATAL_ERROR "Undefined Front-end!")
   endif()
 
   if (GUIPP_POPUP_OVERLAPP)
-    set(GUIPP_CXX_FLAGS ${GUIPP_CXX_FLAGS} -DGUIPP_POPUP_OVERLAPP)
+    DebugPrint("GUIPP: Use overlapped popups!")
+
+    list(APPEND GUIPP_CXX_FLAGS -DGUIPP_POPUP_OVERLAPP)
   endif()
 
-  if(CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
-    set(GUIPP_EXE_LINKER_FLAGS ${GUIPP_EXE_LINKER_FLAGS} /Y- /bigobj)
+  if(MSVC)
+    DebugPrint("GUIPP: Use msvc compiler")
+
+    list(APPEND GUIPP_EXE_LINKER_FLAGS /Y- /bigobj)
     set(GUIPP_LINK_PROPERTIES LINK_FLAGS "/INCLUDE:WinMain")
   endif()
 

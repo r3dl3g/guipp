@@ -94,6 +94,10 @@ namespace gui {
         return std::this_thread::get_id();
       }
 
+      overlapped_window& get_application_main_window () {
+        return *win::native::get_window(SDL_RenderGetWindow(core::native::sdl::get_font_renderer()));
+      }
+
     } // global
 
     bool is_button_event_outside (const window& w, const core::event& e) {
@@ -112,7 +116,7 @@ namespace gui {
 
     void process_event (const core::event& e, gui::os::event_result& resultValue) {
 
-      Uint32 id = 0;
+      os::window id = 0;
       switch (e.type) {
         case SDL_WINDOWEVENT:
         case SDL_MOUSEMOTION:
@@ -123,13 +127,17 @@ namespace gui {
         case SDL_KEYUP:
         case SDL_USEREVENT:
           // windowID sahres the same position of all structs above
-          id = e.window.windowID;
+          id = SDL_GetWindowFromID(e.window.windowID);
         break;
+        case SDL_QUIT:
+          id = SDL_RenderGetWindow(core::native::sdl::get_font_renderer());
+        break;
+
         default:
           return;
       }
 
-      win::overlapped_window* win = win::native::get_window(SDL_GetWindowFromID(id));
+      win::overlapped_window* win = win::native::get_window(id);
       
       if (win && win->is_valid()) {
 
@@ -155,9 +163,10 @@ namespace gui {
       SDL_Event event;
       while (running) {
         while (SDL_PollEvent(&event)) {
-          // if (event.type == SDL_QUIT) {
-          //   running = false;
-          // } else 
+          if (event.type == SDL_QUIT) {
+            logging::trace() << "Received quit event: " << event;
+          }
+
           if ((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_EXPOSED)) {
             auto id = SDL_GetWindowFromID(event.window.windowID);
             int w = 0, h = 0;

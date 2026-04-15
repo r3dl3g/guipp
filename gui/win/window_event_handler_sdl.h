@@ -247,7 +247,7 @@ namespace gui {
 
     using close_event = detail::window_event<SDL_WINDOWEVENT_CLOSE>;
 
-    using destroy_event = core::event_handler<SDL_APP_TERMINATING>;
+    using destroy_event = core::event_handler<SDL_QUIT>;
 
     using any_key_down_event = core::event_handler<SDL_KEYDOWN, 0,
                                                    core::params<os::key_state, os::key_symbol, std::string>::

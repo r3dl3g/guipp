@@ -77,7 +77,7 @@ namespace gui {
 
       struct font_info {
         std::string name;
-        size_type size = 10;
+        int size = 10;
         int thickness = 4;
       };
 

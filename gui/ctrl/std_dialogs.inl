@@ -98,9 +98,26 @@ namespace gui {
                                               const std::vector<std::string>& labels,
                                               std::function<dialog_action> action) {
       super::get_layout().set_center(layout::lay(content_view));
+#ifndef GUIPP_POPUP_OVERLAPP
+      super::get_layout().set_top(layout::lay(title_view));
+      title_view.set_background(color::gray);
+      title_view.set_foreground(color::white);
+#endif
       super::create(parent, title, rect, labels, action);
       content_view.create(*this);
+#ifndef GUIPP_POPUP_OVERLAPP
+      title_view.create(*this, title);
+#endif
     }
+
+
+#ifndef GUIPP_POPUP_OVERLAPP
+    template<typename C, int T, int L, int R>
+    void standard_dialog<C, T, L, R>::set_title (const std::string& t) {
+      super::set_title(t);
+      title_view.set_text(t);
+    }
+#endif
 
     //-----------------------------------------------------------------------------
     template<typename T>
@@ -242,14 +259,14 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     template<typename T, bool O>
-    dir_file_view<T, O>::dir_file_view (create_subdirectory_fn fn) {
+    dir_file_split_view<T, O>::dir_file_split_view (create_subdirectory_fn fn) {
       std::get<0>(super::views).set_create_subdirectory_fn(fn);
     }
 
     template<typename T, bool O>
-    void dir_file_view<T, O>::init (std::function<file_selected> action,
-                                    std::function<fs::filter_fn> file_filter,
-                                    std::function<fs::filter_fn> dir_filter) {
+    void dir_file_split_view<T, O>::init (std::function<file_selected> action,
+                                          std::function<fs::filter_fn> file_filter,
+                                          std::function<fs::filter_fn> dir_filter) {
 
       dir_tree_view& tree = std::get<0>(super::views);
       file_list_type& files = std::get<1>(super::views);
@@ -281,7 +298,7 @@ namespace gui {
     //-----------------------------------------------------------------------------
     template<typename T, bool O>
     path_open_dialog_base<T, O>::path_open_dialog_base (create_subdirectory_fn fn)
-      : super(dir_file_view<T, O>(fn))
+      : super(dir_file_split_view<T, O>(fn))
     {}
 
     template<typename T, bool O>

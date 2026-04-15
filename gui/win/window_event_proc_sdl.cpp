@@ -155,9 +155,10 @@ namespace gui {
       SDL_Event event;
       while (running) {
         while (SDL_PollEvent(&event)) {
-          if (event.type == SDL_QUIT) {
-            running = false;
-          } else if ((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_EXPOSED)) {
+          // if (event.type == SDL_QUIT) {
+          //   running = false;
+          // } else 
+          if ((event.type == SDL_WINDOWEVENT) && (event.window.event == SDL_WINDOWEVENT_EXPOSED)) {
             auto id = SDL_GetWindowFromID(event.window.windowID);
             int w = 0, h = 0;
             SDL_GetWindowSize(id, &w, &h);

@@ -970,6 +970,7 @@ namespace gui {
 #endif
       set_visible();
       to_front();
+      notify_layout();
       invalidate(surface_geometry());
 
       is_modal = true;

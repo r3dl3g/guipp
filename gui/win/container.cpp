@@ -140,6 +140,9 @@ namespace gui {
 
     void container::remove (window* w) {
       children.erase(std::remove(children.begin(), children.end(), w), children.end());
+      if (parent) {
+        parent->remove(w);
+      }
     }
 
     window* container::window_at_point (const core::native_point& pt) {

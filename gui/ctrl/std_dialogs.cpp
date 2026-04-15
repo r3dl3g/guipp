@@ -37,8 +37,8 @@ namespace gui {
       }
 
       template<>
-      GUIPP_CTRL_EXPORT core::rectangle std_path_open_dialog_size<core::os::ui_t::desktop> (const core::rectangle&) {
-        return win::window::screen_area() / 3 * 2;
+      GUIPP_CTRL_EXPORT core::rectangle std_path_open_dialog_size<core::os::ui_t::desktop> (const core::rectangle& r) {
+        return IF_GUIPP_POPUP_OVERLAPP(win::window::screen_area() / 3 * 2, r / 5 * 4);
       }
 
       template<>
@@ -90,6 +90,31 @@ namespace gui {
       template<>
       GUIPP_CTRL_EXPORT core::rectangle std_file_save_dialog_size<core::os::ui_t::mobile> (const core::rectangle& area) {
         return std_path_open_dialog_size<core::os::ui_t::mobile>(area);
+      }
+
+      drag_title_window::drag_title_window () 
+        : last_pos(core::native_point::undefined) {
+        init_drag();
+      }
+
+      void drag_title_window::init_drag () {
+        on_left_btn_down([&](gui::os::key_state, const core::native_point& p) {
+          last_pos = p;
+          capture_pointer();
+        });
+        on_left_btn_up([&](gui::os::key_state, const core::native_point& p) {
+          uncapture_pointer();
+          last_pos = core::native_point::undefined;
+        });
+        on_mouse_move([&] (gui::os::key_state, const core::native_point& p) {
+          if (last_pos != core::native_point::undefined) {
+            auto delta = p - last_pos;
+            last_pos = p;
+            auto* ovw = get_parent();
+            ovw->position(ovw->position() + core::global::scale_from_native(delta));
+            ovw->invalidate();
+          }
+        });
       }
 
       //-----------------------------------------------------------------------------
@@ -299,7 +324,7 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     file_save_dialog::file_save_dialog (create_subdirectory_fn fn)
-      : super(dir_file_view(fn))
+      //: super(dir_file_view(fn))
     {}
 
     void file_save_dialog::create (win::container& parent,
@@ -313,10 +338,10 @@ namespace gui {
                                    std::function<fs::filter_fn> file_filter,
                                    std::function<fs::filter_fn> dir_filter) {
 
-      auto& dir_tree = content_view.get<0>().view.view;
-      auto& files = content_view.get<1>();
+      auto& dir_tree = dir_file_view.get<0>().view.view;
+      auto& files = dir_file_view.get<1>();
 
-      content_view.init([&, action] (win::container& dlg, const sys_fs::path& path) {
+      dir_file_view.init([&, action] (win::container& dlg, const sys_fs::path& path) {
         set_visible(false);
         end_modal();
         action(dlg, path);
@@ -328,7 +353,8 @@ namespace gui {
 
       top_view.get_layout().set_center(layout::lay(input_line));
       top_view.get_layout().set_left(layout::lay(input_label));
-      get_layout().set_top(layout::lay(top_view));
+      content_view.get_layout().set_header(layout::lay(top_view));
+      content_view.get_layout().set_body(layout::lay(dir_file_view));
 
       super::create(parent, title, rect, {cancel_label, ok_label},
                     [&, action] (win::container& dlg, int btn) {
@@ -342,10 +368,11 @@ namespace gui {
         }
       });
 
-      top_view.create(*this, core::rectangle(0, 0, 100, 100));
-      input_label.create(top_view, name_label, core::rectangle(0, 0, 100, 100));
-      input_line.create(top_view, default_name, core::rectangle(0, 0, 100, 100));
-      content_view.set_split_pos(0.3);
+      top_view.create(content_view, core::rectangle(0, 0, 100, 20));
+      dir_file_view.create(content_view, core::rectangle(0, 0, 100, 100));
+      input_label.create(top_view, name_label, core::rectangle(0, 0, 100, 20));
+      input_line.create(top_view, default_name, core::rectangle(0, 0, 100, 30));
+      dir_file_view.set_split_pos(0.3);
 
       top_view.set_background(color::very_very_light_gray);
       input_label.set_background(color::very_very_light_gray);

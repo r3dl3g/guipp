@@ -24,6 +24,7 @@
 #include "gui/layout/border_layout.h"
 #include "gui/layout/adaption_layout.h"
 #include "gui/layout/lineup_layout.h"
+#include "gui/layout/layout_container.h"
 #include "gui/ctrl/control.h"
 #include "gui/ctrl/file_tree.h"
 #include "gui/ctrl/button.h"
@@ -74,6 +75,16 @@ namespace gui {
       template<core::os::ui_t T = core::os::system_ui>
       core::rectangle std_file_save_dialog_size (const core::rectangle& area);
 
+      //-----------------------------------------------------------------------------
+      class GUIPP_CTRL_EXPORT drag_title_window : public label_center {
+      public:
+        drag_title_window ();
+
+      private:
+        void init_drag ();
+        core::native_point last_pos;
+      };
+
     } // namespace detail
 
     //-----------------------------------------------------------------------------
@@ -102,7 +113,7 @@ namespace gui {
     };
 
     //-----------------------------------------------------------------------------
-    template<typename C, int TO = 0, int LE = 0, int RI = 0>
+    template<typename C, int TO = IF_GUIPP_POPUP_OVERLAPP(0, 25), int LE = 0, int RI = 0>
     class standard_dialog : public standard_dialog_base<TO, LE, RI> {
     public:
       typedef standard_dialog_base<TO, LE, RI> super;
@@ -119,6 +130,15 @@ namespace gui {
                    std::function<dialog_action> action);
 
       content_view_type content_view;
+
+#ifndef GUIPP_POPUP_OVERLAPP
+      void set_title (const std::string&);
+#endif
+
+    protected:
+#ifndef GUIPP_POPUP_OVERLAPP
+      detail::drag_title_window title_view;
+#endif
     };
 
     //-----------------------------------------------------------------------------
@@ -363,14 +383,14 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     template<typename T = path_tree::sorted_path_info, bool open_dirs_on_right = true>
-    class dir_file_view : public vertical_split_view<dir_tree_view, file_column_list<T>> {
+    class dir_file_split_view : public vertical_split_view<dir_tree_view, file_column_list<T>> {
     public:
       typedef file_column_list<T> file_list_type;
       typedef vertical_split_view<dir_tree_view, file_list_type> super;
       typedef std::function<create_subdirectory> create_subdirectory_fn;
 
-      dir_file_view (create_subdirectory_fn fn = nullptr);
-      dir_file_view (dir_file_view&&) = default;
+      dir_file_split_view (create_subdirectory_fn fn = nullptr);
+      dir_file_split_view (dir_file_split_view&&) = default;
 
       void init (std::function<file_selected> action,
                  std::function<fs::filter_fn> file_filter = nullptr,
@@ -380,9 +400,9 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     template<typename T, bool open_dirs_on_right>
-    class path_open_dialog_base : public standard_dialog<dir_file_view<T, open_dirs_on_right>> {
+    class path_open_dialog_base : public standard_dialog<dir_file_split_view<T, open_dirs_on_right>> {
     public:
-      typedef standard_dialog<dir_file_view<T, open_dirs_on_right>> super;
+      typedef standard_dialog<dir_file_split_view<T, open_dirs_on_right>> super;
       typedef std::function<create_subdirectory> create_subdirectory_fn;
 
       path_open_dialog_base (create_subdirectory_fn fn = nullptr);
@@ -412,9 +432,9 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT file_save_dialog :
-        public standard_dialog<dir_file_view<>, 30> {
+        public standard_dialog<win::group_window<layout::split_layout<alignment_t::top, 30>>> {
     public:
-      typedef standard_dialog<dir_file_view<>, 30> super;
+      typedef standard_dialog<win::group_window<layout::split_layout<alignment_t::top, 30>>> super;
       typedef win::group_window<layout::border::layouter<4, 4, 120, 4>> top_view_type;
       typedef std::function<create_subdirectory> create_subdirectory_fn;
 
@@ -442,6 +462,7 @@ namespace gui {
                         std::function<fs::filter_fn> dir_filter = nullptr,
                         create_subdirectory_fn fn = show_default_create_subdirectory_dialog);
 
+      dir_file_split_view<> dir_file_view;
       top_view_type top_view;
       basic_edit<std::string,
                  default_converter<std::string>,

@@ -19,6 +19,10 @@ function(DebugPrint MSG)
   endif()
 endfunction(DebugPrint)
 
+function(MessagePrint MSG)
+  message(STATUS "${MSG}")
+endfunction(MessagePrint)
+
 function(guipp_target_suffix RESULT)
   if (GUIPP_USE_QT6)
     set(TARGET_SUFFIX "-qt6")
@@ -158,6 +162,7 @@ function(define_guipp_subpackage TARGET)
                         POSITION_INDEPENDENT_CODE ON
                         FOLDER libraries
                         LIBRARY_OUTPUT_NAME ${TARGET_NAME}
+                        ARCHIVE_OUTPUT_NAME ${TARGET_NAME}
                         PREFIX ${ARG_PREFIX}
                         VERSION ${ARG_VERSION}
                         SOVERSION ${ARG_VERSION_MAJOR}

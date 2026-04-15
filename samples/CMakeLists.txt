@@ -49,7 +49,7 @@ endif()
 
 # add the binary tree to the search path for include files
 # so that we will find Version.h
-include_directories(${GUIPP_INCLUDE_DIRS} ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+include_directories(${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR} ${GUIPP_INCLUDE_DIRS})
 
 add_definitions(${GUIPP_CXX_FLAGS})
 

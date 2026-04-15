@@ -37,24 +37,36 @@ if(NOT "${CMAKE_CXX_STANDARD}")
   set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard")
 endif()
 
+# Generale build setting
 option(GUIPP_BUILD_STATIC_MODULE_LIBS "On to build a static library for each submodule, Off to build shared libraries. Default Off" OFF)
 option(GUIPP_BUILD_SHARED_MODULE_LIBS "On to build a shared library for each submodule, Off to build static libraries. default Off" ON)
 option(GUIPP_CONFIG_INSTALL "On to configure installation, Off to build as part of a project. Default Off" ON)
-option(GUIPP_BUILD_FOR_MOBILE "On to optimize for smartphone, Off to optimize for dekstop. Default Off" OFF)
 option(GUIPP_BUILD_DEPENDENT_LIBS "On to build dependent libs logging, util and testlib.  Default Off" OFF)
+# Front-end Settings
+option(GUIPP_USE_QT5 "On to make use of the Qt5 library. Default Off" OFF)
+option(GUIPP_USE_QT6 "On to make use of the Qt6 library. Default Off" OFF)
+option(GUIPP_USE_SDL "On to make use of the SDL library. Default Off" OFF)
+option(GUIPP_USE_X11 "On to make use of the X11 library. Default on Linux" OFF)
+option(GUIPP_USE_GDI "On to make use of the GDI32 library. Default on Windows" OFF)
+option(GUIPP_USE_JS  "On to make use of the Emscripten-JS Bridge. Default for Emscripten" OFF)
+# X11 Front-end specific settings
 option(GUIPP_USE_XCB "On to make use of the xcb library. Default On" ON)
 option(GUIPP_DONT_USE_XCB "On to NOT use of the xcb library. Default Off" OFF)
 option(GUIPP_USE_XSHM "On to make use of the xshm library. Default On" ON)
 option(GUIPP_DONT_USE_XSHM "On to NOT use of the xshm library. Default Off" OFF)
-option(GUIPP_USE_QT5 "On to make use of the Qt5 library. Default Off" OFF)
-option(GUIPP_USE_QT6 "On to make use of the Qt6 library. Default Off" OFF)
-option(GUIPP_USE_SDL "On to make use of the SDL library. Default Off" OFF)
 option(GUIPP_DONT_USE_XFT "On to NOT use of the xft library. Default Off" OFF)
+# Look'n Feel Settings
+option(GUIPP_BUILD_FOR_MOBILE "On to optimize for smartphone, Off to optimize for dekstop. Default Off" OFF)
 option(GUIPP_LOOK_AND_FEEL_APPLE "Use Apple L&F. Default automatic" OFF)
 option(GUIPP_LOOK_AND_FEEL_WIN32 "Use Windows 10 L&F. Default automatic" OFF)
 option(GUIPP_LOOK_AND_FEEL_UNIX "Use Gnome L&F. Default automatic" OFF)
 option(GUIPP_LOOK_AND_FEEL_W95 "Use Windows 95 L&F. Default automatic" OFF)
 option(GUIPP_POPUP_OVERLAPP "Show Popupmenus and Dialogs as floating overlapped windows. Default automatic" ON)
+# Target Systems
+# Linux
+# Windows (native or mingw)
+# Emscripten
+
 option(VERBOSE "Print messages during cmake run" OFF)
 set(GUIPP_CXX_STANDARD ${CMAKE_CXX_STANDARD} CACHE STRING "C++ standard to overwrite default cmake standard")
 if(NOT "${GUIPP_CXX_STANDARD}")
@@ -112,6 +124,7 @@ if(GUIPP_BUILD_SHARED_MODULE_LIBS OR GUIPP_BUILD_STATIC_MODULE_LIBS)
 endif()
 
 if(EMSCRIPTEN)
+  # Emscripten dos not search on CMAKE_PREFIX_PATH !(?)
   set(logging_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/logging)
   set(util_DIR ${CMAKE_PREFIX_PATH}/lib/cmake/util)
 endif()
@@ -199,6 +212,8 @@ if(NOT TARGET guipp)
         -DGUIPP_LOOK_AND_FEEL_WIN32
         ${SDL2_LDFLAGS}
         ${SDL2_TTF_LDFLAGS})
+
+    set(LINKED_LIBRARIES ${LINKED_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2_GFX_LIBRARIES})
 
   elseif(GUIPP_USE_QT6)
     DebugPrint("GUIPP: build with Qt6!")
@@ -463,7 +478,7 @@ if(NOT TARGET guipp)
     set(GUIPP_APP_LIBRARIES guipp::app ${GUIPP_LIBRARIES})
   endif()
 
-  include_directories(${GUIPP_INCLUDE_DIRS} ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+  include_directories(${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR} ${GUIPP_INCLUDE_DIRS})
 
   add_subdirectory(core)
   add_subdirectory(win)

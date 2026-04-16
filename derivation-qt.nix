@@ -4,7 +4,7 @@
 
 stdenv.mkDerivation rec {
   pname = "guipp-qt";
-  version = "1.6.2";
+  version = "1.8.0";
 
   src = ./.;
 
